@@ -1,4 +1,4 @@
-package com.qodein.qode.ui.theme
+package com.qodein.core.designsystem.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

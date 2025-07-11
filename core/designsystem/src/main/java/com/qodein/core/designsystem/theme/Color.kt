@@ -1,4 +1,4 @@
-package com.qodein.qode.ui.theme
+package com.qodein.core.designsystem.theme
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF8F4C34)
