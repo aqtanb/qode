@@ -291,11 +291,13 @@ private fun DesignSystemShowcase() {
             ComponentGroup("Input Chips") {
                 QodeChip(
                     label = "Kaspi Bank",
+                    onClick = {}, // ADD THIS
                     variant = QodeChipVariant.Input,
                     onClose = {},
                 )
                 QodeChip(
                     label = "Magnum",
+                    onClick = {}, // ADD THIS
                     variant = QodeChipVariant.Input,
                     leadingIcon = Icons.Default.ShoppingCart,
                     onClose = {},

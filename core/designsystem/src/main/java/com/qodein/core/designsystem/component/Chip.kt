@@ -1,370 +1,231 @@
 package com.qodein.core.designsystem.component
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeBorder
-import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 
 /**
- * Chip variants for Qode design system
+ * Chip variants for different use cases
  */
 enum class QodeChipVariant {
     Filter, // For filtering content
-    Suggestion, // For suggestions/recommendations
-    Input, // For user inputs (e.g., tags)
-    Action // For actionable chips
+    Choice, // For single selection
+    Input, // For user input/tags
+    Action, // For triggering actions
+    Suggestion // For suggestions/recommendations
 }
 
 /**
- * Chip size options
+ * Chip sizes
  */
 enum class QodeChipSize {
     Small,
-    Medium
+    Medium,
+    Large
 }
 
 /**
- * Production-ready chip component for Qode design system
+ * Qode themed chip component
  *
- * @param onClick Called when the chip is clicked (null for non-interactive chips)
+ * @param label Text to display on the chip
+ * @param onClick Called when the chip is clicked
  * @param modifier Modifier to be applied to the chip
- * @param variant The variant of the chip
- * @param size The size of the chip
- * @param selected Whether the chip is selected (for Filter variant)
+ * @param selected Whether the chip is selected/active
  * @param enabled Whether the chip is enabled
- * @param label The text label of the chip
- * @param leadingIcon Optional leading icon
- * @param trailingIcon Optional trailing icon (ignored if onClose is provided)
- * @param onClose Called when close icon is clicked (shows close icon when provided)
- * @param shape The shape of the chip
- * @param contentDescription Accessibility description
+ * @param variant Visual variant of the chip
+ * @param size Size variant of the chip
+ * @param leadingIcon Optional icon to display before the label
+ * @param trailingIcon Optional icon to display after the label
+ * @param onClose Called when close button is clicked (shows close icon when provided)
  */
 @Composable
 fun QodeChip(
+    label: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    variant: QodeChipVariant = QodeChipVariant.Filter,
-    size: QodeChipSize = QodeChipSize.Medium,
     selected: Boolean = false,
     enabled: Boolean = true,
-    label: String,
+    variant: QodeChipVariant = QodeChipVariant.Filter,
+    size: QodeChipSize = QodeChipSize.Medium,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    onClose: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(QodeCorners.sm),
-    contentDescription: String? = null
+    onClose: (() -> Unit)? = null
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled && onClick != null) 0.96f else 1f,
-        animationSpec = tween(durationMillis = QodeAnimation.FAST),
-        label = "chip_scale",
-    )
-
-    // Height and padding based on size
-    val chipHeight = when (size) {
-        QodeChipSize.Small -> QodeSize.chipHeightSmall
-        QodeChipSize.Medium -> QodeSize.chipHeight
-    }
-
-    val horizontalPadding = when (size) {
-        QodeChipSize.Small -> QodeSpacing.sm
-        QodeChipSize.Medium -> QodeSpacing.md
-    }
-
-    val textStyle = when (size) {
-        QodeChipSize.Small -> MaterialTheme.typography.labelSmall
-        QodeChipSize.Medium -> MaterialTheme.typography.labelMedium
-    }
-
-    val iconSize = when (size) {
-        QodeChipSize.Small -> 14.dp
-        QodeChipSize.Medium -> 18.dp
-    }
-
-    // Colors based on variant and state
-    val containerColor by animateColorAsState(
-        targetValue = when {
-            !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-            variant == QodeChipVariant.Filter && selected -> MaterialTheme.colorScheme.primary
-            variant == QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.secondaryContainer
-            variant == QodeChipVariant.Input -> MaterialTheme.colorScheme.surfaceVariant
-            variant == QodeChipVariant.Action -> MaterialTheme.colorScheme.primaryContainer
-            else -> Color.Transparent
-        },
-        animationSpec = tween(durationMillis = QodeAnimation.MEDIUM),
-        label = "container_color",
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = when {
-            !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            variant == QodeChipVariant.Filter && selected -> MaterialTheme.colorScheme.onPrimary
-            variant == QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.onSecondaryContainer
-            variant == QodeChipVariant.Input -> MaterialTheme.colorScheme.onSurfaceVariant
-            variant == QodeChipVariant.Action -> MaterialTheme.colorScheme.onPrimaryContainer
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        animationSpec = tween(durationMillis = QodeAnimation.MEDIUM),
-        label = "content_color",
-    )
-
-    val borderColor = when {
-        !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-        variant == QodeChipVariant.Filter && !selected -> MaterialTheme.colorScheme.outline
-        else -> Color.Transparent
-    }
-
-    // Determine if chip should have a border
-    val showBorder = variant == QodeChipVariant.Filter && !selected
-
-    Surface(
-        onClick = onClick ?: {},
-        modifier = modifier
-            .height(chipHeight)
-            .scale(scale)
-            .semantics {
-                role = Role.Button
-                contentDescription?.let { this.contentDescription = it }
-            },
-        enabled = enabled && onClick != null,
-        shape = shape,
-        color = containerColor,
-        border = if (showBorder) {
-            BorderStroke(QodeBorder.thin, borderColor)
-        } else {
-            null
-        },
-        interactionSource = interactionSource,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = horizontalPadding),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Leading icon or checkmark for selected filter chips
-            when {
-                variant == QodeChipVariant.Filter && selected -> {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize),
-                        tint = contentColor,
-                    )
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
-                }
-                leadingIcon != null -> {
-                    Icon(
-                        imageVector = leadingIcon,
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize),
-                        tint = contentColor,
-                    )
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
-                }
-            }
-
-            // Label
+    FilterChip(
+        onClick = onClick,
+        label = {
             Text(
                 text = label,
-                style = textStyle,
-                color = contentColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                style = when (size) {
+                    QodeChipSize.Small -> MaterialTheme.typography.labelSmall
+                    QodeChipSize.Medium -> MaterialTheme.typography.labelMedium
+                    QodeChipSize.Large -> MaterialTheme.typography.labelLarge
+                },
             )
-
-            // Trailing icon or close button
-            when {
-                onClose != null -> {
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+        },
+        selected = selected,
+        enabled = enabled,
+        modifier = modifier,
+        leadingIcon = leadingIcon?.let { icon ->
+            {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(
+                        when (size) {
+                            QodeChipSize.Small -> 14.dp
+                            QodeChipSize.Medium -> 18.dp
+                            QodeChipSize.Large -> 20.dp
+                        },
+                    ),
+                )
+            }
+        },
+        trailingIcon = when {
+            onClose != null -> {
+                {
                     IconButton(
                         onClick = onClose,
-                        modifier = Modifier.size(iconSize),
-                        enabled = enabled,
+                        modifier = Modifier.size(
+                            when (size) {
+                                QodeChipSize.Small -> 16.dp
+                                QodeChipSize.Medium -> 20.dp
+                                QodeChipSize.Large -> 24.dp
+                            },
+                        ),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Remove",
-                            modifier = Modifier.size(iconSize - 2.dp),
-                            tint = contentColor,
+                            modifier = Modifier.size(
+                                when (size) {
+                                    QodeChipSize.Small -> 12.dp
+                                    QodeChipSize.Medium -> 16.dp
+                                    QodeChipSize.Large -> 18.dp
+                                },
+                            ),
                         )
                     }
                 }
-                trailingIcon != null -> {
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+            }
+            trailingIcon != null -> {
+                {
                     Icon(
                         imageVector = trailingIcon,
                         contentDescription = null,
-                        modifier = Modifier.size(iconSize),
-                        tint = contentColor,
+                        modifier = Modifier.size(
+                            when (size) {
+                                QodeChipSize.Small -> 14.dp
+                                QodeChipSize.Medium -> 18.dp
+                                QodeChipSize.Large -> 20.dp
+                            },
+                        ),
                     )
                 }
             }
-        }
-    }
-}
-
-/**
- * A group of chips for easy layout
- */
-@Composable
-fun QodeChipGroup(
-    modifier: Modifier = Modifier,
-    spacing: androidx.compose.ui.unit.Dp = QodeSpacing.sm,
-    content: @Composable () -> Unit
-) {
-    @OptIn(ExperimentalLayoutApi::class)
-    FlowRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(spacing),
-        verticalArrangement = Arrangement.spacedBy(spacing),
-    ) {
-        content()
-    }
+            else -> null
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = when (variant) {
+                QodeChipVariant.Filter -> MaterialTheme.colorScheme.surface
+                QodeChipVariant.Choice -> MaterialTheme.colorScheme.surface
+                QodeChipVariant.Input -> MaterialTheme.colorScheme.surfaceVariant
+                QodeChipVariant.Action -> MaterialTheme.colorScheme.primaryContainer
+                QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.secondaryContainer
+            },
+            labelColor = when (variant) {
+                QodeChipVariant.Action -> MaterialTheme.colorScheme.onPrimaryContainer
+                QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.onSecondaryContainer
+                else -> MaterialTheme.colorScheme.onSurface
+            },
+            selectedContainerColor = when (variant) {
+                QodeChipVariant.Action -> MaterialTheme.colorScheme.primary
+                QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.secondary
+                else -> MaterialTheme.colorScheme.secondaryContainer
+            },
+            selectedLabelColor = when (variant) {
+                QodeChipVariant.Action -> MaterialTheme.colorScheme.onPrimary
+                QodeChipVariant.Suggestion -> MaterialTheme.colorScheme.onSecondary
+                else -> MaterialTheme.colorScheme.onSecondaryContainer
+            },
+        ),
+        border = if (!selected && variant == QodeChipVariant.Filter) {
+            BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+            )
+        } else {
+            null
+        },
+    )
 }
 
 // Previews
-@Preview(name = "Chip Variants", showBackground = true, backgroundColor = 0xFFF5F5F5)
+@Preview(name = "Chip Variants", showBackground = true)
 @Composable
 private fun QodeChipVariantsPreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
         ) {
-            // Filter chips
-            Text("Filter Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "All",
-                    variant = QodeChipVariant.Filter,
-                    selected = true,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Electronics",
-                    variant = QodeChipVariant.Filter,
-                    selected = false,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Fashion",
-                    variant = QodeChipVariant.Filter,
-                    selected = false,
-                    onClick = {},
-                    enabled = false,
-                )
-            }
+            QodeChip(
+                label = "Filter Chip",
+                onClick = {},
+                variant = QodeChipVariant.Filter,
+                leadingIcon = QodeIcons.PromoCode,
+            )
 
-            // Suggestion chips
-            Text("Suggestion Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "Popular",
-                    variant = QodeChipVariant.Suggestion,
-                    leadingIcon = Icons.Default.Star,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "New",
-                    variant = QodeChipVariant.Suggestion,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Trending",
-                    variant = QodeChipVariant.Suggestion,
-                    trailingIcon = Icons.Default.KeyboardArrowUp,
-                    onClick = {},
-                )
-            }
+            QodeChip(
+                label = "Selected Filter",
+                onClick = {},
+                selected = true,
+                variant = QodeChipVariant.Filter,
+                leadingIcon = QodeIcons.Verified,
+            )
 
-            // Input chips
-            Text("Input Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "Kaspi",
-                    variant = QodeChipVariant.Input,
-                    onClose = {},
-                )
-                QodeChip(
-                    label = "Arbuz",
-                    variant = QodeChipVariant.Input,
-                    onClose = {},
-                )
-                QodeChip(
-                    label = "Magnum",
-                    variant = QodeChipVariant.Input,
-                    leadingIcon = Icons.Default.ShoppingCart,
-                    onClose = {},
-                )
-            }
+            QodeChip(
+                label = "Action Chip",
+                onClick = {},
+                variant = QodeChipVariant.Action,
+                leadingIcon = QodeIcons.Follow,
+            )
 
-            // Action chips
-            Text("Action Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "Share",
-                    variant = QodeChipVariant.Action,
-                    leadingIcon = Icons.Default.Share,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Copy Code",
-                    variant = QodeChipVariant.Action,
-                    leadingIcon = Icons.Default.Edit,
-                    onClick = {},
-                )
-            }
+            QodeChip(
+                label = "Choice Chip",
+                onClick = {},
+                variant = QodeChipVariant.Choice,
+                selected = true,
+            )
+
+            QodeChip(
+                label = "Input with Close",
+                onClick = {},
+                variant = QodeChipVariant.Input,
+                onClose = {},
+            )
+
+            QodeChip(
+                label = "Suggestion Chip",
+                onClick = {},
+                variant = QodeChipVariant.Suggestion,
+                leadingIcon = QodeIcons.Trending,
+            )
         }
     }
 }
@@ -373,87 +234,30 @@ private fun QodeChipVariantsPreview() {
 @Composable
 private fun QodeChipSizesPreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
         ) {
-            Text("Small Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "Small",
-                    size = QodeChipSize.Small,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "With Icon",
-                    size = QodeChipSize.Small,
-                    leadingIcon = Icons.Default.Star,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Closeable",
-                    size = QodeChipSize.Small,
-                    variant = QodeChipVariant.Input,
-                    onClose = {},
-                )
-            }
-
-            Text("Medium Chips", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
-                QodeChip(
-                    label = "Medium",
-                    size = QodeChipSize.Medium,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "With Icon",
-                    size = QodeChipSize.Medium,
-                    leadingIcon = Icons.Default.Star,
-                    onClick = {},
-                )
-                QodeChip(
-                    label = "Closeable",
-                    size = QodeChipSize.Medium,
-                    variant = QodeChipVariant.Input,
-                    onClose = {},
-                )
-            }
-        }
-    }
-}
-
-@Preview(name = "Chip Group", showBackground = true)
-@Composable
-private fun QodeChipGroupPreview() {
-    QodeTheme {
-        val categories = listOf(
-            "All" to true,
-            "Food & Drinks" to false,
-            "Electronics" to false,
-            "Fashion" to false,
-            "Beauty" to false,
-            "Sports" to false,
-            "Home & Garden" to false,
-            "Travel" to false,
-        )
-
-        Column(modifier = Modifier.padding(QodeSpacing.md)) {
-            Text(
-                "Categories",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = QodeSpacing.sm),
+            QodeChip(
+                label = "Small Chip",
+                onClick = {},
+                size = QodeChipSize.Small,
+                leadingIcon = QodeIcons.Store,
             )
 
-            QodeChipGroup {
-                categories.forEach { (category, selected) ->
-                    QodeChip(
-                        label = category,
-                        variant = QodeChipVariant.Filter,
-                        selected = selected,
-                        onClick = {},
-                    )
-                }
-            }
+            QodeChip(
+                label = "Medium Chip",
+                onClick = {},
+                size = QodeChipSize.Medium,
+                leadingIcon = QodeIcons.Store,
+            )
+
+            QodeChip(
+                label = "Large Chip",
+                onClick = {},
+                size = QodeChipSize.Large,
+                leadingIcon = QodeIcons.Store,
+            )
         }
     }
 }
