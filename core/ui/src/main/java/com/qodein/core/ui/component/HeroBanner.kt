@@ -44,7 +44,8 @@ import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -215,7 +216,7 @@ private fun HeroBannerCard(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Icon(
-                                        imageVector = QodeIcons.Verified,
+                                        imageVector = QodeStatusIcons.Verified,
                                         contentDescription = "Verified",
                                         tint = Color.White,
                                         modifier = Modifier.size(16.dp),
@@ -372,19 +373,19 @@ fun StatsBanner(
                 StatItem(
                     value = totalCodes.toString(),
                     label = "Promo Codes",
-                    icon = QodeIcons.PromoCode,
+                    icon = QodeCommerceIcons.PromoCode,
                 )
 
                 StatItem(
                     value = "${activeUsers}K",
                     label = "Active Users",
-                    icon = QodeIcons.Store,
+                    icon = QodeCommerceIcons.Store,
                 )
 
                 StatItem(
                     value = totalSavings,
                     label = "Total Savings",
-                    icon = QodeIcons.Money,
+                    icon = QodeCommerceIcons.Dollar,
                 )
             }
         }

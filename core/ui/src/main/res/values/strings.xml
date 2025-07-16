@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phone Input Component -->
+    <string name="phone_number">Phone Number</string>
+    <string name="enter_phone_number">Enter your phone number</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
+    <string name="phone_number_required">Phone number is required</string>
+    <string name="phone_number_too_short">Phone number is too short</string>
+    <string name="phone_number_too_long">Phone number is too long</string>
+    <string name="phone_number_invalid_format">Please enter a valid phone number</string>
+
+    <!-- Common Input States -->
+    <string name="field_required">This field is required</string>
+    <string name="field_invalid">Invalid input</string>
+    <string name="field_success">Valid input</string>
+
+    <!-- Accessibility -->
+    <string name="country_picker_description">Select country code</string>
+    <string name="phone_input_description">Enter phone number</string>
+
+    <!-- Validation Messages -->
+    <string name="validation_phone_required">Phone number is required</string>
+    <string name="validation_phone_too_short">Phone number is too short</string>
+    <string name="validation_phone_too_long">Phone number is too long</string>
+    <string name="validation_phone_invalid">Please enter a valid phone number</string>
+
+    <!-- Additional validation strings -->
+    <string name="validation_phone_min_length">Phone number must be at least 7 digits</string>
+    <string name="validation_phone_max_length">Phone number must be less than 16 digits</string>
+</resources>

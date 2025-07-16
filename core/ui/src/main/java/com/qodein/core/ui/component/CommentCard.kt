@@ -53,7 +53,7 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
@@ -232,9 +232,9 @@ fun CommentCard(
                     ) {
                         Icon(
                             imageVector = if (comment.isUpvoted) {
-                                QodeIcons.ThumbUp
+                                QodeActionIcons.Thumbs
                             } else {
-                                QodeIcons.ThumbUpOutlined
+                                QodeActionIcons.Thumbs
                             },
                             contentDescription = "Upvote",
                             tint = if (comment.isUpvoted) {

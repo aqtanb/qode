@@ -43,7 +43,8 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeIconButton
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
@@ -190,7 +191,7 @@ private fun StoreHeader(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = QodeIcons.Store,
+                        imageVector = QodeCommerceIcons.Store,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(24.dp),
@@ -253,7 +254,7 @@ private fun PromoCodeSection(
 
             QodeIconButton(
                 onClick = onCopyClick,
-                icon = QodeIcons.CopyCode,
+                icon = QodeActionIcons.Copy,
                 contentDescription = "Copy promo code",
                 variant = QodeButtonVariant.Outlined,
                 size = QodeButtonSize.Small,
@@ -289,7 +290,7 @@ private fun DiscountInfo(
         horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
     ) {
         Icon(
-            imageVector = QodeIcons.Discount,
+            imageVector = QodeCommerceIcons.Discount,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp),
@@ -441,7 +442,7 @@ private fun FooterSection(
                 },
             ) {
                 Icon(
-                    imageVector = if (isUpvoted) QodeIcons.ThumbUp else QodeIcons.ThumbUpOutlined,
+                    imageVector = if (isUpvoted) QodeActionIcons.Thumbs else QodeActionIcons.Thumbs,
                     contentDescription = "Upvote",
                     tint = if (isUpvoted) {
                         MaterialTheme.colorScheme.primary

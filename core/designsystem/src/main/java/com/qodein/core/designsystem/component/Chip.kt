@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 
 /**
@@ -188,7 +190,7 @@ private fun QodeChipVariantsPreview() {
                 label = "Filter Chip",
                 onClick = {},
                 variant = QodeChipVariant.Filter,
-                leadingIcon = QodeIcons.PromoCode,
+                leadingIcon = QodeCommerceIcons.PromoCode,
             )
 
             QodeChip(
@@ -196,14 +198,14 @@ private fun QodeChipVariantsPreview() {
                 onClick = {},
                 selected = true,
                 variant = QodeChipVariant.Filter,
-                leadingIcon = QodeIcons.Verified,
+                leadingIcon = QodeStatusIcons.Verified,
             )
 
             QodeChip(
                 label = "Action Chip",
                 onClick = {},
                 variant = QodeChipVariant.Action,
-                leadingIcon = QodeIcons.Follow,
+                leadingIcon = QodeActionIcons.Follow,
             )
 
             QodeChip(
@@ -224,7 +226,7 @@ private fun QodeChipVariantsPreview() {
                 label = "Suggestion Chip",
                 onClick = {},
                 variant = QodeChipVariant.Suggestion,
-                leadingIcon = QodeIcons.Trending,
+                leadingIcon = QodeStatusIcons.Trending,
             )
         }
     }
@@ -242,21 +244,21 @@ private fun QodeChipSizesPreview() {
                 label = "Small Chip",
                 onClick = {},
                 size = QodeChipSize.Small,
-                leadingIcon = QodeIcons.Store,
+                leadingIcon = QodeCommerceIcons.Store,
             )
 
             QodeChip(
                 label = "Medium Chip",
                 onClick = {},
                 size = QodeChipSize.Medium,
-                leadingIcon = QodeIcons.Store,
+                leadingIcon = QodeCommerceIcons.Store,
             )
 
             QodeChip(
                 label = "Large Chip",
                 onClick = {},
                 size = QodeChipSize.Large,
-                leadingIcon = QodeIcons.Store,
+                leadingIcon = QodeCommerceIcons.Store,
             )
         }
     }

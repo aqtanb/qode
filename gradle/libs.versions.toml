@@ -1,44 +1,140 @@
 [versions]
+# Build Tools & SDK
 agp = "8.11.1"
 kotlin = "2.2.0"
+
+# AndroidX Core
 coreKtx = "1.16.0"
+lifecycleRuntimeKtx = "2.9.1"
+activityCompose = "1.10.1"
+appcompat = "1.7.1"
+
+# Compose
+composeBom = "2025.06.01"
+
+# Material Design
+material = "1.12.0"
+
+# Icons
+compose-icons = "1.1.1"
+
+# Icon Pack Guide:
+# - feather: Clean, minimal icons (recommended for UI)
+# - tabler-icons: Modern, consistent design (great for apps)
+# - font-awesome: Comprehensive icon set (large bundle)
+# - simple-icons: Brand icons (social media, companies)
+# - octicons: GitHub-style icons
+# Usage: Icon(imageVector = FeatherIcons.Home)
+
+# Country Code Picker (for auth)
+cmp-country-code-picker = "1.0.0"
+
+# Code Quality
+spotless = "6.25.0"
+
+# Testing
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.9.1"
-activityCompose = "1.10.1"
-composeBom = "2025.06.01"
-materialPullRefresh = "1.0.0-alpha20"
-octicons = "1.1.0"
-spotless = "6.25.0"
-appcompat = "1.7.1"
-material = "1.12.0"
 
 [libraries]
+# AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-
-androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+# Compose BOM (manages all Compose library versions)
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+
+# Compose UI (versions managed by BOM)
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
+
+# Compose Material
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Material Design (View system)
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-octicons = { module = "br.com.devsrsouza.compose.icons.android:octicons", version.ref = "octicons" }
+
+# Icons (Multiple icon packs available)
+compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "compose-icons" }
+compose-icons-tabler = { group = "br.com.devsrsouza.compose.icons", name = "tabler-icons", version.ref = "compose-icons" }
+compose-icons-font-awesome = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "compose-icons" }
+compose-icons-simple = { group = "br.com.devsrsouza.compose.icons", name = "simple-icons", version.ref = "compose-icons" }
+compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "octicons", version.ref = "compose-icons" }
+
+# Country Code Picker (Auth components)
+cmp-country-code-picker = { group = "network.chaintech", name = "cmp-country-code-picker", version.ref = "cmp-country-code-picker" }
+
+# Testing - Unit
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+# Testing - Android
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
+# Debug Tools
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+[bundles]
+# Core Android dependencies
+androidx-core = [
+    "androidx-core-ktx",
+    "androidx-lifecycle-runtime-ktx",
+    "androidx-activity-compose",
+]
+
+# Compose UI essentials
+compose-ui = [
+    "androidx-ui",
+    "androidx-ui-graphics",
+    "androidx-ui-tooling-preview",
+]
+
+# Material Design
+material-design = [
+    "androidx-material3",
+    "androidx-compose-material-icons-extended",
+    "material",
+]
+
+# Icons
+icons = [
+    "compose-icons-feather",     # Clean, minimal icons
+    "compose-icons-tabler",      # Modern, consistent design
+    "compose-icons-font-awesome", # Comprehensive icon set (large)
+    "compose-icons-simple",       # Brand icons
+    "compose-icons-octicons",     # GitHub icons
+]
+
+# Testing suite
+testing = [
+    "junit",
+    "androidx-junit",
+    "androidx-espresso-core",
+    "androidx-ui-test-junit4",
+]
+
+# Debug tools
+debug-tools = [
+    "androidx-ui-tooling",
+    "androidx-ui-test-manifest",
+]
 
 [plugins]
+# Android
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+# Kotlin
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# Code Quality
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-android-library = { id = "com.android.library", version.ref = "agp" }

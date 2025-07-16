@@ -54,7 +54,8 @@ import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeListCard
 import com.qodein.core.designsystem.component.QodeSectionHeader
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
@@ -258,19 +259,19 @@ private fun UserStatsRow(
             StatItem(
                 value = submittedCodes,
                 label = "Codes",
-                icon = QodeIcons.PromoCode,
+                icon = QodeCommerceIcons.PromoCode,
             )
 
             StatItem(
                 value = totalUpvotes,
                 label = "Upvotes",
-                icon = QodeIcons.ThumbUp,
+                icon = QodeActionIcons.Thumbs,
             )
 
             StatItem(
                 value = followedStores,
                 label = "Stores",
-                icon = QodeIcons.Store,
+                icon = QodeCommerceIcons.Store,
             )
 
             StatItem(
@@ -492,7 +493,7 @@ private fun ActivityItem(
         is UserActivity.SubmittedCode -> {
             val code = activity.promoCode
             Tuple4(
-                QodeIcons.PromoCode,
+                QodeCommerceIcons.PromoCode,
                 "Submitted \"${code.title}\"",
                 "New promo code for ${code.store.name}",
                 activity.timestamp,
@@ -501,14 +502,14 @@ private fun ActivityItem(
         is UserActivity.UpvotedCode -> {
             val code = activity.promoCode
             Tuple4(
-                QodeIcons.ThumbUp,
+                QodeActionIcons.Thumbs,
                 "Upvoted \"${code.title}\"",
                 "Helped verify this code",
                 activity.timestamp,
             )
         }
         is UserActivity.FollowedStore -> Tuple4(
-            QodeIcons.Follow,
+            QodeActionIcons.Follow,
             "Followed ${activity.storeName}",
             "Started following store",
             activity.timestamp,

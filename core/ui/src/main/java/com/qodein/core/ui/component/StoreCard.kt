@@ -27,7 +27,7 @@ import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -72,7 +72,7 @@ fun StoreCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = QodeIcons.Store,
+                        imageVector = QodeCommerceIcons.Store,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(32.dp),
@@ -166,7 +166,7 @@ fun CompactStoreCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = QodeIcons.Store,
+                        imageVector = QodeCommerceIcons.Store,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(24.dp),
@@ -199,7 +199,7 @@ fun CompactStoreCard(
 
             // Arrow indicator
             Icon(
-                imageVector = QodeIcons.Store, // TODO: Use arrow icon
+                imageVector = QodeCommerceIcons.Store, // TODO: Use arrow icon
                 contentDescription = "View store",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp),
@@ -235,7 +235,7 @@ fun GridStoreCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = QodeIcons.Store,
+                        imageVector = QodeCommerceIcons.Store,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(36.dp),

@@ -58,7 +58,7 @@ import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.component.QodeTextFieldState
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -333,7 +333,7 @@ private fun StoreSelector(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = QodeIcons.Store,
+                                        imageVector = QodeCommerceIcons.Store,
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp),
                                     )

@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
@@ -532,7 +532,7 @@ private fun StatsCardPreview() {
                     label = "Total Codes",
                     change = "+15.2% this month",
                     changeType = ChangeType.Positive,
-                    icon = QodeIcons.PromoCode,
+                    icon = QodeCommerceIcons.PromoCode,
                     color = MaterialTheme.colorScheme.primary,
                 ),
                 StatData(
@@ -607,7 +607,7 @@ private fun StatsCardPreview() {
                 current = 78,
                 target = 100,
                 unit = "codes",
-                icon = QodeIcons.PromoCode,
+                icon = QodeCommerceIcons.PromoCode,
                 color = MaterialTheme.colorScheme.primary,
             )
 
