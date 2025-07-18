@@ -1,4 +1,4 @@
-package com.example.home
+package com.qodein.feature.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.home.components.BannerCarousel
-import com.example.home.components.PromoCarousel
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.feature.home.components.BannerCarousel
+import com.qodein.feature.home.components.PromoCarousel
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
@@ -37,7 +37,24 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         )
 
         PromoCarousel(
-            promos = listOf("1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"),
+            promos = listOf(
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+            ),
         )
     }
 }

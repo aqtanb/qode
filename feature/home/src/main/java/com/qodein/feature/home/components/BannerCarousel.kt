@@ -1,4 +1,4 @@
-package com.example.home.components
+package com.qodein.feature.home.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background

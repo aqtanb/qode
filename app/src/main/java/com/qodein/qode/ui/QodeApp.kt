@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.home.HomeScreen
 import com.qodein.core.designsystem.component.QodeBottomNavigation
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
@@ -28,6 +27,7 @@ import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeSearchTopAppBar
 import com.qodein.core.designsystem.theme.QodeSpacing
+import com.qodein.feature.home.HomeScreen
 
 @Composable
 fun QodeApp(
