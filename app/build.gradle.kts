@@ -55,4 +55,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.androidx.ui.text.google.fonts)
+
+    // feature dependencies
+    implementation(projects.feature.home)
 }
