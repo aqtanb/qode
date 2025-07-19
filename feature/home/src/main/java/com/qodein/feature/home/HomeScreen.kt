@@ -1,64 +1,64 @@
 package com.qodein.feature.home
 
-import androidx.compose.foundation.layout.Column
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.feature.home.components.BannerCarousel
-import com.qodein.feature.home.components.PromoCarousel
+import com.qodein.core.ui.component.HeroBanner
+import com.qodein.core.ui.component.PromoCodeCard
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    Column(
+    LazyColumn(
         modifier = modifier
-            .padding()
-            .verticalScroll(rememberScrollState()),
+            .padding(),
     ) {
-        Spacer(
-            modifier = Modifier
-                .height(QodeSpacing.sm),
-        )
+        item {
+            Spacer(
+                modifier = Modifier
+                    .height(QodeSpacing.sm),
+            )
+        }
 
-        BannerCarousel(
-            banners = listOf("advertisement", "advertisement", "advertisement"),
-            onBannerClick = { },
-        )
+        item {
+            HeroBanner(
+                items = getSampleBannerItems(),
+                onItemClick = {},
+            )
+        }
 
-        Spacer(
-            modifier = Modifier
-                .height(QodeSpacing.md),
-        )
+        item {
+            Spacer(
+                modifier = Modifier
+                    .height(QodeSpacing.md),
+            )
+        }
 
-        PromoCarousel(
-            promos = listOf(
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-            ),
-        )
+        val samplePromoCodes = getSamplePromoCodes()
+
+        items(samplePromoCodes, key = { it.id }) { promoCode ->
+            PromoCodeCard(
+                promoCode = promoCode,
+                onCardClick = {},
+                onUpvoteClick = {},
+                onFollowStoreClick = {},
+                onCopyCodeClick = {},
+                isLoggedIn = true,
+            )
+        }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomeScreenPreview() {
