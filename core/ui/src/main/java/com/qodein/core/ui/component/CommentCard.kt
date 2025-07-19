@@ -515,8 +515,8 @@ private fun formatTimeAgo(dateTime: LocalDateTime): String {
 }
 
 // Sample data for preview
-private fun getSampleComments(): List<Comment> {
-    return listOf(
+private fun getSampleComments(): List<Comment> =
+    listOf(
         Comment(
             id = "1",
             promoCodeId = "promo1",
@@ -559,7 +559,6 @@ private fun getSampleComments(): List<Comment> {
             createdAt = LocalDateTime.now().minusHours(6),
         ),
     )
-}
 
 // Preview
 @Preview(name = "CommentCard", showBackground = true)

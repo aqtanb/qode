@@ -629,8 +629,8 @@ private fun TrendingItem(
 }
 
 // Sample data for preview
-private fun getSampleFollowedStores(): List<Store> {
-    return listOf(
+private fun getSampleFollowedStores(): List<Store> =
+    listOf(
         Store(
             id = "kaspi",
             name = "Kaspi Bank",
@@ -653,10 +653,9 @@ private fun getSampleFollowedStores(): List<Store> {
             isFollowed = true,
         ),
     )
-}
 
-private fun getSampleFollowedCategories(): List<Category> {
-    return listOf(
+private fun getSampleFollowedCategories(): List<Category> =
+    listOf(
         Category(
             id = "electronics",
             name = "Electronics",
@@ -672,7 +671,6 @@ private fun getSampleFollowedCategories(): List<Category> {
             isFollowed = true,
         ),
     )
-}
 
 // Preview
 @Preview(name = "FollowingScreen", showBackground = true)

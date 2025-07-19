@@ -338,16 +338,11 @@ private fun RoadmapItemCard(
 /**
  * Data class for roadmap items
  */
-data class RoadmapItem(
-    val title: String,
-    val description: String,
-    val estimatedQuarter: String? = null,
-    val isInProgress: Boolean = false
-)
+data class RoadmapItem(val title: String, val description: String, val estimatedQuarter: String? = null, val isInProgress: Boolean = false)
 
 // Sample roadmap data
-private fun getSampleRoadmap(): List<RoadmapItem> {
-    return listOf(
+private fun getSampleRoadmap(): List<RoadmapItem> =
+    listOf(
         RoadmapItem(
             title = "Push Notifications",
             description = "Get notified when new codes are added for your favorite stores",
@@ -376,7 +371,6 @@ private fun getSampleRoadmap(): List<RoadmapItem> {
             estimatedQuarter = "Q3 2025",
         ),
     )
-}
 
 // Preview
 @Preview(name = "ComingSoon Components", showBackground = true)

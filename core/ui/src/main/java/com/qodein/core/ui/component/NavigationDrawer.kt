@@ -328,8 +328,8 @@ private fun DrawerMenuItemCard(
 /**
  * Get main menu items
  */
-private fun getMainMenuItems(): List<DrawerMenuItem> {
-    return listOf(
+private fun getMainMenuItems(): List<DrawerMenuItem> =
+    listOf(
         DrawerMenuItem(
             id = "categories",
             title = "Categories",
@@ -370,13 +370,12 @@ private fun getMainMenuItems(): List<DrawerMenuItem> {
             isPremium = true,
         ),
     )
-}
 
 /**
  * Get secondary menu items
  */
-private fun getSecondaryMenuItems(): List<DrawerMenuItem> {
-    return listOf(
+private fun getSecondaryMenuItems(): List<DrawerMenuItem> =
+    listOf(
         DrawerMenuItem(
             id = "settings",
             title = "Settings",
@@ -396,7 +395,6 @@ private fun getSecondaryMenuItems(): List<DrawerMenuItem> {
             icon = Icons.Default.Info,
         ),
     )
-}
 
 /**
  * Compact navigation drawer for smaller screens
@@ -478,8 +476,8 @@ fun CompactNavigationDrawer(
 }
 
 // Sample data for preview
-private fun getSampleUser(): User {
-    return User(
+private fun getSampleUser(): User =
+    User(
         id = "user123",
         username = "AkezhanB",
         email = "akezhan@example.com",
@@ -489,7 +487,6 @@ private fun getSampleUser(): User {
         followedCategories = listOf("electronics", "food"),
         joinedAt = LocalDateTime.now().minusMonths(3),
     )
-}
 
 // Preview
 @Preview(name = "NavigationDrawer", showBackground = true)

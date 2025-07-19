@@ -192,8 +192,8 @@ fun CombinedFilters(
     }
 }
 
-private fun getSampleCategories(): List<Category> {
-    return listOf(
+private fun getSampleCategories(): List<Category> =
+    listOf(
         Category(id = "electronics", name = "Electronics", icon = Icons.Default.ElectricBolt, followersCount = 2500),
         Category(id = "fashion", name = "Fashion", icon = Icons.Default.Face, followersCount = 1800),
         Category(id = "food", name = "Food & Drinks", icon = Icons.Default.LocalDining, followersCount = 3200),
@@ -202,7 +202,6 @@ private fun getSampleCategories(): List<Category> {
         Category(id = "home", name = "Home & Garden", icon = Icons.Default.Home, followersCount = 420),
         Category(id = "books", name = "Books", icon = Icons.AutoMirrored.Filled.MenuBook, followersCount = 280),
     )
-}
 
 @Preview(name = "CategoryFilter Components", showBackground = true)
 @Composable

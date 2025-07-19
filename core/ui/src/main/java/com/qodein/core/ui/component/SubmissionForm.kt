@@ -90,10 +90,7 @@ data class PromoCodeSubmission(
 /**
  * Form validation state
  */
-data class FormValidation(
-    val isValid: Boolean,
-    val errors: Map<String, String> = emptyMap()
-)
+data class FormValidation(val isValid: Boolean, val errors: Map<String, String> = emptyMap())
 
 /**
  * PromoCode submission form component
@@ -871,8 +868,8 @@ private fun validateForm(formData: PromoCodeSubmission): FormValidation {
 }
 
 // Sample data for preview
-private fun getSampleStores(): List<Store> {
-    return listOf(
+private fun getSampleStores(): List<Store> =
+    listOf(
         Store(
             id = "kaspi",
             name = "Kaspi Bank",
@@ -892,10 +889,9 @@ private fun getSampleStores(): List<Store> {
             followersCount = 12100,
         ),
     )
-}
 
-private fun getSampleCategories(): List<Category> {
-    return listOf(
+private fun getSampleCategories(): List<Category> =
+    listOf(
         Category(
             id = "electronics",
             name = "Electronics",
@@ -915,7 +911,6 @@ private fun getSampleCategories(): List<Category> {
             followersCount = 2840,
         ),
     )
-}
 
 // Preview
 @Preview(name = "SubmissionForm", showBackground = true)

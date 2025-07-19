@@ -515,9 +515,7 @@ fun StatsGrid(
 }
 
 // Sample data and helper functions
-private fun formatNumber(number: Int): String {
-    return NumberFormat.getNumberInstance(Locale.US).format(number)
-}
+private fun formatNumber(number: Int): String = NumberFormat.getNumberInstance(Locale.US).format(number)
 
 // Preview
 @Preview(name = "StatsCard Components", showBackground = true)
@@ -525,8 +523,8 @@ private fun formatNumber(number: Int): String {
 private fun StatsCardPreview() {
     QodeTheme {
         @Composable
-        fun getSampleStats(): List<StatData> {
-            return listOf(
+        fun getSampleStats(): List<StatData> =
+            listOf(
                 StatData(
                     value = "1,245",
                     label = "Total Codes",
@@ -574,7 +572,6 @@ private fun StatsCardPreview() {
                     color = Color(0xFF607D8B),
                 ),
             )
-        }
 
         Column(
             modifier = Modifier.padding(QodeSpacing.md),

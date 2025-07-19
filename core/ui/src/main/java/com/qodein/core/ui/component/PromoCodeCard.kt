@@ -488,9 +488,7 @@ private fun FooterSection(
 }
 
 // Helper functions
-private fun formatCurrency(amount: Int): String {
-    return "${amount.toString().replace(Regex("(\\d)(?=(\\d{3})+(?!\\d))"), "$1 ")} ₸"
-}
+private fun formatCurrency(amount: Int): String = "${amount.toString().replace(Regex("(\\d)(?=(\\d{3})+(?!\\d))"), "$1 ")} ₸"
 
 private fun formatTimeAgo(dateTime: LocalDateTime): String {
     val now = LocalDateTime.now()

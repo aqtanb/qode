@@ -90,8 +90,4 @@ enum class StoreCategory {
     Other
 }
 
-data class UserPromoCodeUsage(
-    val userId: String,
-    val promoCodeId: String,
-    val usedAt: LocalDateTime
-)
+data class UserPromoCodeUsage(val userId: String, val promoCodeId: String, val usedAt: LocalDateTime)

@@ -238,13 +238,12 @@ object StringFormatter {
         text: String,
         maxLength: Int,
         suffix: String = "..."
-    ): String {
-        return if (text.length <= maxLength) {
+    ): String =
+        if (text.length <= maxLength) {
             text
         } else {
             text.take(maxLength - suffix.length) + suffix
         }
-    }
 
     /**
      * Formats phone numbers for Kazakhstan
@@ -281,8 +280,8 @@ object StringFormatter {
         fieldName: String,
         errorType: ValidationErrorType,
         customMessage: String? = null
-    ): String {
-        return customMessage ?: when (errorType) {
+    ): String =
+        customMessage ?: when (errorType) {
             ValidationErrorType.Required -> "$fieldName is required"
             ValidationErrorType.TooShort -> "$fieldName is too short"
             ValidationErrorType.TooLong -> "$fieldName is too long"
@@ -296,7 +295,6 @@ object StringFormatter {
             ValidationErrorType.DateTooEarly -> "Date cannot be in the past"
             ValidationErrorType.DateTooLate -> "Date is too far in the future"
         }
-    }
 
     /**
      * Formats search query highlighting
@@ -387,16 +385,12 @@ enum class ValidationErrorType {
 fun Int.toCurrency(
     showSymbol: Boolean = true,
     abbreviated: Boolean = false
-): String {
-    return StringFormatter.formatCurrency(this, showSymbol, abbreviated)
-}
+): String = StringFormatter.formatCurrency(this, showSymbol, abbreviated)
 
 /**
  * Extension function for LocalDateTime to format time ago
  */
-fun LocalDateTime.toTimeAgo(showSeconds: Boolean = false): String {
-    return StringFormatter.formatTimeAgo(this, showSeconds)
-}
+fun LocalDateTime.toTimeAgo(showSeconds: Boolean = false): String = StringFormatter.formatTimeAgo(this, showSeconds)
 
 /**
  * Extension function for LocalDate to format date
@@ -404,16 +398,12 @@ fun LocalDateTime.toTimeAgo(showSeconds: Boolean = false): String {
 fun LocalDate.toFormattedString(
     includeYear: Boolean = true,
     abbreviated: Boolean = true
-): String {
-    return StringFormatter.formatDate(this, includeYear, abbreviated)
-}
+): String = StringFormatter.formatDate(this, includeYear, abbreviated)
 
 /**
  * Extension function for LocalDate to format expiry
  */
-fun LocalDate.toExpiryString(): String? {
-    return StringFormatter.formatExpiry(this)
-}
+fun LocalDate.toExpiryString(): String? = StringFormatter.formatExpiry(this)
 
 /**
  * Extension function for String to truncate text
@@ -421,20 +411,14 @@ fun LocalDate.toExpiryString(): String? {
 fun String.truncate(
     maxLength: Int,
     suffix: String = "..."
-): String {
-    return StringFormatter.truncateText(this, maxLength, suffix)
-}
+): String = StringFormatter.truncateText(this, maxLength, suffix)
 
 /**
  * Extension function for String to format phone number
  */
-fun String.toFormattedPhone(): String {
-    return StringFormatter.formatPhoneNumber(this)
-}
+fun String.toFormattedPhone(): String = StringFormatter.formatPhoneNumber(this)
 
 /**
  * Extension function for Long to format file size
  */
-fun Long.toFileSize(): String {
-    return StringFormatter.formatFileSize(this)
-}
+fun Long.toFileSize(): String = StringFormatter.formatFileSize(this)

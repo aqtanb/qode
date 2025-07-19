@@ -85,25 +85,13 @@ data class Achievement(
  * User activity item
  */
 sealed class UserActivity {
-    data class SubmittedCode(
-        val promoCode: PromoCode,
-        val timestamp: java.time.LocalDateTime
-    ) : UserActivity()
+    data class SubmittedCode(val promoCode: PromoCode, val timestamp: java.time.LocalDateTime) : UserActivity()
 
-    data class UpvotedCode(
-        val promoCode: PromoCode,
-        val timestamp: java.time.LocalDateTime
-    ) : UserActivity()
+    data class UpvotedCode(val promoCode: PromoCode, val timestamp: java.time.LocalDateTime) : UserActivity()
 
-    data class FollowedStore(
-        val storeName: String,
-        val timestamp: java.time.LocalDateTime
-    ) : UserActivity()
+    data class FollowedStore(val storeName: String, val timestamp: java.time.LocalDateTime) : UserActivity()
 
-    data class AchievementUnlocked(
-        val achievement: Achievement,
-        val timestamp: java.time.LocalDateTime
-    ) : UserActivity()
+    data class AchievementUnlocked(val achievement: Achievement, val timestamp: java.time.LocalDateTime) : UserActivity()
 }
 
 /**
@@ -545,12 +533,7 @@ private fun ActivityItem(
 }
 
 // Helper class for multiple return values
-private data class Tuple4<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)
+private data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
 
 /**
  * User level and progress component
@@ -604,8 +587,8 @@ fun UserLevelProgress(
 }
 
 // Sample data for previews
-private fun getSampleAchievements(): List<Achievement> {
-    return listOf(
+private fun getSampleAchievements(): List<Achievement> =
+    listOf(
         Achievement(
             id = "first_code",
             title = "First Code",
@@ -643,7 +626,6 @@ private fun getSampleAchievements(): List<Achievement> {
             progress = 0.4f,
         ),
     )
-}
 
 private fun getSampleActivities(): List<UserActivity> {
     val sampleCode = PreviewData.samplePromoCodes[0]
