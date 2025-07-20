@@ -1,8 +1,7 @@
-package com.qodein.feature.auth
-
-import org.junit.Test
+package com.qodein.feature.home
 
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).

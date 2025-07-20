@@ -1,7 +1,5 @@
 package com.qodein.feature.home
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +13,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.component.HeroBanner
 import com.qodein.core.ui.component.PromoCodeCard
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     LazyColumn(
@@ -58,7 +55,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomeScreenPreview() {

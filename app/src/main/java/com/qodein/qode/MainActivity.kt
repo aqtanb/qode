@@ -7,8 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.Modifier
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.qode.ui.QodeApp
-import com.qodein.qode.ui.QodeAppState
+import com.qodein.qode.ui.rememberQodeAppSTate
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             QodeTheme {
                 QodeApp(
-                    appState = QodeAppState(),
+                    appState = rememberQodeAppSTate(),
                     onTopBarActionClick = { },
                     modifier = Modifier,
                 )

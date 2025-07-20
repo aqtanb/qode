@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Qode</string>
+
+    <string name="catalog_title">Catalog</string>
+    <string name="history_title">History\n</string>
+    <string name="more_title">More</string>
 </resources>

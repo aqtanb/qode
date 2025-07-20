@@ -25,5 +25,5 @@ rootProject.name = "qode"
 include(":app")
 include(":core:designsystem")
 include(":core:ui")
-include(":feature:home")
 include(":feature:auth")
+include(":feature:home")

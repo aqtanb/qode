@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.navigation"
+    namespace = "com.example.home"
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 29
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
