@@ -17,7 +17,6 @@ import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodePrimaryGradient
 import com.qodein.core.designsystem.theme.QodeSpacing
-import com.qodein.core.ui.component.QodePhoneInput
 
 @Composable
 fun AuthScreen(modifier: Modifier = Modifier) {
@@ -57,11 +56,6 @@ fun AuthScreen(modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = modifier
                         .padding(top = QodeSpacing.lg),
-                )
-                QodePhoneInput(
-                    phoneNumber = "",
-                    onPhoneNumberChange = {},
-                    modifier = modifier.padding(bottom = QodeSpacing.lg),
                 )
             }
         }
