@@ -22,7 +22,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -63,7 +63,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     // Image picker
-    implementation(libs.image.picker)
+    // implementation(libs.image.picker)
 
     // Testing
     testImplementation(libs.junit)

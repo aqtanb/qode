@@ -29,6 +29,7 @@ compose-icons = "1.1.1"
 
 # Country Code Picker (for auth)
 cmp-country-code-picker = "1.0.1"
+xmaterial-ccp = "2.17"
 
 # Code Quality
 spotless = "7.1.0"
@@ -99,6 +100,7 @@ compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "oc
 
 # Country Code Picker (Auth components)
 cmp-country-code-picker = { group = "network.chaintech", name = "cmp-country-code-picker", version.ref = "cmp-country-code-picker" }
+xmaterial-ccp = { group = "com.github.TuleSimon", name = "xMaterialccp", version.ref = "xmaterial-ccp" }
 
 # Image picker
 image-picker = { group = "com.github.dhaval2404", name = "imagepicker", version.ref = "imagePicker" }
