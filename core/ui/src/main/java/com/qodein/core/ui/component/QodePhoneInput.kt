@@ -1,328 +1,219 @@
 package com.qodein.core.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.theme.QodeBorder
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.R
-import network.chaintech.cmpcountrycodepicker.model.CountryDetails
-import network.chaintech.cmpcountrycodepicker.ui.CountryPickerBasicTextField
 
 /**
- * Phone input state for validation
+ * Simple country data for Kazakhstan-focused app
  */
-sealed class QodePhoneInputState {
-    object Default : QodePhoneInputState()
-    object Success : QodePhoneInputState()
-    data class Error(val message: String) : QodePhoneInputState()
-}
+data class QodeCountry(val code: String, val name: String, val phoneCode: String, val flag: String)
 
 /**
- * Beautiful phone input component using CMPCountryCodePicker library
- * Fully integrates with Qode Material 3 theme system
- *
- * @param phoneNumber Current phone number value
- * @param onPhoneNumberChange Callback when phone number changes
- * @param modifier Modifier for styling
- * @param defaultCountryCode Default country code (ISO 2-letter code)
- * @param onCountrySelected Callback when country is selected
- * @param label Optional label text
- * @param placeholder Optional placeholder text
- * @param state Current validation state
- * @param enabled Whether input is enabled
- * @param readOnly Whether input is read-only
- * @param visualTransformation Visual transformation for input
- * @param onDone Callback when done button is pressed
+ * Pre-defined countries for Kazakhstan market
  */
-@Composable
-fun QodePhoneInput(
-    phoneNumber: String,
-    onPhoneNumberChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    defaultCountryCode: String = "kz", // Kazakhstan by default
-    onCountrySelected: (CountryDetails) -> Unit = {},
-    label: String? = null,
-    placeholder: String? = null,
-    state: QodePhoneInputState = QodePhoneInputState.Default,
-    enabled: Boolean = true,
-    readOnly: Boolean = false,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    onDone: () -> Unit = {}
-) {
-    Column(modifier = modifier) {
-        CountryPickerBasicTextField(
-            mobileNumber = phoneNumber,
-            defaultCountryCode = defaultCountryCode,
-            onMobileNumberChange = onPhoneNumberChange,
-            onCountrySelected = onCountrySelected,
-            modifier = Modifier.fillMaxWidth(),
-            defaultPaddingValues = PaddingValues(QodeSpacing.md),
-            showCountryFlag = true,
-            showCountryPhoneCode = true,
-            showCountryName = false,
-            showCountryCode = false,
-            showArrowDropDown = true,
-            spaceAfterCountryFlag = QodeSpacing.sm,
-            spaceAfterCountryPhoneCode = QodeSpacing.sm,
-            countryFlagSize = 24.dp,
-            showVerticalDivider = true,
-            spaceAfterVerticalDivider = QodeSpacing.sm,
-            verticalDividerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-            verticalDividerHeight = 20.dp,
-            countryPhoneCodeTextStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-            ),
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-            ),
-            label = label?.let { labelText ->
-                {
-                    Text(
-                        text = labelText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = when (state) {
-                            is QodePhoneInputState.Error -> MaterialTheme.colorScheme.error
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
-            },
-            placeholder = placeholder?.let { placeholderText ->
-                {
-                    Text(
-                        text = placeholderText,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    )
-                }
-            },
-            supportingText = if (state is QodePhoneInputState.Error) {
-                {
-                    Text(
-                        text = state.message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            } else {
-                null
-            },
-            isError = state is QodePhoneInputState.Error,
-            visualTransformation = visualTransformation,
-            singleLine = true,
-            shape = RoundedCornerShape(QodeCorners.md),
-            colors = when (state) {
-                is QodePhoneInputState.Error -> OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.error,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.error,
-                    errorBorderColor = MaterialTheme.colorScheme.error,
-                    focusedContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
-                    errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
-                    focusedLabelColor = MaterialTheme.colorScheme.error,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.error,
-                    errorLabelColor = MaterialTheme.colorScheme.error,
-                    cursorColor = MaterialTheme.colorScheme.error,
-                    errorCursorColor = MaterialTheme.colorScheme.error,
-                )
-                is QodePhoneInputState.Success -> OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.05f),
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.tertiary,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                )
-                else -> OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                )
-            },
-            focusedBorderThickness = QodeBorder.medium,
-            unfocusedBorderThickness = QodeBorder.thin,
-            onDone = onDone,
-        )
-    }
-}
+private val qodeCountries = listOf(
+    QodeCountry("KZ", "Kazakhstan", "+7", "🇰🇿"),
+    QodeCountry("RU", "Russia", "+7", "🇷🇺"),
+    QodeCountry("US", "United States", "+1", "🇺🇸"),
+    QodeCountry("GB", "United Kingdom", "+44", "🇬🇧"),
+    QodeCountry("DE", "Germany", "+49", "🇩🇪"),
+    QodeCountry("FR", "France", "+33", "🇫🇷"),
+    QodeCountry("CN", "China", "+86", "🇨🇳"),
+    QodeCountry("IN", "India", "+91", "🇮🇳"),
+    QodeCountry("TR", "Turkey", "+90", "🇹🇷"),
+    QodeCountry("UZ", "Uzbekistan", "+998", "🇺🇿"),
+    QodeCountry("KG", "Kyrgyzstan", "+996", "🇰🇬"),
+    QodeCountry("TJ", "Tajikistan", "+992", "🇹🇯"),
+    QodeCountry("TM", "Turkmenistan", "+993", "🇹🇲"),
+)
 
 /**
- * Simplified phone input for quick usage with default strings
+ * 🇰🇿 Simple, reliable phone input for Kazakhstan
+ * No crashes, works everywhere!
  */
 @Composable
 fun QodePhoneInputSimple(
     phoneNumber: String,
     onPhoneNumberChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onDone: () -> Unit = {}
+    onCountrySelected: (QodeCountry) -> Unit = {},
+    defaultCountryCode: String = "KZ",
+    label: String = stringResource(R.string.phone_number),
+    placeholder: String = stringResource(R.string.enter_phone_number),
+    isError: Boolean = false,
+    errorMessage: String? = null
 ) {
-    QodePhoneInput(
-        phoneNumber = phoneNumber,
-        onPhoneNumberChange = onPhoneNumberChange,
-        modifier = modifier,
-        defaultCountryCode = "kz", // Kazakhstan default
-        onCountrySelected = { /* No-op for simple version */ },
-        label = stringResource(R.string.phone_number),
-        placeholder = stringResource(R.string.enter_phone_number),
-        onDone = onDone,
-    )
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCountry by remember {
+        mutableStateOf(
+            qodeCountries.find { it.code == defaultCountryCode } ?: qodeCountries.first(),
+        )
+    }
+
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = phoneNumber,
+            onValueChange = onPhoneNumberChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(label) },
+            placeholder = { Text(placeholder) },
+            isError = isError,
+            supportingText = if (isError && errorMessage != null) {
+                { Text(errorMessage, color = MaterialTheme.colorScheme.error) }
+            } else {
+                null
+            },
+            leadingIcon = {
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .clickable { expanded = true }
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            text = selectedCountry.flag,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            text = selectedCountry.phoneCode,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Icon(
+                            Icons.Default.ArrowDropDown,
+                            contentDescription = "Select country",
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        qodeCountries.forEach { country ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        Text(
+                                            text = country.flag,
+                                            style = MaterialTheme.typography.titleMedium,
+                                        )
+                                        Text(
+                                            text = "${country.name} ${country.phoneCode}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    selectedCountry = country
+                                    expanded = false
+                                    onCountrySelected(country)
+                                },
+                            )
+                        }
+                    }
+                }
+            },
+            shape = RoundedCornerShape(12.dp),
+        )
+    }
 }
 
 /**
- * Phone input with validation state management
+ * Phone input with validation
  */
 @Composable
 fun QodePhoneInputWithValidation(
     phoneNumber: String,
     onPhoneNumberChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = stringResource(R.string.phone_number),
-    placeholder: String = stringResource(R.string.enter_phone_number),
-    isRequired: Boolean = true,
     onValidationChange: (Boolean) -> Unit = {},
-    onDone: () -> Unit = {}
+    onCountrySelected: (QodeCountry) -> Unit = {}
 ) {
-    // String resources for validation messages
-    val requiredMessage = stringResource(R.string.validation_phone_required)
-    val tooShortMessage = stringResource(R.string.validation_phone_too_short)
-    val tooLongMessage = stringResource(R.string.validation_phone_too_long)
-
-    // Simple validation logic using string resources
-    val validationState = remember(phoneNumber) {
+    val (isError, errorMessage) = remember(phoneNumber) {
         when {
-            phoneNumber.isEmpty() && isRequired -> QodePhoneInputState.Error(requiredMessage)
-            phoneNumber.isNotEmpty() && phoneNumber.length < 7 -> QodePhoneInputState.Error(tooShortMessage)
-            phoneNumber.length > 15 -> QodePhoneInputState.Error(tooLongMessage)
-            phoneNumber.isNotEmpty() && phoneNumber.length >= 7 -> QodePhoneInputState.Success
-            else -> QodePhoneInputState.Default
+            phoneNumber.isEmpty() -> false to null
+            phoneNumber.length < 6 -> true to "Phone number too short"
+            phoneNumber.length > 15 -> true to "Phone number too long"
+            else -> false to null
         }
     }
 
-    // Fixed: Use LaunchedEffect for side effects instead of remember
-    LaunchedEffect(validationState) {
-        onValidationChange(validationState is QodePhoneInputState.Success)
+    remember(isError) {
+        onValidationChange(!isError && phoneNumber.isNotEmpty())
+        null
     }
 
-    QodePhoneInput(
+    QodePhoneInputSimple(
         phoneNumber = phoneNumber,
         onPhoneNumberChange = onPhoneNumberChange,
         modifier = modifier,
-        defaultCountryCode = "kz",
-        onCountrySelected = { /* No-op, validation doesn't need country selection */ },
-        label = label,
-        placeholder = placeholder,
-        state = validationState,
-        onDone = onDone,
+        onCountrySelected = onCountrySelected,
+        isError = isError,
+        errorMessage = errorMessage,
     )
-}
-
-// Previews
-@Preview(name = "Phone Input States", showBackground = true)
-@Composable
-private fun QodePhoneInputPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
-        ) {
-            var phoneNumber1 by remember { mutableStateOf("") }
-            QodePhoneInput(
-                phoneNumber = phoneNumber1,
-                onPhoneNumberChange = { phoneNumber1 = it },
-                label = stringResource(R.string.phone_number),
-                placeholder = stringResource(R.string.enter_phone_number),
-                state = QodePhoneInputState.Default,
-            )
-
-            var phoneNumber2 by remember { mutableStateOf("7771234567") }
-            QodePhoneInput(
-                phoneNumber = phoneNumber2,
-                onPhoneNumberChange = { phoneNumber2 = it },
-                label = stringResource(R.string.phone_number),
-                state = QodePhoneInputState.Success,
-            )
-
-            var phoneNumber3 by remember { mutableStateOf("123") }
-            QodePhoneInput(
-                phoneNumber = phoneNumber3,
-                onPhoneNumberChange = { phoneNumber3 = it },
-                label = stringResource(R.string.phone_number),
-                state = QodePhoneInputState.Error(stringResource(R.string.invalid_phone_number)),
-            )
-
-            var phoneNumber4 by remember { mutableStateOf("7771234567") }
-            QodePhoneInput(
-                phoneNumber = phoneNumber4,
-                onPhoneNumberChange = { phoneNumber4 = it },
-                label = stringResource(R.string.phone_number),
-                enabled = false,
-            )
-        }
-    }
 }
 
 @Preview(name = "Simple Phone Input", showBackground = true)
 @Composable
 private fun QodePhoneInputSimplePreview() {
     QodeTheme {
-        var phoneNumber by remember { mutableStateOf("") }
-
-        QodePhoneInputSimple(
-            phoneNumber = phoneNumber,
-            onPhoneNumberChange = { phoneNumber = it },
-            modifier = Modifier.padding(QodeSpacing.md),
-        )
-    }
-}
-
-@Preview(name = "Phone Input with Validation", showBackground = true)
-@Composable
-private fun QodePhoneInputWithValidationPreview() {
-    QodeTheme {
-        var phoneNumber by remember { mutableStateOf("") }
-        var isValid by remember { mutableStateOf(false) }
-
         Column(
             modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
         ) {
-            QodePhoneInputWithValidation(
-                phoneNumber = phoneNumber,
-                onPhoneNumberChange = { phoneNumber = it },
-                onValidationChange = { isValid = it },
+            var phoneNumber1 by remember { mutableStateOf("") }
+            QodePhoneInputSimple(
+                phoneNumber = phoneNumber1,
+                onPhoneNumberChange = { phoneNumber1 = it },
             )
 
-            Text(
-                text = "Valid: $isValid",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            var phoneNumber2 by remember { mutableStateOf("123") }
+            QodePhoneInputSimple(
+                phoneNumber = phoneNumber2,
+                onPhoneNumberChange = { phoneNumber2 = it },
+                isError = true,
+                errorMessage = "Too short",
+            )
+
+            var phoneNumber3 by remember { mutableStateOf("") }
+            QodePhoneInputWithValidation(
+                phoneNumber = phoneNumber3,
+                onPhoneNumberChange = { phoneNumber3 = it },
             )
         }
     }

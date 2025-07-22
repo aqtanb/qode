@@ -27,4 +27,13 @@
     <!-- Additional validation strings -->
     <string name="validation_phone_min_length">Phone number must be at least 7 digits</string>
     <string name="validation_phone_max_length">Phone number must be less than 16 digits</string>
+
+    <string name="phone_number_hint">Enter phone number</string>
+    <string name="phone_verify_button">Verify Phone</string>
+    <string name="invalid_phone_error">Please enter a valid phone number</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="select_country">Select Country</string>
+    <string name="ccp_demo_title">Country Code Picker Demo</string>
+    <string name="phone_validation_success">Phone number is valid!</string>
+    <string name="full_phone_debug">Full Phone: %1$s (%2$s)</string>
 </resources>

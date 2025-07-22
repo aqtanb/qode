@@ -57,7 +57,11 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
 
     // Country Code Picker - For phone auth
-    implementation(libs.cmp.country.code.picker)
+    implementation(libs.cmp.country.code.picker) {
+        exclude(group = "androidx.compose.material3")
+        exclude(module = "material3")
+    }
+    implementation(libs.xmaterial.ccp)
 
     // Core Android
     implementation(libs.androidx.core.ktx)
@@ -70,6 +74,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
     // Debug
-    debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
