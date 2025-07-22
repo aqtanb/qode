@@ -5,7 +5,6 @@ import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.Store
 
-
 sealed interface CatalogAction {
     // search
     data class SearchQueryChanged(val query: String) : CatalogAction
