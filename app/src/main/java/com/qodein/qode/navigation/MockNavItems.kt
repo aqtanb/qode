@@ -17,12 +17,6 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-object CatalogBaseRoute
-
-@Serializable
-object CatalogRoute
-
-@Serializable
 object HistoryBaseRoute
 
 @Serializable
@@ -33,42 +27,6 @@ object MoreBaseRoute
 
 @Serializable
 object MoreRoute
-
-@Composable
-fun CatalogScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = "🔍 Catalog Screen",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = "Browse and search promo codes",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-    }
-}
-
-fun NavController.navigateToCatalog() {
-    navigate(CatalogRoute)
-}
-
-fun NavGraphBuilder.catalogSection() {
-    composable<CatalogBaseRoute> {
-        CatalogScreen()
-    }
-    composable<CatalogRoute> {
-        CatalogScreen()
-    }
-}
 
 @Composable
 fun HistoryScreen(modifier: Modifier = Modifier) {

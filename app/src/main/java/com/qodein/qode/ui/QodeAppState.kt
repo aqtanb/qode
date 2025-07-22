@@ -48,7 +48,7 @@ class QodeAppState(val navController: NavHostController) {
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         val routeInstance = when (topLevelDestination) {
             TopLevelDestination.HOME -> com.qodein.feature.home.navigation.HomeBaseRoute
-            TopLevelDestination.CATALOG -> com.qodein.qode.navigation.CatalogBaseRoute
+            TopLevelDestination.CATALOG -> com.qodein.feature.catalog.navigation.CatalogBaseRoute
             TopLevelDestination.HISTORY -> com.qodein.qode.navigation.HistoryBaseRoute
             TopLevelDestination.MORE -> com.qodein.qode.navigation.MoreBaseRoute
         }
@@ -59,6 +59,36 @@ class QodeAppState(val navController: NavHostController) {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }
+        }
+    }
+
+    /**
+     * Navigate to catalog with specific filters
+     */
+    fun navigateToCatalogWithFilter(
+        categoryId: String? = null,
+        storeId: String? = null,
+        searchQuery: String? = null
+    ) {
+        navController.navigate(
+            com.qodein.feature.catalog.navigation.CatalogWithFilterRoute(
+                categoryId = categoryId,
+                storeId = storeId,
+                searchQuery = searchQuery,
+            ),
+        ) {
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    /**
+     * Navigate to catalog from other screens
+     */
+    fun navigateToCatalog() {
+        navController.navigate(com.qodein.feature.catalog.navigation.CatalogRoute) {
+            launchSingleTop = true
+            restoreState = true
         }
     }
 }
