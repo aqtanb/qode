@@ -4,10 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.ui.Modifier
-import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.qode.ui.QodeApp
-import com.qodein.qode.ui.rememberQodeAppSTate
+import com.qodein.feature.auth.AuthScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,13 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            QodeTheme {
-                QodeApp(
-                    appState = rememberQodeAppSTate(),
-                    onTopBarActionClick = { },
-                    modifier = Modifier,
-                )
-            }
+            AuthScreen()
         }
     }
 }

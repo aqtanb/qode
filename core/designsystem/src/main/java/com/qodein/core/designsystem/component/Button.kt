@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -43,8 +45,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
@@ -374,6 +379,191 @@ fun QodeIconButton(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Text button styles for Qode design system
+ */
+enum class QodeTextButtonStyle {
+    Primary,
+    Secondary,
+    Tertiary
+}
+
+/**
+ * Text-only button component
+ */
+@Composable
+fun QodeTextButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    style: QodeTextButtonStyle = QodeTextButtonStyle.Primary,
+    showUnderline: Boolean = false
+) {
+    val (textColor, textStyle) = when (style) {
+        QodeTextButtonStyle.Primary -> Pair(
+            if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium,
+                textDecoration = if (showUnderline) TextDecoration.Underline else null,
+            ),
+        )
+        QodeTextButtonStyle.Secondary -> Pair(
+            if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            MaterialTheme.typography.bodyMedium.copy(
+                textDecoration = if (showUnderline) TextDecoration.Underline else null,
+            ),
+        )
+        QodeTextButtonStyle.Tertiary -> Pair(
+            if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            MaterialTheme.typography.bodySmall.copy(
+                textDecoration = if (showUnderline) TextDecoration.Underline else null,
+            ),
+        )
+    }
+
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        contentPadding = PaddingValues(
+            horizontal = QodeSpacing.sm,
+            vertical = QodeSpacing.xs,
+        ),
+    ) {
+        Text(
+            text = text,
+            style = textStyle,
+            color = textColor,
+        )
+    }
+}
+
+/**
+ * Google Sign-In button component
+ */
+@Composable
+fun QodeGoogleSignInButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    text: String = "Continue with Google"
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
+        shape = RoundedCornerShape(QodeCorners.md),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline,
+        ),
+        contentPadding = PaddingValues(
+            horizontal = QodeSpacing.lg,
+            vertical = QodeSpacing.md,
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 1.dp,
+            disabledElevation = 0.dp,
+        ),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = QodeSocialIcons.Google,
+                contentDescription = "Google logo",
+                modifier = Modifier.size(20.dp),
+                tint = Color.Unspecified,
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                ),
+                modifier = Modifier.weight(1f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+        }
+    }
+}
+
+// MARK: - Previews
+
+@Preview(name = "Text Buttons", showBackground = true)
+@Composable
+private fun QodeTextButtonPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier.padding(QodeSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+        ) {
+            QodeTextButton(
+                text = "Forgot your password?",
+                onClick = {},
+                style = QodeTextButtonStyle.Primary,
+                showUnderline = true,
+            )
+
+            QodeTextButton(
+                text = "Sign up",
+                onClick = {},
+                style = QodeTextButtonStyle.Primary,
+            )
+
+            QodeTextButton(
+                text = "Secondary Button",
+                onClick = {},
+                style = QodeTextButtonStyle.Secondary,
+            )
+
+            QodeTextButton(
+                text = "Terms of Service",
+                onClick = {},
+                style = QodeTextButtonStyle.Tertiary,
+                showUnderline = true,
+            )
+
+            QodeTextButton(
+                text = "Disabled Button",
+                onClick = {},
+                enabled = false,
+            )
+        }
+    }
+}
+
+@Preview(name = "Google Sign In Button", showBackground = true)
+@Composable
+private fun QodeGoogleSignInButtonPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier.padding(QodeSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        ) {
+            QodeGoogleSignInButton(
+                onClick = {},
+                text = "Continue with Google",
+            )
+
+            QodeGoogleSignInButton(
+                onClick = {},
+                enabled = false,
+                text = "Continue with Google (Disabled)",
+            )
         }
     }
 }

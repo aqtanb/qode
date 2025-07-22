@@ -56,11 +56,6 @@ dependencies {
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
-    // Country Code Picker - For phone auth
-    implementation(libs.cmp.country.code.picker) {
-        exclude(group = "androidx.compose.material3")
-        exclude(module = "material3")
-    }
     implementation(libs.xmaterial.ccp)
 
     // Core Android

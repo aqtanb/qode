@@ -36,4 +36,38 @@
     <string name="ccp_demo_title">Country Code Picker Demo</string>
     <string name="phone_validation_success">Phone number is valid!</string>
     <string name="full_phone_debug">Full Phone: %1$s (%2$s)</string>
+
+    <!-- Additional Phone Input strings -->
+    <string name="phone_input_label">Phone Number</string>
+    <string name="phone_input_placeholder">Enter phone number</string>
+    <string name="phone_input_search_placeholder">Search countries</string>
+    <string name="phone_input_recent_countries">Recent</string>
+    <string name="phone_input_all_countries">All Countries</string>
+    <string name="phone_input_clear_number">Clear phone number</string>
+    <string name="phone_input_select_country">Select country</string>
+    <string name="phone_input_country_selected">Country selected: %s</string>
+    <string name="phone_input_too_short">Phone number too short</string>
+    <string name="phone_input_too_long">Phone number too long</string>
+    <string name="phone_input_required">Phone number is required</string>
+    <string name="phone_input_verify_button">Verify Number</string>
+    <string name="phone_input_validating">Validating…</string>
+    <string name="phone_input_valid">Valid number</string>
+    <string name="phone_input_country_auto_detected">Country auto-detected from number</string>
+    <string name="phone_input_paste_detected">Number pasted and formatted</string>
+
+    <!-- Accessibility -->
+    <string name="phone_input_content_desc">Phone number input field</string>
+    <string name="phone_input_flag_content_desc">Country flag for %s</string>
+    <string name="phone_input_dropdown_content_desc">Open country picker</string>
+    <string name="phone_input_clear_content_desc">Clear phone number</string>
+    <string name="phone_input_error_content_desc">Phone number error</string>
+    <string name="phone_input_success_content_desc">Phone number valid</string>
+
+    <!-- Demo/Testing -->
+    <string name="phone_input_demo_title">Phone Input Component</string>
+    <string name="phone_input_demo_subtitle">Production-ready with all features</string>
+    <string name="phone_input_demo_basic">Basic Usage</string>
+    <string name="phone_input_demo_advanced">Advanced Features</string>
+    <string name="phone_input_demo_validation">With Validation</string>
+    <string name="phone_input_demo_custom">Custom Styling</string>
 </resources>

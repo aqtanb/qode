@@ -62,8 +62,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
 
-    // Image picker
-    // implementation(libs.image.picker)
+    // Country Code Picker (needed for QodePhoneInput component)
+    implementation(libs.xmaterial.ccp)
 
     // Testing
     testImplementation(libs.junit)
