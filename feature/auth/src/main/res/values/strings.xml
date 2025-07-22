@@ -62,4 +62,7 @@
     <string name="verification_code_sent">Verification code sent successfully</string>
     <string name="account_created">Account created successfully</string>
     <string name="welcome_back">Welcome back!</string>
+    <string name="terms_first_line">By continuing, you agree to our</string>
+    <string name="and">and</string>
+    <string name="agree_to">By continuing, you agree to our</string>
 </resources>

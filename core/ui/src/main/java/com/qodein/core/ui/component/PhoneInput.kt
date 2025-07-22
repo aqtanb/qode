@@ -83,12 +83,12 @@ fun QodePhoneInput(
                 ) {
                     Text(
                         text = getCountryFlag(selectedCountry?.countryCode ?: "KZ"),
-                        modifier = Modifier.padding(end = QodeSpacing.xs),
+                        modifier = Modifier.padding(horizontal = QodeSpacing.xs),
                     )
                     Text(
                         text = selectedCountry?.countryPhoneCode ?: "+7",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = QodeSpacing.xs),
+                        modifier = Modifier.padding(horizontal = QodeSpacing.xs),
                     )
                     Icon(
                         imageVector = QodeActionIcons.Down,

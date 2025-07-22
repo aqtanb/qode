@@ -487,7 +487,7 @@ fun QodeGoogleSignInButton(
                 imageVector = QodeSocialIcons.Google,
                 contentDescription = "Google logo",
                 modifier = Modifier.size(20.dp),
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.primary,
             )
             Text(
                 text = text,

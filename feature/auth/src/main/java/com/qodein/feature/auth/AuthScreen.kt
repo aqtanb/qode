@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,13 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonSize
@@ -46,7 +41,6 @@ import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.component.PhoneValidationState
 import com.qodein.core.ui.component.QodePhoneInput
-import com.qodein.feature.auth.R
 
 @Composable
 fun AuthScreen(
@@ -54,7 +48,6 @@ fun AuthScreen(
     onSendVerificationCode: (String) -> Unit = {},
     onGoogleSignIn: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
-    onSignUp: () -> Unit = {},
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {}
 ) {
@@ -66,37 +59,36 @@ fun AuthScreen(
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopCenter,
+            contentAlignment = Alignment.Center,
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.SpaceBetween,
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        horizontal = QodeSpacing.lg,
+                        vertical = QodeSpacing.xxxl,
+                    ),
+                verticalArrangement = Arrangement.Center,
             ) {
-                // Main content card
+                // Single card with all content
                 QodeCard(
                     variant = QodeCardVariant.Elevated,
-                    modifier = Modifier
-                        .padding(
-                            top = QodeSpacing.xxxl + QodeSpacing.lg,
-                            start = QodeSpacing.lg,
-                            end = QodeSpacing.lg,
-                        )
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(QodeSpacing.lg)
+                            .padding(QodeSpacing.xl)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
                     ) {
-                        // Logo with purple background
+                        // Logo
                         QodeLogo(
                             size = QodeLogoSize.Large,
                             style = QodeLogoStyle.Default,
-                            backgroundColor = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = QodeSpacing.md),
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.padding(bottom = QodeSpacing.sm),
                         )
 
                         // Title
@@ -106,7 +98,6 @@ fun AuthScreen(
                                 fontWeight = FontWeight.Bold,
                             ),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = QodeSpacing.xs),
                         )
 
                         // Subtitle
@@ -115,31 +106,36 @@ fun AuthScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = QodeSpacing.lg),
+                            modifier = Modifier.padding(bottom = QodeSpacing.sm),
                         )
 
-                        // Phone number label
-                        Text(
-                            text = stringResource(R.string.phone_number_label),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .align(Alignment.Start)
-                                .padding(bottom = QodeSpacing.xs),
-                        )
-
-                        // Phone input
-                        QodePhoneInput(
-                            phoneNumber = phoneNumber,
-                            selectedCountry = null,
-                            validationState = PhoneValidationState.Idle,
-                            onPhoneNumberChange = { phoneNumber = it },
-                            onCountryClick = { /* TODO: Handle country picker */ },
-                            placeholder = "",
+                        // Phone section
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = QodeSpacing.lg),
-                        )
+                                .padding(vertical = QodeSpacing.sm),
+                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                        ) {
+                            // Phone number label with enhanced styling
+                            Text(
+                                text = stringResource(R.string.phone_number_label),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = QodeSpacing.xs),
+                            )
+                            QodePhoneInput(
+                                phoneNumber = phoneNumber,
+                                selectedCountry = null,
+                                validationState = PhoneValidationState.Idle,
+                                onPhoneNumberChange = { phoneNumber = it },
+                                onCountryClick = { /* TODO: Handle country picker */ },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = QodeSpacing.md),
+                            )
+                        }
 
                         // Send verification code button
                         QodeButton(
@@ -148,17 +144,14 @@ fun AuthScreen(
                             variant = QodeButtonVariant.Primary,
                             size = QodeButtonSize.Large,
                             leadingIcon = QodeActionIcons.Send,
-
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = QodeSpacing.lg),
+                            modifier = Modifier.fillMaxWidth().padding(top = QodeSpacing.sm),
                         )
 
                         // Divider with "Or continue with" text
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = QodeSpacing.md),
+                                .padding(vertical = QodeSpacing.lg),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                         ) {
@@ -181,9 +174,7 @@ fun AuthScreen(
                         // Google sign in button
                         QodeGoogleSignInButton(
                             onClick = onGoogleSignIn,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = QodeSpacing.lg),
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         // Forgot password link
@@ -192,78 +183,51 @@ fun AuthScreen(
                             onClick = onForgotPassword,
                             style = QodeTextButtonStyle.Primary,
                             showUnderline = true,
-                            modifier = Modifier.padding(bottom = QodeSpacing.md),
+                            modifier = Modifier.padding(top = QodeSpacing.sm),
                         )
-                    }
-                }
 
-                Spacer(modifier = Modifier.weight(1f))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = QodeSpacing.lg),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+                        ) {
+                            // First line
+                            Text(
+                                text = stringResource(R.string.terms_first_line),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
 
-                // Bottom section
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(QodeSpacing.lg),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    // Sign up text
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.dont_have_account),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.9f),
-                        )
-                        QodeTextButton(
-                            text = stringResource(R.string.sign_up),
-                            onClick = onSignUp,
-                            style = QodeTextButtonStyle.Primary,
-                        )
-                    }
+                            // Second line with clickable links
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                QodeTextButton(
+                                    text = stringResource(R.string.terms_of_service),
+                                    onClick = onTermsClick,
+                                    style = QodeTextButtonStyle.Primary,
+                                    showUnderline = true,
+                                )
 
-                    // Terms and privacy
-                    val termsAndPrivacyText = buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            ),
-                        ) {
-                            append("By continuing, you agree to our ")
-                        }
-                        withStyle(
-                            SpanStyle(
-                                color = Color.White,
-                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            ),
-                        ) {
-                            append(stringResource(R.string.terms_of_service))
-                        }
-                        withStyle(
-                            SpanStyle(
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            ),
-                        ) {
-                            append(" and ")
-                        }
-                        withStyle(
-                            SpanStyle(
-                                color = Color.White,
-                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            ),
-                        ) {
-                            append(stringResource(R.string.privacy_policy))
+                                Text(
+                                    text = " ${stringResource(R.string.and)} ",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+
+                                QodeTextButton(
+                                    text = stringResource(R.string.privacy_policy),
+                                    onClick = onPrivacyClick,
+                                    style = QodeTextButtonStyle.Primary,
+                                    showUnderline = true,
+                                )
+                            }
                         }
                     }
-
-                    Text(
-                        text = termsAndPrivacyText,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = QodeSpacing.md),
-                    )
                 }
             }
         }
