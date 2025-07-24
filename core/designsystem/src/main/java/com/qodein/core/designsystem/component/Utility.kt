@@ -47,6 +47,7 @@ import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 
 /**
  * Custom divider with various styles
@@ -202,7 +203,7 @@ fun QodeBadge(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(QodeCorners.full.dp),
+        shape = RoundedCornerShape(ShapeTokens.Corner.full),
         color = containerColor,
     ) {
         Text(

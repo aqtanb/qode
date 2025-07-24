@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +42,9 @@ import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.component.PhoneValidationState
 import com.qodein.core.ui.component.QodePhoneInput
+import com.simon.xmaterialccp.data.CountryData
+import com.simon.xmaterialccp.data.utils.getDefaultLangCode
+import com.simon.xmaterialccp.data.utils.getLibCountries
 
 @Composable
 fun AuthScreen(
@@ -51,7 +55,19 @@ fun AuthScreen(
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var phoneNumber by remember { mutableStateOf("") }
+
+    // FIXED: Properly manage selected country state
+    var selectedCountry by remember {
+        mutableStateOf<CountryData?>(
+            try {
+                getLibCountries().single { it.countryCode == getDefaultLangCode(context) }
+            } catch (_: Exception) {
+                getLibCountries().find { it.countryCode == "KZ" } ?: getLibCountries().first()
+            },
+        )
+    }
 
     QodeGradientBackground(
         style = QodeGradientStyle.Primary,
@@ -78,7 +94,7 @@ fun AuthScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(QodeSpacing.xl)
+                            .padding(QodeSpacing.md)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
@@ -127,20 +143,25 @@ fun AuthScreen(
                             )
                             QodePhoneInput(
                                 phoneNumber = phoneNumber,
-                                selectedCountry = null,
+                                selectedCountry = selectedCountry, // FIXED: Now uses actual state
                                 validationState = PhoneValidationState.Idle,
                                 onPhoneNumberChange = { phoneNumber = it },
-                                onCountryClick = { /* TODO: Handle country picker */ },
+                                onCountryClick = { country ->
+                                    selectedCountry = country // FIXED: Actually updates the state
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = QodeSpacing.md),
+                                    .padding(bottom = QodeSpacing.sm),
                             )
                         }
 
                         // Send verification code button
                         QodeButton(
                             text = stringResource(R.string.send_verification_code),
-                            onClick = { onSendVerificationCode(phoneNumber) },
+                            onClick = {
+                                val fullPhoneNumber = "${selectedCountry?.countryPhoneCode ?: "+7"}$phoneNumber"
+                                onSendVerificationCode(fullPhoneNumber)
+                            },
                             variant = QodeButtonVariant.Primary,
                             size = QodeButtonSize.Large,
                             leadingIcon = QodeActionIcons.Send,

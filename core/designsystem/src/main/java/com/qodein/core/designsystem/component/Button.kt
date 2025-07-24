@@ -1,7 +1,6 @@
 package com.qodein.core.designsystem.component
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -21,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,17 +45,19 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeSocialIcons
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeBorder
-import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
+import androidx.compose.ui.unit.Dp
+import com.qodein.core.designsystem.theme.AnimationTokens
+import com.qodein.core.designsystem.theme.MotionTokens
+import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Button variants for Qode design system
@@ -77,9 +79,10 @@ enum class QodeButtonSize {
 }
 
 /**
- * Production-ready button component for Qode design system
+ * Production-ready button component using modern design tokens
  *
  * @param onClick Called when the button is clicked
+ * @param text The text to display in the button
  * @param modifier Modifier to be applied to the button
  * @param variant The visual style variant of the button
  * @param size The size of the button
@@ -89,11 +92,11 @@ enum class QodeButtonSize {
  * @param trailingIcon Optional icon to display after the text
  * @param shape The shape of the button
  * @param contentDescription Accessibility description for the button
- * @param text The text to display in the button
  */
 @Composable
 fun QodeButton(
     onClick: () -> Unit,
+    text: String,
     modifier: Modifier = Modifier,
     variant: QodeButtonVariant = QodeButtonVariant.Primary,
     size: QodeButtonSize = QodeButtonSize.Medium,
@@ -101,51 +104,47 @@ fun QodeButton(
     loading: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    shape: Shape = RoundedCornerShape(QodeCorners.md),
-    contentDescription: String? = null,
-    text: String
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+    contentDescription: String? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Animate scale on press
+    // Modern animation using design tokens
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled && !loading) 0.96f else 1f,
-        animationSpec = tween(durationMillis = QodeAnimation.FAST),
+        targetValue = if (isPressed && enabled && !loading) MotionTokens.Scale.PRESSED else 1f,
+        animationSpec = AnimationTokens.Spec.fast,
         label = "button_scale",
     )
 
-    // Height based on size
-    val height = when (size) {
-        QodeButtonSize.Small -> QodeSize.buttonHeightSmall
-        QodeButtonSize.Medium -> QodeSize.buttonHeightMedium
-        QodeButtonSize.Large -> QodeSize.buttonHeightLarge
+    // Consistent sizing using modern tokens
+    val buttonHeight = when (size) {
+        QodeButtonSize.Small -> SizeTokens.Button.heightSmall
+        QodeButtonSize.Medium -> SizeTokens.Button.heightMedium
+        QodeButtonSize.Large -> SizeTokens.Button.heightLarge
     }
 
-    // Padding based on size
     val horizontalPadding = when (size) {
-        QodeButtonSize.Small -> QodeSpacing.md
-        QodeButtonSize.Medium -> QodeSpacing.lg
-        QodeButtonSize.Large -> QodeSpacing.xl
+        QodeButtonSize.Small -> SpacingTokens.Button.horizontalPaddingSmall
+        QodeButtonSize.Medium -> SpacingTokens.Button.horizontalPadding
+        QodeButtonSize.Large -> SpacingTokens.Button.horizontalPaddingLarge
     }
 
-    // Text style based on size
     val textStyle = when (size) {
         QodeButtonSize.Small -> MaterialTheme.typography.labelMedium
         QodeButtonSize.Medium -> MaterialTheme.typography.labelLarge
         QodeButtonSize.Large -> MaterialTheme.typography.titleMedium
     }
 
-    // Icon size based on button size
     val iconSize = when (size) {
-        QodeButtonSize.Small -> QodeSize.iconSmall
-        QodeButtonSize.Medium -> QodeSize.iconMedium
-        QodeButtonSize.Large -> QodeSize.iconMedium
+        QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
+        QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
+        QodeButtonSize.Large -> SizeTokens.Icon.sizeLarge
     }
 
     val buttonModifier = modifier
-        .height(height)
-        .widthIn(min = QodeSize.minButtonWidth, max = QodeSize.maxButtonWidth)
+        .height(buttonHeight)
+        .widthIn(min = SizeTokens.Button.widthMin, max = SizeTokens.Button.widthMax)
         .scale(scale)
         .semantics {
             role = Role.Button
@@ -162,8 +161,8 @@ fun QodeButton(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 contentPadding = PaddingValues(horizontal = horizontalPadding),
                 interactionSource = interactionSource,
@@ -188,8 +187,8 @@ fun QodeButton(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 contentPadding = PaddingValues(horizontal = horizontalPadding),
                 interactionSource = interactionSource,
@@ -213,7 +212,7 @@ fun QodeButton(
                 shape = shape,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 contentPadding = PaddingValues(horizontal = horizontalPadding),
                 interactionSource = interactionSource,
@@ -237,14 +236,14 @@ fun QodeButton(
                 shape = shape,
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 border = BorderStroke(
-                    width = QodeBorder.thin,
+                    width = ShapeTokens.Border.thin,
                     color = if (enabled && !loading) {
                         MaterialTheme.colorScheme.outline
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
                     },
                 ),
                 contentPadding = PaddingValues(horizontal = horizontalPadding),
@@ -264,38 +263,39 @@ fun QodeButton(
 }
 
 /**
- * Icon-only button variant
+ * Icon-only button variant using modern design tokens
  */
 @Composable
 fun QodeIconButton(
     onClick: () -> Unit,
     icon: ImageVector,
+    contentDescription: String,
     modifier: Modifier = Modifier,
     variant: QodeButtonVariant = QodeButtonVariant.Primary,
     size: QodeButtonSize = QodeButtonSize.Medium,
     enabled: Boolean = true,
-    loading: Boolean = false,
-    contentDescription: String
+    loading: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled && !loading) 0.9f else 1f,
-        animationSpec = tween(durationMillis = QodeAnimation.FAST),
+        targetValue = if (isPressed && enabled && !loading) MotionTokens.Scale.ICON_PRESSED else 1f,
+        animationSpec = AnimationTokens.Spec.fast,
         label = "icon_button_scale",
     )
 
+    // Consistent sizing using modern tokens
     val buttonSize = when (size) {
-        QodeButtonSize.Small -> QodeSize.iconButtonSmall
-        QodeButtonSize.Medium -> QodeSize.iconButtonMedium
-        QodeButtonSize.Large -> QodeSize.iconButtonLarge
+        QodeButtonSize.Small -> SizeTokens.IconButton.sizeSmall
+        QodeButtonSize.Medium -> SizeTokens.IconButton.sizeMedium
+        QodeButtonSize.Large -> SizeTokens.IconButton.sizeLarge
     }
 
     val iconSize = when (size) {
-        QodeButtonSize.Small -> QodeSize.iconSmall
-        QodeButtonSize.Medium -> QodeSize.iconMedium
-        QodeButtonSize.Large -> QodeSize.iconLarge
+        QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
+        QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
+        QodeButtonSize.Large -> SizeTokens.Icon.sizeXLarge
     }
 
     val containerColor = when (variant) {
@@ -323,31 +323,25 @@ fun QodeIconButton(
                 enabled = enabled && !loading,
                 colors = IconButtonDefaults.outlinedIconButtonColors(
                     contentColor = contentColor,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 border = BorderStroke(
-                    width = QodeBorder.thin,
+                    width = ShapeTokens.Border.thin,
                     color = if (enabled && !loading) {
                         MaterialTheme.colorScheme.outline
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
                     },
                 ),
                 interactionSource = interactionSource,
             ) {
-                if (loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(iconSize),
-                        strokeWidth = 2.dp,
-                        color = contentColor,
-                    )
-                } else {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = contentDescription,
-                        modifier = Modifier.size(iconSize),
-                    )
-                }
+                IconButtonContent(
+                    icon = icon,
+                    contentDescription = contentDescription,
+                    loading = loading,
+                    iconSize = iconSize,
+                    contentColor = contentColor,
+                )
             }
         } else {
             IconButton(
@@ -359,25 +353,19 @@ fun QodeIconButton(
                     disabledContainerColor = if (variant == QodeButtonVariant.Text) {
                         Color.Transparent
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
                     },
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 interactionSource = interactionSource,
             ) {
-                if (loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(iconSize),
-                        strokeWidth = 2.dp,
-                        color = contentColor,
-                    )
-                } else {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = contentDescription,
-                        modifier = Modifier.size(iconSize),
-                    )
-                }
+                IconButtonContent(
+                    icon = icon,
+                    contentDescription = contentDescription,
+                    loading = loading,
+                    iconSize = iconSize,
+                    contentColor = contentColor,
+                )
             }
         }
     }
@@ -393,7 +381,7 @@ enum class QodeTextButtonStyle {
 }
 
 /**
- * Text-only button component
+ * Text-only button component using modern design tokens
  */
 @Composable
 fun QodeTextButton(
@@ -413,7 +401,11 @@ fun QodeTextButton(
             ),
         )
         QodeTextButtonStyle.Secondary -> Pair(
-            if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            if (enabled) {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            },
             MaterialTheme.typography.bodyMedium.copy(
                 textDecoration = if (showUnderline) TextDecoration.Underline else null,
             ),
@@ -431,8 +423,8 @@ fun QodeTextButton(
         modifier = modifier,
         enabled = enabled,
         contentPadding = PaddingValues(
-            horizontal = QodeSpacing.sm,
-            vertical = QodeSpacing.xs,
+            horizontal = SpacingTokens.xs,
+            vertical = SpacingTokens.xs,
         ),
     ) {
         Text(
@@ -444,197 +436,121 @@ fun QodeTextButton(
 }
 
 /**
- * Google Sign-In button component
+ * Button content with consistent icon-text layout
  */
-@Composable
-fun QodeGoogleSignInButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: String = "Continue with Google"
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        enabled = enabled,
-        shape = RoundedCornerShape(QodeCorners.md),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
-        ),
-        contentPadding = PaddingValues(
-            horizontal = QodeSpacing.lg,
-            vertical = QodeSpacing.md,
-        ),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 1.dp,
-            disabledElevation = 0.dp,
-        ),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = QodeSocialIcons.Google,
-                contentDescription = "Google logo",
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium,
-                ),
-                modifier = Modifier.weight(1f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-        }
-    }
-}
-
-// MARK: - Previews
-
-@Preview(name = "Text Buttons", showBackground = true)
-@Composable
-private fun QodeTextButtonPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
-        ) {
-            QodeTextButton(
-                text = "Forgot your password?",
-                onClick = {},
-                style = QodeTextButtonStyle.Primary,
-                showUnderline = true,
-            )
-
-            QodeTextButton(
-                text = "Sign up",
-                onClick = {},
-                style = QodeTextButtonStyle.Primary,
-            )
-
-            QodeTextButton(
-                text = "Secondary Button",
-                onClick = {},
-                style = QodeTextButtonStyle.Secondary,
-            )
-
-            QodeTextButton(
-                text = "Terms of Service",
-                onClick = {},
-                style = QodeTextButtonStyle.Tertiary,
-                showUnderline = true,
-            )
-
-            QodeTextButton(
-                text = "Disabled Button",
-                onClick = {},
-                enabled = false,
-            )
-        }
-    }
-}
-
-@Preview(name = "Google Sign In Button", showBackground = true)
-@Composable
-private fun QodeGoogleSignInButtonPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
-        ) {
-            QodeGoogleSignInButton(
-                onClick = {},
-                text = "Continue with Google",
-            )
-
-            QodeGoogleSignInButton(
-                onClick = {},
-                enabled = false,
-                text = "Continue with Google (Disabled)",
-            )
-        }
-    }
-}
-
 @Composable
 private fun ButtonContent(
     text: String,
     leadingIcon: ImageVector?,
     trailingIcon: ImageVector?,
     loading: Boolean,
-    textStyle: androidx.compose.ui.text.TextStyle,
-    iconSize: androidx.compose.ui.unit.Dp
+    textStyle: TextStyle,
+    iconSize: Dp
 ) {
     if (loading) {
         CircularProgressIndicator(
             modifier = Modifier.size(iconSize),
-            strokeWidth = 2.dp,
+            strokeWidth = ShapeTokens.Border.thin,
         )
     } else {
-        leadingIcon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier.size(iconSize),
-            )
-            Spacer(modifier = Modifier.width(QodeSpacing.sm))
-        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (leadingIcon != null || trailingIcon != null) {
+                Arrangement.Start
+            } else {
+                Arrangement.Center
+            },
+        ) {
+            // Leading icon
+            leadingIcon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize),
+                )
+                Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
+            }
 
-        Text(
-            text = text,
-            style = textStyle,
-        )
-
-        trailingIcon?.let {
-            Spacer(modifier = Modifier.width(QodeSpacing.sm))
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier.size(iconSize),
+            // Text
+            Text(
+                text = text,
+                style = textStyle,
+                modifier = if (leadingIcon != null || trailingIcon != null) {
+                    Modifier.weight(1f)
+                } else {
+                    Modifier
+                },
+                textAlign = TextAlign.Center,
             )
+
+            // Trailing icon
+            trailingIcon?.let {
+                Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize),
+                )
+            }
         }
     }
 }
 
-// Previews
+/**
+ * Icon button content with loading state
+ */
+@Composable
+private fun IconButtonContent(
+    icon: ImageVector,
+    contentDescription: String,
+    loading: Boolean,
+    iconSize: Dp,
+    contentColor: Color
+) {
+    if (loading) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(iconSize),
+            strokeWidth = ShapeTokens.Border.thin,
+            color = contentColor,
+        )
+    } else {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(iconSize),
+        )
+    }
+}
+
+// MARK: - Previews using modern tokens
+
 @Preview(name = "Button Variants", showBackground = true)
 @Composable
 private fun QodeButtonVariantsPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             QodeButton(
                 onClick = {},
-                text = "Primary Button",
+                text = "Primary Button", // TODO: Use stringResource(R.string.button_primary)
                 variant = QodeButtonVariant.Primary,
             )
             QodeButton(
                 onClick = {},
-                text = "Secondary Button",
+                text = "Secondary Button", // TODO: Use stringResource(R.string.button_secondary)
                 variant = QodeButtonVariant.Secondary,
             )
             QodeButton(
                 onClick = {},
-                text = "Text Button",
+                text = "Text Button", // TODO: Use stringResource(R.string.button_text)
                 variant = QodeButtonVariant.Text,
             )
             QodeButton(
                 onClick = {},
-                text = "Outlined Button",
+                text = "Outlined Button", // TODO: Use stringResource(R.string.button_outlined)
                 variant = QodeButtonVariant.Outlined,
             )
         }
@@ -646,95 +562,70 @@ private fun QodeButtonVariantsPreview() {
 private fun QodeButtonSizesPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             QodeButton(
                 onClick = {},
-                text = "Small Button",
+                text = "Small Button", // TODO: Use stringResource(R.string.button_small)
                 size = QodeButtonSize.Small,
             )
             QodeButton(
                 onClick = {},
-                text = "Medium Button",
+                text = "Medium Button", // TODO: Use stringResource(R.string.button_medium)
                 size = QodeButtonSize.Medium,
             )
             QodeButton(
                 onClick = {},
-                text = "Large Button",
+                text = "Large Button", // TODO: Use stringResource(R.string.button_large)
                 size = QodeButtonSize.Large,
             )
         }
     }
 }
 
-@Preview(name = "Button States", showBackground = true)
+@Preview(name = "Modern Token Showcase", showBackground = true)
 @Composable
-private fun QodeButtonStatesPreview() {
+private fun ModernTokenShowcasePreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            QodeButton(
-                onClick = {},
-                text = "Enabled Button",
+            Text(
+                text = "Modern Design Tokens in Action",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = SpacingTokens.sm),
             )
+
             QodeButton(
                 onClick = {},
-                text = "Disabled Button",
-                enabled = false,
-            )
-            QodeButton(
-                onClick = {},
-                text = "Loading Button",
-                loading = true,
-            )
-            QodeButton(
-                onClick = {},
-                text = "With Leading Icon",
+                text = "Fast Animation",
                 leadingIcon = Icons.Default.Add,
             )
-            QodeButton(
-                onClick = {},
-                text = "With Trailing Icon",
-                trailingIcon = Icons.Default.Check,
-            )
-        }
-    }
-}
 
-@Preview(name = "Icon Buttons", showBackground = true)
-@Composable
-private fun QodeIconButtonPreview() {
-    QodeTheme {
-        Row(
-            modifier = Modifier.padding(QodeSpacing.md),
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.md),
-        ) {
-            QodeIconButton(
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            ) {
+                QodeIconButton(
+                    onClick = {},
+                    icon = Icons.Default.Favorite,
+                    contentDescription = "Like",
+                    size = QodeButtonSize.Small,
+                )
+                QodeIconButton(
+                    onClick = {},
+                    icon = Icons.Default.Check,
+                    contentDescription = "Check",
+                    size = QodeButtonSize.Medium,
+                    variant = QodeButtonVariant.Outlined,
+                )
+            }
+
+            QodeTextButton(
+                text = "Modern Text Button",
                 onClick = {},
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                variant = QodeButtonVariant.Primary,
-            )
-            QodeIconButton(
-                onClick = {},
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                variant = QodeButtonVariant.Secondary,
-            )
-            QodeIconButton(
-                onClick = {},
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                variant = QodeButtonVariant.Text,
-            )
-            QodeIconButton(
-                onClick = {},
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                variant = QodeButtonVariant.Outlined,
+                showUnderline = true,
             )
         }
     }

@@ -70,4 +70,9 @@
     <string name="phone_input_demo_advanced">Advanced Features</string>
     <string name="phone_input_demo_validation">With Validation</string>
     <string name="phone_input_demo_custom">Custom Styling</string>
+
+    <!-- Country Picker Strings -->
+    <string name="search_countries">Search countries</string>
+    <string name="close">Close</string>
+    <string name="clear_search">Clear search</string>
 </resources>

@@ -57,6 +57,7 @@ import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 
 /**
  * Dialog types for different use cases
@@ -417,7 +418,7 @@ private fun BottomSheetDialog(
                                 .height(4.dp)
                                 .background(
                                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                                    RoundedCornerShape(QodeCorners.full.dp),
+                                    RoundedCornerShape(ShapeTokens.Corner.full),
                                 ),
                         )
 

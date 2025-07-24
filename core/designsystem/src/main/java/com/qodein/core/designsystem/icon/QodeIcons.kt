@@ -308,15 +308,6 @@ import compose.icons.tablericons.Train
 import compose.icons.tablericons.TruckDelivery
 import compose.icons.tablericons.Video
 
-/**
- * 🚀 THE ULTIMATE QODE ICONS COLLECTION 🚀
- *
- * Every icon you'll ever need for the next 10,000 years.
- * Organized, beautiful, and comprehensive.
- *
- * "I will never have to search for icons again" - Your wish is granted.
- */
-
 // =============================================================================
 // 🛍️ COMMERCE & PROMO CODES
 // =============================================================================
