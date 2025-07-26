@@ -20,7 +20,7 @@ sealed interface CatalogAction {
     data object FiltersCleared : CatalogAction
     data object FiltersToggled : CatalogAction
 
-    // promocode
+    // promo code
     data class PromoCodeClicked(val promoCode: PromoCode) : CatalogAction
     data class PromoCodeUpvoted(val promoCode: PromoCode) : CatalogAction
     data class PromoCodeCopied(val promoCode: PromoCode) : CatalogAction

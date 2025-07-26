@@ -43,47 +43,30 @@ data class CatalogUiState(
     // UI state
     val showSearchSuggestions: Boolean = false
 ) {
-    /**
-     * Get the current list of promo codes if available
-     */
+
     val promoCodes: List<PromoCode>
         get() = when (promoCodesState) {
             is PromoCodeListState.Success -> promoCodesState.promoCodes
             else -> emptyList()
         }
 
-    /**
-     * Check if we're in an error state
-     */
     val isError: Boolean
         get() = promoCodesState is PromoCodeListState.Error
 
-    /**
-     * Check if we have no content to show
-     */
     val isEmpty: Boolean
         get() = promoCodesState is PromoCodeListState.Empty ||
             (promoCodesState is PromoCodeListState.Success && promoCodesState.promoCodes.isEmpty())
 
-    /**
-     * Get the current selected category
-     */
     fun getSelectedCategory(): Category? =
         selectedCategoryId?.let { id ->
             categories.find { it.id == id }
         }
 
-    /**
-     * Get the current selected store
-     */
     fun getSelectedStore(): Store? =
         selectedStoreId?.let { id ->
             stores.find { it.id == id }
         }
 
-    /**
-     * Check if a specific filter is active
-     */
     fun isFilterActive(): Boolean =
         searchQuery.isNotEmpty() ||
             quickFilter != "all" ||
@@ -91,9 +74,6 @@ data class CatalogUiState(
             selectedStoreId != null ||
             sortOption != SortOption.Recent
 
-    /**
-     * Get active filters count
-     */
     fun getActiveFiltersCount(): Int {
         var count = 0
         if (searchQuery.isNotEmpty()) count++
