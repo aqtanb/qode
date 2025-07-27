@@ -13,17 +13,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
@@ -38,37 +36,30 @@ import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeTextButtonStyle
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.PhoneValidationState
 import com.qodein.core.ui.component.QodePhoneInput
-import com.simon.xmaterialccp.data.CountryData
-import com.simon.xmaterialccp.data.utils.getDefaultLangCode
-import com.simon.xmaterialccp.data.utils.getLibCountries
 
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    onSendVerificationCode: (String) -> Unit = {},
-    onGoogleSignIn: () -> Unit = {},
-    onForgotPassword: () -> Unit = {},
-    onTermsClick: () -> Unit = {},
-    onPrivacyClick: () -> Unit = {}
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    var phoneNumber by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    AuthContent(
+        modifier = modifier,
+        onAction = viewModel::onAction,
+        uiState = uiState,
+    )
+}
 
-    // FIXED: Properly manage selected country state
-    var selectedCountry by remember {
-        mutableStateOf<CountryData?>(
-            try {
-                getLibCountries().single { it.countryCode == getDefaultLangCode(context) }
-            } catch (_: Exception) {
-                getLibCountries().find { it.countryCode == "KZ" } ?: getLibCountries().first()
-            },
-        )
-    }
-
+@Composable
+fun AuthContent(
+    modifier: Modifier = Modifier,
+    onAction: (AuthAction) -> Unit,
+    uiState: AuthUiState
+) {
     QodeGradientBackground(
         style = QodeGradientStyle.Primary,
         modifier = modifier.fillMaxSize(),
@@ -82,8 +73,8 @@ fun AuthScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(
-                        horizontal = QodeSpacing.lg,
-                        vertical = QodeSpacing.xxxl,
+                        horizontal = SpacingTokens.lg,
+                        vertical = SpacingTokens.xxxl,
                     ),
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -94,17 +85,17 @@ fun AuthScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(QodeSpacing.md)
+                            .padding(SpacingTokens.md)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                     ) {
                         // Logo
                         QodeLogo(
                             size = QodeLogoSize.Large,
                             style = QodeLogoStyle.Default,
                             backgroundColor = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.padding(bottom = QodeSpacing.sm),
+                            modifier = Modifier.padding(bottom = SpacingTokens.sm),
                         )
 
                         // Title
@@ -122,15 +113,14 @@ fun AuthScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = QodeSpacing.sm),
+                            modifier = Modifier.padding(bottom = SpacingTokens.md),
                         )
 
                         // Phone section
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = QodeSpacing.sm),
-                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                                .padding(vertical = SpacingTokens.sm),
                         ) {
                             // Phone number label with enhanced styling
                             Text(
@@ -139,19 +129,17 @@ fun AuthScreen(
                                     fontWeight = FontWeight.SemiBold,
                                 ),
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = QodeSpacing.xs),
+                                modifier = Modifier.padding(start = SpacingTokens.xs, bottom = SpacingTokens.sm),
                             )
                             QodePhoneInput(
-                                phoneNumber = phoneNumber,
-                                selectedCountry = selectedCountry, // FIXED: Now uses actual state
+                                phoneNumber = uiState.phoneNumber,
+                                selectedCountry = uiState.selectedCountry,
                                 validationState = PhoneValidationState.Idle,
-                                onPhoneNumberChange = { phoneNumber = it },
-                                onCountryClick = { country ->
-                                    selectedCountry = country // FIXED: Actually updates the state
+                                onPhoneNumberChange = { onAction(AuthAction.PhoneNumberChanged(it)) },
+                                onCountryPickerClick = {
+                                    // TODO: Handle country picker click
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = QodeSpacing.sm),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
 
@@ -159,20 +147,19 @@ fun AuthScreen(
                         QodeButton(
                             text = stringResource(R.string.send_verification_code),
                             onClick = {
-                                val fullPhoneNumber = "${selectedCountry?.countryPhoneCode ?: "+7"}$phoneNumber"
-                                onSendVerificationCode(fullPhoneNumber)
+                                // TODO: Handle button click
                             },
                             variant = QodeButtonVariant.Primary,
                             size = QodeButtonSize.Large,
                             leadingIcon = QodeActionIcons.Send,
-                            modifier = Modifier.fillMaxWidth().padding(top = QodeSpacing.sm),
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         // Divider with "Or continue with" text
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = QodeSpacing.lg),
+                                .padding(vertical = SpacingTokens.lg),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                         ) {
@@ -184,7 +171,7 @@ fun AuthScreen(
                                 text = stringResource(R.string.or_continue_with),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                                modifier = Modifier.padding(horizontal = SpacingTokens.md),
                             )
                             HorizontalDivider(
                                 modifier = Modifier.weight(1f),
@@ -194,25 +181,18 @@ fun AuthScreen(
 
                         // Google sign in button
                         QodeGoogleSignInButton(
-                            onClick = onGoogleSignIn,
+                            onClick = {
+                                // TODO: Handle button click
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                        )
-
-                        // Forgot password link
-                        QodeTextButton(
-                            text = stringResource(R.string.forgot_password),
-                            onClick = onForgotPassword,
-                            style = QodeTextButtonStyle.Primary,
-                            showUnderline = true,
-                            modifier = Modifier.padding(top = QodeSpacing.sm),
                         )
 
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = QodeSpacing.lg),
+                                .padding(top = SpacingTokens.lg),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                         ) {
                             // First line
                             Text(
@@ -229,7 +209,9 @@ fun AuthScreen(
                             ) {
                                 QodeTextButton(
                                     text = stringResource(R.string.terms_of_service),
-                                    onClick = onTermsClick,
+                                    onClick = {
+                                        // TODO: Handle button click
+                                    },
                                     style = QodeTextButtonStyle.Primary,
                                     showUnderline = true,
                                 )
@@ -242,7 +224,9 @@ fun AuthScreen(
 
                                 QodeTextButton(
                                     text = stringResource(R.string.privacy_policy),
-                                    onClick = onPrivacyClick,
+                                    onClick = {
+                                        // TODO: Handle button click
+                                    },
                                     style = QodeTextButtonStyle.Primary,
                                     showUnderline = true,
                                 )

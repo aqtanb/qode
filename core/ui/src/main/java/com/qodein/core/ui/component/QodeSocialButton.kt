@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Social login button types
@@ -109,8 +109,8 @@ fun QodeSocialButton(
             color = if (enabled && !loading) borderColor else borderColor.copy(alpha = 0.38f),
         ),
         contentPadding = PaddingValues(
-            horizontal = QodeSpacing.lg,
-            vertical = QodeSpacing.md,
+            horizontal = SpacingTokens.lg,
+            vertical = SpacingTokens.md,
         ),
         interactionSource = interactionSource,
     ) {
@@ -132,7 +132,7 @@ fun QodeSocialButton(
                     modifier = Modifier.size(QodeSize.iconMedium),
                 )
 
-                Spacer(modifier = Modifier.width(QodeSpacing.md))
+                Spacer(modifier = Modifier.width(SpacingTokens.md))
 
                 // Button text
                 Text(
@@ -227,7 +227,7 @@ fun QodeDividerWithText(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
-            modifier = Modifier.padding(horizontal = QodeSpacing.md),
+            modifier = Modifier.padding(horizontal = SpacingTokens.md),
         )
 
         // Right divider
@@ -245,8 +245,8 @@ fun QodeDividerWithText(
 private fun QodeSocialButtonPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             // Google button
             QodeSocialButton(
@@ -293,8 +293,8 @@ private fun QodeSocialButtonPreview() {
 private fun QodeDividerWithTextPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             QodeDividerWithText(text = "Or continue with")
             QodeDividerWithText(text = "Or")

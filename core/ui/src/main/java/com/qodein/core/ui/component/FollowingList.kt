@@ -63,8 +63,8 @@ import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.component.QodeSectionHeader
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.Store
 import com.qodein.core.ui.model.StoreCategory
@@ -197,8 +197,8 @@ private fun FollowedStoresTab(
         )
     } else {
         LazyColumn(
-            contentPadding = PaddingValues(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            contentPadding = PaddingValues(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             items(followedStores) { store ->
                 StoreCard(
@@ -238,13 +238,13 @@ private fun FollowedCategoriesTab(
         )
     } else {
         LazyColumn(
-            contentPadding = PaddingValues(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            contentPadding = PaddingValues(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             item {
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     followedCategories.forEach { category ->
                         QodeChip(
@@ -284,8 +284,8 @@ private fun DiscoverTab(
     onFollowCategoryClick: (Category) -> Unit
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(QodeSpacing.md),
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+        contentPadding = PaddingValues(SpacingTokens.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         // Popular stores section
         if (suggestedStores.isNotEmpty()) {
@@ -298,8 +298,8 @@ private fun DiscoverTab(
 
             item {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
-                    contentPadding = PaddingValues(horizontal = QodeSpacing.xs),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    contentPadding = PaddingValues(horizontal = SpacingTokens.xs),
                 ) {
                     items(suggestedStores.take(5)) { store ->
                         SuggestedStoreCard(
@@ -384,7 +384,7 @@ private fun CategoryDetailCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.width(QodeSpacing.md))
+                    Spacer(modifier = Modifier.width(SpacingTokens.md))
 
                     Column {
                         Text(
@@ -426,7 +426,7 @@ private fun CategoryDetailCard(
                 exit = shrinkVertically(animationSpec = tween(QodeAnimation.MEDIUM)),
             ) {
                 Column(
-                    modifier = Modifier.padding(top = QodeSpacing.md),
+                    modifier = Modifier.padding(top = SpacingTokens.md),
                 ) {
                     Text(
                         text = "Recent activity in ${category.name}",
@@ -434,14 +434,14 @@ private fun CategoryDetailCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                     // Mock recent codes
                     repeat(3) { index ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = QodeSpacing.xs),
+                                .padding(vertical = SpacingTokens.xs),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
@@ -450,7 +450,7 @@ private fun CategoryDetailCard(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp),
                             )
-                            Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                            Spacer(modifier = Modifier.width(SpacingTokens.sm))
                             Text(
                                 text = "New code from Sample Store ${index + 1}",
                                 style = MaterialTheme.typography.bodySmall,
@@ -506,7 +506,7 @@ private fun SuggestedStoreCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             Text(
                 text = store.name,
@@ -522,7 +522,7 @@ private fun SuggestedStoreCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             QodeButton(
                 onClick = onFollowClick,
@@ -546,8 +546,8 @@ private fun CategoryGrid(
     onFollowClick: (Category) -> Unit
 ) {
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
         categories.forEach { category ->
             QodeChip(
@@ -614,7 +614,7 @@ private fun TrendingItem(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp),
         )
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,

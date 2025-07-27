@@ -39,8 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
 import com.qodein.core.designsystem.theme.QodeElevation
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Sort options for promo codes
@@ -90,13 +90,13 @@ fun SearchHeader(
         shadowElevation = QodeElevation.xs,
     ) {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
         ) {
             // Main search row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 // Menu button
                 IconButton(onClick = onMenuClick) {
@@ -171,7 +171,7 @@ fun SearchHeader(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = QodeSpacing.sm),
+                        .padding(top = SpacingTokens.sm),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -183,7 +183,7 @@ fun SearchHeader(
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                         )
-                        Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                        Spacer(modifier = Modifier.width(SpacingTokens.xs))
                         Text(
                             text = "Filters active",
                             style = MaterialTheme.typography.bodySmall,
@@ -226,9 +226,9 @@ fun CompactSearchHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             onBackClick?.let { backClick ->
                 IconButton(onClick = backClick) {
@@ -276,9 +276,9 @@ fun SearchSuggestions(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -316,12 +316,12 @@ private fun SearchHeaderPreview() {
                 onClearFilters = { hasActiveFilters = false },
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             // Toggle button for testing
             androidx.compose.material3.Button(
                 onClick = { hasActiveFilters = !hasActiveFilters },
-                modifier = Modifier.padding(QodeSpacing.md),
+                modifier = Modifier.padding(SpacingTokens.md),
             ) {
                 Text("Toggle Active Filters")
             }

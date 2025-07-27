@@ -3,6 +3,7 @@ package com.qodein.qode.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.qode.ui.QodeAppState
@@ -27,6 +28,6 @@ fun QodeNavHost(
 
         historySection()
 
-        moreSection()
+        authSection()
     }
 }

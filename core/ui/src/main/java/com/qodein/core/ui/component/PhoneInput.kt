@@ -1,23 +1,19 @@
 package com.qodein.core.ui.component
 
+import android.R.attr.contentDescription
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,13 +22,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,56 +40,50 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
-import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 import com.simon.xmaterialccp.data.CountryData
+import com.simon.xmaterialccp.data.utils.checkPhoneNumber
 import com.simon.xmaterialccp.data.utils.getDefaultLangCode
 import com.simon.xmaterialccp.data.utils.getFlags
 import com.simon.xmaterialccp.data.utils.getLibCountries
+import com.simon.xmaterialccp.transformation.PhoneNumberTransformation
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QodePhoneInput(
     phoneNumber: String,
-    selectedCountry: CountryData?,
+    selectedCountry: CountryData,
     validationState: PhoneValidationState,
     onPhoneNumberChange: (String) -> Unit,
-    onCountryClick: (CountryData) -> Unit,
+    onCountryPickerClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isEnabled: Boolean = true,
-    isReadOnly: Boolean = false,
-    showValidation: Boolean = true,
-    showClearButton: Boolean = true,
-    placeholder: String = stringResource(R.string.phone_input_placeholder),
-    contentDescription: String = stringResource(R.string.phone_input_content_desc)
+    enabled: Boolean = true,
+    isError: Boolean = validationState is PhoneValidationState.Error,
+    label: String = stringResource(R.string.phone_input_label),
+    placeholder: String = stringResource(R.string.phone_input_placeholder)
 ) {
-    val context = LocalContext.current
-    var showCountryPicker by remember { mutableStateOf(false) }
-
-    // Use XMaterial CCP's default country logic
-    val defaultCountry = remember {
-        try {
-            getLibCountries().single { it.countryCode == getDefaultLangCode(context) }
-        } catch (_: Exception) {
-            getLibCountries().find { it.countryCode == "KZ" } ?: getLibCountries().first()
-        }
+    val fullPhoneNumber by remember(phoneNumber, selectedCountry) {
+        derivedStateOf { "${selectedCountry.countryPhoneCode}$phoneNumber" }
     }
 
-    val currentCountry = selectedCountry ?: defaultCountry
+    // Use the library's phone number formatter
+    val phoneFormatter = remember(selectedCountry) {
+        PhoneNumberTransformation(selectedCountry.countryCode.uppercase())
+    }
 
     Column(
-        modifier = modifier
-            .semantics { this.contentDescription = contentDescription },
+        modifier = modifier.semantics {
+            this.contentDescription = "Phone number input"
+        },
     ) {
-        // Phone input field with your beautiful design
+        // Phone input field
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = { newValue ->
-                // Filter digits only and limit appropriately
+                // Filter digits only and apply reasonable length limit
                 val digitsOnly = newValue.filter { it.isDigit() }
                 if (digitsOnly.length <= 15) { // International standard max length
                     onPhoneNumberChange(digitsOnly)
@@ -107,261 +95,167 @@ fun QodePhoneInput(
                     style = MaterialTheme.typography.bodyMedium,
                 )
             },
+            label = {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
             leadingIcon = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable(
-                            onClick = { showCountryPicker = true },
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                        )
-                        .padding(horizontal = QodeSpacing.sm),
-                ) {
-                    // Use XMaterial CCP's flag system
-                    Image(
-                        painter = painterResource(id = getFlags(currentCountry.countryCode)),
-                        contentDescription = currentCountry.cNames,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .padding(end = QodeSpacing.xs),
-                    )
-                    Text(
-                        text = currentCountry.countryPhoneCode,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = QodeSpacing.xs),
-                    )
-                    Icon(
-                        imageVector = QodeActionIcons.Down,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                CountrySelector(
+                    country = selectedCountry,
+                    onClick = onCountryPickerClick,
+                    enabled = enabled,
+                )
             },
             trailingIcon = {
-                if (showClearButton && phoneNumber.isNotEmpty()) {
+                if (phoneNumber.isNotEmpty() && enabled) {
                     IconButton(
                         onClick = { onPhoneNumberChange("") },
-                        modifier = Modifier.size(QodeSize.iconSmall),
                     ) {
                         Icon(
                             imageVector = QodeActionIcons.Close,
-                            contentDescription = stringResource(R.string.close),
-                            modifier = Modifier.size(16.dp),
+                            contentDescription = "Clear phone number",
+                            modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             },
-            isError = validationState is PhoneValidationState.Error,
-            enabled = isEnabled,
-            readOnly = isReadOnly,
+            isError = isError,
+            enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            visualTransformation = phoneFormatter,
             singleLine = true,
-            shape = RoundedCornerShape(QodeCorners.md),
+            shape = RoundedCornerShape(ShapeTokens.Corner.medium),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 errorBorderColor = MaterialTheme.colorScheme.error,
             ),
-            modifier = Modifier.fillMaxWidth().height(SizeTokens.TextField.height),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(SizeTokens.TextField.height),
         )
 
-        // Full-width country picker dialog
-        if (showCountryPicker) {
-            val configuration = LocalConfiguration.current
-            BasicAlertDialog(
-                onDismissRequest = { showCountryPicker = false },
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = QodeSpacing.xxl),
-                    shape = RoundedCornerShape(QodeCorners.lg),
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 6.dp,
-                ) {
-                    CountryPickerDialog(
-                        onCountrySelected = { country ->
-                            onCountryClick(country) // This will update the selectedCountry in parent
-                            showCountryPicker = false
-                        },
-                        onDismiss = { showCountryPicker = false },
-                        selectedCountry = currentCountry,
-                    )
-                }
-            }
-        }
-
-        // Your clean validation indicator
-        if (showValidation && validationState !is PhoneValidationState.Idle) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = QodeSpacing.xs),
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                when (validationState) {
-                    is PhoneValidationState.Error -> {
-                        Icon(
-                            imageVector = QodeNavigationIcons.Error,
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp),
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                        Text(
-                            text = getErrorMessage(validationState.error),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                    is PhoneValidationState.Valid -> {
-                        Icon(
-                            imageVector = QodeStatusIcons.Verified,
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = stringResource(R.string.phone_input_valid),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                    is PhoneValidationState.Validating -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(12.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = stringResource(R.string.phone_input_validating),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                    else -> {}
-                }
-            }
-        }
+        // Validation indicator
+        ValidationIndicator(
+            validationState = validationState,
+            modifier = Modifier.padding(top = SpacingTokens.xs),
+        )
     }
 }
 
 @Composable
-private fun CountryPickerDialog(
-    onCountrySelected: (CountryData) -> Unit,
-    onDismiss: () -> Unit,
-    selectedCountry: CountryData?
+private fun CountrySelector(
+    country: CountryData,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    val countries = remember { getLibCountries() }
-
-    val filteredCountries = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
-            countries
-        } else {
-            countries.filter { country ->
-                country.cNames.contains(searchQuery, ignoreCase = true) ||
-                    country.countryPhoneCode.contains(searchQuery) ||
-                    country.countryCode.contains(searchQuery, ignoreCase = true)
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(QodeSpacing.lg),
-    ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.select_country),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable(
+                onClick = onClick,
+                enabled = enabled,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
             )
-
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    imageVector = QodeActionIcons.Close,
-                    contentDescription = stringResource(R.string.close),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-        }
-
-        // Search field
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = {
-                Text(text = stringResource(R.string.search_countries))
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = QodeNavigationIcons.Search,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(QodeCorners.md),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = QodeSpacing.md),
+            .padding(horizontal = SpacingTokens.sm),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+    ) {
+        // Country flag
+        Image(
+            painter = painterResource(id = getFlags(country.countryCode)),
+            contentDescription = stringResource(
+                R.string.phone_input_flag_content_desc,
+                country.cNames,
+            ),
+            modifier = Modifier.size(24.dp),
         )
 
-        // Countries list - full width
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            items(filteredCountries) { country ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onCountrySelected(country) }
-                        .padding(QodeSpacing.md),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // Use XMaterial CCP's flag system
-                    Image(
-                        painter = painterResource(id = getFlags(country.countryCode)),
-                        contentDescription = country.cNames,
-                        modifier = Modifier
-                            .size(QodeSize.iconLarge)
-                            .padding(end = QodeSpacing.md),
-                    )
-                    Column(
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(
-                            text = country.cNames,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = country.countryPhoneCode,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    // Show selection indicator
-                    if (selectedCountry?.countryCode == country.countryCode) {
-                        Icon(
-                            imageVector = QodeStatusIcons.Verified,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
+        // Phone code
+        Text(
+            text = country.countryPhoneCode,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (enabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            },
+        )
+
+        // Dropdown indicator
+        Icon(
+            imageVector = QodeActionIcons.Down,
+            contentDescription = if (enabled) {
+                stringResource(R.string.phone_input_dropdown_content_desc)
+            } else {
+                null
+            },
+            modifier = Modifier.size(16.dp),
+            tint = if (enabled) {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+            },
+        )
+    }
+}
+
+@Composable
+private fun ValidationIndicator(
+    validationState: PhoneValidationState,
+    modifier: Modifier = Modifier
+) {
+    if (validationState is PhoneValidationState.Idle) return
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        when (validationState) {
+            is PhoneValidationState.Error -> {
+                Icon(
+                    imageVector = QodeNavigationIcons.Error,
+                    contentDescription = stringResource(R.string.phone_input_error_content_desc),
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+                Text(
+                    text = getErrorMessage(validationState.error),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
+            is PhoneValidationState.Valid -> {
+                Icon(
+                    imageVector = QodeStatusIcons.Verified,
+                    contentDescription = stringResource(R.string.phone_input_success_content_desc),
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    text = stringResource(R.string.phone_input_valid),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            is PhoneValidationState.Validating -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(12.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    text = stringResource(R.string.phone_input_validating),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            else -> {}
         }
     }
 }
@@ -373,6 +267,26 @@ private fun getErrorMessage(error: PhoneValidationError): String =
         PhoneValidationError.TOO_LONG -> stringResource(R.string.phone_input_too_long)
         PhoneValidationError.INVALID_FORMAT -> stringResource(R.string.phone_number_invalid_format)
         PhoneValidationError.REQUIRED -> stringResource(R.string.phone_input_required)
+    }
+
+// Validation logic using the library's function
+fun validatePhoneNumber(
+    phoneNumber: String,
+    country: CountryData
+): PhoneValidationState =
+    when {
+        phoneNumber.isEmpty() -> PhoneValidationState.Error(PhoneValidationError.REQUIRED)
+        phoneNumber.length < 6 -> PhoneValidationState.Error(PhoneValidationError.TOO_SHORT)
+        phoneNumber.length > 15 -> PhoneValidationState.Error(PhoneValidationError.TOO_LONG)
+        else -> {
+            val fullNumber = "${country.countryPhoneCode}$phoneNumber"
+            val isValid = checkPhoneNumber(phoneNumber, fullNumber, country.countryCode)
+            if (isValid) {
+                PhoneValidationState.Valid(fullNumber)
+            } else {
+                PhoneValidationState.Error(PhoneValidationError.INVALID_FORMAT)
+            }
+        }
     }
 
 sealed interface PhoneValidationState {
@@ -409,13 +323,13 @@ private fun QodePhoneInputPreview(@PreviewParameter(PhoneInputPreviewProvider::c
         try {
             getLibCountries().single { it.countryCode == getDefaultLangCode(context) }
         } catch (_: Exception) {
-            getLibCountries().find { it.countryCode == "KZ" } ?: getLibCountries().first()
+            getLibCountries().find { it.countryCode == "kz" } ?: getLibCountries().first()
         }
     }
 
     QodeTheme {
-        Surface(modifier = Modifier.padding(QodeSpacing.md)) {
-            Column(verticalArrangement = Arrangement.spacedBy(QodeSpacing.md)) {
+        Surface(modifier = Modifier.padding(SpacingTokens.md)) {
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.md)) {
                 Text(
                     text = "Phone Input - ${previewData.name}",
                     style = MaterialTheme.typography.titleMedium,
@@ -425,7 +339,7 @@ private fun QodePhoneInputPreview(@PreviewParameter(PhoneInputPreviewProvider::c
                     selectedCountry = defaultCountry,
                     validationState = previewData.validationState,
                     onPhoneNumberChange = {},
-                    onCountryClick = {},
+                    onCountryPickerClick = {},
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

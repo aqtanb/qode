@@ -10,7 +10,6 @@ android {
 
     defaultConfig {
         minSdk = 29
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -24,10 +23,7 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
+
     kotlin {
         jvmToolchain(11)
     }
@@ -38,36 +34,24 @@ android {
 }
 
 dependencies {
+    // Project modules
     implementation(projects.core.designsystem)
-
-    // Compose BOM
-    implementation(platform(libs.androidx.compose.bom))
-
-    // Compose Core
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-
-    // Material 3
-    implementation(libs.androidx.material3)
-
-    implementation(libs.androidx.compose.material.icons.extended)
-
-    // Google Fonts
-    implementation(libs.androidx.ui.text.google.fonts)
-
-    implementation(libs.xmaterial.ccp)
 
     // Core Android
     implementation(libs.androidx.core.ktx)
 
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+    // Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.compose)
 
-    // Debug
+    // Country Code Picker
+    implementation(libs.xmaterial.ccp)
+
+    // Testing
+    testImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.bundles.testing.android)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Debug Tools
     debugImplementation(libs.androidx.ui.test.manifest)
 }

@@ -65,4 +65,26 @@
     <string name="terms_first_line">By continuing, you agree to our</string>
     <string name="and">and</string>
     <string name="agree_to">By continuing, you agree to our</string>
+    <!-- Phone Authentication -->
+    <string name="phone_verification_title">Verify Your Phone</string>
+    <string name="phone_verification_subtitle">Enter your phone number to get started</string>
+    <string name="verify_phone_number">Verify Phone Number</string>
+    <string name="phone_verification_code_title">Enter Verification Code</string>
+    <string name="phone_verification_code_subtitle">We sent a code to %s</string>
+
+    <!-- Auth Flow -->
+    <string name="welcome_title">Welcome to Qode</string>
+    <string name="welcome_subtitle">Discover amazing promo codes</string>
+    <string name="get_started">Get Started</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+
+    <!-- Errors -->
+    <string name="auth_error_generic">Something went wrong. Please try again.</string>
+    <string name="auth_error_invalid_code">Invalid verification code</string>
+    <string name="auth_error_code_expired">Verification code expired</string>
+    <string name="auth_error_too_many_attempts">Too many attempts. Try again later.</string>
+
+    <!-- Success -->
+    <string name="auth_success">Welcome! Your account is ready.</string>
+
 </resources>

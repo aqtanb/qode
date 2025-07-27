@@ -55,9 +55,9 @@ import androidx.compose.ui.window.DialogProperties
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Dialog types for different use cases
@@ -229,7 +229,7 @@ private fun ConfirmationDialog(
             colors = CardDefaults.cardColors(containerColor = containerColor),
         ) {
             Column(
-                modifier = Modifier.padding(QodeSpacing.lg),
+                modifier = Modifier.padding(SpacingTokens.lg),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 icon?.let {
@@ -250,7 +250,7 @@ private fun ConfirmationDialog(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(QodeSpacing.md))
+                    Spacer(modifier = Modifier.height(SpacingTokens.md))
                 }
 
                 title?.let {
@@ -259,7 +259,7 @@ private fun ConfirmationDialog(
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center,
                     )
-                    Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
                 }
 
                 if (content != null) {
@@ -275,11 +275,11 @@ private fun ConfirmationDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(QodeSpacing.lg))
+                Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     dismissButton?.let {
                         QodeButton(
@@ -352,7 +352,7 @@ private fun FullScreenDialog(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                 ) {
                     content()
                 }
@@ -408,7 +408,7 @@ private fun BottomSheetDialog(
                     ),
                 ) {
                     Column(
-                        modifier = Modifier.padding(QodeSpacing.lg),
+                        modifier = Modifier.padding(SpacingTokens.lg),
                     ) {
                         // Handle bar
                         Box(
@@ -422,23 +422,23 @@ private fun BottomSheetDialog(
                                 ),
                         )
 
-                        Spacer(modifier = Modifier.height(QodeSpacing.md))
+                        Spacer(modifier = Modifier.height(SpacingTokens.md))
 
                         title?.let {
                             Text(
                                 text = it,
                                 style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.padding(bottom = QodeSpacing.md),
+                                modifier = Modifier.padding(bottom = SpacingTokens.md),
                             )
                         }
 
                         content()
 
-                        Spacer(modifier = Modifier.height(QodeSpacing.lg))
+                        Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                         ) {
                             dismissButton?.let {
                                 QodeButton(
@@ -509,8 +509,8 @@ fun QodeSimpleDialog(
 private fun QodeDialogPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             var showAlert by remember { mutableStateOf(false) }
             var showConfirmation by remember { mutableStateOf(false) }
@@ -586,7 +586,7 @@ private fun QodeDialogPreview() {
                     ),
                     content = {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                         ) {
                             QodeTextField(
                                 value = "",
@@ -627,7 +627,7 @@ private fun QodeDialogPreview() {
                     ),
                     content = {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -635,7 +635,7 @@ private fun QodeDialogPreview() {
                             ) {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.padding(QodeSpacing.sm),
+                                    modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
                                         shape = RoundedCornerShape(QodeCorners.md),
@@ -652,13 +652,13 @@ private fun QodeDialogPreview() {
                                     Text(
                                         "WhatsApp",
                                         style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(top = QodeSpacing.xs),
+                                        modifier = Modifier.padding(top = SpacingTokens.xs),
                                     )
                                 }
 
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.padding(QodeSpacing.sm),
+                                    modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
                                         shape = RoundedCornerShape(QodeCorners.md),
@@ -675,13 +675,13 @@ private fun QodeDialogPreview() {
                                     Text(
                                         "Telegram",
                                         style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(top = QodeSpacing.xs),
+                                        modifier = Modifier.padding(top = SpacingTokens.xs),
                                     )
                                 }
 
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.padding(QodeSpacing.sm),
+                                    modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
                                         shape = RoundedCornerShape(QodeCorners.md),
@@ -698,7 +698,7 @@ private fun QodeDialogPreview() {
                                     Text(
                                         "Copy Link",
                                         style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(top = QodeSpacing.xs),
+                                        modifier = Modifier.padding(top = SpacingTokens.xs),
                                     )
                                 }
                             }

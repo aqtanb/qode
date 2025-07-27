@@ -47,8 +47,8 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.Store
@@ -110,7 +110,7 @@ fun PromoCodeCard(
                 isLoggedIn = isLoggedIn,
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             // Promo code section
             PromoCodeSection(
@@ -119,7 +119,7 @@ fun PromoCodeCard(
                 onCopyClick = onCopyCodeClick,
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             // Description
             if (promoCode.description.isNotBlank()) {
@@ -130,7 +130,7 @@ fun PromoCodeCard(
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
             }
 
             // Discount info
@@ -140,7 +140,7 @@ fun PromoCodeCard(
                 minimumOrderAmount = promoCode.minimumOrderAmount,
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             // Badges row
             BadgesRow(
@@ -152,7 +152,7 @@ fun PromoCodeCard(
             )
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.sm),
+                modifier = Modifier.padding(vertical = SpacingTokens.sm),
                 color = MaterialTheme.colorScheme.outlineVariant,
             )
 
@@ -199,7 +199,7 @@ private fun StoreHeader(
                 }
             }
 
-            Spacer(modifier = Modifier.width(QodeSpacing.sm))
+            Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
             Column {
                 Text(
@@ -261,7 +261,7 @@ private fun PromoCodeSection(
             )
         }
 
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -270,7 +270,7 @@ private fun PromoCodeSection(
         ) {
             Text(
                 text = code,
-                modifier = Modifier.padding(QodeSpacing.sm),
+                modifier = Modifier.padding(SpacingTokens.sm),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -287,7 +287,7 @@ private fun DiscountInfo(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
         Icon(
             imageVector = QodeCommerceIcons.Discount,
@@ -342,7 +342,7 @@ private fun BadgesRow(
     expiryDate: LocalDate?
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (isVerified) {
@@ -421,7 +421,7 @@ private fun FooterSection(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             // Upvote button
             Row(
@@ -436,7 +436,7 @@ private fun FooterSection(
                                 Color.Transparent
                             },
                         )
-                        .padding(horizontal = QodeSpacing.sm, vertical = QodeSpacing.xs)
+                        .padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs)
                 } else {
                     Modifier
                 },
@@ -453,7 +453,7 @@ private fun FooterSection(
                 )
 
                 if (upvotes > 0) {
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
                     Text(
                         text = upvotes.toString(),
                         style = MaterialTheme.typography.labelMedium,
@@ -476,7 +476,7 @@ private fun FooterSection(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp),
                 )
-                Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                Spacer(modifier = Modifier.width(SpacingTokens.xs))
                 Text(
                     text = formatTimeAgo(createdAt),
                     style = MaterialTheme.typography.bodySmall,
@@ -510,8 +510,8 @@ private fun formatTimeAgo(dateTime: LocalDateTime): String {
 private fun PromoCodeCardPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             val sampleStore = Store(
                 id = "kaspi",

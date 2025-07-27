@@ -45,9 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Custom divider with various styles
@@ -82,7 +82,7 @@ fun QodeSectionHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = QodeSpacing.sm),
+            .padding(vertical = SpacingTokens.sm),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -118,7 +118,7 @@ fun QodeEmptyState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(QodeSpacing.xl),
+            .padding(SpacingTokens.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -140,7 +140,7 @@ fun QodeEmptyState(
             }
         }
 
-        Spacer(modifier = Modifier.height(QodeSpacing.lg))
+        Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
         Text(
             text = title,
@@ -149,7 +149,7 @@ fun QodeEmptyState(
         )
 
         description?.let {
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodyMedium,
@@ -159,7 +159,7 @@ fun QodeEmptyState(
         }
 
         action?.let {
-            Spacer(modifier = Modifier.height(QodeSpacing.lg))
+            Spacer(modifier = Modifier.height(SpacingTokens.lg))
             it()
         }
     }
@@ -209,8 +209,8 @@ fun QodeBadge(
         Text(
             text = text,
             modifier = Modifier.padding(
-                horizontal = QodeSpacing.sm,
-                vertical = QodeSpacing.xs,
+                horizontal = SpacingTokens.sm,
+                vertical = SpacingTokens.xs,
             ),
             style = MaterialTheme.typography.labelSmall,
             color = contentColor,
@@ -284,7 +284,7 @@ fun QodeInfoCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Top,
         ) {
@@ -294,7 +294,7 @@ fun QodeInfoCard(
                 modifier = Modifier.size(QodeSize.iconSmall),
             )
 
-            Spacer(modifier = Modifier.width(QodeSpacing.sm))
+            Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
             Text(
                 text = text,
@@ -303,7 +303,7 @@ fun QodeInfoCard(
             )
 
             onDismiss?.let {
-                Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                Spacer(modifier = Modifier.width(SpacingTokens.sm))
                 IconButton(
                     onClick = it,
                     modifier = Modifier.size(QodeSize.iconSmall),
@@ -349,7 +349,7 @@ fun QodeProgressIndicator(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(QodeSpacing.xs))
+            Spacer(modifier = Modifier.height(SpacingTokens.xs))
         }
 
         LinearProgressIndicator(
@@ -370,8 +370,8 @@ private fun QodeUtilityComponentsPreview() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                .padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             // Dividers
             Text("Dividers", style = MaterialTheme.typography.titleMedium)
@@ -380,7 +380,7 @@ private fun QodeUtilityComponentsPreview() {
                 thickness = QodeBorder.medium,
                 color = MaterialTheme.colorScheme.primary,
             )
-            QodeDivider(startIndent = QodeSpacing.md, endIndent = QodeSpacing.md)
+            QodeDivider(startIndent = SpacingTokens.md, endIndent = SpacingTokens.md)
 
             // Section Headers
             Text("Section Headers", style = MaterialTheme.typography.titleMedium)
@@ -399,7 +399,7 @@ private fun QodeUtilityComponentsPreview() {
 
             // Badges
             Text("Badges", style = MaterialTheme.typography.titleMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
                 QodeBadge("NEW")
                 QodeBadge(
                     "50% OFF",
@@ -415,7 +415,7 @@ private fun QodeUtilityComponentsPreview() {
 
             // Avatars
             Text("Avatars", style = MaterialTheme.typography.titleMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
                 QodeAvatar()
                 QodeAvatar(text = "AK")
                 QodeAvatar(
@@ -463,8 +463,8 @@ private fun QodeUtilityComponentsPreview() {
 private fun QodeEmptyStatesPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.xl),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
         ) {
             QodeEmptyState(
                 icon = Icons.Default.Search,

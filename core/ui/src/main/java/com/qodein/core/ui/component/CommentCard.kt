@@ -56,8 +56,8 @@ import com.qodein.core.designsystem.component.QodeTextFieldVariant
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Comment
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -110,9 +110,9 @@ fun CommentCard(
                                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                                 RoundedCornerShape(QodeCorners.sm),
                             )
-                            .padding(QodeSpacing.sm)
+                            .padding(SpacingTokens.sm)
                     } else {
-                        Modifier.padding(QodeSpacing.sm)
+                        Modifier.padding(SpacingTokens.sm)
                     },
                 ),
         ) {
@@ -124,7 +124,7 @@ fun CommentCard(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             )
 
-            Spacer(modifier = Modifier.width(QodeSpacing.sm))
+            Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
             // Comment content
             Column(modifier = Modifier.weight(1f)) {
@@ -147,7 +147,7 @@ fun CommentCard(
                             fontWeight = FontWeight.SemiBold,
                         )
 
-                        Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                        Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -158,7 +158,7 @@ fun CommentCard(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(14.dp),
                             )
-                            Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                            Spacer(modifier = Modifier.width(SpacingTokens.xs))
                             Text(
                                 text = formatTimeAgo(comment.createdAt),
                                 style = MaterialTheme.typography.bodySmall,
@@ -195,7 +195,7 @@ fun CommentCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
                 // Comment text
                 Text(
@@ -204,12 +204,12 @@ fun CommentCard(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                 // Action buttons
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                 ) {
                     // Upvote button
                     Row(
@@ -225,7 +225,7 @@ fun CommentCard(
                                         MaterialTheme.colorScheme.surface
                                     },
                                 )
-                                .padding(horizontal = QodeSpacing.sm, vertical = QodeSpacing.xs)
+                                .padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs)
                         } else {
                             Modifier
                         },
@@ -246,7 +246,7 @@ fun CommentCard(
                         )
 
                         if (comment.upvotes > 0) {
-                            Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                            Spacer(modifier = Modifier.width(SpacingTokens.xs))
                             Text(
                                 text = comment.upvotes.toString(),
                                 style = MaterialTheme.typography.labelSmall,
@@ -264,8 +264,8 @@ fun CommentCard(
                         TextButton(
                             onClick = { onReplyClick(comment) },
                             contentPadding = PaddingValues(
-                                horizontal = QodeSpacing.sm,
-                                vertical = QodeSpacing.xs,
+                                horizontal = SpacingTokens.sm,
+                                vertical = SpacingTokens.xs,
                             ),
                         ) {
                             Icon(
@@ -273,7 +273,7 @@ fun CommentCard(
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                             )
-                            Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                            Spacer(modifier = Modifier.width(SpacingTokens.xs))
                             Text(
                                 text = "Reply",
                                 style = MaterialTheme.typography.labelMedium,
@@ -286,8 +286,8 @@ fun CommentCard(
                         TextButton(
                             onClick = { showReplies = !showReplies },
                             contentPadding = PaddingValues(
-                                horizontal = QodeSpacing.sm,
-                                vertical = QodeSpacing.xs,
+                                horizontal = SpacingTokens.sm,
+                                vertical = SpacingTokens.xs,
                             ),
                         ) {
                             Icon(
@@ -299,7 +299,7 @@ fun CommentCard(
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                             )
-                            Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                            Spacer(modifier = Modifier.width(SpacingTokens.xs))
                             Text(
                                 text = "${comment.replies.size} ${if (comment.replies.size == 1) "reply" else "replies"}",
                                 style = MaterialTheme.typography.labelMedium,
@@ -355,7 +355,7 @@ fun CommentInput(
         shadowElevation = if (replyingTo != null) 2.dp else 0.dp,
     ) {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
         ) {
             // Replying to indicator
             replyingTo?.let { username ->
@@ -376,13 +376,13 @@ fun CommentInput(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
             }
 
             if (isLoggedIn) {
                 Row(
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     QodeAvatar(
                         text = "ME",
@@ -398,7 +398,7 @@ fun CommentInput(
                             maxLines = 4,
                         )
 
-                        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                        Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -428,7 +428,7 @@ fun CommentInput(
                             MaterialTheme.colorScheme.surfaceVariant,
                             RoundedCornerShape(QodeCorners.md),
                         )
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(
@@ -439,13 +439,13 @@ fun CommentInput(
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Medium,
                         )
-                        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                        Spacer(modifier = Modifier.height(SpacingTokens.xs))
                         Text(
                             text = "Log in to comment and upvote",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                        Spacer(modifier = Modifier.height(SpacingTokens.sm))
                         QodeButton(
                             onClick = { /* Navigate to login */ },
                             text = "Log In",
@@ -482,7 +482,7 @@ fun CommentsList(
         LazyColumn(
             modifier = modifier,
             contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             items(comments) { comment ->
                 CommentCard(
@@ -566,8 +566,8 @@ private fun getSampleComments(): List<Comment> =
 private fun CommentCardPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             val sampleComments = getSampleComments()
 
@@ -579,7 +579,7 @@ private fun CommentCardPreview() {
                 isLoggedIn = true,
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             CommentInput(
                 onSubmitComment = {},

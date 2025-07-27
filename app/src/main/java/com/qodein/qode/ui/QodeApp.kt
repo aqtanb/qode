@@ -19,7 +19,7 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeSearchTopAppBar
-import com.qodein.core.designsystem.theme.QodeSpacing
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.qode.navigation.QodeNavHost
 
 @Composable
@@ -60,7 +60,7 @@ internal fun QodeApp(
                 contentDescription = "Add",
                 variant = QodeButtonVariant.Primary,
                 size = QodeButtonSize.Large,
-                modifier = Modifier.padding(QodeSpacing.sm),
+                modifier = Modifier.padding(SpacingTokens.sm),
             )
         },
 

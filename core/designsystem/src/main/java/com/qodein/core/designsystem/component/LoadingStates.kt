@@ -37,8 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Full screen loading indicator with optional message
@@ -63,7 +63,7 @@ fun QodeLoadingScreen(
             )
 
             message?.let {
-                Spacer(modifier = Modifier.height(QodeSpacing.md))
+                Spacer(modifier = Modifier.height(SpacingTokens.md))
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyLarge,
@@ -86,7 +86,7 @@ fun QodeLoadingContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(QodeSpacing.xl),
+            .padding(SpacingTokens.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -97,7 +97,7 @@ fun QodeLoadingContent(
         )
 
         message?.let {
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodyMedium,
@@ -138,7 +138,7 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             // Description skeleton
             Box(
@@ -149,7 +149,7 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.xs))
+            Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
             Box(
                 modifier = Modifier
@@ -159,7 +159,7 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             // Action skeleton
             Box(
@@ -199,7 +199,7 @@ fun QodeListItemSkeleton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (showIcon) {
@@ -209,7 +209,7 @@ fun QodeListItemSkeleton(
                         .clip(RoundedCornerShape(QodeCorners.sm))
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
                 )
-                Spacer(modifier = Modifier.width(QodeSpacing.md))
+                Spacer(modifier = Modifier.width(SpacingTokens.md))
             }
 
             Column(modifier = Modifier.weight(1f)) {
@@ -220,7 +220,7 @@ fun QodeListItemSkeleton(
                         .clip(RoundedCornerShape(QodeCorners.xs))
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
                 )
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
@@ -300,8 +300,8 @@ fun QodePullRefreshIndicator(
 private fun QodeLoadingStatesPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             Text("Loading Screen", style = MaterialTheme.typography.titleMedium)
             Surface(
@@ -325,7 +325,7 @@ private fun QodeLoadingStatesPreview() {
             QodeCardSkeleton()
 
             Text("List Item Skeleton", style = MaterialTheme.typography.titleMedium)
-            Column(verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
                 QodeListItemSkeleton()
                 QodeListItemSkeleton(showIcon = false)
             }

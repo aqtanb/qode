@@ -52,8 +52,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeElevation
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Navigation item data class
@@ -207,7 +207,7 @@ fun QodeNavigationRail(
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         header = header,
     ) {
-        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
         items.forEach { item ->
             QodeNavigationRailItem(
                 item = item,
@@ -331,12 +331,12 @@ private fun QodeBottomNavigationPreview() {
                 onItemClick = {},
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             Text(
                 "Without Labels",
                 style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
 
             QodeBottomNavigation(
@@ -401,7 +401,7 @@ private fun QodeNavigationRailPreview() {
                 color = MaterialTheme.colorScheme.surfaceVariant,
             ) {
                 Box(
-                    modifier = Modifier.padding(QodeSpacing.md),
+                    modifier = Modifier.padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text("Content Area")

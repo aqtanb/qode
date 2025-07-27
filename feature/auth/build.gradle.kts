@@ -37,36 +37,28 @@ android {
 }
 
 dependencies {
-    // Core modules
+    // Project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
 
-    // AndroidX Core
+    // Core Android & Compose
     implementation(libs.bundles.androidx.core)
-
-    // Compose BOM & UI
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose.ui)
-    implementation(libs.bundles.material.design)
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.lifecycle)
+    implementation(libs.bundles.navigation)
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
-    // Lifecycle & ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
+    // Dependency Injection
+    implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
-    // Country Code Picker (needed for QodePhoneInput component)
+    // Country Code Picker
     implementation(libs.xmaterial.ccp)
 
     // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.testing)
-    debugImplementation(libs.bundles.debug.tools)
+    testImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.bundles.testing.android)
+
+    // Debug Tools
+    debugImplementation(libs.bundles.debug)
 }

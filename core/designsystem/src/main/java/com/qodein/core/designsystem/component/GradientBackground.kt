@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 enum class QodeGradientStyle {
     /** Main brand gradient for primary screens */
@@ -255,13 +255,13 @@ private fun PreviewContent(
         contentAlignment = Alignment.Center,
     ) {
         Surface(
-            modifier = Modifier.padding(QodeSpacing.lg),
+            modifier = Modifier.padding(SpacingTokens.lg),
             shape = RoundedCornerShape(QodeCorners.lg),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
             tonalElevation = 8.dp,
         ) {
             Column(
-                modifier = Modifier.padding(QodeSpacing.xl),
+                modifier = Modifier.padding(SpacingTokens.xl),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(

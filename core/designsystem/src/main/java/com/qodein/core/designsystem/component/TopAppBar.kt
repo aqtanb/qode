@@ -37,8 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * TopAppBar variants for Qode design system
@@ -392,7 +392,7 @@ private fun QodeTopAppBarPreview() {
                 ),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             QodeTopAppBar(
                 title = "Store Details",
@@ -413,7 +413,7 @@ private fun QodeTopAppBarPreview() {
                 ),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             QodeTopAppBar(
                 title = "Promo Codes",

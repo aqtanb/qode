@@ -37,7 +37,6 @@ subprojects {
         format("misc") {
             target("**/*.md", "**/*.gradle", "**/.gitignore")
             trimTrailingWhitespace()
-            indentWithSpaces()
             endWithNewline()
         }
     }

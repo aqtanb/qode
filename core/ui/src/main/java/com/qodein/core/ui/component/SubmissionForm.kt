@@ -60,8 +60,8 @@ import com.qodein.core.designsystem.component.QodeTextFieldState
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.Store
 import com.qodein.core.ui.model.StoreCategory
@@ -122,8 +122,8 @@ fun SubmissionForm(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(QodeSpacing.md),
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            .padding(SpacingTokens.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         // Form header
         Text(
@@ -199,7 +199,7 @@ fun SubmissionForm(
             )
         }
 
-        Spacer(modifier = Modifier.height(QodeSpacing.md))
+        Spacer(modifier = Modifier.height(SpacingTokens.md))
 
         // Submit button
         QodeButton(
@@ -217,7 +217,7 @@ fun SubmissionForm(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = QodeSpacing.sm),
+            modifier = Modifier.padding(vertical = SpacingTokens.sm),
         )
     }
 }
@@ -246,7 +246,7 @@ private fun StoreSelector(
             fontWeight = FontWeight.Medium,
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
         Box {
             OutlinedCard(
@@ -264,7 +264,7 @@ private fun StoreSelector(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -298,7 +298,7 @@ private fun StoreSelector(
                     variant = QodeTextFieldVariant.Search,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.sm),
+                        .padding(SpacingTokens.sm),
                 )
 
                 // Store list
@@ -347,7 +347,7 @@ private fun StoreSelector(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = QodeSpacing.xs),
+                modifier = Modifier.padding(top = SpacingTokens.xs),
             )
         }
     }
@@ -368,7 +368,7 @@ private fun BasicInfoSection(
 ) {
     QodeCard(variant = QodeCardVariant.Outlined) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             Text(
                 text = "Promo Code Details",
@@ -435,7 +435,7 @@ private fun CategorySelector(
             fontWeight = FontWeight.Medium,
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
         Box {
             OutlinedCard(
@@ -446,7 +446,7 @@ private fun CategorySelector(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -460,7 +460,7 @@ private fun CategorySelector(
                                 tint = category.color,
                                 modifier = Modifier.size(20.dp),
                             )
-                            Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                            Spacer(modifier = Modifier.width(SpacingTokens.sm))
                         }
 
                         Text(
@@ -509,7 +509,7 @@ private fun CategorySelector(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = QodeSpacing.xs),
+                modifier = Modifier.padding(top = SpacingTokens.xs),
             )
         }
     }
@@ -530,7 +530,7 @@ private fun DiscountDetailsSection(
 ) {
     QodeCard(variant = QodeCardVariant.Outlined) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             Text(
                 text = "Discount Information",
@@ -545,7 +545,7 @@ private fun DiscountDetailsSection(
             )
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 QodeTextField(
                     value = discountAmount,
@@ -604,7 +604,7 @@ private fun OptionsSection(
 
     QodeCard(variant = QodeCardVariant.Outlined) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             Text(
                 text = "Additional Options",
@@ -621,7 +621,7 @@ private fun OptionsSection(
                     checked = isFirstOrderOnly,
                     onCheckedChange = onFirstOrderOnlyChange,
                 )
-                Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                Spacer(modifier = Modifier.width(SpacingTokens.sm))
                 Column {
                     Text(
                         text = "First order only",
@@ -644,7 +644,7 @@ private fun OptionsSection(
                     checked = isSingleUse,
                     onCheckedChange = onSingleUseChange,
                 )
-                Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                Spacer(modifier = Modifier.width(SpacingTokens.sm))
                 Column {
                     Text(
                         text = "Single use per person",
@@ -666,11 +666,11 @@ private fun OptionsSection(
                     fontWeight = FontWeight.Medium,
                 )
 
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     OutlinedCard(
                         modifier = Modifier
@@ -680,7 +680,7 @@ private fun OptionsSection(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(QodeSpacing.md),
+                                .padding(SpacingTokens.md),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -781,7 +781,7 @@ private fun PreviewSection(
                 exit = shrinkVertically(),
             ) {
                 Column(
-                    modifier = Modifier.padding(top = QodeSpacing.md),
+                    modifier = Modifier.padding(top = SpacingTokens.md),
                 ) {
                     Text(
                         text = "How your promo code will appear:",
@@ -789,13 +789,13 @@ private fun PreviewSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                     // Mock promo code card
                     // TODO: Use actual PromoCodeCard component with the form data
                     OutlinedCard {
                         Column(
-                            modifier = Modifier.padding(QodeSpacing.md),
+                            modifier = Modifier.padding(SpacingTokens.md),
                         ) {
                             Text(
                                 text = formData.title,

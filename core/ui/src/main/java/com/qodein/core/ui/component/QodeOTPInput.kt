@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * OTP input state
@@ -88,7 +88,7 @@ fun QodeOTPInput(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             repeat(digitCount) { index ->
@@ -127,7 +127,7 @@ fun QodeOTPInput(
 
         // Error message
         if (state is QodeOTPState.Error) {
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
             Text(
                 text = state.message,
                 style = MaterialTheme.typography.bodySmall,
@@ -262,8 +262,8 @@ private fun OTPDigitBox(
 private fun QodeOTPInputPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.xl),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
         ) {
             // Empty state
             Text("Empty", style = MaterialTheme.typography.titleMedium)
@@ -311,8 +311,8 @@ private fun QodeOTPInputPreview() {
 private fun QodeOTPInputDigitCountPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             Text("4 Digits", style = MaterialTheme.typography.titleMedium)
             QodeOTPInput(

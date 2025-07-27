@@ -1,78 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Phone Input Component -->
-    <string name="phone_number">Phone Number</string>
-    <string name="enter_phone_number">Enter your phone number</string>
-    <string name="invalid_phone_number">Invalid phone number</string>
-    <string name="phone_number_required">Phone number is required</string>
-    <string name="phone_number_too_short">Phone number is too short</string>
-    <string name="phone_number_too_long">Phone number is too long</string>
+    <string name="phone_input_label">Phone Number</string>
+    <string name="phone_input_placeholder">Enter phone number</string>
+    <string name="phone_input_too_short">Phone number too short</string>
+    <string name="phone_input_too_long">Phone number too long</string>
+    <string name="phone_input_required">Phone number is required</string>
+    <string name="phone_input_validating">Validating…</string>
+    <string name="phone_input_valid">Valid number</string>
     <string name="phone_number_invalid_format">Please enter a valid phone number</string>
+
+    <!-- Country Picker -->
+    <string name="select_country">Select Country</string>
+    <string name="search_countries">Search countries</string>
+    <string name="no_countries_found">No countries found</string>
+    <string name="country_selected">Country selected</string>
+
+    <!-- Navigation -->
+    <string name="navigate_back">Navigate back</string>
+    <string name="close">Close</string>
+    <string name="clear_search">Clear search</string>
+    <string name="clear_phone_number">Clear phone number</string>
+
+
+    <!-- Accessibility -->
+    <string name="phone_input_content_desc">Phone number input field</string>
+    <string name="phone_input_flag_content_desc">Country flag for %s</string>
+    <string name="phone_input_dropdown_content_desc">Open country picker</string>
+    <string name="phone_input_error_content_desc">Phone number error</string>
+    <string name="phone_input_success_content_desc">Phone number valid</string>
 
     <!-- Common Input States -->
     <string name="field_required">This field is required</string>
     <string name="field_invalid">Invalid input</string>
     <string name="field_success">Valid input</string>
 
-    <!-- Accessibility -->
-    <string name="country_picker_description">Select country code</string>
-    <string name="phone_input_description">Enter phone number</string>
-
-    <!-- Validation Messages -->
-    <string name="validation_phone_required">Phone number is required</string>
-    <string name="validation_phone_too_short">Phone number is too short</string>
-    <string name="validation_phone_too_long">Phone number is too long</string>
-    <string name="validation_phone_invalid">Please enter a valid phone number</string>
-
-    <!-- Additional validation strings -->
-    <string name="validation_phone_min_length">Phone number must be at least 7 digits</string>
-    <string name="validation_phone_max_length">Phone number must be less than 16 digits</string>
-
-    <string name="phone_number_hint">Enter phone number</string>
-    <string name="phone_verify_button">Verify Phone</string>
-    <string name="invalid_phone_error">Please enter a valid phone number</string>
-    <string name="phone_number_label">Phone Number</string>
-    <string name="select_country">Select Country</string>
-    <string name="ccp_demo_title">Country Code Picker Demo</string>
-    <string name="phone_validation_success">Phone number is valid!</string>
-    <string name="full_phone_debug">Full Phone: %1$s (%2$s)</string>
-
-    <!-- Additional Phone Input strings -->
-    <string name="phone_input_label">Phone Number</string>
-    <string name="phone_input_placeholder">Enter phone number</string>
-    <string name="phone_input_search_placeholder">Search countries</string>
-    <string name="phone_input_recent_countries">Recent</string>
-    <string name="phone_input_all_countries">All Countries</string>
-    <string name="phone_input_clear_number">Clear phone number</string>
-    <string name="phone_input_select_country">Select country</string>
-    <string name="phone_input_country_selected">Country selected: %s</string>
-    <string name="phone_input_too_short">Phone number too short</string>
-    <string name="phone_input_too_long">Phone number too long</string>
-    <string name="phone_input_required">Phone number is required</string>
-    <string name="phone_input_verify_button">Verify Number</string>
-    <string name="phone_input_validating">Validating…</string>
-    <string name="phone_input_valid">Valid number</string>
-    <string name="phone_input_country_auto_detected">Country auto-detected from number</string>
-    <string name="phone_input_paste_detected">Number pasted and formatted</string>
-
-    <!-- Accessibility -->
-    <string name="phone_input_content_desc">Phone number input field</string>
-    <string name="phone_input_flag_content_desc">Country flag for %s</string>
-    <string name="phone_input_dropdown_content_desc">Open country picker</string>
-    <string name="phone_input_clear_content_desc">Clear phone number</string>
-    <string name="phone_input_error_content_desc">Phone number error</string>
-    <string name="phone_input_success_content_desc">Phone number valid</string>
-
-    <!-- Demo/Testing -->
-    <string name="phone_input_demo_title">Phone Input Component</string>
-    <string name="phone_input_demo_subtitle">Production-ready with all features</string>
-    <string name="phone_input_demo_basic">Basic Usage</string>
-    <string name="phone_input_demo_advanced">Advanced Features</string>
-    <string name="phone_input_demo_validation">With Validation</string>
-    <string name="phone_input_demo_custom">Custom Styling</string>
-
-    <!-- Country Picker Strings -->
-    <string name="search_countries">Search countries</string>
-    <string name="close">Close</string>
-    <string name="clear_search">Clear search</string>
+    <!-- Legacy strings that might be used elsewhere -->
+    <string name="phone_number">Phone Number</string>
+    <string name="enter_phone_number">Enter your phone number</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
+    <string name="phone_number_required">Phone number is required</string>
+    <string name="phone_number_too_short">Phone number is too short</string>
+    <string name="phone_number_too_long">Phone number is too long</string>
 </resources>

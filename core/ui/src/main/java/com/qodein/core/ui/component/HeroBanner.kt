@@ -47,8 +47,8 @@ import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.Store
@@ -110,8 +110,8 @@ fun HeroBanner(
         // Pager
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(horizontal = QodeSpacing.md),
-            pageSpacing = QodeSpacing.sm,
+            contentPadding = PaddingValues(horizontal = SpacingTokens.md),
+            pageSpacing = SpacingTokens.sm,
             pageSize = PageSize.Fill,
             modifier = Modifier.height(200.dp),
         ) { page ->
@@ -125,7 +125,7 @@ fun HeroBanner(
 
         // Page indicators
         if (items.size > 1) {
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
             PageIndicators(
                 pageCount = items.size,
                 currentPage = pagerState.currentPage,
@@ -158,7 +158,7 @@ private fun HeroBannerCard(
                         colors = item.backgroundGradient,
                     ),
                 )
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -175,7 +175,7 @@ private fun HeroBannerCard(
                         overflow = TextOverflow.Ellipsis,
                     )
 
-                    Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                    Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
                     Text(
                         text = item.subtitle,
@@ -186,7 +186,7 @@ private fun HeroBannerCard(
                     )
 
                     item.description?.let { desc ->
-                        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                        Spacer(modifier = Modifier.height(SpacingTokens.xs))
                         Text(
                             text = desc,
                             style = MaterialTheme.typography.bodyMedium,
@@ -211,7 +211,7 @@ private fun HeroBannerCard(
                                 contentColor = item.backgroundGradient.first(),
                             )
                             if (promo.isVerified) {
-                                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                                Spacer(modifier = Modifier.height(SpacingTokens.xs))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
@@ -221,7 +221,7 @@ private fun HeroBannerCard(
                                         tint = Color.White,
                                         modifier = Modifier.size(16.dp),
                                     )
-                                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
                                     Text(
                                         text = "Verified",
                                         style = MaterialTheme.typography.labelSmall,
@@ -255,7 +255,7 @@ private fun PageIndicators(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
         repeat(pageCount) { index ->
             val isSelected = index == currentPage
@@ -302,7 +302,7 @@ fun CompactHeroBanner(
                         colors = item.backgroundGradient,
                     ),
                 )
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -364,7 +364,7 @@ fun StatsBanner(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -410,7 +410,7 @@ private fun StatItem(
             modifier = Modifier.size(24.dp),
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
         Text(
             text = value,
@@ -494,8 +494,8 @@ private fun getSampleBannerItems(): List<HeroBannerItem> {
 private fun HeroBannerPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(vertical = QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            modifier = Modifier.padding(vertical = SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             HeroBanner(
                 items = getSampleBannerItems(),
@@ -505,14 +505,14 @@ private fun HeroBannerPreview() {
             CompactHeroBanner(
                 item = getSampleBannerItems().first(),
                 onClick = {},
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
 
             StatsBanner(
                 totalCodes = 1250,
                 activeUsers = 25,
                 totalSavings = "2.5M ₸",
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
         }
     }

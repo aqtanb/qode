@@ -232,7 +232,7 @@ object ElevationTokens {
 
 @Deprecated(
     "Use SpacingTokens with semantic names instead",
-    ReplaceWith("SpacingTokens.xs"),
+    ReplaceWith("SpacingTokens"),
 )
 object QodeSpacing {
     @Deprecated("Use SpacingTokens.xs", ReplaceWith("SpacingTokens.xs"))

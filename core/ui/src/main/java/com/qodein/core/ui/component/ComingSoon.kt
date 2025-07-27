@@ -44,8 +44,8 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Types of coming soon features
@@ -158,7 +158,7 @@ fun ComingSoonCard(
                             }
                         }
 
-                        Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                        Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
                         Column {
                             Text(
@@ -189,7 +189,7 @@ fun ComingSoonCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(QodeSpacing.md))
+                Spacer(modifier = Modifier.height(SpacingTokens.md))
 
                 // Description
                 Text(
@@ -200,7 +200,7 @@ fun ComingSoonCard(
 
                 // Action button for notifications
                 if (onNotifyMeClick != null && type != ComingSoonType.Locked) {
-                    Spacer(modifier = Modifier.height(QodeSpacing.md))
+                    Spacer(modifier = Modifier.height(SpacingTokens.md))
                     QodeButton(
                         onClick = onNotifyMeClick,
                         text = when (type) {
@@ -264,15 +264,15 @@ fun FeatureRoadmap(
             text = "Coming Soon",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
         )
 
         features.forEach { item ->
             RoadmapItemCard(
                 item = item,
                 modifier = Modifier.padding(
-                    horizontal = QodeSpacing.md,
-                    vertical = QodeSpacing.xs,
+                    horizontal = SpacingTokens.md,
+                    vertical = SpacingTokens.xs,
                 ),
             )
         }
@@ -292,7 +292,7 @@ private fun RoadmapItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Progress indicator
@@ -309,7 +309,7 @@ private fun RoadmapItemCard(
                     ),
             )
 
-            Spacer(modifier = Modifier.width(QodeSpacing.md))
+            Spacer(modifier = Modifier.width(SpacingTokens.md))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -378,8 +378,8 @@ private fun getSampleRoadmap(): List<RoadmapItem> =
 private fun ComingSoonPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             ComingSoonCard(
                 title = "Push Notifications",
@@ -408,7 +408,7 @@ private fun ComingSoonPreview() {
 
             // Badges row
             Row(
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 ComingSoonBadge(type = ComingSoonType.Feature)
                 ComingSoonBadge(type = ComingSoonType.Premium)
