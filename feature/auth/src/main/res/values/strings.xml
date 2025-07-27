@@ -35,6 +35,17 @@
     <string name="already_have_account">Already have an account?</string>
     <string name="sign_in">Sign In</string>
 
+    <!-- Country Picker Screen -->
+    <string name="choose_a_country">Choose a country</string>
+    <string name="search_placeholder">Search countries…</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear search</string>
+    <string name="country_selected">Country selected</string>
+    <string name="loading_countries">Loading countries…</string>
+    <string name="no_countries_found">No countries found for \"%1$s\"</string>
+    <string name="try_different_search">Try a different search term</string>
+
     <!-- Accessibility -->
     <string name="qode_logo_content_desc">Qode app logo</string>
     <string name="google_logo_content_desc">Google logo</string>
@@ -65,6 +76,7 @@
     <string name="terms_first_line">By continuing, you agree to our</string>
     <string name="and">and</string>
     <string name="agree_to">By continuing, you agree to our</string>
+
     <!-- Phone Authentication -->
     <string name="phone_verification_title">Verify Your Phone</string>
     <string name="phone_verification_subtitle">Enter your phone number to get started</string>
@@ -86,5 +98,5 @@
 
     <!-- Success -->
     <string name="auth_success">Welcome! Your account is ready.</string>
-
+    <string name="search_bar_title">Choose a country</string>
 </resources>

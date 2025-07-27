@@ -43,6 +43,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.feature.auth)
     implementation(projects.feature.home)
+    implementation(projects.core.model)
 
     // Core Android & Compose (using bundles)
     implementation(libs.bundles.androidx.core)

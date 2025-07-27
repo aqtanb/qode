@@ -42,4 +42,5 @@
     <string name="phone_number_required">Phone number is required</string>
     <string name="phone_number_too_short">Phone number is too short</string>
     <string name="phone_number_too_long">Phone number is too long</string>
+    <string name="country_picker_title">Choose a country</string>
 </resources>

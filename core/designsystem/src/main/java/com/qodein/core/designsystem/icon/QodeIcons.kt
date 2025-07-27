@@ -528,7 +528,7 @@ object QodeActionIcons {
     val Edit: ImageVector = FeatherIcons.Edit3
     val Save: ImageVector = FeatherIcons.Save
     val Cancel: ImageVector = FeatherIcons.X
-    val Done: ImageVector = FeatherIcons.Check
+    val Check: ImageVector = FeatherIcons.Check
     val Submit: ImageVector = FeatherIcons.Send
     val Clear: ImageVector = FeatherIcons.XCircle
     val Reset: ImageVector = FeatherIcons.RotateCcw

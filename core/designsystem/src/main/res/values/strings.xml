@@ -27,4 +27,9 @@
     <string name="collapse">Collapse</string>
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
+
+    <!-- SearchableTopAppBar Component -->
+    <string name="search_placeholder">Search</string>
+    <string name="clear_search">Clear search</string>
+    <string name="navigate_back">Navigate back</string>
 </resources>

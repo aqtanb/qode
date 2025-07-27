@@ -21,6 +21,7 @@ import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeSearchTopAppBar
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.qode.navigation.QodeNavHost
+import com.qodein.qode.navigation.TopLevelDestination
 
 @Composable
 fun QodeApp(
@@ -40,33 +41,38 @@ internal fun QodeApp(
     onTopBarActionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentDestination = appState.currentTopLevelDestination
+    val isHomeDestination = currentDestination == TopLevelDestination.HOME
+
     Scaffold(
         topBar = {
-            var searchQuery by remember { mutableStateOf("") }
+            if (isHomeDestination) {
+                var searchQuery by remember { mutableStateOf("") }
 
-            QodeSearchTopAppBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it },
-                onSearchClose = { searchQuery = "" },
-                placeholder = "Search promo codes...",
-                modifier = Modifier.padding(8.dp),
-            )
+                QodeSearchTopAppBar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { searchQuery = it },
+                    onSearchClose = { searchQuery = "" },
+                    placeholder = "Search promo codes...",
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
         },
 
         floatingActionButton = {
-            QodeIconButton(
-                onClick = onTopBarActionClick,
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                variant = QodeButtonVariant.Primary,
-                size = QodeButtonSize.Large,
-                modifier = Modifier.padding(SpacingTokens.sm),
-            )
+            if (isHomeDestination) {
+                QodeIconButton(
+                    onClick = onTopBarActionClick,
+                    icon = Icons.Default.Add,
+                    contentDescription = "Add",
+                    variant = QodeButtonVariant.Primary,
+                    size = QodeButtonSize.Large,
+                    modifier = Modifier.padding(SpacingTokens.sm),
+                )
+            }
         },
 
         bottomBar = {
-            val currentDestination = appState.currentTopLevelDestination
-
             Column {
                 QodeBottomNavigation(
                     items = appState.topLevelDestinations.map { destination ->

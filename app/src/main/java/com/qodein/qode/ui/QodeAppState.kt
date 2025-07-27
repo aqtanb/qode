@@ -53,27 +53,29 @@ class QodeAppState(val navController: NavHostController) {
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
-        // Для логов, какая навигация сколько времени занимает
         trace("Navigation: ${topLevelDestination.name}") {
-            // Change to route instance, if you want
             val topLevelNavOptions = navOptions {
-                // Pop up to the start destination of the graph to
-                // avoid building up a large stack of destinations
-                // on the back stack as users select items
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
-                // Avoid multiple copies of the same destination when
-                // reselecting the same item
                 launchSingleTop = true
-                // Restore state when reselecting a previously selected item
                 restoreState = true
             }
+
             when (topLevelDestination) {
-                HOME -> com.qodein.feature.home.navigation.HomeBaseRoute
-                CATALOG -> com.qodein.qode.navigation.CatalogBaseRoute
-                HISTORY -> com.qodein.qode.navigation.HistoryBaseRoute
-                MORE -> navController.navigateToAuth(topLevelNavOptions)
+                HOME -> navController.navigate(
+                    route = com.qodein.feature.home.navigation.HomeBaseRoute,
+                    navOptions = topLevelNavOptions,
+                )
+                CATALOG -> navController.navigate(
+                    route = com.qodein.qode.navigation.CatalogBaseRoute,
+                    navOptions = topLevelNavOptions,
+                )
+                HISTORY -> navController.navigate(
+                    route = com.qodein.qode.navigation.HistoryBaseRoute,
+                    navOptions = topLevelNavOptions,
+                )
+                MORE -> navController.navigateToAuth(navOptions = topLevelNavOptions)
             }
         }
     }

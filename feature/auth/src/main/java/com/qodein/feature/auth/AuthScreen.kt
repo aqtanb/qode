@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.data.mapper.toCountryData
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
@@ -40,25 +39,31 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.PhoneValidationState
 import com.qodein.core.ui.component.QodePhoneInput
+import com.qodein.core.ui.util.PhoneUtils
+import com.qodein.feature.auth.R
 
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
+    onNavigateToCountryPicker: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
+
     AuthContent(
         modifier = modifier,
-        onAction = viewModel::onAction,
-        uiState = uiState,
+        state = state,
+        onAction = viewModel::handleAction,
+        onNavigateToCountryPicker = onNavigateToCountryPicker,
     )
 }
 
 @Composable
 fun AuthContent(
     modifier: Modifier = Modifier,
+    state: AuthViewState,
     onAction: (AuthAction) -> Unit,
-    uiState: AuthUiState
+    onNavigateToCountryPicker: () -> Unit
 ) {
     QodeGradientBackground(
         style = QodeGradientStyle.Primary,
@@ -70,8 +75,7 @@ fun AuthContent(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
                     .padding(
                         horizontal = SpacingTokens.lg,
                         vertical = SpacingTokens.xxxl,
@@ -132,13 +136,13 @@ fun AuthContent(
                                 modifier = Modifier.padding(start = SpacingTokens.xs, bottom = SpacingTokens.sm),
                             )
                             QodePhoneInput(
-                                phoneNumber = uiState.phoneNumber,
-                                selectedCountry = uiState.selectedCountry,
+                                phoneNumber = state.phoneNumber,
+                                selectedCountry = state.selectedCountry?.toCountryData()
+                                    ?: PhoneUtils.getAllCountries().find { it.countryCode == "kz" }
+                                    ?: PhoneUtils.getAllCountries().first(),
                                 validationState = PhoneValidationState.Idle,
                                 onPhoneNumberChange = { onAction(AuthAction.PhoneNumberChanged(it)) },
-                                onCountryPickerClick = {
-                                    // TODO: Handle country picker click
-                                },
+                                onCountryPickerClick = onNavigateToCountryPicker,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -243,14 +247,10 @@ fun AuthContent(
 @Composable
 private fun AuthScreenPreview() {
     QodeTheme {
-        AuthScreen()
-    }
-}
-
-@Preview(name = "Auth Screen - Dark", showSystemUi = true)
-@Composable
-private fun AuthScreenDarkPreview() {
-    QodeTheme(darkTheme = true) {
-        AuthScreen()
+        AuthContent(
+            onAction = {},
+            state = AuthViewState(),
+            onNavigateToCountryPicker = {},
+        )
     }
 }
