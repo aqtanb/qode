@@ -76,3 +76,8 @@ lint/tmp/
 *.hprof
 
 /.kotlin/
+
+# AI Assistant Instructions
+CLAUDE.md
+claude.md
+*.claude.md
