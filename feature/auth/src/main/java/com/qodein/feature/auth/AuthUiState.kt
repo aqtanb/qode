@@ -3,7 +3,7 @@ package com.qodein.feature.auth
 import com.qodein.core.model.Country
 import com.qodein.core.model.PhoneNumber
 
-data class AuthViewState(
+data class AuthUiState(
     val selectedCountry: Country? = null,
     val phoneNumber: String = "",
     val isLoading: Boolean = false,

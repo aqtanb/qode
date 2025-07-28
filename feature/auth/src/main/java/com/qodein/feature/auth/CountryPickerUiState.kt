@@ -2,7 +2,7 @@ package com.qodein.feature.auth
 
 import com.qodein.core.model.Country
 
-data class CountryPickerViewState(
+data class CountryPickerUiState(
     val countries: List<Country> = emptyList(),
     val filteredCountries: List<Country> = emptyList(),
     val selectedCountry: Country? = null,

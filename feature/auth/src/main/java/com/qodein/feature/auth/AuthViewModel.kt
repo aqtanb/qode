@@ -21,7 +21,7 @@ class AuthViewModel @Inject constructor(
     private val getCountriesUseCase: GetCountriesUseCase // ✅ ADD THIS
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AuthViewState())
+    private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
 
     init {

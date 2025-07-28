@@ -55,7 +55,7 @@ fun CountryPickerScreen(
 @Composable
 fun CountryPickerContent(
     modifier: Modifier = Modifier,
-    state: CountryPickerViewState,
+    state: CountryPickerUiState,
     onAction: (CountryPickerAction) -> Unit,
     onCountrySelected: (Country) -> Unit,
     onBack: () -> Unit

@@ -21,7 +21,7 @@ class CountryPickerViewModel @Inject constructor(
     private val searchCountriesUseCase: SearchCountriesUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(CountryPickerViewState())
+    private val _state = MutableStateFlow(CountryPickerUiState())
     val state = _state.asStateFlow()
 
     init {

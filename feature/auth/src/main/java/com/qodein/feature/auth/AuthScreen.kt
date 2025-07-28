@@ -40,7 +40,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.PhoneValidationState
 import com.qodein.core.ui.component.QodePhoneInput
 import com.qodein.core.ui.util.PhoneUtils
-import com.qodein.feature.auth.R
 
 @Composable
 fun AuthScreen(
@@ -61,7 +60,7 @@ fun AuthScreen(
 @Composable
 fun AuthContent(
     modifier: Modifier = Modifier,
-    state: AuthViewState,
+    state: AuthUiState,
     onAction: (AuthAction) -> Unit,
     onNavigateToCountryPicker: () -> Unit
 ) {
@@ -249,7 +248,7 @@ private fun AuthScreenPreview() {
     QodeTheme {
         AuthContent(
             onAction = {},
-            state = AuthViewState(),
+            state = AuthUiState(),
             onNavigateToCountryPicker = {},
         )
     }
