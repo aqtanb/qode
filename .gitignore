@@ -81,3 +81,4 @@ lint/tmp/
 CLAUDE.md
 claude.md
 *.claude.md
+!/CLAUDE.local.md
