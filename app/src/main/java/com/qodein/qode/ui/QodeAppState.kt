@@ -12,7 +12,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.feature.auth.navigation.AuthBaseRoute
+import com.qodein.feature.home.navigation.HomeBaseRoute
+import com.qodein.qode.navigation.CatalogRoute
+import com.qodein.qode.navigation.HistoryRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.CATALOG
 import com.qodein.qode.navigation.TopLevelDestination.HISTORY
@@ -45,8 +48,14 @@ class QodeAppState(val navController: NavHostController) {
 
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() {
+            val currentEntry = navController.currentBackStackEntryFlow
+                .collectAsState(initial = null)
+
             return TopLevelDestination.entries.firstOrNull { topLevelDestination ->
-                currentDestination?.hasRoute(route = topLevelDestination.route) == true
+                // Check if current destination matches the route
+                currentDestination?.hasRoute(route = topLevelDestination.route) == true ||
+                    // For nested navigation, check if we're in the parent graph
+                    currentEntry.value?.destination?.parent?.hasRoute(route = topLevelDestination.route) == true
             }
         }
 
@@ -64,18 +73,21 @@ class QodeAppState(val navController: NavHostController) {
 
             when (topLevelDestination) {
                 HOME -> navController.navigate(
-                    route = com.qodein.feature.home.navigation.HomeBaseRoute,
+                    route = HomeBaseRoute,
                     navOptions = topLevelNavOptions,
                 )
                 CATALOG -> navController.navigate(
-                    route = com.qodein.qode.navigation.CatalogBaseRoute,
+                    route = CatalogRoute,
                     navOptions = topLevelNavOptions,
                 )
                 HISTORY -> navController.navigate(
-                    route = com.qodein.qode.navigation.HistoryBaseRoute,
+                    route = HistoryRoute,
                     navOptions = topLevelNavOptions,
                 )
-                MORE -> navController.navigateToAuth(navOptions = topLevelNavOptions)
+                MORE -> navController.navigate(
+                    route = AuthBaseRoute,
+                    navOptions = topLevelNavOptions,
+                )
             }
         }
     }

@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 const val COUNTRY_CODE_RESULT_KEY = "selected_country_code"
 
-@Serializable object AuthGraphRoute
+@Serializable object AuthBaseRoute
 
 @Serializable object AuthRoute
 
@@ -40,7 +40,7 @@ fun NavGraphBuilder.authSection(
     onNavigateToCountryPicker: () -> Unit,
     onBackFromCountryPicker: () -> Unit
 ) {
-    navigation<AuthGraphRoute>(startDestination = AuthRoute) {
+    navigation<AuthBaseRoute>(startDestination = AuthRoute) {
         var authBackStackEntry: NavBackStackEntry? = null
 
         composable<AuthRoute> { backStackEntry ->
