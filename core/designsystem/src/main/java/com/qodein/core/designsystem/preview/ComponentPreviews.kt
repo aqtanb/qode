@@ -55,8 +55,8 @@ import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.component.QodeTextFieldState
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Comprehensive preview of all Qode design system components
@@ -101,7 +101,7 @@ private fun DesignSystemShowcase() {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
         ) {
             // Header
             Text(
@@ -114,11 +114,11 @@ private fun DesignSystemShowcase() {
                 text = "Production-ready components for the Qode app",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = QodeSpacing.lg),
+                modifier = Modifier.padding(bottom = SpacingTokens.lg),
             )
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.md),
+                modifier = Modifier.padding(vertical = SpacingTokens.md),
                 thickness = DividerDefaults.Thickness,
                 color = DividerDefaults.color,
             )
@@ -194,7 +194,7 @@ private fun DesignSystemShowcase() {
             }
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.md),
+                modifier = Modifier.padding(vertical = SpacingTokens.md),
                 thickness = DividerDefaults.Thickness,
                 color = DividerDefaults.color,
             )
@@ -247,7 +247,7 @@ private fun DesignSystemShowcase() {
             }
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.md),
+                modifier = Modifier.padding(vertical = SpacingTokens.md),
                 thickness = DividerDefaults.Thickness,
                 color = DividerDefaults.color,
             )
@@ -305,7 +305,7 @@ private fun DesignSystemShowcase() {
             }
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.md),
+                modifier = Modifier.padding(vertical = SpacingTokens.md),
                 thickness = DividerDefaults.Thickness,
                 color = DividerDefaults.color,
             )
@@ -372,7 +372,7 @@ private fun DesignSystemShowcase() {
                             ) {
                                 Text(
                                     "NEW",
-                                    modifier = Modifier.padding(horizontal = QodeSpacing.sm, vertical = QodeSpacing.xs),
+                                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )
@@ -414,7 +414,7 @@ private fun DesignSystemShowcase() {
             }
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.md),
+                modifier = Modifier.padding(vertical = SpacingTokens.md),
                 thickness = DividerDefaults.Thickness,
                 color = DividerDefaults.color,
             )
@@ -424,7 +424,7 @@ private fun DesignSystemShowcase() {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 ColorSwatch(
                     color = MaterialTheme.colorScheme.primary,
@@ -443,7 +443,7 @@ private fun DesignSystemShowcase() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.xl))
+            Spacer(modifier = Modifier.height(SpacingTokens.xl))
         }
     }
 }
@@ -453,7 +453,7 @@ private fun SectionTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(vertical = QodeSpacing.sm),
+        modifier = Modifier.padding(vertical = SpacingTokens.sm),
     )
 }
 
@@ -462,15 +462,15 @@ private fun ComponentGroup(
     title: String,
     content: @Composable RowScope.() -> Unit
 ) {
-    Column(modifier = Modifier.padding(bottom = QodeSpacing.md)) {
+    Column(modifier = Modifier.padding(bottom = SpacingTokens.md)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = QodeSpacing.sm),
+            modifier = Modifier.padding(bottom = SpacingTokens.sm),
         )
         Row(
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             content = content,
         )
     }
@@ -479,7 +479,7 @@ private fun ComponentGroup(
 @Composable
 private fun ComponentColumn(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         content = content,
     )
 }
@@ -504,7 +504,7 @@ private fun ColorSwatch(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(top = QodeSpacing.xs),
+            modifier = Modifier.padding(top = SpacingTokens.xs),
         )
     }
 }

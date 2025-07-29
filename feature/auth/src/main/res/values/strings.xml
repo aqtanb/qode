@@ -1,65 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Auth Method Screen -->
-    <string name="auth_sign_in">Sign In</string>
-    <string name="auth_enter_phone_continue">Enter your phone number to continue</string>
-    <string name="auth_send_verification_code">Send Verification Code</string>
-    <string name="auth_or_continue_with">Or continue with</string>
-    <string name="auth_continue_with_google">Continue with Google</string>
-    <string name="auth_forgot_password">Forgot your password?</string>
-    <string name="auth_dont_have_account">Don\'t have an account? Sign up</string>
-    <string name="auth_terms_and_privacy">By continuing, you agree to our Terms of Service and Privacy Policy</string>
+    <!-- Auth Screen -->
+    <string name="sign_in_title">Sign In</string>
+    <string name="sign_in_subtitle">Enter your phone number to continue</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="send_verification_code">Send Verification Code</string>
+    <string name="or_continue_with">Or continue with</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="forgot_password">Forgot your password?</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="terms_and_privacy">By continuing, you agree to our %1$s and %2$s</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
 
-    <!-- OTP Verification Screen -->
-    <string name="auth_enter_the_code">Enter the Code</string>
-    <string name="auth_verification_sent_to">A verification code has been sent to</string>
-    <string name="auth_resend_code_in">You can resend the code in %1$d seconds</string>
-    <string name="auth_resend_code">Resend Code</string>
-    <string name="auth_verify_and_continue">Verify and Continue</string>
-    <string name="auth_change_phone_number">Change phone number</string>
+    <!-- Verification Screen -->
+    <string name="verification_title">Verification Code</string>
+    <string name="verification_subtitle">Enter the 6-digit code sent to %1$s</string>
+    <string name="verification_code_placeholder">Enter code</string>
+    <string name="verify_code">Verify Code</string>
+    <string name="resend_code">Resend Code</string>
+    <string name="didnt_receive_code">Didn\'t receive the code?</string>
+    <string name="change_phone_number">Change phone number</string>
+    <string name="code_expires_in">Code expires in %1$s</string>
+    <string name="code_expired">Code has expired</string>
+    <string name="invalid_verification_code">Invalid verification code</string>
 
-    <!-- Profile Setup Screen -->
-    <string name="auth_setup_profile">Set Up Your Profile</string>
-    <string name="auth_almost_done">Almost done! Let\'s personalize your account</string>
-    <string name="auth_profile_photo">Profile Photo</string>
-    <string name="auth_add_photo">Add Photo</string>
-    <string name="auth_change_photo">Change Photo</string>
-    <string name="auth_username">Username</string>
-    <string name="auth_enter_username">Enter your username</string>
-    <string name="auth_description">Description (Optional)</string>
-    <string name="auth_enter_description">Tell us about yourself</string>
-    <string name="auth_save_and_continue">Save and Continue</string>
-    <string name="auth_skip_for_now">Skip for now</string>
+    <!-- Sign Up Screen -->
+    <string name="sign_up_title">Create Account</string>
+    <string name="sign_up_subtitle">Join thousands of users finding the best deals</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="email_label">Email (Optional)</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="sign_in">Sign In</string>
 
-    <!-- Validation Messages -->
-    <string name="auth_error_invalid_phone">Please enter a valid phone number</string>
-    <string name="auth_error_invalid_otp">Invalid verification code</string>
-    <string name="auth_error_otp_expired">Verification code expired</string>
-    <string name="auth_error_username_required">Username is required</string>
-    <string name="auth_error_username_too_short">Username must be at least 3 characters</string>
-    <string name="auth_error_username_too_long">Username must be less than 30 characters</string>
-    <string name="auth_error_username_invalid">Username can only contain letters, numbers, and underscores</string>
-    <string name="auth_error_username_taken">This username is already taken</string>
-    <string name="auth_error_description_too_long">Description must be less than 150 characters</string>
+    <!-- Country Picker Screen -->
+    <string name="choose_a_country">Choose a country</string>
+    <string name="search_placeholder">Search countries…</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear search</string>
+    <string name="country_selected">Country selected</string>
+    <string name="loading_countries">Loading countries…</string>
+    <string name="no_countries_found">No countries found for \"%1$s\"</string>
+    <string name="try_different_search">Try a different search term</string>
+
+    <!-- Accessibility -->
+    <string name="qode_logo_content_desc">Qode app logo</string>
+    <string name="google_logo_content_desc">Google logo</string>
+    <string name="send_icon_content_desc">Send verification code</string>
+    <string name="back_button_content_desc">Go back</string>
 
     <!-- Error Messages -->
-    <string name="auth_error_network">Network error. Please check your connection</string>
-    <string name="auth_error_something_went_wrong">Something went wrong. Please try again</string>
-    <string name="auth_error_google_signin_failed">Google Sign-In failed</string>
-    <string name="auth_error_google_signin_cancelled">Google Sign-In was cancelled</string>
-    <string name="auth_error_phone_verification_failed">Phone verification failed</string>
-    <string name="auth_error_too_many_attempts">Too many attempts. Please try again later</string>
+    <string name="network_error">Network error. Please check your connection.</string>
+    <string name="server_error">Server error. Please try again later.</string>
+    <string name="invalid_phone_number">Please enter a valid phone number</string>
+    <string name="phone_number_required">Phone number is required</string>
+    <string name="name_required">Full name is required</string>
+    <string name="name_too_short">Name must be at least 2 characters</string>
+    <string name="invalid_email">Please enter a valid email address</string>
+    <string name="google_signin_failed">Google Sign-In failed. Please try again.</string>
+    <string name="google_signin_cancelled">Google Sign-In was cancelled</string>
 
     <!-- Loading States -->
-    <string name="auth_sending_code">Sending verification code…</string>
-    <string name="auth_verifying_code">Verifying code…</string>
-    <string name="auth_signing_in_google">Signing in with Google…</string>
-    <string name="auth_setting_up_profile">Setting up your profile…</string>
+    <string name="sending_code">Sending verification code…</string>
+    <string name="verifying_code">Verifying code…</string>
+    <string name="creating_account">Creating your account…</string>
+    <string name="signing_in">Signing in…</string>
 
-    <!-- Image Picker -->
-    <string name="auth_image_picker_title">Select Profile Photo</string>
-    <string name="auth_image_picker_camera">Camera</string>
-    <string name="auth_image_picker_gallery">Gallery</string>
-    <string name="auth_image_picker_error">Failed to select image</string>
+    <!-- Success Messages -->
+    <string name="verification_code_sent">Verification code sent successfully</string>
+    <string name="account_created">Account created successfully</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="terms_first_line">By continuing, you agree to our</string>
+    <string name="and">and</string>
+    <string name="agree_to">By continuing, you agree to our</string>
 
+    <!-- Phone Authentication -->
+    <string name="phone_verification_title">Verify Your Phone</string>
+    <string name="phone_verification_subtitle">Enter your phone number to get started</string>
+    <string name="verify_phone_number">Verify Phone Number</string>
+    <string name="phone_verification_code_title">Enter Verification Code</string>
+    <string name="phone_verification_code_subtitle">We sent a code to %s</string>
+
+    <!-- Auth Flow -->
+    <string name="welcome_title">Welcome to Qode</string>
+    <string name="welcome_subtitle">Discover amazing promo codes</string>
+    <string name="get_started">Get Started</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+
+    <!-- Errors -->
+    <string name="auth_error_generic">Something went wrong. Please try again.</string>
+    <string name="auth_error_invalid_code">Invalid verification code</string>
+    <string name="auth_error_code_expired">Verification code expired</string>
+    <string name="auth_error_too_many_attempts">Too many attempts. Try again later.</string>
+
+    <!-- Success -->
+    <string name="auth_success">Welcome! Your account is ready.</string>
+    <string name="search_bar_title">Choose a country</string>
 </resources>

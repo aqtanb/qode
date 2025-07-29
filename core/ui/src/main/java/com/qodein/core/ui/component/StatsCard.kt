@@ -47,8 +47,8 @@ import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -173,7 +173,7 @@ fun StatsCard(
 
             // Change indicator
             statData.change?.let { change ->
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -202,7 +202,7 @@ fun StatsCard(
                         modifier = Modifier.size(16.dp),
                     )
 
-                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
 
                     Text(
                         text = change,
@@ -215,7 +215,7 @@ fun StatsCard(
 
             // Small icon at bottom for small cards
             if (size == StatCardSize.Small && statData.icon != null) {
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
                 Icon(
                     imageVector = statData.icon,
                     contentDescription = null,
@@ -300,7 +300,7 @@ fun ProgressStatsCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             // Progress bar
             Column {
@@ -321,7 +321,7 @@ fun ProgressStatsCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
                 LinearProgressIndicator(
                     progress = { animatedProgress },
@@ -362,7 +362,7 @@ fun ComparisonStatsCard(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = QodeSpacing.md),
+                modifier = Modifier.padding(bottom = SpacingTokens.md),
             )
 
             Row(
@@ -390,7 +390,7 @@ fun ComparisonStatsCard(
                     primaryStat.change?.let { change ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = QodeSpacing.xs),
+                            modifier = Modifier.padding(top = SpacingTokens.xs),
                         ) {
                             val changeColor = when (primaryStat.changeType) {
                                 ChangeType.Positive -> Color(0xFF4CAF50)
@@ -440,7 +440,7 @@ fun ComparisonStatsCard(
                     secondaryStat.change?.let { change ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = QodeSpacing.xs),
+                            modifier = Modifier.padding(top = SpacingTokens.xs),
                         ) {
                             val changeColor = when (secondaryStat.changeType) {
                                 ChangeType.Positive -> Color(0xFF4CAF50)
@@ -489,12 +489,12 @@ fun StatsGrid(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
         stats.chunked(columns).forEach { rowStats ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 rowStats.forEach { stat ->
                     StatsCard(
@@ -574,15 +574,15 @@ private fun StatsCardPreview() {
             )
 
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             val sampleStats = getSampleStats()
 
             // Single stat cards
             Text("Individual Stats", style = MaterialTheme.typography.titleMedium)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 StatsCard(
                     statData = sampleStats[0],

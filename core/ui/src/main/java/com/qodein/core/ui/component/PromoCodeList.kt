@@ -29,8 +29,8 @@ import com.qodein.core.designsystem.component.QodeCardSkeleton
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.component.QodeErrorState
 import com.qodein.core.designsystem.component.QodeLoadingContent
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.Store
@@ -78,7 +78,7 @@ fun PromoCodeList(
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier,
     isLoggedIn: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(QodeSpacing.md),
+    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
     isRefreshing: Boolean = false,
     hasMoreItems: Boolean = false,
     isLoadingMore: Boolean = false
@@ -150,7 +150,7 @@ fun PromoCodeList(
 private fun LoadingContent(contentPadding: PaddingValues) {
     LazyColumn(
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         items(3) {
             QodeCardSkeleton()
@@ -173,7 +173,7 @@ private fun SuccessContent(
     LazyColumn(
         state = listState,
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         items(
             items = promoCodes,
@@ -195,7 +195,7 @@ private fun SuccessContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeLoadingContent(message = "Loading more...")
@@ -252,14 +252,14 @@ fun CompactPromoCodeList(
                 text = it,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(
-                    horizontal = QodeSpacing.md,
-                    vertical = QodeSpacing.sm,
+                    horizontal = SpacingTokens.md,
+                    vertical = SpacingTokens.sm,
                 ),
             )
         }
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             promoCodes.take(maxItems).forEach { promoCode ->
                 PromoCodeCard(
@@ -268,7 +268,7 @@ fun CompactPromoCodeList(
                     onUpvoteClick = { },
                     onFollowStoreClick = { },
                     onCopyCodeClick = { },
-                    modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                    modifier = Modifier.padding(horizontal = SpacingTokens.md),
                 )
             }
         }

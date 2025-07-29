@@ -35,8 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.HeroBanner
 import com.qodein.core.ui.component.PromoCodeCard
 import com.qodein.core.ui.component.StatsBanner
@@ -133,8 +133,8 @@ private fun HomeContent(
 ) {
     LazyColumn(
         state = listState,
-        contentPadding = PaddingValues(vertical = QodeSpacing.sm),
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+        contentPadding = PaddingValues(vertical = SpacingTokens.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         // Hero Banner Section
         if (uiState.bannerItems.isNotEmpty()) {
@@ -154,7 +154,7 @@ private fun HomeContent(
                 totalCodes = 1250,
                 activeUsers = 25,
                 totalSavings = "2.5M ₸",
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
         }
 
@@ -164,7 +164,7 @@ private fun HomeContent(
                 text = "Latest Promo Codes",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
         }
 
@@ -188,7 +188,7 @@ private fun HomeContent(
                     onAction(HomeAction.CopyPromoCode(promoCode))
                 },
                 isLoggedIn = uiState.isLoggedIn,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
         }
 
@@ -198,7 +198,7 @@ private fun HomeContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(QodeSpacing.md),
+                        .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -208,7 +208,7 @@ private fun HomeContent(
 
         // End of list spacer
         item(key = "end_spacer") {
-            Spacer(modifier = Modifier.height(QodeSpacing.xl))
+            Spacer(modifier = Modifier.height(SpacingTokens.xl))
         }
     }
 }
@@ -231,7 +231,7 @@ private fun ErrorState(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(QodeSpacing.xl),
+            .padding(SpacingTokens.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -242,7 +242,7 @@ private fun ErrorState(
             textAlign = TextAlign.Center,
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
         Text(
             text = message,
@@ -251,7 +251,7 @@ private fun ErrorState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.lg))
+        Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
         QodeButton(
             onClick = onRetry,
@@ -266,7 +266,7 @@ private fun EmptyState() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(QodeSpacing.xl),
+            .padding(SpacingTokens.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -277,7 +277,7 @@ private fun EmptyState() {
             textAlign = TextAlign.Center,
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
         Text(
             text = "Check back later for amazing deals and discounts!",

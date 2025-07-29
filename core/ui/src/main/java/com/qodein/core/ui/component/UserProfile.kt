@@ -58,8 +58,8 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.User
 import com.qodein.core.ui.preview.PreviewData
@@ -135,7 +135,7 @@ fun UserProfileHeader(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(QodeSpacing.md),
+                    .padding(SpacingTokens.md),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -153,7 +153,7 @@ fun UserProfileHeader(
                             contentColor = MaterialTheme.colorScheme.primary,
                         )
 
-                        Spacer(modifier = Modifier.width(QodeSpacing.md))
+                        Spacer(modifier = Modifier.width(SpacingTokens.md))
 
                         Column {
                             Row(
@@ -167,7 +167,7 @@ fun UserProfileHeader(
                                 )
 
                                 if (user.totalUpvotes >= 100) {
-                                    Spacer(modifier = Modifier.width(QodeSpacing.xs))
+                                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
                                     Icon(
                                         imageVector = Icons.Default.Verified,
                                         contentDescription = "Verified user",
@@ -207,7 +207,7 @@ fun UserProfileHeader(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(QodeSpacing.lg))
+                Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
                 // User statistics
                 UserStatsRow(
@@ -241,7 +241,7 @@ private fun UserStatsRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             StatItem(
@@ -287,7 +287,7 @@ private fun StatItem(
             modifier = Modifier.size(20.dp),
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
         Text(
             text = value.toString(),
@@ -344,9 +344,9 @@ fun UserAchievements(
             )
 
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    horizontal = QodeSpacing.xs,
+                    horizontal = SpacingTokens.xs,
                 ),
             ) {
                 items(displayedAchievements) { achievement ->
@@ -402,7 +402,7 @@ private fun AchievementCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             Text(
                 text = achievement.title,
@@ -413,7 +413,7 @@ private fun AchievementCard(
             )
 
             if (!achievement.isUnlocked && achievement.progress > 0) {
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
                 androidx.compose.material3.LinearProgressIndicator(
                     progress = { achievement.progress },
                     modifier = Modifier
@@ -447,7 +447,7 @@ fun UserActivityFeed(
             )
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 activities.take(maxItems).forEach { activity ->
                     ActivityItem(
@@ -575,7 +575,7 @@ fun UserLevelProgress(
                 )
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.md))
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
 
             androidx.compose.material3.LinearProgressIndicator(
                 progress = { currentXP.toFloat() / (currentXP + xpToNextLevel) },
@@ -655,8 +655,8 @@ private fun getSampleActivities(): List<UserActivity> {
 private fun UserProfilePreview() {
     QodeTheme {
         LazyColumn(
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             item {
                 UserProfileHeader(

@@ -39,48 +39,28 @@ android {
 }
 
 dependencies {
+    // Project modules
     implementation(projects.core.designsystem)
     implementation(projects.feature.auth)
+    implementation(projects.feature.home)
+    implementation(projects.core.model)
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.androidx.ui.text.google.fonts)
-
-    // AndroidX Core
+    // Core Android & Compose (using bundles)
     implementation(libs.bundles.androidx.core)
-
-    // Compose BOM & UI
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose.ui)
-    implementation(libs.bundles.material.design)
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.lifecycle)
+    implementation(libs.bundles.navigation)
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
-    // Lifecycle & ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
+    // Dependency Injection
+    implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
-    // feature dependencies
-    implementation(projects.feature.home)
+    // Testing
+    testImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.bundles.testing.android)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Debug Tools
+    debugImplementation(libs.bundles.debug)
 }

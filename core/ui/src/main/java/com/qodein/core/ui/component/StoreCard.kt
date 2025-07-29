@@ -29,8 +29,8 @@ import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Store
 import com.qodein.core.ui.model.StoreCategory
 
@@ -80,7 +80,7 @@ fun StoreCard(
                 }
             }
 
-            Spacer(modifier = Modifier.width(QodeSpacing.md))
+            Spacer(modifier = Modifier.width(SpacingTokens.md))
 
             // Store info
             Column(
@@ -94,10 +94,10 @@ fun StoreCard(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                 ) {
                     if (promoCodesCount > 0) {
                         Text(
@@ -125,7 +125,7 @@ fun StoreCard(
 
             // Follow button
             if (showFollowButton && isLoggedIn) {
-                Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                Spacer(modifier = Modifier.width(SpacingTokens.sm))
                 QodeButton(
                     onClick = onFollowClick,
                     text = if (store.isFollowed) "Following" else "Follow",
@@ -155,7 +155,7 @@ fun CompactStoreCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Store logo
@@ -174,7 +174,7 @@ fun CompactStoreCard(
                 }
             }
 
-            Spacer(modifier = Modifier.width(QodeSpacing.md))
+            Spacer(modifier = Modifier.width(SpacingTokens.md))
 
             // Store info
             Column(
@@ -243,7 +243,7 @@ fun GridStoreCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(QodeSpacing.sm))
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
             // Store name
             Text(
@@ -255,7 +255,7 @@ fun GridStoreCard(
             )
 
             if (promoCodesCount > 0) {
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
                 Text(
                     text = "$promoCodesCount codes",
                     style = MaterialTheme.typography.bodySmall,
@@ -272,8 +272,8 @@ fun GridStoreCard(
 private fun StoreCardPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             val sampleStore = Store(
                 id = "kaspi",
@@ -315,7 +315,7 @@ private fun StoreCardPreview() {
 
             Text("Grid StoreCard", style = MaterialTheme.typography.titleMedium)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 GridStoreCard(
                     store = sampleStore,

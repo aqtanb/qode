@@ -28,8 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.component.QodeChip
 import com.qodein.core.designsystem.component.QodeChipSize
 import com.qodein.core.designsystem.component.QodeChipVariant
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 
 data class FilterItem(
@@ -52,14 +52,14 @@ fun CategoryFilter(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md, vertical = QodeSpacing.sm),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.sm),
             )
         }
 
         LazyRow(
             state = rememberLazyListState(),
-            contentPadding = PaddingValues(horizontal = QodeSpacing.md),
-            horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            contentPadding = PaddingValues(horizontal = SpacingTokens.md),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             modifier = Modifier.fillMaxWidth(),
         ) {
             items(filters) { filter ->
@@ -103,8 +103,8 @@ fun QuickFilters(
     )
 
     LazyRow(
-        contentPadding = PaddingValues(horizontal = QodeSpacing.md),
-        horizontalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+        contentPadding = PaddingValues(horizontal = SpacingTokens.md),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         modifier = modifier.fillMaxWidth(),
     ) {
         items(quickFilters) { filter ->
@@ -186,7 +186,7 @@ fun CombinedFilters(
                 categories = categories,
                 selectedCategoryId = selectedCategoryId,
                 onCategoryClick = onCategoryClick,
-                modifier = Modifier.padding(top = QodeSpacing.sm),
+                modifier = Modifier.padding(top = SpacingTokens.sm),
             )
         }
     }
@@ -208,13 +208,13 @@ private fun getSampleCategories(): List<Category> =
 private fun CategoryFilterPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(vertical = QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.lg),
+            modifier = Modifier.padding(vertical = SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             Text(
                 "Quick Filters",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
             QuickFilters(
                 selectedFilter = "popular",
@@ -224,7 +224,7 @@ private fun CategoryFilterPreview() {
             Text(
                 "Category Filters",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
             CategoryFilters(
                 categories = getSampleCategories(),
@@ -235,7 +235,7 @@ private fun CategoryFilterPreview() {
             Text(
                 "Combined Filters",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = QodeSpacing.md),
+                modifier = Modifier.padding(horizontal = SpacingTokens.md),
             )
             CombinedFilters(
                 quickFilter = "new",

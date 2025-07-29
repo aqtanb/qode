@@ -47,8 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * TextField variants for Qode design system
@@ -279,7 +279,7 @@ fun QodeTextField(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = QodeSpacing.md, vertical = QodeSpacing.xs),
+                    .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xs),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top,
             ) {
@@ -315,7 +315,7 @@ fun QodeTextField(
                             value.length >= maxCharacters * 0.9 -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
-                        modifier = Modifier.padding(start = QodeSpacing.sm),
+                        modifier = Modifier.padding(start = SpacingTokens.sm),
                     )
                 }
             }
@@ -329,8 +329,8 @@ fun QodeTextField(
 private fun QodeTextFieldVariantsPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             var standardValue by remember { mutableStateOf("") }
             QodeTextField(
@@ -377,8 +377,8 @@ private fun QodeTextFieldVariantsPreview() {
 private fun QodeTextFieldStatesPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             QodeTextField(
                 value = "Valid input",
@@ -419,8 +419,8 @@ private fun QodeTextFieldStatesPreview() {
 private fun QodeTextFieldFeaturesPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             var counterValue by remember { mutableStateOf("") }
             QodeTextField(

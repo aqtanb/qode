@@ -11,8 +11,8 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.qodein.feature.auth.navigation.AuthBaseRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
-import com.qodein.feature.home.navigation.HomeRoute
 import com.qodein.qode.R
 import kotlin.reflect.KClass
 import com.qodein.feature.home.R as homeR
@@ -30,7 +30,7 @@ enum class TopLevelDestination(
         unSelectedIcon = Icons.Outlined.Home,
         iconTextId = homeR.string.feature_home_title,
         titleTextId = R.string.app_name,
-        route = HomeRoute::class,
+        route = HomeBaseRoute::class,
         baseRoute = HomeBaseRoute::class,
     ),
     CATALOG(
@@ -54,7 +54,7 @@ enum class TopLevelDestination(
         unSelectedIcon = Icons.Outlined.Menu,
         iconTextId = R.string.more_title,
         titleTextId = R.string.more_title,
-        route = MoreRoute::class,
-        baseRoute = MoreBaseRoute::class,
+        route = AuthBaseRoute::class,
+        baseRoute = AuthBaseRoute::class,
     )
 }

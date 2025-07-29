@@ -59,8 +59,8 @@ import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeElevation
 import com.qodein.core.designsystem.theme.QodeSize
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
  * Card variants for Qode design system
@@ -89,7 +89,7 @@ fun QodeCard(
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(QodeCorners.md),
     enabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(QodeSpacing.md),
+    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -241,7 +241,7 @@ fun QodeExpandableCard(
             exit = shrinkVertically(animationSpec = tween(durationMillis = QodeAnimation.MEDIUM)),
         ) {
             Column(
-                modifier = Modifier.padding(top = QodeSpacing.md),
+                modifier = Modifier.padding(top = SpacingTokens.md),
                 content = expandedContent,
             )
         }
@@ -272,7 +272,7 @@ fun QodeCardWithActions(
         contentPadding = PaddingValues(0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
             content = content,
         )
 
@@ -284,7 +284,7 @@ fun QodeCardWithActions(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = QodeSpacing.sm, vertical = QodeSpacing.xs),
+                .padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
             horizontalArrangement = Arrangement.End,
             content = actions,
         )
@@ -326,12 +326,12 @@ fun QodeListCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(QodeSpacing.md),
+                .padding(SpacingTokens.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leadingContent?.let {
                 it()
-                Spacer(modifier = Modifier.width(QodeSpacing.md))
+                Spacer(modifier = Modifier.width(SpacingTokens.md))
             }
 
             Column(
@@ -355,7 +355,7 @@ fun QodeListCard(
             }
 
             trailingContent?.let {
-                Spacer(modifier = Modifier.width(QodeSpacing.md))
+                Spacer(modifier = Modifier.width(SpacingTokens.md))
                 it()
             }
         }
@@ -368,8 +368,8 @@ fun QodeListCard(
 private fun QodeCardVariantsPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             QodeCard(variant = QodeCardVariant.Elevated) {
                 Text("Elevated Card", style = MaterialTheme.typography.titleMedium)
@@ -408,7 +408,7 @@ private fun QodeExpandableCardPreview() {
         var expanded by remember { mutableStateOf(false) }
 
         QodeExpandableCard(
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
             expanded = expanded,
             onExpandedChange = { expanded = it },
             title = {
@@ -439,10 +439,10 @@ private fun QodeExpandableCardPreview() {
 private fun QodeCardWithActionsPreview() {
     QodeTheme {
         QodeCardWithActions(
-            modifier = Modifier.padding(QodeSpacing.md),
+            modifier = Modifier.padding(SpacingTokens.md),
             content = {
                 Text("Promo Code: SAVE20", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(QodeSpacing.xs))
+                Spacer(modifier = Modifier.height(SpacingTokens.xs))
                 Text(
                     "Get 20% off on all electronics",
                     style = MaterialTheme.typography.bodyMedium,
@@ -472,8 +472,8 @@ private fun QodeCardWithActionsPreview() {
 private fun QodeListCardPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(QodeSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(QodeSpacing.sm),
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             QodeListCard(
                 title = "Kaspi Bank",

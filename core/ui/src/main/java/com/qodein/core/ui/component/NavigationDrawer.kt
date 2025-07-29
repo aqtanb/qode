@@ -45,8 +45,8 @@ import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeBadge
 import com.qodein.core.designsystem.component.QodeListCard
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSpacing
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.User
 import java.time.LocalDateTime
 
@@ -98,7 +98,7 @@ fun NavigationDrawerContent(
 
         item {
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.sm),
+                modifier = Modifier.padding(vertical = SpacingTokens.sm),
                 color = MaterialTheme.colorScheme.outlineVariant,
             )
         }
@@ -113,7 +113,7 @@ fun NavigationDrawerContent(
 
         item {
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = QodeSpacing.sm),
+                modifier = Modifier.padding(vertical = SpacingTokens.sm),
                 color = MaterialTheme.colorScheme.outlineVariant,
             )
         }
@@ -132,7 +132,7 @@ fun NavigationDrawerContent(
                 text = "Version $appVersion",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(QodeSpacing.md),
+                modifier = Modifier.padding(SpacingTokens.md),
             )
         }
     }
@@ -158,7 +158,7 @@ private fun UserProfileHeader(
                     ),
                 ),
             )
-            .padding(QodeSpacing.md),
+            .padding(SpacingTokens.md),
     ) {
         if (user != null) {
             // Logged in user
@@ -202,7 +202,7 @@ private fun UserProfileHeader(
                     contentColor = MaterialTheme.colorScheme.primary,
                 )
 
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                 Text(
                     text = "Welcome to Qode!",
@@ -217,7 +217,7 @@ private fun UserProfileHeader(
                     color = Color.White.copy(alpha = 0.8f),
                 )
 
-                Spacer(modifier = Modifier.height(QodeSpacing.sm))
+                Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
                 Surface(
                     onClick = onLoginClick,
@@ -226,8 +226,8 @@ private fun UserProfileHeader(
                 ) {
                     Row(
                         modifier = Modifier.padding(
-                            horizontal = QodeSpacing.md,
-                            vertical = QodeSpacing.sm,
+                            horizontal = SpacingTokens.md,
+                            vertical = SpacingTokens.sm,
                         ),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -237,7 +237,7 @@ private fun UserProfileHeader(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp),
                         )
-                        Spacer(modifier = Modifier.width(QodeSpacing.sm))
+                        Spacer(modifier = Modifier.width(SpacingTokens.sm))
                         Text(
                             text = "Sign In",
                             style = MaterialTheme.typography.titleSmall,
@@ -289,7 +289,7 @@ private fun DrawerMenuItemCard(
         trailingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
             ) {
                 when {
                     item.badge != null -> {
@@ -431,8 +431,8 @@ fun CompactNavigationDrawer(
     )
 
     Column(
-        modifier = modifier.padding(QodeSpacing.sm),
-        verticalArrangement = Arrangement.spacedBy(QodeSpacing.xs),
+        modifier = modifier.padding(SpacingTokens.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
         // User avatar
         QodeAvatar(
@@ -441,7 +441,7 @@ fun CompactNavigationDrawer(
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
-        Spacer(modifier = Modifier.height(QodeSpacing.sm))
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
         // Compact menu items
         compactItems.forEach { item ->
@@ -457,7 +457,7 @@ fun CompactNavigationDrawer(
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .padding(QodeSpacing.sm),
+                        .padding(SpacingTokens.sm),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(

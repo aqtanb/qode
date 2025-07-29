@@ -13,10 +13,17 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
     }
@@ -28,3 +35,6 @@ include(":core:designsystem")
 include(":core:ui")
 include(":feature:auth")
 include(":feature:home")
+include(":core:model")
+include(":core:data")
+include(":core:domain")
