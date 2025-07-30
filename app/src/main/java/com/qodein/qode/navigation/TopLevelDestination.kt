@@ -12,6 +12,8 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.feature.auth.navigation.AuthBaseRoute
+import com.qodein.feature.catalog.navigation.CatalogBaseRoute
+import com.qodein.feature.catalog.navigation.CatalogRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.qode.R
 import kotlin.reflect.KClass

@@ -13,8 +13,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.AuthBaseRoute
+import com.qodein.feature.catalog.navigation.CatalogRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
-import com.qodein.qode.navigation.CatalogRoute
 import com.qodein.qode.navigation.HistoryRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.CATALOG
