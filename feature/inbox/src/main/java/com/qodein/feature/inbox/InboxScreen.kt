@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.qodein.core.designsystem.component.QodeSearchTopAppBar
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 @Composable
@@ -72,15 +71,6 @@ private fun InboxScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        // Search Bar
-        QodeSearchTopAppBar(
-            searchQuery = state.searchQuery,
-            onSearchQueryChange = { onAction(InboxAction.SearchMessages(it)) },
-            onSearchClose = { onAction(InboxAction.SearchMessages("")) },
-            placeholder = "Search messages...",
-            modifier = Modifier.padding(SpacingTokens.md),
-        )
-
         // Filter Chips
         LazyRow(
             contentPadding = PaddingValues(horizontal = SpacingTokens.md),
