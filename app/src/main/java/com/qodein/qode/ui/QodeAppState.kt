@@ -12,15 +12,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.qodein.feature.auth.navigation.AuthBaseRoute
-import com.qodein.feature.catalog.navigation.CatalogRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
-import com.qodein.qode.navigation.HistoryRoute
+import com.qodein.feature.inbox.navigation.InboxRoute
+import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.navigation.TopLevelDestination
-import com.qodein.qode.navigation.TopLevelDestination.CATALOG
-import com.qodein.qode.navigation.TopLevelDestination.HISTORY
 import com.qodein.qode.navigation.TopLevelDestination.HOME
-import com.qodein.qode.navigation.TopLevelDestination.MORE
+import com.qodein.qode.navigation.TopLevelDestination.INBOX
+import com.qodein.qode.navigation.TopLevelDestination.SEARCH
 
 @Composable
 fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
@@ -76,16 +74,12 @@ class QodeAppState(val navController: NavHostController) {
                     route = HomeBaseRoute,
                     navOptions = topLevelNavOptions,
                 )
-                CATALOG -> navController.navigate(
-                    route = CatalogRoute,
+                SEARCH -> navController.navigate(
+                    route = SearchRoute,
                     navOptions = topLevelNavOptions,
                 )
-                HISTORY -> navController.navigate(
-                    route = HistoryRoute,
-                    navOptions = topLevelNavOptions,
-                )
-                MORE -> navController.navigate(
-                    route = AuthBaseRoute,
+                INBOX -> navController.navigate(
+                    route = InboxRoute,
                     navOptions = topLevelNavOptions,
                 )
             }

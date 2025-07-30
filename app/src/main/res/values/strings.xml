@@ -2,6 +2,8 @@
     <string name="app_name">Qode</string>
 
     <string name="catalog_title">Catalog</string>
+    <string name="search_title">Search</string>
+    <string name="inbox_title">Inbox</string>
     <string name="history_title">History\n</string>
     <string name="more_title">More</string>
 </resources>

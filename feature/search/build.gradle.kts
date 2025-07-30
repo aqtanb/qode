@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -8,17 +8,14 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.qode"
+    namespace = "com.qodein.feature.search"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.qodein.qode"
         minSdk = 29
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -33,21 +30,21 @@ android {
     kotlin {
         jvmToolchain(11)
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-    // Project modules
+// Project modules
     implementation(projects.core.designsystem)
-    implementation(projects.feature.auth)
-    implementation(projects.feature.home)
-    implementation(projects.feature.search)
-    implementation(projects.feature.inbox)
+    implementation(projects.core.ui)
     implementation(projects.core.model)
+    implementation(projects.core.domain)
+    implementation(projects.core.data)
 
-    // Core Android & Compose (using bundles)
+    // Core Android & Compose
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
@@ -61,7 +58,6 @@ dependencies {
     // Testing
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
 
     // Debug Tools
     debugImplementation(libs.bundles.debug)
