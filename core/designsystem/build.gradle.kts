@@ -44,6 +44,9 @@ dependencies {
     // Icons
     implementation(libs.bundles.icons)
 
+    // Google Button
+    implementation(libs.google.signin)
+
     // Testing
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)

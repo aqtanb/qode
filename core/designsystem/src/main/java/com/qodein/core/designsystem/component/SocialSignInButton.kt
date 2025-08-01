@@ -1,39 +1,40 @@
 package com.qodein.core.designsystem.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.R
-import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
- * Simple Google Sign-In button using official Google drawables
+ * Google Sign-In button following Google's brand guidelines
+ * Features a 40x40 Google logo with "Continue with Google" text
  * Automatically switches between light/dark theme variants
  *
  * @param onClick Called when the button is clicked
@@ -49,45 +50,59 @@ fun QodeGoogleSignInButton(
     isLoading: Boolean = false
 ) {
     val isLight = !isSystemInDarkTheme()
-    val contentDescription = stringResource(R.string.continue_with_google)
 
-    Box(
+    // Google brand colors and styles following their guidelines
+    val buttonBackgroundColor = if (isLight) Color.White else Color(0xFF131314)
+    val buttonTextColor = if (isLight) Color(0xFF1F1F1F) else Color(0xFFFFFFFF)
+    val borderColor = if (isLight) Color(0xFF747775) else Color(0xFF8E918F)
+
+    Button(
+        onClick = onClick,
         modifier = modifier
-            .height(SizeTokens.Button.heightLarge) // 48dp - slightly bigger than medium
-            .wrapContentWidth(), // Let it size naturally
-        contentAlignment = Alignment.Center,
+            .height(56.dp)
+            .fillMaxWidth(), // Google recommended height
+        enabled = enabled && !isLoading,
+        shape = RoundedCornerShape(8.dp), // Slightly rounded corners per Google guidelines
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonBackgroundColor,
+            contentColor = buttonTextColor,
+            disabledContainerColor = buttonBackgroundColor.copy(alpha = 0.12f),
+            disabledContentColor = buttonTextColor.copy(alpha = 0.38f),
+        ),
+        border = BorderStroke(1.dp, borderColor.copy(alpha = if (enabled) 1f else 0.38f)),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 1.dp,
+            disabledElevation = 0.dp,
+        ),
+        contentPadding = ButtonDefaults.ContentPadding,
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = ShapeTokens.Border.thin,
-            )
-        } else {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Image(
-                painter = painterResource(
-                    if (isLight) {
-                        R.drawable.ic_google_continue_light
-                    } else {
-                        R.drawable.ic_google_continue_dark
-                    },
-                ),
-                contentDescription = contentDescription,
-                modifier = Modifier
-                    .height(SizeTokens.Button.heightLarge) // Match the box height
-                    .wrapContentWidth() // Natural width based on aspect ratio
-                    .alpha(if (enabled) 1f else OpacityTokens.DISABLED)
-                    .clickable(
-                        enabled = enabled,
-                        onClick = onClick,
-                        role = Role.Button,
-                    )
-                    .semantics {
-                        role = Role.Button
-                        this.contentDescription = contentDescription
-                    },
-                contentScale = ContentScale.FillHeight, // Fit height, natural width
+                painter = painterResource(R.drawable.ic_google),
+                contentDescription = "Google Logo",
             )
+
+            Spacer(modifier = Modifier.width(SpacingTokens.md))
+
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                    color = buttonTextColor,
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                // "Continue with Google" text
+                Text(
+                    text = stringResource(R.string.continue_with_google),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                    ),
+                    color = buttonTextColor,
+                )
+            }
         }
     }
 }

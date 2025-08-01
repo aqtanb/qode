@@ -2,7 +2,7 @@
 <resources>
     <!-- Auth Screen -->
     <string name="sign_in_title">Sign In</string>
-    <string name="sign_in_subtitle">Enter your phone number to continue</string>
+    <string name="sign_in_subtitle">Phone sign-in coming soon! Use Google for now.</string>
     <string name="phone_number_label">Phone Number</string>
     <string name="send_verification_code">Send Verification Code</string>
     <string name="or_continue_with">Or continue with</string>
