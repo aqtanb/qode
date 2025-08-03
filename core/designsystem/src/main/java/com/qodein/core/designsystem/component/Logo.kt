@@ -58,7 +58,7 @@ fun QodeLogo(
 
     val (logoRes, colorFilter, backgroundModifier) = when (style) {
         QodeLogoStyle.Default -> Triple(
-            R.drawable.ic_qode_logo, // Your vector logo - crisp at any size!
+            R.drawable.ic_qode, // Your vector logo - crisp at any size!
             null, // No tint - keep original orange colors
             backgroundColor?.let {
                 Modifier.background(it, RoundedCornerShape(cornerRadius))
@@ -66,7 +66,7 @@ fun QodeLogo(
         )
 
         QodeLogoStyle.Monochrome -> Triple(
-            R.drawable.ic_qode_logo, // Same vector but tinted
+            R.drawable.ic_qode, // Same vector but tinted
             ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             backgroundColor?.let {
                 Modifier.background(it, RoundedCornerShape(cornerRadius))
@@ -77,7 +77,7 @@ fun QodeLogo(
         )
 
         QodeLogoStyle.Inverse -> Triple(
-            R.drawable.ic_qode_logo, // Vector tinted for dark backgrounds
+            R.drawable.ic_qode, // Vector tinted for dark backgrounds
             ColorFilter.tint(MaterialTheme.colorScheme.surface),
             backgroundColor?.let {
                 Modifier.background(it, RoundedCornerShape(cornerRadius))
@@ -131,7 +131,7 @@ fun QodeLogoMinimal(
     }
 
     Image(
-        painter = painterResource(id = R.drawable.ic_qode_logo),
+        painter = painterResource(id = R.drawable.ic_qode),
         contentDescription = "Qode",
         colorFilter = ColorFilter.tint(tint),
         modifier = modifier.size(logoSize),

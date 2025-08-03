@@ -81,4 +81,7 @@ lint/tmp/
 CLAUDE.md
 claude.md
 *.claude.md
-!/CLAUDE.local.md
+CLAUDE.local.md
+
+# Claude Code workflows
+.github/workflows/claude.yml

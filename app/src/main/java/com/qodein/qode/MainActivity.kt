@@ -19,7 +19,6 @@ class MainActivity : ComponentActivity() {
             QodeTheme {
                 QodeApp(
                     appState = rememberQodeAppState(),
-                    onTopBarActionClick = { },
                     modifier = Modifier,
                 )
             }

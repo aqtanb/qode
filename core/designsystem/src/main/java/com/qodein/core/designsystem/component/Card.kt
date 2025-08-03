@@ -54,12 +54,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeBorder
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeElevation
 import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -87,7 +88,7 @@ fun QodeCard(
     modifier: Modifier = Modifier,
     variant: QodeCardVariant = QodeCardVariant.Elevated,
     onClick: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(QodeCorners.md),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
     content: @Composable ColumnScope.() -> Unit
@@ -113,9 +114,9 @@ fun QodeCard(
                 modifier = cardModifier,
                 shape = shape,
                 elevation = CardDefaults.elevatedCardElevation(
-                    defaultElevation = QodeElevation.sm,
-                    pressedElevation = QodeElevation.xs,
-                    hoveredElevation = QodeElevation.md,
+                    defaultElevation = ElevationTokens.large,
+                    pressedElevation = ElevationTokens.medium,
+                    hoveredElevation = ElevationTokens.extraLarge,
                 ),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surface,

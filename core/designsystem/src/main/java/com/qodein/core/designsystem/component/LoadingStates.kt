@@ -57,13 +57,13 @@ fun QodeLoadingScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
+                modifier = modifier.size(48.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 4.dp,
             )
 
             message?.let {
-                Spacer(modifier = Modifier.height(SpacingTokens.md))
+                Spacer(modifier = modifier.height(SpacingTokens.md))
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyLarge,
@@ -91,13 +91,13 @@ fun QodeLoadingContent(
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(32.dp),
+            modifier = modifier.size(32.dp),
             color = MaterialTheme.colorScheme.primary,
             strokeWidth = 3.dp,
         )
 
         message?.let {
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+            Spacer(modifier = modifier.height(SpacingTokens.sm))
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodyMedium,
@@ -131,18 +131,18 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
         Column {
             // Title skeleton
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth(0.6f)
                     .height(24.dp)
                     .clip(RoundedCornerShape(QodeCorners.xs))
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
 
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+            Spacer(modifier = modifier.height(SpacingTokens.sm))
 
             // Description skeleton
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .height(16.dp)
                     .clip(RoundedCornerShape(QodeCorners.xs))
