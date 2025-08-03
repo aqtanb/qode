@@ -5,9 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToCountryPicker
-import com.qodein.feature.catalog.navigation.catalogSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
+import com.qodein.feature.inbox.navigation.inboxSection
+import com.qodein.feature.search.navigation.searchSection
 import com.qodein.qode.ui.QodeAppState
 
 @Composable
@@ -26,9 +27,9 @@ fun QodeNavHost(
             promoCodeDetail = {},
         )
 
-        catalogSection()
+        searchSection()
 
-        historySection()
+        inboxSection()
 
         authSection(
             onNavigateToCountryPicker = {
