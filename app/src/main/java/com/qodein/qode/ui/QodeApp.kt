@@ -7,19 +7,17 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeBottomNavigation
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
-import com.qodein.core.designsystem.component.QodeSearchTopAppBar
+import com.qodein.core.designsystem.component.QodeScreenTopAppBar
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.qode.R
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
 
@@ -43,19 +41,54 @@ internal fun QodeApp(
 ) {
     val currentDestination = appState.currentTopLevelDestination
     val isHomeDestination = currentDestination == TopLevelDestination.HOME
+    val isInboxDestination = currentDestination == TopLevelDestination.INBOX
 
     Scaffold(
         topBar = {
-            if (isHomeDestination) {
-                var searchQuery by remember { mutableStateOf("") }
-
-                QodeSearchTopAppBar(
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = { searchQuery = it },
-                    onSearchClose = { searchQuery = "" },
-                    placeholder = "Search promo codes...",
-                    modifier = Modifier.padding(8.dp),
-                )
+            when (currentDestination) {
+                TopLevelDestination.HOME -> {
+                    QodeScreenTopAppBar(
+                        title = stringResource(R.string.home_title),
+                        onFavoritesClick = {
+                            // TODO: Navigate to favorites screen
+                        },
+                        onProfileClick = {
+                            // TODO: Navigate to profile screen
+                        },
+                        onSettingsClick = {
+                            // TODO: Navigate to settings screen
+                        },
+                    )
+                }
+                TopLevelDestination.INBOX -> {
+                    QodeScreenTopAppBar(
+                        title = stringResource(R.string.inbox_title),
+                        onFavoritesClick = {
+                            // TODO: Navigate to favorites screen
+                        },
+                        onProfileClick = {
+                            // TODO: Navigate to profile screen
+                        },
+                        onSettingsClick = {
+                            // TODO: Navigate to settings screen
+                        },
+                    )
+                }
+                TopLevelDestination.SEARCH -> {
+                    QodeScreenTopAppBar(
+                        title = stringResource(R.string.search_title),
+                        onFavoritesClick = {
+                            // TODO: Navigate to favorites screen
+                        },
+                        onProfileClick = {
+                            // TODO: Navigate to profile screen
+                        },
+                        onSettingsClick = {
+                            // TODO: Navigate to settings screen
+                        },
+                    )
+                }
+                else -> { /* No top bar for other screens */ }
             }
         },
 

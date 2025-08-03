@@ -1,20 +1,16 @@
 package com.qodein.core.designsystem.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,10 +29,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 
@@ -101,6 +104,10 @@ fun QodeTopAppBar(
                         text = title,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 modifier = modifier,
@@ -111,10 +118,11 @@ fun QodeTopAppBar(
                                 imageVector = icon,
                                 contentDescription = when (icon) {
                                     Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    Icons.Default.Menu -> "Open menu"
-                                    Icons.Default.Close -> "Close"
+                                    QodeUIIcons.Menu -> "Open menu"
+                                    QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -129,6 +137,7 @@ fun QodeTopAppBar(
                                 Icon(
                                     imageVector = action.icon,
                                     contentDescription = action.contentDescription,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -152,6 +161,10 @@ fun QodeTopAppBar(
                         text = title,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 modifier = modifier,
@@ -162,10 +175,11 @@ fun QodeTopAppBar(
                                 imageVector = icon,
                                 contentDescription = when (icon) {
                                     Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    Icons.Default.Menu -> "Open menu"
-                                    Icons.Default.Close -> "Close"
+                                    QodeUIIcons.Menu -> "Open menu"
+                                    QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -180,6 +194,7 @@ fun QodeTopAppBar(
                                 Icon(
                                     imageVector = action.icon,
                                     contentDescription = action.contentDescription,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -202,6 +217,10 @@ fun QodeTopAppBar(
                         text = title,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 modifier = modifier,
@@ -212,10 +231,11 @@ fun QodeTopAppBar(
                                 imageVector = icon,
                                 contentDescription = when (icon) {
                                     Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    Icons.Default.Menu -> "Open menu"
-                                    Icons.Default.Close -> "Close"
+                                    QodeUIIcons.Menu -> "Open menu"
+                                    QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -230,6 +250,7 @@ fun QodeTopAppBar(
                                 Icon(
                                     imageVector = action.icon,
                                     contentDescription = action.contentDescription,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -281,6 +302,7 @@ fun QodeSearchTopAppBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Close search",
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         },
@@ -288,8 +310,9 @@ fun QodeSearchTopAppBar(
             if (searchQuery.isNotEmpty()) {
                 IconButton(onClick = { onSearchQueryChange("") }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = QodeActionIcons.Close,
                         contentDescription = "Clear search",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -303,6 +326,7 @@ fun QodeSearchTopAppBar(
                         Icon(
                             imageVector = action.icon,
                             contentDescription = action.contentDescription,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -338,8 +362,9 @@ private fun OverflowMenu(actions: List<TopAppBarAction>) {
     Box {
         IconButton(onClick = { expanded = true }) {
             Icon(
-                imageVector = Icons.Default.MoreVert,
+                imageVector = QodeNavigationIcons.More,
                 contentDescription = "More options",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -358,11 +383,121 @@ private fun OverflowMenu(actions: List<TopAppBarAction>) {
                         Icon(
                             imageVector = action.icon,
                             contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     },
                     enabled = action.enabled,
                 )
             }
+        }
+    }
+}
+
+/**
+ * Compact screen-specific top app bar with navigation actions
+ * Layout: Favorites (left) | Screen Title (center) | Profile + Settings (right)
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun QodeScreenTopAppBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    onFavoritesClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    profileImageUrl: String? = null
+) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = onFavoritesClick) {
+                Icon(
+                    imageVector = QodeNavigationIcons.Favorites,
+                    contentDescription = "Favorites",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        },
+        actions = {
+            // Profile Avatar Button
+            IconButton(onClick = onProfileClick) {
+                QodeProfileAvatar(
+                    imageUrl = profileImageUrl,
+                    size = 32.dp,
+                    contentDescription = "Profile",
+                )
+            }
+
+            // Settings Button
+            IconButton(onClick = onSettingsClick) {
+                Icon(
+                    imageVector = QodeNavigationIcons.Settings,
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+    )
+}
+
+/**
+ * Profile avatar component for top app bar
+ */
+@Composable
+fun QodeProfileAvatar(
+    imageUrl: String?,
+    size: androidx.compose.ui.unit.Dp,
+    contentDescription: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (imageUrl != null) {
+            // TODO: Add Coil AsyncImage when profile images are implemented
+            // AsyncImage(
+            //     model = imageUrl,
+            //     contentDescription = contentDescription,
+            //     modifier = Modifier.fillMaxSize(),
+            //     contentScale = ContentScale.Crop
+            // )
+
+            // Placeholder for now
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = contentDescription,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(size * 0.6f),
+            )
+        } else {
+            // Default placeholder
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = contentDescription,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(size * 0.6f),
+            )
         }
     }
 }
@@ -374,18 +509,19 @@ private fun OverflowMenu(actions: List<TopAppBarAction>) {
 private fun QodeTopAppBarPreview() {
     QodeTheme {
         Column {
+            // Default variant with navigation and actions
             QodeTopAppBar(
                 title = "Qode",
-                navigationIcon = Icons.Default.Menu,
+                navigationIcon = QodeUIIcons.Menu,
                 onNavigationClick = {},
                 actions = listOf(
                     TopAppBarAction(
-                        icon = Icons.Default.Search,
+                        icon = QodeNavigationIcons.Search,
                         contentDescription = "Search",
                         onClick = {},
                     ),
                     TopAppBarAction(
-                        icon = Icons.Default.Notifications,
+                        icon = QodeNavigationIcons.Notifications,
                         contentDescription = "Notifications",
                         onClick = {},
                     ),
@@ -394,6 +530,7 @@ private fun QodeTopAppBarPreview() {
 
             Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
+            // Center aligned variant with back navigation
             QodeTopAppBar(
                 title = "Store Details",
                 variant = QodeTopAppBarVariant.CenterAligned,
@@ -401,12 +538,12 @@ private fun QodeTopAppBarPreview() {
                 onNavigationClick = {},
                 actions = listOf(
                     TopAppBarAction(
-                        icon = Icons.Default.Share,
+                        icon = QodeActionIcons.Share,
                         contentDescription = "Share",
                         onClick = {},
                     ),
                     TopAppBarAction(
-                        icon = Icons.Default.Favorite,
+                        icon = QodeNavigationIcons.Favorites,
                         contentDescription = "Add to favorites",
                         onClick = {},
                     ),
@@ -415,12 +552,13 @@ private fun QodeTopAppBarPreview() {
 
             Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
+            // Large variant for primary screens
             QodeTopAppBar(
                 title = "Promo Codes",
                 variant = QodeTopAppBarVariant.Large,
                 actions = listOf(
                     TopAppBarAction(
-                        icon = Icons.Default.Add,
+                        icon = QodeActionIcons.Add,
                         contentDescription = "Add promo code",
                         onClick = {},
                     ),
@@ -434,13 +572,183 @@ private fun QodeTopAppBarPreview() {
 @Composable
 private fun QodeSearchTopAppBarPreview() {
     QodeTheme {
-        var searchQuery by remember { mutableStateOf("") }
+        Column {
+            // Empty search state
+            var searchQuery1 by remember { mutableStateOf("") }
+            QodeSearchTopAppBar(
+                searchQuery = searchQuery1,
+                onSearchQueryChange = { searchQuery1 = it },
+                onSearchClose = {},
+                placeholder = "Search promo codes...",
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Filter,
+                        contentDescription = "Filter",
+                        onClick = {},
+                    ),
+                ),
+            )
 
-        QodeSearchTopAppBar(
-            searchQuery = searchQuery,
-            onSearchQueryChange = { searchQuery = it },
-            onSearchClose = {},
-            placeholder = "Search promo codes...",
-        )
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Search with query
+            var searchQuery2 by remember { mutableStateOf("Summer Sale") }
+            QodeSearchTopAppBar(
+                searchQuery = searchQuery2,
+                onSearchQueryChange = { searchQuery2 = it },
+                onSearchClose = {},
+                placeholder = "Search stores...",
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Filter,
+                        contentDescription = "Sort",
+                        onClick = {},
+                    ),
+                ),
+            )
+        }
+    }
+}
+
+@Preview(name = "Screen TopAppBar", showBackground = true)
+@Composable
+private fun QodeScreenTopAppBarPreview() {
+    QodeTheme {
+        Column {
+            // Home screen variant
+            QodeScreenTopAppBar(
+                title = "Home",
+                onFavoritesClick = {},
+                onProfileClick = {},
+                onSettingsClick = {},
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Inbox screen variant
+            QodeScreenTopAppBar(
+                title = "Inbox",
+                onFavoritesClick = {},
+                onProfileClick = {},
+                onSettingsClick = {},
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Search screen variant
+            QodeScreenTopAppBar(
+                title = "Search",
+                onFavoritesClick = {},
+                onProfileClick = {},
+                onSettingsClick = {},
+                profileImageUrl = null, // Shows placeholder profile avatar
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "TopAppBar States", showBackground = true)
+@Composable
+private fun QodeTopAppBarStatesPreview() {
+    QodeTheme {
+        Column {
+            // No navigation icon
+            QodeTopAppBar(
+                title = "Settings",
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Settings,
+                        contentDescription = "Settings",
+                        onClick = {},
+                    ),
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // With overflow menu
+            QodeTopAppBar(
+                title = "Store Details",
+                variant = QodeTopAppBarVariant.CenterAligned,
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationClick = {},
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeActionIcons.Share,
+                        contentDescription = "Share",
+                        onClick = {},
+                    ),
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Favorites,
+                        contentDescription = "Favorite",
+                        onClick = {},
+                    ),
+                    TopAppBarAction(
+                        icon = QodeActionIcons.Download,
+                        contentDescription = "Download",
+                        onClick = {},
+                        showAsAction = false, // This will go to overflow menu
+                    ),
+                    TopAppBarAction(
+                        icon = QodeActionIcons.Delete,
+                        contentDescription = "Delete",
+                        onClick = {},
+                        showAsAction = false, // This will go to overflow menu
+                    ),
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Disabled action example
+            QodeTopAppBar(
+                title = "Profile",
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeActionIcons.Edit,
+                        contentDescription = "Edit profile",
+                        onClick = {},
+                        enabled = false,
+                    ),
+                ),
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "TopAppBar Dark Theme", showBackground = true)
+@Composable
+private fun QodeTopAppBarDarkPreview() {
+    QodeTheme(darkTheme = true) {
+        Column {
+            QodeTopAppBar(
+                title = "Dark Theme",
+                navigationIcon = QodeUIIcons.Menu,
+                onNavigationClick = {},
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Search,
+                        contentDescription = "Search",
+                        onClick = {},
+                    ),
+                    TopAppBarAction(
+                        icon = QodeNavigationIcons.Notifications,
+                        contentDescription = "Notifications",
+                        onClick = {},
+                    ),
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            QodeScreenTopAppBar(
+                title = "Dark Mode Screen",
+                onFavoritesClick = {},
+                onProfileClick = {},
+                onSettingsClick = {},
+            )
+        }
     }
 }
