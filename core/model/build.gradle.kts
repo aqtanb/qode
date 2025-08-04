@@ -5,25 +5,23 @@ plugins {
 
 android {
     namespace = "com.qodein.core.model"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = 29
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlin {
-        jvmToolchain(11)
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
     }
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
-    // Pure domain models - no dependencies needed initially
-    // Add only when you need specific utilities like:
-    // implementation(libs.kotlinx.datetime) // for date/time models
     implementation(libs.kotlinx.serialization.json)
 }

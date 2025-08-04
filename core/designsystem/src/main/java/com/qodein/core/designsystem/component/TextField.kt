@@ -45,9 +45,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -110,7 +110,7 @@ fun QodeTextField(
     maxCharacters: Int? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    shape: Shape = RoundedCornerShape(QodeCorners.sm),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.small),
     singleLine: Boolean = variant != QodeTextFieldVariant.Multiline,
     maxLines: Int = if (variant == QodeTextFieldVariant.Multiline) 5 else 1
 ) {

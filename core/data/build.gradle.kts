@@ -7,15 +7,21 @@ plugins {
 
 android {
     namespace = "com.qodein.core.data"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = 29
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
     }
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -25,8 +31,6 @@ dependencies {
     // Hilt DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-
-    implementation(libs.xmaterial.ccp)
 
     // Coroutines
     implementation(libs.bundles.coroutines)

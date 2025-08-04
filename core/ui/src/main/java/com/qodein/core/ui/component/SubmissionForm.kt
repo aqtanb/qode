@@ -59,8 +59,8 @@ import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.component.QodeTextFieldState
 import com.qodein.core.designsystem.component.QodeTextFieldVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.Store
@@ -325,7 +325,7 @@ private fun StoreSelector(
                         leadingIcon = {
                             Surface(
                                 modifier = Modifier.size(32.dp),
-                                shape = RoundedCornerShape(QodeCorners.xs),
+                                shape = RoundedCornerShape(ShapeTokens.Corner.small),
                                 color = MaterialTheme.colorScheme.primaryContainer,
                             ) {
                                 Box(contentAlignment = Alignment.Center) {

@@ -7,15 +7,21 @@ plugins {
 
 android {
     namespace = "com.qodein.core.domain"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = 29
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
     }
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 dependencies {

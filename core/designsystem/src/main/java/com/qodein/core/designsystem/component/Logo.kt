@@ -18,8 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.R
 import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 
 enum class QodeLogoSize {
     Small, // 32dp - for small UI elements
@@ -43,7 +44,7 @@ fun QodeLogo(
     contentDescription: String? = "Qode logo"
 ) {
     val logoSize = when (size) {
-        QodeLogoSize.Small -> QodeSize.iconLarge // 32dp
+        QodeLogoSize.Small -> SizeTokens.Icon.sizeLarge // 32dp
         QodeLogoSize.Medium -> 48.dp // 48dp
         QodeLogoSize.Large -> 64.dp // 64dp
         QodeLogoSize.XLarge -> 96.dp // 96dp
@@ -51,9 +52,9 @@ fun QodeLogo(
 
     val cornerRadius = when (size) {
         QodeLogoSize.Small -> QodeCorners.sm
-        QodeLogoSize.Medium -> QodeCorners.md
+        QodeLogoSize.Medium -> ShapeTokens.Corner.medium
         QodeLogoSize.Large -> QodeCorners.lg
-        QodeLogoSize.XLarge -> QodeCorners.xl
+        QodeLogoSize.XLarge -> ShapeTokens.Corner.extraLarge
     }
 
     val (logoRes, colorFilter, backgroundModifier) = when (style) {
@@ -124,7 +125,7 @@ fun QodeLogoMinimal(
     tint: Color = MaterialTheme.colorScheme.onSurface
 ) {
     val logoSize = when (size) {
-        QodeLogoSize.Small -> QodeSize.iconLarge
+        QodeLogoSize.Small -> SizeTokens.Icon.sizeLarge
         QodeLogoSize.Medium -> 48.dp
         QodeLogoSize.Large -> 64.dp
         QodeLogoSize.XLarge -> 96.dp

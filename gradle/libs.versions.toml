@@ -4,6 +4,15 @@ agp = "8.11.1"
 kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"
 
+# SDK Versions
+compileSdk = "36"
+minSdk = "29"
+targetSdk = "36"
+
+# App Version
+versionCode = "1"
+versionName = "0.1.0"
+
 # AndroidX Core
 coreKtx = "1.16.0"
 lifecycleRuntimeKtx = "2.9.2"
@@ -12,13 +21,11 @@ appcompat = "1.7.1"
 
 # Compose
 composeBom = "2025.07.00"
-
-# Material Design
 material = "1.12.0"
 
 # Navigation & Serialization
-navigation = "2.9.2"
-kotlinxSerializationJson = "1.6.3"
+navigation = "2.9.3"
+kotlinxSerializationJson = "1.7.3"
 
 # Dependency Injection
 hilt = "2.57"
@@ -26,6 +33,8 @@ hiltNavigationCompose = "1.2.0"
 
 # Firebase
 firebaseBom = "34.0.0"
+googleServices = "4.4.3"
+firebaseCrashlytics = "3.0.5"
 
 # Networking
 retrofit = "3.0.0"
@@ -36,33 +45,32 @@ kotlinxCoroutines = "1.10.2"
 room = "2.7.2"
 datastore = "1.1.7"
 
-# Image Loading
-coil = "2.8.0"
+# Media & Images
+coil = "3.0.4"
+
+# Authentication
+googleSignin = "21.4.0"
+
+# UI Components
+composeIcons = "1.1.1"
 
 # Utilities
 timber = "5.0.1"
 
-# Icons
-composeIcons = "1.1.1"
-
-# Country Code Picker
-xmaterialCcp = "2.17"
-
 # Code Quality
 spotless = "7.2.1"
+detekt = "1.23.8"
 
 # Testing
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 mockk = "1.14.5"
 turbine = "1.2.1"
+robolectric = "4.15.1"
 
-# Debug & Development
+# Debug
 leakcanary = "2.14"
-
-# Authentication
-google-signin = "21.2.0"
 
 [libraries]
 # AndroidX Core
@@ -73,7 +81,7 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
-# Compose BOM & UI
+# Compose & UI
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -81,18 +89,17 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
-
-# Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 
-# Dependency Injection - Hilt
+# Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
@@ -113,20 +120,19 @@ retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", n
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
-# Database - Room
+# Database
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-
-# DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 datastore-proto = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 
-# Image Loading
+# Images
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
 
-# Material Design (View System)
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+# Auth
+google-signin = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleSignin" }
 
 # Icons
 compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "composeIcons" }
@@ -134,13 +140,6 @@ compose-icons-tabler = { group = "br.com.devsrsouza.compose.icons", name = "tabl
 compose-icons-font-awesome = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "composeIcons" }
 compose-icons-simple = { group = "br.com.devsrsouza.compose.icons", name = "simple-icons", version.ref = "composeIcons" }
 compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "octicons", version.ref = "composeIcons" }
-
-
-# Country Code Picker
-xmaterial-ccp = { group = "com.github.TuleSimon", name = "xMaterialccp", version.ref = "xmaterialCcp" }
-
-# Authentication
-google-signin = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "google-signin" }
 
 # Utilities
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
@@ -150,19 +149,20 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 # Testing - Android
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
-# Debug Tools
+# Debug
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 
 [bundles]
-# Core Android
+# Core
 androidx-core = [
     "androidx-core-ktx",
     "androidx-lifecycle-runtime-ktx",
@@ -170,7 +170,6 @@ androidx-core = [
     "androidx-appcompat"
 ]
 
-# Compose Complete
 compose = [
     "androidx-ui",
     "androidx-ui-graphics",
@@ -180,38 +179,34 @@ compose = [
     "androidx-ui-text-google-fonts"
 ]
 
-# Material Design
 material-design = [
     "androidx-material3",
     "material"
 ]
 
-# Navigation & Architecture
+# Architecture
 navigation = [
     "androidx-navigation-compose",
     "kotlinx-serialization-json"
 ]
 
-# Lifecycle & ViewModel
 lifecycle = [
     "androidx-lifecycle-runtime-ktx",
     "androidx-lifecycle-viewmodel-compose",
     "androidx-lifecycle-runtime-compose"
 ]
 
-# Coroutines
 coroutines = [
     "kotlinx-coroutines-core",
     "kotlinx-coroutines-android"
 ]
 
-# Dependency Injection
 hilt = [
     "hilt-android",
     "hilt-navigation-compose"
 ]
 
-# Firebase
+# Backend
 firebase = [
     "firebase-auth",
     "firebase-firestore",
@@ -220,7 +215,6 @@ firebase = [
     "firebase-messaging"
 ]
 
-# Firebase Extended (for features like file upload)
 firebase-extended = [
     "firebase-auth",
     "firebase-firestore",
@@ -230,7 +224,6 @@ firebase-extended = [
     "firebase-storage"
 ]
 
-# Networking
 networking = [
     "retrofit",
     "retrofit-converter-kotlinx-serialization",
@@ -238,55 +231,58 @@ networking = [
     "okhttp-logging-interceptor"
 ]
 
-# Database
 database = [
     "room-runtime",
     "room-ktx"
 ]
 
-# Data Storage
 data-storage = [
     "datastore-preferences",
     "room-runtime",
     "room-ktx"
 ]
 
-# Icons
-icons = [
-    "compose-icons-feather",     # Clean, minimal icons
-    "compose-icons-tabler",      # Modern, consistent design
-    "compose-icons-font-awesome", # Comprehensive icon set (large)
-    "compose-icons-simple",       # Brand icons
-    "compose-icons-octicons",     # GitHub icons
+# Media
+image-loading = [
+    "coil-compose",
+    "coil-svg"
 ]
 
-# Testing - Unit
+icons = [
+    "compose-icons-feather",
+    "compose-icons-tabler",
+    "compose-icons-font-awesome",
+    "compose-icons-simple",
+    "compose-icons-octicons"
+]
+
+# Testing
 testing-unit = [
     "junit",
     "mockk",
     "kotlinx-coroutines-test",
-    "turbine"
+    "turbine",
+    "robolectric"
 ]
 
-# Testing - Android
 testing-android = [
     "androidx-junit",
     "androidx-espresso-core",
     "androidx-ui-test-junit4"
 ]
 
-# Testing - Complete
 testing = [
     "junit",
     "mockk",
     "kotlinx-coroutines-test",
     "turbine",
+    "robolectric",
     "androidx-junit",
     "androidx-espresso-core",
     "androidx-ui-test-junit4"
 ]
 
-# Debug Tools
+# Debug
 debug = [
     "androidx-ui-tooling",
     "androidx-ui-test-manifest",
@@ -303,15 +299,16 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
-# Dependency Injection
+# DI
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
-# Annotation Processing
+# Processing
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Firebase
-google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.2" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
 
-# Code Quality
+# Quality
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

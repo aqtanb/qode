@@ -57,8 +57,8 @@ import com.qodein.core.designsystem.component.QodeSectionHeader
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.PromoCode
 import com.qodein.core.ui.model.User
@@ -235,7 +235,7 @@ private fun UserStatsRow(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(QodeCorners.md),
+        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
         color = Color.White.copy(alpha = 0.9f),
     ) {
         Row(
@@ -381,7 +381,7 @@ private fun AchievementCard(
             // Achievement icon
             Surface(
                 modifier = Modifier.size(48.dp),
-                shape = RoundedCornerShape(QodeCorners.md),
+                shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                 color = if (achievement.isUnlocked) {
                     achievement.color.copy(alpha = 0.2f)
                 } else {
@@ -516,7 +516,7 @@ private fun ActivityItem(
         leadingContent = {
             Surface(
                 modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(QodeCorners.sm),
+                shape = RoundedCornerShape(ShapeTokens.Corner.small),
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {

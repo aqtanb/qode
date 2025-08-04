@@ -43,7 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeBorder
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeSize
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -279,7 +278,7 @@ fun QodeInfoCard(
             containerColor = containerColor,
             contentColor = contentColor,
         ),
-        shape = RoundedCornerShape(QodeCorners.md),
+        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
     ) {
         Row(
             modifier = Modifier

@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -155,7 +156,7 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(16.dp)
-                    .clip(RoundedCornerShape(QodeCorners.xs))
+                    .clip(RoundedCornerShape(ShapeTokens.Corner.small))
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
 
@@ -166,7 +167,7 @@ fun QodeCardSkeleton(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .width(100.dp)
                     .height(32.dp)
-                    .clip(RoundedCornerShape(QodeCorners.sm))
+                    .clip(RoundedCornerShape(ShapeTokens.Corner.small))
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
             )
         }
