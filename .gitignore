@@ -85,4 +85,4 @@ CLAUDE.local.md
 
 # Claude Code workflows
 .github/workflows/claude.yml
-!/.claude/
+/.claude/
