@@ -23,8 +23,6 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
-
-
     buildFeatures {
         compose = true
     }
