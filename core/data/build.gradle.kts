@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -17,6 +19,16 @@ android {
             libs.versions.minSdk
                 .get()
                 .toInt()
+        val properties =
+            Properties().apply {
+                load(rootProject.file("local.properties").inputStream())
+            }
+        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID")}\"")
+        resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -34,6 +46,13 @@ dependencies {
 
     // Coroutines
     implementation(libs.bundles.coroutines)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
+
+    // Authentication
+    implementation(libs.bundles.authentication)
 
     // Android Context access
     implementation(libs.androidx.core.ktx)

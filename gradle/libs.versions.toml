@@ -34,7 +34,6 @@ hiltNavigationCompose = "1.2.0"
 # Firebase
 firebaseBom = "34.0.0"
 googleServices = "4.4.3"
-firebaseCrashlytics = "3.0.5"
 
 # Networking
 retrofit = "3.0.0"
@@ -50,6 +49,9 @@ coil = "3.0.4"
 
 # Authentication
 googleSignin = "21.4.0"
+credentials = "1.5.0"
+credentialsPlayServicesAuth = "1.5.0"
+googleid = "1.1.1"
 
 # UI Components
 composeIcons = "1.1.1"
@@ -98,6 +100,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutines" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -109,7 +112,6 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 
@@ -133,6 +135,10 @@ coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
 
 # Auth
 google-signin = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleSignin" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+
 
 # Icons
 compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "composeIcons" }
@@ -198,7 +204,8 @@ lifecycle = [
 
 coroutines = [
     "kotlinx-coroutines-core",
-    "kotlinx-coroutines-android"
+    "kotlinx-coroutines-android",
+    "kotlinx-coroutines-play-services"
 ]
 
 hilt = [
@@ -211,7 +218,6 @@ firebase = [
     "firebase-auth",
     "firebase-firestore",
     "firebase-analytics",
-    "firebase-crashlytics",
     "firebase-messaging"
 ]
 
@@ -219,7 +225,6 @@ firebase-extended = [
     "firebase-auth",
     "firebase-firestore",
     "firebase-analytics",
-    "firebase-crashlytics",
     "firebase-messaging",
     "firebase-storage"
 ]
@@ -246,6 +251,14 @@ data-storage = [
 image-loading = [
     "coil-compose",
     "coil-svg"
+]
+
+# Authentication
+authentication = [
+    "google-signin",
+    "androidx-credentials",
+    "androidx-credentials-play-services-auth",
+    "googleid"
 ]
 
 icons = [
@@ -307,7 +320,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Firebase
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
 
 # Quality
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

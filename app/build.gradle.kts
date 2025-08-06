@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -38,7 +39,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
             isDebuggable = true
         }
         release {
@@ -72,6 +72,8 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.data)
     implementation(projects.core.ui)
+    implementation(projects.core.common)
+
     implementation(projects.feature.auth)
     implementation(projects.feature.home)
     implementation(projects.feature.inbox)
@@ -87,6 +89,9 @@ dependencies {
     // Dependency Injection
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
+
+    // Firebase
+    implementation(libs.bundles.firebase)
 
     // Testing
     testImplementation(libs.bundles.testing.unit)

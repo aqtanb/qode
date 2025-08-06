@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.core.domain"
+    namespace = "com.qodein.core.common"
     compileSdk =
         libs.versions.compileSdk
             .get()
@@ -17,6 +17,9 @@ android {
             libs.versions.minSdk
                 .get()
                 .toInt()
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 }
 
@@ -25,13 +28,17 @@ kotlin {
 }
 
 dependencies {
-    implementation(projects.core.model)
-    implementation(projects.core.common)
-
     // Hilt DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    // Coroutines
-    implementation(libs.bundles.coroutines)
+    // Android
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

@@ -2,10 +2,12 @@ package com.qodein.qode.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
+import com.qodein.feature.home.navigation.navigateToHome
 import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.search.navigation.searchSection
 import com.qodein.qode.ui.QodeAppState
@@ -30,6 +32,14 @@ fun QodeNavHost(
 
         inboxSection()
 
-        authSection()
+        authSection(
+            onAuthSuccess = {
+                navController.navigateToHome(
+                    NavOptions.Builder()
+                        .setPopUpTo(navController.graph.startDestinationId, inclusive = true)
+                        .build(),
+                )
+            },
+        )
     }
 }

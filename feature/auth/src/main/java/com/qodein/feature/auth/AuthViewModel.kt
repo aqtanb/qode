@@ -2,17 +2,18 @@ package com.qodein.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.domain.usecase.auth.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel() {
+class AuthViewModel @Inject constructor(private val signInWithGoogleUseCase: SignInWithGoogleUseCase) : ViewModel() {
 
-    private val _state = MutableStateFlow(AuthUiState())
+    private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state = _state.asStateFlow()
 
     fun handleAction(action: AuthAction) {
@@ -22,22 +23,33 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun signInWithGoogle() {
-        _state.value = _state.value.copy(isLoading = true)
+        _state.value = AuthUiState.Loading
 
-        viewModelScope.launch {
-            try {
-                delay(1000)
-                _state.value = _state.value.copy(isLoading = false)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = "Failed to sign in with Google",
+        signInWithGoogleUseCase()
+            .onEach { result ->
+                _state.value = result.fold(
+                    onSuccess = { user ->
+                        AuthUiState.Success(
+                            user = user,
+                        )
+                    },
+                    onFailure = { exception ->
+                        val errorMessage = when (exception) {
+                            is SecurityException -> "Sign-in was cancelled or rejected"
+                            is java.io.IOException -> "Network error. Please check your connection"
+                            is IllegalStateException -> "Google Play Services unavailable"
+                            else -> "Failed to sign in with Google"
+                        }
+
+                        val isRetryable = exception !is SecurityException
+                        AuthUiState.Error(errorMessage, isRetryable)
+                    },
                 )
             }
-        }
+            .launchIn(viewModelScope)
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(error = null)
+        _state.value = AuthUiState.Idle
     }
 }
