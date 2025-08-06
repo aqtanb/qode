@@ -17,7 +17,7 @@ import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeScreenTopAppBar
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.qode.R
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
@@ -54,7 +54,7 @@ internal fun QodeApp(
                             // TODO: Navigate to favorites screen
                         },
                         onProfileClick = {
-                            appState.navController.navigateToAuth()
+                            appState.navController.navigateToProfile()
                         },
                         onSettingsClick = {
                             // TODO: Navigate to settings screen
@@ -68,7 +68,7 @@ internal fun QodeApp(
                             // TODO: Navigate to favorites screen
                         },
                         onProfileClick = {
-                            appState.navController.navigateToAuth()
+                            appState.navController.navigateToProfile()
                         },
                         onSettingsClick = {
                             // TODO: Navigate to settings screen
@@ -82,7 +82,7 @@ internal fun QodeApp(
                             // TODO: Navigate to favorites screen
                         },
                         onProfileClick = {
-                            appState.navController.navigateToAuth()
+                            appState.navController.navigateToProfile()
                         },
                         onSettingsClick = {
                             // TODO: Navigate to settings screen

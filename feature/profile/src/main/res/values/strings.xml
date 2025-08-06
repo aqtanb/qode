@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Profile Screen -->
+    <string name="profile_not_signed_in_title">Welcome to Qode!</string>
+    <string name="profile_not_signed_in_subtitle">Sign in to access your profile, save preferences, and get personalized experiences.</string>
+    <string name="profile_sign_in_button">Sign In</string>
+    <string name="profile_sign_out_button">Sign Out</string>
+    <string name="profile_error_title">Something went wrong</string>
+    <string name="profile_retry_button">Retry</string>
+</resources>

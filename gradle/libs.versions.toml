@@ -45,7 +45,7 @@ room = "2.7.2"
 datastore = "1.1.7"
 
 # Media & Images
-coil = "3.0.4"
+coil = "2.7.0"
 
 # Authentication
 googleSignin = "21.4.0"

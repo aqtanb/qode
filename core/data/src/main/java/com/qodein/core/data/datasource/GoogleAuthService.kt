@@ -53,7 +53,7 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
                 val firebaseUser = authResult.user
 
                 val user = firebaseUser?.let { user ->
-                    createUser(user)
+                    createUserFromFirebaseUser(user)
                 } ?: throw IllegalStateException("Null user after authentication")
 
                 emit(user)
@@ -72,13 +72,13 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
 
     fun getCurrentUser(): Flow<User?> =
         flow {
-            val user = auth.currentUser?.let { createUser(it) }
+            val user = auth.currentUser?.let { createUserFromFirebaseUser(it) }
             emit(user)
         }
 
     fun isSignedIn(): Boolean = auth.currentUser != null
 
-    private fun createUser(firebaseUser: FirebaseUser): User {
+    fun createUserFromFirebaseUser(firebaseUser: FirebaseUser): User {
         val email = firebaseUser.email ?: throw IllegalStateException("Google Auth user must have an email")
         val userId = UserId(firebaseUser.uid)
         val baseUsername = generateUsernameFromEmail(email)

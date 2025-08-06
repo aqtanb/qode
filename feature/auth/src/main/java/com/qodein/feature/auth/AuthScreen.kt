@@ -74,7 +74,7 @@ fun AuthContent(
         ) {
             Column(
                 modifier = modifier
-                    .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xl)
+                    .padding(SpacingTokens.md)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -105,7 +105,7 @@ fun AuthContent(
                     onClick = {
                         onAction(AuthAction.SignInWithGoogleClicked)
                     },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = SpacingTokens.xl),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
                     isLoading = state is AuthUiState.Loading,
                 )
 
