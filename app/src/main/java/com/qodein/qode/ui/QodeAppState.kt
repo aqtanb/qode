@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
+import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
@@ -31,6 +32,7 @@ fun rememberQodeAppState(navController: NavHostController = rememberNavControlle
 @Stable
 class QodeAppState(val navController: NavHostController) {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
+    private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
 
     val currentDestination: NavDestination?
         @Composable get() {
@@ -49,11 +51,24 @@ class QodeAppState(val navController: NavHostController) {
             val currentEntry = navController.currentBackStackEntryFlow
                 .collectAsState(initial = null)
 
-            return TopLevelDestination.entries.firstOrNull { topLevelDestination ->
+            val topLevelDestination = TopLevelDestination.entries.firstOrNull { topLevelDestination ->
                 // Check if current destination matches the route
                 currentDestination?.hasRoute(route = topLevelDestination.route) == true ||
                     // For nested navigation, check if we're in the parent graph
                     currentEntry.value?.destination?.parent?.hasRoute(route = topLevelDestination.route) == true
+            }
+
+            // If we're on a valid top-level destination, update the last known one
+            if (topLevelDestination != null) {
+                lastTopLevelDestination.value = topLevelDestination
+            }
+
+            // If we're on the profile screen, return the last known top-level destination
+            val isOnProfile = currentDestination?.hasRoute(route = ProfileRoute::class) == true
+            return if (isOnProfile) {
+                lastTopLevelDestination.value ?: HOME // Default to HOME if no previous destination
+            } else {
+                topLevelDestination
             }
         }
 

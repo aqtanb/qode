@@ -19,7 +19,9 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.profileSection(onSignInClick: () -> Unit = {}) {
     navigation<ProfileBaseRoute>(startDestination = ProfileRoute) {
         composable<ProfileRoute> {
-            ProfileScreen(onSignInClick = onSignInClick)
+            ProfileScreen(
+                onNavigateToAuth = onSignInClick,
+            )
         }
     }
 }

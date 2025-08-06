@@ -6,9 +6,9 @@ sealed interface ProfileUiState {
 
     data object Loading : ProfileUiState
 
-    data object NotSignedIn : ProfileUiState
+    data object SignedOut : ProfileUiState
 
     data class SignedIn(val user: User) : ProfileUiState
 
-    data class Error(val message: String, val isRetryable: Boolean = true) : ProfileUiState
+    data class Error(val exception: Throwable, val isRetryable: Boolean = true) : ProfileUiState
 }

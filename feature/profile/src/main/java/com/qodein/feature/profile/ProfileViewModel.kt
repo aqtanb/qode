@@ -41,12 +41,12 @@ class ProfileViewModel @Inject constructor(
                         if (user != null) {
                             ProfileUiState.SignedIn(user = user)
                         } else {
-                            ProfileUiState.NotSignedIn
+                            ProfileUiState.SignedOut
                         }
                     },
                     onFailure = { exception ->
                         ProfileUiState.Error(
-                            message = "Failed to load profile: ${exception.message}",
+                            exception = exception,
                             isRetryable = true,
                         )
                     },
@@ -60,11 +60,11 @@ class ProfileViewModel @Inject constructor(
             .onEach { result ->
                 result.fold(
                     onSuccess = {
-                        _state.value = ProfileUiState.NotSignedIn
+                        _state.value = ProfileUiState.SignedOut
                     },
                     onFailure = { exception ->
                         _state.value = ProfileUiState.Error(
-                            message = "Failed to sign out: ${exception.message}",
+                            exception = exception,
                             isRetryable = true,
                         )
                     },
