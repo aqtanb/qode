@@ -4,21 +4,31 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeBottomNavigation
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeScreenTopAppBar
+import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeTopAppBarVariant
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.qode.R
+import com.qodein.qode.navigation.NavigationActions
+import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
 
@@ -34,62 +44,67 @@ fun QodeApp(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QodeApp(
     appState: QodeAppState,
     onTopBarActionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appViewModel: QodeAppViewModel = hiltViewModel()
+    val authState by appViewModel.authState.collectAsStateWithLifecycle()
+
     val currentDestination = appState.currentTopLevelDestination
+    val selectedTabDestination = appState.selectedTabDestination
     val isHomeDestination = currentDestination == TopLevelDestination.HOME
-    val isInboxDestination = currentDestination == TopLevelDestination.INBOX
+
+    // Handle navigation events from ViewModel
+    LaunchedEffect(Unit) {
+        appViewModel.navigationEvents.collect { action ->
+            NavigationHandler().handleNavigation(
+                action = action,
+                navController = appState.navController,
+                authState = authState,
+                navigateToTopLevel = { destination ->
+                    appState.navigateToTopLevelDestination(destination)
+                },
+            )
+        }
+    }
+
+    val onProfileClick = {
+        val navigationAction = appViewModel.getProfileNavigationAction()
+        appViewModel.handleNavigation(navigationAction)
+    }
 
     Scaffold(
         topBar = {
-            when (currentDestination) {
-                TopLevelDestination.HOME -> {
+            if (appState.isNestedScreen) {
+                QodeTopAppBar(
+                    title = null,
+                    variant = QodeTopAppBarVariant.CenterAligned,
+                    navigationIcon = QodeActionIcons.Back,
+                    onNavigationClick = {
+                        appState.navController.popBackStack()
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                )
+            } else {
+                currentDestination?.let { destination ->
                     QodeScreenTopAppBar(
-                        title = stringResource(R.string.home_title),
+                        title = stringResource(destination.titleTextId),
                         onFavoritesClick = {
-                            // TODO: Navigate to favorites screen
+                            appViewModel.handleNavigation(NavigationActions.NavigateToFavorites)
                         },
-                        onProfileClick = {
-                            appState.navController.navigateToProfile()
-                        },
+                        onProfileClick = onProfileClick,
                         onSettingsClick = {
-                            // TODO: Navigate to settings screen
+                            appViewModel.handleNavigation(NavigationActions.NavigateToSettings)
                         },
                     )
                 }
-                TopLevelDestination.INBOX -> {
-                    QodeScreenTopAppBar(
-                        title = stringResource(R.string.inbox_title),
-                        onFavoritesClick = {
-                            // TODO: Navigate to favorites screen
-                        },
-                        onProfileClick = {
-                            appState.navController.navigateToProfile()
-                        },
-                        onSettingsClick = {
-                            // TODO: Navigate to settings screen
-                        },
-                    )
-                }
-                TopLevelDestination.SEARCH -> {
-                    QodeScreenTopAppBar(
-                        title = stringResource(R.string.search_title),
-                        onFavoritesClick = {
-                            // TODO: Navigate to favorites screen
-                        },
-                        onProfileClick = {
-                            appState.navController.navigateToProfile()
-                        },
-                        onSettingsClick = {
-                            // TODO: Navigate to settings screen
-                        },
-                    )
-                }
-                else -> { /* No top bar for other screens */ }
             }
         },
 
@@ -98,7 +113,7 @@ internal fun QodeApp(
                 QodeIconButton(
                     onClick = onTopBarActionClick,
                     icon = Icons.Default.Add,
-                    contentDescription = "Add",
+                    contentDescription = stringResource(R.string.add),
                     variant = QodeButtonVariant.Primary,
                     size = QodeButtonSize.Large,
                     modifier = Modifier.padding(SpacingTokens.sm),
@@ -117,7 +132,7 @@ internal fun QodeApp(
                             unselectedIcon = destination.unSelectedIcon,
                         )
                     },
-                    selectedRoute = currentDestination?.route?.simpleName ?: "",
+                    selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
                     onItemClick = { selectedItem ->
                         appState.topLevelDestinations.find {
                             it.route.simpleName == selectedItem.route

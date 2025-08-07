@@ -38,8 +38,6 @@ import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -54,7 +52,9 @@ import com.qodein.core.model.UserStats
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    onNavigateToAuth: () -> Unit = {}
+    onNavigateToAuth: () -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onSignOut: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -63,6 +63,8 @@ fun ProfileScreen(
         state = state,
         onAction = viewModel::handleAction,
         onNavigateToAuth = onNavigateToAuth,
+        onBackClick = onBackClick,
+        onSignOut = onSignOut,
     )
 }
 
@@ -71,7 +73,9 @@ fun ProfileContent(
     modifier: Modifier = Modifier,
     state: ProfileUiState,
     onAction: (ProfileAction) -> Unit,
-    onNavigateToAuth: () -> Unit
+    onNavigateToAuth: () -> Unit,
+    onBackClick: () -> Unit = {},
+    onSignOut: () -> Unit = {}
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -83,13 +87,19 @@ fun ProfileContent(
             }
 
             is ProfileUiState.SignedOut -> {
-                onNavigateToAuth()
+                // This state should not occur with smart routing
+                // If user reaches here, show a loading indicator as fallback
+                CircularProgressIndicator()
             }
 
             is ProfileUiState.SignedIn -> {
                 SignedInContent(
                     user = state.user,
-                    onSignOutClick = { onAction(ProfileAction.SignOutClicked) },
+                    onSignOutClick = {
+                        onAction(ProfileAction.SignOutClicked)
+                        onSignOut()
+                    },
+                    onBackClick = onBackClick,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -109,6 +119,7 @@ fun ProfileContent(
 private fun SignedInContent(
     user: User,
     onSignOutClick: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -118,13 +129,10 @@ private fun SignedInContent(
         Column(
             modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
         ) {
-            QodeTopAppBar(
-                title = null,
-                navigationIcon = QodeActionIcons.Back,
-            )
             ProfileHeaderSection(
                 user = user,
-                modifier = Modifier.fillMaxWidth(),
+                onBackClick = onBackClick,
+                modifier = Modifier.fillMaxWidth().padding(bottom = SpacingTokens.md),
             )
         }
 
@@ -134,7 +142,7 @@ private fun SignedInContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(
-                    top = 200.dp, // Account for header height
+                    top = 150.dp, // Account for header height
                     start = SpacingTokens.md,
                     end = SpacingTokens.md,
                     bottom = SpacingTokens.md,
@@ -166,6 +174,7 @@ private fun SignedInContent(
 @Composable
 private fun ProfileHeaderSection(
     user: User,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(

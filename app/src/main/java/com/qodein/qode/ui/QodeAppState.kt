@@ -14,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
-import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
@@ -51,25 +50,44 @@ class QodeAppState(val navController: NavHostController) {
             val currentEntry = navController.currentBackStackEntryFlow
                 .collectAsState(initial = null)
 
-            val topLevelDestination = TopLevelDestination.entries.firstOrNull { topLevelDestination ->
+            val topLevelDestination = TopLevelDestination.entries.firstOrNull { destination ->
                 // Check if current destination matches the route
-                currentDestination?.hasRoute(route = topLevelDestination.route) == true ||
+                currentDestination?.hasRoute(route = destination.route) == true ||
                     // For nested navigation, check if we're in the parent graph
-                    currentEntry.value?.destination?.parent?.hasRoute(route = topLevelDestination.route) == true
+                    currentEntry.value?.destination?.parent?.hasRoute(route = destination.route) == true
             }
 
-            // If we're on a valid top-level destination, update the last known one
+            // Always update the last known destination when we're on a valid top-level destination
             if (topLevelDestination != null) {
                 lastTopLevelDestination.value = topLevelDestination
             }
 
-            // If we're on the profile screen, return the last known top-level destination
-            val isOnProfile = currentDestination?.hasRoute(route = ProfileRoute::class) == true
-            return if (isOnProfile) {
-                lastTopLevelDestination.value ?: HOME // Default to HOME if no previous destination
-            } else {
-                topLevelDestination
+            return topLevelDestination
+        }
+
+    /**
+     * Get the destination that should be highlighted in bottom navigation
+     * When on nested screens, this shows which tab the user came from
+     */
+    val selectedTabDestination: TopLevelDestination?
+        @Composable get() {
+            val actualDestination = currentTopLevelDestination
+            return actualDestination
+                ?: ( // We're on a nested screen, show the last known destination
+                    lastTopLevelDestination.value ?: HOME
+                    )
+        }
+
+    /**
+     * Check if current destination is a nested screen (not a top-level destination)
+     */
+    val isNestedScreen: Boolean
+        @Composable get() {
+            val topLevelDestination = TopLevelDestination.entries.firstOrNull { destination ->
+                currentDestination?.hasRoute(route = destination.route) == true ||
+                    currentDestination?.parent?.hasRoute(route = destination.route) == true
             }
+            return topLevelDestination == null
         }
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
@@ -81,7 +99,8 @@ class QodeAppState(val navController: NavHostController) {
                     saveState = true
                 }
                 launchSingleTop = true
-                restoreState = true
+                // Remove restoreState to always go to base route
+                restoreState = false
             }
 
             when (topLevelDestination) {

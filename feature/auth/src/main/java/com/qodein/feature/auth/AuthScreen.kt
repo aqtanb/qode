@@ -37,7 +37,8 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 fun AuthScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
-    onAuthSuccess: () -> Unit = {}
+    onAuthSuccess: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 

@@ -34,4 +34,6 @@ dependencies {
 
     // Coroutines
     implementation(libs.bundles.coroutines)
+
+    implementation(libs.bundles.testing.unit)
 }
