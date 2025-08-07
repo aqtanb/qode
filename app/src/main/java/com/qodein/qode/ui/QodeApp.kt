@@ -57,6 +57,7 @@ internal fun QodeApp(
     val currentDestination = appState.currentTopLevelDestination
     val selectedTabDestination = appState.selectedTabDestination
     val isHomeDestination = currentDestination == TopLevelDestination.HOME
+    val isProfileScreen = appState.isProfileScreen
 
     // Handle navigation events from ViewModel
     LaunchedEffect(Unit) {
@@ -80,6 +81,7 @@ internal fun QodeApp(
     Scaffold(
         topBar = {
             if (appState.isNestedScreen) {
+                // All nested screens get transparent top bar with adaptive colors
                 QodeTopAppBar(
                     title = null,
                     variant = QodeTopAppBarVariant.CenterAligned,
@@ -89,7 +91,13 @@ internal fun QodeApp(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = if (isProfileScreen) {
+                            // Profile screen uses primaryContainer colors for better visibility
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            // Other nested screens use standard surface colors
+                            MaterialTheme.colorScheme.onSurface
+                        },
                     ),
                 )
             } else {

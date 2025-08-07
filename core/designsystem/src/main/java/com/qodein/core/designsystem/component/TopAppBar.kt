@@ -107,7 +107,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -122,7 +122,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
@@ -164,7 +164,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -179,7 +179,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
@@ -220,7 +220,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -235,7 +235,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
