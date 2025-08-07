@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Profile Screen -->
+    <string name="profile_sign_out_button">Sign Out</string>
+    <string name="profile_error_title">Something went wrong</string>
+    <string name="profile_retry_button">Retry</string>
+    
+    <!-- Profile Header -->
+    <string name="profile_picture_description">Profile picture</string>
+    <string name="edit_profile_button">Edit Profile</string>
+    
+    <!-- Profile Stats -->
+    <string name="profile_stats_title">Your Activity</string>
+    <string name="profile_comments_label">Comments</string>
+    <string name="profile_promocodes_label">Promocodes</string>
+    <string name="profile_achievements_label">Achievements</string>
+    
+    <!-- Profile Actions -->
+    <string name="profile_actions_title">Quick Actions</string>
+    <string name="profile_view_achievements">View Achievements</string>
+    <string name="profile_view_comments">My Comments</string>
+    <string name="profile_view_promocodes">My Promocodes</string>
+</resources>

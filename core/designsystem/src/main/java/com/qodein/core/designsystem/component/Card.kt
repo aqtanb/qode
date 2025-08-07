@@ -190,7 +190,7 @@ fun QodeCard(
 fun QodeExpandableCard(
     modifier: Modifier = Modifier,
     variant: QodeCardVariant = QodeCardVariant.Elevated,
-    shape: Shape = RoundedCornerShape(QodeCorners.md),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
     title: @Composable () -> Unit,
     expandedContent: @Composable ColumnScope.() -> Unit,
     expanded: Boolean = false,
@@ -262,7 +262,7 @@ fun QodeExpandableCard(
 fun QodeCardWithActions(
     modifier: Modifier = Modifier,
     variant: QodeCardVariant = QodeCardVariant.Elevated,
-    shape: Shape = RoundedCornerShape(QodeCorners.md),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
     content: @Composable ColumnScope.() -> Unit,
     actions: @Composable RowScope.() -> Unit
 ) {

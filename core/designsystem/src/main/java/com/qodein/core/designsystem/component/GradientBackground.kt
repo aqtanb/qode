@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 enum class QodeGradientStyle {
@@ -256,7 +256,7 @@ private fun PreviewContent(
     ) {
         Surface(
             modifier = Modifier.padding(SpacingTokens.lg),
-            shape = RoundedCornerShape(QodeCorners.lg),
+            shape = RoundedCornerShape(ShapeTokens.Corner.large),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
             tonalElevation = 8.dp,
         ) {

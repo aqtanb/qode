@@ -28,8 +28,8 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Store
 import com.qodein.core.ui.model.StoreCategory
@@ -67,7 +67,7 @@ fun StoreCard(
             // Store logo
             Surface(
                 modifier = Modifier.size(56.dp),
-                shape = RoundedCornerShape(QodeCorners.md),
+                shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -161,7 +161,7 @@ fun CompactStoreCard(
             // Store logo
             Surface(
                 modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(QodeCorners.sm),
+                shape = RoundedCornerShape(ShapeTokens.Corner.small),
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -230,7 +230,7 @@ fun GridStoreCard(
             // Store logo
             Surface(
                 modifier = Modifier.size(64.dp),
-                shape = RoundedCornerShape(QodeCorners.md),
+                shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {

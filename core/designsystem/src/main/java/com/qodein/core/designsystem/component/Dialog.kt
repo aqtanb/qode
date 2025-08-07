@@ -52,11 +52,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
+import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -95,7 +94,7 @@ fun QodeDialog(
     icon: ImageVector? = null,
     confirmButton: DialogButton,
     dismissButton: DialogButton? = null,
-    shape: Shape = RoundedCornerShape(QodeCorners.lg),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.large),
     containerColor: Color = MaterialTheme.colorScheme.surface,
     properties: DialogProperties = DialogProperties(),
     content: (@Composable () -> Unit)? = null
@@ -127,7 +126,7 @@ fun QodeDialog(
                         Icon(
                             imageVector = it,
                             contentDescription = null,
-                            modifier = Modifier.size(QodeSize.iconLarge),
+                            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
@@ -235,7 +234,7 @@ private fun ConfirmationDialog(
                 icon?.let {
                     Surface(
                         modifier = Modifier.size(56.dp),
-                        shape = RoundedCornerShape(QodeCorners.md),
+                        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                         color = MaterialTheme.colorScheme.primaryContainer,
                     ) {
                         Box(
@@ -245,7 +244,7 @@ private fun ConfirmationDialog(
                             Icon(
                                 imageVector = it,
                                 contentDescription = null,
-                                modifier = Modifier.size(QodeSize.iconLarge),
+                                modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                         }
@@ -386,11 +385,11 @@ private fun BottomSheetDialog(
                 visible = true,
                 enter = slideInVertically(
                     initialOffsetY = { it },
-                    animationSpec = tween(QodeAnimation.MEDIUM),
+                    animationSpec = tween(MotionTokens.Duration.MEDIUM),
                 ),
                 exit = slideOutVertically(
                     targetOffsetY = { it },
-                    animationSpec = tween(QodeAnimation.MEDIUM),
+                    animationSpec = tween(MotionTokens.Duration.MEDIUM),
                 ),
             ) {
                 Card(
@@ -398,8 +397,8 @@ private fun BottomSheetDialog(
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     shape = RoundedCornerShape(
-                        topStart = QodeCorners.xl,
-                        topEnd = QodeCorners.xl,
+                        topStart = ShapeTokens.Corner.extraLarge,
+                        topEnd = ShapeTokens.Corner.extraLarge,
                         bottomStart = 0.dp,
                         bottomEnd = 0.dp,
                     ),
@@ -638,7 +637,7 @@ private fun QodeDialogPreview() {
                                     modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
-                                        shape = RoundedCornerShape(QodeCorners.md),
+                                        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                                         color = MaterialTheme.colorScheme.primaryContainer,
                                         modifier = Modifier.size(56.dp),
                                     ) {
@@ -661,7 +660,7 @@ private fun QodeDialogPreview() {
                                     modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
-                                        shape = RoundedCornerShape(QodeCorners.md),
+                                        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                                         color = MaterialTheme.colorScheme.secondaryContainer,
                                         modifier = Modifier.size(56.dp),
                                     ) {
@@ -684,7 +683,7 @@ private fun QodeDialogPreview() {
                                     modifier = Modifier.padding(SpacingTokens.sm),
                                 ) {
                                     Surface(
-                                        shape = RoundedCornerShape(QodeCorners.md),
+                                        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                                         color = MaterialTheme.colorScheme.tertiaryContainer,
                                         modifier = Modifier.size(56.dp),
                                     ) {

@@ -36,9 +36,16 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    onAuthSuccess: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
+
+    // Handle navigation on success
+    if (state is AuthUiState.Success) {
+        onAuthSuccess()
+    }
 
     AuthContent(
         modifier = modifier,
@@ -68,7 +75,7 @@ fun AuthContent(
         ) {
             Column(
                 modifier = modifier
-                    .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xl)
+                    .padding(SpacingTokens.md)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -99,8 +106,8 @@ fun AuthContent(
                     onClick = {
                         onAction(AuthAction.SignInWithGoogleClicked)
                     },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = SpacingTokens.xl),
-                    isLoading = state.isLoading,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
+                    isLoading = state is AuthUiState.Loading,
                 )
 
                 Column(
@@ -156,7 +163,7 @@ private fun AuthScreenPreview() {
     QodeTheme {
         AuthContent(
             onAction = {},
-            state = AuthUiState(),
+            state = AuthUiState.Idle,
         )
     }
 }

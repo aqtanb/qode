@@ -62,8 +62,8 @@ import com.qodein.core.designsystem.component.QodeChipVariant
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.component.QodeSectionHeader
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Category
 import com.qodein.core.ui.model.Store
@@ -371,7 +371,7 @@ private fun CategoryDetailCard(
                 ) {
                     Surface(
                         modifier = Modifier.size(48.dp),
-                        shape = RoundedCornerShape(QodeCorners.md),
+                        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                         color = category.color.copy(alpha = 0.1f),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -493,7 +493,7 @@ private fun SuggestedStoreCard(
             // Store logo placeholder
             Surface(
                 modifier = Modifier.size(64.dp),
-                shape = RoundedCornerShape(QodeCorners.md),
+                shape = RoundedCornerShape(ShapeTokens.Corner.medium),
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {

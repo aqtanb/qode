@@ -7,4 +7,10 @@
     <string name="inbox_title">Inbox</string>
     <string name="history_title">History\n</string>
     <string name="more_title">More</string>
+    
+    <!-- Navigation and UI -->
+    <string name="add">Add</string>
+    <string name="profile_title">Profile</string>
+    <string name="sign_in_title">Sign In</string>
+    <string name="back">Back</string>
 </resources>

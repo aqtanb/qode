@@ -57,6 +57,7 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.model.Comment
 import java.time.LocalDateTime
@@ -426,7 +427,7 @@ fun CommentInput(
                         .fillMaxWidth()
                         .background(
                             MaterialTheme.colorScheme.surfaceVariant,
-                            RoundedCornerShape(QodeCorners.md),
+                            RoundedCornerShape(ShapeTokens.Corner.medium),
                         )
                         .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,

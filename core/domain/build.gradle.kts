@@ -7,19 +7,26 @@ plugins {
 
 android {
     namespace = "com.qodein.core.domain"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = 29
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
     }
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 dependencies {
     implementation(projects.core.model)
+    implementation(projects.core.common)
 
     // Hilt DI
     implementation(libs.hilt.android)
@@ -27,4 +34,6 @@ dependencies {
 
     // Coroutines
     implementation(libs.bundles.coroutines)
+
+    implementation(libs.bundles.testing.unit)
 }

@@ -45,6 +45,7 @@ import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -121,7 +122,7 @@ fun ComingSoonCard(
                                 ),
                             ),
                         )
-                        .clip(RoundedCornerShape(QodeCorners.md)),
+                        .clip(RoundedCornerShape(ShapeTokens.Corner.medium)),
                 )
             }
 

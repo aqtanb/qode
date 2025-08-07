@@ -18,10 +18,16 @@ fun NavController.navigateToAuth(navOptions: NavOptions? = null) {
 }
 
 // NavGraphBuilder: what
-fun NavGraphBuilder.authSection() {
+fun NavGraphBuilder.authSection(
+    onAuthSuccess: () -> Unit = {},
+    onBackClick: () -> Unit = {}
+) {
     navigation<AuthBaseRoute>(startDestination = AuthRoute) {
         composable<AuthRoute> {
-            AuthScreen()
+            AuthScreen(
+                onAuthSuccess = onAuthSuccess,
+                onBackClick = onBackClick,
+            )
         }
     }
 }

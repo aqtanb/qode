@@ -77,8 +77,8 @@ enum class QodeTopAppBarScrollBehavior {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QodeTopAppBar(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String? = null,
     variant: QodeTopAppBarVariant = QodeTopAppBarVariant.Default,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
@@ -101,7 +101,7 @@ fun QodeTopAppBar(
             TopAppBar(
                 title = {
                     Text(
-                        text = title,
+                        text = title ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.titleLarge.copy(
@@ -158,7 +158,7 @@ fun QodeTopAppBar(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = title,
+                        text = title ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.titleMedium.copy(
@@ -214,7 +214,7 @@ fun QodeTopAppBar(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = title,
+                        text = title ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.headlineSmall.copy(

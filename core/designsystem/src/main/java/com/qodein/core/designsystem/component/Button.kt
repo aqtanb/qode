@@ -66,7 +66,8 @@ enum class QodeButtonVariant {
     Primary,
     Secondary,
     Text,
-    Outlined
+    Outlined,
+    Error
 }
 
 /**
@@ -259,6 +260,32 @@ fun QodeButton(
                 )
             }
         }
+
+        QodeButtonVariant.Error -> {
+            Button(
+                onClick = onClick,
+                modifier = buttonModifier,
+                enabled = enabled && !loading,
+                shape = shape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
+                ),
+                contentPadding = PaddingValues(horizontal = horizontalPadding),
+                interactionSource = interactionSource,
+            ) {
+                ButtonContent(
+                    text = text,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    loading = loading,
+                    textStyle = textStyle,
+                    iconSize = iconSize,
+                )
+            }
+        }
     }
 }
 
@@ -303,6 +330,7 @@ fun QodeIconButton(
         QodeButtonVariant.Secondary -> MaterialTheme.colorScheme.secondaryContainer
         QodeButtonVariant.Text -> Color.Transparent
         QodeButtonVariant.Outlined -> Color.Transparent
+        QodeButtonVariant.Error -> MaterialTheme.colorScheme.errorContainer
     }
 
     val contentColor = when (variant) {
@@ -310,6 +338,7 @@ fun QodeIconButton(
         QodeButtonVariant.Secondary -> MaterialTheme.colorScheme.onSecondaryContainer
         QodeButtonVariant.Text -> MaterialTheme.colorScheme.primary
         QodeButtonVariant.Outlined -> MaterialTheme.colorScheme.primary
+        QodeButtonVariant.Error -> MaterialTheme.colorScheme.onErrorContainer
     }
 
     Box(
