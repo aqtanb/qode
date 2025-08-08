@@ -1,5 +1,6 @@
 package com.qodein.feature.profile
 
+// Animation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateIntAsState
@@ -25,15 +26,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,23 +43,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeStatusIcons
+import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Email
 import com.qodein.core.model.User
@@ -140,7 +145,20 @@ fun ProfileContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private const val ANIMATION_DELAY_MS = 100L
+private const val GOOGLE_PROFILE_IMAGE_SIZE = "=s400-c"
+private val HERO_HEIGHT = SpacingTokens.xxxl * 5
+
+private fun getOptimizedImageUrl(url: String?): String? =
+    url?.let {
+        if (it.contains("googleusercontent.com")) {
+            it.replace("=s96-c", GOOGLE_PROFILE_IMAGE_SIZE)
+                .replace("=s100-c", GOOGLE_PROFILE_IMAGE_SIZE)
+        } else {
+            it
+        }
+    }
+
 @Composable
 private fun SignedInContent(
     user: User,
@@ -151,291 +169,289 @@ private fun SignedInContent(
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(ANIMATION_DELAY_MS)
         isVisible = true
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        // Gradient hero section
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(320.dp)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
-                            Color.Transparent,
-                        ),
-                        startY = 0f,
-                        endY = 800f,
-                    ),
-                ),
-        )
-
-        // Floating decorative elements
+    Box(modifier = modifier.fillMaxSize()) {
+        HeroGradientBackground()
         FloatingDecorations()
-
-        // Main scrollable content
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
-        ) {
-            Spacer(modifier = Modifier.height(100.dp)) // Space for transparent top bar
-
-            // Modern profile header
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = slideInVertically(
-                    initialOffsetY = { -it / 2 },
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                ) + fadeIn(animationSpec = tween(600)),
-            ) {
-                ModernProfileHeader(
-                    user = user,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Spacer(modifier = Modifier.height(SpacingTokens.md))
-
-            // Interactive stats cards
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = slideInVertically(
-                    initialOffsetY = { it / 3 },
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                ) + fadeIn(animationSpec = tween(800, 200)),
-            ) {
-                InteractiveStatsSection(
-                    userStats = user.stats,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            // Modern activity feed
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = slideInVertically(
-                    initialOffsetY = { it / 2 },
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                ) + fadeIn(animationSpec = tween(1000, 400)),
-            ) {
-                ModernActivityFeed(
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            // Stylish sign out button
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(animationSpec = tween(1200, 600)),
-            ) {
-                QodeButton(
-                    text = stringResource(R.string.profile_sign_out_button),
-                    onClick = onSignOutClick,
-                    variant = QodeButtonVariant.Error,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Spacer(modifier = Modifier.height(SpacingTokens.xxl))
-        }
+        ProfileContent(
+            user = user,
+            onSignOutClick = onSignOutClick,
+            isVisible = isVisible,
+        )
     }
 }
 
 @Composable
-private fun ModernProfileHeader(
+private fun ProfileContent(
+    user: User,
+    onSignOutClick: () -> Unit,
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = SpacingTokens.lg)
+            .padding(top = SpacingTokens.xxxl + SpacingTokens.lg),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+    ) {
+        AnimatedProfileHeader(
+            user = user,
+            isVisible = isVisible,
+        )
+
+        Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+        AnimatedStatsSection(
+            userStats = user.stats,
+            isVisible = isVisible,
+        )
+
+        AnimatedActivityFeed(isVisible = isVisible)
+
+        AnimatedSignOutButton(
+            onSignOutClick = onSignOutClick,
+            isVisible = isVisible,
+        )
+
+        Spacer(modifier = Modifier.height(SpacingTokens.xxl))
+    }
+}
+
+@Composable
+private fun AnimatedProfileHeader(
+    user: User,
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(
+            initialOffsetY = { -it / 2 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        ) + fadeIn(animationSpec = tween(600)),
+    ) {
+        ProfileHeader(
+            user = user,
+            modifier = modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun AnimatedStatsSection(
+    userStats: UserStats,
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(
+            initialOffsetY = { it / 3 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        ) + fadeIn(animationSpec = tween(800, 200)),
+    ) {
+        StatsSection(
+            userStats = userStats,
+            modifier = modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun AnimatedActivityFeed(
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(
+            initialOffsetY = { it / 2 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        ) + fadeIn(animationSpec = tween(1000, 400)),
+    ) {
+        ActivityFeed(modifier = modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+private fun AnimatedSignOutButton(
+    onSignOutClick: () -> Unit,
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(animationSpec = tween(1200, 600)),
+    ) {
+        QodeButton(
+            text = stringResource(R.string.profile_sign_out_button),
+            onClick = onSignOutClick,
+            variant = QodeButtonVariant.Error,
+            modifier = modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun ProfileHeader(
     user: User,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // Glassmorphism profile picture
-        Box(
-            contentAlignment = Alignment.Center,
+        ProfileAvatar(photoUrl = user.profile.photoUrl)
+        UserInfo(user = user)
+        EditProfileButton()
+    }
+}
+
+@Composable
+private fun ProfileAvatar(
+    photoUrl: String?,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(SizeTokens.Avatar.sizeXLarge),
+    ) {
+        SubcomposeAsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(getOptimizedImageUrl(photoUrl))
+                .crossfade(true)
+                .allowHardware(false)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .build(),
+            contentDescription = stringResource(R.string.profile_picture_description),
             modifier = Modifier
-                .size(120.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = CircleShape,
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                ),
-        ) {
-            if (user.profile.photoUrl != null) {
-                AsyncImage(
-                    model = user.profile.photoUrl,
-                    contentDescription = "Profile picture",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                                ),
-                            ),
-                        ),
-                    contentScale = ContentScale.Crop,
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                ),
-                            ),
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile picture",
-                        modifier = Modifier.size(60.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
-        }
-
-        // User information with modern styling
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-        ) {
-            Text(
-                text = "${user.profile.firstName} ${user.profile.lastName ?: ""}".trim(),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                textAlign = TextAlign.Center,
-            )
-
-            Text(
-                text = "@${user.profile.username}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-            )
-
-            user.profile.bio?.let { bio ->
-                if (bio.isNotBlank()) {
-                    Text(
-                        text = bio,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = SpacingTokens.lg),
-                    )
-                }
-            }
-        }
-
-        // Modern edit profile button
-        QodeButton(
-            onClick = { /*TODO*/ },
-            text = stringResource(R.string.edit_profile_button),
-            variant = QodeButtonVariant.Outlined,
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(24.dp),
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                ),
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+            error = { AvatarPlaceholder() },
+            loading = { AvatarLoading() },
         )
     }
 }
 
 @Composable
-private fun InteractiveStatsSection(
+private fun UserInfo(
+    user: User,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+    ) {
+        UserName(
+            firstName = user.profile.firstName,
+            lastName = user.profile.lastName,
+        )
+        Username(username = user.profile.username)
+        user.profile.bio?.let { bio ->
+            if (bio.isNotBlank()) {
+                UserBio(bio = bio)
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditProfileButton(modifier: Modifier = Modifier) {
+    QodeButton(
+        onClick = { /*TODO*/ },
+        text = stringResource(R.string.edit_profile_button),
+        variant = QodeButtonVariant.Outlined,
+        modifier = modifier
+            .fillMaxWidth(0.6f)
+            .shadow(
+                elevation = ElevationTokens.large,
+                shape = RoundedCornerShape(SpacingTokens.lg),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+            ),
+    )
+}
+
+@Composable
+private fun StatsSection(
     userStats: UserStats,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        Text(
-            text = stringResource(R.string.profile_stats_title),
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
+        SectionTitle(
+            title = stringResource(R.string.profile_stats_title),
             modifier = Modifier.padding(horizontal = SpacingTokens.sm),
         )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            // Promocodes (first)
-            InteractiveStatCard(
-                value = userStats.submittedCodes,
-                label = stringResource(R.string.profile_promocodes_label),
-                icon = Icons.Default.LocalOffer,
-                gradientColors = listOf(
-                    Color(0xFF667eea),
-                    Color(0xFF764ba2),
-                ),
-                modifier = Modifier.weight(1f),
-            )
-
-            // Achievements (second)
-            InteractiveStatCard(
-                value = userStats.achievements.size,
-                label = stringResource(R.string.profile_achievements_label),
-                icon = Icons.Default.EmojiEvents,
-                gradientColors = listOf(
-                    Color(0xFFf093fb),
-                    Color(0xFFf5576c),
-                ),
-                modifier = Modifier.weight(1f),
-            )
-
-            // Comments (third)
-            InteractiveStatCard(
-                value = userStats.commentsCount,
-                label = stringResource(R.string.profile_comments_label),
-                icon = Icons.Default.QuestionAnswer,
-                gradientColors = listOf(
-                    Color(0xFF4facfe),
-                    Color(0xFF00f2fe),
-                ),
-                modifier = Modifier.weight(1f),
-            )
-        }
+        StatsCards(userStats = userStats)
     }
 }
 
 @Composable
-private fun InteractiveStatCard(
+private fun StatsCards(
+    userStats: UserStats,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        StatCard(
+            value = userStats.submittedCodes,
+            label = stringResource(R.string.profile_promocodes_label),
+            icon = QodeCommerceIcons.PromoCode,
+            gradientColors = listOf(
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.primaryContainer,
+            ),
+            modifier = Modifier.weight(1f),
+        )
+
+        StatCard(
+            value = userStats.achievements.size,
+            label = stringResource(R.string.profile_achievements_label),
+            icon = QodeStatusIcons.Gold,
+            gradientColors = listOf(
+                MaterialTheme.colorScheme.tertiary,
+                MaterialTheme.colorScheme.tertiaryContainer,
+            ),
+            modifier = Modifier.weight(1f),
+        )
+
+        StatCard(
+            value = userStats.commentsCount,
+            label = stringResource(R.string.profile_comments_label),
+            icon = QodeActionIcons.Comment,
+            gradientColors = listOf(
+                MaterialTheme.colorScheme.secondary,
+                MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun StatCard(
     value: Int,
     label: String,
     icon: ImageVector,
@@ -461,212 +477,351 @@ private fun InteractiveStatCard(
         modifier = modifier
             .aspectRatio(0.8f)
             .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(20.dp),
+                elevation = ElevationTokens.extraLarge,
+                shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
                 ambientColor = gradientColors.first().copy(alpha = 0.3f),
             )
             .clickable { /* TODO: Add click interaction */ },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent,
-        ),
+        shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.linearGradient(
-                        colors = gradientColors.map { it.copy(alpha = 0.9f) },
-                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                        end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-                    ),
-                )
-                .padding(SpacingTokens.md),
-            contentAlignment = Alignment.Center,
+        StatCardContent(
+            animatedValue = animatedValue,
+            label = label,
+            icon = icon,
+            gradientColors = gradientColors,
+        )
+    }
+}
+
+@Composable
+private fun StatCardContent(
+    animatedValue: Int,
+    label: String,
+    icon: ImageVector,
+    gradientColors: List<Color>,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    colors = gradientColors.map { it.copy(alpha = 0.9f) },
+                    start = Offset(0f, 0f),
+                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
+                ),
+            )
+            .padding(SpacingTokens.md),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    modifier = Modifier.size(32.dp),
-                    tint = Color.White.copy(alpha = 0.9f),
-                )
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
+                tint = Color.White.copy(alpha = 0.9f),
+            )
 
-                Text(
-                    text = animatedValue.toString(),
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                    ),
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                )
+            Text(
+                text = animatedValue.toString(),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                ),
+                color = Color.White,
+                textAlign = TextAlign.Center,
+            )
 
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                    ),
-                    color = Color.White.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                ),
+                color = Color.White.copy(alpha = 0.9f),
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
 
 @Composable
-private fun ModernActivityFeed(modifier: Modifier = Modifier) {
+private fun ActivityFeed(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        Text(
-            text = stringResource(R.string.profile_activity_title),
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
+        SectionTitle(
+            title = stringResource(R.string.profile_activity_title),
             modifier = Modifier.padding(horizontal = SpacingTokens.sm),
         )
 
-        // Achievement showcase card
-        Card(
+        ActivityCard(
+            title = stringResource(R.string.profile_recent_achievements),
+            content = stringResource(R.string.profile_achievements_empty),
+            icon = QodeStatusIcons.Gold,
+            iconTint = MaterialTheme.colorScheme.primary,
+            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        )
+
+        ActivityCard(
+            title = stringResource(R.string.profile_recent_activity),
+            content = stringResource(R.string.profile_activity_empty),
+            icon = QodeCommerceIcons.PromoCode,
+            iconTint = MaterialTheme.colorScheme.secondary,
+            ambientColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+        )
+    }
+}
+
+@Composable
+private fun ActivityCard(
+    title: String,
+    content: String,
+    icon: ImageVector,
+    iconTint: Color,
+    ambientColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = ElevationTokens.large,
+                shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+                ambientColor = ambientColor,
+            )
+            .clickable { /*TODO*/ },
+        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+        ),
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                )
-                .clickable { /*TODO*/ },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            ),
+                .padding(SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SpacingTokens.lg),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.EmojiEvents,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp),
-                    )
-                    Text(
-                        text = stringResource(R.string.profile_recent_achievements),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.profile_achievements_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-
-        // Recent activity card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                )
-                .clickable { /*TODO*/ },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            ),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SpacingTokens.lg),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocalOffer,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(24.dp),
-                    )
-                    Text(
-                        text = stringResource(R.string.profile_recent_activity),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.profile_activity_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            ActivityCardHeader(title = title, icon = icon, iconTint = iconTint)
+            ActivityCardContent(content = content)
         }
     }
 }
 
 @Composable
-private fun FloatingDecorations() {
-    // Add some floating decorative elements
-    Box(
-        modifier = Modifier.fillMaxSize(),
+private fun ActivityCardHeader(
+    title: String,
+    icon: ImageVector,
+    iconTint: Color,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        // Floating circle 1
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .offset(x = 50.dp, y = 150.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    CircleShape,
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
+private fun ActivityCardContent(
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = content,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun HeroGradientBackground(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(HERO_HEIGHT)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+                        Color.Transparent,
+                    ),
+                    startY = 0f,
+                    endY = 800f,
                 ),
+            ),
+    )
+}
+
+@Composable
+private fun FloatingDecorations(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
+        FloatingCircle(
+            size = SizeTokens.IconButton.sizeMedium,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+            offset = Offset(
+                x = (SpacingTokens.xxl + SpacingTokens.xs).value,
+                y = (SpacingTokens.xxxl * 2 + SpacingTokens.lg).value,
+            ),
         )
 
-        // Floating circle 2
-        Box(
-            modifier = Modifier
-                .size(60.dp)
-                .offset(x = 280.dp, y = 200.dp)
-                .background(
-                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
-                    CircleShape,
-                ),
+        FloatingCircle(
+            size = SizeTokens.Avatar.sizeMedium + SpacingTokens.md,
+            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
+            offset = Offset(
+                x = (SpacingTokens.xxxl * 4 + SpacingTokens.lg).value,
+                y = (SpacingTokens.xxxl * 3 + SpacingTokens.sm).value,
+            ),
         )
 
-        // Floating circle 3
-        Box(
-            modifier = Modifier
-                .size(30.dp)
-                .offset(x = 320.dp, y = 120.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
-                    CircleShape,
+        FloatingCircle(
+            size = SizeTokens.Chip.height + SpacingTokens.xs,
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
+            offset = Offset(
+                x = (SpacingTokens.xxxl * 5).value,
+                y = (SpacingTokens.xxxl + SpacingTokens.xxl + SpacingTokens.sm).value,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun FloatingCircle(
+    size: androidx.compose.ui.unit.Dp,
+    color: Color,
+    offset: Offset,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .offset(x = offset.x.dp, y = offset.y.dp)
+            .background(color, CircleShape),
+    )
+}
+
+@Composable
+private fun SectionTitle(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.headlineSmall.copy(
+            fontWeight = FontWeight.Bold,
+        ),
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun UserName(
+    firstName: String,
+    lastName: String?,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "$firstName ${lastName ?: ""}".trim(),
+        style = MaterialTheme.typography.headlineMedium.copy(
+            fontWeight = FontWeight.Bold,
+        ),
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        textAlign = TextAlign.Center,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun Username(
+    username: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "@$username",
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+        textAlign = TextAlign.Center,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun UserBio(
+    bio: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = bio,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f),
+        textAlign = TextAlign.Center,
+        modifier = modifier.padding(horizontal = SpacingTokens.lg),
+    )
+}
+
+@Composable
+private fun AvatarPlaceholder(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    ),
                 ),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = QodeNavigationIcons.Profile,
+            contentDescription = stringResource(R.string.profile_picture_description),
+            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    }
+}
+
+@Composable
+private fun AvatarLoading(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                    ),
+                ),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = ShapeTokens.Border.medium,
         )
     }
 }
@@ -723,27 +878,30 @@ private fun ProfileSignedInPreview() {
     QodeTheme {
         ProfileContent(
             state = ProfileUiState.SignedIn(
-                user = User(
-                    id = UserId("test"),
-                    email = Email("john.doe@example.com"),
-                    profile = UserProfile(
-                        username = "johndoe",
-                        firstName = "John",
-                        lastName = "Doe",
-                        bio = "Android developer passionate about creating amazing user experiences!",
-                        photoUrl = null,
-                        birthday = null,
-                        gender = null,
-                        isGenerated = false,
-                        createdAt = System.currentTimeMillis(),
-                        updatedAt = System.currentTimeMillis(),
-                    ),
-                    stats = UserStats.initial(UserId("test")),
-                    preferences = UserPreferences.default(UserId("test")),
-                ),
+                user = previewUser(),
             ),
             onAction = {},
             onNavigateToAuth = {},
         )
     }
 }
+
+private fun previewUser() =
+    User(
+        id = UserId("test"),
+        email = Email("john.doe@example.com"),
+        profile = UserProfile(
+            username = "johndoe",
+            firstName = "John",
+            lastName = "Doe",
+            bio = "Android developer passionate about creating amazing user experiences!",
+            photoUrl = null,
+            birthday = null,
+            gender = null,
+            isGenerated = false,
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis(),
+        ),
+        stats = UserStats.initial(UserId("test")),
+        preferences = UserPreferences.default(UserId("test")),
+    )

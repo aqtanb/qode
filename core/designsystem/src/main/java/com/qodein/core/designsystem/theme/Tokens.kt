@@ -108,6 +108,20 @@ object SizeTokens {
         val height = 32.dp
         val heightSmall = 24.dp
     }
+
+    @Immutable
+    object AppBar {
+        val height = 64.dp
+        val heightSmall = 48.dp
+    }
+
+    @Immutable
+    object Avatar {
+        val sizeSmall = 32.dp
+        val sizeMedium = 48.dp
+        val sizeLarge = 72.dp
+        val sizeXLarge = 120.dp
+    }
 }
 
 /**

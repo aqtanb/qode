@@ -1,12 +1,15 @@
 package com.qodein.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,15 +35,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -87,14 +91,14 @@ fun QodeTopAppBar(
     colors: TopAppBarColors? = null
 ) {
     val defaultColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-        scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        scrolledContainerColor = Color.Transparent,
         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 
-    val effectiveColors = colors ?: defaultColors
+    val effectiveColors = defaultColors
 
     when (variant) {
         QodeTopAppBarVariant.Default -> {
@@ -434,7 +438,7 @@ fun QodeScreenTopAppBar(
             IconButton(onClick = onProfileClick) {
                 QodeProfileAvatar(
                     imageUrl = profileImageUrl,
-                    size = 32.dp,
+                    size = SizeTokens.Icon.sizeXLarge,
                     contentDescription = "Profile",
                 )
             }
@@ -455,6 +459,98 @@ fun QodeScreenTopAppBar(
             actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
     )
+}
+
+/**
+ * Truly transparent top app bar that bypasses Material3's automatic background handling
+ * Perfect for screens that need completely transparent overlays (like Profile screen)
+ */
+@Composable
+fun QodeTransparentTopAppBar(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    navigationIcon: ImageVector? = null,
+    onNavigationClick: (() -> Unit)? = null,
+    actions: List<TopAppBarAction> = emptyList(),
+    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .statusBarsPadding() // Handle status bar padding
+            .height(SizeTokens.AppBar.height),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // Navigation Icon
+        Box(
+            modifier = Modifier.weight(0.2f, fill = false),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            navigationIcon?.let { icon ->
+                IconButton(onClick = onNavigationClick ?: {}) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = when (icon) {
+                            QodeActionIcons.Back -> "Navigate back"
+                            QodeUIIcons.Menu -> "Open menu"
+                            QodeActionIcons.Close -> "Close"
+                            else -> "Navigation"
+                        },
+                        tint = navigationIconTint,
+                    )
+                }
+            }
+        }
+
+        // Title (Center-aligned)
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            title?.let { titleText ->
+                Text(
+                    text = titleText,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    color = titleColor,
+                )
+            }
+        }
+
+        // Actions
+        Row(
+            modifier = Modifier.weight(0.2f, fill = false),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            actions.forEach { action ->
+                if (action.showAsAction) {
+                    IconButton(
+                        onClick = action.onClick,
+                        enabled = action.enabled,
+                    ) {
+                        Icon(
+                            imageVector = action.icon,
+                            contentDescription = action.contentDescription,
+                            tint = actionIconTint,
+                        )
+                    }
+                }
+            }
+
+            // Overflow menu for non-icon actions
+            val overflowActions = actions.filter { !it.showAsAction }
+            if (overflowActions.isNotEmpty()) {
+                OverflowMenu(actions = overflowActions)
+            }
+        }
+    }
 }
 
 /**
