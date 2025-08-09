@@ -41,7 +41,12 @@ class ProfileViewModel @Inject constructor(
                         if (user != null) {
                             ProfileUiState.SignedIn(user = user)
                         } else {
-                            ProfileUiState.SignedOut
+                            // With smart routing, this should not happen
+                            // If user is null, it means auth state is inconsistent
+                            ProfileUiState.Error(
+                                exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
+                                isRetryable = true,
+                            )
                         }
                     },
                     onFailure = { exception ->
@@ -60,7 +65,8 @@ class ProfileViewModel @Inject constructor(
             .onEach { result ->
                 result.fold(
                     onSuccess = {
-                        _state.value = ProfileUiState.SignedOut
+                        // Sign out successful - navigation will handle redirect to auth/home
+                        // Keep current state as the screen will be navigated away immediately
                     },
                     onFailure = { exception ->
                         _state.value = ProfileUiState.Error(

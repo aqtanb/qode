@@ -1,5 +1,6 @@
 package com.qodein.core.designsystem.component
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
@@ -552,6 +556,102 @@ fun QodeTransparentTopAppBar(
         }
     }
 }
+
+/**
+ * Scroll-aware TopAppBar that automatically hides when scrolling down and shows when scrolling up
+ *
+ * This component monitors scroll state and animates visibility based on scroll direction.
+ * Perfect for screens that need hide-on-scroll behavior while maintaining transparency.
+ *
+ * @param scrollState The ScrollState to monitor for scroll direction changes
+ * @param modifier Modifier to be applied to the component
+ * @param title Optional title to display in the center
+ * @param navigationIcon Optional navigation icon (typically back arrow)
+ * @param onNavigationClick Called when navigation icon is clicked
+ * @param actions List of action buttons to display on the right
+ * @param hideThreshold Minimum scroll distance to trigger hide/show animation
+ * @param navigationIconTint Tint color for the navigation icon
+ * @param titleColor Color for the title text
+ * @param actionIconTint Tint color for action icons
+ */
+@Composable
+fun QodeScrollAwareTopAppBar(
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    navigationIcon: ImageVector? = null,
+    onNavigationClick: (() -> Unit)? = null,
+    actions: List<TopAppBarAction> = emptyList(),
+    hideThreshold: Dp = 50.dp,
+    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    var previousScrollValue by remember { mutableStateOf(0) }
+    var isVisible by remember { mutableStateOf(true) }
+    var accumulatedScrollDown by remember { mutableStateOf(0) }
+
+    val currentScrollValue = scrollState.value
+    val threshold = hideThreshold.value.toInt()
+
+    // Update visibility based on scroll direction with accumulation
+    LaunchedEffect(currentScrollValue) {
+        val scrollDelta = currentScrollValue - previousScrollValue
+
+        when {
+            // Always show at top
+            currentScrollValue <= 20 -> {
+                isVisible = true
+                accumulatedScrollDown = 0
+            }
+            // Scrolling down - accumulate
+            scrollDelta > 0 -> {
+                accumulatedScrollDown += scrollDelta
+                if (accumulatedScrollDown >= threshold) {
+                    isVisible = false
+                }
+            }
+            // Scrolling up - show immediately and reset accumulator
+            scrollDelta < -5 -> {
+                isVisible = true
+                accumulatedScrollDown = 0
+            }
+        }
+
+        previousScrollValue = currentScrollValue
+    }
+
+    if (isVisible) {
+        QodeTransparentTopAppBar(
+            modifier = modifier,
+            title = title,
+            navigationIcon = navigationIcon,
+            onNavigationClick = onNavigationClick,
+            actions = actions,
+            navigationIconTint = navigationIconTint,
+            titleColor = titleColor,
+            actionIconTint = actionIconTint,
+        )
+    }
+}
+
+/**
+ * Helper function to create scroll behavior for TopAppBar
+ *
+ * @param behavior The type of scroll behavior to create
+ * @return TopAppBarScrollBehavior instance
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun rememberQodeTopAppBarScrollBehavior(
+    behavior: QodeTopAppBarScrollBehavior = QodeTopAppBarScrollBehavior.EnterAlways
+): TopAppBarScrollBehavior? =
+    when (behavior) {
+        QodeTopAppBarScrollBehavior.None -> null
+        QodeTopAppBarScrollBehavior.Pinned -> TopAppBarDefaults.pinnedScrollBehavior()
+        QodeTopAppBarScrollBehavior.EnterAlways -> TopAppBarDefaults.enterAlwaysScrollBehavior()
+        QodeTopAppBarScrollBehavior.ExitUntilCollapsed -> TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    }
 
 /**
  * Profile avatar component for top app bar

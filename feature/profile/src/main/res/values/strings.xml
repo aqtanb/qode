@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Profile Screen -->
+    <string name="profile_screen_title">Profile</string>
     <string name="profile_sign_out_button">Sign Out</string>
     <string name="profile_error_title">Something went wrong</string>
     <string name="profile_retry_button">Retry</string>
@@ -10,7 +11,7 @@
     <string name="edit_profile_button">Edit Profile</string>
     
     <!-- Profile Stats -->
-    <string name="profile_stats_title">Your Activity</string>
+    <string name="profile_stats_title">Your Statistics</string>
     <string name="profile_comments_label">Comments</string>
     <string name="profile_promocodes_label">Promocodes</string>
     <string name="profile_achievements_label">Achievements</string>

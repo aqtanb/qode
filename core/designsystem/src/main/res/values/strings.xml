@@ -32,4 +32,7 @@
     <string name="search_placeholder">Search</string>
     <string name="clear_search">Clear search</string>
     <string name="navigate_back">Navigate back</string>
+
+    <!-- Avatar -->
+    <string name="profile_picture_description">Profile Picture</string>
 </resources>

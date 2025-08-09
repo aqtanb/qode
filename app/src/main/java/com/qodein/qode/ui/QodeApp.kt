@@ -79,34 +79,22 @@ internal fun QodeApp(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
-            if (appState.isNestedScreen) {
-                // All nested screens get truly transparent top bar with adaptive colors
+            if (appState.isNestedScreen && !isProfileScreen) {
+                // Other nested screens (not profile) get transparent top bar
                 QodeTransparentTopAppBar(
                     title = null,
                     navigationIcon = QodeActionIcons.Back,
                     onNavigationClick = {
                         appState.navController.popBackStack()
                     },
-                    navigationIconTint = if (isProfileScreen) {
-                        // Profile screen uses primaryContainer colors for better visibility
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        // Other nested screens use standard surface colors
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                    titleColor = if (isProfileScreen) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                    actionIconTint = if (isProfileScreen) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
+                    navigationIconTint = MaterialTheme.colorScheme.onSurface,
+                    titleColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            } else {
+            } else if (!appState.isNestedScreen) {
+                // Top level screens get the main app bar
                 currentDestination?.let { destination ->
                     QodeScreenTopAppBar(
                         title = stringResource(destination.titleTextId),
@@ -120,6 +108,7 @@ internal fun QodeApp(
                     )
                 }
             }
+            // Profile screen handles its own TopAppBar - no app-level TopAppBar
         },
 
         floatingActionButton = {
@@ -157,7 +146,6 @@ internal fun QodeApp(
                 )
             }
         },
-        modifier = modifier,
     ) { innerPadding ->
         QodeNavHost(
             appState = appState,

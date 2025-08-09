@@ -8,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,30 +42,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.SubcomposeAsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
+import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.component.QodeScrollAwareTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -78,6 +75,8 @@ import com.qodein.core.model.UserPreferences
 import com.qodein.core.model.UserProfile
 import com.qodein.core.model.UserStats
 import kotlinx.coroutines.delay
+
+// MARK: - Screen Composables
 
 @Composable
 fun ProfileScreen(
@@ -117,14 +116,8 @@ fun ProfileContent(
                 CircularProgressIndicator()
             }
 
-            is ProfileUiState.SignedOut -> {
-                // This state should not occur with smart routing
-                // If user reaches here, show a loading indicator as fallback
-                CircularProgressIndicator()
-            }
-
             is ProfileUiState.SignedIn -> {
-                SignedInContent(
+                SignedInContentWithScrollBehavior(
                     user = state.user,
                     onSignOutClick = {
                         onAction(ProfileAction.SignOutClicked)
@@ -145,28 +138,21 @@ fun ProfileContent(
     }
 }
 
+// MARK: - Constants
+
 private const val ANIMATION_DELAY_MS = 100L
-private const val GOOGLE_PROFILE_IMAGE_SIZE = "=s400-c"
 private val HERO_HEIGHT = SpacingTokens.xxxl * 5
 
-private fun getOptimizedImageUrl(url: String?): String? =
-    url?.let {
-        if (it.contains("googleusercontent.com")) {
-            it.replace("=s96-c", GOOGLE_PROFILE_IMAGE_SIZE)
-                .replace("=s100-c", GOOGLE_PROFILE_IMAGE_SIZE)
-        } else {
-            it
-        }
-    }
+// MARK: - Main Content
 
 @Composable
 private fun SignedInContent(
     user: User,
     onSignOutClick: () -> Unit,
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isVisible by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         delay(ANIMATION_DELAY_MS)
@@ -176,25 +162,90 @@ private fun SignedInContent(
     Box(modifier = modifier.fillMaxSize()) {
         HeroGradientBackground()
         FloatingDecorations()
-        ProfileContent(
-            user = user,
-            onSignOutClick = onSignOutClick,
-            isVisible = isVisible,
-        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = SpacingTokens.lg)
+                .padding(top = SpacingTokens.xxxl + SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+        ) {
+            AnimatedProfileHeader(
+                user = user,
+                isVisible = isVisible,
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+            AnimatedStatsSection(
+                userStats = user.stats,
+                isVisible = isVisible,
+            )
+
+            AnimatedActivityFeed(isVisible = isVisible)
+
+            AnimatedSignOutButton(
+                onSignOutClick = onSignOutClick,
+                isVisible = isVisible,
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.xxl))
+        }
     }
 }
 
 @Composable
-private fun ProfileContent(
+private fun SignedInContentWithScrollBehavior(
+    user: User,
+    onSignOutClick: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        delay(ANIMATION_DELAY_MS)
+        isVisible = true
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        HeroGradientBackground()
+        FloatingDecorations()
+
+        ProfileContentWithScroll(
+            user = user,
+            onSignOutClick = onSignOutClick,
+            isVisible = isVisible,
+            scrollState = scrollState,
+            modifier = Modifier.fillMaxSize(),
+        )
+
+        // Add scroll-aware TopAppBar that hides/shows based on scroll
+        QodeScrollAwareTopAppBar(
+            scrollState = scrollState,
+            navigationIcon = QodeActionIcons.Back,
+            onNavigationClick = onBackClick,
+            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    }
+}
+
+// MARK: Profile
+
+@Composable
+private fun ProfileContentWithScroll(
     user: User,
     onSignOutClick: () -> Unit,
     isVisible: Boolean,
+    scrollState: ScrollState,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = SpacingTokens.lg)
             .padding(top = SpacingTokens.xxxl + SpacingTokens.lg),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
@@ -306,6 +357,8 @@ private fun AnimatedSignOutButton(
     }
 }
 
+// MARK: Header
+
 @Composable
 private fun ProfileHeader(
     user: User,
@@ -316,37 +369,12 @@ private fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        ProfileAvatar(photoUrl = user.profile.photoUrl)
+        QodeAvatar(
+            photoUrl = user.profile.photoUrl,
+            size = SizeTokens.Avatar.sizeXLarge,
+        )
         UserInfo(user = user)
         EditProfileButton()
-    }
-}
-
-@Composable
-private fun ProfileAvatar(
-    photoUrl: String?,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size(SizeTokens.Avatar.sizeXLarge),
-    ) {
-        SubcomposeAsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(getOptimizedImageUrl(photoUrl))
-                .crossfade(true)
-                .allowHardware(false)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .build(),
-            contentDescription = stringResource(R.string.profile_picture_description),
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-            error = { AvatarPlaceholder() },
-            loading = { AvatarLoading() },
-        )
     }
 }
 
@@ -378,16 +406,17 @@ private fun EditProfileButton(modifier: Modifier = Modifier) {
     QodeButton(
         onClick = { /*TODO*/ },
         text = stringResource(R.string.edit_profile_button),
-        variant = QodeButtonVariant.Outlined,
+        variant = QodeButtonVariant.Primary,
         modifier = modifier
             .fillMaxWidth(0.6f)
             .shadow(
                 elevation = ElevationTokens.large,
-                shape = RoundedCornerShape(SpacingTokens.lg),
                 ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
             ),
     )
 }
+
+// MARK: Stats
 
 @Composable
 private fun StatsSection(
@@ -476,14 +505,23 @@ private fun StatCard(
     Card(
         modifier = modifier
             .aspectRatio(0.8f)
-            .shadow(
-                elevation = ElevationTokens.extraLarge,
-                shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
-                ambientColor = gradientColors.first().copy(alpha = 0.3f),
-            )
+            .let { cardModifier ->
+                if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+                    // Light theme - no shadow to avoid weird effects
+                    cardModifier
+                } else {
+                    // Dark theme - use gradient color shadow
+                    cardModifier.shadow(
+                        elevation = ElevationTokens.extraLarge,
+                        shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
+                        ambientColor = gradientColors.first().copy(alpha = 0.3f),
+                    )
+                }
+            }
             .clickable { /* TODO: Add click interaction */ },
         shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         StatCardContent(
             animatedValue = animatedValue,
@@ -546,6 +584,8 @@ private fun StatCardContent(
         }
     }
 }
+
+// MARK: Recent Activity
 
 @Composable
 private fun ActivityFeed(modifier: Modifier = Modifier) {
@@ -777,53 +817,6 @@ private fun UserBio(
         textAlign = TextAlign.Center,
         modifier = modifier.padding(horizontal = SpacingTokens.lg),
     )
-}
-
-@Composable
-private fun AvatarPlaceholder(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    ),
-                ),
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = QodeNavigationIcons.Profile,
-            contentDescription = stringResource(R.string.profile_picture_description),
-            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-    }
-}
-
-@Composable
-private fun AvatarLoading(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                    ),
-                ),
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = ShapeTokens.Border.medium,
-        )
-    }
 }
 
 @Composable
