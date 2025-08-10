@@ -14,12 +14,14 @@
     <string name="profile_stats_title">Your Statistics</string>
     <string name="profile_comments_label">Comments</string>
     <string name="profile_promocodes_label">Promocodes</string>
+    <string name="profile_upvotes_label">Upvotes</string>
+    <string name="profile_downvotes_label">Downvotes</string>
     <string name="profile_achievements_label">Achievements</string>
     
     <!-- Profile Activity -->
     <string name="profile_activity_title">Recent Activity</string>
-    <string name="profile_recent_achievements">Latest Achievements</string>
+    <string name="profile_achievements_title">Achievements</string>
     <string name="profile_achievements_empty">No achievements yet. Start exploring to earn your first badge!</string>
-    <string name="profile_recent_activity">Your Journey</string>
-    <string name="profile_activity_empty">Your adventure begins here. Submit promocodes and engage with the community!</string>
+    <string name="profile_user_journey_title">Your Journey</string>
+    <string name="profile_user_journey_empty">Your adventure begins here. Submit promocodes and engage with the community!</string>
 </resources>

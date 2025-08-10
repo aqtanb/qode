@@ -1,6 +1,6 @@
 package com.qodein.feature.profile
 
-// Animation
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateIntAsState
@@ -14,14 +14,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -46,42 +50,51 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.designsystem.component.AutoHidingTopAppBar
 import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeRetryableErrorCard
-import com.qodein.core.designsystem.component.QodeScrollAwareTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeSecurityIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Email
 import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
 import com.qodein.core.model.UserStats
+import com.qodein.core.ui.ComponentPreviews
+import com.qodein.core.ui.DevicePreviews
+import com.qodein.core.ui.FontScalePreviews
+import com.qodein.core.ui.MobilePreviews
+import com.qodein.core.ui.PreviewParameterData
+import com.qodein.core.ui.TabletPreviews
+import com.qodein.core.ui.ThemePreviews
+import com.qodein.core.ui.UserPreviewParameterProvider
+import com.qodein.core.ui.UserStatsPreviewParameterProvider
 import kotlinx.coroutines.delay
-
-// MARK: - Screen Composables
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {}
+    onSignOut: () -> Unit = {},
+    onAchievementsClick: () -> Unit = {}, // TODO: Navigate to achievements screen
+    onUserJourneyClick: () -> Unit = {} // TODO: Navigate to user journey screen (promocodes & comments history)
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -91,8 +104,12 @@ fun ProfileScreen(
         onAction = viewModel::handleAction,
         onBackClick = onBackClick,
         onSignOut = onSignOut,
+        onAchievementsClick = onAchievementsClick,
+        onUserJourneyClick = onUserJourneyClick,
     )
 }
+
+// MARK: UI States
 
 @Composable
 fun ProfileContent(
@@ -100,26 +117,32 @@ fun ProfileContent(
     state: ProfileUiState,
     onAction: (ProfileAction) -> Unit,
     onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {}
+    onSignOut: () -> Unit = {},
+    onAchievementsClick: () -> Unit = {},
+    onUserJourneyClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         when (state) {
-            is ProfileUiState.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is ProfileUiState.SignedIn -> {
-                SignedInContentWithScrollBehavior(
+            is ProfileUiState.Success -> {
+                ProfileLayout(
                     user = state.user,
                     onSignOutClick = {
                         onAction(ProfileAction.SignOutClicked)
                         onSignOut()
                     },
                     onBackClick = onBackClick,
+                    onAchievementsClick = onAchievementsClick,
+                    onUserJourneyClick = onUserJourneyClick,
                     modifier = Modifier.fillMaxSize(),
+                )
+            }
+
+            is ProfileUiState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.testTag("profile_loading"),
                 )
             }
 
@@ -133,16 +156,16 @@ fun ProfileContent(
     }
 }
 
-// MARK: - Constants
-
 private const val ANIMATION_DELAY_MS = 100L
 
-// MARK: - Main Content
+// MARK: - Profile Layout
 @Composable
-private fun SignedInContentWithScrollBehavior(
+private fun ProfileLayout(
     user: User,
     onSignOutClick: () -> Unit,
     onBackClick: () -> Unit,
+    onAchievementsClick: () -> Unit,
+    onUserJourneyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isVisible by remember { mutableStateOf(false) }
@@ -157,9 +180,11 @@ private fun SignedInContentWithScrollBehavior(
         QodeHeroGradient()
 
         // Content with proper top padding to account for TopAppBar
-        ProfileContentWithScroll(
+        ProfileDetails(
             user = user,
             onSignOutClick = onSignOutClick,
+            onAchievementsClick = onAchievementsClick,
+            onUserJourneyClick = onUserJourneyClick,
             isVisible = isVisible,
             scrollState = scrollState,
             modifier = Modifier
@@ -167,7 +192,7 @@ private fun SignedInContentWithScrollBehavior(
         )
 
         // Add scroll-aware TopAppBar that overlays on top
-        QodeScrollAwareTopAppBar(
+        AutoHidingTopAppBar(
             scrollState = scrollState,
             navigationIcon = QodeActionIcons.Back,
             onNavigationClick = onBackClick,
@@ -176,12 +201,14 @@ private fun SignedInContentWithScrollBehavior(
     }
 }
 
-// MARK: Profile
+// MARK: Main Content
 
 @Composable
-private fun ProfileContentWithScroll(
+private fun ProfileDetails(
     user: User,
     onSignOutClick: () -> Unit,
+    onAchievementsClick: () -> Unit,
+    onUserJourneyClick: () -> Unit,
     isVisible: Boolean,
     scrollState: ScrollState,
     modifier: Modifier = Modifier
@@ -190,10 +217,11 @@ private fun ProfileContentWithScroll(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(horizontal = SpacingTokens.lg)
-            .padding(top = SpacingTokens.xxxl + SpacingTokens.lg),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+            .padding(SpacingTokens.lg),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
+        Spacer(modifier = Modifier.height(SpacingTokens.xxxl))
+
         AnimatedProfileHeader(
             user = user,
             isVisible = isVisible,
@@ -206,14 +234,20 @@ private fun ProfileContentWithScroll(
             isVisible = isVisible,
         )
 
-        AnimatedActivityFeed(isVisible = isVisible)
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+        AnimatedActivityFeed(
+            isVisible = isVisible,
+            onAchievementsClick = onAchievementsClick,
+            onUserJourneyClick = onUserJourneyClick,
+        )
+
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
         AnimatedSignOutButton(
             onSignOutClick = onSignOutClick,
             isVisible = isVisible,
         )
-
-        Spacer(modifier = Modifier.height(SpacingTokens.xxl))
     }
 }
 
@@ -266,6 +300,8 @@ private fun AnimatedStatsSection(
 @Composable
 private fun AnimatedActivityFeed(
     isVisible: Boolean,
+    onAchievementsClick: () -> Unit,
+    onUserJourneyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
@@ -278,7 +314,11 @@ private fun AnimatedActivityFeed(
             ),
         ) + fadeIn(animationSpec = tween(1000, 400)),
     ) {
-        ActivityFeed(modifier = modifier.fillMaxWidth())
+        ActivityFeed(
+            onAchievementsClick = onAchievementsClick,
+            onUserJourneyClick = onUserJourneyClick,
+            modifier = modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -404,9 +444,9 @@ private fun StatsCards(
         )
 
         StatCard(
-            value = userStats.achievements.size,
-            label = stringResource(R.string.profile_achievements_label),
-            icon = QodeStatusIcons.Gold,
+            value = userStats.upvotes,
+            label = stringResource(R.string.profile_upvotes_label),
+            icon = QodeStatusIcons.Recommended,
             gradientColors = listOf(
                 MaterialTheme.colorScheme.tertiary,
                 MaterialTheme.colorScheme.tertiaryContainer,
@@ -415,9 +455,9 @@ private fun StatsCards(
         )
 
         StatCard(
-            value = userStats.commentsCount,
-            label = stringResource(R.string.profile_comments_label),
-            icon = QodeActionIcons.Comment,
+            value = userStats.downvotes,
+            label = stringResource(R.string.profile_downvotes_label),
+            icon = QodeSecurityIcons.Denied,
             gradientColors = listOf(
                 MaterialTheme.colorScheme.secondary,
                 MaterialTheme.colorScheme.secondaryContainer,
@@ -452,7 +492,7 @@ private fun StatCard(
 
     Card(
         modifier = modifier
-            .aspectRatio(0.8f)
+            .height(140.dp)
             .let { cardModifier ->
                 if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
                     // Light theme - no shadow to avoid weird effects
@@ -465,8 +505,8 @@ private fun StatCard(
                         ambientColor = gradientColors.first().copy(alpha = 0.3f),
                     )
                 }
-            }
-            .clickable { /* TODO: Add click interaction */ },
+            },
+        // Stats cards are non-clickable - they display info only
         shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -536,7 +576,11 @@ private fun StatCardContent(
 // MARK: Recent Activity
 
 @Composable
-private fun ActivityFeed(modifier: Modifier = Modifier) {
+private fun ActivityFeed(
+    onAchievementsClick: () -> Unit,
+    onUserJourneyClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
@@ -547,19 +591,21 @@ private fun ActivityFeed(modifier: Modifier = Modifier) {
         )
 
         ActivityCard(
-            title = stringResource(R.string.profile_recent_achievements),
+            title = stringResource(R.string.profile_achievements_title),
             content = stringResource(R.string.profile_achievements_empty),
             icon = QodeStatusIcons.Gold,
             iconTint = MaterialTheme.colorScheme.primary,
             ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+            onClick = onAchievementsClick,
         )
 
         ActivityCard(
-            title = stringResource(R.string.profile_recent_activity),
-            content = stringResource(R.string.profile_activity_empty),
-            icon = QodeCommerceIcons.PromoCode,
+            title = stringResource(R.string.profile_user_journey_title),
+            content = stringResource(R.string.profile_user_journey_empty),
+            icon = QodeNavigationIcons.History,
             iconTint = MaterialTheme.colorScheme.secondary,
             ambientColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+            onClick = onUserJourneyClick,
         )
     }
 }
@@ -571,6 +617,7 @@ private fun ActivityCard(
     icon: ImageVector,
     iconTint: Color,
     ambientColor: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -581,7 +628,7 @@ private fun ActivityCard(
                 shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
                 ambientColor = ambientColor,
             )
-            .clickable { /*TODO*/ },
+            .clickable { onClick() },
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
@@ -703,19 +750,14 @@ private fun UserBio(
 // MARK: - Preview Functions
 
 /**
- * Main preview showcasing the complete profile screen with scroll behavior
+ * Comprehensive device previews following NIA patterns
  */
-@Preview(
-    name = "Profile Screen Complete",
-    showSystemUi = true,
-    showBackground = true,
-    group = "Profile Screen",
-)
+@DevicePreviews
 @Composable
-private fun ProfileScreenCompletePreview() {
+fun ProfileScreenDevicePreviews() {
     QodeTheme {
-        SignedInContentWithScrollBehavior(
-            user = previewUser(),
+        SignedInContentPreview(
+            user = PreviewParameterData.powerUser,
             onSignOutClick = {},
             onBackClick = {},
             modifier = Modifier.fillMaxSize(),
@@ -724,56 +766,185 @@ private fun ProfileScreenCompletePreview() {
 }
 
 /**
- * Preview showing the profile content without scroll behavior for detailed component view
+ * Theme variations preview
  */
-@Preview(
-    name = "Profile Content Details",
-    showBackground = true,
-    heightDp = 800,
-    group = "Profile Components",
-)
+@ThemePreviews
 @Composable
-private fun ProfileContentDetailsPreview() {
+fun ProfileScreenThemePreviews() {
     QodeTheme {
-        Box(
+        SignedInContentPreview(
+            user = PreviewParameterData.powerUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Font scale accessibility testing
+ */
+@FontScalePreviews
+@Composable
+fun ProfileScreenFontScalePreviews() {
+    QodeTheme {
+        SignedInContentPreview(
+            user = PreviewParameterData.sampleUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Preview-optimized version without animation delays
+ */
+@Composable
+private fun SignedInContentPreview(
+    user: User,
+    onSignOutClick: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
+
+    Box(modifier = modifier.fillMaxSize()) {
+        QodeHeroGradient()
+
+        // Content with proper top padding to account for TopAppBar - no animation delay
+        ProfileDetails(
+            user = user,
+            onSignOutClick = onSignOutClick,
+            onAchievementsClick = {}, // Empty for previews
+            onUserJourneyClick = {}, // Empty for previews
+            isVisible = true, // Always visible in previews
+            scrollState = scrollState,
+            modifier = Modifier.fillMaxSize(),
+        )
+
+        // Add scroll-aware TopAppBar that overlays on top
+        AutoHidingTopAppBar(
+            scrollState = scrollState,
+            navigationIcon = QodeActionIcons.Back,
+            onNavigationClick = onBackClick,
+            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    }
+}
+
+/**
+ * Mobile-specific layouts
+ */
+@MobilePreviews
+@Composable
+fun ProfileScreenMobilePreviews() {
+    QodeTheme {
+        SignedInContentPreview(
+            user = PreviewParameterData.sampleUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Tablet-optimized layouts
+ */
+@TabletPreviews
+@Composable
+fun ProfileScreenTabletPreviews() {
+    QodeTheme {
+        SignedInContentPreview(
+            user = PreviewParameterData.powerUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * All possible UI states preview (like NIA)
+ */
+@ComponentPreviews
+@Composable
+fun ProfileScreenStates() {
+    QodeTheme {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            QodeHeroGradient()
-
-            ProfileContentWithScroll(
-                user = previewUser(),
-                onSignOutClick = {},
-                isVisible = true,
-                scrollState = rememberScrollState(),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = SizeTokens.AppBar.height),
+            // Loading State
+            Text(
+                text = "Loading State",
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(SpacingTokens.md),
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                ProfileContent(
+                    state = ProfileUiState.Loading,
+                    onAction = {},
+                    onBackClick = {},
+                    onSignOut = {},
+                )
+            }
+
+            // Error State
+            Text(
+                text = "Error State",
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(SpacingTokens.md),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                ProfileContent(
+                    state = ProfileUiState.Error(
+                        exception = Exception("Network connection failed"),
+                    ),
+                    onAction = {},
+                    onBackClick = {},
+                    onSignOut = {},
+                )
+            }
         }
     }
 }
 
 /**
- * Preview focusing on the profile header section
+ * Individual component previews following NIA component testing patterns
  */
-@Preview(
-    name = "Profile Header",
-    showBackground = true,
-    group = "Profile Components",
-)
+@ComponentPreviews
 @Composable
-private fun ProfileHeaderPreview() {
+fun ProfileHeaderComponentPreview(@PreviewParameter(UserPreviewParameterProvider::class) user: User) {
     QodeTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        ),
+                    ),
+                )
                 .padding(SpacingTokens.lg),
         ) {
             ProfileHeader(
-                user = previewUser(),
+                user = user,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -781,214 +952,345 @@ private fun ProfileHeaderPreview() {
 }
 
 /**
- * Preview showing the stats section with animated values
+ * Stats section with different data scenarios
  */
-@Preview(
-    name = "Stats Section",
-    showBackground = true,
-    group = "Profile Components",
-)
+@ComponentPreviews
 @Composable
-private fun StatsSectionPreview() {
+fun StatsSectionComponentPreview(@PreviewParameter(UserStatsPreviewParameterProvider::class) userStats: UserStats) {
     QodeTheme {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.lg),
+        ) {
+            StatsSection(
+                userStats = userStats,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/**
+ * Individual stat cards with different states
+ */
+@ComponentPreviews
+@Composable
+fun StatCardVariationsPreview() {
+    QodeTheme {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(SpacingTokens.md),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            // Low values
+            item {
+                StatCard(
+                    value = 0,
+                    label = "New User",
+                    icon = QodeCommerceIcons.PromoCode,
+                    gradientColors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.primaryContainer,
+                    ),
+                )
+            }
+
+            // Medium values
+            item {
+                StatCard(
+                    value = 42,
+                    label = "Active User",
+                    icon = QodeStatusIcons.Gold,
+                    gradientColors = listOf(
+                        MaterialTheme.colorScheme.tertiary,
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                )
+            }
+
+            // High values
+            item {
+                StatCard(
+                    value = 999,
+                    label = "Power User",
+                    icon = QodeActionIcons.Comment,
+                    gradientColors = listOf(
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                )
+            }
+
+            // Very high values (1000+)
+            item {
+                StatCard(
+                    value = 2847,
+                    label = "Legend",
+                    icon = QodeStatusIcons.Diamond,
+                    gradientColors = listOf(
+                        Color(0xFFFF6B35),
+                        Color(0xFFFFB347),
+                    ),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Activity feed component variations
+ */
+@ComponentPreviews
+@Composable
+fun ActivityFeedComponentPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.lg),
+        ) {
+            ActivityFeed(
+                onAchievementsClick = {},
+                onUserJourneyClick = {},
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/**
+ * User info component with different name lengths and bio scenarios
+ */
+@ComponentPreviews
+@Composable
+fun UserInfoVariationsPreview() {
+    QodeTheme {
+        LazyColumn(
+            contentPadding = PaddingValues(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+        ) {
+            item {
+                Text(
+                    text = "Short Name",
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                UserInfo(
+                    user = PreviewParameterData.newUser,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                Text(
+                    text = "Long Name & Bio",
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                UserInfo(
+                    user = PreviewParameterData.userWithLongBio,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                Text(
+                    text = "Power User",
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                UserInfo(
+                    user = PreviewParameterData.powerUser,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Edge cases and error scenarios
+ */
+@ComponentPreviews
+@Composable
+fun ProfileScreenEdgeCasesPreview() {
+    QodeTheme {
+        LazyColumn(
+            contentPadding = PaddingValues(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            item {
+                Text(
+                    text = "New User (Zero Stats)",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = SpacingTokens.sm),
+                )
+                StatsCards(
+                    userStats = PreviewParameterData.newUserStats,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                Text(
+                    text = "No Bio User",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = SpacingTokens.sm),
+                )
+                UserInfo(
+                    user = PreviewParameterData.newUser,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                Text(
+                    text = "High Values User",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = SpacingTokens.sm),
+                )
+                StatsCards(
+                    userStats = PreviewParameterData.powerUserStats,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dark theme specific preview
+ */
+@Preview(
+    name = "Profile Dark Theme Showcase",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    device = "spec:width=360dp,height=800dp,dpi=480",
+)
+@Composable
+fun ProfileScreenDarkThemeShowcase() {
+    QodeTheme {
+        SignedInContentPreview(
+            user = PreviewParameterData.powerUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Light theme specific preview
+ */
+@Preview(
+    name = "Profile Light Theme Showcase",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true,
+    device = "spec:width=360dp,height=800dp,dpi=480",
+)
+@Composable
+fun ProfileScreenLightThemeShowcase() {
+    QodeTheme {
+        SignedInContentPreview(
+            user = PreviewParameterData.powerUser,
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Performance testing preview with complex layout
+ */
+@Preview(
+    name = "Profile Performance Test",
+    showBackground = true,
+    device = "spec:width=360dp,height=640dp,dpi=480",
+)
+@Composable
+fun ProfileScreenPerformancePreview() {
+    QodeTheme {
+        // Simulate heavy content for performance testing
+        val users = listOf(
+            PreviewParameterData.sampleUser,
+            PreviewParameterData.powerUser,
+            PreviewParameterData.userWithLongBio,
+            PreviewParameterData.newUser,
+        )
+
+        LazyColumn {
+            items(users) { user ->
+                ProfileHeader(
+                    user = user,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(SpacingTokens.md),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Interactive preview for testing touch targets and animations
+ */
+@Preview(
+    name = "Profile Interactive Elements",
+    showBackground = true,
+    device = "spec:width=360dp,height=640dp,dpi=480",
+)
+@Composable
+fun ProfileScreenInteractivePreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(SpacingTokens.lg),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            StatsSection(
-                userStats = previewUserStats(),
+            Text(
+                text = "Interactive Elements",
+                style = MaterialTheme.typography.headlineSmall,
+            )
+
+            EditProfileButton()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            ) {
+                StatCard(
+                    value = 42,
+                    label = "Tap Me",
+                    icon = QodeCommerceIcons.PromoCode,
+                    gradientColors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.primaryContainer,
+                    ),
+                    modifier = Modifier.weight(1f),
+                )
+
+                StatCard(
+                    value = 15,
+                    label = "Touch Test",
+                    icon = QodeStatusIcons.Gold,
+                    gradientColors = listOf(
+                        MaterialTheme.colorScheme.tertiary,
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            QodeButton(
+                text = "Sign Out Button",
+                onClick = {},
+                variant = QodeButtonVariant.Error,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
-
-/**
- * Preview showing the activity feed section
- */
-@Preview(
-    name = "Activity Feed",
-    showBackground = true,
-    group = "Profile Components",
-)
-@Composable
-private fun ActivityFeedPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SpacingTokens.lg),
-        ) {
-            ActivityFeed(modifier = Modifier.fillMaxWidth())
-        }
-    }
-}
-
-/**
- * Preview showing different profile states
- */
-@Preview(
-    name = "Profile States",
-    showBackground = true,
-    group = "Profile States",
-)
-@Composable
-private fun ProfileStatesPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            // Loading state
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-                Text(
-                    text = "Loading State",
-                    modifier = Modifier.padding(top = SpacingTokens.lg),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-
-            // Error state
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(SpacingTokens.lg),
-                contentAlignment = Alignment.Center,
-            ) {
-                QodeRetryableErrorCard(
-                    message = "Failed to load profile data",
-                    onRetry = {},
-                )
-            }
-        }
-    }
-}
-
-/**
- * Dark theme preview
- */
-@Preview(
-    name = "Profile Dark Theme",
-    showBackground = true,
-    group = "Profile Themes",
-)
-@Composable
-private fun ProfileDarkThemePreview() {
-    QodeTheme(darkTheme = true) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            QodeHeroGradient()
-
-            ProfileContentWithScroll(
-                user = previewUser(),
-                onSignOutClick = {},
-                isVisible = true,
-                scrollState = rememberScrollState(),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = SizeTokens.AppBar.height),
-            )
-        }
-    }
-}
-
-/**
- * Individual stat card preview
- */
-@Preview(
-    name = "Stat Cards",
-    showBackground = true,
-    group = "Profile Components",
-)
-@Composable
-private fun StatCardsPreview() {
-    QodeTheme {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SpacingTokens.lg),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            StatCard(
-                value = 42,
-                label = stringResource(R.string.profile_promocodes_label),
-                icon = QodeCommerceIcons.PromoCode,
-                gradientColors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.primaryContainer,
-                ),
-                modifier = Modifier.weight(1f),
-            )
-
-            StatCard(
-                value = 15,
-                label = stringResource(R.string.profile_achievements_label),
-                icon = QodeStatusIcons.Gold,
-                gradientColors = listOf(
-                    MaterialTheme.colorScheme.tertiary,
-                    MaterialTheme.colorScheme.tertiaryContainer,
-                ),
-                modifier = Modifier.weight(1f),
-            )
-        }
-    }
-}
-
-// MARK: - Preview Data
-
-private fun previewUser() =
-    User(
-        id = UserId("test"),
-        email = Email("john.doe@example.com"),
-        profile = UserProfile(
-            username = "johndoe",
-            firstName = "John",
-            lastName = "Doe",
-            bio = "Android developer passionate about creating amazing user experiences! Building the future one line of code at a time.",
-            photoUrl = null,
-            birthday = null,
-            gender = null,
-            isGenerated = false,
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
-        ),
-        stats = previewUserStats(),
-        preferences = UserPreferences.default(UserId("test")),
-    )
-
-private fun previewUserStats() =
-    UserStats(
-        userId = UserId("test"),
-        followedStores = listOf("Amazon", "Nike", "Starbucks"),
-        followedCategories = listOf("Electronics", "Fashion", "Food"),
-        upvotes = 156,
-        downvotes = 12,
-        submittedCodes = 42,
-        verifiedCodes = 28,
-        achievements = listOf(
-            "Early Adopter",
-            "Code Hunter",
-            "Community Helper",
-            "Savings Master",
-            "Review Champion",
-        ),
-        commentsCount = 128,
-        lastActiveAt = System.currentTimeMillis(),
-        createdAt = System.currentTimeMillis(),
-    )

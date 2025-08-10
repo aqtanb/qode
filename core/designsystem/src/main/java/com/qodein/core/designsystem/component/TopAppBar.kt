@@ -614,7 +614,7 @@ private sealed interface ScrollDirection {
  * @param actionIconTint Tint color for action icons
  */
 @Composable
-fun QodeScrollAwareTopAppBar(
+fun AutoHidingTopAppBar(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
     title: String? = null,

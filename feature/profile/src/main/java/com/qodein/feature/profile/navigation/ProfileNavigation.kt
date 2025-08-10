@@ -18,13 +18,17 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.profileSection(
     onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {}
+    onSignOut: () -> Unit = {},
+    onAchievementsClick: () -> Unit = {}, // TODO: Navigate to achievements screen
+    onUserJourneyClick: () -> Unit = {} // TODO: Navigate to user journey screen (promocodes & comments history)
 ) {
     navigation<ProfileBaseRoute>(startDestination = ProfileRoute) {
         composable<ProfileRoute> {
             ProfileScreen(
                 onBackClick = onBackClick,
                 onSignOut = onSignOut,
+                onAchievementsClick = onAchievementsClick,
+                onUserJourneyClick = onUserJourneyClick,
             )
         }
     }

@@ -15,6 +15,9 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val signOutUseCase: SignOutUseCase
+    // TODO: Add GetUserStatsUseCase for promocodes, upvotes, downvotes
+    // TODO: Add GetUserAchievementsUseCase for achievements data
+    // TODO: Add GetUserActivityUseCase for user journey (promocodes & comments history)
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -39,7 +42,7 @@ class ProfileViewModel @Inject constructor(
                 _state.value = result.fold(
                     onSuccess = { user ->
                         if (user != null) {
-                            ProfileUiState.SignedIn(user = user)
+                            ProfileUiState.Success(user = user)
                         } else {
                             // With smart routing, this should not happen
                             // If user is null, it means auth state is inconsistent
