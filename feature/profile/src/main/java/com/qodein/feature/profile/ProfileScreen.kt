@@ -20,11 +20,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -57,8 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.component.QodeHeroGradient
+import com.qodein.core.designsystem.component.QodeRetryableErrorCard
 import com.qodein.core.designsystem.component.QodeScrollAwareTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -82,7 +80,6 @@ import kotlinx.coroutines.delay
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    onNavigateToAuth: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onSignOut: () -> Unit = {}
 ) {
@@ -92,7 +89,6 @@ fun ProfileScreen(
         modifier = modifier,
         state = state,
         onAction = viewModel::handleAction,
-        onNavigateToAuth = onNavigateToAuth,
         onBackClick = onBackClick,
         onSignOut = onSignOut,
     )
@@ -103,7 +99,6 @@ fun ProfileContent(
     modifier: Modifier = Modifier,
     state: ProfileUiState,
     onAction: (ProfileAction) -> Unit,
-    onNavigateToAuth: () -> Unit,
     onBackClick: () -> Unit = {},
     onSignOut: () -> Unit = {}
 ) {
@@ -129,9 +124,9 @@ fun ProfileContent(
             }
 
             is ProfileUiState.Error -> {
-                ErrorContent(
+                QodeRetryableErrorCard(
                     message = state.exception.message ?: "Unknown error",
-                    onRetryClick = { onAction(ProfileAction.RetryClicked) },
+                    onRetry = { onAction(ProfileAction.RetryClicked) },
                 )
             }
         }
@@ -141,60 +136,8 @@ fun ProfileContent(
 // MARK: - Constants
 
 private const val ANIMATION_DELAY_MS = 100L
-private val HERO_HEIGHT = SpacingTokens.xxxl * 5
 
 // MARK: - Main Content
-
-@Composable
-private fun SignedInContent(
-    user: User,
-    onSignOutClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isVisible by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
-
-    LaunchedEffect(Unit) {
-        delay(ANIMATION_DELAY_MS)
-        isVisible = true
-    }
-
-    Box(modifier = modifier.fillMaxSize()) {
-        HeroGradientBackground()
-        FloatingDecorations()
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = SpacingTokens.lg)
-                .padding(top = SpacingTokens.xxxl + SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
-        ) {
-            AnimatedProfileHeader(
-                user = user,
-                isVisible = isVisible,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.md))
-
-            AnimatedStatsSection(
-                userStats = user.stats,
-                isVisible = isVisible,
-            )
-
-            AnimatedActivityFeed(isVisible = isVisible)
-
-            AnimatedSignOutButton(
-                onSignOutClick = onSignOutClick,
-                isVisible = isVisible,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.xxl))
-        }
-    }
-}
-
 @Composable
 private fun SignedInContentWithScrollBehavior(
     user: User,
@@ -211,18 +154,19 @@ private fun SignedInContentWithScrollBehavior(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        HeroGradientBackground()
-        FloatingDecorations()
+        QodeHeroGradient()
 
+        // Content with proper top padding to account for TopAppBar
         ProfileContentWithScroll(
             user = user,
             onSignOutClick = onSignOutClick,
             isVisible = isVisible,
             scrollState = scrollState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
         )
 
-        // Add scroll-aware TopAppBar that hides/shows based on scroll
+        // Add scroll-aware TopAppBar that overlays on top
         QodeScrollAwareTopAppBar(
             scrollState = scrollState,
             navigationIcon = QodeActionIcons.Back,
@@ -338,6 +282,8 @@ private fun AnimatedActivityFeed(
     }
 }
 
+// MARK: Sign Out
+
 @Composable
 private fun AnimatedSignOutButton(
     onSignOutClick: () -> Unit,
@@ -400,6 +346,8 @@ private fun UserInfo(
         }
     }
 }
+
+// MARK: Edit Profile
 
 @Composable
 private fun EditProfileButton(modifier: Modifier = Modifier) {
@@ -693,73 +641,6 @@ private fun ActivityCardContent(
 }
 
 @Composable
-private fun HeroGradientBackground(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(HERO_HEIGHT)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
-                        Color.Transparent,
-                    ),
-                    startY = 0f,
-                    endY = 800f,
-                ),
-            ),
-    )
-}
-
-@Composable
-private fun FloatingDecorations(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize()) {
-        FloatingCircle(
-            size = SizeTokens.IconButton.sizeMedium,
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-            offset = Offset(
-                x = (SpacingTokens.xxl + SpacingTokens.xs).value,
-                y = (SpacingTokens.xxxl * 2 + SpacingTokens.lg).value,
-            ),
-        )
-
-        FloatingCircle(
-            size = SizeTokens.Avatar.sizeMedium + SpacingTokens.md,
-            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f),
-            offset = Offset(
-                x = (SpacingTokens.xxxl * 4 + SpacingTokens.lg).value,
-                y = (SpacingTokens.xxxl * 3 + SpacingTokens.sm).value,
-            ),
-        )
-
-        FloatingCircle(
-            size = SizeTokens.Chip.height + SpacingTokens.xs,
-            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
-            offset = Offset(
-                x = (SpacingTokens.xxxl * 5).value,
-                y = (SpacingTokens.xxxl + SpacingTokens.xxl + SpacingTokens.sm).value,
-            ),
-        )
-    }
-}
-
-@Composable
-private fun FloatingCircle(
-    size: androidx.compose.ui.unit.Dp,
-    color: Color,
-    offset: Offset,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .offset(x = offset.x.dp, y = offset.y.dp)
-            .background(color, CircleShape),
-    )
-}
-
-@Composable
 private fun SectionTitle(
     title: String,
     modifier: Modifier = Modifier
@@ -819,65 +700,257 @@ private fun UserBio(
     )
 }
 
+// MARK: - Preview Functions
+
+/**
+ * Main preview showcasing the complete profile screen with scroll behavior
+ */
+@Preview(
+    name = "Profile Screen Complete",
+    showSystemUi = true,
+    showBackground = true,
+    group = "Profile Screen",
+)
 @Composable
-private fun ErrorContent(
-    message: String,
-    onRetryClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    QodeCard(
-        variant = QodeCardVariant.Elevated,
-        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Column(
+private fun ProfileScreenCompletePreview() {
+    QodeTheme {
+        SignedInContentWithScrollBehavior(
+            user = previewUser(),
+            onSignOutClick = {},
+            onBackClick = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Preview showing the profile content without scroll behavior for detailed component view
+ */
+@Preview(
+    name = "Profile Content Details",
+    showBackground = true,
+    heightDp = 800,
+    group = "Profile Components",
+)
+@Composable
+private fun ProfileContentDetailsPreview() {
+    QodeTheme {
+        Box(
             modifier = Modifier
-                .padding(SpacingTokens.xl)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         ) {
-            Text(
-                text = stringResource(R.string.profile_error_title),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-            )
+            QodeHeroGradient()
 
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-
-            QodeButton(
-                text = stringResource(R.string.profile_retry_button),
-                onClick = onRetryClick,
-                variant = QodeButtonVariant.Primary,
+            ProfileContentWithScroll(
+                user = previewUser(),
+                onSignOutClick = {},
+                isVisible = true,
+                scrollState = rememberScrollState(),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = SpacingTokens.sm),
+                    .fillMaxSize()
+                    .padding(top = SizeTokens.AppBar.height),
             )
         }
     }
 }
 
-@Preview(name = "Profile Signed In", showSystemUi = true)
+/**
+ * Preview focusing on the profile header section
+ */
+@Preview(
+    name = "Profile Header",
+    showBackground = true,
+    group = "Profile Components",
+)
 @Composable
-private fun ProfileSignedInPreview() {
+private fun ProfileHeaderPreview() {
     QodeTheme {
-        ProfileContent(
-            state = ProfileUiState.SignedIn(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                .padding(SpacingTokens.lg),
+        ) {
+            ProfileHeader(
                 user = previewUser(),
-            ),
-            onAction = {},
-            onNavigateToAuth = {},
-        )
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
+
+/**
+ * Preview showing the stats section with animated values
+ */
+@Preview(
+    name = "Stats Section",
+    showBackground = true,
+    group = "Profile Components",
+)
+@Composable
+private fun StatsSectionPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            StatsSection(
+                userStats = previewUserStats(),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/**
+ * Preview showing the activity feed section
+ */
+@Preview(
+    name = "Activity Feed",
+    showBackground = true,
+    group = "Profile Components",
+)
+@Composable
+private fun ActivityFeedPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.lg),
+        ) {
+            ActivityFeed(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+/**
+ * Preview showing different profile states
+ */
+@Preview(
+    name = "Profile States",
+    showBackground = true,
+    group = "Profile States",
+)
+@Composable
+private fun ProfileStatesPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            // Loading state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+                Text(
+                    text = "Loading State",
+                    modifier = Modifier.padding(top = SpacingTokens.lg),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            // Error state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(SpacingTokens.lg),
+                contentAlignment = Alignment.Center,
+            ) {
+                QodeRetryableErrorCard(
+                    message = "Failed to load profile data",
+                    onRetry = {},
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dark theme preview
+ */
+@Preview(
+    name = "Profile Dark Theme",
+    showBackground = true,
+    group = "Profile Themes",
+)
+@Composable
+private fun ProfileDarkThemePreview() {
+    QodeTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            QodeHeroGradient()
+
+            ProfileContentWithScroll(
+                user = previewUser(),
+                onSignOutClick = {},
+                isVisible = true,
+                scrollState = rememberScrollState(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = SizeTokens.AppBar.height),
+            )
+        }
+    }
+}
+
+/**
+ * Individual stat card preview
+ */
+@Preview(
+    name = "Stat Cards",
+    showBackground = true,
+    group = "Profile Components",
+)
+@Composable
+private fun StatCardsPreview() {
+    QodeTheme {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.lg),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            StatCard(
+                value = 42,
+                label = stringResource(R.string.profile_promocodes_label),
+                icon = QodeCommerceIcons.PromoCode,
+                gradientColors = listOf(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.primaryContainer,
+                ),
+                modifier = Modifier.weight(1f),
+            )
+
+            StatCard(
+                value = 15,
+                label = stringResource(R.string.profile_achievements_label),
+                icon = QodeStatusIcons.Gold,
+                gradientColors = listOf(
+                    MaterialTheme.colorScheme.tertiary,
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                ),
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+// MARK: - Preview Data
 
 private fun previewUser() =
     User(
@@ -887,7 +960,7 @@ private fun previewUser() =
             username = "johndoe",
             firstName = "John",
             lastName = "Doe",
-            bio = "Android developer passionate about creating amazing user experiences!",
+            bio = "Android developer passionate about creating amazing user experiences! Building the future one line of code at a time.",
             photoUrl = null,
             birthday = null,
             gender = null,
@@ -895,6 +968,27 @@ private fun previewUser() =
             createdAt = System.currentTimeMillis(),
             updatedAt = System.currentTimeMillis(),
         ),
-        stats = UserStats.initial(UserId("test")),
+        stats = previewUserStats(),
         preferences = UserPreferences.default(UserId("test")),
+    )
+
+private fun previewUserStats() =
+    UserStats(
+        userId = UserId("test"),
+        followedStores = listOf("Amazon", "Nike", "Starbucks"),
+        followedCategories = listOf("Electronics", "Fashion", "Food"),
+        upvotes = 156,
+        downvotes = 12,
+        submittedCodes = 42,
+        verifiedCodes = 28,
+        achievements = listOf(
+            "Early Adopter",
+            "Code Hunter",
+            "Community Helper",
+            "Savings Master",
+            "Review Champion",
+        ),
+        commentsCount = 128,
+        lastActiveAt = System.currentTimeMillis(),
+        createdAt = System.currentTimeMillis(),
     )

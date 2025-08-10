@@ -22,6 +22,10 @@
     <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
 
+    <!-- Error Handling -->
+    <string name="error_default_title">Something went wrong</string>
+    <string name="error_retry_button">Try again</string>
+
     <!-- Accessibility -->
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
-import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.inbox.navigation.inboxSection
@@ -37,9 +36,6 @@ fun QodeNavHost(
         inboxSection()
 
         profileSection(
-            onSignInClick = {
-                navController.navigateToAuth()
-            },
             onBackClick = {
                 // Navigate back to the last top-level destination instead of just popping
                 appState.navigateToTopLevelDestination(selectedTabDestination)
