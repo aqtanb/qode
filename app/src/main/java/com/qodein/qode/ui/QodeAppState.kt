@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
+import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
@@ -91,6 +92,14 @@ class QodeAppState(val navController: NavHostController) {
         }
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
+
+    /**
+     * Check if current destination is the profile screen
+     */
+    val isProfileScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<ProfileRoute>() == true
+        }
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         trace("Navigation: ${topLevelDestination.name}") {

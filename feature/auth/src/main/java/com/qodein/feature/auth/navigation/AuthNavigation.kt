@@ -26,7 +26,6 @@ fun NavGraphBuilder.authSection(
         composable<AuthRoute> {
             AuthScreen(
                 onAuthSuccess = onAuthSuccess,
-                onBackClick = onBackClick,
             )
         }
     }

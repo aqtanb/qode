@@ -40,8 +40,8 @@ dependencies {
     // Icons
     implementation(libs.bundles.icons)
 
-    // Google Button
-    implementation(libs.google.signin)
+    // Coil
+    implementation(libs.bundles.image.loading)
 
     // Testing
     testImplementation(libs.bundles.testing.unit)

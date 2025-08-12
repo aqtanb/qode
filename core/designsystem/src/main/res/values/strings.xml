@@ -22,6 +22,10 @@
     <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
 
+    <!-- Error Handling -->
+    <string name="error_default_title">Something went wrong</string>
+    <string name="error_retry_button">Try again</string>
+
     <!-- Accessibility -->
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
@@ -32,4 +36,7 @@
     <string name="search_placeholder">Search</string>
     <string name="clear_search">Clear search</string>
     <string name="navigate_back">Navigate back</string>
+
+    <!-- Avatar -->
+    <string name="profile_picture_description">Profile Picture</string>
 </resources>

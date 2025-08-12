@@ -1,12 +1,22 @@
 package com.qodein.core.designsystem.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,6 +35,8 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,15 +44,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -87,14 +102,14 @@ fun QodeTopAppBar(
     colors: TopAppBarColors? = null
 ) {
     val defaultColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-        scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        scrolledContainerColor = Color.Transparent,
         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 
-    val effectiveColors = colors ?: defaultColors
+    val effectiveColors = defaultColors
 
     when (variant) {
         QodeTopAppBarVariant.Default -> {
@@ -107,7 +122,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -122,7 +137,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
@@ -164,7 +179,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -179,7 +194,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
@@ -220,7 +235,7 @@ fun QodeTopAppBar(
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = effectiveColors.titleContentColor,
                     )
                 },
                 modifier = modifier,
@@ -235,7 +250,7 @@ fun QodeTopAppBar(
                                     QodeActionIcons.Close -> "Close"
                                     else -> "Navigation"
                                 },
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = effectiveColors.navigationIconContentColor,
                             )
                         }
                     }
@@ -434,7 +449,7 @@ fun QodeScreenTopAppBar(
             IconButton(onClick = onProfileClick) {
                 QodeProfileAvatar(
                     imageUrl = profileImageUrl,
-                    size = 32.dp,
+                    size = SizeTokens.Icon.sizeXLarge,
                     contentDescription = "Profile",
                 )
             }
@@ -456,6 +471,303 @@ fun QodeScreenTopAppBar(
         ),
     )
 }
+
+// MARK: Transparent
+
+/**
+ * Truly transparent top app bar that bypasses Material3's automatic background handling
+ * Perfect for screens that need completely transparent overlays (like Profile screen)
+ */
+@Composable
+fun QodeTransparentTopAppBar(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    navigationIcon: ImageVector? = null,
+    onNavigationClick: (() -> Unit)? = null,
+    actions: List<TopAppBarAction> = emptyList(),
+    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .statusBarsPadding() // Handle status bar padding
+            .height(SizeTokens.AppBar.height),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // Navigation Icon
+        Box(
+            modifier = Modifier.weight(0.2f, fill = false),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            navigationIcon?.let { icon ->
+                IconButton(
+                    onClick = onNavigationClick ?: {},
+                    modifier = Modifier
+                        .size(SizeTokens.IconButton.sizeLarge)
+                        .padding(start = SpacingTokens.sm)
+                        .background(
+                            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
+                            shape = CircleShape,
+                        ),
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = when (icon) {
+                            QodeActionIcons.Back -> "Navigate back"
+                            QodeUIIcons.Menu -> "Open menu"
+                            QodeActionIcons.Close -> "Close"
+                            else -> "Navigation"
+                        },
+                        tint = navigationIconTint,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                    )
+                }
+            }
+        }
+
+        // Title (Center-aligned)
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            title?.let { titleText ->
+                Text(
+                    text = titleText,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    color = titleColor,
+                )
+            }
+        }
+
+        // Actions
+        Row(
+            modifier = Modifier.weight(0.2f, fill = false),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            actions.forEach { action ->
+                if (action.showAsAction) {
+                    IconButton(
+                        onClick = action.onClick,
+                        enabled = action.enabled,
+                    ) {
+                        Icon(
+                            imageVector = action.icon,
+                            contentDescription = action.contentDescription,
+                            tint = actionIconTint,
+                        )
+                    }
+                }
+            }
+
+            // Overflow menu for non-icon actions
+            val overflowActions = actions.filter { !it.showAsAction }
+            if (overflowActions.isNotEmpty()) {
+                OverflowMenu(actions = overflowActions)
+            }
+        }
+    }
+}
+
+/**
+ * Configuration for scroll-aware behavior
+ */
+data class ScrollAwareConfig(
+    val alwaysVisibleThreshold: Dp = 50.dp,
+    val hideAccumulationThreshold: Dp = 150.dp,
+    val showOnScrollUpThreshold: Dp = 8.dp,
+    val enableDebouncing: Boolean = true,
+    val debounceDelayMs: Long = 50L
+)
+
+/**
+ * Scroll direction state for better state management
+ */
+private sealed interface ScrollDirection {
+    data object Idle : ScrollDirection
+    data class Down(val accumulated: Int) : ScrollDirection
+    data class Up(val delta: Int) : ScrollDirection
+}
+
+/**
+ * Enterprise-level scroll-aware TopAppBar with configurable behavior
+ *
+ * This component provides smooth, user-friendly hide/show behavior based on scroll patterns.
+ * Built for production use with proper state management and performance optimization.
+ *
+ * @param scrollState The ScrollState to monitor for scroll direction changes
+ * @param modifier Modifier to be applied to the component
+ * @param title Optional title to display in the center
+ * @param navigationIcon Optional navigation icon (typically back arrow)
+ * @param onNavigationClick Called when navigation icon is clicked
+ * @param actions List of action buttons to display on the right
+ * @param config Configuration for scroll behavior thresholds and timing
+ * @param navigationIconTint Tint color for the navigation icon
+ * @param titleColor Color for the title text
+ * @param actionIconTint Tint color for action icons
+ */
+@Composable
+fun AutoHidingTopAppBar(
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    navigationIcon: ImageVector? = null,
+    onNavigationClick: (() -> Unit)? = null,
+    actions: List<TopAppBarAction> = emptyList(),
+    config: ScrollAwareConfig = ScrollAwareConfig(),
+    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    val scrollBehaviorState = rememberScrollBehaviorState(
+        scrollState = scrollState,
+        config = config,
+    )
+
+    AnimatedVisibility(
+        visible = scrollBehaviorState.isVisible,
+        enter = slideInVertically(
+            initialOffsetY = { -it },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow,
+            ),
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { -it },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessMedium,
+            ),
+        ),
+        modifier = modifier,
+    ) {
+        QodeTransparentTopAppBar(
+            title = title,
+            navigationIcon = navigationIcon,
+            onNavigationClick = onNavigationClick,
+            actions = actions,
+            navigationIconTint = navigationIconTint,
+            titleColor = titleColor,
+            actionIconTint = actionIconTint,
+        )
+    }
+}
+
+/**
+ * State holder for scroll behavior logic
+ */
+@Stable
+private class ScrollBehaviorState(private val config: ScrollAwareConfig) {
+    var isVisible by mutableStateOf(true)
+        private set
+
+    private var previousScrollValue = 0
+    private var accumulatedScrollDown = 0
+    private var lastUpdateTime = 0L
+
+    fun updateScrollState(currentScrollValue: Int) {
+        val currentTime = System.currentTimeMillis()
+
+        // Debouncing to prevent excessive updates
+        if (config.enableDebouncing && currentTime - lastUpdateTime < config.debounceDelayMs) {
+            return
+        }
+
+        val scrollDelta = currentScrollValue - previousScrollValue
+        val scrollDirection = determineScrollDirection(currentScrollValue, scrollDelta)
+
+        updateVisibility(scrollDirection)
+
+        previousScrollValue = currentScrollValue
+        lastUpdateTime = currentTime
+    }
+
+    private fun determineScrollDirection(
+        currentScrollValue: Int,
+        scrollDelta: Int
+    ): ScrollDirection =
+        when {
+            // Always show when near top
+            currentScrollValue <= config.alwaysVisibleThreshold.value.toInt() -> {
+                accumulatedScrollDown = 0
+                ScrollDirection.Idle
+            }
+            // Scrolling down
+            scrollDelta > 0 -> {
+                accumulatedScrollDown += scrollDelta
+                ScrollDirection.Down(accumulatedScrollDown)
+            }
+            // Scrolling up with sufficient delta
+            scrollDelta < -config.showOnScrollUpThreshold.value.toInt() -> {
+                accumulatedScrollDown = 0
+                ScrollDirection.Up(kotlin.math.abs(scrollDelta))
+            }
+            // Minor movements - maintain current state
+            else -> ScrollDirection.Idle
+        }
+
+    private fun updateVisibility(direction: ScrollDirection) {
+        when (direction) {
+            is ScrollDirection.Idle -> {
+                // Near top - always show
+                if (accumulatedScrollDown == 0) {
+                    isVisible = true
+                }
+            }
+            is ScrollDirection.Down -> {
+                if (direction.accumulated >= config.hideAccumulationThreshold.value.toInt()) {
+                    isVisible = false
+                }
+            }
+            is ScrollDirection.Up -> {
+                isVisible = true
+            }
+        }
+    }
+}
+
+/**
+ * Remember function for scroll behavior state
+ */
+@Composable
+private fun rememberScrollBehaviorState(
+    scrollState: ScrollState,
+    config: ScrollAwareConfig
+): ScrollBehaviorState {
+    val behaviorState = remember { ScrollBehaviorState(config) }
+
+    LaunchedEffect(scrollState.value) {
+        behaviorState.updateScrollState(scrollState.value)
+    }
+
+    return behaviorState
+}
+
+/**
+ * Helper function to create scroll behavior for TopAppBar
+ *
+ * @param behavior The type of scroll behavior to create
+ * @return TopAppBarScrollBehavior instance
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun rememberQodeTopAppBarScrollBehavior(
+    behavior: QodeTopAppBarScrollBehavior = QodeTopAppBarScrollBehavior.EnterAlways
+): TopAppBarScrollBehavior? =
+    when (behavior) {
+        QodeTopAppBarScrollBehavior.None -> null
+        QodeTopAppBarScrollBehavior.Pinned -> TopAppBarDefaults.pinnedScrollBehavior()
+        QodeTopAppBarScrollBehavior.EnterAlways -> TopAppBarDefaults.enterAlwaysScrollBehavior()
+        QodeTopAppBarScrollBehavior.ExitUntilCollapsed -> TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    }
 
 /**
  * Profile avatar component for top app bar

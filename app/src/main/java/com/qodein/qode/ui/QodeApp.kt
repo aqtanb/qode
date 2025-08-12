@@ -1,19 +1,20 @@
 package com.qodein.qode.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeBottomNavigation
@@ -22,8 +23,7 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeScreenTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBarVariant
+import com.qodein.core.designsystem.component.QodeTransparentTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.qode.R
@@ -57,6 +57,7 @@ internal fun QodeApp(
     val currentDestination = appState.currentTopLevelDestination
     val selectedTabDestination = appState.selectedTabDestination
     val isHomeDestination = currentDestination == TopLevelDestination.HOME
+    val isProfileScreen = appState.isProfileScreen
 
     // Handle navigation events from ViewModel
     LaunchedEffect(Unit) {
@@ -78,21 +79,22 @@ internal fun QodeApp(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
-            if (appState.isNestedScreen) {
-                QodeTopAppBar(
+            if (appState.isNestedScreen && !isProfileScreen) {
+                // Other nested screens (not profile) get transparent top bar
+                QodeTransparentTopAppBar(
                     title = null,
-                    variant = QodeTopAppBarVariant.CenterAligned,
                     navigationIcon = QodeActionIcons.Back,
                     onNavigationClick = {
                         appState.navController.popBackStack()
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    navigationIconTint = MaterialTheme.colorScheme.onSurface,
+                    titleColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            } else {
+            } else if (!appState.isNestedScreen) {
+                // Top level screens get the main app bar
                 currentDestination?.let { destination ->
                     QodeScreenTopAppBar(
                         title = stringResource(destination.titleTextId),
@@ -106,6 +108,7 @@ internal fun QodeApp(
                     )
                 }
             }
+            // Profile screen handles its own TopAppBar - no app-level TopAppBar
         },
 
         floatingActionButton = {
@@ -143,11 +146,22 @@ internal fun QodeApp(
                 )
             }
         },
-        modifier = modifier,
     ) { innerPadding ->
         QodeNavHost(
             appState = appState,
-            modifier = Modifier.padding(innerPadding),
+            modifier = if (appState.isNestedScreen) {
+                // For nested screens with transparent top bar, don't apply top padding
+                // so content flows behind the transparent top bar
+                Modifier.padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = innerPadding.calculateBottomPadding(),
+                    // No top padding - let content flow behind transparent top bar
+                )
+            } else {
+                // For regular screens with solid top bars, use full padding
+                Modifier.padding(innerPadding)
+            },
         )
     }
 }
