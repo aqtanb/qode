@@ -2,6 +2,7 @@ package com.qodein.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -114,7 +115,8 @@ private fun GradientBackground(
 }
 
 /**
- * Floating decoration circles - exactly like ProfileScreen
+ * Responsive floating decoration circles that adapt to screen width
+ * Uses BoxWithConstraints for reliable preview support
  */
 @Composable
 private fun FloatingDecorations(
@@ -144,41 +146,149 @@ private fun FloatingDecorations(
         )
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // Small circle - upper left area
-        FloatingCircle(
-            size = SizeTokens.IconButton.sizeMedium,
-            color = primaryColor,
-            offset = Offset(
-                x = (SpacingTokens.xxl + SpacingTokens.xs).value,
-                y = (SpacingTokens.xxxl * 2 + SpacingTokens.lg).value,
-            ),
-        )
+    // Use BoxWithConstraints for reliable size detection in previews
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize(),
+    ) {
+        // Only render decorations when we have valid dimensions
+        if (maxWidth > 0.dp && maxHeight > 0.dp) {
+            // Left side bubbles (avoids 48dp back button area - starts at ~15%)
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeSmall,
+                color = primaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.15f,
+                yFraction = 0.25f,
+            )
 
-        // Large circle - right side (main visual interest)
-        FloatingCircle(
-            size = SizeTokens.Avatar.sizeMedium + SpacingTokens.md,
-            color = secondaryColor,
-            offset = Offset(
-                x = (SpacingTokens.xxxl * 4 + SpacingTokens.lg).value,
-                y = (SpacingTokens.xxxl * 3 + SpacingTokens.sm).value,
-            ),
-        )
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeXSmall,
+                color = tertiaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.08f,
+                yFraction = 0.32f,
+            )
 
-        // Medium circle - lower right (balance)
-        FloatingCircle(
-            size = SizeTokens.Chip.height + SpacingTokens.xs,
-            color = tertiaryColor,
-            offset = Offset(
-                x = (SpacingTokens.xxxl * 5).value,
-                y = (SpacingTokens.xxxl + SpacingTokens.xxl + SpacingTokens.sm).value,
-            ),
-        )
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeMedium,
+                color = secondaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.22f,
+                yFraction = 0.18f,
+            )
+
+            // Center bubbles (around profile area but not interfering)
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeXSmall,
+                color = tertiaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.35f,
+                yFraction = 0.12f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeSmall,
+                color = primaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.40f,
+                yFraction = 0.28f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeLarge,
+                color = secondaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.65f,
+                yFraction = 0.15f,
+            )
+
+            // Right side bubbles (symmetric with left)
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeMedium,
+                color = tertiaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.78f,
+                yFraction = 0.22f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeXLarge,
+                color = primaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.85f,
+                yFraction = 0.08f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeSmall,
+                color = secondaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.92f,
+                yFraction = 0.18f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeXSmall,
+                color = tertiaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.88f,
+                yFraction = 0.32f,
+            )
+
+            ResponsiveFloatingCircle(
+                size = SizeTokens.Decoration.sizeMedium,
+                color = primaryColor,
+                containerWidth = maxWidth,
+                containerHeight = maxHeight,
+                xFraction = 0.95f,
+                yFraction = 0.25f,
+            )
+        }
     }
 }
 
 /**
- * Individual floating circle decoration
+ * Individual floating circle decoration with responsive positioning
+ */
+@Composable
+private fun ResponsiveFloatingCircle(
+    size: Dp,
+    color: Color,
+    containerWidth: Dp,
+    containerHeight: Dp,
+    xFraction: Float,
+    yFraction: Float,
+    modifier: Modifier = Modifier
+) {
+    // Ensure fractions are within valid range
+    val safeXFraction = xFraction.coerceIn(0f, 1f)
+    val safeYFraction = yFraction.coerceIn(0f, 1f)
+
+    // Calculate positions with bounds checking to prevent negative offsets
+    val halfSize = size / 2
+    val xPosition = ((containerWidth * safeXFraction) - halfSize).coerceAtLeast(0.dp)
+    val yPosition = ((containerHeight * safeYFraction) - halfSize).coerceAtLeast(0.dp)
+
+    Box(
+        modifier = modifier
+            .size(size)
+            .offset(x = xPosition, y = yPosition)
+            .background(color, CircleShape),
+    )
+}
+
+/**
+ * Individual floating circle decoration (legacy hardcoded version)
  */
 @Composable
 private fun FloatingCircle(
@@ -347,6 +457,46 @@ private fun AllGradientStylesPreview() {
 @Composable
 private fun DarkThemeGradientsPreview() {
     QodeTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            QodeHeroGradient()
+        }
+    }
+}
+
+@Preview(
+    name = "Responsive Decorations - Phone",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 640,
+    group = "QodeGradient Responsive",
+)
+@Composable
+private fun ResponsiveDecorationsPhonePreview() {
+    QodeTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            QodeHeroGradient()
+        }
+    }
+}
+
+@Preview(
+    name = "Responsive Decorations - Tablet",
+    showBackground = true,
+    widthDp = 840,
+    heightDp = 600,
+    group = "QodeGradient Responsive",
+)
+@Composable
+private fun ResponsiveDecorationsTabletPreview() {
+    QodeTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()

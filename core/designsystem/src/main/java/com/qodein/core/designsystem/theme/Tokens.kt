@@ -122,6 +122,16 @@ object SizeTokens {
         val sizeLarge = 72.dp
         val sizeXLarge = 120.dp
     }
+
+    @Immutable
+    object Decoration {
+        val sizeXSmall = 8.dp
+        val sizeSmall = 12.dp
+        val sizeMedium = 16.dp
+        val sizeLarge = 24.dp
+        val sizeXLarge = 32.dp
+        val sizeXXLarge = 48.dp
+    }
 }
 
 /**
