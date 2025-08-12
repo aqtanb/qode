@@ -11,7 +11,7 @@ targetSdk = "36"
 
 # App Version
 versionCode = "1"
-versionName = "0.1.0"
+versionName = "0.2.0"
 
 # AndroidX Core
 coreKtx = "1.16.0"
@@ -25,14 +25,14 @@ material = "1.12.0"
 
 # Navigation & Serialization
 navigation = "2.9.3"
-kotlinxSerializationJson = "1.7.3"
+kotlinxSerializationJson = "1.8.1"
 
 # Dependency Injection
 hilt = "2.57"
 hiltNavigationCompose = "1.2.0"
 
 # Firebase
-firebaseBom = "34.0.0"
+firebaseBom = "34.1.0"
 googleServices = "4.4.3"
 
 # Networking
