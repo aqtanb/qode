@@ -29,10 +29,8 @@ import javax.inject.Inject
  * Following enterprise patterns with proper separation of concerns.
  */
 @HiltViewModel
-class QodeAppViewModel @Inject constructor(
-    private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val navigationHandler: NavigationHandler
-) : ViewModel() {
+class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase, private val navigationHandler: NavigationHandler) :
+    ViewModel() {
 
     // Auth state from domain layer with proper error handling
     val authState: StateFlow<AuthState> = getAuthStateUseCase()

@@ -9,10 +9,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Use case for observing authentication state following NIA patterns.
+ * Use case for observing authentication state following enterprise patterns.
  *
  * Wraps AuthStateManager with Result pattern for proper error handling.
  * This allows the UI layer to handle auth state errors gracefully.
+ *
+ * Note: For sync auth checks, use AuthStateManager.isUserAuthenticated() directly.
  */
 @Singleton
 class GetAuthStateUseCase @Inject constructor(private val authStateManager: AuthStateManager) {
@@ -26,11 +28,4 @@ class GetAuthStateUseCase @Inject constructor(private val authStateManager: Auth
         authStateManager.getAuthState()
             .map { Result.success(it) }
             .catch { emit(Result.failure(it)) }
-
-    /**
-     * Check if user is currently authenticated synchronously
-     *
-     * @return true if user is signed in, false otherwise
-     */
-    fun isAuthenticated(): Boolean = authStateManager.isUserAuthenticated()
 }

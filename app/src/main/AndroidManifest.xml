@@ -11,6 +11,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Qode">
+        
+        <!-- Firebase Startup Initializer -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.qodein.qode.initializer.FirebaseInitializer"
+                android:value="androidx.startup" />
+        </provider>
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"

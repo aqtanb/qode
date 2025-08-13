@@ -20,8 +20,6 @@ class AuthRepositoryImpl @Inject constructor(private val googleAuthService: Goog
 
     override fun signOut(): Flow<Unit> = googleAuthService.signOut()
 
-    override fun getCurrentUser(): Flow<User?> = googleAuthService.getCurrentUser()
-
     override fun getAuthStateFlow(): Flow<User?> =
         callbackFlow {
             val auth = Firebase.auth

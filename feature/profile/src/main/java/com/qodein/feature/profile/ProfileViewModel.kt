@@ -2,7 +2,8 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.domain.usecase.auth.GetCurrentUserUseCase
+import com.qodein.core.domain.AuthState
+import com.qodein.core.domain.auth.AuthStateManager
 import com.qodein.core.domain.usecase.auth.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -17,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val authStateManager: AuthStateManager,
     private val signOutUseCase: SignOutUseCase
     // TODO: Add GetUserStatsUseCase for promocodes, upvotes, downvotes
     // TODO: Add GetUserAchievementsUseCase for achievements data
@@ -58,27 +60,25 @@ class ProfileViewModel @Inject constructor(
 
         _state.value = ProfileUiState.Loading
 
-        authJob = getCurrentUserUseCase()
-            .onEach { result ->
-                _state.value = result.fold(
-                    onSuccess = { user ->
-                        if (user != null) {
-                            ProfileUiState.Success(user = user)
-                        } else {
-                            // With smart routing, this should not happen
-                            // If user is null, it means auth state is inconsistent
-                            ProfileUiState.Error(
-                                exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
-                                isRetryable = true,
-                            )
-                        }
-                    },
-                    onFailure = { exception ->
+        authJob = authStateManager.getAuthState()
+            .onEach { authState ->
+                _state.value = when (authState) {
+                    is AuthState.Loading -> ProfileUiState.Loading
+                    is AuthState.Authenticated -> ProfileUiState.Success(user = authState.user)
+                    is AuthState.Unauthenticated -> {
+                        // With smart routing, this should not happen
+                        // If user is unauthenticated, navigation should have redirected to auth
                         ProfileUiState.Error(
-                            exception = exception,
+                            exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
                             isRetryable = true,
                         )
-                    },
+                    }
+                }
+            }
+            .catch { exception ->
+                _state.value = ProfileUiState.Error(
+                    exception = exception,
+                    isRetryable = true,
                 )
             }
             .launchIn(viewModelScope)

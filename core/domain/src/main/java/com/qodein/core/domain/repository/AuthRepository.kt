@@ -34,15 +34,6 @@ interface AuthRepository {
     fun signOut(): Flow<Unit>
 
     /**
-     * Get the currently authenticated user.
-     *
-     * @return Flow that emits current [User] or null if not authenticated
-     * @throws java.io.IOException when unable to fetch user data from remote source
-     * @throws IllegalStateException when local user data is corrupted
-     */
-    fun getCurrentUser(): Flow<User?>
-
-    /**
      * Observe authentication state changes.
      *
      * @return Flow that emits [User] when signed in, null when signed out

@@ -217,51 +217,6 @@ class GetAuthStateUseCaseTest {
             verify { authStateManager.getAuthState() }
         }
 
-    // isAuthenticated() Tests
-
-    @Test
-    fun isAuthenticated_whenUserAuthenticated_returnsTrue() {
-        // Given
-        every { authStateManager.isUserAuthenticated() } returns true
-
-        // When
-        val result = getAuthStateUseCase.isAuthenticated()
-
-        // Then
-        assert(result == true)
-        verify { authStateManager.isUserAuthenticated() }
-    }
-
-    @Test
-    fun isAuthenticated_whenUserUnauthenticated_returnsFalse() {
-        // Given
-        every { authStateManager.isUserAuthenticated() } returns false
-
-        // When
-        val result = getAuthStateUseCase.isAuthenticated()
-
-        // Then
-        assert(result == false)
-        verify { authStateManager.isUserAuthenticated() }
-    }
-
-    @Test
-    fun isAuthenticated_whenAuthStateManagerThrowsException_propagatesException() {
-        // Given
-        val exception = RuntimeException("Auth check error")
-        every { authStateManager.isUserAuthenticated() } throws exception
-
-        // When & Then
-        try {
-            getAuthStateUseCase.isAuthenticated()
-            assert(false) { "Expected exception to be thrown" }
-        } catch (e: Exception) {
-            assert(e == exception)
-        }
-
-        verify { authStateManager.isUserAuthenticated() }
-    }
-
     // Result Pattern Tests
 
     @Test

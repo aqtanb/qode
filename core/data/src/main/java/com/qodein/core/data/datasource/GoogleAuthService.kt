@@ -70,12 +70,6 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
             emit(Unit)
         }
 
-    fun getCurrentUser(): Flow<User?> =
-        flow {
-            val user = auth.currentUser?.let { createUserFromFirebaseUser(it) }
-            emit(user)
-        }
-
     fun isSignedIn(): Boolean = auth.currentUser != null
 
     fun createUserFromFirebaseUser(firebaseUser: FirebaseUser): User {
