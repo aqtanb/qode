@@ -3,7 +3,7 @@ package com.qodein.feature.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.domain.AuthState
-import com.qodein.core.domain.auth.AuthStateManager
+import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.core.domain.usecase.auth.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -19,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authStateManager: AuthStateManager,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signOutUseCase: SignOutUseCase
     // TODO: Add GetUserStatsUseCase for promocodes, upvotes, downvotes
     // TODO: Add GetUserAchievementsUseCase for achievements data
@@ -42,9 +41,9 @@ class ProfileViewModel @Inject constructor(
         when (action) {
             is ProfileAction.SignOutClicked -> signOut()
             is ProfileAction.RetryClicked -> checkAuthState()
-            is ProfileAction.EditProfileClicked -> emitEvent(ProfileEvent.NavigateToEditProfile)
-            is ProfileAction.AchievementsClicked -> emitEvent(ProfileEvent.NavigateToAchievements)
-            is ProfileAction.UserJourneyClicked -> emitEvent(ProfileEvent.NavigateToUserJourney)
+            is ProfileAction.EditProfileClicked -> emitEvent(ProfileEvent.EditProfileRequested)
+            is ProfileAction.AchievementsClicked -> emitEvent(ProfileEvent.AchievementsRequested)
+            is ProfileAction.UserJourneyClicked -> emitEvent(ProfileEvent.UserJourneyRequested)
         }
     }
 
@@ -60,25 +59,29 @@ class ProfileViewModel @Inject constructor(
 
         _state.value = ProfileUiState.Loading
 
-        authJob = authStateManager.getAuthState()
-            .onEach { authState ->
-                _state.value = when (authState) {
-                    is AuthState.Loading -> ProfileUiState.Loading
-                    is AuthState.Authenticated -> ProfileUiState.Success(user = authState.user)
-                    is AuthState.Unauthenticated -> {
-                        // With smart routing, this should not happen
-                        // If user is unauthenticated, navigation should have redirected to auth
+        authJob = getAuthStateUseCase()
+            .onEach { result ->
+                _state.value = result.fold(
+                    onSuccess = { authState ->
+                        when (authState) {
+                            is AuthState.Loading -> ProfileUiState.Loading
+                            is AuthState.Authenticated -> ProfileUiState.Success(user = authState.user)
+                            is AuthState.Unauthenticated -> {
+                                // With smart routing, this should not happen
+                                // If user is unauthenticated, navigation should have redirected to auth
+                                ProfileUiState.Error(
+                                    exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
+                                    isRetryable = true,
+                                )
+                            }
+                        }
+                    },
+                    onFailure = { exception ->
                         ProfileUiState.Error(
-                            exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
+                            exception = exception,
                             isRetryable = true,
                         )
-                    }
-                }
-            }
-            .catch { exception ->
-                _state.value = ProfileUiState.Error(
-                    exception = exception,
-                    isRetryable = true,
+                    },
                 )
             }
             .launchIn(viewModelScope)
@@ -97,7 +100,7 @@ class ProfileViewModel @Inject constructor(
                 result.fold(
                     onSuccess = {
                         // Only navigate after successful sign out
-                        emitEvent(ProfileEvent.NavigateToSignOut)
+                        emitEvent(ProfileEvent.SignedOut)
                     },
                     onFailure = { exception ->
                         // Restart auth monitoring if sign out fails

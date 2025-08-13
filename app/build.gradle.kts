@@ -99,8 +99,8 @@ dependencies {
     implementation(libs.bundles.firebase)
 
     // Testing
-    testImplementation(libs.bundles.testing.unit)
-    androidTestImplementation(libs.bundles.testing.android)
+    testImplementation(projects.core.testing)
+    androidTestImplementation(projects.core.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
     // Debug Tools

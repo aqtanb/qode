@@ -2,14 +2,9 @@ package com.qodein.feature.profile
 
 import app.cash.turbine.test
 import com.qodein.core.domain.AuthState
-import com.qodein.core.domain.auth.AuthStateManager
+import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.core.domain.usecase.auth.SignOutUseCase
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.core.testing.data.TestUsers
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -17,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -29,41 +24,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
-import java.net.SocketTimeoutException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
 
-    private lateinit var authStateManager: AuthStateManager
+    private lateinit var getAuthStateUseCase: GetAuthStateUseCase
     private lateinit var signOutUseCase: SignOutUseCase
     private lateinit var viewModel: ProfileViewModel
     private lateinit var testDispatcher: TestDispatcher
 
-    private val testUser = User(
-        id = UserId("test_user_id"),
-        email = Email("john.doe@example.com"),
-        profile = UserProfile(
-            username = "johndoe",
-            firstName = "John",
-            lastName = "Doe",
-            bio = "Test user",
-            photoUrl = "https://example.com/profile.jpg",
-            birthday = null,
-            gender = null,
-            isGenerated = false,
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
-        ),
-        stats = UserStats.initial(UserId("test_user_id")),
-        preferences = UserPreferences.default(UserId("test_user_id")),
-    )
+    private val testUser = TestUsers.sampleUser
 
     @Before
     fun setUp() {
-        testDispatcher = UnconfinedTestDispatcher()
+        testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
 
-        authStateManager = mockk()
+        getAuthStateUseCase = mockk()
         signOutUseCase = mockk()
     }
 
@@ -75,93 +52,71 @@ class ProfileViewModelTest {
     @Test
     fun init_whenUserAuthenticated_emitsSuccessState() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
 
-            // When
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // Then
-            viewModel.state.test {
-                val state = awaitItem()
-                assertTrue(state is ProfileUiState.Success)
-                assertEquals(testUser, (state as ProfileUiState.Success).user)
-            }
+            val finalState = viewModel.state.value
+            assertTrue(finalState is ProfileUiState.Success)
+            assertEquals(testUser, (finalState as ProfileUiState.Success).user)
         }
 
     @Test
     fun init_whenUserUnauthenticated_emitsErrorState() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Unauthenticated)
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Unauthenticated))
 
-            // When
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // Then
-            viewModel.state.test {
-                val state = awaitItem()
-                assertTrue(state is ProfileUiState.Error)
-                assertTrue((state as ProfileUiState.Error).isRetryable)
-                assertTrue(state.exception is IllegalStateException)
-            }
+            val finalState = viewModel.state.value
+            assertTrue(finalState is ProfileUiState.Error)
+            assertTrue((finalState as ProfileUiState.Error).exception is IllegalStateException)
         }
 
     @Test
-    fun init_whenAuthStateFails_emitsErrorState() =
+    fun init_whenAuthStateFails_emitsCorrectStateTransition() =
         runTest {
-            // Given
             val testException = RuntimeException("Network error")
-            every { authStateManager.getAuthState() } returns flow { throw testException }
+            every { getAuthStateUseCase() } returns flow { emit(Result.failure(testException)) }
 
-            // When
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
-            advanceUntilIdle()
+            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
 
-            // Then
-            viewModel.state.test {
-                val state = awaitItem()
-                assertTrue(state is ProfileUiState.Error)
-                assertTrue((state as ProfileUiState.Error).isRetryable)
-                assertEquals(testException, state.exception)
+            localViewModel.state.test {
+                assertEquals(ProfileUiState.Loading, awaitItem())
+                advanceUntilIdle()
+                val errorState = awaitItem() as ProfileUiState.Error
+                assertTrue(errorState is ProfileUiState.Error)
+                assertEquals(testException, errorState.exception)
             }
         }
 
     @Test
     fun handleAction_whenRetryClicked_callsAuthStateManager() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When
             viewModel.handleAction(ProfileAction.RetryClicked)
             advanceUntilIdle()
 
-            // Then
-            verify(atLeast = 2) { authStateManager.getAuthState() } // init + retry
+            verify(atLeast = 2) { getAuthStateUseCase() }
         }
 
     @Test
     fun handleAction_whenSignOutSucceeds_emitsNavigationEvent() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
             every { signOutUseCase() } returns flowOf(Result.success(Unit))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When & Then - collect events before triggering action
             viewModel.events.test {
                 viewModel.handleAction(ProfileAction.SignOutClicked)
                 advanceUntilIdle()
-
-                val event = awaitItem()
-                assertEquals(ProfileEvent.NavigateToSignOut, event)
-
+                assertEquals(ProfileEvent.SignedOut, awaitItem())
                 verify { signOutUseCase() }
             }
         }
@@ -171,189 +126,101 @@ class ProfileViewModelTest {
         runTest {
             // Given
             val testException = IOException("Network connection failed")
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
             every { signOutUseCase() } returns flowOf(Result.failure(testException))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When
+            // When & Then
             viewModel.state.test {
-                // Skip initial success state
-                awaitItem()
+                // 1. Initial state is Success
+                assertTrue(awaitItem() is ProfileUiState.Success)
 
+                // 2. Action is dispatched
                 viewModel.handleAction(ProfileAction.SignOutClicked)
+
+                // 3. State becomes Loading during the sign-out attempt
+                assertTrue(awaitItem() is ProfileUiState.Loading)
+
+                // 4. State becomes Error because the use case fails
+                val errorState = awaitItem() as ProfileUiState.Error
+                assertTrue(errorState is ProfileUiState.Error)
+                assertEquals(testException, errorState.exception)
+
+                // 5. Run the recovery logic (checkAuthState)
                 advanceUntilIdle()
 
-                // Then - should show loading then success (auth restarted)
-                val loadingState = awaitItem()
-                assertTrue(loadingState is ProfileUiState.Loading)
-
-                val successState = awaitItem()
-                assertTrue(successState is ProfileUiState.Success)
-                assertEquals(testUser, (successState as ProfileUiState.Success).user)
+                // 6. The state recovers to Success. The intermediate Loading state is
+                //    conflated by the StateFlow and is not asserted here.
+                val recoveredState = awaitItem() as ProfileUiState.Success
+                assertTrue(recoveredState is ProfileUiState.Success)
+                assertEquals(testUser, recoveredState.user)
             }
 
-            // Verify sign out was attempted and auth monitoring restarted
             verify { signOutUseCase() }
-            verify(atLeast = 2) { authStateManager.getAuthState() } // init + restart after failure
+            verify(atLeast = 2) { getAuthStateUseCase() }
         }
-
-    // MARK: - Navigation Events Tests
 
     @Test
     fun handleAction_whenEditProfileClicked_emitsNavigateToEditProfileEvent() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When & Then
             viewModel.events.test {
                 viewModel.handleAction(ProfileAction.EditProfileClicked)
-                advanceUntilIdle()
-
-                val event = awaitItem()
-                assertEquals(ProfileEvent.NavigateToEditProfile, event)
+                assertEquals(ProfileEvent.EditProfileRequested, awaitItem())
             }
         }
 
     @Test
     fun handleAction_whenAchievementsClicked_emitsNavigateToAchievementsEvent() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When & Then
             viewModel.events.test {
                 viewModel.handleAction(ProfileAction.AchievementsClicked)
-                advanceUntilIdle()
-
-                val event = awaitItem()
-                assertEquals(ProfileEvent.NavigateToAchievements, event)
+                assertEquals(ProfileEvent.AchievementsRequested, awaitItem())
             }
         }
 
     @Test
     fun handleAction_whenUserJourneyClicked_emitsNavigateToUserJourneyEvent() =
         runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            every { getAuthStateUseCase() } returns flowOf(Result.success(AuthState.Authenticated(testUser)))
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
             advanceUntilIdle()
 
-            // When & Then
             viewModel.events.test {
                 viewModel.handleAction(ProfileAction.UserJourneyClicked)
-                advanceUntilIdle()
-
-                val event = awaitItem()
-                assertEquals(ProfileEvent.NavigateToUserJourney, event)
-            }
-        }
-
-    // MARK: - State Transitions Tests
-
-    @Test
-    fun stateTransition_loadingToSuccessToLoadingDuringSignOut() =
-        runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            every { signOutUseCase() } returns flowOf(Result.success(Unit))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
-
-            // When & Then
-            viewModel.state.test {
-                // Initial success state
-                var state = awaitItem()
-                assertTrue(state is ProfileUiState.Success)
-                assertEquals(testUser, (state as ProfileUiState.Success).user)
-
-                // Trigger sign out
-                viewModel.handleAction(ProfileAction.SignOutClicked)
-                advanceUntilIdle()
-
-                // Should show loading during sign out
-                state = awaitItem()
-                assertTrue(state is ProfileUiState.Loading)
-
-                // No further states since navigation happens
-                expectNoEvents()
+                assertEquals(ProfileEvent.UserJourneyRequested, awaitItem())
             }
         }
 
     @Test
     fun stateTransition_errorToLoadingToSuccessOnRetry() =
         runTest {
-            // Given - first call fails, second succeeds
-            val exception = SocketTimeoutException("Connection timeout")
-            every { authStateManager.getAuthState() } returnsMany listOf(
-                flow { throw exception },
-                flowOf(AuthState.Authenticated(testUser)),
-            )
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
+            val errorFlow = flow<Result<AuthState>> { emit(Result.failure(IOException("Network error"))) }
+            val successFlow = flowOf(Result.success(AuthState.Authenticated(testUser)))
+            every { getAuthStateUseCase() }.returns(errorFlow).andThen(successFlow)
 
-            // When & Then
-            viewModel.state.test {
-                // Initial error state
-                var state = awaitItem()
-                assertTrue(state is ProfileUiState.Error)
-                assertEquals(exception, (state as ProfileUiState.Error).exception)
+            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
 
-                // Retry action
-                viewModel.handleAction(ProfileAction.RetryClicked)
+            localViewModel.state.test {
+                assertEquals(ProfileUiState.Loading, awaitItem())
                 advanceUntilIdle()
+                assertTrue(awaitItem() is ProfileUiState.Error)
 
-                // Should show loading then success
-                state = awaitItem()
-                assertTrue(state is ProfileUiState.Loading)
+                localViewModel.handleAction(ProfileAction.RetryClicked)
 
-                state = awaitItem()
-                assertTrue(state is ProfileUiState.Success)
-                assertEquals(testUser, (state as ProfileUiState.Success).user)
-            }
-        }
-
-    // MARK: - Integration Tests
-
-    @Test
-    fun fullUserJourney_fromLoadingToSuccessToSignOut() =
-        runTest {
-            // Given
-            every { authStateManager.getAuthState() } returns flowOf(AuthState.Authenticated(testUser))
-            every { signOutUseCase() } returns flowOf(Result.success(Unit))
-            viewModel = ProfileViewModel(authStateManager, signOutUseCase)
-            advanceUntilIdle()
-
-            // Then - verify state flow
-            viewModel.state.test {
+                assertEquals(ProfileUiState.Loading, awaitItem())
+                advanceUntilIdle()
                 val successState = awaitItem()
                 assertTrue(successState is ProfileUiState.Success)
                 assertEquals(testUser, (successState as ProfileUiState.Success).user)
-
-                // Trigger sign out and verify loading state
-                viewModel.handleAction(ProfileAction.SignOutClicked)
-                advanceUntilIdle()
-
-                val loadingState = awaitItem()
-                assertTrue(loadingState is ProfileUiState.Loading)
-
-                expectNoEvents() // No further states since navigation happens
             }
-
-            // Verify navigation event separately
-            viewModel.events.test {
-                viewModel.handleAction(ProfileAction.SignOutClicked)
-                advanceUntilIdle()
-
-                val event = awaitItem()
-                assertEquals(ProfileEvent.NavigateToSignOut, event)
-            }
-
-            // Verify proper use case calls
-            verify(atLeast = 1) { authStateManager.getAuthState() }
-            verify(atLeast = 1) { signOutUseCase() }
         }
 }

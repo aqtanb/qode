@@ -19,12 +19,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.qodein.core.designsystem.component.QodeRetryableErrorCard
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.core.testing.data.TestUsers
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,21 +34,7 @@ class ProfileScreenTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val testUser = User(
-        id = UserId("test_user_id"),
-        email = Email("john.doe@example.com"),
-        profile = UserProfile(
-            username = "johndoe",
-            firstName = "John",
-            lastName = "Doe",
-            bio = "Test user",
-            photoUrl = "https://example.com/profile.jpg",
-            birthday = null,
-            gender = null,
-        ),
-        stats = UserStats.initial(UserId("test_user_id")),
-        preferences = UserPreferences.default(UserId("test_user_id")),
-    )
+    private val testUser = TestUsers.sampleUser
 
     /**
      * Helper function to reduce boilerplate code in tests by setting the content once.

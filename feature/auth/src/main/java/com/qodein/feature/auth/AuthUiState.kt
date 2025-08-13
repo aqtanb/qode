@@ -10,5 +10,5 @@ sealed interface AuthUiState {
 
     data class Success(val user: User) : AuthUiState
 
-    data class Error(val message: String, val isRetryable: Boolean = true) : AuthUiState
+    data class Error(val exception: Throwable, val isRetryable: Boolean = true) : AuthUiState
 }

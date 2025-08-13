@@ -2,12 +2,7 @@ package com.qodein.qode.navigation
 
 import androidx.navigation.NavController
 import com.qodein.core.domain.AuthState
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.core.testing.data.TestUsers
 import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.profile.navigation.navigateToProfile
 import io.mockk.MockKAnnotations
@@ -35,17 +30,7 @@ class NavigationHandlerTest {
     private lateinit var navigationHandler: NavigationHandler
     private lateinit var navigateToTopLevel: (TopLevelDestination) -> Unit
 
-    private val authenticatedUser = User(
-        id = UserId("test-user-id"),
-        email = Email("test@example.com"),
-        profile = UserProfile.createSafe(
-            username = "testuser",
-            firstName = "Test",
-            lastName = "User",
-        ).getOrThrow(),
-        stats = UserStats.initial(UserId("test-user-id")),
-        preferences = UserPreferences.default(UserId("test-user-id")),
-    )
+    private val authenticatedUser = TestUsers.sampleUser
 
     @Before
     fun setUp() {

@@ -3,12 +3,7 @@ package com.qodein.core.domain.usecase.auth
 import app.cash.turbine.test
 import com.qodein.core.domain.AuthState
 import com.qodein.core.domain.auth.AuthStateManager
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.core.testing.data.TestUsers
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -32,17 +27,7 @@ class GetAuthStateUseCaseTest {
 
     private lateinit var getAuthStateUseCase: GetAuthStateUseCase
 
-    private val authenticatedUser = User(
-        id = UserId("test-user-id"),
-        email = Email("test@example.com"),
-        profile = UserProfile.createSafe(
-            username = "testuser",
-            firstName = "Test",
-            lastName = "User",
-        ).getOrThrow(),
-        stats = UserStats.initial(UserId("test-user-id")),
-        preferences = UserPreferences.default(UserId("test-user-id")),
-    )
+    private val authenticatedUser = TestUsers.sampleUser
 
     @Before
     fun setUp() {

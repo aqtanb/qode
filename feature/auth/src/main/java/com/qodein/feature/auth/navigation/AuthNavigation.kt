@@ -25,7 +25,7 @@ fun NavGraphBuilder.authSection(
     navigation<AuthBaseRoute>(startDestination = AuthRoute) {
         composable<AuthRoute> {
             AuthScreen(
-                onAuthSuccess = onAuthSuccess,
+                onNavigateToHome = onAuthSuccess,
             )
         }
     }

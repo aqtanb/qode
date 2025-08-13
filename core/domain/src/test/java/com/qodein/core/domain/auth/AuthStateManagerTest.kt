@@ -3,12 +3,7 @@ package com.qodein.core.domain.auth
 import app.cash.turbine.test
 import com.qodein.core.domain.AuthState
 import com.qodein.core.domain.repository.AuthRepository
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.core.testing.data.TestUsers
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -31,17 +26,7 @@ class AuthStateManagerTest {
 
     private lateinit var authStateManager: AuthStateManager
 
-    private val authenticatedUser = User(
-        id = UserId("test-user-id"),
-        email = Email("test@example.com"),
-        profile = UserProfile.createSafe(
-            username = "testuser",
-            firstName = "Test",
-            lastName = "User",
-        ).getOrThrow(),
-        stats = UserStats.initial(UserId("test-user-id")),
-        preferences = UserPreferences.default(UserId("test-user-id")),
-    )
+    private val authenticatedUser = TestUsers.sampleUser
 
     @Before
     fun setUp() {
@@ -164,17 +149,7 @@ class AuthStateManagerTest {
     fun getAuthState_whenMultipleUsers_emitsCorrectStates() =
         runTest {
             // Given
-            val anotherUser = User(
-                id = UserId("another-user-id"),
-                email = Email("another@example.com"),
-                profile = UserProfile.createSafe(
-                    username = "anotheruser",
-                    firstName = "Another",
-                    lastName = "User",
-                ).getOrThrow(),
-                stats = UserStats.initial(UserId("another-user-id")),
-                preferences = UserPreferences.default(UserId("another-user-id")),
-            )
+            val anotherUser = TestUsers.powerUser
 
             every { authRepository.getAuthStateFlow() } returns flowOf(
                 null,

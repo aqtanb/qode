@@ -98,11 +98,10 @@ fun ProfileScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                ProfileEvent.NavigateToEditProfile -> onEditProfile()
-                ProfileEvent.NavigateToSignOut -> onSignOut()
-                ProfileEvent.NavigateToAchievements -> onAchievementsClick()
-                ProfileEvent.NavigateToUserJourney -> onUserJourneyClick()
-                ProfileEvent.NavigateBack -> onBackClick()
+                ProfileEvent.EditProfileRequested -> onEditProfile()
+                ProfileEvent.SignedOut -> onSignOut()
+                ProfileEvent.AchievementsRequested -> onAchievementsClick()
+                ProfileEvent.UserJourneyRequested -> onUserJourneyClick()
             }
         }
     }
