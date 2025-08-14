@@ -13,11 +13,13 @@ sealed interface HomeAction {
 
     data class UpvotePromoCode(val promoCodeId: String) : HomeAction
 
-    data class FollowStore(val storeId: String) : HomeAction
+    data class DownvotePromoCode(val promoCodeId: String) : HomeAction
 
     data class CopyPromoCode(val promoCode: PromoCode) : HomeAction
 
     data object LoadMorePromoCodes : HomeAction
+
+    data object RetryClicked : HomeAction
 
     data object ErrorDismissed : HomeAction
 }

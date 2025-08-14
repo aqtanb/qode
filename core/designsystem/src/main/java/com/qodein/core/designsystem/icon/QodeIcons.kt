@@ -559,6 +559,7 @@ object QodeActionIcons {
     val Like: ImageVector = FeatherIcons.Heart
     val Unlike: ImageVector = FeatherIcons.Heart
     val Thumbs: ImageVector = FeatherIcons.ThumbsUp
+    val ThumbsDown: ImageVector = FeatherIcons.ThumbsDown
     val Share: ImageVector = FeatherIcons.Share2
     val Comment: ImageVector = FeatherIcons.MessageCircle
     val Follow: ImageVector = FeatherIcons.UserPlus

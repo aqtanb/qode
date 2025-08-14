@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,428 +27,317 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.QodeBadge
+import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.component.QodeGradientStyle
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.UserId
+import com.qodein.core.ui.R
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 /**
- * Enhanced PromoCodeCard that works with our domain PromoCode sealed class
+ * Beautiful PromoCode card designed like an actual promotional card
  */
 @Composable
 fun EnhancedPromoCodeCard(
     promoCode: PromoCode,
     onCardClick: () -> Unit,
     onUpvoteClick: () -> Unit,
+    onDownvoteClick: () -> Unit,
     onCopyCodeClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isLoggedIn: Boolean = false
+    modifier: Modifier = Modifier
 ) {
     var isPressed by remember { mutableStateOf(false) }
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.98f else 1f,
+        targetValue = if (isPressed) 0.96f else 1f,
         animationSpec = tween(durationMillis = QodeAnimation.FAST),
         label = "card_scale",
     )
 
-    QodeCard(
+    // Dynamic gradient style based on promo type using design system
+    val gradientStyle = when (promoCode) {
+        is PromoCode.PercentagePromoCode -> QodeGradientStyle.Primary
+        is PromoCode.FixedAmountPromoCode -> QodeGradientStyle.Secondary
+        is PromoCode.PromoPromoCode -> QodeGradientStyle.Tertiary
+    }
+
+    val gradientColors = when (gradientStyle) {
+        QodeGradientStyle.Primary -> listOf(
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+        )
+        QodeGradientStyle.Secondary -> listOf(
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
+        )
+        QodeGradientStyle.Tertiary -> listOf(
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.9f),
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+        )
+        QodeGradientStyle.Hero -> listOf(
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+        )
+    }
+
+    Card(
         modifier = modifier
+            .scale(scale)
             .clickable {
                 isPressed = true
                 onCardClick()
             },
-        variant = QodeCardVariant.Elevated,
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 1.dp,
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
     ) {
-        Column {
-            // Header with service info and category
-            ServiceHeader(
-                serviceName = promoCode.serviceName,
-                category = promoCode.category,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Promo code section
-            PromoCodeSection(
-                code = promoCode.code,
-                title = promoCode.title ?: "Discount Available",
-                onCopyClick = onCopyCodeClick,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Description
-            promoCode.description?.let { description ->
-                if (description.isNotBlank()) {
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
-                }
-            }
-
-            // Discount info
-            DiscountInfo(promoCode = promoCode)
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Badges row
-            BadgesRow(promoCode = promoCode)
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = SpacingTokens.sm),
-                color = MaterialTheme.colorScheme.outlineVariant,
-            )
-
-            // Footer with upvote and stats
-            FooterSection(
-                upvotes = promoCode.upvotes.toInt(),
-                onUpvoteClick = onUpvoteClick,
-                isLoggedIn = isLoggedIn,
-                createdAt = promoCode.createdAt,
-                views = promoCode.views.toInt(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun ServiceHeader(
-    serviceName: String,
-    category: String?
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f),
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingTokens.md),
         ) {
-            // Service logo placeholder
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(QodeCorners.sm),
-                color = MaterialTheme.colorScheme.primaryContainer,
+            // Top section: Service name and discount badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = QodeCommerceIcons.Store,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(SpacingTokens.sm))
-
-            Column {
                 Text(
-                    text = serviceName,
+                    text = promoCode.serviceName,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
                 )
-                category?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun PromoCodeSection(
-    code: String,
-    title: String,
-    onCopyClick: () -> Unit
-) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+                // Enhanced discount badge with minimum order info
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
+                    text = when (promoCode) {
+                        is PromoCode.PercentagePromoCode -> {
+                            val minOrder = promoCode.minimumOrderAmount?.toInt()
+                            if (minOrder != null && minOrder > 0) {
+                                stringResource(
+                                    R.string.percentage_off_order,
+                                    promoCode.discountPercentage.toInt(),
+                                    minOrder,
+                                )
+                            } else {
+                                stringResource(
+                                    R.string.percentage_discount,
+                                    promoCode.discountPercentage.toInt(),
+                                )
+                            }
+                        }
+                        is PromoCode.FixedAmountPromoCode -> {
+                            val minOrder = promoCode.minimumOrderAmount?.toInt()
+                            if (minOrder != null && minOrder > 0) {
+                                stringResource(
+                                    R.string.amount_off_order,
+                                    promoCode.discountAmount.toInt(),
+                                    minOrder,
+                                )
+                            } else {
+                                stringResource(
+                                    R.string.fixed_amount_discount,
+                                    promoCode.discountAmount.toInt(),
+                                )
+                            }
+                        }
+                        is PromoCode.PromoPromoCode -> stringResource(R.string.promo_type)
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            RoundedCornerShape(6.dp),
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
                 )
             }
 
-            QodeIconButton(
-                onClick = onCopyClick,
-                icon = QodeActionIcons.Copy,
-                contentDescription = "Copy promo code",
-                variant = QodeButtonVariant.Outlined,
-                size = QodeButtonSize.Small,
-            )
-        }
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
-        Spacer(modifier = Modifier.height(SpacingTokens.xs))
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(QodeCorners.sm),
-            color = MaterialTheme.colorScheme.tertiaryContainer,
-        ) {
-            Text(
-                text = code,
-                modifier = Modifier.padding(SpacingTokens.sm),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-            )
-        }
-    }
-}
-
-@Composable
-private fun DiscountInfo(promoCode: PromoCode) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-    ) {
-        Icon(
-            imageVector = QodeCommerceIcons.Discount,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp),
-        )
-
-        when (promoCode) {
-            is PromoCode.PercentagePromoCode -> {
-                Text(
-                    text = "${promoCode.discountPercentage.toInt()}% off",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                if (promoCode.maximumDiscount > 0) {
+            // Middle section: Promo code with dashed border (coupon style)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        RoundedCornerShape(8.dp),
+                    )
+                    .padding(SpacingTokens.sm),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column {
                     Text(
-                        text = "• Max ${formatCurrency(promoCode.maximumDiscount, "KZT")}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "CODE",
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 1.sp,
+                    )
+
+                    Text(
+                        text = promoCode.code,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        letterSpacing = 2.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-            }
-            is PromoCode.FixedAmountPromoCode -> {
-                Text(
-                    text = "${formatCurrency(promoCode.discountAmount, "KZT")} off",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
+
+                QodeIconButton(
+                    onClick = onCopyCodeClick,
+                    icon = QodeActionIcons.Copy,
+                    contentDescription = stringResource(R.string.copy_code),
+                    variant = QodeButtonVariant.Primary,
+                    size = QodeButtonSize.Small,
                 )
             }
-            is PromoCode.PromoPromoCode -> {
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Bottom section: Votes and date
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
-                    text = promoCode.description,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
+                    text = formatLastUpdated(promoCode.updatedAt),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                VotingSection(
+                    upvotes = promoCode.upvotes,
+                    downvotes = promoCode.downvotes,
+                    onUpvoteClick = onUpvoteClick,
+                    onDownvoteClick = onDownvoteClick,
                 )
             }
         }
     }
 }
 
+/**
+ * Voting section with upvote and downvote buttons
+ */
 @Composable
-private fun BadgesRow(promoCode: PromoCode) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Community validated badge (based on upvotes)
-        if (promoCode.upvotes >= 10) {
-            QodeBadge(
-                text = "VERIFIED",
-                containerColor = Color(0xFF4CAF50),
-                contentColor = Color.White,
-            )
-        }
-
-        // Expiry badge
-        promoCode.endDate?.let { expiryDate ->
-            val now = Clock.System.now()
-            val timeUntilExpiry = expiryDate.toKotlinInstant() - now
-
-            when {
-                timeUntilExpiry.isNegative() -> {
-                    QodeBadge(
-                        text = "EXPIRED",
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                }
-                timeUntilExpiry < 3.hours -> {
-                    QodeBadge(
-                        text = "EXPIRES SOON",
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    )
-                }
-            }
-        }
-
-        // Popular badge
-        if (promoCode.views >= 100) {
-            QodeBadge(
-                text = "POPULAR",
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-        }
-    }
-}
-
-@Composable
-private fun FooterSection(
+private fun VotingSection(
     upvotes: Int,
+    downvotes: Int,
     onUpvoteClick: () -> Unit,
-    isLoggedIn: Boolean,
-    createdAt: java.time.Instant,
-    views: Int
+    onDownvoteClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Upvote button
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onUpvoteClick() }
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
         ) {
-            // Upvote button
+            Icon(
+                imageVector = QodeActionIcons.Thumbs,
+                contentDescription = stringResource(R.string.upvotes),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(14.dp),
+            )
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Text(
+                text = upvotes.toString(),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+
+        // Downvote button - always show if there are downvotes
+        if (downvotes > 0) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = if (isLoggedIn) {
-                    Modifier.clickable { onUpvoteClick() }
-                        .clip(RoundedCornerShape(QodeCorners.sm))
-                        .background(Color.Transparent)
-                        .padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs)
-                } else {
-                    Modifier
-                },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { onDownvoteClick() }
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Icon(
-                    imageVector = QodeActionIcons.Thumbs,
-                    contentDescription = "Upvote",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
+                    imageVector = QodeActionIcons.ThumbsDown,
+                    contentDescription = stringResource(R.string.downvotes),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(14.dp),
                 )
 
-                if (upvotes > 0) {
-                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
-                    Text(
-                        text = upvotes.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+                Spacer(modifier = Modifier.width(4.dp))
 
-            // Views count
-            if (views > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = QodeActionIcons.Preview,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Spacer(modifier = Modifier.width(SpacingTokens.xs))
-                    Text(
-                        text = "$views views",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    text = downvotes.toString(),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
-
-        // Time ago
-        Text(
-            text = formatTimeAgo(createdAt),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
-// Helper functions
-private fun formatCurrency(
-    amount: Double,
-    currency: String
-): String =
-    when (currency.uppercase()) {
-        "KZT" -> "${amount.toInt().toString().replace(Regex("(\\d)(?=(\\d{3})+(?!\\d))"), "$1 ")} ₸"
-        "USD" -> "$${amount.toInt()}"
-        "EUR" -> "€${amount.toInt()}"
-        else -> "${amount.toInt()} $currency"
-    }
-
-private fun formatTimeAgo(instant: java.time.Instant): String {
-    val now = Clock.System.now()
-    val kotlinInstant = instant.toKotlinInstant()
-    val duration = now.minus(kotlinInstant)
-
-    return when {
-        duration < 1.minutes -> "just now"
-        duration < 1.hours -> "${duration.inWholeMinutes}m ago"
-        duration < 24.hours -> "${duration.inWholeHours}h ago"
-        duration.inWholeDays < 7 -> "${duration.inWholeDays}d ago"
-        duration.inWholeDays < 30 -> "${duration.inWholeDays / 7}w ago"
-        else -> "${duration.inWholeDays / 30}mo ago"
-    }
+@Composable
+private fun formatLastUpdated(instant: Instant): String {
+    val formatter = DateTimeFormatter.ofPattern("MMM d")
+    val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+    return formatter.format(date)
 }
 
 // Preview
-@Preview(name = "EnhancedPromoCodeCard", showBackground = true)
+@Preview(name = "Beautiful PromoCode Cards", showBackground = true)
 @Composable
 private fun EnhancedPromoCodeCardPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(SpacingTokens.md),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             val now = Clock.System.now()
 
@@ -462,19 +350,19 @@ private fun EnhancedPromoCodeCardPreview() {
                     maximumDiscount = 15.0,
                     category = "Streaming",
                     title = "30% off Netflix Premium",
-                    description = "Get 30% discount on your first 3 months of Netflix Premium subscription",
+                    description = "Get 30% discount on your first 3 months",
                     createdBy = UserId("user1"),
                 ).getOrThrow().copy(
-                    createdAt = now.minus(2.hours).toJavaInstant(),
-                    endDate = now.plus(30.days).toJavaInstant(),
+                    createdAt = now.minus(2.days).toJavaInstant(),
+                    updatedAt = now.minus(1.days).toJavaInstant(),
                     upvotes = 45,
                     downvotes = 3,
                     views = 234,
                 ),
                 onCardClick = {},
                 onUpvoteClick = {},
+                onDownvoteClick = {},
                 onCopyCodeClick = {},
-                isLoggedIn = true,
             )
 
             // Fixed Amount PromoCode
@@ -484,20 +372,20 @@ private fun EnhancedPromoCodeCardPreview() {
                     serviceName = "Kaspi",
                     discountAmount = 500.0,
                     category = "Shopping",
-                    title = "500 KZT off Kaspi Shopping",
+                    title = "500 KZT off",
                     description = "Get 500 KZT discount on orders above 5000 KZT",
                     createdBy = UserId("user2"),
                 ).getOrThrow().copy(
                     createdAt = now.minus(1.days).toJavaInstant(),
-                    endDate = now.plus(14.days).toJavaInstant(),
+                    updatedAt = now.toJavaInstant(),
                     upvotes = 156,
                     downvotes = 12,
                     views = 892,
                 ),
                 onCardClick = {},
                 onUpvoteClick = {},
+                onDownvoteClick = {},
                 onCopyCodeClick = {},
-                isLoggedIn = true,
             )
 
             // Promo PromoCode
@@ -505,21 +393,21 @@ private fun EnhancedPromoCodeCardPreview() {
                 promoCode = PromoCode.createPromo(
                     code = "GLOVOFREE",
                     serviceName = "Glovo",
-                    description = "Get Glovo Prime membership free for 30 days with unlimited free delivery",
+                    description = "Free Glovo Prime for 1 month",
                     category = "Food Delivery",
-                    title = "Free Glovo Prime for 1 Month",
+                    title = "Free Glovo Prime",
                     createdBy = UserId("user3"),
                 ).getOrThrow().copy(
                     createdAt = now.minus(3.days).toJavaInstant(),
-                    endDate = now.plus(10.days).toJavaInstant(),
+                    updatedAt = now.minus(2.days).toJavaInstant(),
                     upvotes = 124,
                     downvotes = 9,
                     views = 678,
                 ),
                 onCardClick = {},
                 onUpvoteClick = {},
+                onDownvoteClick = {},
                 onCopyCodeClick = {},
-                isLoggedIn = true,
             )
         }
     }

@@ -35,6 +35,44 @@
     <string name="field_invalid">Invalid input</string>
     <string name="field_success">Valid input</string>
 
+    <!-- Promo Code Card Strings -->
+    <string name="promo_code_label">PROMO CODE</string>
+    <string name="copy_code">Copy code</string>
+    <string name="upvotes">Upvotes</string>
+    <string name="downvotes">Downvotes</string>
+    <string name="updated_format">Updated %s</string>
+    <string name="percentage_discount">%d%%</string>
+    <string name="fixed_amount_discount">%d₸</string>
+    <string name="promo_type">PROMO</string>
+    <string name="percentage_off_order">%d%% off from %d₸</string>
+    <string name="amount_off_order">%d₸ off from %d₸</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_welcome_title">Discover Amazing Deals</string>
+    <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
+    <string name="home_section_title">Trending Offers</string>
+    <string name="home_section_subtitle">Most popular promo codes today</string>
+    <string name="home_trending_badge">TRENDING NOW</string>
+    <string name="home_browse_categories">Browse Categories</string>
+    <string name="home_featured_deals">Featured Deals</string>
+    <string name="home_featured_subtitle">Hand-picked exclusive offers just for you</string>
+    
+    <!-- Stats Section -->
+    <string name="stats_active_deals">500+</string>
+    <string name="stats_active_deals_label">Active Deals</string>
+    <string name="stats_happy_users">50K+</string>
+    <string name="stats_happy_users_label">Happy Users</string>
+    <string name="stats_total_saved">₸2M+</string>
+    <string name="stats_total_saved_label">Total Saved</string>
+    
+    <!-- Filter Categories -->
+    <string name="filter_kaspi">Kaspi</string>
+    <string name="filter_top_rated">Top Rated</string>
+    <string name="filter_latest">Latest</string>
+    <string name="filter_food">Food</string>
+    <string name="filter_fashion">Fashion</string>
+    <string name="filter_tech">Tech</string>
+    
     <!-- Legacy strings that might be used elsewhere -->
     <string name="phone_number">Phone Number</string>
     <string name="enter_phone_number">Enter your phone number</string>
