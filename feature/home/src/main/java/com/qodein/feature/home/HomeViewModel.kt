@@ -2,20 +2,27 @@ package com.qodein.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.domain.repository.PromoCodeSortBy
+import com.qodein.core.domain.usecase.promocode.GetPromoCodesUseCase
+import com.qodein.core.domain.usecase.promocode.VoteOnPromoCodeUseCase
+import com.qodein.core.model.PromoCode
+import com.qodein.core.model.PromoCodeId
+import com.qodein.core.model.UserId
 import com.qodein.core.ui.component.HeroBannerItem
-import com.qodein.core.ui.model.PromoCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    // TODO: Inject repositories when available
-    // private val promoCodeRepository: PromoCodeRepository,
+    private val getPromoCodesUseCase: GetPromoCodesUseCase,
+    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase
+    // TODO: Inject other repositories when available
     // private val bannerRepository: BannerRepository,
     // private val userRepository: UserRepository,
     // private val analyticsRepository: AnalyticsRepository
@@ -46,21 +53,40 @@ class HomeViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isLoading = true, error = null) }
 
-                // TODO: Replace with actual repository calls
-                // val banners = bannerRepository.getFeaturedBanners()
-                // val promoCodes = promoCodeRepository.getTrendingPromoCodes()
-                // val userPreferences = userRepository.getUserPreferences()
-
-                // Mock data for now
+                // Load banners (mock for now)
                 val banners = getMockBannerItems()
-                val promoCodes = getMockPromoCodes()
 
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        bannerItems = banners,
-                        promoCodes = promoCodes,
-                        hasMorePromoCodes = true,
+                // Load trending promocodes from Firestore
+                getPromoCodesUseCase(
+                    sortBy = PromoCodeSortBy.POPULARITY,
+                    limit = 20,
+                ).catch { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Failed to load promocodes: ${e.message}",
+                        )
+                    }
+                }.collect { result ->
+                    result.fold(
+                        onSuccess = { promoCodes ->
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    bannerItems = banners,
+                                    promoCodes = promoCodes,
+                                    hasMorePromoCodes = promoCodes.size >= 20,
+                                )
+                            }
+                        },
+                        onFailure = { error ->
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = "Failed to load promocodes: ${error.message}",
+                                )
+                            }
+                        },
                     )
                 }
             } catch (exception: Exception) {
@@ -102,27 +128,63 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // TODO: Call repository to upvote
-                // promoCodeRepository.upvotePromoCode(promoCodeId)
+                // Update UI optimistically first
+                val wasUpvoted = _uiState.value.promoCodes
+                    .find { it.id.value == promoCodeId }?.let { false } ?: false // TODO: track user votes
 
-                // Update UI optimistically
                 _uiState.update { currentState ->
                     currentState.copy(
                         promoCodes = currentState.promoCodes.map { promoCode ->
-                            if (promoCode.id == promoCodeId) {
-                                promoCode.copy(
-                                    isUpvoted = !promoCode.isUpvoted,
-                                    upvotes = if (promoCode.isUpvoted) {
-                                        promoCode.upvotes - 1
-                                    } else {
-                                        promoCode.upvotes + 1
-                                    },
-                                )
+                            if (promoCode.id.value == promoCodeId) {
+                                when (promoCode) {
+                                    is PromoCode.PercentagePromoCode -> promoCode.copy(
+                                        upvotes = if (wasUpvoted) promoCode.upvotes - 1 else promoCode.upvotes + 1,
+                                    )
+                                    is PromoCode.FixedAmountPromoCode -> promoCode.copy(
+                                        upvotes = if (wasUpvoted) promoCode.upvotes - 1 else promoCode.upvotes + 1,
+                                    )
+                                    is PromoCode.PromoPromoCode -> promoCode.copy(
+                                        upvotes = if (wasUpvoted) promoCode.upvotes - 1 else promoCode.upvotes + 1,
+                                    )
+                                }
                             } else {
                                 promoCode
                             }
                         },
                     )
+                }
+
+                // Call the actual voting use case
+                voteOnPromoCodeUseCase(
+                    promoCodeId = PromoCodeId(promoCodeId),
+                    userId = UserId("current_user"), // TODO: Get actual user ID
+                    isUpvote = !wasUpvoted,
+                ).catch { e ->
+                    // Revert optimistic update on error
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            promoCodes = currentState.promoCodes.map { promoCode ->
+                                if (promoCode.id.value == promoCodeId) {
+                                    when (promoCode) {
+                                        is PromoCode.PercentagePromoCode -> promoCode.copy(
+                                            upvotes = if (wasUpvoted) promoCode.upvotes + 1 else promoCode.upvotes - 1,
+                                        )
+                                        is PromoCode.FixedAmountPromoCode -> promoCode.copy(
+                                            upvotes = if (wasUpvoted) promoCode.upvotes + 1 else promoCode.upvotes - 1,
+                                        )
+                                        is PromoCode.PromoPromoCode -> promoCode.copy(
+                                            upvotes = if (wasUpvoted) promoCode.upvotes + 1 else promoCode.upvotes - 1,
+                                        )
+                                    }
+                                } else {
+                                    promoCode
+                                }
+                            },
+                            error = "Failed to vote: ${e.message}",
+                        )
+                    }
+                }.collect { vote ->
+                    // Success - the optimistic update is already in place
                 }
             } catch (exception: Exception) {
                 _uiState.update {
@@ -144,24 +206,11 @@ class HomeViewModel @Inject constructor(
                 // storeRepository.toggleFollowStore(storeId)
 
                 // Update UI optimistically
+                // Note: Domain model doesn't have store following concept,
+                // this would need to be handled separately in a store repository
                 _uiState.update { currentState ->
                     currentState.copy(
-                        promoCodes = currentState.promoCodes.map { promoCode ->
-                            if (promoCode.store.id == storeId) {
-                                promoCode.copy(
-                                    store = promoCode.store.copy(
-                                        isFollowed = !promoCode.store.isFollowed,
-                                        followersCount = if (promoCode.store.isFollowed) {
-                                            promoCode.store.followersCount - 1
-                                        } else {
-                                            promoCode.store.followersCount + 1
-                                        },
-                                    ),
-                                )
-                            } else {
-                                promoCode
-                            }
-                        },
+                        successMessage = "Store follow/unfollow functionality pending - needs store repository implementation",
                     )
                 }
             } catch (exception: Exception) {

@@ -56,4 +56,7 @@ dependencies {
 
     // Android Context access
     implementation(libs.androidx.core.ktx)
+
+    // DateTime
+    implementation(libs.kotlinx.datetime)
 }

@@ -37,6 +37,9 @@ dependencies {
     // Core Android
     implementation(libs.androidx.core.ktx)
 
+    // DateTime
+    implementation(libs.kotlinx.datetime)
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)

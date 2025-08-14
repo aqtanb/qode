@@ -37,8 +37,8 @@ import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.EnhancedPromoCodeCard
 import com.qodein.core.ui.component.HeroBanner
-import com.qodein.core.ui.component.PromoCodeCard
 import com.qodein.core.ui.component.StatsBanner
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,18 +171,15 @@ private fun HomeContent(
         // Promo Codes List
         items(
             items = uiState.promoCodes,
-            key = { it.id },
+            key = { it.id.value },
         ) { promoCode ->
-            PromoCodeCard(
+            EnhancedPromoCodeCard(
                 promoCode = promoCode,
                 onCardClick = {
                     onAction(HomeAction.PromoCodeClicked(promoCode))
                 },
                 onUpvoteClick = {
-                    onAction(HomeAction.UpvotePromoCode(promoCode.id))
-                },
-                onFollowStoreClick = {
-                    onAction(HomeAction.FollowStore(promoCode.store.id))
+                    onAction(HomeAction.UpvotePromoCode(promoCode.id.value))
                 },
                 onCopyCodeClick = {
                     onAction(HomeAction.CopyPromoCode(promoCode))

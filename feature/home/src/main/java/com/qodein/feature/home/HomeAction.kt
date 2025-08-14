@@ -1,7 +1,7 @@
 package com.qodein.feature.home
 
+import com.qodein.core.model.PromoCode
 import com.qodein.core.ui.component.HeroBannerItem
-import com.qodein.core.ui.model.PromoCode
 
 sealed interface HomeAction {
 
