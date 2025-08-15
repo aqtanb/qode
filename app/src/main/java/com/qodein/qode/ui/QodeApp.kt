@@ -26,6 +26,7 @@ import com.qodein.core.designsystem.component.QodeScreenTopAppBar
 import com.qodein.core.designsystem.component.QodeTransparentTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
@@ -39,7 +40,9 @@ fun QodeApp(
 ) {
     QodeApp(
         appState = appState,
-        onTopBarActionClick = { /* Handle top bar action */ },
+        onTopBarActionClick = {
+            appState.navController.navigateToSubmission()
+        },
         modifier = modifier,
     )
 }

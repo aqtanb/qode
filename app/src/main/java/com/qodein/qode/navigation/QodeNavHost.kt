@@ -8,6 +8,7 @@ import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.profile.navigation.profileSection
+import com.qodein.feature.promocode.navigation.submissionSection
 import com.qodein.feature.search.navigation.searchSection
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
@@ -53,6 +54,12 @@ fun QodeNavHost(
             onBackClick = {
                 // Navigate back to the last top-level destination instead of empty profile
                 appState.navigateToTopLevelDestination(selectedTabDestination)
+            },
+        )
+
+        submissionSection(
+            onNavigateBack = {
+                navController.popBackStack()
             },
         )
     }

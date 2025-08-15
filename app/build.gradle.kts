@@ -81,6 +81,7 @@ dependencies {
     implementation(projects.feature.inbox)
     implementation(projects.feature.search)
     implementation(projects.feature.profile)
+    implementation(projects.feature.promocode)
 
     // Core Android & Compose
     implementation(libs.bundles.androidx.core)
