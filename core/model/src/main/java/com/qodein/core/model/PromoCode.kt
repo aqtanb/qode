@@ -43,7 +43,7 @@ sealed class PromoCode {
 
     @Serializable
     data class PercentagePromoCode(
-        override val id: PromoCodeId = PromoCodeId(generateId()),
+        override val id: PromoCodeId,
         override val code: String,
         override val serviceName: String,
         override val category: String? = null,
@@ -93,7 +93,7 @@ sealed class PromoCode {
 
     @Serializable
     data class FixedAmountPromoCode(
-        override val id: PromoCodeId = PromoCodeId(generateId()),
+        override val id: PromoCodeId,
         override val code: String,
         override val serviceName: String,
         override val category: String? = null,
@@ -140,7 +140,7 @@ sealed class PromoCode {
 
     @Serializable
     data class PromoPromoCode(
-        override val id: PromoCodeId = PromoCodeId(generateId()),
+        override val id: PromoCodeId,
         override val code: String,
         override val serviceName: String,
         override val category: String? = null,
@@ -180,6 +180,19 @@ sealed class PromoCode {
     companion object {
         private fun generateId(): String = randomUUID().toString()
 
+        /**
+         * Generate composite ID from code and service name.
+         * Format: "CODE_SERVICENAME" (both uppercase, spaces replaced with underscores)
+         */
+        fun generateCompositeId(
+            code: String,
+            serviceName: String
+        ): String {
+            val cleanCode = code.uppercase().trim().replace(" ", "_")
+            val cleanService = serviceName.uppercase().trim().replace(" ", "_")
+            return "${cleanCode}_$cleanService"
+        }
+
         fun createPercentage(
             code: String,
             serviceName: String,
@@ -198,9 +211,12 @@ sealed class PromoCode {
             createdBy: UserId? = null
         ): Result<PercentagePromoCode> =
             runCatching {
+                val cleanCode = code.uppercase().trim()
+                val cleanServiceName = serviceName.trim()
                 PercentagePromoCode(
-                    code = code.uppercase().trim(),
-                    serviceName = serviceName.trim(),
+                    id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
+                    code = cleanCode,
+                    serviceName = cleanServiceName,
                     category = category?.trim(),
                     title = title?.trim(),
                     description = description?.trim(),
@@ -234,9 +250,12 @@ sealed class PromoCode {
             createdBy: UserId? = null
         ): Result<FixedAmountPromoCode> =
             runCatching {
+                val cleanCode = code.uppercase().trim()
+                val cleanServiceName = serviceName.trim()
                 FixedAmountPromoCode(
-                    code = code.uppercase().trim(),
-                    serviceName = serviceName.trim(),
+                    id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
+                    code = cleanCode,
+                    serviceName = cleanServiceName,
                     category = category?.trim(),
                     title = title?.trim(),
                     description = description?.trim(),
@@ -267,9 +286,12 @@ sealed class PromoCode {
             createdBy: UserId? = null
         ): Result<PromoPromoCode> =
             runCatching {
+                val cleanCode = code.uppercase().trim()
+                val cleanServiceName = serviceName.trim()
                 PromoPromoCode(
-                    code = code.uppercase().trim(),
-                    serviceName = serviceName.trim(),
+                    id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
+                    code = cleanCode,
+                    serviceName = cleanServiceName,
                     category = category?.trim(),
                     title = title?.trim(),
                     description = description.trim(),

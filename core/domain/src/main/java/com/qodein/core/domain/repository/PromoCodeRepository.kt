@@ -207,6 +207,30 @@ interface PromoCodeRepository {
     ): Flow<List<PromoCode>>
 
     /**
+     * Get promo codes for a specific service.
+     *
+     * @param serviceName The service name
+     * @return Flow that emits List<[PromoCode]>
+     * @throws java.io.IOException when network request fails
+     * @throws IllegalStateException when Firestore is unavailable
+     */
+    fun getPromoCodesByService(serviceName: String): Flow<List<PromoCode>>
+
+    /**
+     * Get promo code by code and service combination.
+     *
+     * @param code The promo code string
+     * @param serviceName The service name
+     * @return Flow that emits [PromoCode] or null if not found
+     * @throws java.io.IOException when network request fails
+     * @throws IllegalStateException when Firestore is unavailable
+     */
+    fun getPromoCodeByCodeAndService(
+        code: String,
+        serviceName: String
+    ): Flow<PromoCode?>
+
+    /**
      * Get real-time updates for promo codes.
      * Useful for live community features.
      *

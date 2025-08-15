@@ -29,6 +29,10 @@ subprojects {
                 "ktlint_function_naming_ignore_when_annotated_with" to "Composable, Test",
                 "ktlint_standard_value-argument-comment" to "disabled",
                 "ktlint_standard_value-parameter-comment" to "disabled",
+                "ktlint_standard_no-unused-imports" to "enabled",
+                "ktlint_standard_import-ordering" to "enabled",
+                "ktlint_standard_no-wildcard-imports" to "enabled",
+                "ij_kotlin_imports_layout" to "*,java.**,javax.**,kotlin.**,^",
             ))
         }
         kotlinGradle {
@@ -42,9 +46,57 @@ subprojects {
         }
     }
 
+    // Custom task to check for fully qualified class names in code
+    tasks.register("checkFullyQualifiedNames") {
+        group = "verification"
+        description = "Check for fully qualified class names in Kotlin source files"
+        
+        doLast {
+            val sourceFiles = fileTree("src") {
+                include("**/*.kt")
+                exclude("build/**")
+            }
+            
+            val fullyQualifiedPattern = Regex("""(?<!import\s)(?<!@file:)(?<!\*\s)(?<!//.*)\b([a-z]+\.){2,}[A-Z][a-zA-Z0-9]*""")
+            var violationsFound = false
+            
+            sourceFiles.forEach { file ->
+                val lines = file.readLines()
+                lines.forEachIndexed { index, line ->
+                    // Skip import statements and comments
+                    if (!line.trimStart().startsWith("import ") && 
+                        !line.trimStart().startsWith("//") &&
+                        !line.trimStart().startsWith("*") &&
+                        !line.contains("@file:")) {
+                        
+                        fullyQualifiedPattern.findAll(line).forEach { match ->
+                            println("ERROR: Fully qualified class name found in ${file.relativeTo(rootDir)}:${index + 1}")
+                            println("   Line: ${line.trim()}")
+                            println("   Found: ${match.value}")
+                            println("   Fix: Add proper import statement and use simple class name")
+                            println()
+                            violationsFound = true
+                        }
+                    }
+                }
+            }
+            
+            if (violationsFound) {
+                throw GradleException("Fully qualified class names found in code. Please use proper import statements instead.")
+            } else {
+                println("SUCCESS: No fully qualified class names found in code bodies")
+            }
+        }
+    }
+
     afterEvaluate {
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
             finalizedBy("spotlessApply")
+        }
+        
+        // Run the FQN check as part of the check task
+        tasks.named("check") {
+            dependsOn("checkFullyQualifiedNames")
         }
     }
 }

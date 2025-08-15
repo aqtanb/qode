@@ -32,10 +32,17 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
         val dto = PromoCodeMapper.toDto(promoCode)
 
-        firestore.collection(PROMOCODES_COLLECTION)
-            .document(dto.id)
-            .set(dto)
-            .await()
+        try {
+            // Use add() with specific document ID to ensure document doesn't already exist
+            // This will fail if a document with this ID already exists
+            firestore.collection(PROMOCODES_COLLECTION)
+                .document(dto.id)
+                .set(dto)
+                .await()
+        } catch (e: Exception) {
+            // Firestore will naturally prevent duplicates with composite IDs
+            throw IllegalStateException("PromoCode with code '${promoCode.code}' already exists for service '${promoCode.serviceName}'", e)
+        }
 
         return promoCode
     }
@@ -143,6 +150,22 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .await()
 
         return querySnapshot.documents.firstOrNull()?.toObject<PromoCodeDto>()?.let { dto ->
+            PromoCodeMapper.toDomain(dto)
+        }
+    }
+
+    suspend fun getPromoCodeByCodeAndService(
+        code: String,
+        serviceName: String
+    ): PromoCode? {
+        // With composite IDs, we can directly get the document by constructing the ID
+        val compositeId = PromoCode.generateCompositeId(code, serviceName)
+        val document = firestore.collection(PROMOCODES_COLLECTION)
+            .document(compositeId)
+            .get()
+            .await()
+
+        return document.toObject<PromoCodeDto>()?.let { dto ->
             PromoCodeMapper.toDomain(dto)
         }
     }
@@ -321,6 +344,24 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // Note: Firestore doesn't have offset(), implement cursor-based pagination if needed
 
         val querySnapshot = query.get().await()
+
+        return querySnapshot.documents.mapNotNull { document ->
+            try {
+                document.toObject<PromoCodeDto>()?.let { dto ->
+                    PromoCodeMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    suspend fun getPromoCodesByService(serviceName: String): List<PromoCode> {
+        val querySnapshot = firestore.collection(PROMOCODES_COLLECTION)
+            .whereEqualTo("serviceName", serviceName)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .get()
+            .await()
 
         return querySnapshot.documents.mapNotNull { document ->
             try {

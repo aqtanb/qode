@@ -127,5 +127,18 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
             emit(dataSource.getPromoCodesByUser(userId, limit, offset))
         }
 
+    override fun getPromoCodesByService(serviceName: String): Flow<List<PromoCode>> =
+        flow {
+            emit(dataSource.getPromoCodesByService(serviceName))
+        }
+
+    override fun getPromoCodeByCodeAndService(
+        code: String,
+        serviceName: String
+    ): Flow<PromoCode?> =
+        flow {
+            emit(dataSource.getPromoCodeByCodeAndService(code, serviceName))
+        }
+
     override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> = dataSource.observePromoCodes(ids)
 }

@@ -55,7 +55,7 @@ import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.PromoCode
-import com.qodein.core.ui.component.EnhancedPromoCodeCard
+import com.qodein.core.ui.component.CouponPromoCodeCard
 import com.qodein.core.ui.component.HeroBannerItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -187,7 +187,7 @@ private fun HomeContent(
             items = uiState.promoCodes,
             key = { it.id.value },
         ) { promoCode ->
-            EnhancedPromoCodeCard(
+            CouponPromoCodeCard(
                 promoCode = promoCode,
                 onCardClick = {
                     onAction(HomeAction.PromoCodeClicked(promoCode))

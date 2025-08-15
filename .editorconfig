@@ -1,0 +1,37 @@
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.kt]
+# Import management - enforce proper import usage
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+ij_kotlin_packages_to_use_import_on_demand = 
+
+# Code style rules
+max_line_length = 140
+ij_kotlin_allow_trailing_comma = false
+
+# Prevent fully qualified names - encourage proper imports
+# This rule helps identify when FQN should be imports instead
+ij_kotlin_use_fq_class_names = false
+ij_kotlin_use_fq_class_names_in_parameter_types = false
+
+# Additional ktlint standard rules
+ktlint_standard_no-unused-imports = enabled
+ktlint_standard_import-ordering = enabled
+ktlint_standard_no-wildcard-imports = enabled
+
+[*.kts]
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
