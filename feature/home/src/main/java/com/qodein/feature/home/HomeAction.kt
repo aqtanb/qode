@@ -1,13 +1,12 @@
 package com.qodein.feature.home
 
 import com.qodein.core.model.PromoCode
-import com.qodein.core.ui.component.HeroBannerItem
 
 sealed interface HomeAction {
 
     data object RefreshData : HomeAction
 
-    data class BannerItemClicked(val item: HeroBannerItem) : HomeAction
+    data object BannerItemClicked : HomeAction
 
     data class PromoCodeClicked(val promoCode: PromoCode) : HomeAction
 

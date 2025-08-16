@@ -9,7 +9,6 @@ import com.qodein.core.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.PromoCodeId
 import com.qodein.core.model.UserId
-import com.qodein.core.ui.component.HeroBannerItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +46,7 @@ class HomeViewModel @Inject constructor(
     fun onAction(action: HomeAction) {
         when (action) {
             is HomeAction.RefreshData -> loadHomeData(isRefresh = true)
-            is HomeAction.BannerItemClicked -> onBannerItemClicked(action.item)
+            is HomeAction.BannerItemClicked -> onBannerItemClicked()
             is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promoCode)
             is HomeAction.UpvotePromoCode -> onUpvotePromoCode(action.promoCodeId)
             is HomeAction.DownvotePromoCode -> onDownvotePromoCode(action.promoCodeId)
@@ -58,7 +57,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadPromoCodesWithFallback(banners: List<HeroBannerItem>) {
+    private suspend fun loadPromoCodesWithFallback() {
         // Try POPULARITY first (preferred for established apps with voted content)
         Log.d(TAG, "loadPromoCodesWithFallback: Trying POPULARITY sort first")
         try {
@@ -67,35 +66,32 @@ class HomeViewModel @Inject constructor(
                 limit = 20,
             ).catch { e ->
                 Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY query failed, trying NEWEST fallback", e)
-                loadPromoCodesWithSort(PromoCodeSortBy.NEWEST, banners)
+                loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
                 return@catch
             }.collect { result ->
                 result.fold(
                     onSuccess = { promoCodes ->
                         if (promoCodes.isNotEmpty()) {
                             Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                            updateSuccessState(banners, promoCodes)
+                            updateSuccessState(promoCodes)
                         } else {
                             Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY returned empty, trying NEWEST fallback")
-                            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST, banners)
+                            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
                         }
                     },
                     onFailure = { error ->
                         Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY failed, trying NEWEST fallback", error)
-                        loadPromoCodesWithSort(PromoCodeSortBy.NEWEST, banners)
+                        loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
                     },
                 )
             }
         } catch (e: Exception) {
             Log.w(TAG, "loadPromoCodesWithFallback: Exception during POPULARITY query, trying NEWEST fallback", e)
-            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST, banners)
+            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
         }
     }
 
-    private suspend fun loadPromoCodesWithSort(
-        sortBy: PromoCodeSortBy,
-        banners: List<HeroBannerItem>
-    ) {
+    private suspend fun loadPromoCodesWithSort(sortBy: PromoCodeSortBy) {
         Log.d(TAG, "loadPromoCodesWithSort: Starting query with $sortBy sort")
         getPromoCodesUseCase(
             sortBy = sortBy,
@@ -111,7 +107,7 @@ class HomeViewModel @Inject constructor(
             result.fold(
                 onSuccess = { promoCodes ->
                     Log.d(TAG, "loadPromoCodesWithSort: SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                    updateSuccessState(banners, promoCodes)
+                    updateSuccessState(promoCodes)
                 },
                 onFailure = { error ->
                     Log.e(TAG, "loadPromoCodesWithSort: FAILURE - Query returned error", error)
@@ -124,15 +120,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateSuccessState(
-        banners: List<HeroBannerItem>,
-        promoCodes: List<PromoCode>
-    ) {
+    private fun updateSuccessState(promoCodes: List<PromoCode>) {
         promoCodes.forEachIndexed { index, promoCode ->
             Log.d(TAG, "  [$index] PromoCode: ${promoCode.code} for ${promoCode.serviceName}")
         }
         _uiState.value = HomeUiState.Success(
-            bannerItems = banners,
             promoCodes = promoCodes,
             hasMorePromoCodes = promoCodes.size >= 20,
         )
@@ -142,14 +134,17 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 Log.d(TAG, "loadHomeData: Starting data load, isRefresh=$isRefresh")
-                _uiState.value = if (isRefresh) HomeUiState.Refreshing else HomeUiState.Loading
-
-                // Load banners (mock for now)
-                val banners = getMockBannerItems()
-                Log.d(TAG, "loadHomeData: Loaded ${banners.size} banner items")
+                val currentState = _uiState.value
+                _uiState.value = if (isRefresh) {
+                    HomeUiState.Refreshing(
+                        previousData = if (currentState is HomeUiState.Success) currentState else null,
+                    )
+                } else {
+                    HomeUiState.Loading
+                }
 
                 // Load promocodes with smart fallback strategy
-                loadPromoCodesWithFallback(banners)
+                loadPromoCodesWithFallback()
             } catch (exception: Exception) {
                 _uiState.value = HomeUiState.Error(
                     exception = Exception("Failed to load data. Please try again."),
@@ -165,11 +160,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun onBannerItemClicked(item: HeroBannerItem) {
+    private fun onBannerItemClicked() {
         // TODO: Track analytics
         // analyticsRepository.trackBannerClick(item.id)
 
-        emitEvent(HomeEvent.BannerDetailRequested(item))
+        emitEvent(HomeEvent.BannerDetailRequested)
     }
 
     private fun onPromoCodeClicked(promoCode: PromoCode) {
@@ -286,10 +281,6 @@ class HomeViewModel @Inject constructor(
     }
 
     // Mock data - TODO: Remove when repositories are implemented
-    private fun getMockBannerItems(): List<HeroBannerItem> {
-        // Return mock banner items
-        return emptyList() // Implementation would go here
-    }
 
     private fun getMockPromoCodes(): List<PromoCode> {
         // Return mock promo codes

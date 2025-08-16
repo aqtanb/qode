@@ -1,5 +1,6 @@
 package com.qodein.core.ui.component
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -49,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -60,14 +62,17 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.PromoCode
+import com.qodein.core.model.PromoCodeId
 import com.qodein.core.ui.R
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 // Coupon-specific design tokens
 private object CouponTokens {
@@ -496,4 +501,38 @@ private fun formatLastUpdated(instant: Instant): String {
     val formatter = DateTimeFormatter.ofPattern("MMM d")
     val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
     return formatter.format(date)
+}
+
+@Preview(name = "Light Theme")
+@Preview(
+    name = "Dark Theme",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+fun CouponPromoCodeCardPreview() {
+    QodeTheme {
+        Surface {
+            val samplePercentagePromo = PromoCode.PercentagePromoCode(
+                id = PromoCodeId("SAMPLE_PERCENTAGE"),
+                code = "SAVE25",
+                serviceName = "Food Delivery",
+                category = "Restaurant",
+                title = "25% Off Your Order",
+                discountPercentage = 25.0,
+                minimumOrderAmount = 5000.0,
+                startDate = Instant.now(),
+                endDate = Instant.now().plus(7, ChronoUnit.DAYS),
+                upvotes = 125,
+                downvotes = 12,
+                createdAt = Instant.now().minus(2, ChronoUnit.DAYS),
+            )
+
+            CouponPromoCodeCard(
+                promoCode = samplePercentagePromo,
+                onCardClick = {},
+                onCopyCodeClick = {},
+                modifier = Modifier.padding(16.dp),
+            )
+        }
+    }
 }

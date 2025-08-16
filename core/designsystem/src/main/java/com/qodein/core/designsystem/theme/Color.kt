@@ -216,3 +216,33 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF271D1A)
 val surfaceContainerDarkHighContrast = Color(0xFF392E2B)
 val surfaceContainerHighDarkHighContrast = Color(0xFF443935)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF504440)
+
+val complementaryLight = Color(0xFF6C538C)
+val onComplementaryLight = Color(0xFFFFFFFF)
+val complementaryContainerLight = Color(0xFFEDDCFF)
+val onComplementaryContainerLight = Color(0xFF533B72)
+
+val complementaryLightMediumContrast = Color(0xFF422B60)
+val onComplementaryLightMediumContrast = Color(0xFFFFFFFF)
+val complementaryContainerLightMediumContrast = Color(0xFF7B629C)
+val onComplementaryContainerLightMediumContrast = Color(0xFFFFFFFF)
+
+val complementaryLightHighContrast = Color(0xFF372056)
+val onComplementaryLightHighContrast = Color(0xFFFFFFFF)
+val complementaryContainerLightHighContrast = Color(0xFF563E75)
+val onComplementaryContainerLightHighContrast = Color(0xFFFFFFFF)
+
+val complementaryDark = Color(0xFFD7BAFB)
+val onComplementaryDark = Color(0xFF3C255A)
+val complementaryContainerDark = Color(0xFF533B72)
+val onComplementaryContainerDark = Color(0xFFEDDCFF)
+
+val complementaryDarkMediumContrast = Color(0xFFE9D4FF)
+val onComplementaryDarkMediumContrast = Color(0xFF30194F)
+val complementaryContainerDarkMediumContrast = Color(0xFFA085C2)
+val onComplementaryContainerDarkMediumContrast = Color(0xFF000000)
+
+val complementaryDarkHighContrast = Color(0xFFF8ECFF)
+val onComplementaryDarkHighContrast = Color(0xFF000000)
+val complementaryContainerDarkHighContrast = Color(0xFFD3B6F7)
+val onComplementaryContainerDarkHighContrast = Color(0xFF14002E)

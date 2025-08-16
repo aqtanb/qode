@@ -1,6 +1,6 @@
 package com.qodein.feature.home
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,6 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,26 +49,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.designsystem.component.QodeBannerGradient
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
+import com.qodein.core.designsystem.component.QodeDivider
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeBusinessIcons
+import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
-import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.PromoCode
+import com.qodein.core.ui.component.AutoScrollingBanner
+import com.qodein.core.ui.component.BannerConfig
 import com.qodein.core.ui.component.CouponPromoCodeCard
-import com.qodein.core.ui.component.HeroBannerItem
+import com.qodein.core.ui.component.getDefaultBannerConfigs
+import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
-    onNavigateToBannerDetail: (HeroBannerItem) -> Unit = {},
+    onNavigateToBannerDetail: () -> Unit = {},
     onShowPromoCodeCopied: (PromoCode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -77,7 +90,7 @@ fun HomeScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is HomeEvent.PromoCodeDetailRequested -> onNavigateToPromoCodeDetail(event.promoCode)
-                is HomeEvent.BannerDetailRequested -> onNavigateToBannerDetail(event.item)
+                is HomeEvent.BannerDetailRequested -> onNavigateToBannerDetail()
                 is HomeEvent.PromoCodeCopied -> onShowPromoCodeCopied(event.promoCode)
             }
         }
@@ -116,26 +129,32 @@ fun HomeScreen(
                 }
 
                 is HomeUiState.Refreshing -> {
-                    LoadingState()
+                    // Show content during refresh, not loading screen
+                    when {
+                        currentState.previousData != null -> {
+                            HomeContent(
+                                uiState = currentState.previousData,
+                                listState = listState,
+                                onAction = viewModel::onAction,
+                            )
+                        }
+                        else -> LoadingState()
+                    }
                 }
 
                 is HomeUiState.Error -> {
                     ErrorState(
-                        message = currentState.exception.message ?: "Something went wrong",
+                        message = currentState.exception.message ?: stringResource(R.string.error_something_went_wrong),
                         onRetry = { viewModel.onAction(HomeAction.RetryClicked) },
                     )
                 }
 
                 is HomeUiState.Success -> {
-                    if (currentState.isEmpty) {
-                        EmptyState()
-                    } else {
-                        HomeContent(
-                            uiState = currentState,
-                            listState = listState,
-                            onAction = viewModel::onAction,
-                        )
-                    }
+                    HomeContent(
+                        uiState = currentState,
+                        listState = listState,
+                        onAction = viewModel::onAction,
+                    )
                 }
             }
         }
@@ -156,11 +175,12 @@ private fun HomeContent(
     LazyColumn(
         state = listState,
         contentPadding = PaddingValues(bottom = SpacingTokens.xl),
-        verticalArrangement = Arrangement.spacedBy(0.dp),
+        modifier = Modifier.navigationBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
-        // 🔥 REVOLUTIONARY BANNER CAROUSEL
+        // 🔥 REVOLUTIONARY BANNER CAROUSEL (50% Screen Height)
         item(key = "hero_carousel") {
-            HeroBannerCarousel()
+            AutoScrollingHeroBannerSystem()
         }
 
         // ⚡ MIND-BLOWING QUICK FILTERS
@@ -182,24 +202,30 @@ private fun HomeContent(
             )
         }
 
-        // Promo Codes Grid
-        items(
-            items = uiState.promoCodes,
-            key = { it.id.value },
-        ) { promoCode ->
-            CouponPromoCodeCard(
-                promoCode = promoCode,
-                onCardClick = {
-                    onAction(HomeAction.PromoCodeClicked(promoCode))
-                },
-                onCopyCodeClick = {
-                    onAction(HomeAction.CopyPromoCode(promoCode))
-                },
-                modifier = Modifier.padding(
-                    horizontal = SpacingTokens.lg,
-                    vertical = SpacingTokens.xs,
-                ),
-            )
+        // Promo Codes Grid or Empty State
+        if (uiState.promoCodes.isEmpty()) {
+            item(key = "empty_promo_codes") {
+                PromoCodesEmptyState()
+            }
+        } else {
+            items(
+                items = uiState.promoCodes,
+                key = { it.id.value },
+            ) { promoCode ->
+                CouponPromoCodeCard(
+                    promoCode = promoCode,
+                    onCardClick = {
+                        onAction(HomeAction.PromoCodeClicked(promoCode))
+                    },
+                    onCopyCodeClick = {
+                        onAction(HomeAction.CopyPromoCode(promoCode))
+                    },
+                    modifier = Modifier.padding(
+                        horizontal = SpacingTokens.lg,
+                        vertical = SpacingTokens.xs,
+                    ),
+                )
+            }
         }
 
         // Loading More Indicator
@@ -213,7 +239,7 @@ private fun HomeContent(
                 ) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 2.dp,
+                        strokeWidth = ShapeTokens.Border.medium,
                     )
                 }
             }
@@ -249,7 +275,7 @@ private fun ErrorState(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Oops! Something went wrong",
+            text = stringResource(R.string.error_something_went_wrong),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -268,23 +294,32 @@ private fun ErrorState(
 
         QodeButton(
             onClick = onRetry,
-            text = "Try Again",
+            text = stringResource(R.string.error_retry),
             variant = QodeButtonVariant.Primary,
         )
     }
 }
 
 @Composable
-private fun EmptyState() {
+private fun PromoCodesEmptyState() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(SpacingTokens.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Icon(
+            imageVector = QodeBusinessIcons.Asset,
+            contentDescription = null,
+            modifier = Modifier.size(SizeTokens.Avatar.sizeLarge),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+        )
+
+        Spacer(modifier = Modifier.height(SpacingTokens.lg))
+
         Text(
-            text = "No promo codes available",
+            text = stringResource(R.string.empty_no_promo_codes),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -293,7 +328,7 @@ private fun EmptyState() {
         Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
         Text(
-            text = "Check back later for amazing deals and discounts!",
+            text = stringResource(R.string.empty_check_back_later),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -301,461 +336,173 @@ private fun EmptyState() {
     }
 }
 
-// MARK: - Private Composables
-
 @Composable
-private fun WelcomeHeroSection(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = RoundedCornerShape(
-            bottomStart = SpacingTokens.xl,
-            bottomEnd = SpacingTokens.xl,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(
-                horizontal = SpacingTokens.lg,
-                vertical = SpacingTokens.xl,
-            ),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            // Status indicator
-            Surface(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(SpacingTokens.lg),
-                modifier = Modifier.padding(bottom = SpacingTokens.sm),
-            ) {
-                Text(
-                    text = stringResource(R.string.home_trending_badge),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(
-                        horizontal = SpacingTokens.md,
-                        vertical = SpacingTokens.xs,
-                    ),
-                )
-            }
+private fun AutoScrollingHeroBannerSystem(modifier: Modifier = Modifier) {
+    val configuration = LocalConfiguration.current
 
-            Text(
-                text = stringResource(R.string.home_welcome_title),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                lineHeight = MaterialTheme.typography.headlineLarge.lineHeight,
-            )
+    // Calculate 50% screen height including status bar
+    val screenHeight = configuration.screenHeightDp
+    val bannerHeight = (screenHeight * 0.5f)
 
-            Text(
-                text = stringResource(R.string.home_welcome_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight,
-            )
-
-            // Stats row
-            Row(
-                modifier = Modifier.padding(top = SpacingTokens.md),
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                StatsItem(
-                    value = stringResource(R.string.stats_active_deals),
-                    label = stringResource(R.string.stats_active_deals_label),
-                    icon = QodeCommerceIcons.Offer,
-                )
-                StatsItem(
-                    value = stringResource(R.string.stats_happy_users),
-                    label = stringResource(R.string.stats_happy_users_label),
-                    icon = QodeStatusIcons.Verified,
-                )
-                StatsItem(
-                    value = stringResource(R.string.stats_total_saved),
-                    label = stringResource(R.string.stats_total_saved_label),
-                    icon = QodeCommerceIcons.Cashback,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatsItem(
-    value: String,
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(SpacingTokens.lg),
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-        )
-    }
-}
-
-@Composable
-private fun FeaturedBannerSection(modifier: Modifier = Modifier) {
-    Surface(
+    AutoScrollingBanner(
+        items = getDefaultBannerConfigs(),
+        autoScrollDelay = 4.seconds,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = SpacingTokens.lg),
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = RoundedCornerShape(SpacingTokens.lg),
-    ) {
-        Row(
-            modifier = Modifier.padding(SpacingTokens.lg),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = QodeCommerceIcons.Flash,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(SpacingTokens.xl),
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = SpacingTokens.md),
-            ) {
-                Text(
-                    text = stringResource(R.string.home_featured_deals),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-                Text(
-                    text = stringResource(R.string.home_featured_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
-                )
-            }
-
-            Icon(
-                imageVector = QodeActionIcons.Next,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(SpacingTokens.lg),
-            )
-        }
+            .height(bannerHeight.dp),
+    ) { bannerConfig, index ->
+        PromotionalBanner(
+            bannerConfig = bannerConfig,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
 @Composable
-private fun FilterCarousel(
-    onFilterSelected: (String) -> Unit,
+private fun PromotionalBanner(
+    bannerConfig: BannerConfig,
     modifier: Modifier = Modifier
 ) {
-    data class FilterItem(val id: String, val nameRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+    val gradientColorScheme = bannerConfig.gradientScheme
+    val primaryGradientColor = bannerConfig.primaryColor
+    val brandName = bannerConfig.brandName
 
-    val filters = listOf(
-        FilterItem("kaspi", R.string.filter_kaspi, QodeCommerceIcons.Voucher),
-        FilterItem("highest", R.string.filter_top_rated, QodeStatusIcons.Gold),
-        FilterItem("latest", R.string.filter_latest, QodeActionIcons.Up),
-        FilterItem("food", R.string.filter_food, QodeCommerceIcons.ShoppingCart),
-        FilterItem("fashion", R.string.filter_fashion, QodeActionIcons.Like),
-        FilterItem("tech", R.string.filter_tech, QodeNavigationIcons.Settings),
-    )
-
-    LazyRow(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    Box(
+        modifier = modifier.fillMaxSize(),
     ) {
-        items(filters) { filter ->
-            FilterChip(
-                nameRes = filter.nameRes,
-                icon = filter.icon,
-                onClick = { onFilterSelected(filter.id) },
-            )
-        }
-    }
-}
+        // Use the new gradient system
+        QodeBannerGradient(
+            colors = gradientColorScheme,
+            height = 1000.dp, // Large enough to cover the card
+            modifier = Modifier.fillMaxSize(),
+        )
+        // Floating background elements
+        Icon(
+            imageVector = QodeCommerceIcons.Flash,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.1f),
+            modifier = Modifier
+                .size(SizeTokens.Decoration.sizeXXLarge * 3)
+                .align(Alignment.TopEnd)
+                .offset(x = SpacingTokens.xl, y = -SpacingTokens.lg),
+        )
 
-@Composable
-private fun FilterChip(
-    nameRes: Int,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false
-) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    val iconBackgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
-
-    val iconTintColor = if (isSelected) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onPrimary
-    }
-
-    Surface(
-        modifier = modifier.clickable { onClick() },
-        shape = RoundedCornerShape(SpacingTokens.xl),
-        color = backgroundColor,
-        tonalElevation = if (isSelected) ElevationTokens.small else ElevationTokens.none,
-        shadowElevation = if (isSelected) ElevationTokens.small else ElevationTokens.none,
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = SpacingTokens.md,
-                vertical = SpacingTokens.sm,
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding(),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Surface(
-                shape = CircleShape,
-                color = iconBackgroundColor,
-                modifier = Modifier.size(SpacingTokens.xl),
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
+            // Top section
+            Column {
+                Text(
+                    text = "Your Country",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingTokens.lg),
+                    textAlign = TextAlign.Center,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = stringResource(nameRes),
-                        tint = iconTintColor,
-                        modifier = Modifier.size(SpacingTokens.md),
+                    QodeDivider(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Kazakhstan",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable { /* TODO: Handle country selection */ }
+                            .padding(horizontal = SpacingTokens.sm),
+                    )
+                    QodeDivider(modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(SpacingTokens.lg))
+
+                Column(modifier = Modifier.padding(horizontal = SpacingTokens.lg)) {
+                    Text(
+                        text = brandName,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                    )
+
+                    Text(
+                        text = "Exclusive deals and premium offers",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f),
+                        modifier = Modifier.padding(top = SpacingTokens.xs),
                     )
                 }
             }
 
-            Text(
-                text = stringResource(nameRes),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = contentColor,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SectionHeader(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f),
-            )
-
-            Surface(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                shape = CircleShape,
-            ) {
-                Icon(
-                    imageVector = QodeActionIcons.Next,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .size(SpacingTokens.lg)
-                        .padding(SpacingTokens.xs),
-                )
-            }
-        }
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-// MARK: - 🚀 REVOLUTIONARY COMPOSABLES
-
-@Composable
-private fun HeroBannerCarousel(modifier: Modifier = Modifier) {
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        items(3) { index ->
-            RevolutionaryBannerCard(
-                title = stringResource(R.string.banner_featured_title),
-                discount = "75%",
-                brand = when (index) {
-                    0 -> "Kaspi Gold" 1 -> "Wildberries" else -> "Lamoda"
-                },
-                gradientColors = when (index) {
-                    0 -> listOf(0xFF6366F1, 0xFF8B5CF6)
-                    1 -> listOf(0xFFEC4899, 0xFFF97316)
-                    else -> listOf(0xFF10B981, 0xFF059669)
-                },
-            )
-        }
-    }
-}
-
-@Composable
-private fun RevolutionaryBannerCard(
-    title: String,
-    discount: String,
-    brand: String,
-    gradientColors: List<Long>,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .width(280.dp)
-            .height(160.dp),
-    ) {
-        // Gradient Background with glass effect
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(SpacingTokens.lg),
-            color = androidx.compose.ui.graphics.Color(gradientColors[0]).copy(alpha = 0.1f),
-        ) {
-            Box(
+            // Bottom section with CTA
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                            colors = gradientColors.map { androidx.compose.ui.graphics.Color(it) },
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(1000f, 1000f),
-                        ),
-                    ),
+                    .fillMaxWidth()
+                    .padding(SpacingTokens.lg),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
             ) {
-                // Floating elements
-                Icon(
-                    imageVector = QodeCommerceIcons.Flash,
-                    contentDescription = null,
-                    tint = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.2f),
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 30.dp, y = (-20).dp),
-                )
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(SpacingTokens.lg),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    // Top section
-                    Column {
-                        Surface(
-                            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(SpacingTokens.sm),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.banner_limited_time),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = androidx.compose.ui.graphics.Color.White,
-                                modifier = Modifier.padding(
-                                    horizontal = SpacingTokens.sm,
-                                    vertical = SpacingTokens.xs,
-                                ),
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                        Text(
-                            text = brand,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = androidx.compose.ui.graphics.Color.White,
-                        )
-                    }
-
-                    // Bottom section
+                Column {
+                    Text(
+                        text = stringResource(R.string.banner_up_to),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White.copy(alpha = 0.8f),
+                    )
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom,
                     ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.banner_up_to),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f),
-                            )
-                            Row(
-                                verticalAlignment = Alignment.Bottom,
-                            ) {
-                                Text(
-                                    text = discount,
-                                    style = MaterialTheme.typography.displaySmall,
-                                    fontWeight = FontWeight.Black,
-                                    color = androidx.compose.ui.graphics.Color.White,
-                                )
-                                Text(
-                                    text = stringResource(R.string.banner_off),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = androidx.compose.ui.graphics.Color.White,
-                                    modifier = Modifier.padding(start = SpacingTokens.xs, bottom = SpacingTokens.xs),
-                                )
-                            }
-                        }
+                        Text(
+                            text = "${bannerConfig.discountPercent}%",
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = stringResource(R.string.banner_off),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier.padding(
+                                start = SpacingTokens.xs,
+                                bottom = SpacingTokens.sm,
+                            ),
+                        )
+                    }
+                }
 
-                        Surface(
-                            color = androidx.compose.ui.graphics.Color.White,
-                            shape = RoundedCornerShape(SpacingTokens.lg),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.banner_claim_now),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = androidx.compose.ui.graphics.Color(gradientColors[0]),
-                                modifier = Modifier.padding(
-                                    horizontal = SpacingTokens.md,
-                                    vertical = SpacingTokens.sm,
-                                ),
-                            )
-                        }
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
+                    modifier = Modifier.clickable { /* TODO: Handle banner click */ },
+                ) {
+                    Row(
+                        modifier = Modifier.padding(
+                            horizontal = SpacingTokens.lg,
+                            vertical = SpacingTokens.md,
+                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.banner_claim_now),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = primaryGradientColor,
+                        )
+                        Icon(
+                            imageVector = QodeActionIcons.Forward,
+                            contentDescription = null,
+                            modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                            tint = primaryGradientColor,
+                        )
                     }
                 }
             }
@@ -771,24 +518,12 @@ private fun RevolutionaryQuickFilters(
     Column(
         modifier = modifier.padding(vertical = SpacingTokens.lg),
     ) {
-        Text(
-            text = stringResource(R.string.home_quick_filters),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(
-                start = SpacingTokens.lg,
-                end = SpacingTokens.lg,
-                bottom = SpacingTokens.lg,
-            ),
-        )
-
         LazyRow(
             contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             items(6) { index ->
-                RevolutionaryFilterChip(
+                ModernCircularFilterChip(
                     nameRes = when (index) {
                         0 -> R.string.filter_kaspi
                         1 -> R.string.filter_top_rated
@@ -799,11 +534,11 @@ private fun RevolutionaryQuickFilters(
                     },
                     icon = when (index) {
                         0 -> QodeCommerceIcons.Voucher
-                        1 -> QodeStatusIcons.Gold
-                        2 -> QodeActionIcons.Up
-                        3 -> QodeCommerceIcons.ShoppingCart
-                        4 -> QodeActionIcons.Like
-                        else -> QodeNavigationIcons.Settings
+                        1 -> QodeStatusIcons.Silver
+                        2 -> QodeNavigationIcons.Trending
+                        3 -> QodeCategoryIcons.Coffee
+                        4 -> QodeCategoryIcons.Clothing
+                        else -> QodeSocialIcons.Beeline
                     },
                     onClick = { onFilterSelected("filter_$index") },
                     isSelected = index == 0,
@@ -814,69 +549,89 @@ private fun RevolutionaryQuickFilters(
 }
 
 @Composable
-private fun RevolutionaryFilterChip(
+private fun ModernCircularFilterChip(
     nameRes: Int,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false
 ) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Surface(
-        modifier = modifier
-            .width(80.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(SpacingTokens.lg),
-        color = backgroundColor,
-        tonalElevation = if (isSelected) ElevationTokens.medium else ElevationTokens.none,
-        shadowElevation = if (isSelected) ElevationTokens.small else ElevationTokens.none,
+    Column(
+        modifier = modifier.clickable { onClick() },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = SpacingTokens.md),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        // Circular container with black border and white inner border
+        Box(
+            modifier = Modifier.size(SizeTokens.Avatar.sizeMedium + SpacingTokens.sm),
+            contentAlignment = Alignment.Center,
         ) {
+            // Black outer border
             Surface(
+                modifier = Modifier.fillMaxSize(),
                 shape = CircleShape,
                 color = if (isSelected) {
-                    contentColor.copy(alpha = 0.2f)
+                    MaterialTheme.colorScheme.primary
                 } else {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    Color.Black
                 },
-                modifier = Modifier.size(SpacingTokens.xl),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = ShapeTokens.Border.medium,
+                    color = Color.Black,
+                ),
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
+                // White inner border
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(ShapeTokens.Border.thick),
+                    shape = CircleShape,
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = ShapeTokens.Border.thin,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            Color.White
+                        },
+                    ),
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = stringResource(nameRes),
-                        tint = if (isSelected) contentColor else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(SpacingTokens.lg),
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = stringResource(nameRes),
+                            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                            tint = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                        )
+                    }
                 }
             }
-
-            Text(
-                text = stringResource(nameRes),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = contentColor,
-                textAlign = TextAlign.Center,
-            )
         }
+
+        // Category title under circle
+        Text(
+            text = stringResource(nameRes),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+            color = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+        )
     }
 }
 
@@ -902,38 +657,6 @@ private fun RevolutionarySectionHeader(
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            Surface(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(SpacingTokens.lg),
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = SpacingTokens.md,
-                        vertical = SpacingTokens.sm,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                ) {
-                    Text(
-                        text = "View All",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                    Icon(
-                        imageVector = QodeActionIcons.Next,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(SpacingTokens.md),
-                    )
-                }
             }
         }
     }
@@ -945,13 +668,14 @@ private fun RevolutionarySectionHeader(
 @Composable
 private fun HomeScreenPreview() {
     QodeTheme {
-        // Note: Preview would need mock data
-        // HomeScreen()
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("Home Screen Preview")
-        }
+        HomeContent(
+            uiState = HomeUiState.Success(
+                promoCodes = emptyList(),
+                hasMorePromoCodes = false,
+                isLoadingMore = false,
+            ),
+            listState = rememberLazyListState(),
+            onAction = { },
+        )
     }
 }

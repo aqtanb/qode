@@ -34,4 +34,12 @@
     <string name="filter_food">Food</string>
     <string name="filter_fashion">Fashion</string>
     <string name="filter_tech">Tech</string>
+    
+    <!-- Error Messages -->
+    <string name="error_something_went_wrong">Something went wrong</string>
+    <string name="error_retry">Try Again</string>
+    
+    <!-- Empty State -->
+    <string name="empty_no_promo_codes">No promo codes available</string>
+    <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>
 </resources>

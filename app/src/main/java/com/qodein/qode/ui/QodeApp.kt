@@ -3,6 +3,7 @@ package com.qodein.qode.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -61,6 +62,7 @@ internal fun QodeApp(
     val selectedTabDestination = appState.selectedTabDestination
     val isHomeDestination = currentDestination == TopLevelDestination.HOME
     val isProfileScreen = appState.isProfileScreen
+    val isSubmissionScreen = appState.isSubmissionScreen
 
     // Handle navigation events from ViewModel
     LaunchedEffect(Unit) {
@@ -84,34 +86,41 @@ internal fun QodeApp(
     Scaffold(
         modifier = modifier,
         topBar = {
-            if (appState.isNestedScreen && !isProfileScreen) {
-                // Other nested screens (not profile) get transparent top bar
-                QodeTransparentTopAppBar(
-                    title = null,
-                    navigationIcon = QodeActionIcons.Back,
-                    onNavigationClick = {
-                        appState.navController.popBackStack()
-                    },
-                    navigationIconTint = MaterialTheme.colorScheme.onSurface,
-                    titleColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            } else if (!appState.isNestedScreen) {
-                // Top level screens get the main app bar
-                currentDestination?.let { destination ->
-                    QodeScreenTopAppBar(
-                        title = stringResource(destination.titleTextId),
-                        onFavoritesClick = {
-                            appViewModel.handleNavigation(NavigationActions.NavigateToFavorites)
+            when {
+                // Submission screens are fullscreen modal - no top bar
+                isSubmissionScreen -> {
+                    // No top bar for submission flow
+                }
+                // Other nested screens (not profile, not submission) get transparent top bar
+                appState.isNestedScreen && !isProfileScreen -> {
+                    QodeTransparentTopAppBar(
+                        title = null,
+                        navigationIcon = QodeActionIcons.Back,
+                        onNavigationClick = {
+                            appState.navController.popBackStack()
                         },
-                        onProfileClick = onProfileClick,
-                        onSettingsClick = {
-                            appViewModel.handleNavigation(NavigationActions.NavigateToSettings)
-                        },
+                        navigationIconTint = MaterialTheme.colorScheme.onSurface,
+                        titleColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                // Top level screens (except home) get the main app bar
+                !appState.isNestedScreen && !isHomeDestination -> {
+                    currentDestination?.let { destination ->
+                        QodeScreenTopAppBar(
+                            title = stringResource(destination.titleTextId),
+                            onFavoritesClick = {
+                                appViewModel.handleNavigation(NavigationActions.NavigateToFavorites)
+                            },
+                            onProfileClick = onProfileClick,
+                            onSettingsClick = {
+                                appViewModel.handleNavigation(NavigationActions.NavigateToSettings)
+                            },
+                        )
+                    }
+                }
+                // Home, Profile, and Submission screens handle their own UI - no app-level TopAppBar
             }
-            // Profile screen handles its own TopAppBar - no app-level TopAppBar
         },
 
         floatingActionButton = {
@@ -128,42 +137,45 @@ internal fun QodeApp(
         },
 
         bottomBar = {
-            Column {
-                QodeBottomNavigation(
-                    items = appState.topLevelDestinations.map { destination ->
-                        QodeNavigationItem(
-                            route = destination.route.simpleName ?: "",
-                            label = stringResource(destination.iconTextId),
-                            selectedIcon = destination.selectedIcon,
-                            unselectedIcon = destination.unSelectedIcon,
-                        )
-                    },
-                    selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
-                    onItemClick = { selectedItem ->
-                        appState.topLevelDestinations.find {
-                            it.route.simpleName == selectedItem.route
-                        }?.let { destination ->
-                            appState.navigateToTopLevelDestination(destination)
-                        }
-                    },
-                )
+            // Hide bottom navigation for submission flow (fullscreen modal)
+            if (!isSubmissionScreen) {
+                Column {
+                    QodeBottomNavigation(
+                        items = appState.topLevelDestinations.map { destination ->
+                            QodeNavigationItem(
+                                route = destination.route.simpleName ?: "",
+                                label = stringResource(destination.iconTextId),
+                                selectedIcon = destination.selectedIcon,
+                                unselectedIcon = destination.unSelectedIcon,
+                            )
+                        },
+                        selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
+                        onItemClick = { selectedItem ->
+                            appState.topLevelDestinations.find {
+                                it.route.simpleName == selectedItem.route
+                            }?.let { destination ->
+                                appState.navigateToTopLevelDestination(destination)
+                            }
+                        },
+                    )
+                }
             }
         },
     ) { innerPadding ->
         QodeNavHost(
             appState = appState,
-            modifier = if (appState.isNestedScreen) {
-                // For nested screens with transparent top bar, don't apply top padding
-                // so content flows behind the transparent top bar
-                Modifier.padding(
+            modifier = when {
+                // Home, submission screens handle their own UI - no padding
+                isHomeDestination || isSubmissionScreen -> Modifier.fillMaxSize()
+                // Nested screens with transparent top bar - no top padding
+                appState.isNestedScreen -> Modifier.padding(
                     start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
                     end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
                     bottom = innerPadding.calculateBottomPadding(),
                     // No top padding - let content flow behind transparent top bar
                 )
-            } else {
-                // For regular screens with solid top bars, use full padding
-                Modifier.padding(innerPadding)
+                // Regular screens with solid top bars - full padding
+                else -> Modifier.padding(innerPadding)
             },
         )
     }

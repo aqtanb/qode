@@ -15,6 +15,7 @@ import androidx.navigation.navOptions
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
+import com.qodein.feature.promocode.navigation.SubmissionRoute
 import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
@@ -99,6 +100,14 @@ class QodeAppState(val navController: NavHostController) {
     val isProfileScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<ProfileRoute>() == true
+        }
+
+    /**
+     * Check if current destination is the submission screen
+     */
+    val isSubmissionScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<SubmissionRoute>() == true
         }
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {

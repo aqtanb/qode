@@ -54,15 +54,14 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 @Composable
 fun QodeDivider(
     modifier: Modifier = Modifier,
-    thickness: Dp = QodeBorder.thin,
-    color: Color = MaterialTheme.colorScheme.outlineVariant,
+    thickness: Dp = ShapeTokens.Border.thin,
+    color: Color = MaterialTheme.colorScheme.secondary,
     startIndent: Dp = 0.dp,
     endIndent: Dp = 0.dp
 ) {
     Box(
         modifier = modifier
             .padding(start = startIndent, end = endIndent)
-            .fillMaxWidth()
             .height(thickness)
             .background(color),
     )
