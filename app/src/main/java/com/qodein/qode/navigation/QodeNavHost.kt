@@ -10,6 +10,7 @@ import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.submissionSection
 import com.qodein.feature.search.navigation.searchSection
+import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
 
@@ -59,6 +60,12 @@ fun QodeNavHost(
 
         submissionSection(
             onNavigateBack = {
+                navController.popBackStack()
+            },
+        )
+
+        settingsSection(
+            onBackClick = {
                 navController.popBackStack()
             },
         )

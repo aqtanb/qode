@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import com.qodein.core.domain.AuthState
 import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.profile.navigation.navigateToProfile
+import com.qodein.feature.settings.navigation.navigateToSettings
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,14 +62,7 @@ class NavigationHandler @Inject constructor() {
             }
 
             NavigationActions.NavigateToSettings -> {
-                // TODO: Implement settings navigation when feature exists
-                // For now, could navigate to profile or show coming soon
-                handleNavigation(
-                    NavigationActions.NavigateToProfile,
-                    navController,
-                    authState,
-                    navigateToTopLevel,
-                )
+                navController.navigateToSettings()
             }
 
             is NavigationActions.NavigateToTab -> {

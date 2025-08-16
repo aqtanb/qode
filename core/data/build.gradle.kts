@@ -54,6 +54,9 @@ dependencies {
     // Authentication
     implementation(libs.bundles.authentication)
 
+    // Data Storage
+    implementation(libs.datastore.preferences)
+
     // Android Context access
     implementation(libs.androidx.core.ktx)
 

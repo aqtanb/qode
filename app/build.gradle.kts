@@ -82,6 +82,7 @@ dependencies {
     implementation(projects.feature.search)
     implementation(projects.feature.profile)
     implementation(projects.feature.promocode)
+    implementation(projects.feature.settings)
 
     // Core Android & Compose
     implementation(libs.bundles.androidx.core)

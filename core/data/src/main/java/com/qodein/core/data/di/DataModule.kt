@@ -6,8 +6,10 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.qodein.core.data.repository.AuthRepositoryImpl
+import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PromoCodeRepositoryImpl
 import com.qodein.core.domain.repository.AuthRepository
+import com.qodein.core.domain.repository.DevicePreferencesRepository
 import com.qodein.core.domain.repository.PromoCodeRepository
 import dagger.Binds
 import dagger.Module
@@ -27,6 +29,12 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromoCodeRepositoryImpl): PromoCodeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDevicePreferencesRepository(
+        devicePreferencesRepositoryImpl: DevicePreferencesRepositoryImpl
+    ): DevicePreferencesRepository
 
     companion object {
         @Provides

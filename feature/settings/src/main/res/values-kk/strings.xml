@@ -1,0 +1,13 @@
+<resources>
+    <!-- Settings Screen -->
+    <string name="settings_title">Параметрлер</string>
+    
+    <!-- Theme Settings -->
+    <string name="settings_theme_title">Тақырып</string>
+    <string name="theme_system">Жүйелік</string>
+    <string name="theme_light">Жарық</string>
+    <string name="theme_dark">Қараңғы</string>
+    
+    <!-- Language Settings -->
+    <string name="settings_language_title">Тіл</string>
+</resources>
