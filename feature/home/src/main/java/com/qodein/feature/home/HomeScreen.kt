@@ -1,5 +1,6 @@
 package com.qodein.feature.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -176,81 +178,37 @@ private fun HomeContent(
         state = listState,
         contentPadding = PaddingValues(bottom = SpacingTokens.xl),
         modifier = Modifier.navigationBarsPadding(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
     ) {
-        // 🔥 REVOLUTIONARY BANNER CAROUSEL (50% Screen Height)
-        item(key = "hero_carousel") {
-            AutoScrollingHeroBannerSystem()
+        // Section 1: Hero Banner Section
+        item(key = "hero_banner_section") {
+            HeroBannerSection()
         }
 
-        // ⚡ MIND-BLOWING QUICK FILTERS
-        item(key = "quick_filters") {
-            RevolutionaryQuickFilters(onFilterSelected = { /* TODO: Handle filter */ })
-        }
-
-        // 🏆 STUNNING SECTION HEADER
-        item(key = "trending_header") {
-            RevolutionarySectionHeader(
-                title = stringResource(R.string.home_section_title),
-                subtitle = stringResource(R.string.home_section_subtitle),
-                modifier = Modifier.padding(
-                    start = SpacingTokens.lg,
-                    end = SpacingTokens.lg,
-                    top = SpacingTokens.xl,
-                    bottom = SpacingTokens.md,
-                ),
+        // Section 2: Quick Filters Section
+        item(key = "quick_filters_section") {
+            QuickFiltersSection(
+                onFilterSelected = { /* TODO: Handle filter */ },
             )
         }
 
-        // Promo Codes Grid or Empty State
-        if (uiState.promoCodes.isEmpty()) {
-            item(key = "empty_promo_codes") {
-                PromoCodesEmptyState()
-            }
-        } else {
-            items(
-                items = uiState.promoCodes,
-                key = { it.id.value },
-            ) { promoCode ->
-                CouponPromoCodeCard(
-                    promoCode = promoCode,
-                    onCardClick = {
-                        onAction(HomeAction.PromoCodeClicked(promoCode))
-                    },
-                    onCopyCodeClick = {
-                        onAction(HomeAction.CopyPromoCode(promoCode))
-                    },
-                    modifier = Modifier.padding(
-                        horizontal = SpacingTokens.lg,
-                        vertical = SpacingTokens.xs,
-                    ),
-                )
-            }
+        // Section 3: Promo Codes Section
+        item(key = "promo_codes_section") {
+            PromoCodesSection(
+                promoCodes = uiState.promoCodes,
+                isLoadingMore = uiState.isLoadingMore,
+                onAction = onAction,
+            )
         }
 
-        // Loading More Indicator
-        if (uiState.isLoadingMore) {
-            item(key = "loading_more") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(SpacingTokens.xl),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = ShapeTokens.Border.medium,
-                    )
-                }
-            }
-        }
-
-        // Bottom spacer
+        // Bottom spacer for navigation bar
         item(key = "bottom_spacer") {
             Spacer(modifier = Modifier.height(SpacingTokens.xxl))
         }
     }
 }
+
+// MARK: - Loading & Error States
 
 @Composable
 private fun LoadingState() {
@@ -336,11 +294,15 @@ private fun PromoCodesEmptyState() {
     }
 }
 
-@Composable
-private fun AutoScrollingHeroBannerSystem(modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
+// MARK: - Section 1: Hero Banner
 
-    // Calculate 50% screen height including status bar
+/**
+ * Section 1: Hero Banner Section
+ * Contains country picker, promotional banner carousel, and call-to-action
+ */
+@Composable
+private fun HeroBannerSection(modifier: Modifier = Modifier) {
+    val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
     val bannerHeight = (screenHeight * 0.5f)
 
@@ -351,7 +313,7 @@ private fun AutoScrollingHeroBannerSystem(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .height(bannerHeight.dp),
     ) { bannerConfig, index ->
-        PromotionalBanner(
+        HeroBannerContent(
             bannerConfig = bannerConfig,
             modifier = Modifier.fillMaxSize(),
         )
@@ -359,7 +321,7 @@ private fun AutoScrollingHeroBannerSystem(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PromotionalBanner(
+private fun HeroBannerContent(
     bannerConfig: BannerConfig,
     modifier: Modifier = Modifier
 ) {
@@ -370,13 +332,14 @@ private fun PromotionalBanner(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        // Use the new gradient system
+        // Background gradient
         QodeBannerGradient(
             colors = gradientColorScheme,
-            height = 1000.dp, // Large enough to cover the card
+            height = 1000.dp,
             modifier = Modifier.fillMaxSize(),
         )
-        // Floating background elements
+
+        // Decorative background element
         Icon(
             imageVector = QodeCommerceIcons.Flash,
             contentDescription = null,
@@ -390,133 +353,129 @@ private fun PromotionalBanner(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding(),
+                .statusBarsPadding()
+                .padding(horizontal = SpacingTokens.lg),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Top section
-            Column {
-                Text(
-                    text = "Your Country",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = SpacingTokens.lg),
-                    textAlign = TextAlign.Center,
-                )
+            // Country picker section
+            BannerCountryPicker(
+                modifier = Modifier.padding(top = SpacingTokens.md),
+            )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    QodeDivider(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Kazakhstan",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clickable { /* TODO: Handle country selection */ }
-                            .padding(horizontal = SpacingTokens.sm),
-                    )
-                    QodeDivider(modifier = Modifier.weight(1f))
-                }
-
-                Spacer(modifier = Modifier.height(SpacingTokens.lg))
-
-                Column(modifier = Modifier.padding(horizontal = SpacingTokens.lg)) {
-                    Text(
-                        text = brandName,
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                    )
-
-                    Text(
-                        text = "Exclusive deals and premium offers",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier.padding(top = SpacingTokens.xs),
-                    )
-                }
-            }
-
-            // Bottom section with CTA
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SpacingTokens.lg),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.banner_up_to),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.8f),
-                    )
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                    ) {
-                        Text(
-                            text = "${bannerConfig.discountPercent}%",
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                        )
-                        Text(
-                            text = stringResource(R.string.banner_off),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.padding(
-                                start = SpacingTokens.xs,
-                                bottom = SpacingTokens.sm,
-                            ),
-                        )
-                    }
-                }
-
-                Surface(
-                    color = Color.White,
-                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
-                    modifier = Modifier.clickable { /* TODO: Handle banner click */ },
-                ) {
-                    Row(
-                        modifier = Modifier.padding(
-                            horizontal = SpacingTokens.lg,
-                            vertical = SpacingTokens.md,
-                        ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.banner_claim_now),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = primaryGradientColor,
-                        )
-                        Icon(
-                            imageVector = QodeActionIcons.Forward,
-                            contentDescription = null,
-                            modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                            tint = primaryGradientColor,
-                        )
-                    }
-                }
-            }
+            // Brand information and CTA section
+            BannerCallToAction(
+                brandName = brandName,
+                primaryColor = primaryGradientColor,
+                modifier = Modifier.padding(bottom = SpacingTokens.lg),
+            )
         }
     }
 }
 
 @Composable
-private fun RevolutionaryQuickFilters(
+private fun BannerCountryPicker(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+    ) {
+        Text(
+            text = "Your Country",
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White.copy(alpha = 0.8f),
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            QodeDivider(modifier = Modifier.weight(1f))
+            Text(
+                text = "Kazakhstan",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clickable { /* TODO: Handle country selection */ }
+                    .padding(horizontal = SpacingTokens.md),
+            )
+            QodeDivider(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun BannerCallToAction(
+    brandName: String,
+    primaryColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+    ) {
+        Text(
+            text = brandName,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Black,
+            color = Color.White,
+        )
+
+        Text(
+            text = "Exclusive deals and premium offers",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.9f),
+        )
+
+        Surface(
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(ShapeTokens.Corner.large),
+            modifier = Modifier
+                .clickable { /* TODO: Handle banner click */ }
+                .padding(top = SpacingTokens.sm),
+        ) {
+            Row(
+                modifier = Modifier.padding(
+                    horizontal = SpacingTokens.xxl,
+                    vertical = SpacingTokens.md,
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+            ) {
+                Text(
+                    text = stringResource(R.string.banner_claim_now),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = primaryColor,
+                )
+                Icon(
+                    imageVector = QodeActionIcons.Forward,
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                    tint = primaryColor,
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Section 2: Quick Filters
+
+/**
+ * Section 2: Quick Filters Section
+ * Contains circular filter chips for category navigation
+ */
+@Composable
+private fun QuickFiltersSection(
     onFilterSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.lg),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = SpacingTokens.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         LazyRow(
@@ -524,7 +483,7 @@ private fun RevolutionaryQuickFilters(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             items(6) { index ->
-                ModernCircularFilterChip(
+                FilterChip(
                     nameRes = when (index) {
                         0 -> R.string.filter_kaspi
                         1 -> R.string.filter_top_rated
@@ -550,7 +509,7 @@ private fun RevolutionaryQuickFilters(
 }
 
 @Composable
-private fun ModernCircularFilterChip(
+private fun FilterChip(
     nameRes: Int,
     icon: ImageVector,
     onClick: () -> Unit,
@@ -572,14 +531,10 @@ private fun ModernCircularFilterChip(
                 modifier = Modifier.fillMaxSize(),
                 shape = CircleShape,
                 color = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.surface
                 } else {
-                    Color.Black
+                    MaterialTheme.colorScheme.surfaceVariant
                 },
-                border = androidx.compose.foundation.BorderStroke(
-                    width = ShapeTokens.Border.medium,
-                    color = Color.Black,
-                ),
             ) {
                 // White inner border
                 Surface(
@@ -588,16 +543,16 @@ private fun ModernCircularFilterChip(
                         .padding(ShapeTokens.Border.thick),
                     shape = CircleShape,
                     color = if (isSelected) {
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.primaryContainer
                     } else {
                         MaterialTheme.colorScheme.surface
                     },
-                    border = androidx.compose.foundation.BorderStroke(
+                    border = BorderStroke(
                         width = ShapeTokens.Border.thin,
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.onPrimary
                         } else {
-                            Color.White
+                            MaterialTheme.colorScheme.surface
                         },
                     ),
                 ) {
@@ -610,9 +565,9 @@ private fun ModernCircularFilterChip(
                             contentDescription = stringResource(nameRes),
                             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                             tint = if (isSelected) {
-                                MaterialTheme.colorScheme.onPrimary
+                                MaterialTheme.colorScheme.onPrimaryContainer
                             } else {
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.onSurface
                             },
                         )
                     }
@@ -636,30 +591,96 @@ private fun ModernCircularFilterChip(
     }
 }
 
+// MARK: - Section 3: Promo Codes
+
+/**
+ * Section 3: Promo Codes Section
+ * Contains section header and list of promotional codes
+ */
 @Composable
-private fun RevolutionarySectionHeader(
-    title: String,
-    subtitle: String,
+private fun PromoCodesSection(
+    promoCodes: List<PromoCode>,
+    isLoadingMore: Boolean,
+    onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        // Section header
+        PromoCodesSectionHeader(
+            modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+        )
+
+        // Content based on state
+        if (promoCodes.isEmpty()) {
+            PromoCodesEmptyState()
+        } else {
+            PromoCodesList(
+                promoCodes = promoCodes,
+                onAction = onAction,
+            )
+        }
+
+        // Loading indicator
+        if (isLoadingMore) {
+            LoadingMoreIndicator()
+        }
+    }
+}
+
+@Composable
+private fun PromoCodesSectionHeader(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.home_section_title),
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.ExtraBold,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
+    )
+}
+
+@Composable
+private fun PromoCodesList(
+    promoCodes: List<PromoCode>,
+    onAction: (HomeAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+        promoCodes.forEach { promoCode ->
+            CouponPromoCodeCard(
+                promoCode = promoCode,
+                onCardClick = {
+                    onAction(HomeAction.PromoCodeClicked(promoCode))
+                },
+                onCopyCodeClick = {
+                    onAction(HomeAction.CopyPromoCode(promoCode))
+                },
+                modifier = Modifier.padding(
+                    horizontal = SpacingTokens.lg,
+                    vertical = SpacingTokens.xs,
+                ),
+            )
         }
+    }
+}
+
+@Composable
+private fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(SpacingTokens.xl),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = ShapeTokens.Border.medium,
+        )
     }
 }
 

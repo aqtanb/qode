@@ -447,16 +447,14 @@ private fun StubRating(
 ) {
     val netRating = upvotes - downvotes
 
-    if (netRating != 0) {
-        Text(
-            text = if (netRating > 0) "+$netRating" else "$netRating",
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = modifier,
-        )
-    }
+    Text(
+        text = if (netRating > 0) "+$netRating" else "$netRating",
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        textAlign = TextAlign.Center,
+        modifier = modifier,
+    )
 }
 
 // MARK: - Enhanced Perforated Divider

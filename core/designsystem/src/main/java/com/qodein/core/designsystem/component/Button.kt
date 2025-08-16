@@ -326,7 +326,7 @@ fun QodeIconButton(
     }
 
     val containerColor = when (variant) {
-        QodeButtonVariant.Primary -> MaterialTheme.colorScheme.primary
+        QodeButtonVariant.Primary -> MaterialTheme.colorScheme.primaryContainer
         QodeButtonVariant.Secondary -> MaterialTheme.colorScheme.secondaryContainer
         QodeButtonVariant.Text -> Color.Transparent
         QodeButtonVariant.Outlined -> Color.Transparent
@@ -334,7 +334,7 @@ fun QodeIconButton(
     }
 
     val contentColor = when (variant) {
-        QodeButtonVariant.Primary -> MaterialTheme.colorScheme.onPrimary
+        QodeButtonVariant.Primary -> MaterialTheme.colorScheme.onPrimaryContainer
         QodeButtonVariant.Secondary -> MaterialTheme.colorScheme.onSecondaryContainer
         QodeButtonVariant.Text -> MaterialTheme.colorScheme.primary
         QodeButtonVariant.Outlined -> MaterialTheme.colorScheme.primary
