@@ -14,18 +14,15 @@ data class PromoCodeDto(
     val code: String = "",
     val serviceName: String = "",
     val category: String? = null,
-    val title: String? = null,
+    val title: String = "",
     val description: String? = null,
-    val type: String = "", // "percentage", "fixed", "promo"
+    val type: String = "", // "percentage", "fixed",
 
     // Type-specific fields (null for types that don't use them)
     val discountPercentage: Double? = null,
     val discountAmount: Double? = null,
-    val minimumOrderAmount: Double? = null,
-    val maximumDiscount: Double? = null,
+    val minimumOrderAmount: Double = 0.0,
 
-    // Common fields
-    val usageLimit: Int? = null,
     val isFirstUserOnly: Boolean = false,
     val upvotes: Int = 0,
     val downvotes: Int = 0,
@@ -33,13 +30,11 @@ data class PromoCodeDto(
     val screenshotUrl: String? = null,
     val comments: List<String>? = null,
 
-    // Timestamps
-    val startDate: Timestamp? = null,
-    val endDate: Timestamp? = null,
+    // Timestamps - using current time as fallback
+    val startDate: Timestamp = Timestamp.now(),
+    val endDate: Timestamp = Timestamp.now(),
     @ServerTimestamp
     val createdAt: Timestamp? = null,
-    @ServerTimestamp
-    val updatedAt: Timestamp? = null,
     val createdBy: String? = null
 )
 
@@ -54,18 +49,4 @@ data class PromoCodeVoteDto(
     val isUpvote: Boolean = false,
     @ServerTimestamp
     val votedAt: Timestamp? = null
-)
-
-/**
- * Firestore document model for PromoCodeUsage.
- */
-data class PromoCodeUsageDto(
-    @DocumentId
-    val id: String = "",
-    val promoCodeId: String = "",
-    val userId: String = "",
-    val orderAmount: Double = 0.0,
-    val discountAmount: Double = 0.0,
-    @ServerTimestamp
-    val usedAt: Timestamp? = null
 )

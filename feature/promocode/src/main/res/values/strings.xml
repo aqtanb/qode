@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Wizard Screen -->
+    <string name="wizard_loading">Setting up your wizard…</string>
+
+    <!-- Error Messages -->
+    <string name="error_something_went_wrong">Something went wrong</string>
+    <string name="error_unexpected">An unexpected error occurred</string>
+
+    <!-- Actions -->
+    <string name="action_back">Back</string>
+    <string name="action_try_again">Try Again</string>
+    <string name="action_submit">Submit</string>
+    <string name="action_continue">Continue</string>
+
+    <!-- Wizard Steps -->
+    <string name="wizard_step_service_type">Service &amp; Type</string>
+    <string name="wizard_step_details">Promo Details</string>
+    <string name="wizard_step_dates">Date Settings</string>
+    <string name="wizard_step_optional">Optional Details</string>
+
+    <!-- Progress -->
+    <string name="wizard_step_progress">Step %1$d of %2$d</string>
+</resources>

@@ -31,7 +31,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.component.QodeButtonSize
@@ -40,17 +39,12 @@ import com.qodein.core.designsystem.component.QodeGradientStyle
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.PromoCode
-import com.qodein.core.model.UserId
 import com.qodein.core.ui.R
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.time.Duration.Companion.days
 
 /**
  * Beautiful PromoCode card designed like an actual promotional card
@@ -76,7 +70,6 @@ fun EnhancedPromoCodeCard(
     val gradientStyle = when (promoCode) {
         is PromoCode.PercentagePromoCode -> QodeGradientStyle.Primary
         is PromoCode.FixedAmountPromoCode -> QodeGradientStyle.Secondary
-        is PromoCode.PromoPromoCode -> QodeGradientStyle.Tertiary
     }
 
     val gradientColors = when (gradientStyle) {
@@ -168,7 +161,6 @@ fun EnhancedPromoCodeCard(
                                 )
                             }
                         }
-                        is PromoCode.PromoPromoCode -> stringResource(R.string.promo_type)
                     },
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.ExtraBold,
@@ -235,7 +227,7 @@ fun EnhancedPromoCodeCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = formatLastUpdated(promoCode.updatedAt),
+                    text = formatLastUpdated(promoCode.createdAt),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -328,87 +320,4 @@ private fun formatLastUpdated(instant: Instant): String {
     val formatter = DateTimeFormatter.ofPattern("MMM d")
     val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
     return formatter.format(date)
-}
-
-// Preview
-@Preview(name = "Beautiful PromoCode Cards", showBackground = true)
-@Composable
-private fun EnhancedPromoCodeCardPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            val now = Clock.System.now()
-
-            // Percentage PromoCode
-            EnhancedPromoCodeCard(
-                promoCode = PromoCode.createPercentage(
-                    code = "NETFLIX30",
-                    serviceName = "Netflix",
-                    discountPercentage = 30.0,
-                    maximumDiscount = 15.0,
-                    category = "Streaming",
-                    title = "30% off Netflix Premium",
-                    description = "Get 30% discount on your first 3 months",
-                    createdBy = UserId("user1"),
-                ).getOrThrow().copy(
-                    createdAt = now.minus(2.days).toJavaInstant(),
-                    updatedAt = now.minus(1.days).toJavaInstant(),
-                    upvotes = 45,
-                    downvotes = 3,
-                    views = 234,
-                ),
-                onCardClick = {},
-                onUpvoteClick = {},
-                onDownvoteClick = {},
-                onCopyCodeClick = {},
-            )
-
-            // Fixed Amount PromoCode
-            EnhancedPromoCodeCard(
-                promoCode = PromoCode.createFixedAmount(
-                    code = "KASPI500",
-                    serviceName = "Kaspi",
-                    discountAmount = 500.0,
-                    category = "Shopping",
-                    title = "500 KZT off",
-                    description = "Get 500 KZT discount on orders above 5000 KZT",
-                    createdBy = UserId("user2"),
-                ).getOrThrow().copy(
-                    createdAt = now.minus(1.days).toJavaInstant(),
-                    updatedAt = now.toJavaInstant(),
-                    upvotes = 156,
-                    downvotes = 12,
-                    views = 892,
-                ),
-                onCardClick = {},
-                onUpvoteClick = {},
-                onDownvoteClick = {},
-                onCopyCodeClick = {},
-            )
-
-            // Promo PromoCode
-            EnhancedPromoCodeCard(
-                promoCode = PromoCode.createPromo(
-                    code = "GLOVOFREE",
-                    serviceName = "Glovo",
-                    description = "Free Glovo Prime for 1 month",
-                    category = "Food Delivery",
-                    title = "Free Glovo Prime",
-                    createdBy = UserId("user3"),
-                ).getOrThrow().copy(
-                    createdAt = now.minus(3.days).toJavaInstant(),
-                    updatedAt = now.minus(2.days).toJavaInstant(),
-                    upvotes = 124,
-                    downvotes = 9,
-                    views = 678,
-                ),
-                onCardClick = {},
-                onUpvoteClick = {},
-                onDownvoteClick = {},
-                onCopyCodeClick = {},
-            )
-        }
-    }
 }

@@ -148,78 +148,6 @@ fun ProfileScreen(
 
 // MARK: - Success Content
 
-/**
- * Preview-optimized version of ProfileSuccessContent that bypasses animations
- * for immediate visibility in static previews
- */
-@Composable
-internal fun ProfileSuccessContentPreview(
-    user: User,
-    onAction: (ProfileAction) -> Unit,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val scrollState = rememberScrollState()
-
-    Box(modifier = modifier.fillMaxSize()) {
-        QodeHeroGradient()
-
-        // Main content with scroll - no animations, content is immediately visible
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        ) {
-            Spacer(modifier = Modifier.height(SpacingTokens.xxxl))
-
-            // Static header (no animation wrapper)
-            ProfileHeader(
-                user = user,
-                onAction = onAction,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.md))
-
-            // Static stats section (no animation wrapper)
-            StatsSectionPreview(
-                userStats = user.stats,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Static activity feed (no animation wrapper)
-            ActivityFeed(
-                onAction = onAction,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Static sign out button (no animation wrapper)
-            QodeButton(
-                text = stringResource(R.string.profile_sign_out_button),
-                onClick = { onAction(ProfileAction.SignOutClicked) },
-                variant = QodeButtonVariant.Error,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("sign_out_button"),
-            )
-        }
-
-        // Scroll-aware TopAppBar overlay
-        AutoHidingTopAppBar(
-            scrollState = scrollState,
-            navigationIcon = QodeActionIcons.Back,
-            onNavigationClick = onBackClick,
-            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-    }
-}
-
 @Composable
 internal fun ProfileSuccessContent(
     user: User,
@@ -1023,6 +951,78 @@ fun ProfileScreenFontScalePreviews() {
         ProfilePreview(
             user = PreviewParameterData.sampleUser,
             modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+/**
+ * Preview-optimized version of ProfileSuccessContent that bypasses animations
+ * for immediate visibility in static previews
+ */
+@Composable
+internal fun ProfileSuccessContentPreview(
+    user: User,
+    onAction: (ProfileAction) -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
+
+    Box(modifier = modifier.fillMaxSize()) {
+        QodeHeroGradient()
+
+        // Main content with scroll - no animations, content is immediately visible
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            Spacer(modifier = Modifier.height(SpacingTokens.xxxl))
+
+            // Static header (no animation wrapper)
+            ProfileHeader(
+                user = user,
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+            // Static stats section (no animation wrapper)
+            StatsSectionPreview(
+                userStats = user.stats,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Static activity feed (no animation wrapper)
+            ActivityFeed(
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+            // Static sign out button (no animation wrapper)
+            QodeButton(
+                text = stringResource(R.string.profile_sign_out_button),
+                onClick = { onAction(ProfileAction.SignOutClicked) },
+                variant = QodeButtonVariant.Error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("sign_out_button"),
+            )
+        }
+
+        // Scroll-aware TopAppBar overlay
+        AutoHidingTopAppBar(
+            scrollState = scrollState,
+            navigationIcon = QodeActionIcons.Back,
+            onNavigationClick = onBackClick,
+            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
         )
     }
 }

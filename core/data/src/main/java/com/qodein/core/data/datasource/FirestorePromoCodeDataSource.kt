@@ -1,18 +1,20 @@
 package com.qodein.core.data.datasource
 
+import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.mapper.PromoCodeMapper
+import com.qodein.core.data.mapper.ServiceMapper
 import com.qodein.core.data.model.PromoCodeDto
-import com.qodein.core.data.model.PromoCodeUsageDto
 import com.qodein.core.data.model.PromoCodeVoteDto
+import com.qodein.core.data.model.ServiceDto
 import com.qodein.core.domain.repository.PromoCodeSortBy
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.PromoCodeId
-import com.qodein.core.model.PromoCodeUsage
 import com.qodein.core.model.PromoCodeVote
+import com.qodein.core.model.Service
 import com.qodein.core.model.UserId
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -24,9 +26,10 @@ import javax.inject.Singleton
 @Singleton
 class FirestorePromoCodeDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
     companion object {
+        private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
         private const val VOTES_COLLECTION = "votes"
-        private const val USAGE_COLLECTION = "usage"
+        private const val SERVICES_COLLECTION = "services"
     }
 
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
@@ -57,6 +60,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         limit: Int,
         offset: Int
     ): List<PromoCode> {
+        Log.d(TAG, "getPromoCodes: Starting query with sortBy=$sortBy, limit=$limit")
         var firestoreQuery: Query = firestore.collection(PROMOCODES_COLLECTION)
 
         // Apply filters
@@ -117,18 +121,40 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // For proper pagination, implement cursor-based pagination with startAfter()
         firestoreQuery = firestoreQuery.limit(limit.toLong())
 
+        Log.d(TAG, "getPromoCodes: Executing Firestore query...")
         val querySnapshot = firestoreQuery.get().await()
+        Log.d(TAG, "getPromoCodes: Query returned ${querySnapshot.documents.size} documents")
 
-        return querySnapshot.documents.mapNotNull { document ->
+        val results = querySnapshot.documents.mapNotNull { document ->
             try {
-                document.toObject<PromoCodeDto>()?.let { dto ->
-                    PromoCodeMapper.toDomain(dto)
+                Log.d(TAG, "getPromoCodes: Processing document ${document.id}")
+                Log.d(TAG, "  Document data: ${document.data}")
+
+                val dto = document.toObject<PromoCodeDto>()
+                if (dto == null) {
+                    Log.w(TAG, "getPromoCodes: Document ${document.id} failed to convert to DTO")
+                    return@mapNotNull null
                 }
+
+                Log.d(TAG, "  DTO: code=${dto.code}, type=${dto.type}, title=${dto.title}")
+                Log.d(TAG, "  Dates: start=${dto.startDate}, end=${dto.endDate}")
+
+                val domainModel = PromoCodeMapper.toDomain(dto)
+                Log.d(TAG, "  Successfully converted to domain model: ${domainModel.code}")
+                domainModel
             } catch (e: Exception) {
-                // Log error and skip malformed documents
+                Log.e(TAG, "getPromoCodes: Failed to parse document ${document.id}", e)
+                Log.e(TAG, "  Document data: ${document.data}")
                 null
             }
         }
+
+        Log.d(TAG, "getPromoCodes: Successfully parsed ${results.size} promo codes")
+        results.forEachIndexed { index, promoCode ->
+            Log.d(TAG, "  [$index] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})")
+        }
+
+        return results
     }
 
     suspend fun getPromoCodeById(id: PromoCodeId): PromoCode? {
@@ -276,35 +302,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .await()
     }
 
-    suspend fun recordUsage(usage: PromoCodeUsage): PromoCodeUsage {
-        val dto = PromoCodeMapper.usageToDto(usage)
-
-        firestore.collection(USAGE_COLLECTION)
-            .document(dto.id)
-            .set(dto)
-            .await()
-
-        return usage
-    }
-
-    suspend fun getUsageStatistics(promoCodeId: PromoCodeId): List<PromoCodeUsage> {
-        val querySnapshot = firestore.collection(USAGE_COLLECTION)
-            .whereEqualTo("promoCodeId", promoCodeId.value)
-            .orderBy("usedAt", Query.Direction.DESCENDING)
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<PromoCodeUsageDto>()?.let { dto ->
-                    PromoCodeMapper.usageToDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-
     suspend fun addComment(
         promoCodeId: PromoCodeId,
         userId: UserId,
@@ -407,4 +404,144 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 listener.remove()
             }
         }
+
+    // Service-related methods
+    suspend fun createService(service: Service): Service {
+        val dto = ServiceMapper.toDto(service)
+
+        firestore.collection(SERVICES_COLLECTION)
+            .document(dto.id)
+            .set(dto)
+            .await()
+
+        return service
+    }
+
+    suspend fun searchServices(
+        query: String,
+        limit: Int = 20
+    ): List<Service> {
+        if (query.isBlank()) {
+            return getPopularServices(limit)
+        }
+
+        val queryLower = query.lowercase().trim()
+
+        // Search by name (prefix match)
+        val nameQuery = firestore.collection(SERVICES_COLLECTION)
+            .whereGreaterThanOrEqualTo("name", query)
+            .whereLessThanOrEqualTo("name", query + "\uf8ff")
+            .limit(limit.toLong())
+            .get()
+            .await()
+
+        val nameResults = nameQuery.documents.mapNotNull { document ->
+            try {
+                document.toObject<ServiceDto>()?.let { dto ->
+                    ServiceMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        // If we have enough results, return them
+        if (nameResults.size >= limit) {
+            return nameResults.take(limit)
+        }
+
+        // Otherwise, search by category as well
+        val categoryQuery = firestore.collection(SERVICES_COLLECTION)
+            .whereGreaterThanOrEqualTo("category", query)
+            .whereLessThanOrEqualTo("category", query + "\uf8ff")
+            .limit((limit - nameResults.size).toLong())
+            .get()
+            .await()
+
+        val categoryResults = categoryQuery.documents.mapNotNull { document ->
+            try {
+                document.toObject<ServiceDto>()?.let { dto ->
+                    ServiceMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        // Combine results and remove duplicates
+        val allResults = (nameResults + categoryResults).distinctBy { it.id.value }
+
+        // Sort by relevance: exact matches first, then popular services
+        return allResults.sortedWith(
+            compareBy<Service> { service ->
+                when {
+                    service.name.equals(query, ignoreCase = true) -> 0
+                    service.name.startsWith(query, ignoreCase = true) -> 1
+                    service.category.equals(query, ignoreCase = true) -> 2
+                    service.isPopular -> 3
+                    else -> 4
+                }
+            }.thenBy { it.name },
+        )
+            .take(limit)
+    }
+
+    suspend fun getPopularServices(limit: Int = 10): List<Service> {
+        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
+            .whereEqualTo("isPopular", true)
+            .orderBy("name", Query.Direction.ASCENDING)
+            .limit(limit.toLong())
+            .get()
+            .await()
+
+        return querySnapshot.documents.mapNotNull { document ->
+            try {
+                document.toObject<ServiceDto>()?.let { dto ->
+                    ServiceMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    suspend fun getServicesByCategory(
+        category: String,
+        limit: Int = 20
+    ): List<Service> {
+        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
+            .whereEqualTo("category", category)
+            .orderBy("name", Query.Direction.ASCENDING)
+            .limit(limit.toLong())
+            .get()
+            .await()
+
+        return querySnapshot.documents.mapNotNull { document ->
+            try {
+                document.toObject<ServiceDto>()?.let { dto ->
+                    ServiceMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    suspend fun getAllServices(limit: Int = 100): List<Service> {
+        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
+            .orderBy("name", Query.Direction.ASCENDING)
+            .limit(limit.toLong())
+            .get()
+            .await()
+
+        return querySnapshot.documents.mapNotNull { document ->
+            try {
+                document.toObject<ServiceDto>()?.let { dto ->
+                    ServiceMapper.toDomain(dto)
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
 }

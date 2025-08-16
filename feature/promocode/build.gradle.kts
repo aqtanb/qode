@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.feature.profile"
+    namespace = "com.qodein.feature.promocode"
     compileSdk =
         libs.versions.compileSdk
             .get()

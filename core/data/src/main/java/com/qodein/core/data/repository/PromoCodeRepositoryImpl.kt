@@ -5,8 +5,8 @@ import com.qodein.core.domain.repository.PromoCodeRepository
 import com.qodein.core.domain.repository.PromoCodeSortBy
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.PromoCodeId
-import com.qodein.core.model.PromoCodeUsage
 import com.qodein.core.model.PromoCodeVote
+import com.qodein.core.model.Service
 import com.qodein.core.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -99,16 +99,6 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
             emit(Unit)
         }
 
-    override fun recordUsage(usage: PromoCodeUsage): Flow<PromoCodeUsage> =
-        flow {
-            emit(dataSource.recordUsage(usage))
-        }
-
-    override fun getUsageStatistics(promoCodeId: PromoCodeId): Flow<List<PromoCodeUsage>> =
-        flow {
-            emit(dataSource.getUsageStatistics(promoCodeId))
-        }
-
     override fun addComment(
         promoCodeId: PromoCodeId,
         userId: UserId,
@@ -141,4 +131,27 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         }
 
     override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> = dataSource.observePromoCodes(ids)
+
+    // Service-related methods
+
+    override fun searchServices(
+        query: String,
+        limit: Int
+    ): Flow<List<Service>> =
+        flow {
+            emit(dataSource.searchServices(query, limit))
+        }
+
+    override fun getPopularServices(limit: Int): Flow<List<Service>> =
+        flow {
+            emit(dataSource.getPopularServices(limit))
+        }
+
+    override fun getServicesByCategory(
+        category: String,
+        limit: Int
+    ): Flow<List<Service>> =
+        flow {
+            emit(dataSource.getServicesByCategory(category, limit))
+        }
 }

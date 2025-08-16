@@ -192,9 +192,6 @@ private fun HomeContent(
                 onCardClick = {
                     onAction(HomeAction.PromoCodeClicked(promoCode))
                 },
-                onUpvoteClick = {
-                    onAction(HomeAction.UpvotePromoCode(promoCode.id.value))
-                },
                 onCopyCodeClick = {
                     onAction(HomeAction.CopyPromoCode(promoCode))
                 },
@@ -202,9 +199,6 @@ private fun HomeContent(
                     horizontal = SpacingTokens.lg,
                     vertical = SpacingTokens.xs,
                 ),
-                onDownvoteClick = {
-                    onAction(HomeAction.DownvotePromoCode(promoCode.id.value))
-                },
             )
         }
 

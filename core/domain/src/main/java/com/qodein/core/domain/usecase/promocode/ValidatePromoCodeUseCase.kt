@@ -35,7 +35,6 @@ class ValidatePromoCodeUseCase @Inject constructor(private val promoCodeReposito
         when (promoCode) {
             is PromoCode.PercentagePromoCode -> promoCode.minimumOrderAmount
             is PromoCode.FixedAmountPromoCode -> promoCode.minimumOrderAmount
-            is PromoCode.PromoPromoCode -> null
         }
 }
 

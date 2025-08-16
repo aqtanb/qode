@@ -2,8 +2,8 @@ package com.qodein.core.domain.repository
 
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.PromoCodeId
-import com.qodein.core.model.PromoCodeUsage
 import com.qodein.core.model.PromoCodeVote
+import com.qodein.core.model.Service
 import com.qodein.core.model.UserId
 import kotlinx.coroutines.flow.Flow
 
@@ -153,27 +153,6 @@ interface PromoCodeRepository {
     fun incrementViewCount(id: PromoCodeId): Flow<Unit>
 
     /**
-     * Record promo code usage.
-     *
-     * @param usage The usage record
-     * @return Flow that emits [PromoCodeUsage] on successful record
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     * @throws IllegalArgumentException when validation fails
-     */
-    fun recordUsage(usage: PromoCodeUsage): Flow<PromoCodeUsage>
-
-    /**
-     * Get usage statistics for a promo code.
-     *
-     * @param promoCodeId The promo code ID
-     * @return Flow that emits List<[PromoCodeUsage]>
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun getUsageStatistics(promoCodeId: PromoCodeId): Flow<List<PromoCodeUsage>>
-
-    /**
      * Add comment to a promo code.
      *
      * @param promoCodeId The promo code ID
@@ -240,6 +219,46 @@ interface PromoCodeRepository {
      * @throws IllegalStateException when Firestore is unavailable
      */
     fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>>
+
+    // Service-related methods
+
+    /**
+     * Search for services by name or category.
+     *
+     * @param query Search query text
+     * @param limit Maximum number of results
+     * @return Flow that emits List<[Service]> matching the query
+     * @throws java.io.IOException when network request fails
+     * @throws IllegalStateException when Firestore is unavailable
+     */
+    fun searchServices(
+        query: String,
+        limit: Int = 20
+    ): Flow<List<Service>>
+
+    /**
+     * Get popular services for quick selection.
+     *
+     * @param limit Maximum number of results
+     * @return Flow that emits List<[Service]> marked as popular
+     * @throws java.io.IOException when network request fails
+     * @throws IllegalStateException when Firestore is unavailable
+     */
+    fun getPopularServices(limit: Int = 10): Flow<List<Service>>
+
+    /**
+     * Get services by category.
+     *
+     * @param category Service category
+     * @param limit Maximum number of results
+     * @return Flow that emits List<[Service]> in the specified category
+     * @throws java.io.IOException when network request fails
+     * @throws IllegalStateException when Firestore is unavailable
+     */
+    fun getServicesByCategory(
+        category: String,
+        limit: Int = 20
+    ): Flow<List<Service>>
 }
 
 /**
