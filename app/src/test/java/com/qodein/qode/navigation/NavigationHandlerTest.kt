@@ -5,6 +5,7 @@ import com.qodein.core.domain.AuthState
 import com.qodein.core.testing.data.TestUsers
 import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.profile.navigation.navigateToProfile
+import com.qodein.feature.settings.navigation.navigateToSettings
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -41,6 +42,7 @@ class NavigationHandlerTest {
         // Mock navigation extension functions
         every { navController.navigateToProfile() } just runs
         every { navController.navigateToAuth() } just runs
+        every { navController.navigateToSettings() } just runs
         every { navController.popBackStack() } returns true
     }
 
@@ -269,10 +271,10 @@ class NavigationHandlerTest {
         verify { navController.navigateToAuth() }
     }
 
-    // NavigateToSettings Action Tests (Currently routes to Profile)
+    // NavigateToSettings Action Tests
 
     @Test
-    fun handleNavigation_navigateToSettings_whenAuthenticated_routesToProfile() {
+    fun handleNavigation_navigateToSettings_whenAuthenticated_routesToSettings() {
         // Given
         val authState = AuthState.Authenticated(authenticatedUser)
         val action = NavigationActions.NavigateToSettings
@@ -285,12 +287,12 @@ class NavigationHandlerTest {
             navigateToTopLevel = navigateToTopLevel,
         )
 
-        // Then - Should route to profile since settings feature doesn't exist yet
-        verify { navController.navigateToProfile() }
+        // Then - Should route to settings since the feature exists
+        verify { navController.navigateToSettings() }
     }
 
     @Test
-    fun handleNavigation_navigateToSettings_whenUnauthenticated_routesToAuth() {
+    fun handleNavigation_navigateToSettings_whenUnauthenticated_routesToSettings() {
         // Given
         val authState = AuthState.Unauthenticated
         val action = NavigationActions.NavigateToSettings
@@ -303,8 +305,8 @@ class NavigationHandlerTest {
             navigateToTopLevel = navigateToTopLevel,
         )
 
-        // Then - Should route to auth since settings feature doesn't exist yet
-        verify { navController.navigateToAuth() }
+        // Then - Should route to settings since the feature exists
+        verify { navController.navigateToSettings() }
     }
 
     // getProfileNavigationAction Tests

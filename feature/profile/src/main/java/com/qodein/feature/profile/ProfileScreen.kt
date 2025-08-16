@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -57,6 +58,7 @@ import com.qodein.core.designsystem.component.AutoHidingTopAppBar
 import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
+import com.qodein.core.designsystem.component.QodeComingSoonDialog
 import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeRetryableErrorCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -93,15 +95,17 @@ fun ProfileScreen(
     onUserJourneyClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
+    var showComingSoon by remember { mutableStateOf(false) }
 
     // Collect and handle events
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                ProfileEvent.EditProfileRequested -> onEditProfile()
+                ProfileEvent.EditProfileRequested -> showComingSoon = true
                 ProfileEvent.SignedOut -> onSignOut()
-                ProfileEvent.AchievementsRequested -> onAchievementsClick()
-                ProfileEvent.UserJourneyRequested -> onUserJourneyClick()
+                ProfileEvent.AchievementsRequested -> showComingSoon = true
+                ProfileEvent.UserJourneyRequested -> showComingSoon = true
             }
         }
     }
@@ -143,6 +147,16 @@ fun ProfileScreen(
                 )
             }
         }
+    }
+
+    // Show Coming Soon dialog when user tries to access coming soon features
+    if (showComingSoon) {
+        QodeComingSoonDialog(
+            onDismiss = { showComingSoon = false },
+            onTelegramClick = {
+                uriHandler.openUri("https://www.t.me/qodeinhq")
+            },
+        )
     }
 }
 
@@ -625,20 +639,7 @@ private fun StatCardPreview(
 ) {
     Card(
         modifier = modifier
-            .height(140.dp)
-            .let { cardModifier ->
-                if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
-                    // Light theme - no shadow to avoid weird effects
-                    cardModifier
-                } else {
-                    // Dark theme - use gradient color shadow
-                    cardModifier.shadow(
-                        elevation = ElevationTokens.extraLarge,
-                        shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
-                        ambientColor = gradientColors.first().copy(alpha = 0.3f),
-                    )
-                }
-            },
+            .height(140.dp),
         // Stats cards are non-clickable - they display info only
         shape = RoundedCornerShape(SpacingTokens.lg - SpacingTokens.xs),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),

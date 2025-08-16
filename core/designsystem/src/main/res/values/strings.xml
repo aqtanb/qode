@@ -39,4 +39,10 @@
 
     <!-- Avatar -->
     <string name="profile_picture_description">Profile Picture</string>
+    
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">We\'re working on this feature</string>
+    <string name="coming_soon_description">You can link with us and watch our progression in the Telegram channel.</string>
+    <string name="coming_soon_telegram_button">Follow on Telegram</string>
+    <string name="coming_soon_dialog_description">Coming soon dialog for new features</string>
 </resources>

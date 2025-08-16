@@ -516,7 +516,8 @@ private fun RevolutionaryQuickFilters(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(vertical = SpacingTokens.lg),
+        modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.lg),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         LazyRow(
             contentPadding = PaddingValues(horizontal = SpacingTokens.lg),

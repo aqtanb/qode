@@ -13,4 +13,10 @@
     <string name="profile_title">Profile</string>
     <string name="sign_in_title">Sign In</string>
     <string name="back">Back</string>
+    
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">We\'re Working On This Feature</string>
+    <string name="coming_soon_description">You can link with us and watch our progression here</string>
+    <string name="telegram_button_text">Follow on Telegram</string>
+    <string name="close_button_text">Close</string>
 </resources>

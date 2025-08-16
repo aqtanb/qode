@@ -13,7 +13,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeBottomNavigation
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
+import com.qodein.core.designsystem.component.QodeComingSoonDialog
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
 import com.qodein.core.designsystem.component.QodeScreenTopAppBar
@@ -57,6 +62,8 @@ internal fun QodeApp(
 ) {
     val appViewModel: QodeAppViewModel = hiltViewModel()
     val authState by appViewModel.authState.collectAsStateWithLifecycle()
+    val uriHandler = LocalUriHandler.current
+    var showComingSoon by remember { mutableStateOf(false) }
 
     val currentDestination = appState.currentTopLevelDestination
     val selectedTabDestination = appState.selectedTabDestination
@@ -154,7 +161,12 @@ internal fun QodeApp(
                             appState.topLevelDestinations.find {
                                 it.route.simpleName == selectedItem.route
                             }?.let { destination ->
-                                appState.navigateToTopLevelDestination(destination)
+                                // Intercept inbox navigation and show Coming Soon dialog
+                                if (destination == TopLevelDestination.INBOX) {
+                                    showComingSoon = true
+                                } else {
+                                    appState.navigateToTopLevelDestination(destination)
+                                }
                             }
                         },
                     )
@@ -176,6 +188,16 @@ internal fun QodeApp(
                 )
                 // Regular screens with solid top bars - full padding
                 else -> Modifier.padding(innerPadding)
+            },
+        )
+    }
+
+    // Show Coming Soon dialog when user tries to access inbox
+    if (showComingSoon) {
+        QodeComingSoonDialog(
+            onDismiss = { showComingSoon = false },
+            onTelegramClick = {
+                uriHandler.openUri("https://www.t.me/qodeinhq")
             },
         )
     }
