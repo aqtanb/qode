@@ -2,6 +2,7 @@ package com.qodein.feature.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,17 +42,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.component.QodeBannerGradient
+import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeDivider
@@ -62,15 +68,16 @@ import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.model.Banner
 import com.qodein.core.model.PromoCode
 import com.qodein.core.ui.component.AutoScrollingBanner
-import com.qodein.core.ui.component.BannerConfig
 import com.qodein.core.ui.component.CouponPromoCodeCard
-import com.qodein.core.ui.component.getDefaultBannerConfigs
+import com.qodein.feature.home.R
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -79,20 +86,36 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
-    onNavigateToBannerDetail: () -> Unit = {},
+    onNavigateToBannerDetail: (Banner) -> Unit = {},
     onShowPromoCodeCopied: (PromoCode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
+    val context = LocalContext.current
 
     // Handle events
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
             when (event) {
                 is HomeEvent.PromoCodeDetailRequested -> onNavigateToPromoCodeDetail(event.promoCode)
-                is HomeEvent.BannerDetailRequested -> onNavigateToBannerDetail()
+                is HomeEvent.BannerDetailRequested -> {
+                    // Handle banner CTA URL navigation directly
+                    val banner = event.banner
+                    if (banner.ctaUrl?.isNotBlank() == true) {
+                        try {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(banner.ctaUrl))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Fallback to external navigation callback
+                            onNavigateToBannerDetail(banner)
+                        }
+                    } else {
+                        // No URL, use the navigation callback
+                        onNavigateToBannerDetail(banner)
+                    }
+                }
                 is HomeEvent.PromoCodeCopied -> onShowPromoCodeCopied(event.promoCode)
             }
         }
@@ -182,7 +205,10 @@ private fun HomeContent(
     ) {
         // Section 1: Hero Banner Section
         item(key = "hero_banner_section") {
-            HeroBannerSection()
+            HeroBannerSection(
+                banners = uiState.banners,
+                onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
+            )
         }
 
         // Section 2: Quick Filters Section
@@ -301,43 +327,92 @@ private fun PromoCodesEmptyState() {
  * Contains country picker, promotional banner carousel, and call-to-action
  */
 @Composable
-private fun HeroBannerSection(modifier: Modifier = Modifier) {
+private fun HeroBannerSection(
+    banners: List<Banner>,
+    onBannerClick: (Banner) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
     val bannerHeight = (screenHeight * 0.5f)
 
-    AutoScrollingBanner(
-        items = getDefaultBannerConfigs(),
-        autoScrollDelay = 4.seconds,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(bannerHeight.dp),
-    ) { bannerConfig, index ->
-        HeroBannerContent(
-            bannerConfig = bannerConfig,
-            modifier = Modifier.fillMaxSize(),
-        )
+    // Only use real banners from server, no fallback
+    val bannerItems = banners
+
+    // Only show banner section if there are real banners
+    if (bannerItems.isNotEmpty()) {
+        AutoScrollingBanner(
+            items = bannerItems,
+            autoScrollDelay = 4.seconds,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(bannerHeight.dp),
+        ) { banner, index ->
+            HeroBannerContent(
+                banner = banner,
+                onBannerClick = onBannerClick,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
 
 @Composable
 private fun HeroBannerContent(
-    bannerConfig: BannerConfig,
+    banner: Banner,
+    onBannerClick: (Banner) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val gradientColorScheme = bannerConfig.gradientScheme
-    val primaryGradientColor = bannerConfig.primaryColor
-    val brandName = bannerConfig.brandName
+    // Parse gradient colors for text styling
+    val gradientColors = try {
+        banner.gradientColors.map { hex ->
+            Color(hex.toColorInt())
+        }
+    } catch (e: Exception) {
+        listOf(Color(0xFF6366F1), Color(0xFF8B5CF6))
+    }
+
+    val primaryGradientColor = gradientColors.firstOrNull() ?: Color(0xFF6366F1)
 
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        // Background gradient
-        QodeBannerGradient(
-            colors = gradientColorScheme,
-            height = 1000.dp,
-            modifier = Modifier.fillMaxSize(),
-        )
+        // Background: ONLY image or error state - NO OVERLAYS, NO GRADIENTS
+        if (banner.imageUrl.isNotBlank()) {
+            // Show only the image - clean and full opacity
+            AsyncImage(
+                model = banner.imageUrl,
+                contentDescription = banner.title,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            // Error state: No image URL or failed to load
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Red.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    Icon(
+                        imageVector = QodeUIIcons.Error,
+                        contentDescription = "Image not found",
+                        tint = Color.White,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                    )
+                    Text(
+                        text = "Image not available",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
 
         // Decorative background element
         Icon(
@@ -364,8 +439,9 @@ private fun HeroBannerContent(
 
             // Brand information and CTA section
             BannerCallToAction(
-                brandName = brandName,
+                banner = banner,
                 primaryColor = primaryGradientColor,
+                onBannerClick = onBannerClick,
                 modifier = Modifier.padding(bottom = SpacingTokens.lg),
             )
         }
@@ -380,7 +456,7 @@ private fun BannerCountryPicker(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
         Text(
-            text = "Your Country",
+            text = stringResource(R.string.banner_country_picker_title),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White.copy(alpha = 0.8f),
             fontWeight = FontWeight.Medium,
@@ -408,33 +484,47 @@ private fun BannerCountryPicker(modifier: Modifier = Modifier) {
 
 @Composable
 private fun BannerCallToAction(
-    brandName: String,
+    banner: Banner,
     primaryColor: Color,
+    onBannerClick: (Banner) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
+        // Clean text with shadows only - no ugly backgrounds
         Text(
-            text = brandName,
-            style = MaterialTheme.typography.headlineMedium,
+            text = banner.title,
+            style = MaterialTheme.typography.headlineMedium.copy(
+                shadow = Shadow(
+                    color = Color.Black.copy(alpha = 0.8f),
+                    offset = Offset(2f, 2f),
+                    blurRadius = 6f,
+                ),
+            ),
             fontWeight = FontWeight.Black,
             color = Color.White,
         )
 
         Text(
-            text = "Exclusive deals and premium offers",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.9f),
+            text = banner.description,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                shadow = Shadow(
+                    color = Color.Black.copy(alpha = 0.6f),
+                    offset = Offset(2f, 2f),
+                    blurRadius = 4f,
+                ),
+            ),
+            color = Color.White,
         )
 
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(ShapeTokens.Corner.large),
             modifier = Modifier
-                .clickable { /* TODO: Handle banner click */ }
-                .padding(top = SpacingTokens.sm),
+                .padding(top = SpacingTokens.sm)
+                .clickable { onBannerClick(banner) },
         ) {
             Row(
                 modifier = Modifier.padding(
@@ -445,7 +535,7 @@ private fun BannerCallToAction(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
             ) {
                 Text(
-                    text = stringResource(R.string.banner_claim_now),
+                    text = banner.ctaText,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = primaryColor,

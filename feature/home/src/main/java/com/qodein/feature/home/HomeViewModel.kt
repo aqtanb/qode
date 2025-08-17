@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.domain.repository.PromoCodeSortBy
+import com.qodein.core.domain.usecase.banner.GetBannersUseCase
 import com.qodein.core.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.core.domain.usecase.promocode.VoteOnPromoCodeUseCase
+import com.qodein.core.model.Banner
 import com.qodein.core.model.PromoCode
 import com.qodein.core.model.PromoCodeId
 import com.qodein.core.model.UserId
@@ -22,9 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getPromoCodesUseCase: GetPromoCodesUseCase,
-    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase
+    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
+    private val getBannersUseCase: GetBannersUseCase
     // TODO: Inject other repositories when available
-    // private val bannerRepository: BannerRepository,
     // private val userRepository: UserRepository,
     // private val analyticsRepository: AnalyticsRepository
 ) : ViewModel() {
@@ -46,7 +48,7 @@ class HomeViewModel @Inject constructor(
     fun onAction(action: HomeAction) {
         when (action) {
             is HomeAction.RefreshData -> loadHomeData(isRefresh = true)
-            is HomeAction.BannerItemClicked -> onBannerItemClicked()
+            is HomeAction.BannerClicked -> onBannerClicked(action.banner)
             is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promoCode)
             is HomeAction.UpvotePromoCode -> onUpvotePromoCode(action.promoCodeId)
             is HomeAction.DownvotePromoCode -> onDownvotePromoCode(action.promoCodeId)
@@ -120,11 +122,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateSuccessState(promoCodes: List<PromoCode>) {
+    private fun updateSuccessState(
+        promoCodes: List<PromoCode>,
+        banners: List<Banner> = emptyList()
+    ) {
         promoCodes.forEachIndexed { index, promoCode ->
             Log.d(TAG, "  [$index] PromoCode: ${promoCode.code} for ${promoCode.serviceName}")
         }
+        banners.forEachIndexed { index, banner ->
+            Log.d(TAG, "  [$index] Banner: ${banner.title} for ${banner.brandName}")
+        }
         _uiState.value = HomeUiState.Success(
+            banners = banners,
             promoCodes = promoCodes,
             hasMorePromoCodes = promoCodes.size >= 20,
         )
@@ -143,8 +152,8 @@ class HomeViewModel @Inject constructor(
                     HomeUiState.Loading
                 }
 
-                // Load promocodes with smart fallback strategy
-                loadPromoCodesWithFallback()
+                // Load banners and promocodes concurrently
+                loadBannersAndPromoCodes()
             } catch (exception: Exception) {
                 _uiState.value = HomeUiState.Error(
                     exception = Exception("Failed to load data. Please try again."),
@@ -154,17 +163,106 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private suspend fun loadBannersAndPromoCodes() {
+        try {
+            Log.d(TAG, "loadBannersAndPromoCodes: Loading banners first, then promo codes")
+
+            // Load banners first, then pass them to promo code loading
+            getBannersUseCase(limit = 10).catch { e ->
+                Log.w(TAG, "loadBannersAndPromoCodes: Failed to load banners, proceeding with empty list", e)
+                // Proceed with promo codes even if banners fail
+                loadPromoCodesWithBanners(emptyList())
+            }.collect { loadedBanners ->
+                Log.d(TAG, "loadBannersAndPromoCodes: Successfully loaded ${loadedBanners.size} banners, now loading promo codes")
+                // Load promo codes with the banners we just loaded
+                loadPromoCodesWithBanners(loadedBanners)
+            }
+        } catch (exception: Exception) {
+            Log.e(TAG, "loadBannersAndPromoCodes: Failed to load data", exception)
+            _uiState.value = HomeUiState.Error(
+                exception = Exception("Failed to load data. Please try again."),
+                isRetryable = true,
+            )
+        }
+    }
+
+    private suspend fun loadPromoCodesWithBanners(banners: List<Banner>) {
+        // Try POPULARITY first (preferred for established apps with voted content)
+        Log.d(TAG, "loadPromoCodesWithBanners: Trying POPULARITY sort first")
+        try {
+            getPromoCodesUseCase(
+                sortBy = PromoCodeSortBy.POPULARITY,
+                limit = 20,
+            ).catch { e ->
+                Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY query failed, trying NEWEST fallback", e)
+                loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
+                return@catch
+            }.collect { result ->
+                result.fold(
+                    onSuccess = { promoCodes ->
+                        if (promoCodes.isNotEmpty()) {
+                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY SUCCESS - Retrieved ${promoCodes.size} promo codes")
+                            updateSuccessState(promoCodes, banners)
+                        } else {
+                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY returned empty, trying NEWEST fallback")
+                            loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
+                        }
+                    },
+                    onFailure = { error ->
+                        Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY failed, trying NEWEST fallback", error)
+                        loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
+                    },
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "loadPromoCodesWithBanners: Exception during POPULARITY query, trying NEWEST fallback", e)
+            loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
+        }
+    }
+
+    private suspend fun loadPromoCodesWithSortAndBanners(
+        sortBy: PromoCodeSortBy,
+        banners: List<Banner>
+    ) {
+        Log.d(TAG, "loadPromoCodesWithSortAndBanners: Starting query with $sortBy sort")
+        getPromoCodesUseCase(
+            sortBy = sortBy,
+            limit = 20,
+        ).catch { e ->
+            Log.e(TAG, "loadPromoCodesWithSortAndBanners: Query failed with exception", e)
+            _uiState.value = HomeUiState.Error(
+                exception = Exception("Failed to load promocodes: ${e.message}"),
+                isRetryable = true,
+            )
+        }.collect { result ->
+            Log.d(TAG, "loadPromoCodesWithSortAndBanners: Query completed, processing result")
+            result.fold(
+                onSuccess = { promoCodes ->
+                    Log.d(TAG, "loadPromoCodesWithSortAndBanners: SUCCESS - Retrieved ${promoCodes.size} promo codes")
+                    updateSuccessState(promoCodes, banners)
+                },
+                onFailure = { error ->
+                    Log.e(TAG, "loadPromoCodesWithSortAndBanners: FAILURE - Query returned error", error)
+                    _uiState.value = HomeUiState.Error(
+                        exception = Exception("Failed to load promocodes: ${error.message}"),
+                        isRetryable = true,
+                    )
+                },
+            )
+        }
+    }
+
     private fun emitEvent(event: HomeEvent) {
         viewModelScope.launch {
             _events.emit(event)
         }
     }
 
-    private fun onBannerItemClicked() {
+    private fun onBannerClicked(banner: Banner) {
         // TODO: Track analytics
-        // analyticsRepository.trackBannerClick(item.id)
+        // analyticsRepository.trackBannerClick(banner.id)
 
-        emitEvent(HomeEvent.BannerDetailRequested)
+        emitEvent(HomeEvent.BannerDetailRequested(banner))
     }
 
     private fun onPromoCodeClicked(promoCode: PromoCode) {

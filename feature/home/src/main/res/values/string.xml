@@ -18,6 +18,10 @@
     <string name="banner_off">OFF</string>
     <string name="banner_claim_now">Claim Now</string>
     <string name="banner_limited_time">Limited Time</string>
+    <string name="banner_country_picker_title">Your Country</string>
+    <string name="banner_default_description">Exclusive deals and premium offers</string>
+    <string name="banner_explore_deals">Explore Deals</string>
+    <string name="banner_loading_fallback">Loading amazing deals for you...</string>
     
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>

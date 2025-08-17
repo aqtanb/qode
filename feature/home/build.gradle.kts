@@ -46,6 +46,9 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
 
+    // Coil
+    implementation(libs.bundles.image.loading)
+
     // Dependency Injection
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
