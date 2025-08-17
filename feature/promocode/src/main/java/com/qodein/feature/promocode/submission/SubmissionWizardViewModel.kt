@@ -155,7 +155,21 @@ class SubmissionWizardViewModel @Inject constructor(
         val nextStep = currentState.currentStep.next() ?: return
 
         if (currentState.canGoNext) {
-            _uiState.value = currentState.copy(currentStep = nextStep)
+            // Auto-fill title when moving to OPTIONAL_DETAILS step
+            val updatedData = if (nextStep == SubmissionWizardStep.OPTIONAL_DETAILS &&
+                currentState.wizardData.title.isBlank()
+            ) {
+                currentState.wizardData.copy(
+                    title = generateAutoTitle(currentState.wizardData),
+                )
+            } else {
+                currentState.wizardData
+            }
+
+            _uiState.value = currentState.copy(
+                currentStep = nextStep,
+                wizardData = updatedData,
+            )
         }
     }
 
@@ -242,9 +256,9 @@ class SubmissionWizardViewModel @Inject constructor(
         val wizardData = currentState.wizardData
 
         // Validate dates
-        if (!wizardData.endDate.isAfter(wizardData.startDate)) {
+        if (wizardData.endDate == null || !wizardData.endDate.isAfter(wizardData.startDate)) {
             _uiState.value = currentState.copy(
-                validationErrors = mapOf("endDate" to "End date must be after start date"),
+                validationErrors = mapOf("endDate" to "End date must be selected and after start date"),
             )
             return
         }
@@ -328,4 +342,17 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun getCurrentSuccessState(): SubmissionWizardUiState.Success? = _uiState.value as? SubmissionWizardUiState.Success
+
+    private fun generateAutoTitle(wizardData: SubmissionWizardData): String =
+        when (wizardData.promoCodeType) {
+            PromoCodeType.PERCENTAGE -> {
+                val percentage = wizardData.discountPercentage.toIntOrNull() ?: 0
+                "$percentage% off at ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
+            }
+            PromoCodeType.FIXED_AMOUNT -> {
+                val amount = wizardData.discountAmount.toIntOrNull() ?: 0
+                "₸$amount off at ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
+            }
+            null -> "Promo code for ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
+        }
 }

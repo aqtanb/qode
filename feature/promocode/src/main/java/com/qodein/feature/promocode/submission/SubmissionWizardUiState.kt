@@ -22,7 +22,7 @@ data class SubmissionWizardData(
 
     // Step 3: Date Settings
     val startDate: LocalDate = LocalDate.now(),
-    val endDate: LocalDate = LocalDate.now().plusDays(30),
+    val endDate: LocalDate? = null,
 
     // Step 4: Optional Details
     val title: String = "",
@@ -42,7 +42,7 @@ data class SubmissionWizardData(
             null -> false
         }
 
-    fun isStep3Valid(): Boolean = endDate.isAfter(startDate)
+    fun isStep3Valid(): Boolean = endDate != null && endDate.isAfter(startDate)
 
     fun isStep4Valid(): Boolean = title.isNotBlank()
 

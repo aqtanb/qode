@@ -1,14 +1,20 @@
 package com.qodein.feature.promocode.submission.step1
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Service
 import com.qodein.core.ui.component.TypeableDropdown
@@ -50,7 +58,8 @@ fun ServiceAndTypeScreen(
     // These will be passed from the ViewModel in the next step
     availableServices: List<Service> = emptyList(),
     isLoadingServices: Boolean = false,
-    onSearchServices: (String) -> Unit = {}
+    onSearchServices: (String) -> Unit = {},
+    shouldFocusService: Boolean = false
 ) {
     var searchQuery by remember { mutableStateOf(wizardData.serviceName) }
 
@@ -65,15 +74,12 @@ fun ServiceAndTypeScreen(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // Hero Section with gradient background
-        HeroSection()
-
-        // Service Selection with TypeableDropdown
-        Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
+        // Service Selection
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.md)) {
             Text(
-                text = "Select Service",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                text = "Service (Optional)",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
 
@@ -96,8 +102,10 @@ fun ServiceAndTypeScreen(
             )
         }
 
-        // Promo Code Type Selection with modern cards
-        PromoCodeTypeSelector(
+        Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+        // Discount Type Selection
+        ModernTypeSelector(
             selectedType = wizardData.promoCodeType,
             onTypeSelected = { onAction(SubmissionWizardAction.UpdatePromoCodeType(it)) },
         )
@@ -105,92 +113,34 @@ fun ServiceAndTypeScreen(
 }
 
 @Composable
-private fun HeroSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(SpacingTokens.lg))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                        MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f),
-                    ),
-                ),
-            )
-            .padding(SpacingTokens.lg),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            // Animated icon with glassmorphism effect
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(SpacingTokens.lg))
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = QodeCommerceIcons.PromoCode,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Text(
-                text = "Create Promo Code",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Text(
-                text = "Select your service and choose the discount type",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-        }
-    }
-}
-
-@Composable
-private fun PromoCodeTypeSelector(
+private fun ModernTypeSelector(
     selectedType: PromoCodeType?,
     onTypeSelected: (PromoCodeType) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg)) {
         Text(
             text = "Discount Type",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            TypeCard(
+            ModernTypeCard(
                 type = PromoCodeType.PERCENTAGE,
                 title = "Percentage",
-                subtitle = "% off total",
                 icon = Icons.Default.Percent,
                 isSelected = selectedType == PromoCodeType.PERCENTAGE,
                 onClick = { onTypeSelected(PromoCodeType.PERCENTAGE) },
                 modifier = Modifier.weight(1f),
             )
 
-            TypeCard(
+            ModernTypeCard(
                 type = PromoCodeType.FIXED_AMOUNT,
                 title = "Fixed Amount",
-                subtitle = "$ off total",
                 icon = Icons.Default.AttachMoney,
                 isSelected = selectedType == PromoCodeType.FIXED_AMOUNT,
                 onClick = { onTypeSelected(PromoCodeType.FIXED_AMOUNT) },
@@ -201,48 +151,75 @@ private fun PromoCodeTypeSelector(
 }
 
 @Composable
-private fun TypeCard(
+private fun ModernTypeCard(
     type: PromoCodeType,
     title: String,
-    subtitle: String,
     icon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val containerColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        animationSpec = tween(300),
+        label = "container_color",
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        },
+        animationSpec = tween(300),
+        label = "border_color",
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 0.98f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "scale",
+    )
+
     Card(
         modifier = modifier
-            .animateContentSize()
+            .scale(scale)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
+            containerColor = containerColor,
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            width = if (isSelected) ShapeTokens.Border.medium else ShapeTokens.Border.thin,
+            color = borderColor,
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 8.dp else 2.dp,
+            defaultElevation = if (isSelected) SpacingTokens.sm else SpacingTokens.xs,
         ),
-        shape = RoundedCornerShape(SpacingTokens.lg),
+        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingTokens.lg),
+                .padding(SpacingTokens.xl),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            // Icon with background
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(SpacingTokens.md))
+                    .size(SizeTokens.Avatar.sizeLarge)
+                    .clip(RoundedCornerShape(ShapeTokens.Corner.extraLarge))
                     .background(
                         if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f)
-                        } else {
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
                         },
                     ),
                 contentAlignment = Alignment.Center,
@@ -250,11 +227,11 @@ private fun TypeCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
                     tint = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
                         MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     },
                 )
             }
@@ -262,25 +239,55 @@ private fun TypeCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                 color = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimary
+                    MaterialTheme.colorScheme.onPrimaryContainer
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    MaterialTheme.colorScheme.onSurface
                 },
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                },
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
         }
+    }
+}
+
+// MARK: - Enterprise-Level Previews
+
+@Preview(name = "Service And Type Screen - Empty State", showBackground = true)
+@Composable
+private fun ServiceAndTypeScreenEmptyPreview() {
+    QodeTheme {
+        ServiceAndTypeScreen(
+            wizardData = SubmissionWizardData(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Service And Type Screen - Percentage Selected", showBackground = true)
+@Composable
+private fun ServiceAndTypeScreenPercentagePreview() {
+    QodeTheme {
+        ServiceAndTypeScreen(
+            wizardData = SubmissionWizardData(
+                serviceName = "Netflix",
+                promoCodeType = PromoCodeType.PERCENTAGE,
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Modern Type Card - Selected", showBackground = true)
+@Composable
+private fun ModernTypeCardSelectedPreview() {
+    QodeTheme {
+        ModernTypeCard(
+            type = PromoCodeType.PERCENTAGE,
+            title = "Percentage",
+            icon = Icons.Default.Percent,
+            isSelected = true,
+            onClick = {},
+            modifier = Modifier.padding(SpacingTokens.md),
+        )
     }
 }

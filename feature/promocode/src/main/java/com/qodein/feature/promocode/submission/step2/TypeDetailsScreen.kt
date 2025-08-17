@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -13,11 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -31,39 +33,22 @@ fun TypeDetailsScreen(
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SpacingTokens.lg),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
-        Text(
-            text = "Promo Code Details",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Text(
-            text = when (wizardData.promoCodeType) {
-                PromoCodeType.PERCENTAGE -> "Enter the promo code and percentage discount details"
-                PromoCodeType.FIXED_AMOUNT -> "Enter the promo code and fixed amount discount details"
-                null -> "Please select a promo code type first"
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        when (wizardData.promoCodeType) {
-            PromoCodeType.PERCENTAGE -> PercentageDetailsSection(wizardData, onAction)
-            PromoCodeType.FIXED_AMOUNT -> FixedAmountDetailsSection(wizardData, onAction)
-            null -> {
-                QodeCard(variant = QodeCardVariant.Outlined) {
-                    Text(
-                        text = "Please go back and select a promo code type first",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+    when (wizardData.promoCodeType) {
+        PromoCodeType.PERCENTAGE -> PercentageDetailsSection(wizardData, onAction, modifier)
+        PromoCodeType.FIXED_AMOUNT -> FixedAmountDetailsSection(wizardData, onAction, modifier)
+        null -> {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(SpacingTokens.xl),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "Please select a discount type first",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -72,103 +57,128 @@ fun TypeDetailsScreen(
 @Composable
 private fun PercentageDetailsSection(
     wizardData: SubmissionWizardData,
-    onAction: (SubmissionWizardAction) -> Unit
+    onAction: (SubmissionWizardAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    QodeCard(variant = QodeCardVariant.Outlined) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            Text(
-                text = "Percentage Discount Details",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
+    val focusManager = LocalFocusManager.current
 
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+    ) {
+        QodeTextField(
+            value = wizardData.promoCode,
+            onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
+            label = "Promo Code",
+            placeholder = "SAVE20",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Next) },
+            ),
+            required = true,
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
             QodeTextField(
-                value = wizardData.promoCode,
-                onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
-                label = "Promo Code",
-                placeholder = "e.g., SAVE20, DISCOUNT50",
+                value = wizardData.discountPercentage,
+                onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
+                label = "Percentage",
+                placeholder = "20",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) },
+                ),
+                modifier = Modifier.weight(1f),
                 required = true,
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                QodeTextField(
-                    value = wizardData.discountPercentage,
-                    onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
-                    label = "Discount Percentage",
-                    placeholder = "e.g., 20",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f),
-                    required = true,
-                )
-            }
 
             QodeTextField(
                 value = wizardData.minimumOrderAmount,
                 onValueChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
-                label = "Minimum Order Amount",
-                placeholder = "e.g., 1000",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = "Min. Order",
+                placeholder = "1000",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
+                modifier = Modifier.weight(1f),
                 required = true,
             )
-
-            FirstUserOnlyCheckbox(
-                isChecked = wizardData.isFirstUserOnly,
-                onCheckedChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
-            )
         }
+
+        FirstUserOnlyCheckbox(
+            isChecked = wizardData.isFirstUserOnly,
+            onCheckedChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
+        )
     }
 }
 
 @Composable
 private fun FixedAmountDetailsSection(
     wizardData: SubmissionWizardData,
-    onAction: (SubmissionWizardAction) -> Unit
+    onAction: (SubmissionWizardAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    QodeCard(variant = QodeCardVariant.Outlined) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    val focusManager = LocalFocusManager.current
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+    ) {
+        QodeTextField(
+            value = wizardData.promoCode,
+            onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
+            label = "Promo Code",
+            placeholder = "GET500",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Next) },
+            ),
+            required = true,
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            Text(
-                text = "Fixed Amount Discount Details",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-
-            QodeTextField(
-                value = wizardData.promoCode,
-                onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
-                label = "Promo Code",
-                placeholder = "e.g., GET500, FLAT1000",
-                required = true,
-            )
-
             QodeTextField(
                 value = wizardData.discountAmount,
                 onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
-                label = "Discount Amount",
-                placeholder = "e.g., 500",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = "Amount",
+                placeholder = "500",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) },
+                ),
+                modifier = Modifier.weight(1f),
                 required = true,
             )
 
             QodeTextField(
                 value = wizardData.minimumOrderAmount,
                 onValueChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
-                label = "Minimum Order Amount",
-                placeholder = "e.g., 2000",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = "Min. Order",
+                placeholder = "2000",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
+                modifier = Modifier.weight(1f),
                 required = true,
             )
-
-            FirstUserOnlyCheckbox(
-                isChecked = wizardData.isFirstUserOnly,
-                onCheckedChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
-            )
         }
+
+        FirstUserOnlyCheckbox(
+            isChecked = wizardData.isFirstUserOnly,
+            onCheckedChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
+        )
     }
 }
 
@@ -187,24 +197,30 @@ private fun FirstUserOnlyCheckbox(
             onCheckedChange = onCheckedChange,
         )
 
-        Column(
+        Text(
+            text = "New customers only",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = SpacingTokens.sm),
-        ) {
-            Text(
-                text = "First time users only",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-            )
-            Text(
-                text = "This promo code can only be used by new customers",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        )
     }
 }
 
-@Preview(showBackground = true)
+// MARK: - Enterprise-Level Previews
+
+@Preview(name = "Type Details - Empty State", showBackground = true)
+@Composable
+private fun TypeDetailsScreenEmptyPreview() {
+    QodeTheme {
+        TypeDetailsScreen(
+            wizardData = SubmissionWizardData(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Type Details - Percentage Form", showBackground = true)
 @Composable
 private fun TypeDetailsScreenPercentagePreview() {
     QodeTheme {
@@ -214,13 +230,14 @@ private fun TypeDetailsScreenPercentagePreview() {
                 promoCode = "SAVE20",
                 discountPercentage = "20",
                 minimumOrderAmount = "1000",
+                isFirstUserOnly = true,
             ),
             onAction = {},
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Type Details - Fixed Amount Form", showBackground = true)
 @Composable
 private fun TypeDetailsScreenFixedAmountPreview() {
     QodeTheme {
@@ -230,8 +247,62 @@ private fun TypeDetailsScreenFixedAmountPreview() {
                 promoCode = "GET500",
                 discountAmount = "500",
                 minimumOrderAmount = "2000",
+                isFirstUserOnly = false,
             ),
             onAction = {},
         )
+    }
+}
+
+@Preview(name = "Type Details - Validation Errors", showBackground = true)
+@Composable
+private fun TypeDetailsScreenValidationPreview() {
+    QodeTheme {
+        TypeDetailsScreen(
+            wizardData = SubmissionWizardData(
+                promoCodeType = PromoCodeType.PERCENTAGE,
+                promoCode = "",
+                discountPercentage = "",
+                minimumOrderAmount = "",
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Type Details - Dark Theme", showBackground = true)
+@Composable
+private fun TypeDetailsScreenDarkPreview() {
+    QodeTheme(darkTheme = true) {
+        TypeDetailsScreen(
+            wizardData = SubmissionWizardData(
+                promoCodeType = PromoCodeType.PERCENTAGE,
+                promoCode = "DARKMODE20",
+                discountPercentage = "25",
+                minimumOrderAmount = "1500",
+                isFirstUserOnly = true,
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "First User Checkbox - Variants", showBackground = true)
+@Composable
+private fun FirstUserOnlyCheckboxPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            FirstUserOnlyCheckbox(
+                isChecked = false,
+                onCheckedChange = {},
+            )
+            FirstUserOnlyCheckbox(
+                isChecked = true,
+                onCheckedChange = {},
+            )
+        }
     }
 }

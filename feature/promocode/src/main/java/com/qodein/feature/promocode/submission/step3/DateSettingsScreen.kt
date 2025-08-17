@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -31,8 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
@@ -56,71 +52,40 @@ fun DateSettingsScreen(
     val endDatePickerState = rememberDatePickerState()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SpacingTokens.lg),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxl),
     ) {
-        Text(
-            text = "Date Settings",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
+        // Start Date
+        DatePickerField(
+            label = "Start Date",
+            selectedDate = wizardData.startDate,
+            onDateClick = { showStartDatePicker = true },
+            onClearClick = null,
+            placeholder = "Today (default)",
+            isRequired = true,
         )
 
-        Text(
-            text = "Set when your promo code will be active",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        // End Date
+        DatePickerField(
+            label = "End Date",
+            selectedDate = wizardData.endDate,
+            onDateClick = { showEndDatePicker = true },
+            onClearClick = null,
+            placeholder = "Select end date",
+            isRequired = true,
         )
 
-        QodeCard(variant = QodeCardVariant.Outlined) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                Text(
-                    text = "Validity Period",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                // Start Date
-                DatePickerField(
-                    label = "Start Date",
-                    selectedDate = wizardData.startDate,
-                    onDateClick = { showStartDatePicker = true },
-                    onClearClick = null, // Start date is required
-                    placeholder = "Today (default)",
-                )
-
-                // End Date
-                DatePickerField(
-                    label = "End Date",
-                    selectedDate = wizardData.endDate,
-                    onDateClick = { showEndDatePicker = true },
-                    onClearClick = { /* End date is required, no clear option */ },
-                    placeholder = "Select end date",
-                    isRequired = true,
-                )
-
-                // Date validation message
-                if (wizardData.endDate.isBefore(wizardData.startDate) ||
-                    wizardData.endDate == wizardData.startDate
-                ) {
-                    Text(
-                        text = "End date must be after start date",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
+        // Date validation message
+        if (wizardData.endDate != null &&
+            (wizardData.endDate.isBefore(wizardData.startDate) || wizardData.endDate == wizardData.startDate)
+        ) {
+            Text(
+                text = "End date must be after start date",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = SpacingTokens.xs),
+            )
         }
-
-        // Helpful hint about dates
-        Text(
-            text = "💡 Promo code will be active from start date to end date",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 
     // Start Date Picker Dialog
@@ -185,7 +150,7 @@ fun DateSettingsScreen(
 @Composable
 private fun DatePickerField(
     label: String,
-    selectedDate: LocalDate,
+    selectedDate: LocalDate?,
     onDateClick: () -> Unit,
     onClearClick: (() -> Unit)?,
     placeholder: String,
@@ -195,56 +160,45 @@ private fun DatePickerField(
     Column(modifier = modifier) {
         Text(
             text = if (isRequired) "$label *" else label,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
-        Spacer(modifier = Modifier.height(SpacingTokens.xs))
+        Spacer(modifier = Modifier.height(SpacingTokens.md))
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onDateClick() },
         ) {
-            OutlinedCard(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .clickable { onDateClick() },
+                    .fillMaxWidth()
+                    .padding(SpacingTokens.lg),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(SpacingTokens.md),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                Text(
+                    text = selectedDate?.format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy")) ?: placeholder,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = if (selectedDate != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-                    Icon(
-                        imageVector = Icons.Default.CalendarToday,
-                        contentDescription = "Select date",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            if (onClearClick != null) {
-                IconButton(onClick = onClearClick) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear date",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = "Select date",
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+// MARK: - Enterprise-Level Previews
+
+@Preview(name = "Date Settings - Default State", showBackground = true)
 @Composable
 private fun DateSettingsScreenPreview() {
     QodeTheme {
@@ -258,7 +212,7 @@ private fun DateSettingsScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Date Settings - Empty State", showBackground = true)
 @Composable
 private fun DateSettingsScreenEmptyPreview() {
     QodeTheme {
@@ -266,5 +220,75 @@ private fun DateSettingsScreenEmptyPreview() {
             wizardData = SubmissionWizardData(),
             onAction = {},
         )
+    }
+}
+
+@Preview(name = "Date Settings - Validation Error", showBackground = true)
+@Composable
+private fun DateSettingsScreenValidationErrorPreview() {
+    QodeTheme {
+        DateSettingsScreen(
+            wizardData = SubmissionWizardData(
+                startDate = LocalDate.now().plusDays(10),
+                endDate = LocalDate.now().plusDays(5), // End before start
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Date Settings - Extended Period", showBackground = true)
+@Composable
+private fun DateSettingsScreenExtendedPreview() {
+    QodeTheme {
+        DateSettingsScreen(
+            wizardData = SubmissionWizardData(
+                startDate = LocalDate.now(),
+                endDate = LocalDate.now().plusDays(90),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Date Settings - Dark Theme", showBackground = true)
+@Composable
+private fun DateSettingsScreenDarkPreview() {
+    QodeTheme(darkTheme = true) {
+        DateSettingsScreen(
+            wizardData = SubmissionWizardData(
+                startDate = LocalDate.now(),
+                endDate = LocalDate.now().plusDays(60),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Date Picker Field - Variants", showBackground = true)
+@Composable
+private fun DatePickerFieldPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            DatePickerField(
+                label = "Start Date",
+                selectedDate = LocalDate.now(),
+                onDateClick = {},
+                onClearClick = null,
+                placeholder = "Select start date",
+                isRequired = false,
+            )
+            DatePickerField(
+                label = "End Date",
+                selectedDate = LocalDate.now().plusWeeks(2),
+                onDateClick = {},
+                onClearClick = null,
+                placeholder = "Select end date",
+                isRequired = true,
+            )
+        }
     }
 }

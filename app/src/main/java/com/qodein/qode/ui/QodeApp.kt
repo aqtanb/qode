@@ -28,7 +28,6 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeComingSoonDialog
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
-import com.qodein.core.designsystem.component.QodeScreenTopAppBar
 import com.qodein.core.designsystem.component.QodeTransparentTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -38,6 +37,7 @@ import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
+import com.qodein.qode.ui.component.MainTopAppBar
 
 @Composable
 fun QodeApp(
@@ -114,7 +114,7 @@ internal fun QodeApp(
                 // Top level screens (except home) get the main app bar
                 !appState.isNestedScreen && !isHomeDestination -> {
                     currentDestination?.let { destination ->
-                        QodeScreenTopAppBar(
+                        MainTopAppBar(
                             title = stringResource(destination.titleTextId),
                             onFavoritesClick = {
                                 appViewModel.handleNavigation(NavigationActions.NavigateToFavorites)

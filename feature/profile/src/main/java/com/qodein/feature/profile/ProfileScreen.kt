@@ -54,7 +54,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.qodein.core.designsystem.component.AutoHidingTopAppBar
 import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
@@ -82,6 +81,7 @@ import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
 import com.qodein.core.ui.UserPreviewParameterProvider
 import com.qodein.core.ui.UserStatsPreviewParameterProvider
+import com.qodein.core.ui.component.AutoHidingTopAppBar
 import kotlinx.coroutines.delay
 
 @Composable

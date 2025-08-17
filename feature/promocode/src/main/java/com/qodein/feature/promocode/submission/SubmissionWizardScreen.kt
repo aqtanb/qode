@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -30,11 +30,16 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,25 +49,24 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.component.AutoHidingTopAppBar
-import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeHeroGradient
+import com.qodein.core.designsystem.component.QodeErrorCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.model.Service
+import com.qodein.core.model.ServiceId
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.step1.ServiceAndTypeScreen
 import com.qodein.feature.promocode.submission.step2.TypeDetailsScreen
 import com.qodein.feature.promocode.submission.step3.DateSettingsScreen
 import com.qodein.feature.promocode.submission.step4.OptionalDetailsScreen
+import java.time.LocalDate
+
+// MARK: - Main Screen Components
 
 @Composable
 fun SubmissionWizardScreen(
@@ -83,32 +87,28 @@ fun SubmissionWizardScreen(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        QodeHeroGradient()
-
-        // Main content
-        when (val currentState = uiState) {
-            is SubmissionWizardUiState.Loading -> {
-                WizardLoadingContent()
-            }
-            is SubmissionWizardUiState.Success -> {
-                WizardMainContent(
-                    uiState = currentState,
-                    onAction = viewModel::onAction,
-                    onNavigateBack = onNavigateBack,
-                )
-            }
-            is SubmissionWizardUiState.Error -> {
-                WizardErrorContent(
-                    error = currentState.exception,
-                    onRetry = { viewModel.onAction(SubmissionWizardAction.RetryClicked) },
-                )
-            }
+    // Main content
+    when (val currentState = uiState) {
+        is SubmissionWizardUiState.Loading -> {
+            WizardLoadingContent()
+        }
+        is SubmissionWizardUiState.Success -> {
+            WizardMainContent(
+                uiState = currentState,
+                onAction = viewModel::onAction,
+                onNavigateBack = onNavigateBack,
+            )
+        }
+        is SubmissionWizardUiState.Error -> {
+            WizardErrorContent(
+                error = currentState.exception,
+                onRetry = { viewModel.onAction(SubmissionWizardAction.RetryClicked) },
+            )
         }
     }
 }
+
+// MARK: - Content States
 
 @Composable
 private fun WizardLoadingContent() {
@@ -157,36 +157,14 @@ private fun WizardErrorContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        QodeCard(variant = QodeCardVariant.Outlined) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(R.string.error_something_went_wrong),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                Text(
-                    text = error.message ?: stringResource(R.string.error_unexpected),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(SpacingTokens.lg))
-
-                QodeButton(
-                    onClick = onRetry,
-                    text = stringResource(R.string.action_try_again),
-                )
-            }
-        }
+        QodeErrorCard(
+            message = error.message ?: "Error",
+            onRetry = onRetry,
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WizardMainContent(
     uiState: SubmissionWizardUiState.Success,
@@ -195,100 +173,122 @@ private fun WizardMainContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        ) {
-            Spacer(modifier = Modifier.height(SpacingTokens.xxxl))
-
-            // Simple progress bar
-            val progress = uiState.currentStep.stepNumber / SubmissionWizardStep.entries.size.toFloat()
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth(),
-                strokeCap = StrokeCap.Round,
-            )
-
-            // Animated step content with smooth transitions
-            AnimatedContent(
-                targetState = uiState.currentStep,
-                transitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { if (targetState.stepNumber > initialState.stepNumber) it else -it },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow,
-                        ),
-                    ) + fadeIn() togetherWith slideOutHorizontally(
-                        targetOffsetX = { if (targetState.stepNumber > initialState.stepNumber) -it else it },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow,
-                        ),
-                    ) + fadeOut()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = when (uiState.currentStep) {
+                            SubmissionWizardStep.SERVICE_AND_TYPE -> stringResource(R.string.wizard_step_service_type)
+                            SubmissionWizardStep.TYPE_DETAILS -> stringResource(R.string.wizard_step_details)
+                            SubmissionWizardStep.DATE_SETTINGS -> stringResource(R.string.wizard_step_dates)
+                            SubmissionWizardStep.OPTIONAL_DETAILS -> stringResource(R.string.wizard_step_optional)
+                        },
+                    )
                 },
-                modifier = Modifier.fillMaxWidth(),
-                label = "wizard_step_transition",
-            ) { step ->
-                when (step) {
-                    SubmissionWizardStep.SERVICE_AND_TYPE -> {
-                        ServiceAndTypeScreen(
-                            wizardData = uiState.wizardData,
-                            onAction = onAction,
-                            availableServices = uiState.availableServices,
-                            isLoadingServices = uiState.isLoadingServices,
-                            onSearchServices = { query ->
-                                onAction(SubmissionWizardAction.SearchServices(query))
-                            },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = QodeActionIcons.Back,
+                            contentDescription = "Back",
                         )
                     }
-                    SubmissionWizardStep.TYPE_DETAILS -> {
-                        TypeDetailsScreen(
-                            wizardData = uiState.wizardData,
-                            onAction = onAction,
-                        )
-                    }
-                    SubmissionWizardStep.DATE_SETTINGS -> {
-                        DateSettingsScreen(
-                            wizardData = uiState.wizardData,
-                            onAction = onAction,
-                        )
-                    }
-                    SubmissionWizardStep.OPTIONAL_DETAILS -> {
-                        OptionalDetailsScreen(
-                            wizardData = uiState.wizardData,
-                            onAction = onAction,
-                        )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+                modifier = Modifier.statusBarsPadding(),
+            )
+        },
+    ) { contentPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(contentPadding)
+                    .padding(
+                        start = SpacingTokens.lg,
+                        end = SpacingTokens.lg,
+                        top = SpacingTokens.lg,
+                        bottom = SpacingTokens.lg,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+            ) {
+                // Animated step content with smooth transitions
+                AnimatedContent(
+                    targetState = uiState.currentStep,
+                    transitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { if (targetState.stepNumber > initialState.stepNumber) it else -it },
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow,
+                            ),
+                        ) + fadeIn() togetherWith slideOutHorizontally(
+                            targetOffsetX = { if (targetState.stepNumber > initialState.stepNumber) -it else it },
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow,
+                            ),
+                        ) + fadeOut()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "wizard_step_transition",
+                ) { step ->
+                    when (step) {
+                        SubmissionWizardStep.SERVICE_AND_TYPE -> {
+                            ServiceAndTypeScreen(
+                                wizardData = uiState.wizardData,
+                                onAction = onAction,
+                                availableServices = uiState.availableServices,
+                                isLoadingServices = uiState.isLoadingServices,
+                                onSearchServices = { query ->
+                                    onAction(SubmissionWizardAction.SearchServices(query))
+                                },
+                            )
+                        }
+                        SubmissionWizardStep.TYPE_DETAILS -> {
+                            TypeDetailsScreen(
+                                wizardData = uiState.wizardData,
+                                onAction = onAction,
+                            )
+                        }
+                        SubmissionWizardStep.DATE_SETTINGS -> {
+                            DateSettingsScreen(
+                                wizardData = uiState.wizardData,
+                                onAction = onAction,
+                            )
+                        }
+                        SubmissionWizardStep.OPTIONAL_DETAILS -> {
+                            OptionalDetailsScreen(
+                                wizardData = uiState.wizardData,
+                                onAction = onAction,
+                            )
+                        }
                     }
                 }
             }
 
-            // Premium navigation buttons
-            WizardNavigationButtons(
-                uiState = uiState,
-                onAction = onAction,
-            )
+            // Bottom Controller (floating at bottom)
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) {
+                BottomWizardController(
+                    uiState = uiState,
+                    onAction = onAction,
+                    onFocusField = { fieldName ->
+                        // TODO: Implement field focus logic
+                    },
+                )
+            }
         }
-
-        // AutoHiding TopAppBar overlay like ProfileScreen
-        AutoHidingTopAppBar(
-            scrollState = scrollState,
-            navigationIcon = QodeActionIcons.Back,
-            onNavigationClick = onNavigateBack,
-            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-            title = when (uiState.currentStep) {
-                SubmissionWizardStep.SERVICE_AND_TYPE -> stringResource(R.string.wizard_step_service_type)
-                SubmissionWizardStep.TYPE_DETAILS -> stringResource(R.string.wizard_step_details)
-                SubmissionWizardStep.DATE_SETTINGS -> stringResource(R.string.wizard_step_dates)
-                SubmissionWizardStep.OPTIONAL_DETAILS -> stringResource(R.string.wizard_step_optional)
-            },
-        )
     }
 }
+
+// MARK: - UI Components
 
 @Composable
 private fun WizardProgressIndicator(
@@ -408,58 +408,201 @@ private fun AnimatedStepIndicator(
     }
 }
 
+// MARK: - Preview Helpers
+
+private object PreviewData {
+    val sampleServices = listOf(
+        Service(
+            id = ServiceId("1"),
+            name = "Netflix",
+            category = "Streaming",
+            isPopular = true,
+        ),
+        Service(
+            id = ServiceId("2"),
+            name = "Spotify",
+            category = "Music",
+            isPopular = true,
+        ),
+        Service(
+            id = ServiceId("3"),
+            name = "Kaspi",
+            category = "Finance",
+            isPopular = false,
+        ),
+    )
+
+    val emptyWizardData = SubmissionWizardData()
+
+    val step1CompletedData = SubmissionWizardData(
+        serviceName = "Netflix",
+        promoCodeType = PromoCodeType.PERCENTAGE,
+    )
+
+    val step2CompletedData = SubmissionWizardData(
+        serviceName = "Netflix",
+        promoCodeType = PromoCodeType.PERCENTAGE,
+        promoCode = "SAVE20",
+        discountPercentage = "20",
+        minimumOrderAmount = "15",
+    )
+
+    val step3CompletedData = SubmissionWizardData(
+        serviceName = "Netflix",
+        promoCodeType = PromoCodeType.PERCENTAGE,
+        promoCode = "SAVE20",
+        discountPercentage = "20",
+        minimumOrderAmount = "15",
+        startDate = LocalDate.now(),
+        endDate = LocalDate.now().plusDays(30),
+    )
+
+    val step4CompletedData = SubmissionWizardData(
+        serviceName = "Netflix",
+        promoCodeType = PromoCodeType.PERCENTAGE,
+        promoCode = "SAVE20",
+        discountPercentage = "20",
+        minimumOrderAmount = "15",
+        startDate = LocalDate.now(),
+        endDate = LocalDate.now().plusDays(30),
+        title = "20% off Netflix Premium",
+        description = "Limited time offer for new subscribers",
+        screenshotUrl = "https://example.com/screenshot.jpg",
+    )
+
+    val fixedAmountData = SubmissionWizardData(
+        serviceName = "Spotify",
+        promoCodeType = PromoCodeType.FIXED_AMOUNT,
+        promoCode = "SAVE5",
+        discountAmount = "5",
+        minimumOrderAmount = "10",
+    )
+
+    fun createSuccessState(
+        step: SubmissionWizardStep,
+        wizardData: SubmissionWizardData = emptyWizardData,
+        services: List<Service> = sampleServices,
+        isLoadingServices: Boolean = false
+    ) = SubmissionWizardUiState.Success(
+        currentStep = step,
+        wizardData = wizardData,
+        availableServices = services,
+        isLoadingServices = isLoadingServices,
+    )
+}
+
+// MARK: - Previews
+
+@Preview(name = "Loading State", showBackground = true)
 @Composable
-private fun WizardNavigationButtons(
-    uiState: SubmissionWizardUiState.Success,
-    onAction: (SubmissionWizardAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        // Back Button (fixed width, only when needed)
-        if (uiState.canGoPrevious) {
-            QodeButton(
-                onClick = { onAction(SubmissionWizardAction.GoToPreviousStep) },
-                text = stringResource(R.string.action_back),
-                variant = QodeButtonVariant.Outlined,
-                modifier = Modifier.width(120.dp),
-                enabled = !uiState.isSubmitting,
-            )
-        }
+private fun WizardLoadingPreview() {
+    QodeTheme {
+        WizardLoadingContent()
+    }
+}
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Dynamic Next/Submit Button (fixed width)
-        val isLastStep = uiState.currentStep == SubmissionWizardStep.OPTIONAL_DETAILS
-        QodeButton(
-            onClick = {
-                if (isLastStep) {
-                    onAction(SubmissionWizardAction.SubmitPromoCode)
-                } else {
-                    onAction(SubmissionWizardAction.GoToNextStep)
-                }
-            },
-            text = if (isLastStep) stringResource(R.string.action_submit) else stringResource(R.string.action_continue),
-            modifier = Modifier.width(160.dp),
-            enabled = if (isLastStep) uiState.canSubmit else uiState.canGoNext,
-            loading = uiState.isSubmitting,
+@Preview(name = "Error State", showBackground = true)
+@Composable
+private fun WizardErrorPreview() {
+    QodeTheme {
+        WizardErrorContent(
+            error = Exception("Network connection failed"),
+            onRetry = {},
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Step 1 - Empty", showBackground = true)
 @Composable
-private fun SubmissionWizardScreenPreview() {
+private fun WizardStep1EmptyPreview() {
     QodeTheme {
-        SubmissionWizardScreen(
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.SERVICE_AND_TYPE,
+                wizardData = PreviewData.emptyWizardData,
+            ),
+            onAction = {},
             onNavigateBack = {},
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Step 1 - Completed", showBackground = true)
+@Composable
+private fun WizardStep1CompletedPreview() {
+    QodeTheme {
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.SERVICE_AND_TYPE,
+                wizardData = PreviewData.step1CompletedData,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(name = "Step 2 - Percentage", showBackground = true)
+@Composable
+private fun WizardStep2PercentagePreview() {
+    QodeTheme {
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.TYPE_DETAILS,
+                wizardData = PreviewData.step2CompletedData,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(name = "Step 2 - Fixed Amount", showBackground = true)
+@Composable
+private fun WizardStep2FixedAmountPreview() {
+    QodeTheme {
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.TYPE_DETAILS,
+                wizardData = PreviewData.fixedAmountData,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(name = "Step 3 - Date Settings", showBackground = true)
+@Composable
+private fun WizardStep3Preview() {
+    QodeTheme {
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.DATE_SETTINGS,
+                wizardData = PreviewData.step3CompletedData,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(name = "Step 4 - Optional Details", showBackground = true)
+@Composable
+private fun WizardStep4Preview() {
+    QodeTheme {
+        WizardMainContent(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.OPTIONAL_DETAILS,
+                wizardData = PreviewData.step4CompletedData,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(name = "Progress Indicator", showBackground = true)
 @Composable
 private fun WizardProgressIndicatorPreview() {
     QodeTheme {
@@ -470,19 +613,32 @@ private fun WizardProgressIndicatorPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Bottom Controller - Step 1", showBackground = true)
 @Composable
-private fun WizardNavigationButtonsPreview() {
+private fun BottomControllerStep1Preview() {
     QodeTheme {
-        WizardNavigationButtons(
-            uiState = SubmissionWizardUiState.Success(
-                currentStep = SubmissionWizardStep.TYPE_DETAILS,
-                wizardData = SubmissionWizardData(
-                    serviceName = "Netflix",
-                    promoCodeType = PromoCodeType.PERCENTAGE,
-                ),
+        BottomWizardController(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.SERVICE_AND_TYPE,
+                wizardData = PreviewData.step1CompletedData,
             ),
             onAction = {},
+            modifier = Modifier.padding(16.dp),
+        )
+    }
+}
+
+@Preview(name = "Bottom Controller - Step 4", showBackground = true)
+@Composable
+private fun BottomControllerStep4Preview() {
+    QodeTheme {
+        BottomWizardController(
+            uiState = PreviewData.createSuccessState(
+                step = SubmissionWizardStep.OPTIONAL_DETAILS,
+                wizardData = PreviewData.step4CompletedData,
+            ),
+            onAction = {},
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

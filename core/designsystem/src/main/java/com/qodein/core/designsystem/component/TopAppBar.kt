@@ -1,16 +1,11 @@
 package com.qodein.core.designsystem.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,8 +30,6 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,13 +51,16 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
+// MARK: - Data Models & Enums
+
 /**
  * TopAppBar variants for Qode design system
  */
 enum class QodeTopAppBarVariant {
     Default,
     CenterAligned,
-    Large
+    Large,
+    Transparent
 }
 
 /**
@@ -77,283 +73,167 @@ enum class QodeTopAppBarScrollBehavior {
     ExitUntilCollapsed
 }
 
+// MARK: - Core TopAppBar Component
+
 /**
- * Production-ready top app bar component for Qode design system
+ * Ultimate customizable top app bar component for Qode design system
  *
- * @param title The title to display
  * @param modifier Modifier to be applied to the app bar
- * @param variant The variant of the app bar
- * @param navigationIcon Optional navigation icon (typically back or menu)
+ * @param title The title string to display
+ * @param titleComposable Custom composable for the title (overrides title string)
+ * @param navigationIcon Optional navigation icon (completely nullable)
  * @param onNavigationClick Called when navigation icon is clicked
  * @param actions List of action buttons to display
+ * @param navigationIconTint Tint color for navigation icon
+ * @param titleColor Color for title text
+ * @param actionIconTint Tint color for action icons
+ * @param backgroundColor Background color for the app bar
+ * @param variant The variant of the app bar
+ * @param elevation Elevation of the app bar
+ * @param statusBarPadding Whether to add status bar padding
  * @param scrollBehavior Scroll behavior configuration
- * @param colors Custom colors for the app bar
+ * @param colors Custom Material3 colors (overrides individual color params)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QodeTopAppBar(
     modifier: Modifier = Modifier,
     title: String? = null,
-    variant: QodeTopAppBarVariant = QodeTopAppBarVariant.Default,
+    titleComposable: (@Composable () -> Unit)? = null,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
     actions: List<TopAppBarAction> = emptyList(),
+    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    variant: QodeTopAppBarVariant = QodeTopAppBarVariant.Default,
+    elevation: Dp = 0.dp,
+    statusBarPadding: Boolean = false,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     colors: TopAppBarColors? = null
 ) {
-    val defaultColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        scrolledContainerColor = Color.Transparent,
-        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    // Handle transparent variant differently
+    if (variant == QodeTopAppBarVariant.Transparent) {
+        QodeTransparentTopAppBarImpl(
+            modifier = modifier,
+            title = title,
+            titleComposable = titleComposable,
+            navigationIcon = navigationIcon,
+            onNavigationClick = onNavigationClick,
+            actions = actions,
+            navigationIconTint = navigationIconTint,
+            titleColor = titleColor,
+            actionIconTint = actionIconTint,
+            statusBarPadding = statusBarPadding,
+        )
+        return
+    }
+
+    val finalColors = colors ?: TopAppBarDefaults.topAppBarColors(
+        containerColor = backgroundColor,
+        navigationIconContentColor = navigationIconTint,
+        titleContentColor = titleColor,
+        actionIconContentColor = actionIconTint,
     )
 
-    val effectiveColors = defaultColors
+    val finalModifier = if (statusBarPadding) {
+        modifier.statusBarsPadding()
+    } else {
+        modifier
+    }
 
-    when (variant) {
-        QodeTopAppBarVariant.Default -> {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = title ?: "",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = effectiveColors.titleContentColor,
-                    )
-                },
-                modifier = modifier,
-                navigationIcon = {
-                    navigationIcon?.let { icon ->
-                        IconButton(onClick = onNavigationClick ?: {}) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = when (icon) {
-                                    Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    QodeUIIcons.Menu -> "Open menu"
-                                    QodeActionIcons.Close -> "Close"
-                                    else -> "Navigation"
-                                },
-                                tint = effectiveColors.navigationIconContentColor,
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    actions.forEach { action ->
-                        if (action.showAsAction) {
-                            IconButton(
-                                onClick = action.onClick,
-                                enabled = action.enabled,
-                            ) {
-                                Icon(
-                                    imageVector = action.icon,
-                                    contentDescription = action.contentDescription,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-
-                    // Overflow menu for non-icon actions
-                    val overflowActions = actions.filter { !it.showAsAction }
-                    if (overflowActions.isNotEmpty()) {
-                        OverflowMenu(actions = overflowActions)
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = effectiveColors,
-            )
-        }
-
-        QodeTopAppBarVariant.CenterAligned -> {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = title ?: "",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = effectiveColors.titleContentColor,
-                    )
-                },
-                modifier = modifier,
-                navigationIcon = {
-                    navigationIcon?.let { icon ->
-                        IconButton(onClick = onNavigationClick ?: {}) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = when (icon) {
-                                    Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    QodeUIIcons.Menu -> "Open menu"
-                                    QodeActionIcons.Close -> "Close"
-                                    else -> "Navigation"
-                                },
-                                tint = effectiveColors.navigationIconContentColor,
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    actions.forEach { action ->
-                        if (action.showAsAction) {
-                            IconButton(
-                                onClick = action.onClick,
-                                enabled = action.enabled,
-                            ) {
-                                Icon(
-                                    imageVector = action.icon,
-                                    contentDescription = action.contentDescription,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-
-                    val overflowActions = actions.filter { !it.showAsAction }
-                    if (overflowActions.isNotEmpty()) {
-                        OverflowMenu(actions = overflowActions)
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = effectiveColors,
-            )
-        }
-
-        QodeTopAppBarVariant.Large -> {
-            LargeTopAppBar(
-                title = {
-                    Text(
-                        text = title ?: "",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = effectiveColors.titleContentColor,
-                    )
-                },
-                modifier = modifier,
-                navigationIcon = {
-                    navigationIcon?.let { icon ->
-                        IconButton(onClick = onNavigationClick ?: {}) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = when (icon) {
-                                    Icons.AutoMirrored.Filled.ArrowBack -> "Navigate back"
-                                    QodeUIIcons.Menu -> "Open menu"
-                                    QodeActionIcons.Close -> "Close"
-                                    else -> "Navigation"
-                                },
-                                tint = effectiveColors.navigationIconContentColor,
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    actions.forEach { action ->
-                        if (action.showAsAction) {
-                            IconButton(
-                                onClick = action.onClick,
-                                enabled = action.enabled,
-                            ) {
-                                Icon(
-                                    imageVector = action.icon,
-                                    contentDescription = action.contentDescription,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-
-                    val overflowActions = actions.filter { !it.showAsAction }
-                    if (overflowActions.isNotEmpty()) {
-                        OverflowMenu(actions = overflowActions)
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = effectiveColors,
+    val titleContent: @Composable () -> Unit = titleComposable ?: {
+        title?.let {
+            Text(
+                text = it,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                color = titleColor,
             )
         }
     }
-}
 
-/**
- * Search-focused top app bar variant
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun QodeSearchTopAppBar(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    onSearchClose: () -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: String = "Search...",
-    onSearchAction: () -> Unit = {},
-    actions: List<TopAppBarAction> = emptyList()
-) {
-    TopAppBar(
-        title = {
-            QodeTextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChange,
-                modifier = Modifier.fillMaxWidth(),
-                variant = QodeTextFieldVariant.Search,
-                placeholder = placeholder,
-                singleLine = true,
-                keyboardActions = androidx.compose.foundation.text.KeyboardActions(
-                    onSearch = { onSearchAction() },
-                ),
-            )
-        },
-        modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = onSearchClose) {
+    val navigationContent: @Composable () -> Unit = {
+        navigationIcon?.let { icon ->
+            IconButton(
+                onClick = onNavigationClick ?: {},
+                enabled = onNavigationClick != null,
+            ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Close search",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    imageVector = icon,
+                    contentDescription = when (icon) {
+                        QodeActionIcons.Back -> "Navigate back"
+                        QodeUIIcons.Menu -> "Open menu"
+                        QodeActionIcons.Close -> "Close"
+                        else -> "Navigation"
+                    },
+                    tint = navigationIconTint,
                 )
             }
-        },
-        actions = {
-            if (searchQuery.isNotEmpty()) {
-                IconButton(onClick = { onSearchQueryChange("") }) {
-                    Icon(
-                        imageVector = QodeActionIcons.Close,
-                        contentDescription = "Clear search",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+        }
+    }
 
-            actions.forEach { action ->
-                if (action.showAsAction) {
-                    IconButton(
-                        onClick = action.onClick,
-                        enabled = action.enabled,
-                    ) {
-                        Icon(
-                            imageVector = action.icon,
-                            contentDescription = action.contentDescription,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+    val actionsContent: @Composable RowScope.() -> Unit = {
+        val visibleActions = actions.filter { it.showAsAction }
+        val overflowActions = actions.filter { !it.showAsAction }
+
+        visibleActions.forEach { action ->
+            IconButton(
+                onClick = action.onClick,
+                enabled = action.enabled,
+            ) {
+                Icon(
+                    imageVector = action.icon,
+                    contentDescription = action.contentDescription,
+                    tint = actionIconTint,
+                )
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        ),
-    )
+        }
+
+        if (overflowActions.isNotEmpty()) {
+            OverflowMenu(actions = overflowActions)
+        }
+    }
+
+    when (variant) {
+        QodeTopAppBarVariant.Default -> {
+            androidx.compose.material3.TopAppBar(
+                title = titleContent,
+                modifier = finalModifier,
+                navigationIcon = navigationContent,
+                actions = actionsContent,
+                colors = finalColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
+        QodeTopAppBarVariant.CenterAligned -> {
+            androidx.compose.material3.CenterAlignedTopAppBar(
+                title = titleContent,
+                modifier = finalModifier,
+                navigationIcon = navigationContent,
+                actions = actionsContent,
+                colors = finalColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
+        QodeTopAppBarVariant.Large -> {
+            androidx.compose.material3.LargeTopAppBar(
+                title = titleContent,
+                modifier = finalModifier,
+                navigationIcon = navigationContent,
+                actions = actionsContent,
+                colors = finalColors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
+        QodeTopAppBarVariant.Transparent -> {
+            // Already handled above
+        }
+    }
 }
 
 /**
@@ -408,91 +288,47 @@ private fun OverflowMenu(actions: List<TopAppBarAction>) {
     }
 }
 
-/**
- * Compact screen-specific top app bar with navigation actions
- * Layout: Favorites (left) | Screen Title (center) | Profile + Settings (right)
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun QodeScreenTopAppBar(
-    title: String,
-    modifier: Modifier = Modifier,
-    onFavoritesClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    profileImageUrl: String? = null
-) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        },
-        modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = onFavoritesClick) {
-                Icon(
-                    imageVector = QodeNavigationIcons.Favorites,
-                    contentDescription = "Favorites",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-        },
-        actions = {
-            // Profile Avatar Button
-            IconButton(onClick = onProfileClick) {
-                QodeProfileAvatar(
-                    imageUrl = profileImageUrl,
-                    size = SizeTokens.Icon.sizeXLarge,
-                    contentDescription = "Profile",
-                )
-            }
-
-            // Settings Button
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    imageVector = QodeNavigationIcons.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        ),
-    )
-}
-
-// MARK: Transparent
+// MARK: - Transparent Implementation
 
 /**
- * Truly transparent top app bar that bypasses Material3's automatic background handling
- * Perfect for screens that need completely transparent overlays (like Profile screen)
+ * Internal implementation for transparent variant that integrates with QodeTopAppBar
  */
 @Composable
-fun QodeTransparentTopAppBar(
+private fun QodeTransparentTopAppBarImpl(
     modifier: Modifier = Modifier,
     title: String? = null,
+    titleComposable: (@Composable () -> Unit)? = null,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
     actions: List<TopAppBarAction> = emptyList(),
     navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
-    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    statusBarPadding: Boolean = false
 ) {
+    val finalModifier = if (statusBarPadding) {
+        modifier.statusBarsPadding()
+    } else {
+        modifier
+    }
+
+    val titleContent: @Composable () -> Unit = titleComposable ?: {
+        title?.let { titleText ->
+            Text(
+                text = titleText,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                color = titleColor,
+            )
+        }
+    }
+
     Row(
-        modifier = modifier
+        modifier = finalModifier
             .fillMaxWidth()
-            .statusBarsPadding() // Handle status bar padding
             .height(SizeTokens.AppBar.height),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -533,17 +369,7 @@ fun QodeTransparentTopAppBar(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            title?.let { titleText ->
-                Text(
-                    text = titleText,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    color = titleColor,
-                )
-            }
+            titleContent()
         }
 
         // Actions
@@ -576,198 +402,42 @@ fun QodeTransparentTopAppBar(
     }
 }
 
-/**
- * Configuration for scroll-aware behavior
- */
-data class ScrollAwareConfig(
-    val alwaysVisibleThreshold: Dp = 50.dp,
-    val hideAccumulationThreshold: Dp = 150.dp,
-    val showOnScrollUpThreshold: Dp = 8.dp,
-    val enableDebouncing: Boolean = true,
-    val debounceDelayMs: Long = 50L
-)
+// MARK: - Legacy Transparent (Deprecated)
 
 /**
- * Scroll direction state for better state management
- */
-private sealed interface ScrollDirection {
-    data object Idle : ScrollDirection
-    data class Down(val accumulated: Int) : ScrollDirection
-    data class Up(val delta: Int) : ScrollDirection
-}
-
-/**
- * Enterprise-level scroll-aware TopAppBar with configurable behavior
+ * Truly transparent top app bar that bypasses Material3's automatic background handling
+ * Perfect for screens that need completely transparent overlays (like Profile screen)
  *
- * This component provides smooth, user-friendly hide/show behavior based on scroll patterns.
- * Built for production use with proper state management and performance optimization.
- *
- * @param scrollState The ScrollState to monitor for scroll direction changes
- * @param modifier Modifier to be applied to the component
- * @param title Optional title to display in the center
- * @param navigationIcon Optional navigation icon (typically back arrow)
- * @param onNavigationClick Called when navigation icon is clicked
- * @param actions List of action buttons to display on the right
- * @param config Configuration for scroll behavior thresholds and timing
- * @param navigationIconTint Tint color for the navigation icon
- * @param titleColor Color for the title text
- * @param actionIconTint Tint color for action icons
+ * @deprecated Use QodeTopAppBar with variant = QodeTopAppBarVariant.Transparent instead
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AutoHidingTopAppBar(
-    scrollState: ScrollState,
+fun QodeTransparentTopAppBar(
     modifier: Modifier = Modifier,
     title: String? = null,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
     actions: List<TopAppBarAction> = emptyList(),
-    config: ScrollAwareConfig = ScrollAwareConfig(),
     navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
-    val scrollBehaviorState = rememberScrollBehaviorState(
-        scrollState = scrollState,
-        config = config,
-    )
-
-    AnimatedVisibility(
-        visible = scrollBehaviorState.isVisible,
-        enter = slideInVertically(
-            initialOffsetY = { -it },
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMediumLow,
-            ),
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { -it },
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium,
-            ),
-        ),
+    // Delegate to the new unified QodeTopAppBar with Transparent variant
+    QodeTopAppBar(
         modifier = modifier,
-    ) {
-        QodeTransparentTopAppBar(
-            title = title,
-            navigationIcon = navigationIcon,
-            onNavigationClick = onNavigationClick,
-            actions = actions,
-            navigationIconTint = navigationIconTint,
-            titleColor = titleColor,
-            actionIconTint = actionIconTint,
-        )
-    }
+        title = title,
+        navigationIcon = navigationIcon,
+        onNavigationClick = onNavigationClick,
+        actions = actions,
+        navigationIconTint = navigationIconTint,
+        titleColor = titleColor,
+        actionIconTint = actionIconTint,
+        variant = QodeTopAppBarVariant.Transparent,
+        statusBarPadding = true, // Always add status bar padding for transparent variant
+    )
 }
 
-/**
- * State holder for scroll behavior logic
- */
-@Stable
-private class ScrollBehaviorState(private val config: ScrollAwareConfig) {
-    var isVisible by mutableStateOf(true)
-        private set
-
-    private var previousScrollValue = 0
-    private var accumulatedScrollDown = 0
-    private var lastUpdateTime = 0L
-
-    fun updateScrollState(currentScrollValue: Int) {
-        val currentTime = System.currentTimeMillis()
-
-        // Debouncing to prevent excessive updates
-        if (config.enableDebouncing && currentTime - lastUpdateTime < config.debounceDelayMs) {
-            return
-        }
-
-        val scrollDelta = currentScrollValue - previousScrollValue
-        val scrollDirection = determineScrollDirection(currentScrollValue, scrollDelta)
-
-        updateVisibility(scrollDirection)
-
-        previousScrollValue = currentScrollValue
-        lastUpdateTime = currentTime
-    }
-
-    private fun determineScrollDirection(
-        currentScrollValue: Int,
-        scrollDelta: Int
-    ): ScrollDirection =
-        when {
-            // Always show when near top
-            currentScrollValue <= config.alwaysVisibleThreshold.value.toInt() -> {
-                accumulatedScrollDown = 0
-                ScrollDirection.Idle
-            }
-            // Scrolling down
-            scrollDelta > 0 -> {
-                accumulatedScrollDown += scrollDelta
-                ScrollDirection.Down(accumulatedScrollDown)
-            }
-            // Scrolling up with sufficient delta
-            scrollDelta < -config.showOnScrollUpThreshold.value.toInt() -> {
-                accumulatedScrollDown = 0
-                ScrollDirection.Up(kotlin.math.abs(scrollDelta))
-            }
-            // Minor movements - maintain current state
-            else -> ScrollDirection.Idle
-        }
-
-    private fun updateVisibility(direction: ScrollDirection) {
-        when (direction) {
-            is ScrollDirection.Idle -> {
-                // Near top - always show
-                if (accumulatedScrollDown == 0) {
-                    isVisible = true
-                }
-            }
-            is ScrollDirection.Down -> {
-                if (direction.accumulated >= config.hideAccumulationThreshold.value.toInt()) {
-                    isVisible = false
-                }
-            }
-            is ScrollDirection.Up -> {
-                isVisible = true
-            }
-        }
-    }
-}
-
-/**
- * Remember function for scroll behavior state
- */
-@Composable
-private fun rememberScrollBehaviorState(
-    scrollState: ScrollState,
-    config: ScrollAwareConfig
-): ScrollBehaviorState {
-    val behaviorState = remember { ScrollBehaviorState(config) }
-
-    LaunchedEffect(scrollState.value) {
-        behaviorState.updateScrollState(scrollState.value)
-    }
-
-    return behaviorState
-}
-
-/**
- * Helper function to create scroll behavior for TopAppBar
- *
- * @param behavior The type of scroll behavior to create
- * @return TopAppBarScrollBehavior instance
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun rememberQodeTopAppBarScrollBehavior(
-    behavior: QodeTopAppBarScrollBehavior = QodeTopAppBarScrollBehavior.EnterAlways
-): TopAppBarScrollBehavior? =
-    when (behavior) {
-        QodeTopAppBarScrollBehavior.None -> null
-        QodeTopAppBarScrollBehavior.Pinned -> TopAppBarDefaults.pinnedScrollBehavior()
-        QodeTopAppBarScrollBehavior.EnterAlways -> TopAppBarDefaults.enterAlwaysScrollBehavior()
-        QodeTopAppBarScrollBehavior.ExitUntilCollapsed -> TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    }
+// MARK: - Profile Components
 
 /**
  * Profile avatar component for top app bar
@@ -775,7 +445,7 @@ fun rememberQodeTopAppBarScrollBehavior(
 @Composable
 fun QodeProfileAvatar(
     imageUrl: String?,
-    size: androidx.compose.ui.unit.Dp,
+    size: Dp,
     contentDescription: String,
     modifier: Modifier = Modifier
 ) {
@@ -880,85 +550,6 @@ private fun QodeTopAppBarPreview() {
     }
 }
 
-@Preview(name = "Search TopAppBar", showBackground = true)
-@Composable
-private fun QodeSearchTopAppBarPreview() {
-    QodeTheme {
-        Column {
-            // Empty search state
-            var searchQuery1 by remember { mutableStateOf("") }
-            QodeSearchTopAppBar(
-                searchQuery = searchQuery1,
-                onSearchQueryChange = { searchQuery1 = it },
-                onSearchClose = {},
-                placeholder = "Search promo codes...",
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Filter,
-                        contentDescription = "Filter",
-                        onClick = {},
-                    ),
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Search with query
-            var searchQuery2 by remember { mutableStateOf("Summer Sale") }
-            QodeSearchTopAppBar(
-                searchQuery = searchQuery2,
-                onSearchQueryChange = { searchQuery2 = it },
-                onSearchClose = {},
-                placeholder = "Search stores...",
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Filter,
-                        contentDescription = "Sort",
-                        onClick = {},
-                    ),
-                ),
-            )
-        }
-    }
-}
-
-@Preview(name = "Screen TopAppBar", showBackground = true)
-@Composable
-private fun QodeScreenTopAppBarPreview() {
-    QodeTheme {
-        Column {
-            // Home screen variant
-            QodeScreenTopAppBar(
-                title = "Home",
-                onFavoritesClick = {},
-                onProfileClick = {},
-                onSettingsClick = {},
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Inbox screen variant
-            QodeScreenTopAppBar(
-                title = "Inbox",
-                onFavoritesClick = {},
-                onProfileClick = {},
-                onSettingsClick = {},
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Search screen variant
-            QodeScreenTopAppBar(
-                title = "Search",
-                onFavoritesClick = {},
-                onProfileClick = {},
-                onSettingsClick = {},
-                profileImageUrl = null, // Shows placeholder profile avatar
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(name = "TopAppBar States", showBackground = true)
 @Composable
@@ -1051,15 +642,6 @@ private fun QodeTopAppBarDarkPreview() {
                         onClick = {},
                     ),
                 ),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            QodeScreenTopAppBar(
-                title = "Dark Mode Screen",
-                onFavoritesClick = {},
-                onProfileClick = {},
-                onSettingsClick = {},
             )
         }
     }
