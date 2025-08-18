@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -211,7 +212,7 @@ private fun SampleBannerContent(
             .background(item.backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
-        androidx.compose.material3.Text(
+        Text(
             text = item.title,
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White,

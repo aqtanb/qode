@@ -7,6 +7,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,13 +55,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.qodein.core.designsystem.component.QodeAvatar
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeComingSoonDialog
 import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeRetryableErrorCard
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSecurityIcons
@@ -81,11 +80,12 @@ import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
 import com.qodein.core.ui.UserPreviewParameterProvider
 import com.qodein.core.ui.UserStatsPreviewParameterProvider
-import com.qodein.core.ui.component.AutoHidingTopAppBar
+import com.qodein.core.ui.component.ProfileAvatar
 import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileScreen(
+    scrollState: ScrollState,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
     onEditProfile: () -> Unit = {},
@@ -121,6 +121,7 @@ fun ProfileScreen(
             is ProfileUiState.Success -> {
                 ProfileSuccessContent(
                     user = currentState.user,
+                    scrollState = scrollState,
                     onAction = viewModel::handleAction,
                     onBackClick = onBackClick,
                     modifier = Modifier.fillMaxSize(),
@@ -165,12 +166,11 @@ fun ProfileScreen(
 @Composable
 internal fun ProfileSuccessContent(
     user: User,
+    scrollState: ScrollState,
     onAction: (ProfileAction) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-
     // Local animation state - this composable controls its own animations
     var isContentVisible by remember { mutableStateOf(false) }
 
@@ -220,13 +220,7 @@ internal fun ProfileSuccessContent(
             )
         }
 
-        // Scroll-aware TopAppBar overlay
-        AutoHidingTopAppBar(
-            scrollState = scrollState,
-            navigationIcon = QodeActionIcons.Back,
-            onNavigationClick = onBackClick,
-            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
+        // Top app bar is now handled centrally in QodeApp
     }
 }
 
@@ -337,8 +331,8 @@ internal fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        QodeAvatar(
-            photoUrl = user.profile.photoUrl,
+        ProfileAvatar(
+            user = user,
             size = SizeTokens.Avatar.sizeXLarge,
             modifier = Modifier.testTag("profile_avatar"),
         )
@@ -845,6 +839,7 @@ private fun ProfileScreenPreview(
         is ProfileUiState.Success -> {
             ProfileSuccessContentPreview(
                 user = state.user,
+                scrollState = rememberScrollState(),
                 onAction = {}, // Empty for previews
                 onBackClick = {}, // Empty for previews
                 modifier = modifier.fillMaxSize(),
@@ -873,13 +868,7 @@ private fun ProfileScreenPreview(
                     )
                 }
 
-                // TopAppBar stays at top
-                AutoHidingTopAppBar(
-                    scrollState = rememberScrollState(),
-                    navigationIcon = QodeActionIcons.Back,
-                    onNavigationClick = {},
-                    navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                // Top app bar is now handled centrally in QodeApp
             }
         }
         is ProfileUiState.Error -> {
@@ -902,13 +891,7 @@ private fun ProfileScreenPreview(
                     )
                 }
 
-                // TopAppBar stays at top
-                AutoHidingTopAppBar(
-                    scrollState = rememberScrollState(),
-                    navigationIcon = QodeActionIcons.Back,
-                    onNavigationClick = {},
-                    navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                // Top app bar is now handled centrally in QodeApp
             }
         }
     }
@@ -963,12 +946,11 @@ fun ProfileScreenFontScalePreviews() {
 @Composable
 internal fun ProfileSuccessContentPreview(
     user: User,
+    scrollState: ScrollState = rememberScrollState(),
     onAction: (ProfileAction) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-
     Box(modifier = modifier.fillMaxSize()) {
         QodeHeroGradient()
 
@@ -1018,13 +1000,7 @@ internal fun ProfileSuccessContentPreview(
             )
         }
 
-        // Scroll-aware TopAppBar overlay
-        AutoHidingTopAppBar(
-            scrollState = scrollState,
-            navigationIcon = QodeActionIcons.Back,
-            onNavigationClick = onBackClick,
-            navigationIconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
+        // Top app bar is now handled centrally in QodeApp
     }
 }
 

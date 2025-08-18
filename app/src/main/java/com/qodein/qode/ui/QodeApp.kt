@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,16 +27,18 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeComingSoonDialog
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.component.QodeNavigationItem
-import com.qodein.core.designsystem.component.QodeTransparentTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.domain.AuthState
+import com.qodein.core.ui.component.QodeAppTopAppBar
+import com.qodein.core.ui.component.TopAppBarScreenType
 import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
-import com.qodein.qode.ui.component.MainTopAppBar
 
 @Composable
 fun QodeApp(
@@ -93,40 +94,47 @@ internal fun QodeApp(
     Scaffold(
         modifier = modifier,
         topBar = {
-            when {
-                // Submission screens are fullscreen modal - no top bar
-                isSubmissionScreen -> {
-                    // No top bar for submission flow
+            val screenType = when {
+                isSubmissionScreen -> TopAppBarScreenType.Nested
+                isProfileScreen -> TopAppBarScreenType.ScrollAware
+                appState.isNestedScreen -> TopAppBarScreenType.Nested
+                !appState.isNestedScreen && !isHomeDestination -> TopAppBarScreenType.Main
+                else -> TopAppBarScreenType.None
+            }
+
+            if (screenType != TopAppBarScreenType.None) {
+                val title = when {
+                    screenType == TopAppBarScreenType.Nested && isSubmissionScreen -> stringResource(R.string.add)
+                    screenType == TopAppBarScreenType.Nested -> null
+                    screenType == TopAppBarScreenType.ScrollAware -> "" // ProfileScreen has no title
+                    currentDestination != null -> stringResource(currentDestination.titleTextId)
+                    else -> ""
                 }
-                // Other nested screens (not profile, not submission) get transparent top bar
-                appState.isNestedScreen && !isProfileScreen -> {
-                    QodeTransparentTopAppBar(
-                        title = null,
-                        navigationIcon = QodeActionIcons.Back,
-                        onNavigationClick = {
-                            appState.navController.popBackStack()
-                        },
-                        navigationIconTint = MaterialTheme.colorScheme.onSurface,
-                        titleColor = MaterialTheme.colorScheme.onSurface,
-                        actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                // Top level screens (except home) get the main app bar
-                !appState.isNestedScreen && !isHomeDestination -> {
-                    currentDestination?.let { destination ->
-                        MainTopAppBar(
-                            title = stringResource(destination.titleTextId),
-                            onFavoritesClick = {
-                                appViewModel.handleNavigation(NavigationActions.NavigateToFavorites)
-                            },
-                            onProfileClick = onProfileClick,
-                            onSettingsClick = {
-                                appViewModel.handleNavigation(NavigationActions.NavigateToSettings)
-                            },
-                        )
-                    }
-                }
-                // Home, Profile, and Submission screens handle their own UI - no app-level TopAppBar
+
+                QodeAppTopAppBar(
+                    title = title ?: "",
+                    screenType = screenType,
+                    user = (authState as? AuthState.Authenticated)?.user,
+                    navigationIcon = when (screenType) {
+                        TopAppBarScreenType.Nested -> QodeActionIcons.Back
+                        TopAppBarScreenType.ScrollAware -> QodeActionIcons.Back
+                        TopAppBarScreenType.Main -> QodeNavigationIcons.Favorites
+                        else -> null
+                    },
+                    onNavigationClick = when (screenType) {
+                        TopAppBarScreenType.Nested -> ({ appState.navController.popBackStack() })
+                        TopAppBarScreenType.ScrollAware -> ({ appState.navController.popBackStack() })
+                        TopAppBarScreenType.Main -> ({ appViewModel.handleNavigation(NavigationActions.NavigateToFavorites) })
+                        else -> null
+                    },
+                    onProfileClick = { _ -> onProfileClick() },
+                    onSettingsClick = {
+                        appViewModel.handleNavigation(NavigationActions.NavigateToSettings)
+                    },
+                    showProfile = screenType != TopAppBarScreenType.ScrollAware, // Don't show profile on profile screen
+                    showSettings = screenType != TopAppBarScreenType.ScrollAware, // Don't show settings on profile screen
+                    scrollState = if (screenType == TopAppBarScreenType.ScrollAware) appState.profileScrollState else null,
+                )
             }
         },
 
@@ -177,16 +185,16 @@ internal fun QodeApp(
         QodeNavHost(
             appState = appState,
             modifier = when {
-                // Home, submission screens handle their own UI - no padding
-                isHomeDestination || isSubmissionScreen -> Modifier.fillMaxSize()
-                // Nested screens with transparent top bar - no top padding
-                appState.isNestedScreen -> Modifier.padding(
+                // Home screens handle their own UI - no padding
+                isHomeDestination -> Modifier.fillMaxSize()
+                // Profile screen with transparent top bar - no top padding
+                isProfileScreen -> Modifier.padding(
                     start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
                     end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
                     bottom = innerPadding.calculateBottomPadding(),
                     // No top padding - let content flow behind transparent top bar
                 )
-                // Regular screens with solid top bars - full padding
+                // All other screens with solid top bars - full padding
                 else -> Modifier.padding(innerPadding)
             },
         )

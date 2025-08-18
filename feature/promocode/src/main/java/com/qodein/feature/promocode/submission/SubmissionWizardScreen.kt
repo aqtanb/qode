@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -32,14 +31,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeErrorCard
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Service
@@ -173,117 +167,81 @@ private fun WizardMainContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = when (uiState.currentStep) {
-                            SubmissionWizardStep.SERVICE_AND_TYPE -> stringResource(R.string.wizard_step_service_type)
-                            SubmissionWizardStep.TYPE_DETAILS -> stringResource(R.string.wizard_step_details)
-                            SubmissionWizardStep.DATE_SETTINGS -> stringResource(R.string.wizard_step_dates)
-                            SubmissionWizardStep.OPTIONAL_DETAILS -> stringResource(R.string.wizard_step_optional)
-                        },
-                    )
+    // Top app bar is now handled centrally by QodeApp
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            // Animated step content with smooth transitions
+            AnimatedContent(
+                targetState = uiState.currentStep,
+                transitionSpec = {
+                    slideInHorizontally(
+                        initialOffsetX = { if (targetState.stepNumber > initialState.stepNumber) it else -it },
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow,
+                        ),
+                    ) + fadeIn() togetherWith slideOutHorizontally(
+                        targetOffsetX = { if (targetState.stepNumber > initialState.stepNumber) -it else it },
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow,
+                        ),
+                    ) + fadeOut()
                 },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = QodeActionIcons.Back,
-                            contentDescription = "Back",
+                modifier = Modifier.fillMaxWidth(),
+                label = "wizard_step_transition",
+            ) { step ->
+                when (step) {
+                    SubmissionWizardStep.SERVICE_AND_TYPE -> {
+                        ServiceAndTypeScreen(
+                            wizardData = uiState.wizardData,
+                            onAction = onAction,
+                            availableServices = uiState.availableServices,
+                            isLoadingServices = uiState.isLoadingServices,
+                            onSearchServices = { query ->
+                                onAction(SubmissionWizardAction.SearchServices(query))
+                            },
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                modifier = Modifier.statusBarsPadding(),
-            )
-        },
-    ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(contentPadding)
-                    .padding(
-                        start = SpacingTokens.lg,
-                        end = SpacingTokens.lg,
-                        top = SpacingTokens.lg,
-                        bottom = SpacingTokens.lg,
-                    ),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                // Animated step content with smooth transitions
-                AnimatedContent(
-                    targetState = uiState.currentStep,
-                    transitionSpec = {
-                        slideInHorizontally(
-                            initialOffsetX = { if (targetState.stepNumber > initialState.stepNumber) it else -it },
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow,
-                            ),
-                        ) + fadeIn() togetherWith slideOutHorizontally(
-                            targetOffsetX = { if (targetState.stepNumber > initialState.stepNumber) -it else it },
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow,
-                            ),
-                        ) + fadeOut()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = "wizard_step_transition",
-                ) { step ->
-                    when (step) {
-                        SubmissionWizardStep.SERVICE_AND_TYPE -> {
-                            ServiceAndTypeScreen(
-                                wizardData = uiState.wizardData,
-                                onAction = onAction,
-                                availableServices = uiState.availableServices,
-                                isLoadingServices = uiState.isLoadingServices,
-                                onSearchServices = { query ->
-                                    onAction(SubmissionWizardAction.SearchServices(query))
-                                },
-                            )
-                        }
-                        SubmissionWizardStep.TYPE_DETAILS -> {
-                            TypeDetailsScreen(
-                                wizardData = uiState.wizardData,
-                                onAction = onAction,
-                            )
-                        }
-                        SubmissionWizardStep.DATE_SETTINGS -> {
-                            DateSettingsScreen(
-                                wizardData = uiState.wizardData,
-                                onAction = onAction,
-                            )
-                        }
-                        SubmissionWizardStep.OPTIONAL_DETAILS -> {
-                            OptionalDetailsScreen(
-                                wizardData = uiState.wizardData,
-                                onAction = onAction,
-                            )
-                        }
+                    SubmissionWizardStep.TYPE_DETAILS -> {
+                        TypeDetailsScreen(
+                            wizardData = uiState.wizardData,
+                            onAction = onAction,
+                        )
+                    }
+                    SubmissionWizardStep.DATE_SETTINGS -> {
+                        DateSettingsScreen(
+                            wizardData = uiState.wizardData,
+                            onAction = onAction,
+                        )
+                    }
+                    SubmissionWizardStep.OPTIONAL_DETAILS -> {
+                        OptionalDetailsScreen(
+                            wizardData = uiState.wizardData,
+                            onAction = onAction,
+                        )
                     }
                 }
             }
+        }
 
-            // Bottom Controller (floating at bottom)
-            Box(
-                modifier = Modifier.align(Alignment.BottomCenter),
-            ) {
-                BottomWizardController(
-                    uiState = uiState,
-                    onAction = onAction,
-                    onFocusField = { fieldName ->
-                        // TODO: Implement field focus logic
-                    },
-                )
-            }
+        // Bottom Controller (floating at bottom)
+        Box(
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            BottomWizardController(
+                uiState = uiState,
+                onAction = onAction,
+                onFocusField = { fieldName ->
+                    // TODO: Implement field focus logic
+                },
+            )
         }
     }
 }

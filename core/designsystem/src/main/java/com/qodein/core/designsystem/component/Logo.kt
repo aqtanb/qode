@@ -2,7 +2,10 @@ package com.qodein.core.designsystem.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -145,8 +148,8 @@ fun QodeLogoMinimal(
 @Composable
 private fun QodeLogoDefaultPreview() {
     QodeTheme {
-        androidx.compose.foundation.layout.Row(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(16.dp),
         ) {
             QodeLogo(size = QodeLogoSize.Small)
@@ -161,8 +164,8 @@ private fun QodeLogoDefaultPreview() {
 @Composable
 private fun QodeLogoStylesPreview() {
     QodeTheme {
-        androidx.compose.foundation.layout.Row(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(16.dp),
         ) {
             QodeLogo(style = QodeLogoStyle.Default)
@@ -176,16 +179,16 @@ private fun QodeLogoStylesPreview() {
 @Composable
 private fun QodeAppIconPreview() {
     QodeTheme {
-        androidx.compose.foundation.layout.Column(
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(16.dp),
         ) {
             // Like in your auth screen - CRISP at any size!
             QodeAppIcon(size = QodeLogoSize.XLarge)
 
             // Minimal versions
-            androidx.compose.foundation.layout.Row(
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 QodeLogoMinimal(size = QodeLogoSize.Small)
                 QodeLogoMinimal(size = QodeLogoSize.Medium)
@@ -202,8 +205,8 @@ private fun QodeAppIconPreview() {
 @Composable
 private fun QodeLogoDarkPreview() {
     QodeTheme(darkTheme = true) {
-        androidx.compose.foundation.layout.Row(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(16.dp),
         ) {
             QodeLogo(style = QodeLogoStyle.Default)

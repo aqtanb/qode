@@ -1,6 +1,8 @@
 package com.qodein.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -182,9 +184,9 @@ fun QodeChip(
 @Composable
 private fun QodeChipVariantsPreview() {
     QodeTheme {
-        androidx.compose.foundation.layout.Column(
+        Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             QodeChip(
                 label = "Filter Chip",
@@ -236,9 +238,9 @@ private fun QodeChipVariantsPreview() {
 @Composable
 private fun QodeChipSizesPreview() {
     QodeTheme {
-        androidx.compose.foundation.layout.Column(
+        Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             QodeChip(
                 label = "Small Chip",

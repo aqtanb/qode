@@ -1,5 +1,7 @@
 package com.qodein.qode.ui
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -23,15 +25,18 @@ import com.qodein.qode.navigation.TopLevelDestination.INBOX
 import com.qodein.qode.navigation.TopLevelDestination.SEARCH
 
 @Composable
-fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
-    remember(navController) {
+fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState {
+    val profileScrollState = rememberScrollState()
+    return remember(navController) {
         QodeAppState(
-            navController,
+            navController = navController,
+            profileScrollState = profileScrollState,
         )
     }
+}
 
 @Stable
-class QodeAppState(val navController: NavHostController) {
+class QodeAppState(val navController: NavHostController, val profileScrollState: ScrollState) {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
     private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
 

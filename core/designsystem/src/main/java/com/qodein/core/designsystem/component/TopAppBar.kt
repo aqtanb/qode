@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -103,6 +101,7 @@ fun QodeTopAppBar(
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
     actions: List<TopAppBarAction> = emptyList(),
+    customActions: (@Composable RowScope.() -> Unit)? = null,
     navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -122,6 +121,7 @@ fun QodeTopAppBar(
             navigationIcon = navigationIcon,
             onNavigationClick = onNavigationClick,
             actions = actions,
+            customActions = customActions,
             navigationIconTint = navigationIconTint,
             titleColor = titleColor,
             actionIconTint = actionIconTint,
@@ -194,6 +194,9 @@ fun QodeTopAppBar(
             }
         }
 
+        // Custom actions
+        customActions?.invoke(this)
+
         if (overflowActions.isNotEmpty()) {
             OverflowMenu(actions = overflowActions)
         }
@@ -201,7 +204,7 @@ fun QodeTopAppBar(
 
     when (variant) {
         QodeTopAppBarVariant.Default -> {
-            androidx.compose.material3.TopAppBar(
+            TopAppBar(
                 title = titleContent,
                 modifier = finalModifier,
                 navigationIcon = navigationContent,
@@ -211,7 +214,7 @@ fun QodeTopAppBar(
             )
         }
         QodeTopAppBarVariant.CenterAligned -> {
-            androidx.compose.material3.CenterAlignedTopAppBar(
+            CenterAlignedTopAppBar(
                 title = titleContent,
                 modifier = finalModifier,
                 navigationIcon = navigationContent,
@@ -221,7 +224,7 @@ fun QodeTopAppBar(
             )
         }
         QodeTopAppBarVariant.Large -> {
-            androidx.compose.material3.LargeTopAppBar(
+            LargeTopAppBar(
                 title = titleContent,
                 modifier = finalModifier,
                 navigationIcon = navigationContent,
@@ -301,6 +304,7 @@ private fun QodeTransparentTopAppBarImpl(
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
     actions: List<TopAppBarAction> = emptyList(),
+    customActions: (@Composable RowScope.() -> Unit)? = null,
     navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -393,6 +397,9 @@ private fun QodeTransparentTopAppBarImpl(
                 }
             }
 
+            // Custom actions
+            customActions?.invoke(this)
+
             // Overflow menu for non-icon actions
             val overflowActions = actions.filter { !it.showAsAction }
             if (overflowActions.isNotEmpty()) {
@@ -435,53 +442,6 @@ fun QodeTransparentTopAppBar(
         variant = QodeTopAppBarVariant.Transparent,
         statusBarPadding = true, // Always add status bar padding for transparent variant
     )
-}
-
-// MARK: - Profile Components
-
-/**
- * Profile avatar component for top app bar
- */
-@Composable
-fun QodeProfileAvatar(
-    imageUrl: String?,
-    size: Dp,
-    contentDescription: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (imageUrl != null) {
-            // TODO: Add Coil AsyncImage when profile images are implemented
-            // AsyncImage(
-            //     model = imageUrl,
-            //     contentDescription = contentDescription,
-            //     modifier = Modifier.fillMaxSize(),
-            //     contentScale = ContentScale.Crop
-            // )
-
-            // Placeholder for now
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(size * 0.6f),
-            )
-        } else {
-            // Default placeholder
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(size * 0.6f),
-            )
-        }
-    }
 }
 
 // Previews
