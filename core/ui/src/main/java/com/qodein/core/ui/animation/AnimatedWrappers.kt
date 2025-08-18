@@ -1,6 +1,7 @@
 package com.qodein.core.ui.animation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -56,7 +57,7 @@ fun QodeStaggeredEntry(
     visible: Boolean,
     delayMs: Long = 0L,
     slideDirection: SlideDirection = SlideDirection.Up,
-    fadeSpec: androidx.compose.animation.core.FiniteAnimationSpec<Float> = QodeAnimationSpecs.fadeInFast,
+    fadeSpec: FiniteAnimationSpec<Float> = QodeAnimationSpecs.fadeInFast,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {

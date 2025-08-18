@@ -10,13 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -31,10 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
+import com.qodein.core.designsystem.component.ModernPageIndicator
 import com.qodein.core.designsystem.component.QodeDivider
-import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
 import com.qodein.core.model.BannerId
@@ -52,26 +53,36 @@ fun HeroBannerSection(
     onBannerClick: (Banner) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current
-    val screenHeight = with(density) { windowInfo.containerSize.height.toDp() }
-    val bannerHeight = screenHeight * 0.7f
+    // Track pager state for page indicator
+    var currentPage by remember { mutableIntStateOf(0) }
+    var totalPages by remember { mutableIntStateOf(0) }
 
     // Only use real banners from server, no fallback
     val bannerItems = banners
 
     // Only show banner section if there are real banners
     if (bannerItems.isNotEmpty()) {
+        // Get screen height for banner sizing
+        val windowInfo = LocalWindowInfo.current
+        val density = LocalDensity.current
+        val screenHeight = with(density) { windowInfo.containerSize.height.toDp() }
+
         AutoScrollingBanner(
             items = bannerItems,
             autoScrollDelay = 4.seconds,
+            onPagerStateChange = { page, total ->
+                currentPage = page
+                totalPages = total
+            },
             modifier = modifier
                 .fillMaxWidth()
-                .height(bannerHeight),
+                .height(screenHeight * 0.7f), // Banner takes 70% of screen height
         ) { banner, index ->
             HeroBannerContent(
                 banner = banner,
                 onBannerClick = onBannerClick,
+                currentPage = currentPage,
+                totalPages = totalPages,
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -82,6 +93,8 @@ fun HeroBannerSection(
 private fun HeroBannerContent(
     banner: Banner,
     onBannerClick: (Banner) -> Unit,
+    currentPage: Int,
+    totalPages: Int,
     modifier: Modifier = Modifier
 ) {
     // Parse gradient colors for text styling
@@ -96,63 +109,52 @@ private fun HeroBannerContent(
     val primaryGradientColor = gradientColors.firstOrNull() ?: Color(0xFF6366F1)
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(), // Fill the AutoScrollingBanner container
     ) {
-        // Background: Image with gradient overlay for text readability
+        // Background: Always show image with proper error handling
+        // Background layer - handle missing/failed images
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (banner.imageUrl.isBlank()) {
+                Text(
+                    text = "Image not available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        // Image layer - shows promotional banner content if available
         if (banner.imageUrl.isNotBlank()) {
-            // Image layer
             AsyncImage(
                 model = banner.imageUrl,
                 contentDescription = banner.title,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit, // Shows entire banner, no cropping
             )
-
-            // Edge vignette - darkens only the edges, keeps center clear
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.4f), // Top edge
-                                Color.Transparent, // Center stays clear
-                                Color.Transparent, // Center stays clear
-                                Color.Transparent, // More center clear
-                                Color.Black.copy(alpha = 0.5f), // Bottom edge
-                            ),
-                            startY = 0f,
-                            endY = Float.POSITIVE_INFINITY,
-                        ),
-                    ),
-            )
-        } else {
-            // Error state: No image URL or failed to load
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red.copy(alpha = 0.8f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Icon(
-                        imageVector = QodeUIIcons.Error,
-                        contentDescription = "Image not found",
-                        tint = Color.White,
-                        modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                    )
-                    Text(
-                        text = "Image not available",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
         }
+
+        // Edge vignette - always show for text readability
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.1f), // Top edge
+                            Color.Transparent, // Center stays clear
+                            Color.Transparent, // More center clear
+                            Color.Black.copy(alpha = 0.5f), // Bottom edge
+                        ),
+                        startY = 0f,
+                        endY = Float.POSITIVE_INFINITY,
+                    ),
+                ),
+        )
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -166,6 +168,8 @@ private fun HeroBannerContent(
                 banner = banner,
                 primaryColor = primaryGradientColor,
                 onBannerClick = onBannerClick,
+                currentPage = currentPage,
+                totalPages = totalPages,
             )
         }
     }
@@ -218,6 +222,8 @@ private fun BannerCallToAction(
     banner: Banner,
     primaryColor: Color,
     onBannerClick: (Banner) -> Unit,
+    currentPage: Int,
+    totalPages: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -247,6 +253,17 @@ private fun BannerCallToAction(
             color = Color.White,
             textAlign = TextAlign.Center,
         )
+
+        // Modern page indicator - sexy 2024 style
+        if (totalPages > 1) {
+            ModernPageIndicator(
+                currentPage = currentPage,
+                totalPages = totalPages,
+                modifier = Modifier.padding(top = SpacingTokens.xs),
+                inactiveColor = Color.White.copy(alpha = 0.3f),
+                activeColor = Color.White,
+            )
+        }
     }
 }
 
@@ -326,6 +343,8 @@ private fun HeroBannerContentPreview() {
                 updatedAt = System.currentTimeMillis(),
             ),
             onBannerClick = { },
+            currentPage = 1,
+            totalPages = 3,
         )
     }
 }
@@ -351,6 +370,8 @@ private fun HeroBannerContentNoImagePreview() {
                 updatedAt = System.currentTimeMillis(),
             ),
             onBannerClick = { },
+            currentPage = 0,
+            totalPages = 1,
         )
     }
 }
@@ -396,6 +417,8 @@ private fun BannerCallToActionPreview() {
                 ),
                 primaryColor = Color(0xFFDC2626),
                 onBannerClick = { },
+                currentPage = 2,
+                totalPages = 4,
             )
         }
     }
@@ -422,6 +445,8 @@ private fun HeroBannerDarkThemePreview() {
                 updatedAt = System.currentTimeMillis(),
             ),
             onBannerClick = { },
+            currentPage = 3,
+            totalPages = 5,
         )
     }
 }

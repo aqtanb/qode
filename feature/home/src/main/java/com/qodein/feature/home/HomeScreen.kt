@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -177,7 +178,7 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     uiState: HomeUiState.Success,
-    listState: androidx.compose.foundation.lazy.LazyListState,
+    listState: LazyListState,
     onAction: (HomeAction) -> Unit
 ) {
     LazyColumn(

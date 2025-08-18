@@ -48,6 +48,7 @@ fun <T> AutoScrollingBanner(
     enableAutoScroll: Boolean = true,
     enableInfiniteScroll: Boolean = true,
     pageIndicatorEnabled: Boolean = true,
+    onPagerStateChange: ((currentPage: Int, totalPages: Int) -> Unit)? = null,
     content: @Composable (item: T, index: Int) -> Unit
 ) {
     // Handle edge cases
@@ -84,6 +85,18 @@ fun <T> AutoScrollingBanner(
                 is DragInteraction.Start -> userIsInteracting = true
                 is DragInteraction.Stop, is DragInteraction.Cancel -> userIsInteracting = false
             }
+        }
+    }
+
+    // Report pager state changes
+    LaunchedEffect(pagerState.currentPage, itemCount) {
+        if (itemCount > 0) {
+            val actualPage = if (enableInfiniteScroll && itemCount > 1) {
+                pagerState.currentPage % itemCount
+            } else {
+                pagerState.currentPage.coerceIn(0, itemCount - 1)
+            }
+            onPagerStateChange?.invoke(actualPage, itemCount)
         }
     }
 
