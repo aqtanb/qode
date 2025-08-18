@@ -1,4 +1,4 @@
-package com.qodein.core.designsystem.component
+package com.qodein.core.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -29,12 +29,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.R
 import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.R
 
 /**
  * Google Sign-In button following Google's brand guidelines
@@ -343,22 +343,6 @@ private fun QodeTelegramFollowButtonPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QodeTelegramFollowButton(onClick = {})
-
-            QodeTelegramFollowButton(
-                onClick = {},
-                enabled = false,
-            )
-
-            QodeTelegramFollowButton(
-                onClick = {},
-                isLoading = true,
-            )
-
-            QodeTelegramFollowButton(
-                onClick = {},
-                text = "Join our Community",
-            )
         }
     }
 }

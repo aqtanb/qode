@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.domain.AuthState
 import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.core.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.core.model.Theme
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,8 +31,11 @@ import javax.inject.Inject
  * Following enterprise patterns with proper separation of concerns.
  */
 @HiltViewModel
-class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase, private val navigationHandler: NavigationHandler) :
-    ViewModel() {
+class QodeAppViewModel @Inject constructor(
+    getAuthStateUseCase: GetAuthStateUseCase,
+    getThemeUseCase: GetThemeUseCase,
+    private val navigationHandler: NavigationHandler
+) : ViewModel() {
 
     // Auth state from domain layer with proper error handling
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
@@ -42,6 +47,18 @@ class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseC
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AuthState.Loading,
+        )
+
+    // Theme state from domain layer with proper error handling
+    val themeState: StateFlow<Theme> = getThemeUseCase()
+        .map { result ->
+            result.getOrElse { Theme.SYSTEM }
+        }
+        .catch { emit(Theme.SYSTEM) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = Theme.SYSTEM,
         )
 
     // Navigation events flow

@@ -14,11 +14,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.SubmissionRoute
 import com.qodein.feature.search.navigation.SearchRoute
+import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
 import com.qodein.qode.navigation.TopLevelDestination.INBOX
@@ -113,6 +115,19 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
     val isSubmissionScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<SubmissionRoute>() == true
+        }
+
+    /**
+     * Check if current destination is the settings screen
+     */
+    val isSettingsScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<SettingsRoute>() == true
+        }
+
+    val isAuthScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<AuthRoute>() == true
         }
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {

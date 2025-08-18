@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -35,8 +33,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeDecorationStyle
 import com.qodein.core.designsystem.component.QodeGradient
-import com.qodein.core.designsystem.component.QodeTransparentTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -57,20 +53,13 @@ fun SettingsScreen(
             decorations = QodeDecorationStyle.FloatingCircles,
         )
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                QodeTransparentTopAppBar(
-                    title = stringResource(R.string.settings_title),
-                    navigationIcon = QodeActionIcons.Back,
-                    onNavigationClick = onBackClick,
-                )
-            },
-        ) { paddingValues ->
+        // Top app bar is now handled centrally by QodeApp
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(horizontal = SpacingTokens.screenPadding)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.List.sectionSpacing),

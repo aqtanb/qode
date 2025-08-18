@@ -24,8 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeErrorCard
-import com.qodein.core.designsystem.component.QodeGoogleSignInButton
 import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
@@ -41,6 +39,8 @@ import com.qodein.core.ui.FontScalePreviews
 import com.qodein.core.ui.MobilePreviews
 import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
+import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.QodeGoogleSignInButton
 
 @Composable
 fun AuthScreen(

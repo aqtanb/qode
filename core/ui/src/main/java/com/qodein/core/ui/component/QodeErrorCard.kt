@@ -1,4 +1,4 @@
-package com.qodein.core.designsystem.component
+package com.qodein.core.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +17,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.R
+import com.qodein.core.designsystem.component.QodeButton
+import com.qodein.core.designsystem.component.QodeButtonVariant
+import com.qodein.core.designsystem.component.QodeCard
+import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.R
 
 /**
  * Enterprise-level error card component for consistent error handling across the app

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Design System Components -->
-    <string name="continue_with_google">Continue with Google</string>
     <string name="google_logo_content_desc">Google logo</string>
 
     <!-- Button Components -->
@@ -22,9 +21,6 @@
     <string name="refresh">Refresh</string>
     <string name="retry">Retry</string>
 
-    <!-- Error Handling -->
-    <string name="error_default_title">Something went wrong</string>
-    <string name="error_retry_button">Try again</string>
 
     <!-- Accessibility -->
     <string name="expand">Expand</string>
@@ -39,10 +35,4 @@
 
     <!-- Avatar -->
     <string name="profile_picture_description">Profile Picture</string>
-    
-    <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">We\'re working on this feature</string>
-    <string name="coming_soon_description">You can link with us and watch our progression in the Telegram channel.</string>
-    <string name="coming_soon_telegram_button">Follow on Telegram</string>
-    <string name="coming_soon_dialog_description">Coming soon dialog for new features</string>
 </resources>
