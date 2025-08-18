@@ -2,29 +2,24 @@ package com.qodein.feature.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,43 +37,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeDivider
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
 import com.qodein.core.model.PromoCode
-import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.CouponPromoCodeCard
 import com.qodein.feature.home.R
-import kotlin.time.Duration.Companion.seconds
+import com.qodein.feature.home.component.HeroBannerSection
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -317,237 +300,6 @@ private fun PromoCodesEmptyState() {
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-    }
-}
-
-// MARK: - Section 1: Hero Banner
-
-/**
- * Section 1: Hero Banner Section
- * Contains country picker, promotional banner carousel, and call-to-action
- */
-@Composable
-private fun HeroBannerSection(
-    banners: List<Banner>,
-    onBannerClick: (Banner) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp
-    val bannerHeight = (screenHeight * 0.5f)
-
-    // Only use real banners from server, no fallback
-    val bannerItems = banners
-
-    // Only show banner section if there are real banners
-    if (bannerItems.isNotEmpty()) {
-        AutoScrollingBanner(
-            items = bannerItems,
-            autoScrollDelay = 4.seconds,
-            modifier = modifier
-                .fillMaxWidth()
-                .height(bannerHeight.dp),
-        ) { banner, index ->
-            HeroBannerContent(
-                banner = banner,
-                onBannerClick = onBannerClick,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun HeroBannerContent(
-    banner: Banner,
-    onBannerClick: (Banner) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    // Parse gradient colors for text styling
-    val gradientColors = try {
-        banner.gradientColors.map { hex ->
-            Color(hex.toColorInt())
-        }
-    } catch (e: Exception) {
-        listOf(Color(0xFF6366F1), Color(0xFF8B5CF6))
-    }
-
-    val primaryGradientColor = gradientColors.firstOrNull() ?: Color(0xFF6366F1)
-
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        // Background: ONLY image or error state - NO OVERLAYS, NO GRADIENTS
-        if (banner.imageUrl.isNotBlank()) {
-            // Show only the image - clean and full opacity
-            AsyncImage(
-                model = banner.imageUrl,
-                contentDescription = banner.title,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            // Error state: No image URL or failed to load
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red.copy(alpha = 0.8f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Icon(
-                        imageVector = QodeUIIcons.Error,
-                        contentDescription = "Image not found",
-                        tint = Color.White,
-                        modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                    )
-                    Text(
-                        text = "Image not available",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
-        }
-
-        // Decorative background element
-        Icon(
-            imageVector = QodeCommerceIcons.Flash,
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.1f),
-            modifier = Modifier
-                .size(SizeTokens.Decoration.sizeXXLarge * 3)
-                .align(Alignment.TopEnd)
-                .offset(x = SpacingTokens.xl, y = -SpacingTokens.lg),
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = SpacingTokens.lg),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            // Country picker section
-            BannerCountryPicker(
-                modifier = Modifier.padding(top = SpacingTokens.md),
-            )
-
-            // Brand information and CTA section
-            BannerCallToAction(
-                banner = banner,
-                primaryColor = primaryGradientColor,
-                onBannerClick = onBannerClick,
-                modifier = Modifier.padding(bottom = SpacingTokens.lg),
-            )
-        }
-    }
-}
-
-@Composable
-private fun BannerCountryPicker(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-    ) {
-        Text(
-            text = stringResource(R.string.banner_country_picker_title),
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.8f),
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center,
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            QodeDivider(modifier = Modifier.weight(1f))
-            Text(
-                text = "Kazakhstan",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .clickable { /* TODO: Handle country selection */ }
-                    .padding(horizontal = SpacingTokens.md),
-            )
-            QodeDivider(modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun BannerCallToAction(
-    banner: Banner,
-    primaryColor: Color,
-    onBannerClick: (Banner) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-    ) {
-        // Clean text with shadows only - no ugly backgrounds
-        Text(
-            text = banner.title,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.8f),
-                    offset = Offset(2f, 2f),
-                    blurRadius = 6f,
-                ),
-            ),
-            fontWeight = FontWeight.Black,
-            color = Color.White,
-        )
-
-        Text(
-            text = banner.description,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.6f),
-                    offset = Offset(2f, 2f),
-                    blurRadius = 4f,
-                ),
-            ),
-            color = Color.White,
-        )
-
-        Surface(
-            color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(ShapeTokens.Corner.large),
-            modifier = Modifier
-                .padding(top = SpacingTokens.sm)
-                .clickable { onBannerClick(banner) },
-        ) {
-            Row(
-                modifier = Modifier.padding(
-                    horizontal = SpacingTokens.xxl,
-                    vertical = SpacingTokens.md,
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-            ) {
-                Text(
-                    text = banner.ctaText,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = primaryColor,
-                )
-                Icon(
-                    imageVector = QodeActionIcons.Forward,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                    tint = primaryColor,
-                )
-            }
-        }
     }
 }
 
