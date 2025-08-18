@@ -49,6 +49,9 @@ dependencies {
     // Coil
     implementation(libs.bundles.image.loading)
 
+    // Browser (CustomTabs)
+    implementation(libs.androidx.browser)
+
     // Dependency Injection
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)

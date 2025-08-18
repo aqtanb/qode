@@ -45,8 +45,8 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
      */
     fun getLanguage(): Flow<Language> =
         dataStore.data.map { preferences ->
-            val languageCode = preferences[LANGUAGE_KEY] ?: Language.ENGLISH.code
-            Language.entries.find { it.code == languageCode } ?: Language.ENGLISH
+            val languageCode = preferences[LANGUAGE_KEY] ?: Language.RUSSIAN.code // Default to Russian for KZ market
+            Language.entries.find { it.code == languageCode } ?: Language.RUSSIAN
         }
 
     /**

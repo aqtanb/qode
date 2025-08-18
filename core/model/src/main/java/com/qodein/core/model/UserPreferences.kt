@@ -2,7 +2,7 @@ package com.qodein.core.model
 
 data class UserPreferences(
     val userId: UserId,
-    val language: Language = Language.ENGLISH,
+    val language: Language = Language.RUSSIAN, // Default to Russian for KZ market
     val theme: Theme = Theme.SYSTEM,
     val notifications: NotificationSettings = NotificationSettings.default(),
     val privacy: PrivacySettings = PrivacySettings.default(),

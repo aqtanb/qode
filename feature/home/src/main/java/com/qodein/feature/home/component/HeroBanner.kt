@@ -109,7 +109,9 @@ private fun HeroBannerContent(
     val primaryGradientColor = gradientColors.firstOrNull() ?: Color(0xFF6366F1)
 
     Box(
-        modifier = modifier.fillMaxSize(), // Fill the AutoScrollingBanner container
+        modifier = modifier
+            .fillMaxSize()
+            .clickable { onBannerClick(banner) }, // Make entire banner clickable
     ) {
         // Background: Always show image with proper error handling
         // Background layer - handle missing/failed images
@@ -145,7 +147,7 @@ private fun HeroBannerContent(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = 0.1f), // Top edge
+                            Color.Black.copy(alpha = 0.3f), // Top edge
                             Color.Transparent, // Center stays clear
                             Color.Transparent, // More center clear
                             Color.Black.copy(alpha = 0.5f), // Bottom edge

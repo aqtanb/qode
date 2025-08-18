@@ -61,6 +61,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
 import com.qodein.core.model.PromoCode
 import com.qodein.core.ui.component.CouponPromoCodeCard
+import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.R
 import com.qodein.feature.home.component.HeroBannerSection
 
@@ -85,16 +86,15 @@ fun HomeScreen(
             when (event) {
                 is HomeEvent.PromoCodeDetailRequested -> onNavigateToPromoCodeDetail(event.promoCode)
                 is HomeEvent.BannerDetailRequested -> {
-                    // Handle banner CTA URL navigation directly
+                    // Handle banner CTA URL navigation with CustomTabs
                     val banner = event.banner
-                    if (banner.ctaUrl?.isNotBlank() == true) {
-                        try {
-                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(banner.ctaUrl))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            // Fallback to external navigation callback
-                            onNavigateToBannerDetail(banner)
-                        }
+                    val ctaUrl = banner.ctaUrl
+                    if (ctaUrl?.isNotBlank() == true) {
+                        // Use branded CustomTabs for better UX
+                        CustomTabsUtils.launchCustomTab(
+                            context = context,
+                            url = ctaUrl,
+                        )
                     } else {
                         // No URL, use the navigation callback
                         onNavigateToBannerDetail(banner)

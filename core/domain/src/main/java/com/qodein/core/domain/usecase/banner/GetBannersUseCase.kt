@@ -123,6 +123,6 @@ class GetBannersUseCase @Inject constructor(
     private fun getDefaultFallbackBanners(): List<Banner> = emptyList()
 
     companion object {
-        private const val DEFAULT_COUNTRY_CODE = "US" // Fallback country
+        private const val DEFAULT_COUNTRY_CODE = "KZ" // Kazakhstan as fallback country for KZ market
     }
 }

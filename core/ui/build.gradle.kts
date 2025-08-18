@@ -47,6 +47,12 @@ dependencies {
     // Coil
     implementation(libs.bundles.image.loading)
 
+    // Browser (CustomTabs)
+    implementation(libs.androidx.browser)
+
+    // Logging
+    implementation(libs.timber)
+
     // Testing
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)
