@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import com.qodein.core.domain.AuthState
 import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.profile.navigation.navigateToProfile
+import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.feature.settings.navigation.navigateToSettings
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -79,19 +80,10 @@ class NavigationHandler @Inject constructor() {
             NavigationActions.NavigateToHome -> {
                 navigateToTopLevel(TopLevelDestination.HOME)
             }
+
+            NavigationActions.NavigateToSubmission -> {
+                navController.navigateToSubmission()
+            }
         }
     }
-
-    /**
-     * Get appropriate navigation action for profile click based on auth state
-     *
-     * @param authState Current authentication state
-     * @return NavigationAction for profile navigation
-     */
-    fun getProfileNavigationAction(authState: AuthState): NavigationActions =
-        when (authState) {
-            is AuthState.Authenticated -> NavigationActions.NavigateToProfile
-            is AuthState.Unauthenticated -> NavigationActions.NavigateToProfile // Will route to auth
-            is AuthState.Loading -> NavigationActions.NavigateToProfile // Will wait or show loading
-        }
 }

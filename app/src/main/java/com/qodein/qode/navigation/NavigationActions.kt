@@ -45,4 +45,9 @@ sealed interface NavigationActions {
      * Navigate to home screen (for sign out, etc.)
      */
     data object NavigateToHome : NavigationActions
+
+    /**
+     * Navigate to submission/promo code creation screen
+     */
+    data object NavigateToSubmission : NavigationActions
 }

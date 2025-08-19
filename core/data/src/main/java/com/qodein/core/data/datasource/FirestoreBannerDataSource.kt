@@ -43,6 +43,8 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
             Log.d(TAG, "getBannersForCountry: Starting query for country=$countryCode, limit=$limit")
 
             try {
+                // Note: Firestore doesn't support compound queries with array-contains and timestamp comparison
+                // We'll need to handle expiration filtering client-side or use composite queries
                 val query = firestore.collection(BANNERS_COLLECTION)
                     .whereEqualTo("isActive", true)
                     .whereArrayContains("targetCountries", countryCode.uppercase())
@@ -237,51 +239,5 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 Log.e(TAG, "observeBanners: Failed to set up observation", e)
                 close(IOException("Failed to set up banner observation", e))
             }
-        }
-
-    /**
-     * Creates a new banner in Firestore.
-     * Used for admin operations (not typically needed in client app).
-     *
-     * @param banner The banner to create
-     * @return The created banner
-     */
-    suspend fun createBanner(banner: Banner): Banner =
-        try {
-            val dto = BannerMapper.toDto(banner)
-
-            firestore.collection(BANNERS_COLLECTION)
-                .document(dto.id)
-                .set(dto)
-                .await()
-
-            Log.d(TAG, "createBanner: Successfully created banner ${banner.id.value}")
-            banner
-        } catch (e: Exception) {
-            Log.e(TAG, "createBanner: Failed to create banner ${banner.id.value}", e)
-            throw IOException("Failed to create banner", e)
-        }
-
-    /**
-     * Updates an existing banner in Firestore.
-     * Used for admin operations (not typically needed in client app).
-     *
-     * @param banner The banner to update
-     * @return The updated banner
-     */
-    suspend fun updateBanner(banner: Banner): Banner =
-        try {
-            val dto = BannerMapper.toDto(banner)
-
-            firestore.collection(BANNERS_COLLECTION)
-                .document(dto.id)
-                .set(dto)
-                .await()
-
-            Log.d(TAG, "updateBanner: Successfully updated banner ${banner.id.value}")
-            banner
-        } catch (e: Exception) {
-            Log.e(TAG, "updateBanner: Failed to update banner ${banner.id.value}", e)
-            throw IOException("Failed to update banner", e)
         }
 }

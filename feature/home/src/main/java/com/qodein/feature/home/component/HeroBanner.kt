@@ -31,15 +31,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.ModernPageIndicator
 import com.qodein.core.designsystem.component.QodeDivider
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
-import com.qodein.core.model.BannerId
+import com.qodein.core.model.Language
+import com.qodein.core.ui.BannerListPreviewParameterProvider
+import com.qodein.core.ui.BannerPreviewParameterProvider
 import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.feature.home.R
@@ -53,6 +55,7 @@ import kotlin.time.Duration.Companion.seconds
 fun HeroBannerSection(
     banners: List<Banner>,
     onBannerClick: (Banner) -> Unit,
+    userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
     // Track pager state for page indicator
@@ -84,12 +87,13 @@ fun HeroBannerSection(
                 onBannerClick = onBannerClick,
                 currentPage = currentPage,
                 totalPages = totalPages,
+                userLanguage = userLanguage,
                 modifier = Modifier.fillMaxSize(),
             )
         }
     } else {
-        // Show empty state when no banners are available
-        EmptyBannerState(
+        // Show placeholder banner that maintains same layout as real banners
+        PlaceholderBannerState(
             modifier = modifier
                 .fillMaxWidth()
                 .height(screenHeight * 0.7f),
@@ -103,18 +107,11 @@ private fun HeroBannerContent(
     onBannerClick: (Banner) -> Unit,
     currentPage: Int,
     totalPages: Int,
+    userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
-    // Parse gradient colors for text styling
-    val gradientColors = try {
-        banner.gradientColors.map { hex ->
-            Color(hex.toColorInt())
-        }
-    } catch (_: Exception) {
-        listOf(Color(0xFF6366F1), Color(0xFF8B5CF6))
-    }
-
-    val primaryGradientColor = gradientColors.firstOrNull() ?: Color(0xFF6366F1)
+    // Use default brand color since gradientColors was removed
+    val primaryGradientColor = Color(0xFF6366F1)
 
     Box(
         modifier = modifier
@@ -144,7 +141,7 @@ private fun HeroBannerContent(
                 model = banner.imageUrl,
                 contentDescription = banner.title,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit, // Shows entire banner, no cropping
+                contentScale = ContentScale.Crop,
             )
         }
 
@@ -180,6 +177,7 @@ private fun HeroBannerContent(
                 onBannerClick = onBannerClick,
                 currentPage = currentPage,
                 totalPages = totalPages,
+                userLanguage = userLanguage,
             )
         }
     }
@@ -248,6 +246,7 @@ private fun BannerCallToAction(
     onBannerClick: (Banner) -> Unit,
     currentPage: Int,
     totalPages: Int,
+    userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -292,10 +291,10 @@ private fun BannerCallToAction(
 }
 
 @Composable
-private fun EmptyBannerState(modifier: Modifier = Modifier) {
+private fun PlaceholderBannerState(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -304,41 +303,67 @@ private fun EmptyBannerState(modifier: Modifier = Modifier) {
                     ),
                 ),
             ),
-        contentAlignment = Alignment.Center,
     ) {
-        Column(
+        // Edge vignette - same as real banners for consistency
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(SpacingTokens.screenPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.3f), // Top edge
+                            Color.Transparent, // Center stays clear
+                            Color.Transparent, // More center clear
+                            Color.Black.copy(alpha = 0.5f), // Bottom edge
+                        ),
+                        startY = 0f,
+                        endY = Float.POSITIVE_INFINITY,
+                    ),
+                ),
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Country picker at top
+            // Country picker section - same position as real banners
             BannerCountryPicker()
 
-            // Empty state content in center
-            Column(
-                modifier = Modifier.padding(SpacingTokens.lg),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                Text(
-                    text = stringResource(R.string.empty_no_banners_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                )
-
-                Text(
-                    text = stringResource(R.string.empty_no_banners_description),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            // Placeholder content where CTA section would be
+            PlaceholderBannerCallToAction()
         }
+    }
+}
+
+@Composable
+private fun PlaceholderBannerCallToAction(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(SpacingTokens.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.empty_no_banners_title),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                letterSpacing = 0.5.sp,
+            ),
+            fontWeight = FontWeight.ExtraBold,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+        )
+
+        Text(
+            text = stringResource(R.string.empty_no_banners_description),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                letterSpacing = 0.25.sp,
+                lineHeight = 24.sp,
+            ),
+            fontWeight = FontWeight.Medium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -346,42 +371,12 @@ private fun EmptyBannerState(modifier: Modifier = Modifier) {
 
 @Preview(name = "Hero Banner Section - With Banners", showBackground = true, heightDp = 400)
 @Composable
-private fun HeroBannerSectionPreview() {
+private fun HeroBannerSectionPreview(@PreviewParameter(BannerListPreviewParameterProvider::class) banners: List<Banner>) {
     QodeTheme {
         HeroBannerSection(
-            banners = listOf(
-                Banner(
-                    id = BannerId("1"),
-                    title = "Summer Sale 2024",
-                    description = "Get up to 70% off on all summer collections",
-                    imageUrl = "https://example.com/banner1.jpg",
-                    targetCountries = listOf("KZ", "US"),
-                    brandName = "Fashion Store",
-                    ctaText = "Shop Now",
-                    ctaUrl = "https://example.com/summer-sale",
-                    gradientColors = listOf("#6366F1", "#8B5CF6"),
-                    isActive = true,
-                    priority = 1,
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis(),
-                ),
-                Banner(
-                    id = BannerId("2"),
-                    title = "Flash Sale",
-                    description = "Limited time offer - 24 hours only!",
-                    imageUrl = "https://example.com/banner2.jpg",
-                    targetCountries = listOf("KZ"),
-                    brandName = "Electronics Hub",
-                    ctaText = "Grab Now",
-                    ctaUrl = "https://example.com/flash-sale",
-                    gradientColors = listOf("#F59E0B", "#EF4444"),
-                    isActive = true,
-                    priority = 2,
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis(),
-                ),
-            ),
+            banners = banners,
             onBannerClick = { },
+            userLanguage = Language.ENGLISH,
         )
     }
 }
@@ -393,41 +388,29 @@ private fun HeroBannerSectionEmptyPreview() {
         HeroBannerSection(
             banners = emptyList(),
             onBannerClick = { },
+            userLanguage = Language.ENGLISH,
         )
     }
 }
 
-@Preview(name = "Empty Banner State", showBackground = true, heightDp = 300)
+@Preview(name = "Placeholder Banner State", showBackground = true, heightDp = 400)
 @Composable
-private fun EmptyBannerStatePreview() {
+private fun PlaceholderBannerStatePreview() {
     QodeTheme {
-        EmptyBannerState()
+        PlaceholderBannerState()
     }
 }
 
-@Preview(name = "Hero Banner Content - No Image", showBackground = true, heightDp = 400)
+@Preview(name = "Hero Banner Content - Various Types", showBackground = true, heightDp = 400)
 @Composable
-private fun HeroBannerContentNoImagePreview() {
+private fun HeroBannerContentPreview(@PreviewParameter(BannerPreviewParameterProvider::class) banner: Banner) {
     QodeTheme {
         HeroBannerContent(
-            banner = Banner(
-                id = BannerId("1"),
-                title = "Special Offer",
-                description = "Don't miss out on this amazing deal",
-                imageUrl = "", // No image URL
-                targetCountries = listOf("KZ", "RU"),
-                brandName = "Winter Fashion",
-                ctaText = "Explore Collection",
-                ctaUrl = "https://example.com/winter",
-                gradientColors = listOf("#3B82F6", "#1E40AF"),
-                isActive = true,
-                priority = 1,
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
-            ),
+            banner = banner,
             onBannerClick = { },
             currentPage = 0,
             totalPages = 1,
+            userLanguage = Language.ENGLISH,
         )
     }
 }
@@ -448,7 +431,7 @@ private fun BannerCountryPickerPreview() {
 
 @Preview(name = "Banner Call To Action", showBackground = true)
 @Composable
-private fun BannerCallToActionPreview() {
+private fun BannerCallToActionPreview(@PreviewParameter(BannerPreviewParameterProvider::class) banner: Banner) {
     QodeTheme {
         Box(
             modifier = Modifier
@@ -456,25 +439,12 @@ private fun BannerCallToActionPreview() {
                 .padding(SpacingTokens.lg),
         ) {
             BannerCallToAction(
-                banner = Banner(
-                    id = BannerId("1"),
-                    title = "Black Friday Sale",
-                    description = "Huge discounts on everything! Limited time only.",
-                    imageUrl = "https://example.com/blackfriday.jpg",
-                    targetCountries = listOf("KZ", "RU"),
-                    brandName = "Winter Fashion",
-                    ctaText = "Explore Collection",
-                    ctaUrl = "https://example.com/winter",
-                    gradientColors = listOf("#3B82F6", "#1E40AF"),
-                    isActive = true,
-                    priority = 1,
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis(),
-                ),
+                banner = banner,
                 primaryColor = Color(0xFFDC2626),
                 onBannerClick = { },
                 currentPage = 2,
                 totalPages = 4,
+                userLanguage = Language.ENGLISH,
             )
         }
     }
@@ -482,27 +452,14 @@ private fun BannerCallToActionPreview() {
 
 @Preview(name = "Hero Banner - Dark Theme", showBackground = true, heightDp = 400)
 @Composable
-private fun HeroBannerDarkThemePreview() {
+private fun HeroBannerDarkThemePreview(@PreviewParameter(BannerPreviewParameterProvider::class) banner: Banner) {
     QodeTheme(darkTheme = true) {
         HeroBannerContent(
-            banner = Banner(
-                id = BannerId("1"),
-                title = "Midnight Sale",
-                description = "Exclusive dark mode deals just for you",
-                imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755436194/main-sample.png",
-                targetCountries = listOf("KZ", "RU"),
-                brandName = "Winter Fashion",
-                ctaText = "Explore Collection",
-                ctaUrl = "https://example.com/winter",
-                gradientColors = listOf("#3B82F6", "#1E40AF"),
-                isActive = true,
-                priority = 1,
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
-            ),
+            banner = banner,
             onBannerClick = { },
             currentPage = 3,
             totalPages = 5,
+            userLanguage = Language.ENGLISH,
         )
     }
 }

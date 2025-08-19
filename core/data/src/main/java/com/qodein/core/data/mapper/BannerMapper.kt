@@ -25,13 +25,14 @@ object BannerMapper {
             imageUrl = banner.imageUrl,
             targetCountries = banner.targetCountries,
             brandName = banner.brandName,
-            gradientColors = banner.gradientColors,
-            ctaText = banner.ctaText,
+            ctaTitle = banner.ctaTitle,
+            ctaDescription = banner.ctaDescription,
             ctaUrl = banner.ctaUrl,
             isActive = banner.isActive,
             priority = banner.priority,
             createdAt = Timestamp(banner.createdAt / 1000, 0), // Convert millis to seconds
             updatedAt = Timestamp(banner.updatedAt / 1000, 0), // Convert millis to seconds
+            expiresAt = banner.expiresAt?.let { Timestamp(it / 1000, 0) }, // Convert millis to seconds
         )
 
     /**
@@ -47,7 +48,8 @@ object BannerMapper {
         require(dto.id.isNotBlank()) { "Banner ID cannot be blank" }
         require(dto.title.isNotBlank()) { "Banner title cannot be blank" }
         require(dto.brandName.isNotBlank()) { "Banner brand name cannot be blank" }
-        require(dto.ctaText.isNotBlank()) { "Banner CTA text cannot be blank" }
+        require(dto.ctaTitle.isNotEmpty()) { "Banner CTA title map cannot be empty" }
+        require(dto.ctaDescription.isNotEmpty()) { "Banner CTA description map cannot be empty" }
 
         return Banner(
             id = BannerId(dto.id),
@@ -56,16 +58,14 @@ object BannerMapper {
             imageUrl = dto.imageUrl,
             targetCountries = dto.targetCountries,
             brandName = dto.brandName,
-            gradientColors = dto.gradientColors.ifEmpty {
-                // Provide default gradient if none specified
-                listOf("#6366F1", "#8B5CF6")
-            },
-            ctaText = dto.ctaText,
+            ctaTitle = dto.ctaTitle,
+            ctaDescription = dto.ctaDescription,
             ctaUrl = dto.ctaUrl,
             isActive = dto.isActive,
             priority = dto.priority,
             createdAt = dto.createdAt?.toDate()?.time ?: System.currentTimeMillis(),
             updatedAt = dto.updatedAt?.toDate()?.time ?: System.currentTimeMillis(),
+            expiresAt = dto.expiresAt?.toDate()?.time,
         )
     }
 

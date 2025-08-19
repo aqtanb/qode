@@ -3,6 +3,8 @@
 package com.qodein.core.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.qodein.core.model.Banner
+import com.qodein.core.model.BannerId
 import com.qodein.core.model.Email
 import com.qodein.core.model.Gender
 import com.qodein.core.model.User
@@ -33,6 +35,34 @@ class UserStatsPreviewParameterProvider : PreviewParameterProvider<UserStats> {
         PreviewParameterData.sampleUserStats,
         PreviewParameterData.newUserStats,
         PreviewParameterData.powerUserStats,
+    )
+}
+
+/**
+ * Preview parameter provider for [Banner] data.
+ * Provides various banner scenarios for component testing.
+ */
+class BannerPreviewParameterProvider : PreviewParameterProvider<Banner> {
+    override val values: Sequence<Banner> = sequenceOf(
+        PreviewParameterData.sampleBanner,
+        PreviewParameterData.flashSaleBanner,
+        PreviewParameterData.expiredBanner,
+        PreviewParameterData.noImageBanner,
+        PreviewParameterData.globalBanner,
+        PreviewParameterData.darkModeBanner,
+    )
+}
+
+/**
+ * Preview parameter provider for [List<Banner>] data.
+ * Provides various banner list scenarios for section testing.
+ */
+class BannerListPreviewParameterProvider : PreviewParameterProvider<List<Banner>> {
+    override val values: Sequence<List<Banner>> = sequenceOf(
+        listOf(PreviewParameterData.sampleBanner, PreviewParameterData.flashSaleBanner),
+        listOf(PreviewParameterData.sampleBanner),
+        emptyList(),
+        PreviewParameterData.allSampleBanners,
     )
 }
 
@@ -225,5 +255,184 @@ object PreviewParameterData {
             stats = longBioUserStats,
             preferences = UserPreferences(userId = UserId("long-bio-user")),
         )
+    }
+
+    // Banner sample data
+    val sampleBanner by lazy {
+        Banner(
+            id = BannerId("sample-banner-1"),
+            title = "Summer Sale 2024",
+            description = "Get up to 70% off on all summer collections",
+            imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755436194/main-sample.png",
+            targetCountries = listOf("KZ", "US"),
+            brandName = "Fashion Store",
+            ctaTitle = mapOf(
+                "default" to "Shop Now",
+                "en" to "Shop Now",
+                "kk" to "Сатып алу",
+                "ru" to "Купить сейчас",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Great deals await",
+                "en" to "Great deals await",
+                "kk" to "Керемет ұсыныстар күтуде",
+                "ru" to "Отличные предложения ждут",
+            ),
+            ctaUrl = "https://example.com/summer-sale",
+            isActive = true,
+            priority = 1,
+            createdAt = System.currentTimeMillis() - ONE_HOUR_AGO,
+            updatedAt = System.currentTimeMillis() - THIRTY_MINUTES_AGO,
+            expiresAt = System.currentTimeMillis() + (7 * ONE_DAY_AGO), // Expires in 7 days
+        )
+    }
+
+    val flashSaleBanner by lazy {
+        Banner(
+            id = BannerId("flash-sale-banner"),
+            title = "Flash Sale",
+            description = "Limited time offer - 24 hours only!",
+            imageUrl = "https://example.com/banner-flash.jpg",
+            targetCountries = listOf("KZ"),
+            brandName = "Electronics Hub",
+            ctaTitle = mapOf(
+                "default" to "Grab Now",
+                "en" to "Grab Now",
+                "kk" to "Қазір алыңыз",
+                "ru" to "Хватайте сейчас",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Limited time only",
+                "en" to "Limited time only",
+                "kk" to "Шектеулі уақыт ғана",
+                "ru" to "Ограниченное время",
+            ),
+            ctaUrl = "https://example.com/flash-sale",
+            isActive = true,
+            priority = 10,
+            createdAt = System.currentTimeMillis() - THIRTY_MINUTES_AGO,
+            updatedAt = System.currentTimeMillis() - THIRTY_MINUTES_AGO,
+            expiresAt = System.currentTimeMillis() + ONE_DAY_AGO, // Expires in 1 day
+        )
+    }
+
+    val expiredBanner by lazy {
+        Banner(
+            id = BannerId("expired-banner"),
+            title = "Black Friday Sale",
+            description = "This amazing deal has already ended",
+            imageUrl = "https://example.com/banner-expired.jpg",
+            targetCountries = listOf("KZ", "RU"),
+            brandName = "Mega Store",
+            ctaTitle = mapOf(
+                "default" to "View Deal",
+                "en" to "View Deal",
+                "kk" to "Акцияны қарау",
+                "ru" to "Смотреть акцию",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Check for similar deals",
+                "en" to "Check for similar deals",
+                "kk" to "Ұқсас акцияларды тексеріңіз",
+                "ru" to "Проверьте похожие акции",
+            ),
+            ctaUrl = "https://example.com/deals",
+            isActive = true,
+            priority = 1,
+            createdAt = System.currentTimeMillis() - (7 * ONE_DAY_AGO),
+            updatedAt = System.currentTimeMillis() - (5 * ONE_DAY_AGO),
+            expiresAt = System.currentTimeMillis() - ONE_DAY_AGO, // Expired 1 day ago
+        )
+    }
+
+    val noImageBanner by lazy {
+        Banner(
+            id = BannerId("no-image-banner"),
+            title = "Special Offer",
+            description = "Don't miss out on this amazing deal",
+            imageUrl = "", // No image URL
+            targetCountries = listOf("KZ", "RU"),
+            brandName = "Winter Fashion",
+            ctaTitle = mapOf(
+                "default" to "Explore Collection",
+                "en" to "Explore Collection",
+                "kk" to "Жинақты қарау",
+                "ru" to "Изучить коллекцию",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Discover amazing styles",
+                "en" to "Discover amazing styles",
+                "kk" to "Керемет стильдерді табыңыз",
+                "ru" to "Откройте удивительные стили",
+            ),
+            ctaUrl = "https://example.com/winter",
+            isActive = true,
+            priority = 5,
+            createdAt = System.currentTimeMillis() - (3 * ONE_DAY_AGO),
+            updatedAt = System.currentTimeMillis() - (2 * ONE_DAY_AGO),
+            expiresAt = null, // No expiration
+        )
+    }
+
+    val globalBanner by lazy {
+        Banner(
+            id = BannerId("global-banner"),
+            title = "Worldwide Free Shipping",
+            description = "Free shipping to all countries - no minimum order",
+            imageUrl = "https://example.com/banner-global.jpg",
+            targetCountries = emptyList(), // Global - empty means worldwide
+            brandName = "Global Store",
+            ctaTitle = mapOf(
+                "default" to "Shop Worldwide",
+                "en" to "Shop Worldwide",
+                "kk" to "Дүние жүзінде сатып алу",
+                "ru" to "Покупки по всему миру",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Available everywhere",
+                "en" to "Available everywhere",
+                "kk" to "Барлық жерде қолжетімді",
+                "ru" to "Доступно везде",
+            ),
+            ctaUrl = "https://example.com/global-shipping",
+            isActive = true,
+            priority = 3,
+            createdAt = System.currentTimeMillis() - (2 * ONE_DAY_AGO),
+            updatedAt = System.currentTimeMillis() - ONE_DAY_AGO,
+            expiresAt = System.currentTimeMillis() + (30 * ONE_DAY_AGO), // Expires in 30 days
+        )
+    }
+
+    val darkModeBanner by lazy {
+        Banner(
+            id = BannerId("dark-mode-banner"),
+            title = "Midnight Sale",
+            description = "Exclusive dark mode deals just for you",
+            imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755543893/gmail-background-xntgf4y7772j0g6i_bbgr2w.jpg",
+            targetCountries = listOf("KZ", "RU"),
+            brandName = "Night Store",
+            ctaTitle = mapOf(
+                "default" to "Explore Collection",
+                "en" to "Explore Collection",
+                "kk" to "Жинақты қарау",
+                "ru" to "Изучить коллекцию",
+            ),
+            ctaDescription = mapOf(
+                "default" to "Dark mode exclusive",
+                "en" to "Dark mode exclusive",
+                "kk" to "Қараңғы режим эксклюзиві",
+                "ru" to "Эксклюзив тёмной темы",
+            ),
+            ctaUrl = "https://example.com/midnight-deals",
+            isActive = true,
+            priority = 7,
+            createdAt = System.currentTimeMillis() - (6 * ONE_HOUR_AGO),
+            updatedAt = System.currentTimeMillis() - (3 * ONE_HOUR_AGO),
+            expiresAt = System.currentTimeMillis() + (14 * ONE_DAY_AGO), // Expires in 14 days
+        )
+    }
+
+    val allSampleBanners by lazy {
+        listOf(sampleBanner, flashSaleBanner, noImageBanner, globalBanner)
     }
 }

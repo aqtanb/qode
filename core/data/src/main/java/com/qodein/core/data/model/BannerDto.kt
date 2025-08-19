@@ -26,11 +26,11 @@ data class BannerDto(
     @PropertyName("brandName")
     val brandName: String = "",
 
-    @PropertyName("gradientColors")
-    val gradientColors: List<String> = emptyList(),
+    @PropertyName("ctaTitle")
+    val ctaTitle: Map<String, String> = emptyMap(),
 
-    @PropertyName("ctaText")
-    val ctaText: String = "",
+    @PropertyName("ctaDescription")
+    val ctaDescription: Map<String, String> = emptyMap(),
 
     @PropertyName("ctaUrl")
     val ctaUrl: String? = null,
@@ -45,7 +45,11 @@ data class BannerDto(
     val createdAt: Timestamp? = null,
 
     @PropertyName("updatedAt")
-    val updatedAt: Timestamp? = null
+    val updatedAt: Timestamp? = null,
+
+    @PropertyName("expiresAt")
+    val expiresAt: Timestamp? = null
+
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
@@ -55,12 +59,13 @@ data class BannerDto(
         imageUrl = "",
         targetCountries = emptyList(),
         brandName = "",
-        gradientColors = emptyList(),
-        ctaText = "",
+        ctaTitle = emptyMap(),
+        ctaDescription = emptyMap(),
         ctaUrl = null,
         isActive = true,
         priority = 0,
         createdAt = null,
         updatedAt = null,
+        expiresAt = null,
     )
 }

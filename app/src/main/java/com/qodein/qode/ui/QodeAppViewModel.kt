@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.domain.AuthState
 import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.core.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.core.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.core.model.Language
 import com.qodein.core.model.Theme
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
+import com.qodein.qode.ui.state.AppUiEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -34,6 +37,7 @@ import javax.inject.Inject
 class QodeAppViewModel @Inject constructor(
     getAuthStateUseCase: GetAuthStateUseCase,
     getThemeUseCase: GetThemeUseCase,
+    getLanguageUseCase: GetLanguageUseCase,
     private val navigationHandler: NavigationHandler
 ) : ViewModel() {
 
@@ -61,21 +65,48 @@ class QodeAppViewModel @Inject constructor(
             initialValue = Theme.SYSTEM,
         )
 
+    // Language state from domain layer with proper error handling
+    val languageState: StateFlow<Language> = getLanguageUseCase()
+        .map { result ->
+            result.getOrElse { Language.RUSSIAN }
+        }
+        .catch { emit(Language.RUSSIAN) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = Language.RUSSIAN,
+        )
+
     // Navigation events flow
     private val _navigationEvents = MutableSharedFlow<NavigationActions>()
     val navigationEvents: SharedFlow<NavigationActions> = _navigationEvents.asSharedFlow()
 
+    // UI events flow for app-level UI events (dialogs, etc.)
+    private val _uiEvents = MutableSharedFlow<AppUiEvents>()
+    val uiEvents: SharedFlow<AppUiEvents> = _uiEvents.asSharedFlow()
+
     /**
-     * Handle navigation action through centralized handler
+     * Handle UI events (navigation + app-level UI events)
      */
-    fun handleNavigation(action: NavigationActions) {
+    fun handleUiEvent(event: AppUiEvents) {
         viewModelScope.launch {
-            _navigationEvents.emit(action)
+            when (event) {
+                is AppUiEvents.Navigate -> {
+                    // Delegate navigation events to the navigation flow
+                    _navigationEvents.emit(event.action)
+                }
+                else -> {
+                    // Other UI events (dialogs, etc.) go to UI events flow
+                    _uiEvents.emit(event)
+                }
+            }
         }
     }
 
     /**
-     * Get appropriate navigation action for profile click based on auth state
+     * Handle navigation action directly (backwards compatibility)
      */
-    fun getProfileNavigationAction(): NavigationActions = navigationHandler.getProfileNavigationAction(authState.value)
+    fun handleNavigation(action: NavigationActions) {
+        handleUiEvent(AppUiEvents.Navigate(action))
+    }
 }

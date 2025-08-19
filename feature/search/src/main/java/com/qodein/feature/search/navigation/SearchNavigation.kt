@@ -11,9 +11,6 @@ import kotlinx.serialization.Serializable
  * Search navigation routes using type-safe navigation with Kotlin Serialization
  */
 @Serializable
-object SearchBaseRoute
-
-@Serializable
 object SearchRoute
 
 /**
@@ -27,12 +24,6 @@ fun NavController.navigateToSearch(navOptions: NavOptions? = null) {
  * Navigation graph builder extension for search feature
  */
 fun NavGraphBuilder.searchSection() {
-    // Base search route
-    composable<SearchBaseRoute> {
-        SearchScreen()
-    }
-
-    // Main search route
     composable<SearchRoute> {
         SearchScreen()
     }

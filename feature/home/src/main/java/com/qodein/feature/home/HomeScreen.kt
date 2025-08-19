@@ -59,6 +59,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
+import com.qodein.core.model.Language
 import com.qodein.core.model.PromoCode
 import com.qodein.core.ui.component.CouponPromoCodeCard
 import com.qodein.core.ui.util.CustomTabsUtils
@@ -68,6 +69,7 @@ import com.qodein.feature.home.component.HeroBannerSection
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
+    userLanguage: Language,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
@@ -145,6 +147,7 @@ fun HomeScreen(
                                 uiState = currentState.previousData,
                                 listState = listState,
                                 onAction = viewModel::onAction,
+                                userLanguage = userLanguage,
                             )
                         }
                         else -> LoadingState()
@@ -163,6 +166,7 @@ fun HomeScreen(
                         uiState = currentState,
                         listState = listState,
                         onAction = viewModel::onAction,
+                        userLanguage = userLanguage,
                     )
                 }
             }
@@ -179,7 +183,8 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState.Success,
     listState: LazyListState,
-    onAction: (HomeAction) -> Unit
+    onAction: (HomeAction) -> Unit,
+    userLanguage: Language
 ) {
     LazyColumn(
         state = listState,
@@ -192,6 +197,7 @@ private fun HomeContent(
             HeroBannerSection(
                 banners = uiState.banners,
                 onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
+                userLanguage = userLanguage,
             )
         }
 
@@ -541,6 +547,7 @@ private fun HomeScreenPreview() {
             ),
             listState = rememberLazyListState(),
             onAction = { },
+            userLanguage = Language.ENGLISH,
         )
     }
 }

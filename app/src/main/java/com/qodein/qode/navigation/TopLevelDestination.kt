@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
-import com.qodein.feature.search.navigation.SearchBaseRoute
 import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.R
 import kotlin.reflect.KClass
@@ -40,7 +39,6 @@ enum class TopLevelDestination(
         iconTextId = R.string.search_title,
         titleTextId = R.string.search_title,
         route = SearchRoute::class,
-        baseRoute = SearchBaseRoute::class,
     ),
     INBOX(
         selectedIcon = Icons.Filled.Inbox,

@@ -61,16 +61,6 @@ enum class QodeTopAppBarVariant {
     Transparent
 }
 
-/**
- * TopAppBar scroll behavior types
- */
-enum class QodeTopAppBarScrollBehavior {
-    None,
-    Pinned,
-    EnterAlways,
-    ExitUntilCollapsed
-}
-
 // MARK: - Core TopAppBar Component
 
 /**
@@ -407,41 +397,6 @@ private fun QodeTransparentTopAppBarImpl(
             }
         }
     }
-}
-
-// MARK: - Legacy Transparent (Deprecated)
-
-/**
- * Truly transparent top app bar that bypasses Material3's automatic background handling
- * Perfect for screens that need completely transparent overlays (like Profile screen)
- *
- * @deprecated Use QodeTopAppBar with variant = QodeTopAppBarVariant.Transparent instead
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun QodeTransparentTopAppBar(
-    modifier: Modifier = Modifier,
-    title: String? = null,
-    navigationIcon: ImageVector? = null,
-    onNavigationClick: (() -> Unit)? = null,
-    actions: List<TopAppBarAction> = emptyList(),
-    navigationIconTint: Color = MaterialTheme.colorScheme.onSurface,
-    titleColor: Color = MaterialTheme.colorScheme.onSurface,
-    actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
-) {
-    // Delegate to the new unified QodeTopAppBar with Transparent variant
-    QodeTopAppBar(
-        modifier = modifier,
-        title = title,
-        navigationIcon = navigationIcon,
-        onNavigationClick = onNavigationClick,
-        actions = actions,
-        navigationIconTint = navigationIconTint,
-        titleColor = titleColor,
-        actionIconTint = actionIconTint,
-        variant = QodeTopAppBarVariant.Transparent,
-        statusBarPadding = true, // Always add status bar padding for transparent variant
-    )
 }
 
 // Previews

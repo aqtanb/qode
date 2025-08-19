@@ -92,11 +92,8 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
      */
     val isNestedScreen: Boolean
         @Composable get() {
-            val topLevelDestination = TopLevelDestination.entries.firstOrNull { destination ->
-                currentDestination?.hasRoute(route = destination.route) == true ||
-                    currentDestination?.parent?.hasRoute(route = destination.route) == true
-            }
-            return topLevelDestination == null
+            // Use currentTopLevelDestination for consistency - if we have a top level destination, we're not nested
+            return currentTopLevelDestination == null
         }
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
