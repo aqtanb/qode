@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,18 +43,23 @@ import com.qodein.core.ui.R
  * - Smooth animations using design tokens
  * - Accessibility support with proper semantic markup
  * - Responsive design for all screen sizes
+ * - Customizable title and description
  *
  * Architecture Note: This component handles only UI presentation. URL opening and business
  * logic should be handled by the calling component to maintain proper separation of concerns.
  *
  * @param onDismiss Called when the dialog should be dismissed
  * @param onTelegramClick Called when the Telegram button is clicked
+ * @param title The title text to display. Defaults to "Coming Soon" from string resources
+ * @param description The description text to display. Defaults to standard coming soon message
  * @param modifier Modifier to be applied to the dialog content
  */
 @Composable
-fun QodeComingSoonDialog(
+fun ComingSoonDialog(
     onDismiss: () -> Unit,
     onTelegramClick: () -> Unit,
+    title: String = stringResource(R.string.coming_soon_title),
+    description: String = stringResource(R.string.coming_soon_description),
     modifier: Modifier = Modifier
 ) {
     // Smooth entrance animation
@@ -65,8 +69,8 @@ fun QodeComingSoonDialog(
         label = "dialog_alpha",
     )
 
-    // Get string resources in composable context
-    val dialogDescription = stringResource(R.string.coming_soon_dialog_description)
+    // Use provided description for accessibility
+    val dialogDescription = description
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -110,7 +114,7 @@ fun QodeComingSoonDialog(
                 ) {
                     // Title
                     Text(
-                        text = stringResource(R.string.coming_soon_title),
+                        text = title,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),
@@ -121,7 +125,7 @@ fun QodeComingSoonDialog(
 
                     // Description
                     Text(
-                        text = stringResource(R.string.coming_soon_description),
+                        text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -148,7 +152,7 @@ fun QodeComingSoonDialog(
 @Composable
 private fun QodeComingSoonDialogPreview() {
     QodeTheme {
-        QodeComingSoonDialog(
+        ComingSoonDialog(
             onDismiss = {},
             onTelegramClick = {},
         )
@@ -159,7 +163,7 @@ private fun QodeComingSoonDialogPreview() {
 @Composable
 private fun QodeComingSoonDialogDarkPreview() {
     QodeTheme(darkTheme = true) {
-        QodeComingSoonDialog(
+        ComingSoonDialog(
             onDismiss = {},
             onTelegramClick = {},
         )

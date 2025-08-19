@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phone Input Component -->
+    <string name="phone_input_label">Номер телефона</string>
+    <string name="phone_input_placeholder">Введите номер телефона</string>
+    <string name="phone_input_too_short">Номер телефона слишком короткий</string>
+    <string name="phone_input_too_long">Номер телефона слишком длинный</string>
+    <string name="phone_input_required">Номер телефона обязателен</string>
+    <string name="phone_input_validating">Проверка…</string>
+    <string name="phone_input_valid">Действительный номер</string>
+    <string name="phone_number_invalid_format">Пожалуйста, введите действительный номер телефона</string>
+
+    <!-- Country Picker -->
+    <string name="select_country">Выберите страну</string>
+    <string name="search_countries">Поиск стран</string>
+    <string name="no_countries_found">Страны не найдены</string>
+    <string name="country_selected">Страна выбрана</string>
+
+    <!-- Navigation -->
+    <string name="navigate_back">Назад</string>
+    <string name="close">Закрыть</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="clear_phone_number">Очистить номер телефона</string>
+
+    <!-- Social Sign-In Components -->
+    <string name="continue_with_google">Продолжить с Google</string>
+
+    <!-- Error Handling -->
+    <string name="error_default_title">Что-то пошло не так</string>
+    <string name="error_retry_button">Попробовать снова</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Мы работаем над этой функцией</string>
+    <string name="coming_soon_description">Вы можете связаться с нами и следить за нашим прогрессом в канале Telegram.</string>
+    <string name="coming_soon_telegram_button">Подписаться в Telegram</string>
+    <string name="coming_soon_dialog_description">Диалог "Скоро" для новых функций</string>
+
+    <!-- Accessibility -->
+    <string name="phone_input_content_desc">Поле ввода номера телефона</string>
+    <string name="phone_input_flag_content_desc">Флаг страны для %s</string>
+    <string name="phone_input_dropdown_content_desc">Открыть выбор страны</string>
+    <string name="phone_input_error_content_desc">Ошибка номера телефона</string>
+    <string name="phone_input_success_content_desc">Номер телефона действителен</string>
+
+    <!-- Common Input States -->
+    <string name="field_required">Это поле обязательно</string>
+    <string name="field_invalid">Неверный ввод</string>
+    <string name="field_success">Действительный ввод</string>
+
+    <!-- Promo Code Card Strings -->
+    <string name="promo_code_label">ПРОМО КОД</string>
+    <string name="copy_code">Копировать код</string>
+    <string name="upvotes">Голоса за</string>
+    <string name="downvotes">Голоса против</string>
+    <string name="updated_format">Обновлено %s</string>
+    <string name="percentage_discount">%d%%</string>
+    <string name="fixed_amount_discount">%d₸</string>
+    <string name="promo_type">ПРОМО</string>
+    <string name="percentage_off_order">%d%% скидка от %d₸</string>
+    <string name="amount_off_order">%d₸ скидка от %d₸</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_welcome_title">Откройте удивительные предложения</string>
+    <string name="home_welcome_subtitle">Экономьте деньги с лучшими промо-кодами от топовых брендов</string>
+    <string name="home_section_title">Трендовые предложения</string>
+    <string name="home_section_subtitle">Самые популярные промо-коды сегодня</string>
+    <string name="home_trending_badge">СЕЙЧАС В ТРЕНДЕ</string>
+    <string name="home_browse_categories">Просмотр категорий</string>
+    <string name="home_featured_deals">Рекомендуемые предложения</string>
+    <string name="home_featured_subtitle">Эксклюзивные предложения, отобранные вручную специально для вас</string>
+    
+    <!-- Stats Section -->
+    <string name="stats_active_deals">500+</string>
+    <string name="stats_active_deals_label">Активные предложения</string>
+    <string name="stats_happy_users">50K+</string>
+    <string name="stats_happy_users_label">Довольные пользователи</string>
+    <string name="stats_total_saved">₸2M+</string>
+    <string name="stats_total_saved_label">Всего сэкономлено</string>
+    
+    <!-- Filter Categories -->
+    <string name="filter_top_rated">Топ рейтинга</string>
+    <string name="filter_latest">Последние</string>
+    <string name="filter_food">Еда</string>
+    <string name="filter_fashion">Мода</string>
+    <string name="filter_tech">Технологии</string>
+    
+    <!-- Legacy strings that might be used elsewhere -->
+    <string name="phone_number">Номер телефона</string>
+    <string name="enter_phone_number">Введите номер телефона</string>
+    <string name="invalid_phone_number">Неверный номер телефона</string>
+    <string name="phone_number_required">Номер телефона обязателен</string>
+    <string name="phone_number_too_short">Номер телефона слишком короткий</string>
+    <string name="phone_number_too_long">Номер телефона слишком длинный</string>
+    <string name="country_picker_title">Выберите страну</string>
+</resources>

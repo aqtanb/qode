@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.model.Banner
 import com.qodein.core.model.BannerId
 import com.qodein.core.ui.component.AutoScrollingBanner
+import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.feature.home.R
 import kotlin.time.Duration.Companion.seconds
 
@@ -60,13 +62,12 @@ fun HeroBannerSection(
     // Only use real banners from server, no fallback
     val bannerItems = banners
 
-    // Only show banner section if there are real banners
-    if (bannerItems.isNotEmpty()) {
-        // Get screen height for banner sizing
-        val windowInfo = LocalWindowInfo.current
-        val density = LocalDensity.current
-        val screenHeight = with(density) { windowInfo.containerSize.height.toDp() }
+    // Get screen height for banner sizing
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
+    val screenHeight = with(density) { windowInfo.containerSize.height.toDp() }
 
+    if (bannerItems.isNotEmpty()) {
         AutoScrollingBanner(
             items = bannerItems,
             autoScrollDelay = 4.seconds,
@@ -86,6 +87,13 @@ fun HeroBannerSection(
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    } else {
+        // Show empty state when no banners are available
+        EmptyBannerState(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(screenHeight * 0.7f),
+        )
     }
 }
 
@@ -123,7 +131,7 @@ private fun HeroBannerContent(
         ) {
             if (banner.imageUrl.isBlank()) {
                 Text(
-                    text = "Image not available",
+                    text = stringResource(R.string.error_image_not_available),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -179,6 +187,8 @@ private fun HeroBannerContent(
 
 @Composable
 private fun BannerCountryPicker(modifier: Modifier = Modifier) {
+    var showComingSoonDialog by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = Color.Black.copy(alpha = 0.01f),
@@ -205,17 +215,29 @@ private fun BannerCountryPicker(modifier: Modifier = Modifier) {
             ) {
                 QodeDivider(modifier = Modifier.weight(1f))
                 Text(
-                    text = "Kazakhstan",
+                    text = stringResource(R.string.country_kazakhstan),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .clickable { /* TODO: Handle country selection */ }
+                        .clickable {
+                            showComingSoonDialog = true
+                        }
                         .padding(horizontal = SpacingTokens.md),
                 )
                 QodeDivider(modifier = Modifier.weight(1f))
             }
         }
+    }
+
+    // Show dialog conditionally
+    if (showComingSoonDialog) {
+        ComingSoonDialog(
+            title = stringResource(R.string.coming_soon_title),
+            description = stringResource(R.string.coming_soon_country_description),
+            onDismiss = { showComingSoonDialog = false },
+            onTelegramClick = { showComingSoonDialog = false },
+        )
     }
 }
 
@@ -269,6 +291,57 @@ private fun BannerCallToAction(
     }
 }
 
+@Composable
+private fun EmptyBannerState(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.colorScheme.surface,
+                    ),
+                ),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(SpacingTokens.screenPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            // Country picker at top
+            BannerCountryPicker()
+
+            // Empty state content in center
+            Column(
+                modifier = Modifier.padding(SpacingTokens.lg),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            ) {
+                Text(
+                    text = stringResource(R.string.empty_no_banners_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+
+                Text(
+                    text = stringResource(R.string.empty_no_banners_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
 // MARK: - Preview Functions
 
 @Preview(name = "Hero Banner Section - With Banners", showBackground = true, heightDp = 400)
@@ -313,7 +386,7 @@ private fun HeroBannerSectionPreview() {
     }
 }
 
-@Preview(name = "Hero Banner Section - Empty", showBackground = true, heightDp = 200)
+@Preview(name = "Hero Banner Section - Empty", showBackground = true, heightDp = 400)
 @Composable
 private fun HeroBannerSectionEmptyPreview() {
     QodeTheme {
@@ -324,30 +397,11 @@ private fun HeroBannerSectionEmptyPreview() {
     }
 }
 
-@Preview(name = "Hero Banner Content - With Image", showBackground = true, heightDp = 400)
+@Preview(name = "Empty Banner State", showBackground = true, heightDp = 300)
 @Composable
-private fun HeroBannerContentPreview() {
+private fun EmptyBannerStatePreview() {
     QodeTheme {
-        HeroBannerContent(
-            banner = Banner(
-                id = BannerId("1"),
-                title = "Winter Collection",
-                description = "Discover the latest trends in winter fashion",
-                imageUrl = "https://example.com/winter-banner.jpg",
-                targetCountries = listOf("KZ", "RU"),
-                brandName = "Winter Fashion",
-                ctaText = "Explore Collection",
-                ctaUrl = "https://example.com/winter",
-                gradientColors = listOf("#3B82F6", "#1E40AF"),
-                isActive = true,
-                priority = 1,
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
-            ),
-            onBannerClick = { },
-            currentPage = 1,
-            totalPages = 3,
-        )
+        EmptyBannerState()
     }
 }
 

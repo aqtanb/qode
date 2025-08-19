@@ -3,18 +3,22 @@ package com.qodein.qode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.domain.repository.DevicePreferencesRepository
+import com.qodein.core.model.Language
 import com.qodein.core.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(devicePreferencesRepository: DevicePreferencesRepository) : ViewModel() {
-    val uiState: StateFlow<MainActivityUiState> = devicePreferencesRepository.getTheme().map {
-        MainActivityUiState.Success(it)
+    val uiState: StateFlow<MainActivityUiState> = combine(
+        devicePreferencesRepository.getTheme(),
+        devicePreferencesRepository.getLanguage(),
+    ) { theme, language ->
+        MainActivityUiState.Success(theme, language)
     }.stateIn(
         scope = viewModelScope,
         initialValue = MainActivityUiState.Loading,
@@ -25,7 +29,7 @@ class MainActivityViewModel @Inject constructor(devicePreferencesRepository: Dev
 sealed interface MainActivityUiState {
     data object Loading : MainActivityUiState
 
-    data class Success(val theme: Theme) : MainActivityUiState {
+    data class Success(val theme: Theme, val language: Language) : MainActivityUiState {
         override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean =
             when (theme) {
                 Theme.SYSTEM -> isSystemDarkTheme

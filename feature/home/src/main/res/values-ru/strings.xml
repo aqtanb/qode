@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_home_title">Дом</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_welcome_title">Откройте для себя удивительные предложения</string>
+    <string name="home_welcome_subtitle">Сэкономьте деньги с лучшими промо -кодами от лучших брендов</string>
+    <string name="home_section_title">Трендовые предложения</string>
+    <string name="home_section_subtitle">Самые популярные промо -коды сегодня</string>
+    <string name="home_quick_filters">Быстрые фильтры</string>
+    <string name="home_trending_badge">Тенденция сейчас</string>
+    <string name="home_featured_deals">Показанные предложения</string>
+    <string name="home_featured_subtitle">Исключенные эксклюзивные предложения только для вас</string>
+
+    <!-- Banner Carousel -->
+    <string name="banner_featured_title">Показанная сделка</string>
+    <string name="banner_up_to">До</string>
+    <string name="banner_off">ВЫКЛЮЧЕННЫЙ</string>
+    <string name="banner_claim_now">Утверждать сейчас</string>
+    <string name="banner_limited_time">Ограниченное время</string>
+    <string name="banner_country_picker_title">Ваша страна</string>
+    <string name="banner_default_description">Эксклюзивные предложения и премиальные предложения</string>
+    <string name="banner_explore_deals">Изучите сделки</string>
+    <string name="banner_loading_fallback">Загрузка удивительных предложений для вас ...</string>
+
+    <!-- Stats Section -->
+    <string name="stats_active_deals">500+</string>
+    <string name="stats_active_deals_label">Активные предложения</string>
+    <string name="stats_happy_users">50K+</string>
+    <string name="stats_happy_users_label">Счастливые пользователи</string>
+    <string name="stats_total_saved">₸ 2m+</string>
+    <string name="stats_total_saved_label">Всего сохранено</string>
+
+    <!-- Filter Categories -->
+    <string name="filter_top_rated">Верхний рейтинг</string>
+    <string name="filter_latest">Последний</string>
+    <string name="filter_food">Еда</string>
+    <string name="filter_fashion">Мода</string>
+    <string name="filter_tech">Технический</string>
+
+    <!-- Error Messages -->
+    <string name="error_something_went_wrong">Что -то пошло не так</string>
+    <string name="error_retry">Попробуйте еще раз</string>
+    <string name="error_image_not_available">Изображение недоступно</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Вскоре</string>
+    <string name="coming_soon_country_description">Выбор страны скоро наступит!</string>
+
+    <!-- Country -->
+    <string name="country_kazakhstan">Казахстан</string>
+
+    <!-- Empty State -->
+    <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>
+    <string name="empty_check_back_later">Позже проверьте удивительные предложения и скидки!</string>
+    <string name="empty_no_banners_title">Нет баннеров</string>
+    <string name="empty_no_banners_description">Вы можете ссылаться с нами, чтобы продвигать свой бренд</string>
+</resources>
+

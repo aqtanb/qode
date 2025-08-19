@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_home_title">Home</string>
-    
+
     <!-- Home Screen Strings -->
     <string name="home_welcome_title">Discover Amazing Deals</string>
     <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
@@ -11,7 +11,7 @@
     <string name="home_trending_badge">TRENDING NOW</string>
     <string name="home_featured_deals">Featured Deals</string>
     <string name="home_featured_subtitle">Hand-picked exclusive offers just for you</string>
-    
+
     <!-- Banner Carousel -->
     <string name="banner_featured_title">Featured Deal</string>
     <string name="banner_up_to">Up to</string>
@@ -21,8 +21,8 @@
     <string name="banner_country_picker_title">Your Country</string>
     <string name="banner_default_description">Exclusive deals and premium offers</string>
     <string name="banner_explore_deals">Explore Deals</string>
-    <string name="banner_loading_fallback">Loading amazing deals for you...</string>
-    
+    <string name="banner_loading_fallback">Loading amazing deals for you…</string>
+
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
     <string name="stats_active_deals_label">Active Deals</string>
@@ -30,20 +30,30 @@
     <string name="stats_happy_users_label">Happy Users</string>
     <string name="stats_total_saved">₸2M+</string>
     <string name="stats_total_saved_label">Total Saved</string>
-    
+
     <!-- Filter Categories -->
-    <string name="filter_kaspi">Kaspi</string>
+    <string name="filter_kaspi" translatable="false">Kaspi</string>
     <string name="filter_top_rated">Top Rated</string>
     <string name="filter_latest">Latest</string>
     <string name="filter_food">Food</string>
     <string name="filter_fashion">Fashion</string>
     <string name="filter_tech">Tech</string>
-    
+
     <!-- Error Messages -->
     <string name="error_something_went_wrong">Something went wrong</string>
     <string name="error_retry">Try Again</string>
-    
+    <string name="error_image_not_available">Image not available</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Coming Soon</string>
+    <string name="coming_soon_country_description">Country selection is coming soon!</string>
+
+    <!-- Country -->
+    <string name="country_kazakhstan">Kazakhstan</string>
+
     <!-- Empty State -->
     <string name="empty_no_promo_codes">No promo codes available</string>
     <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>
+    <string name="empty_no_banners_title">There are no banners</string>
+    <string name="empty_no_banners_description">You can link with us to promote your brand</string>
 </resources>

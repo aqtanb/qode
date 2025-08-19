@@ -37,8 +37,8 @@ import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.domain.AuthState
 import com.qodein.core.model.Theme
+import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.QodeAppTopAppBar
-import com.qodein.core.ui.component.QodeComingSoonDialog
 import com.qodein.core.ui.component.TopAppBarScreenType
 import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.qode.R
@@ -239,7 +239,7 @@ internal fun QodeApp(
 
     // Show Coming Soon dialog when user tries to access inbox
     if (showComingSoon) {
-        QodeComingSoonDialog(
+        ComingSoonDialog(
             onDismiss = { showComingSoon = false },
             onTelegramClick = {
                 uriHandler.openUri("https://www.t.me/qodeinhq")

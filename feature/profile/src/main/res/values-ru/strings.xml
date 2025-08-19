@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Profile Screen -->
+    <string name="profile_screen_title">Профиль</string>
+    <string name="profile_sign_out_button">Выйти</string>
+    <string name="profile_error_title">Что-то пошло не так</string>
+    <string name="profile_retry_button">Повторить</string>
+    <string name="profile_loading_description">Загрузка профиля</string>
+    <string name="profile_error_unknown">Неизвестная ошибка</string>
+    
+    <!-- Profile Header -->
+    <string name="profile_picture_description">Фото профиля</string>
+    <string name="edit_profile_button">Редактировать профиль</string>
+    <string name="profile_username_format">\@%1$s</string>
+    <string name="profile_full_name_format">%1$s %2$s</string>
+    
+    <!-- Profile Stats -->
+    <string name="profile_stats_title">Ваша статистика</string>
+    <string name="profile_comments_label">Комментарии</string>
+    <string name="profile_promocodes_label">Промокоды</string>
+    <string name="profile_upvotes_label">Голоса за</string>
+    <string name="profile_downvotes_label">Голоса против</string>
+    <string name="profile_achievements_label">Достижения</string>
+    
+    <!-- Profile Activity -->
+    <string name="profile_activity_title">Недавняя активность</string>
+    <string name="profile_achievements_title">Достижения</string>
+    <string name="profile_achievements_empty">Пока нет достижений. Начните изучение, чтобы заработать первый значок!</string>
+    <string name="profile_user_journey_title">Ваше путешествие</string>
+    <string name="profile_user_journey_empty">Ваше приключение начинается здесь. Отправляйте промокоды и взаимодействуйте с сообществом!</string>
+</resources>

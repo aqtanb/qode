@@ -78,8 +78,8 @@ import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
 import com.qodein.core.ui.UserPreviewParameterProvider
 import com.qodein.core.ui.UserStatsPreviewParameterProvider
+import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.ProfileAvatar
-import com.qodein.core.ui.component.QodeComingSoonDialog
 import com.qodein.core.ui.component.QodeRetryableErrorCard
 import kotlinx.coroutines.delay
 
@@ -152,7 +152,7 @@ fun ProfileScreen(
 
     // Show Coming Soon dialog when user tries to access coming soon features
     if (showComingSoon) {
-        QodeComingSoonDialog(
+        ComingSoonDialog(
             onDismiss = { showComingSoon = false },
             onTelegramClick = {
                 uriHandler.openUri("https://www.t.me/qodeinhq")

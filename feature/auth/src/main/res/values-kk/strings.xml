@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Auth Screen -->
+    <string name="sign_in_title">Кіру</string>
+    <string name="sign_in_subtitle">Телефон арқылы кіру жақында! Қазір Google пайдаланыңыз.</string>
+    <string name="phone_number_label">Телефон нөмірі</string>
+    <string name="send_verification_code">Растау кодын жіберу</string>
+    <string name="or_continue_with">Немесе мынау арқылы жалғастыру</string>
+    <string name="continue_with_google">Google арқылы жалғастыру</string>
+    <string name="forgot_password">Құпия сөзіңізді ұмыттыңыз ба?</string>
+    <string name="dont_have_account">Аккаунтыңыз жоқ па?</string>
+    <string name="sign_up">Тіркелу</string>
+    <string name="terms_and_privacy">Жалғастыра отырып, сіз біздің %1$s және %2$s келісесіз</string>
+    <string name="terms_of_service">Қызмет шарттары</string>
+    <string name="privacy_policy">Құпиялылық саясаты</string>
+
+    <!-- Verification Screen -->
+    <string name="verification_title">Растау коды</string>
+    <string name="verification_subtitle">%1$s жіберілген 6 таңбалы кодты енгізіңіз</string>
+    <string name="verification_code_placeholder">Кодты енгізіңіз</string>
+    <string name="verify_code">Кодты растау</string>
+    <string name="resend_code">Кодты қайта жіберу</string>
+    <string name="didnt_receive_code">Кодты алмадыңыз ба?</string>
+    <string name="change_phone_number">Телефон нөмірін өзгерту</string>
+    <string name="code_expires_in">Код %1$s аяқталады</string>
+    <string name="code_expired">Кодтың мерзімі аяқталды</string>
+    <string name="invalid_verification_code">Жарамсыз растау коды</string>
+
+    <!-- Sign Up Screen -->
+    <string name="sign_up_title">Аккаунт жасау</string>
+    <string name="sign_up_subtitle">Ең жақсы мәмілелерді табатын мыңдаған пайдаланушыларға қосылыңыз</string>
+    <string name="full_name_label">Толық аты</string>
+    <string name="email_label">Электрондық пошта (Міндетті емес)</string>
+    <string name="create_account">Аккаунт жасау</string>
+    <string name="already_have_account">Аккаунтыңыз бар ма?</string>
+    <string name="sign_in">Кіру</string>
+
+    <!-- Country Picker Screen -->
+    <string name="choose_a_country">Елді таңдаңыз</string>
+    <string name="search_placeholder">Елдерді іздеу…</string>
+    <string name="navigate_back">Артқа қайту</string>
+    <string name="search">Іздеу</string>
+    <string name="clear_search">Іздеуді тазалау</string>
+    <string name="country_selected">Ел таңдалды</string>
+    <string name="loading_countries">Елдер жүктелуде…</string>
+    <string name="no_countries_found">\"%1$s\" үшін елдер табылмады</string>
+    <string name="try_different_search">Басқа іздеу терминін қолданып көріңіз</string>
+
+    <!-- Accessibility -->
+    <string name="qode_logo_content_desc">Qode қосымшасының логотипі</string>
+    <string name="google_logo_content_desc">Google логотипі</string>
+    <string name="send_icon_content_desc">Растау кодын жіберу</string>
+    <string name="back_button_content_desc">Артқа қайту</string>
+
+    <!-- Error Messages -->
+    <string name="network_error">Желі қатесі. Байланысыңызды тексеріңіз.</string>
+    <string name="server_error">Сервер қатесі. Кейінірек қайталап көріңіз.</string>
+    <string name="invalid_phone_number">Жарамды телефон нөмірін енгізіңіз</string>
+    <string name="phone_number_required">Телефон нөмірі қажет</string>
+    <string name="name_required">Толық аты қажет</string>
+    <string name="name_too_short">Аты кемінде 2 таңбадан тұруы керек</string>
+    <string name="invalid_email">Жарамды электрондық пошта мекенжайын енгізіңіз</string>
+    <string name="google_signin_failed">Google арқылы кіру сәтсіз. Қайталап көріңіз.</string>
+    <string name="google_signin_cancelled">Google арқылы кіру тоқтатылды</string>
+
+    <!-- Loading States -->
+    <string name="sending_code">Растау коды жіберілуде…</string>
+    <string name="verifying_code">Код расталуда…</string>
+    <string name="creating_account">Аккаунтыңыз жасалуда…</string>
+    <string name="signing_in">Кіру…</string>
+
+    <!-- Success Messages -->
+    <string name="verification_code_sent">Растау коды сәтті жіберілді</string>
+    <string name="account_created">Аккаунт сәтті жасалды</string>
+    <string name="welcome_back">Қайта келуіңізбен!</string>
+    <string name="terms_first_line">Жалғастыра отырып, сіз біздің келісесіз</string>
+    <string name="and">және</string>
+    <string name="agree_to">Жалғастыра отырып, сіз біздің келісесіз</string>
+
+    <!-- Phone Authentication -->
+    <string name="phone_verification_title">Телефоныңызды растаңыз</string>
+    <string name="phone_verification_subtitle">Бастау үшін телефон нөміріңізді енгізіңіз</string>
+    <string name="verify_phone_number">Телефон нөмірін растау</string>
+    <string name="phone_verification_code_title">Растау кодын енгізіңіз</string>
+    <string name="phone_verification_code_subtitle">Біз %s кодын жібердік</string>
+
+    <!-- Auth Flow -->
+    <string name="welcome_title">Qode-ға қош келдіңіз</string>
+    <string name="welcome_subtitle">Керемет промо кодтарды ашыңыз</string>
+    <string name="get_started">Бастау</string>
+    <string name="continue_as_guest">Қонақ ретінде жалғастыру</string>
+
+    <!-- Errors -->
+    <string name="auth_error_generic">Бірдеңе дұрыс болмады. Қайталап көріңіз.</string>
+    <string name="auth_error_invalid_code">Жарамсыз растау коды</string>
+    <string name="auth_error_code_expired">Растау кодының мерзімі аяқталды</string>
+    <string name="auth_error_too_many_attempts">Тым көп талпыныс. Кейінірек қайталап көріңіз.</string>
+
+    <!-- Success -->
+    <string name="auth_success">Қош келдіңіз! Аккаунтыңыз дайын.</string>
+    <string name="search_bar_title">Елді таңдаңыз</string>
+</resources>

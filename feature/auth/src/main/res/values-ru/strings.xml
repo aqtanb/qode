@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Auth Screen -->
+    <string name="sign_in_title">Войти</string>
+    <string name="sign_in_subtitle">Вход по телефону скоро! Пока используйте Google.</string>
+    <string name="phone_number_label">Номер телефона</string>
+    <string name="send_verification_code">Отправить код подтверждения</string>
+    <string name="or_continue_with">Или продолжить с</string>
+    <string name="continue_with_google">Продолжить с Google</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="dont_have_account">Нет аккаунта?</string>
+    <string name="sign_up">Зарегистрироваться</string>
+    <string name="terms_and_privacy">Продолжая, вы соглашаетесь с нашими %1$s и %2$s</string>
+    <string name="terms_of_service">Условиями обслуживания</string>
+    <string name="privacy_policy">Политикой конфиденциальности</string>
+
+    <!-- Verification Screen -->
+    <string name="verification_title">Код подтверждения</string>
+    <string name="verification_subtitle">Введите 6-значный код, отправленный на %1$s</string>
+    <string name="verification_code_placeholder">Введите код</string>
+    <string name="verify_code">Подтвердить код</string>
+    <string name="resend_code">Отправить код повторно</string>
+    <string name="didnt_receive_code">Не получили код?</string>
+    <string name="change_phone_number">Изменить номер телефона</string>
+    <string name="code_expires_in">Код истекает через %1$s</string>
+    <string name="code_expired">Срок действия кода истёк</string>
+    <string name="invalid_verification_code">Неверный код подтверждения</string>
+
+    <!-- Sign Up Screen -->
+    <string name="sign_up_title">Создать аккаунт</string>
+    <string name="sign_up_subtitle">Присоединяйтесь к тысячам пользователей, находящих лучшие предложения</string>
+    <string name="full_name_label">Полное имя</string>
+    <string name="email_label">Email (Необязательно)</string>
+    <string name="create_account">Создать аккаунт</string>
+    <string name="already_have_account">Уже есть аккаунт?</string>
+    <string name="sign_in">Войти</string>
+
+    <!-- Country Picker Screen -->
+    <string name="choose_a_country">Выберите страну</string>
+    <string name="search_placeholder">Поиск стран…</string>
+    <string name="navigate_back">Назад</string>
+    <string name="search">Поиск</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="country_selected">Страна выбрана</string>
+    <string name="loading_countries">Загрузка стран…</string>
+    <string name="no_countries_found">Страны не найдены для \"%1$s\"</string>
+    <string name="try_different_search">Попробуйте другой поисковый запрос</string>
+
+    <!-- Accessibility -->
+    <string name="qode_logo_content_desc">Логотип приложения Qode</string>
+    <string name="google_logo_content_desc">Логотип Google</string>
+    <string name="send_icon_content_desc">Отправить код подтверждения</string>
+    <string name="back_button_content_desc">Назад</string>
+
+    <!-- Error Messages -->
+    <string name="network_error">Ошибка сети. Проверьте подключение.</string>
+    <string name="server_error">Ошибка сервера. Попробуйте позже.</string>
+    <string name="invalid_phone_number">Введите действительный номер телефона</string>
+    <string name="phone_number_required">Номер телефона обязателен</string>
+    <string name="name_required">Полное имя обязательно</string>
+    <string name="name_too_short">Имя должно быть не менее 2 символов</string>
+    <string name="invalid_email">Введите действительный адрес электронной почты</string>
+    <string name="google_signin_failed">Вход через Google не удался. Попробуйте снова.</string>
+    <string name="google_signin_cancelled">Вход через Google был отменён</string>
+
+    <!-- Loading States -->
+    <string name="sending_code">Отправка кода подтверждения…</string>
+    <string name="verifying_code">Проверка кода…</string>
+    <string name="creating_account">Создание аккаунта…</string>
+    <string name="signing_in">Вход…</string>
+
+    <!-- Success Messages -->
+    <string name="verification_code_sent">Код подтверждения успешно отправлен</string>
+    <string name="account_created">Аккаунт успешно создан</string>
+    <string name="welcome_back">Добро пожаловать!</string>
+    <string name="terms_first_line">Продолжая, вы соглашаетесь с нашими</string>
+    <string name="and">и</string>
+    <string name="agree_to">Продолжая, вы соглашаетесь с нашими</string>
+
+    <!-- Phone Authentication -->
+    <string name="phone_verification_title">Подтвердите телефон</string>
+    <string name="phone_verification_subtitle">Введите номер телефона для начала</string>
+    <string name="verify_phone_number">Подтвердить номер телефона</string>
+    <string name="phone_verification_code_title">Введите код подтверждения</string>
+    <string name="phone_verification_code_subtitle">Мы отправили код на %s</string>
+
+    <!-- Auth Flow -->
+    <string name="welcome_title">Добро пожаловать в Qode</string>
+    <string name="welcome_subtitle">Откройте удивительные промо-коды</string>
+    <string name="get_started">Начать</string>
+    <string name="continue_as_guest">Продолжить как гость</string>
+
+    <!-- Errors -->
+    <string name="auth_error_generic">Что-то пошло не так. Попробуйте снова.</string>
+    <string name="auth_error_invalid_code">Неверный код подтверждения</string>
+    <string name="auth_error_code_expired">Срок действия кода подтверждения истёк</string>
+    <string name="auth_error_too_many_attempts">Слишком много попыток. Попробуйте позже.</string>
+
+    <!-- Success -->
+    <string name="auth_success">Добро пожаловать! Ваш аккаунт готов.</string>
+    <string name="search_bar_title">Выберите страну</string>
+</resources>

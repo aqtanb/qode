@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_home_title">Үй</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_welcome_title">Таңғажайып келісімдерді ашыңыз</string>
+    <string name="home_welcome_subtitle">Үздік брендтерден ең жақсы жарнамалық кодтармен ақша үнемдеңіз</string>
+    <string name="home_section_title">Тринг ұсыныстары</string>
+    <string name="home_section_subtitle">Бүгін ең танымал промо-кодтар</string>
+    <string name="home_quick_filters">Жылдам сүзгілер</string>
+    <string name="home_trending_badge">Қазір трейдер</string>
+    <string name="home_featured_deals">Таңдаулы мәмілелер</string>
+    <string name="home_featured_subtitle">Тек сіз үшін қолмен таңдалған эксклюзивті ұсыныстар</string>
+
+    <!-- Banner Carousel -->
+    <string name="banner_featured_title">Таңдаулы мәміле</string>
+    <string name="banner_up_to">Дейін</string>
+    <string name="banner_off">Ажыратылған</string>
+    <string name="banner_claim_now">Қазір талап</string>
+    <string name="banner_limited_time">Шектеулі уақыт</string>
+    <string name="banner_country_picker_title">Сіздің еліңіз</string>
+    <string name="banner_default_description">Ерекше мәмілелер және сыйлықақы ұсыныстары</string>
+    <string name="banner_explore_deals">Мәмілелерді зерттеңіз</string>
+    <string name="banner_loading_fallback">Сіздерге таңғажайып келісімдерді жүктеу ...</string>
+
+    <!-- Stats Section -->
+    <string name="stats_active_deals">500+</string>
+    <string name="stats_active_deals_label">Белсенді мәмілелер</string>
+    <string name="stats_happy_users">50K +</string>
+    <string name="stats_happy_users_label">Бақытты пайдаланушылар</string>
+    <string name="stats_total_saved">₸ 2M +</string>
+    <string name="stats_total_saved_label">Барлығы сақталды</string>
+
+    <!-- Filter Categories -->
+    <string name="filter_top_rated">Жоғары бағаланған</string>
+    <string name="filter_latest">Ең соңғы</string>
+    <string name="filter_food">Ас</string>
+    <string name="filter_fashion">Мода</string>
+    <string name="filter_tech">Аспап</string>
+
+    <!-- Error Messages -->
+    <string name="error_something_went_wrong">Бірдеңе дұрыс болмады</string>
+    <string name="error_retry">Қайтадан байқап көріңіз</string>
+    <string name="error_image_not_available">Сурет қол жетімді емес</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Жақында</string>
+    <string name="coming_soon_country_description">Жақында ел таңдау келе жатыр!</string>
+
+    <!-- Country -->
+    <string name="country_kazakhstan">Қазақстан</string>
+
+    <!-- Empty State -->
+    <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>
+    <string name="empty_check_back_later">Кейінірек таңғажайып мәмілелер мен жеңілдіктер үшін тексеріңіз!</string>
+    <string name="empty_no_banners_title">Баннерлер жоқ</string>
+    <string name="empty_no_banners_description">Брендті жылжыту үшін бізбен байланысуға болады</string>
+</resources>
+

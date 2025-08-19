@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phone Input Component -->
+    <string name="phone_input_label">Телефон нөмірі</string>
+    <string name="phone_input_placeholder">Телефон нөмірін енгізіңіз</string>
+    <string name="phone_input_too_short">Телефон нөмірі тым қысқа</string>
+    <string name="phone_input_too_long">Телефон нөмірі тым ұзын</string>
+    <string name="phone_input_required">Телефон нөмірі қажет</string>
+    <string name="phone_input_validating">Тексеру…</string>
+    <string name="phone_input_valid">Жарамды нөмір</string>
+    <string name="phone_number_invalid_format">Жарамды телефон нөмірін енгізіңіз</string>
+
+    <!-- Country Picker -->
+    <string name="select_country">Елді таңдаңыз</string>
+    <string name="search_countries">Елдерді іздеу</string>
+    <string name="no_countries_found">Елдер табылмады</string>
+    <string name="country_selected">Ел таңдалды</string>
+
+    <!-- Navigation -->
+    <string name="navigate_back">Артқа қайту</string>
+    <string name="close">Жабу</string>
+    <string name="clear_search">Іздеуді тазалау</string>
+    <string name="clear_phone_number">Телефон нөмірін тазалау</string>
+
+    <!-- Social Sign-In Components -->
+    <string name="continue_with_google">Google арқылы жалғастыру</string>
+
+    <!-- Error Handling -->
+    <string name="error_default_title">Бірдеңе дұрыс болмады</string>
+    <string name="error_retry_button">Қайтадан байқап көру</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Біз осы функцияда жұмыс істеп жатырмыз</string>
+    <string name="coming_soon_description">Бізбен байланысып, Telegram арнасындағы прогрессімізді көре аласыз.</string>
+    <string name="coming_soon_telegram_button">Telegram-да жазылу</string>
+    <string name="coming_soon_dialog_description">Жаңа функциялар үшін жақында диалогы</string>
+
+    <!-- Accessibility -->
+    <string name="phone_input_content_desc">Телефон нөмірі енгізу өрісі</string>
+    <string name="phone_input_flag_content_desc">%s үшін ел туы</string>
+    <string name="phone_input_dropdown_content_desc">Ел таңдаушысын ашу</string>
+    <string name="phone_input_error_content_desc">Телефон нөмірі қатесі</string>
+    <string name="phone_input_success_content_desc">Телефон нөмірі жарамды</string>
+
+    <!-- Common Input States -->
+    <string name="field_required">Бұл өріс қажет</string>
+    <string name="field_invalid">Жарамсыз енгізу</string>
+    <string name="field_success">Жарамды енгізу</string>
+
+    <!-- Promo Code Card Strings -->
+    <string name="promo_code_label">ПРОМО КОД</string>
+    <string name="copy_code">Кодты көшіру</string>
+    <string name="upvotes">Қолдау дауыстары</string>
+    <string name="downvotes">Қарсы дауыстар</string>
+    <string name="updated_format">%s жаңартылды</string>
+    <string name="percentage_discount">%d%%</string>
+    <string name="fixed_amount_discount">%d₸</string>
+    <string name="promo_type">ПРОМО</string>
+    <string name="percentage_off_order">%d₸-тен %d%% жеңілдік</string>
+    <string name="amount_off_order">%d₸-тен %d₸ жеңілдік</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_welcome_title">Таңғажайып мәмілелерді ашыңыз</string>
+    <string name="home_welcome_subtitle">Үздік брендтерден ең жақсы промо кодтармен ақша үнемдеңіз</string>
+    <string name="home_section_title">Трендтегі ұсыныстар</string>
+    <string name="home_section_subtitle">Бүгін ең танымал промо кодтар</string>
+    <string name="home_trending_badge">ҚАЗІР ТРЕНД</string>
+    <string name="home_browse_categories">Санаттарды шолу</string>
+    <string name="home_featured_deals">Таңдаулы мәмілелер</string>
+    <string name="home_featured_subtitle">Тек сіз үшін қолмен таңдалған эксклюзивті ұсыныстар</string>
+    
+    <!-- Stats Section -->
+    <string name="stats_active_deals">500+</string>
+    <string name="stats_active_deals_label">Белсенді мәмілелер</string>
+    <string name="stats_happy_users">50K+</string>
+    <string name="stats_happy_users_label">Бақытты пайдаланушылар</string>
+    <string name="stats_total_saved">₸2M+</string>
+    <string name="stats_total_saved_label">Барлығы сақталды</string>
+    
+    <!-- Filter Categories -->
+    <string name="filter_top_rated">Жоғары бағаланған</string>
+    <string name="filter_latest">Ең соңғы</string>
+    <string name="filter_food">Тамақ</string>
+    <string name="filter_fashion">Сән</string>
+    <string name="filter_tech">Технология</string>
+    
+    <!-- Legacy strings that might be used elsewhere -->
+    <string name="phone_number">Телефон нөмірі</string>
+    <string name="enter_phone_number">Телефон нөміріңізді енгізіңіз</string>
+    <string name="invalid_phone_number">Жарамсыз телефон нөмірі</string>
+    <string name="phone_number_required">Телефон нөмірі қажет</string>
+    <string name="phone_number_too_short">Телефон нөмірі тым қысқа</string>
+    <string name="phone_number_too_long">Телефон нөмірі тым ұзын</string>
+    <string name="country_picker_title">Елді таңдаңыз</string>
+</resources>
