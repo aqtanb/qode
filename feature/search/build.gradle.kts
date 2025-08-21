@@ -51,6 +51,7 @@ dependencies {
 
     // Dependency Injection
     implementation(libs.bundles.hilt)
+    implementation(libs.androidx.compose.animation.core)
     ksp(libs.hilt.compiler)
 
     // Testing
@@ -59,4 +60,10 @@ dependencies {
 
     // Debug Tools
     debugImplementation(libs.bundles.debug)
+
+    // DateTime
+    implementation(libs.kotlinx.datetime)
+
+    // Image
+    implementation(libs.bundles.image.loading)
 }
