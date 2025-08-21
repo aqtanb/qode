@@ -2,6 +2,8 @@ package com.qodein.feature.promocode.submission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logPromoCodeSubmission
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -35,7 +37,8 @@ import javax.inject.Inject
 class SubmissionWizardViewModel @Inject constructor(
     private val createPromoCodeUseCase: CreatePromoCodeUseCase,
     private val searchServicesUseCase: SearchServicesUseCase,
-    private val getPopularServicesUseCase: GetPopularServicesUseCase
+    private val getPopularServicesUseCase: GetPopularServicesUseCase,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SubmissionWizardUiState>(SubmissionWizardUiState.Loading)
@@ -178,6 +181,18 @@ class SubmissionWizardViewModel @Inject constructor(
                 currentStep = nextStep,
                 wizardData = updatedData,
             )
+
+            // Track step navigation
+            analyticsHelper.logEvent(
+                com.qodein.core.analytics.AnalyticsEvent(
+                    type = "wizard_step_navigation",
+                    extras = listOf(
+                        com.qodein.core.analytics.AnalyticsEvent.Param("step_from", currentState.currentStep.name),
+                        com.qodein.core.analytics.AnalyticsEvent.Param("step_to", nextStep.name),
+                        com.qodein.core.analytics.AnalyticsEvent.Param("direction", "next"),
+                    ),
+                ),
+            )
         }
     }
 
@@ -187,6 +202,18 @@ class SubmissionWizardViewModel @Inject constructor(
 
         if (currentState.canGoPrevious) {
             _uiState.value = currentState.copy(currentStep = previousStep)
+
+            // Track step navigation
+            analyticsHelper.logEvent(
+                com.qodein.core.analytics.AnalyticsEvent(
+                    type = "wizard_step_navigation",
+                    extras = listOf(
+                        com.qodein.core.analytics.AnalyticsEvent.Param("step_from", currentState.currentStep.name),
+                        com.qodein.core.analytics.AnalyticsEvent.Param("step_to", previousStep.name),
+                        com.qodein.core.analytics.AnalyticsEvent.Param("direction", "previous"),
+                    ),
+                ),
+            )
         }
     }
 
@@ -317,10 +344,28 @@ class SubmissionWizardViewModel @Inject constructor(
                             when (result) {
                                 is Result.Loading -> { /* Loading state if needed */ }
                                 is Result.Success -> {
+                                    // Track successful promo code submission
+                                    analyticsHelper.logPromoCodeSubmission(
+                                        promocodeId = result.data.id.value,
+                                        promocodeType = when (promoCode) {
+                                            is PromoCode.PercentagePromoCode -> "percentage"
+                                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                                        },
+                                        success = true,
+                                    )
                                     _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
                                     _events.emit(SubmissionWizardEvent.NavigateBack)
                                 }
                                 is Result.Error -> {
+                                    // Track failed promo code submission
+                                    analyticsHelper.logPromoCodeSubmission(
+                                        promocodeId = "unknown",
+                                        promocodeType = when (promoCode) {
+                                            is PromoCode.PercentagePromoCode -> "percentage"
+                                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                                        },
+                                        success = false,
+                                    )
                                     _uiState.value = SubmissionWizardUiState.Error(
                                         errorType = result.exception.toErrorType(),
                                         isRetryable = result.exception.isRetryable(),

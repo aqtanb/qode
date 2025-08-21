@@ -40,6 +40,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.data)
+    implementation(projects.core.analytics)
 
     // Core Android & Compose
     implementation(libs.bundles.androidx.core)

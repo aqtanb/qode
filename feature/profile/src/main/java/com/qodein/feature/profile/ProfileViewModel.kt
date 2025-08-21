@@ -2,6 +2,8 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logLogout
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -24,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val signOutUseCase: SignOutUseCase
+    private val signOutUseCase: SignOutUseCase,
+    private val analyticsHelper: AnalyticsHelper
     // TODO: Add GetUserStatsUseCase for promocodes, upvotes, downvotes
     // TODO: Add GetUserAchievementsUseCase for achievements data
     // TODO: Add GetUserActivityUseCase for user journey (promocodes & comments history)
@@ -46,9 +49,39 @@ class ProfileViewModel @Inject constructor(
         when (action) {
             is ProfileAction.SignOutClicked -> signOut()
             is ProfileAction.RetryClicked -> checkAuthState()
-            is ProfileAction.EditProfileClicked -> emitEvent(ProfileEvent.EditProfileRequested)
-            is ProfileAction.AchievementsClicked -> emitEvent(ProfileEvent.AchievementsRequested)
-            is ProfileAction.UserJourneyClicked -> emitEvent(ProfileEvent.UserJourneyRequested)
+            is ProfileAction.EditProfileClicked -> {
+                analyticsHelper.logEvent(
+                    com.qodein.core.analytics.AnalyticsEvent(
+                        type = "profile_action",
+                        extras = listOf(
+                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "edit_profile"),
+                        ),
+                    ),
+                )
+                emitEvent(ProfileEvent.EditProfileRequested)
+            }
+            is ProfileAction.AchievementsClicked -> {
+                analyticsHelper.logEvent(
+                    com.qodein.core.analytics.AnalyticsEvent(
+                        type = "profile_action",
+                        extras = listOf(
+                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "view_achievements"),
+                        ),
+                    ),
+                )
+                emitEvent(ProfileEvent.AchievementsRequested)
+            }
+            is ProfileAction.UserJourneyClicked -> {
+                analyticsHelper.logEvent(
+                    com.qodein.core.analytics.AnalyticsEvent(
+                        type = "profile_action",
+                        extras = listOf(
+                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "view_user_journey"),
+                        ),
+                    ),
+                )
+                emitEvent(ProfileEvent.UserJourneyRequested)
+            }
         }
     }
 
@@ -112,6 +145,8 @@ class ProfileViewModel @Inject constructor(
                 when (result) {
                     is Result.Loading -> { /* Loading already shown above */ }
                     is Result.Success -> {
+                        // Log successful logout
+                        analyticsHelper.logLogout()
                         // Only navigate after successful sign out
                         emitEvent(ProfileEvent.SignedOut)
                     }

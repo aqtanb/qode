@@ -37,6 +37,10 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
@@ -75,6 +79,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
     implementation(projects.core.ui)
+    implementation(projects.core.analytics)
 
     implementation(projects.feature.auth)
     implementation(projects.feature.home)
@@ -99,6 +104,10 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+    // Logging
+    implementation(libs.kermit)
+    implementation(libs.timber)
 
     // Testing
     testImplementation(projects.core.testing)

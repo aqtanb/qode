@@ -42,13 +42,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.component.QodeButton
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeEmptyState
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.feature.search.component.PostCard
 import com.qodein.feature.search.component.SearchBar
+import com.qodein.shared.common.result.ErrorAction
 
 /**
  * Modern search screen with post feed and tag-based filtering
@@ -59,6 +61,8 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    TrackScreenViewEvent(screenName = "Search")
+
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lazyListState = rememberLazyListState()
@@ -96,12 +100,16 @@ fun SearchScreen(
             val totalItemsNumber = layoutInfo.totalItemsCount
             val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
 
-            lastVisibleItemIndex > (totalItemsNumber - 3) && uiState.hasMorePosts
+            val currentState = uiState
+            lastVisibleItemIndex > (totalItemsNumber - 3) &&
+                currentState is SearchUiState.Content &&
+                currentState.hasMorePosts
         }
     }
 
     LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore && !uiState.isLoadingMore) {
+        val currentState = uiState
+        if (shouldLoadMore && currentState is SearchUiState.Content && !currentState.isLoadingMore) {
             viewModel.handleAction(SearchAction.LoadMorePosts)
         }
     }
@@ -335,8 +343,8 @@ fun SearchScreen(
         }
 
         // Posts feed
-        when {
-            uiState.isInitialLoad -> {
+        when (val currentState = uiState) {
+            is SearchUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -355,95 +363,88 @@ fun SearchScreen(
                 }
             }
 
-            uiState.isEmpty -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    QodeEmptyState(
-                        icon = Icons.Default.Search,
-                        title = if (uiState.hasFilters) "No posts found" else "Start exploring",
-                        description = if (uiState.hasFilters) {
-                            "Try adjusting your search or tags to find more posts."
-                        } else {
-                            "Search for posts by tags or content to discover what the community is talking about!"
-                        },
-                    )
-                }
-            }
-
-            uiState.errorMessage != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            is SearchUiState.Content -> {
+                if (currentState.isEmpty) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = uiState.errorMessage!!,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-
-                        QodeButton(
-                            onClick = { viewModel.handleAction(SearchAction.RetryClicked) },
-                            text = "Retry",
-                            leadingIcon = QodeActionIcons.Reset,
+                        QodeEmptyState(
+                            icon = Icons.Default.Search,
+                            title = if (currentState.hasFilters) "No posts found" else "Start exploring",
+                            description = if (currentState.hasFilters) {
+                                "Try adjusting your search or tags to find more posts."
+                            } else {
+                                "Search for posts by tags or content to discover what the community is talking about!"
+                            },
                         )
                     }
-                }
-            }
+                } else {
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+                        contentPadding = PaddingValues(bottom = SpacingTokens.xl),
+                    ) {
+                        items(
+                            items = currentState.posts,
+                            key = { it.id.value },
+                        ) { post ->
+                            PostCard(
+                                post = post,
+                                onLikeClick = { postId ->
+                                    if (post.isLikedByCurrentUser) {
+                                        viewModel.handleAction(SearchAction.PostUnliked(postId))
+                                    } else {
+                                        viewModel.handleAction(SearchAction.PostLiked(postId))
+                                    }
+                                },
+                                onCommentClick = { postId ->
+                                    viewModel.handleAction(SearchAction.PostCommentClicked(postId))
+                                },
+                                onShareClick = { postId ->
+                                    viewModel.handleAction(SearchAction.PostShared(postId))
+                                },
+                                onUserClick = { username ->
+                                    // TODO: Navigate to user profile
+                                },
+                                onTagClick = { tag ->
+                                    viewModel.handleAction(SearchAction.TagSelected(tag))
+                                },
+                            )
+                        }
 
-            else -> {
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                    contentPadding = PaddingValues(bottom = SpacingTokens.xl),
-                ) {
-                    items(
-                        items = uiState.posts,
-                        key = { it.id.value },
-                    ) { post ->
-                        PostCard(
-                            post = post,
-                            onLikeClick = { postId ->
-                                if (post.isLikedByCurrentUser) {
-                                    viewModel.handleAction(SearchAction.PostUnliked(postId))
-                                } else {
-                                    viewModel.handleAction(SearchAction.PostLiked(postId))
+                        // Loading more indicator
+                        if (currentState.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(SpacingTokens.md),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
                                 }
-                            },
-                            onCommentClick = { postId ->
-                                viewModel.handleAction(SearchAction.PostCommentClicked(postId))
-                            },
-                            onShareClick = { postId ->
-                                viewModel.handleAction(SearchAction.PostShared(postId))
-                            },
-                            onUserClick = { username ->
-                                // TODO: Navigate to user profile
-                            },
-                            onTagClick = { tag ->
-                                viewModel.handleAction(SearchAction.TagSelected(tag))
-                            },
-                        )
-                    }
-
-                    // Loading more indicator
-                    if (uiState.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(SpacingTokens.md),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                CircularProgressIndicator()
                             }
                         }
                     }
+                }
+            }
+
+            is SearchUiState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    QodeActionErrorCard(
+                        message = currentState.errorType.toLocalizedMessage(),
+                        errorAction = if (currentState.isRetryable) ErrorAction.RETRY else ErrorAction.DISMISS_ONLY,
+                        onActionClicked = { viewModel.handleAction(SearchAction.RetryClicked) },
+                        onDismiss = { viewModel.handleAction(SearchAction.ErrorDismissed) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpacingTokens.md),
+                    )
                 }
             }
         }

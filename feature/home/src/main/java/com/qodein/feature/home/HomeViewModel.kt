@@ -3,6 +3,9 @@ package com.qodein.feature.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logPromoCodeView
+import com.qodein.core.analytics.logVote
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -30,10 +33,10 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getPromoCodesUseCase: GetPromoCodesUseCase,
     private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
-    private val getBannersUseCase: GetBannersUseCase
+    private val getBannersUseCase: GetBannersUseCase,
+    private val analyticsHelper: AnalyticsHelper
     // TODO: Inject other repositories when available
     // private val userRepository: UserRepository,
-    // private val analyticsRepository: AnalyticsRepository
 ) : ViewModel() {
 
     companion object {
@@ -295,15 +298,27 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onBannerClicked(banner: Banner) {
-        // TODO: Track analytics
-        // analyticsRepository.trackBannerClick(banner.id)
+        analyticsHelper.logEvent(
+            com.qodein.core.analytics.AnalyticsEvent(
+                type = com.qodein.core.analytics.AnalyticsEvent.Types.SELECT_CONTENT,
+                extras = listOf(
+                    com.qodein.core.analytics.AnalyticsEvent.Param("content_type", "banner"),
+                    com.qodein.core.analytics.AnalyticsEvent.Param("item_id", banner.id.value),
+                ),
+            ),
+        )
 
         emitEvent(HomeEvent.BannerDetailRequested(banner))
     }
 
     private fun onPromoCodeClicked(promoCode: PromoCode) {
-        // TODO: Track analytics
-        // analyticsRepository.trackPromoCodeView(promoCode.id)
+        analyticsHelper.logPromoCodeView(
+            promocodeId = promoCode.id.value,
+            promocodeType = when (promoCode) {
+                is PromoCode.PercentagePromoCode -> "percentage"
+                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+            },
+        )
 
         emitEvent(HomeEvent.PromoCodeDetailRequested(promoCode))
     }
@@ -353,7 +368,11 @@ class HomeViewModel @Inject constructor(
                         errorCode = exception.getErrorCode(),
                     )
                 }.collect { vote ->
-                    // Success - the optimistic update is already in place
+                    // Success - log analytics and the optimistic update is already in place
+                    analyticsHelper.logVote(
+                        promocodeId = promoCodeId,
+                        voteType = "upvote",
+                    )
                 }
             } catch (exception: Exception) {
                 // Revert to original state on error
@@ -370,16 +389,86 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onDownvotePromoCode(promoCodeId: String) {
-        // TODO: Similar logic to upvote but for downvote
-        // For now, placeholder implementation
+        val currentState = _uiState.value
+        if (currentState !is HomeUiState.Success) return
+
+        viewModelScope.launch {
+            try {
+                // Similar to upvote but for downvote
+                val wasDownvoted = false // TODO: track user votes from repository
+
+                val updatedPromoCodes = currentState.promoCodes.map { promoCode ->
+                    if (promoCode.id.value == promoCodeId) {
+                        when (promoCode) {
+                            is PromoCode.PercentagePromoCode -> promoCode.copy(
+                                downvotes = if (wasDownvoted) promoCode.downvotes - 1 else promoCode.downvotes + 1,
+                            )
+                            is PromoCode.FixedAmountPromoCode -> promoCode.copy(
+                                downvotes = if (wasDownvoted) promoCode.downvotes - 1 else promoCode.downvotes + 1,
+                            )
+                        }
+                    } else {
+                        promoCode
+                    }
+                }
+
+                _uiState.value = currentState.copy(promoCodes = updatedPromoCodes)
+
+                // Call the actual voting use case
+                voteOnPromoCodeUseCase(
+                    promoCodeId = PromoCodeId(promoCodeId),
+                    userId = UserId("current_user"), // TODO: Get actual user ID from auth state
+                    isUpvote = false,
+                ).catch { e ->
+                    // Revert optimistic update on error
+                    _uiState.value = currentState
+                    val exception = Exception("Failed to vote: ${e.message}")
+                    _uiState.value = HomeUiState.Error(
+                        errorType = exception.toErrorType(),
+                        isRetryable = exception.isRetryable(),
+                        shouldShowSnackbar = exception.shouldShowSnackbar(),
+                        errorCode = exception.getErrorCode(),
+                    )
+                }.collect { vote ->
+                    // Success - log analytics and the optimistic update is already in place
+                    analyticsHelper.logVote(
+                        promocodeId = promoCodeId,
+                        voteType = "downvote",
+                    )
+                }
+            } catch (exception: Exception) {
+                // Revert to original state on error
+                _uiState.value = currentState
+                val exception = Exception("Failed to downvote. Please try again.")
+                _uiState.value = HomeUiState.Error(
+                    errorType = exception.toErrorType(),
+                    isRetryable = exception.isRetryable(),
+                    shouldShowSnackbar = exception.shouldShowSnackbar(),
+                    errorCode = exception.getErrorCode(),
+                )
+            }
+        }
     }
 
     private fun onCopyPromoCode(promoCode: PromoCode) {
         // TODO: Copy to clipboard
         // clipboardRepository.copyToClipboard(promoCode.code)
 
-        // TODO: Track analytics
-        // analyticsRepository.trackPromoCodeCopy(promoCode.id)
+        analyticsHelper.logEvent(
+            com.qodein.core.analytics.AnalyticsEvent(
+                type = "copy_promocode",
+                extras = listOf(
+                    com.qodein.core.analytics.AnalyticsEvent.Param("promocode_id", promoCode.id.value),
+                    com.qodein.core.analytics.AnalyticsEvent.Param(
+                        "promocode_type",
+                        when (promoCode) {
+                            is PromoCode.PercentagePromoCode -> "percentage"
+                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                        },
+                    ),
+                ),
+            ),
+        )
 
         emitEvent(HomeEvent.PromoCodeCopied(promoCode))
     }

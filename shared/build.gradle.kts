@@ -50,6 +50,8 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 // DateTime for date/time handling
                 implementation(libs.kotlinx.datetime)
+                // Logging for multiplatform
+                implementation(libs.kermit)
             }
         }
 

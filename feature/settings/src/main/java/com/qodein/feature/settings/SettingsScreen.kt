@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeDecorationStyle
 import com.qodein.core.designsystem.component.QodeGradient
@@ -43,6 +44,8 @@ fun SettingsScreen(
     onBackClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    TrackScreenViewEvent(screenName = "Settings")
+
     val state by viewModel.state.collectAsState()
 
     Box(

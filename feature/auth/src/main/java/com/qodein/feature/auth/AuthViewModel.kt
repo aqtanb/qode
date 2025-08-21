@@ -2,6 +2,8 @@ package com.qodein.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logLogin
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -20,7 +22,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(private val signInWithGoogleUseCase: SignInWithGoogleUseCase) : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val analyticsHelper: AnalyticsHelper
+) : ViewModel() {
 
     private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state = _state.asStateFlow()
@@ -51,10 +56,12 @@ class AuthViewModel @Inject constructor(private val signInWithGoogleUseCase: Sig
                 _state.value = when (result) {
                     is Result.Loading -> AuthUiState.Loading
                     is Result.Success -> {
+                        analyticsHelper.logLogin(method = "google", success = true)
                         emitEvent(AuthEvent.SignedIn)
                         AuthUiState.Success(user = result.data)
                     }
                     is Result.Error -> {
+                        analyticsHelper.logLogin(method = "google", success = false)
                         AuthUiState.Error(
                             errorType = result.exception.toErrorType(),
                             isRetryable = result.exception.isRetryable(),

@@ -1,6 +1,5 @@
 package com.qodein.core.data.datasource
 
-import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
@@ -12,6 +11,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,7 +40,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
         limit: Int = 10
     ): Flow<List<Banner>> =
         callbackFlow {
-            Log.d(TAG, "getBannersForCountry: Starting query for country=$countryCode, limit=$limit")
+            Timber.tag(TAG).d("getBannersForCountry: Starting query for country=$countryCode, limit=$limit")
 
             try {
                 // Note: Firestore doesn't support compound queries with array-contains and timestamp comparison
@@ -55,7 +55,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 val listener = query.addSnapshotListener { snapshot, error ->
                     when {
                         error != null -> {
-                            Log.e(TAG, "getBannersForCountry: Query failed", error)
+                            Timber.tag(TAG).e(error, "getBannersForCountry: Query failed")
                             val wrappedException = when {
                                 error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
                                     SecurityException("permission denied: cannot access banners", error)
@@ -67,24 +67,24 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                         }
                         snapshot != null -> {
                             try {
-                                Log.d(TAG, "getBannersForCountry: Received ${snapshot.documents.size} documents")
+                                Timber.tag(TAG).d("getBannersForCountry: Received ${snapshot.documents.size} documents")
 
                                 val banners = snapshot.documents.mapNotNull { document ->
                                     try {
-                                        Log.d(TAG, "Processing banner document ${document.id}")
+                                        Timber.tag(TAG).d("Processing banner document ${document.id}")
                                         document.toObject<BannerDto>()?.let { dto ->
                                             BannerMapper.toDomain(dto)
                                         }
                                     } catch (e: Exception) {
-                                        Log.e(TAG, "Failed to parse banner document ${document.id}", e)
+                                        Timber.tag(TAG).e(e, "Failed to parse banner document ${document.id}")
                                         null
                                     }
                                 }
 
-                                Log.d(TAG, "getBannersForCountry: Successfully parsed ${banners.size} banners")
+                                Timber.tag(TAG).d("getBannersForCountry: Successfully parsed ${banners.size} banners")
                                 trySend(banners)
                             } catch (e: Exception) {
-                                Log.e(TAG, "getBannersForCountry: Failed to process snapshot", e)
+                                Timber.tag(TAG).e(e, "getBannersForCountry: Failed to process snapshot")
                                 close(IllegalStateException("service unavailable: failed to process banner data", e))
                             }
                         }
@@ -92,11 +92,11 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 }
 
                 awaitClose {
-                    Log.d(TAG, "getBannersForCountry: Removing listener")
+                    Timber.tag(TAG).d("getBannersForCountry: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "getBannersForCountry: Failed to set up query", e)
+                Timber.tag(TAG).e(e, "getBannersForCountry: Failed to set up query")
                 close(IllegalStateException("service unavailable: failed to initialize banner query", e))
             }
         }
@@ -110,7 +110,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
      */
     fun getAllActiveBanners(limit: Int = 10): Flow<List<Banner>> =
         callbackFlow {
-            Log.d(TAG, "getAllActiveBanners: Starting query for limit=$limit")
+            Timber.tag(TAG).d("getAllActiveBanners: Starting query for limit=$limit")
 
             try {
                 val query = firestore.collection(BANNERS_COLLECTION)
@@ -122,7 +122,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 val listener = query.addSnapshotListener { snapshot, error ->
                     when {
                         error != null -> {
-                            Log.e(TAG, "getAllActiveBanners: Query failed", error)
+                            Timber.tag(TAG).e(error, "getAllActiveBanners: Query failed")
                             val wrappedException = when {
                                 error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
                                     SecurityException("permission denied: cannot access banners", error)
@@ -134,7 +134,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                         }
                         snapshot != null -> {
                             try {
-                                Log.d(TAG, "getAllActiveBanners: Received ${snapshot.documents.size} documents")
+                                Timber.tag(TAG).d("getAllActiveBanners: Received ${snapshot.documents.size} documents")
 
                                 val banners = snapshot.documents.mapNotNull { document ->
                                     try {
@@ -142,15 +142,15 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                             BannerMapper.toDomain(dto)
                                         }
                                     } catch (e: Exception) {
-                                        Log.e(TAG, "Failed to parse banner document ${document.id}", e)
+                                        Timber.tag(TAG).e(e, "Failed to parse banner document ${document.id}")
                                         null
                                     }
                                 }
 
-                                Log.d(TAG, "getAllActiveBanners: Successfully parsed ${banners.size} banners")
+                                Timber.tag(TAG).d("getAllActiveBanners: Successfully parsed ${banners.size} banners")
                                 trySend(banners)
                             } catch (e: Exception) {
-                                Log.e(TAG, "getAllActiveBanners: Failed to process snapshot", e)
+                                Timber.tag(TAG).e(e, "getAllActiveBanners: Failed to process snapshot")
                                 close(IllegalStateException("Failed to process banner data", e))
                             }
                         }
@@ -158,11 +158,11 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 }
 
                 awaitClose {
-                    Log.d(TAG, "getAllActiveBanners: Removing listener")
+                    Timber.tag(TAG).d("getAllActiveBanners: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "getAllActiveBanners: Failed to set up query", e)
+                Timber.tag(TAG).e(e, "getAllActiveBanners: Failed to set up query")
                 close(IOException("Failed to set up banner query", e))
             }
         }
@@ -175,7 +175,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
      */
     suspend fun getBannerById(bannerId: BannerId): Banner? =
         try {
-            Log.d(TAG, "getBannerById: Fetching banner ${bannerId.value}")
+            Timber.tag(TAG).d("getBannerById: Fetching banner ${bannerId.value}")
 
             val document = firestore.collection(BANNERS_COLLECTION)
                 .document(bannerId.value)
@@ -184,15 +184,15 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
 
             if (document.exists()) {
                 document.toObject<BannerDto>()?.let { dto ->
-                    Log.d(TAG, "getBannerById: Successfully found banner ${bannerId.value}")
+                    Timber.tag(TAG).d("getBannerById: Successfully found banner ${bannerId.value}")
                     BannerMapper.toDomain(dto)
                 }
             } else {
-                Log.d(TAG, "getBannerById: Banner ${bannerId.value} not found")
+                Timber.tag(TAG).d("getBannerById: Banner ${bannerId.value} not found")
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getBannerById: Failed to fetch banner ${bannerId.value}", e)
+            Timber.tag(TAG).e(e, "getBannerById: Failed to fetch banner ${bannerId.value}")
             when {
                 e.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
                     throw SecurityException("permission denied: cannot access banner ${bannerId.value}", e)
@@ -211,13 +211,13 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
     fun observeBanners(bannerIds: List<BannerId>): Flow<List<Banner>> =
         callbackFlow {
             if (bannerIds.isEmpty()) {
-                Log.d(TAG, "observeBanners: Empty banner IDs list, emitting empty list")
+                Timber.tag(TAG).d("observeBanners: Empty banner IDs list, emitting empty list")
                 trySend(emptyList())
                 awaitClose { }
                 return@callbackFlow
             }
 
-            Log.d(TAG, "observeBanners: Starting observation for ${bannerIds.size} banners")
+            Timber.tag(TAG).d("observeBanners: Starting observation for ${bannerIds.size} banners")
 
             try {
                 val listener = firestore.collection(BANNERS_COLLECTION)
@@ -225,7 +225,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                     .addSnapshotListener { snapshot, error ->
                         when {
                             error != null -> {
-                                Log.e(TAG, "observeBanners: Query failed", error)
+                                Timber.tag(TAG).e(error, "observeBanners: Query failed")
                                 close(IOException("Failed to observe banners", error))
                             }
                             snapshot != null -> {
@@ -236,15 +236,15 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                                 BannerMapper.toDomain(dto)
                                             }
                                         } catch (e: Exception) {
-                                            Log.e(TAG, "Failed to parse banner document ${document.id}", e)
+                                            Timber.tag(TAG).e(e, "Failed to parse banner document ${document.id}")
                                             null
                                         }
                                     }
 
-                                    Log.d(TAG, "observeBanners: Successfully parsed ${banners.size} banners")
+                                    Timber.tag(TAG).d("observeBanners: Successfully parsed ${banners.size} banners")
                                     trySend(banners)
                                 } catch (e: Exception) {
-                                    Log.e(TAG, "observeBanners: Failed to process snapshot", e)
+                                    Timber.tag(TAG).e(e, "observeBanners: Failed to process snapshot")
                                     close(IllegalStateException("Failed to process banner data", e))
                                 }
                             }
@@ -252,11 +252,11 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                     }
 
                 awaitClose {
-                    Log.d(TAG, "observeBanners: Removing listener")
+                    Timber.tag(TAG).d("observeBanners: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "observeBanners: Failed to set up observation", e)
+                Timber.tag(TAG).e(e, "observeBanners: Failed to set up observation")
                 close(IOException("Failed to set up banner observation", e))
             }
         }

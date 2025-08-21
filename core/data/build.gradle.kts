@@ -60,6 +60,9 @@ dependencies {
     // Android Context access
     implementation(libs.androidx.core.ktx)
 
+    // Logging
+    implementation(libs.timber)
+
     // DateTime
     implementation(libs.kotlinx.datetime)
 }

@@ -2,6 +2,14 @@ package com.qodein.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logFilterContent
+import com.qodein.core.analytics.logSearch
+import com.qodein.shared.common.result.getErrorCode
+import com.qodein.shared.common.result.isRetryable
+import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
@@ -25,10 +33,11 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SearchViewModel @Inject constructor(
+    private val analyticsHelper: AnalyticsHelper
     // TODO: Inject actual repositories when available
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SearchUiState.initial())
+    private val _state = MutableStateFlow<SearchUiState>(SearchUiState.initial())
     val state: StateFlow<SearchUiState> = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<SearchEvent>()
@@ -60,7 +69,11 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun updateSearchQuery(query: String) {
-        _state.value = _state.value.copy(searchQuery = query)
+        _state.value = when (val currentState = _state.value) {
+            is SearchUiState.Loading -> currentState.copy(searchQuery = query)
+            is SearchUiState.Content -> currentState.copy(searchQuery = query)
+            is SearchUiState.Error -> currentState.copy(searchQuery = query)
+        }
 
         // Debounce search
         searchJob?.cancel()
@@ -74,22 +87,43 @@ class SearchViewModel @Inject constructor(
 
     private fun performSearch() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            val currentState = _state.value
+            _state.value = SearchUiState.Loading(
+                searchQuery = currentState.searchQuery,
+                selectedTags = currentState.selectedTags,
+                suggestedTags = currentState.suggestedTags,
+                isSearchFocused = currentState.isSearchFocused,
+            )
 
             try {
+                // Track search analytics
+                val query = currentState.searchQuery
+                if (query.isNotBlank()) {
+                    analyticsHelper.logSearch(query)
+                }
+
                 // TODO: Replace with actual repository call
                 delay(800) // Simulate network delay
                 val posts = generateMockPosts()
 
-                _state.value = _state.value.copy(
+                _state.value = SearchUiState.Content(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
+                    suggestedTags = currentState.suggestedTags,
+                    isSearchFocused = currentState.isSearchFocused,
                     posts = posts,
-                    isLoading = false,
                     hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    errorMessage = "Failed to search posts. Please try again.",
+                _state.value = SearchUiState.Error(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
+                    suggestedTags = currentState.suggestedTags,
+                    isSearchFocused = currentState.isSearchFocused,
+                    errorType = e.toErrorType(),
+                    isRetryable = e.isRetryable(),
+                    shouldShowSnackbar = e.shouldShowSnackbar(),
+                    errorCode = e.getErrorCode(),
                 )
                 emitEvent(SearchEvent.ShowError("Search failed"))
             }
@@ -97,26 +131,59 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun clearSearch() {
-        _state.value = _state.value.copy(searchQuery = "")
+        val currentState = _state.value
+        _state.value = when (currentState) {
+            is SearchUiState.Loading -> currentState.copy(searchQuery = "")
+            is SearchUiState.Content -> currentState.copy(searchQuery = "")
+            is SearchUiState.Error -> currentState.copy(searchQuery = "")
+        }
         loadInitialData()
     }
 
     private fun selectTag(tag: Tag) {
-        val currentTags = _state.value.selectedTags
+        val currentState = _state.value
+        val currentTags = currentState.selectedTags
         if (!currentTags.contains(tag)) {
-            _state.value = _state.value.copy(selectedTags = currentTags + tag)
+            // Track tag selection analytics
+            analyticsHelper.logFilterContent(
+                filterType = "tag",
+                filterValue = tag.name,
+            )
+
+            _state.value = when (currentState) {
+                is SearchUiState.Loading -> currentState.copy(selectedTags = currentTags + tag)
+                is SearchUiState.Content -> currentState.copy(selectedTags = currentTags + tag)
+                is SearchUiState.Error -> currentState.copy(selectedTags = currentTags + tag)
+            }
             performSearch()
         }
     }
 
     private fun removeTag(tag: Tag) {
-        val currentTags = _state.value.selectedTags
-        _state.value = _state.value.copy(selectedTags = currentTags - tag)
+        val currentState = _state.value
+        val currentTags = currentState.selectedTags
+
+        // Track tag removal analytics
+        analyticsHelper.logFilterContent(
+            filterType = "tag_removed",
+            filterValue = tag.name,
+        )
+
+        _state.value = when (currentState) {
+            is SearchUiState.Loading -> currentState.copy(selectedTags = currentTags - tag)
+            is SearchUiState.Content -> currentState.copy(selectedTags = currentTags - tag)
+            is SearchUiState.Error -> currentState.copy(selectedTags = currentTags - tag)
+        }
         performSearch()
     }
 
     private fun clearAllTags() {
-        _state.value = _state.value.copy(selectedTags = emptyList())
+        val currentState = _state.value
+        _state.value = when (currentState) {
+            is SearchUiState.Loading -> currentState.copy(selectedTags = emptyList())
+            is SearchUiState.Content -> currentState.copy(selectedTags = emptyList())
+            is SearchUiState.Error -> currentState.copy(selectedTags = emptyList())
+        }
         performSearch()
     }
 
@@ -125,6 +192,17 @@ class SearchViewModel @Inject constructor(
             try {
                 // Optimistic update
                 updatePostLike(postId, true)
+
+                // Track analytics
+                analyticsHelper.logEvent(
+                    AnalyticsEvent(
+                        type = "post_liked",
+                        extras = listOf(
+                            AnalyticsEvent.Param("post_id", postId.value),
+                            AnalyticsEvent.Param("source", "search"),
+                        ),
+                    ),
+                )
 
                 // TODO: Call actual repository
                 delay(500)
@@ -156,59 +234,97 @@ class SearchViewModel @Inject constructor(
 
     private fun sharePost(postId: PostId) {
         viewModelScope.launch {
+            // Track share analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "post_shared",
+                    extras = listOf(
+                        AnalyticsEvent.Param("post_id", postId.value),
+                        AnalyticsEvent.Param("source", "search"),
+                    ),
+                ),
+            )
+
             emitEvent(SearchEvent.ShowShareDialog(postId))
         }
     }
 
     private fun openComments(postId: PostId) {
         viewModelScope.launch {
+            // Track comment click analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "post_comment_clicked",
+                    extras = listOf(
+                        AnalyticsEvent.Param("post_id", postId.value),
+                        AnalyticsEvent.Param("source", "search"),
+                    ),
+                ),
+            )
+
             emitEvent(SearchEvent.NavigateToComments(postId))
         }
     }
 
     private fun loadMorePosts() {
-        if (_state.value.isLoadingMore || !_state.value.hasMorePosts) return
+        val currentState = _state.value
+        if (currentState !is SearchUiState.Content || currentState.isLoadingMore || !currentState.hasMorePosts) return
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoadingMore = true)
+            _state.value = currentState.copy(isLoadingMore = true)
 
             try {
                 // TODO: Replace with actual repository call
                 delay(1000)
-                val newPosts = generateMockPosts(offset = _state.value.posts.size)
+                val newPosts = generateMockPosts(offset = currentState.posts.size)
 
-                _state.value = _state.value.copy(
-                    posts = _state.value.posts + newPosts,
+                _state.value = currentState.copy(
+                    posts = currentState.posts + newPosts,
                     isLoadingMore = false,
                     hasMorePosts = newPosts.isNotEmpty(),
                 )
             } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoadingMore = false,
-                    errorMessage = "Failed to load more posts",
+                _state.value = SearchUiState.Error(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
+                    suggestedTags = currentState.suggestedTags,
+                    isSearchFocused = currentState.isSearchFocused,
+                    errorType = e.toErrorType(),
+                    isRetryable = e.isRetryable(),
+                    shouldShowSnackbar = e.shouldShowSnackbar(),
+                    errorCode = e.getErrorCode(),
                 )
             }
         }
     }
 
     private fun refreshPosts() {
+        val currentState = _state.value
+        if (currentState !is SearchUiState.Content) return
+
         viewModelScope.launch {
-            _state.value = _state.value.copy(isRefreshing = true)
+            _state.value = currentState.copy(isRefreshing = true)
 
             try {
                 // TODO: Replace with actual repository call
                 delay(1000)
                 val posts = generateMockPosts()
 
-                _state.value = _state.value.copy(
+                _state.value = currentState.copy(
                     posts = posts,
                     isRefreshing = false,
                     hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isRefreshing = false,
-                    errorMessage = "Failed to refresh posts",
+                _state.value = SearchUiState.Error(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
+                    suggestedTags = currentState.suggestedTags,
+                    isSearchFocused = currentState.isSearchFocused,
+                    errorType = e.toErrorType(),
+                    isRetryable = e.isRetryable(),
+                    shouldShowSnackbar = e.shouldShowSnackbar(),
+                    errorCode = e.getErrorCode(),
                 )
             }
         }
@@ -219,12 +335,26 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun dismissError() {
-        _state.value = _state.value.copy(errorMessage = null)
+        val currentState = _state.value
+        if (currentState is SearchUiState.Error) {
+            _state.value = SearchUiState.Content(
+                searchQuery = currentState.searchQuery,
+                selectedTags = currentState.selectedTags,
+                suggestedTags = currentState.suggestedTags,
+                isSearchFocused = currentState.isSearchFocused,
+            )
+        }
     }
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            val currentState = _state.value
+            _state.value = SearchUiState.Loading(
+                searchQuery = currentState.searchQuery,
+                selectedTags = currentState.selectedTags,
+                suggestedTags = currentState.suggestedTags,
+                isSearchFocused = currentState.isSearchFocused,
+            )
 
             try {
                 // TODO: Replace with actual repository calls
@@ -232,15 +362,24 @@ class SearchViewModel @Inject constructor(
                 val posts = generateMockPosts()
                 val suggestedTags = generateMockTags()
 
-                _state.value = _state.value.copy(
-                    posts = posts,
+                _state.value = SearchUiState.Content(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
                     suggestedTags = suggestedTags,
-                    isLoading = false,
+                    isSearchFocused = currentState.isSearchFocused,
+                    posts = posts,
+                    hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    errorMessage = "Failed to load posts. Please try again.",
+                _state.value = SearchUiState.Error(
+                    searchQuery = currentState.searchQuery,
+                    selectedTags = currentState.selectedTags,
+                    suggestedTags = currentState.suggestedTags,
+                    isSearchFocused = currentState.isSearchFocused,
+                    errorType = e.toErrorType(),
+                    isRetryable = e.isRetryable(),
+                    shouldShowSnackbar = e.shouldShowSnackbar(),
+                    errorCode = e.getErrorCode(),
                 )
             }
         }
@@ -250,17 +389,20 @@ class SearchViewModel @Inject constructor(
         postId: PostId,
         liked: Boolean
     ) {
-        val updatedPosts = _state.value.posts.map { post ->
-            if (post.id == postId) {
-                post.copy(
-                    isLikedByCurrentUser = liked,
-                    likes = if (liked) post.likes + 1 else post.likes - 1,
-                )
-            } else {
-                post
+        val currentState = _state.value
+        if (currentState is SearchUiState.Content) {
+            val updatedPosts = currentState.posts.map { post ->
+                if (post.id == postId) {
+                    post.copy(
+                        isLikedByCurrentUser = liked,
+                        likes = if (liked) post.likes + 1 else post.likes - 1,
+                    )
+                } else {
+                    post
+                }
             }
+            _state.value = currentState.copy(posts = updatedPosts)
         }
-        _state.value = _state.value.copy(posts = updatedPosts)
     }
 
     private fun emitEvent(event: SearchEvent) {
