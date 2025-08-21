@@ -1,5 +1,7 @@
 package com.qodein.shared.domain.usecase.banner
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import kotlinx.coroutines.flow.Flow
@@ -17,9 +19,9 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
      * Gets banners for Kazakhstan market with intelligent fallbacks.
      *
      * @param limit Maximum number of banners to return
-     * @return Flow of banners with automatic fallbacks
+     * @return Flow<Result<List<Banner>>> with automatic fallbacks and error handling
      */
-    operator fun invoke(limit: Int = 10): Flow<List<Banner>> = getBannersForCountry(DEFAULT_COUNTRY_CODE, limit)
+    operator fun invoke(limit: Int = 10): Flow<Result<List<Banner>>> = getBannersForCountry(DEFAULT_COUNTRY_CODE, limit)
 
     /**
      * Gets banners for a specific country code.
@@ -27,12 +29,12 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
      *
      * @param countryCode ISO 3166-1 alpha-2 country code
      * @param limit Maximum number of banners to return
-     * @return Flow of banners for the specified country
+     * @return Flow<Result<List<Banner>>> for the specified country
      */
     fun getBannersForCountry(
         countryCode: String,
         limit: Int = 10
-    ): Flow<List<Banner>> =
+    ): Flow<Result<List<Banner>>> =
         bannerRepository.getBannersForCountry(countryCode, limit)
             .map { banners -> filterExpiredBanners(banners) }
             .catch { exception ->
@@ -47,6 +49,7 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
                         emit(fallbackBanners)
                     }
             }
+            .asResult()
 
     /**
      * Filters banners that have expired based on current server time.

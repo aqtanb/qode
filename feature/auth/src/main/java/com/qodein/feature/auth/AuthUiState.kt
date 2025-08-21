@@ -1,5 +1,6 @@
 package com.qodein.feature.auth
 
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.User
 
 sealed interface AuthUiState {
@@ -10,5 +11,10 @@ sealed interface AuthUiState {
 
     data class Success(val user: User) : AuthUiState
 
-    data class Error(val exception: Throwable, val isRetryable: Boolean = true) : AuthUiState
+    data class Error(
+        val errorType: ErrorType,
+        val isRetryable: Boolean,
+        val shouldShowSnackbar: Boolean = true,
+        val errorCode: String? = null
+    ) : AuthUiState
 }

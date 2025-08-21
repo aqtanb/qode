@@ -1,10 +1,10 @@
 package com.qodein.shared.domain.usecase.preferences
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.model.Language
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 /**
  * Use case for observing language preference.
@@ -17,10 +17,7 @@ class GetLanguageUseCase constructor(private val devicePreferencesRepository: De
     /**
      * Get language preference as Flow<Result<Language>>
      *
-     * @return Flow that emits Result.success(Language) or Result.failure(Throwable)
+     * @return Flow that emits Result.Success(Language), Result.Loading, or Result.Error(Throwable)
      */
-    operator fun invoke(): Flow<Result<Language>> =
-        devicePreferencesRepository.getLanguage()
-            .map { Result.success(it) }
-            .catch { emit(Result.failure(it)) }
+    operator fun invoke(): Flow<Result<Language>> = devicePreferencesRepository.getLanguage().asResult()
 }

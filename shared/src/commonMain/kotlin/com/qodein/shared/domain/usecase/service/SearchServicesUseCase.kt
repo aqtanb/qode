@@ -1,10 +1,10 @@
 package com.qodein.shared.domain.usecase.service
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 /**
  * Use case for searching services by query text.
@@ -27,8 +27,5 @@ class SearchServicesUseCase constructor(private val repository: PromoCodeReposit
     operator fun invoke(
         query: String,
         limit: Int = 20
-    ): Flow<Result<List<Service>>> =
-        repository.searchServices(query.trim(), limit)
-            .map { services -> Result.success(services) }
-            .catch { exception -> emit(Result.failure(exception)) }
+    ): Flow<Result<List<Service>>> = repository.searchServices(query.trim(), limit).asResult()
 }

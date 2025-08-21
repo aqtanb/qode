@@ -57,6 +57,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CouponPromoCodeCard
+import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.component.HeroBannerSection
 import com.qodein.shared.model.Banner
@@ -153,7 +154,7 @@ fun HomeScreen(
 
                 is HomeUiState.Error -> {
                     ErrorState(
-                        message = currentState.exception.message ?: stringResource(R.string.error_something_went_wrong),
+                        message = currentState.errorType.toLocalizedMessage(),
                         onRetry = { viewModel.onAction(HomeAction.RetryClicked) },
                     )
                 }

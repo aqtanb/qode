@@ -2,6 +2,11 @@ package com.qodein.feature.promocode.submission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.getErrorCode
+import com.qodein.shared.common.result.isRetryable
+import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
@@ -115,16 +120,17 @@ class SubmissionWizardViewModel @Inject constructor(
                     updateServiceLoadingState(false)
                 }
                 .collect { result ->
-                    result.fold(
-                        onSuccess = { services ->
-                            updateAvailableServices(services)
+                    when (result) {
+                        is Result.Loading -> { /* Loading already handled above */ }
+                        is Result.Success -> {
+                            updateAvailableServices(result.data)
                             updateServiceLoadingState(false)
-                        },
-                        onFailure = {
+                        }
+                        is Result.Error -> {
                             // Silently fail for popular services
                             updateServiceLoadingState(false)
-                        },
-                    )
+                        }
+                    }
                 }
         }
     }
@@ -138,15 +144,16 @@ class SubmissionWizardViewModel @Inject constructor(
                     updateServiceLoadingState(false)
                 }
                 .collect { result ->
-                    result.fold(
-                        onSuccess = { services ->
-                            updateAvailableServices(services)
+                    when (result) {
+                        is Result.Loading -> { /* Loading already handled above */ }
+                        is Result.Success -> {
+                            updateAvailableServices(result.data)
                             updateServiceLoadingState(false)
-                        },
-                        onFailure = {
+                        }
+                        is Result.Error -> {
                             updateServiceLoadingState(false)
-                        },
-                    )
+                        }
+                    }
                 }
         }
     }
@@ -299,22 +306,38 @@ class SubmissionWizardViewModel @Inject constructor(
                 onSuccess = { promoCode ->
                     createPromoCodeUseCase(promoCode)
                         .catch { exception ->
-                            _uiState.value = SubmissionWizardUiState.Error(exception)
+                            _uiState.value = SubmissionWizardUiState.Error(
+                                errorType = exception.toErrorType(),
+                                isRetryable = exception.isRetryable(),
+                                shouldShowSnackbar = exception.shouldShowSnackbar(),
+                                errorCode = exception.getErrorCode(),
+                            )
                         }
                         .collect { result ->
-                            result.fold(
-                                onSuccess = {
+                            when (result) {
+                                is Result.Loading -> { /* Loading state if needed */ }
+                                is Result.Success -> {
                                     _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
                                     _events.emit(SubmissionWizardEvent.NavigateBack)
-                                },
-                                onFailure = { exception ->
-                                    _uiState.value = SubmissionWizardUiState.Error(exception)
-                                },
-                            )
+                                }
+                                is Result.Error -> {
+                                    _uiState.value = SubmissionWizardUiState.Error(
+                                        errorType = result.exception.toErrorType(),
+                                        isRetryable = result.exception.isRetryable(),
+                                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                        errorCode = result.exception.getErrorCode(),
+                                    )
+                                }
+                            }
                         }
                 },
                 onFailure = { exception ->
-                    _uiState.value = SubmissionWizardUiState.Error(exception)
+                    _uiState.value = SubmissionWizardUiState.Error(
+                        errorType = exception.toErrorType(),
+                        isRetryable = exception.isRetryable(),
+                        shouldShowSnackbar = exception.shouldShowSnackbar(),
+                        errorCode = exception.getErrorCode(),
+                    )
                 },
             )
         }

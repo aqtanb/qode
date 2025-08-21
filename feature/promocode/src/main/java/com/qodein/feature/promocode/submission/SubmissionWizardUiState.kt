@@ -1,5 +1,6 @@
 package com.qodein.feature.promocode.submission
 
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Service
 import java.time.LocalDate
 
@@ -73,5 +74,10 @@ sealed interface SubmissionWizardUiState {
         val canSubmit: Boolean get() = currentStep.isLast && wizardData.isStep4Valid() && !isSubmitting
     }
 
-    data class Error(val exception: Throwable) : SubmissionWizardUiState
+    data class Error(
+        val errorType: ErrorType,
+        val isRetryable: Boolean,
+        val shouldShowSnackbar: Boolean = true,
+        val errorCode: String? = null
+    ) : SubmissionWizardUiState
 }

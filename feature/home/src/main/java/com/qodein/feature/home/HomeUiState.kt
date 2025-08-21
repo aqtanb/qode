@@ -1,5 +1,6 @@
 package com.qodein.feature.home
 
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PromoCode
 
@@ -16,5 +17,10 @@ sealed interface HomeUiState {
         val isLoadingMore: Boolean = false
     ) : HomeUiState
 
-    data class Error(val exception: Throwable, val isRetryable: Boolean = true) : HomeUiState
+    data class Error(
+        val errorType: ErrorType,
+        val isRetryable: Boolean,
+        val shouldShowSnackbar: Boolean = true,
+        val errorCode: String? = null
+    ) : HomeUiState
 }

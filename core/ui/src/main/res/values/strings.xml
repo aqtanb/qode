@@ -69,7 +69,7 @@
     <string name="home_browse_categories">Browse Categories</string>
     <string name="home_featured_deals">Featured Deals</string>
     <string name="home_featured_subtitle">Hand-picked exclusive offers just for you</string>
-    
+
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
     <string name="stats_active_deals_label">Active Deals</string>
@@ -77,15 +77,15 @@
     <string name="stats_happy_users_label">Happy Users</string>
     <string name="stats_total_saved">₸2M+</string>
     <string name="stats_total_saved_label">Total Saved</string>
-    
+
     <!-- Filter Categories -->
-    <string name="filter_kaspi">Kaspi</string>
+    <string name="filter_kaspi" translatable="false">Kaspi</string>
     <string name="filter_top_rated">Top Rated</string>
     <string name="filter_latest">Latest</string>
     <string name="filter_food">Food</string>
     <string name="filter_fashion">Fashion</string>
     <string name="filter_tech">Tech</string>
-    
+
     <!-- Legacy strings that might be used elsewhere -->
     <string name="phone_number">Phone Number</string>
     <string name="enter_phone_number">Enter your phone number</string>
@@ -94,4 +94,57 @@
     <string name="phone_number_too_short">Phone number is too short</string>
     <string name="phone_number_too_long">Phone number is too long</string>
     <string name="country_picker_title">Choose a country</string>
+
+    <!-- Error Messages -->
+    <!-- Network Errors -->
+    <string name="error_network_timeout">Request timed out. Please check your connection and try again.</string>
+    <string name="error_network_no_connection">No internet connection. Please check your network.</string>
+    <string name="error_network_host_unreachable">Cannot reach server. Please try again later.</string>
+    <string name="error_network_general">Connection error. Please check your internet and try again.</string>
+
+    <!-- Authentication Errors -->
+    <string name="error_auth_permission_denied">You don\'t have permission to perform this action.</string>
+    <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
+    <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
+    <string name="error_auth_user_not_found">User account not found.</string>
+    <string name="error_auth_unauthorized">Access denied. Please sign in and try again.</string>
+
+    <!-- Promo Code Errors -->
+    <string name="error_promo_code_not_found">Promo code not found. Please check the code and try again.</string>
+    <string name="error_promo_code_expired">This promo code has expired.</string>
+    <string name="error_promo_code_inactive">This promo code is no longer available.</string>
+    <string name="error_promo_code_invalid">Invalid promo code. Please check and try again.</string>
+    <string name="error_promo_code_already_exists">This promo code already exists.</string>
+    <string name="error_promo_code_already_used">This promo code has already been used.</string>
+    <string name="error_promo_code_minimum_order_not_met">Order doesn\'t meet minimum requirements for this promo code.</string>
+
+    <!-- User Errors -->
+    <string name="error_user_not_found">User account not found.</string>
+    <string name="error_user_banned">Account is temporarily suspended.</string>
+    <string name="error_user_suspended">Account is temporarily suspended.</string>
+
+    <!-- Service Errors -->
+    <string name="error_service_not_found">Service not found. Please try again.</string>
+    <string name="error_service_unavailable">Service is temporarily unavailable.</string>
+
+    <!-- Validation Errors -->
+    <string name="error_validation_required_field">Please fill in all required fields.</string>
+    <string name="error_validation_invalid_format">Invalid format. Please check your input.</string>
+    <string name="error_validation_too_short">Input is too short. Please enter more characters.</string>
+    <string name="error_validation_too_long">Input is too long. Please enter fewer characters.</string>
+
+    <!-- System Errors -->
+    <string name="error_service_unavailable_general">Service temporarily unavailable. Please try again.</string>
+    <string name="error_service_configuration_error">System configuration error. Please try again.</string>
+    <string name="error_service_initialization_error">System is starting up. Please wait a moment and try again.</string>
+
+    <!-- General Error -->
+    <string name="error_unknown">Something went wrong. Please try again.</string>
+
+    <!-- Error Actions -->
+    <string name="action_retry">Retry</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_check_network">Check Network</string>
+    <string name="action_contact_support">Contact Support</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

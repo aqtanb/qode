@@ -56,7 +56,14 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                     when {
                         error != null -> {
                             Log.e(TAG, "getBannersForCountry: Query failed", error)
-                            close(IOException("Failed to fetch banners for country $countryCode", error))
+                            val wrappedException = when {
+                                error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
+                                    SecurityException("permission denied: cannot access banners", error)
+                                error.message?.contains("network", ignoreCase = true) == true ->
+                                    IOException("connection error while fetching banners for country $countryCode", error)
+                                else -> IllegalStateException("service unavailable: failed to fetch banners", error)
+                            }
+                            close(wrappedException)
                         }
                         snapshot != null -> {
                             try {
@@ -78,7 +85,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                 trySend(banners)
                             } catch (e: Exception) {
                                 Log.e(TAG, "getBannersForCountry: Failed to process snapshot", e)
-                                close(IllegalStateException("Failed to process banner data", e))
+                                close(IllegalStateException("service unavailable: failed to process banner data", e))
                             }
                         }
                     }
@@ -90,7 +97,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "getBannersForCountry: Failed to set up query", e)
-                close(IOException("Failed to set up banner query", e))
+                close(IllegalStateException("service unavailable: failed to initialize banner query", e))
             }
         }
 
@@ -116,7 +123,14 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                     when {
                         error != null -> {
                             Log.e(TAG, "getAllActiveBanners: Query failed", error)
-                            close(IOException("Failed to fetch active banners", error))
+                            val wrappedException = when {
+                                error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
+                                    SecurityException("permission denied: cannot access banners", error)
+                                error.message?.contains("network", ignoreCase = true) == true ->
+                                    IOException("connection error while fetching banners", error)
+                                else -> IllegalStateException("service unavailable: failed to fetch banners", error)
+                            }
+                            close(wrappedException)
                         }
                         snapshot != null -> {
                             try {
@@ -179,7 +193,13 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
             }
         } catch (e: Exception) {
             Log.e(TAG, "getBannerById: Failed to fetch banner ${bannerId.value}", e)
-            throw IOException("Failed to fetch banner ${bannerId.value}", e)
+            when {
+                e.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
+                    throw SecurityException("permission denied: cannot access banner ${bannerId.value}", e)
+                e.message?.contains("network", ignoreCase = true) == true ->
+                    throw IOException("connection error while fetching banner ${bannerId.value}", e)
+                else -> throw IllegalStateException("service unavailable: failed to fetch banner", e)
+            }
         }
 
     /**

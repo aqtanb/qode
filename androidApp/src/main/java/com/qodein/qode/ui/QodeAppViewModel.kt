@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.ui.state.AppUiEvents
+import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
@@ -44,7 +45,11 @@ class QodeAppViewModel @Inject constructor(
     // Auth state from domain layer with proper error handling
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
         .map { result ->
-            result.getOrElse { AuthState.Unauthenticated }
+            when (result) {
+                is Result.Loading -> AuthState.Loading
+                is Result.Success -> result.data
+                is Result.Error -> AuthState.Unauthenticated
+            }
         }
         .catch { emit(AuthState.Unauthenticated) }
         .stateIn(
@@ -56,7 +61,11 @@ class QodeAppViewModel @Inject constructor(
     // Theme state from domain layer with proper error handling
     val themeState: StateFlow<Theme> = getThemeUseCase()
         .map { result ->
-            result.getOrElse { Theme.SYSTEM }
+            when (result) {
+                is Result.Loading -> Theme.SYSTEM
+                is Result.Success -> result.data
+                is Result.Error -> Theme.SYSTEM
+            }
         }
         .catch { emit(Theme.SYSTEM) }
         .stateIn(
@@ -68,7 +77,11 @@ class QodeAppViewModel @Inject constructor(
     // Language state from domain layer with proper error handling
     val languageState: StateFlow<Language> = getLanguageUseCase()
         .map { result ->
-            result.getOrElse { Language.RUSSIAN }
+            when (result) {
+                is Result.Loading -> Language.RUSSIAN
+                is Result.Success -> result.data
+                is Result.Error -> Language.RUSSIAN
+            }
         }
         .catch { emit(Language.RUSSIAN) }
         .stateIn(

@@ -79,6 +79,8 @@ import com.qodein.core.ui.UserStatsPreviewParameterProvider
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.QodeRetryableErrorCard
+import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
 import kotlinx.coroutines.delay
@@ -141,7 +143,7 @@ fun ProfileScreen(
 
             is ProfileUiState.Error -> {
                 QodeRetryableErrorCard(
-                    message = currentState.exception.message ?: stringResource(R.string.profile_error_unknown),
+                    message = currentState.errorType.toLocalizedMessage(),
                     onRetry = { viewModel.handleAction(ProfileAction.RetryClicked) },
                     modifier = Modifier
                         .padding(SpacingTokens.lg),
@@ -885,7 +887,7 @@ private fun ProfileScreenPreview(
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeRetryableErrorCard(
-                        message = state.exception.message ?: "Preview error",
+                        message = state.errorType.toLocalizedMessage(),
                         onRetry = {}, // Empty for previews
                         modifier = Modifier.padding(SpacingTokens.lg),
                     )
@@ -1076,8 +1078,10 @@ fun ProfileScreenErrorStatePreview() {
     QodeTheme {
         ProfileScreenPreview(
             state = ProfileUiState.Error(
-                exception = RuntimeException("Network connection failed. Please check your internet connection and try again."),
+                errorType = ErrorType.NETWORK_GENERAL,
                 isRetryable = true,
+                shouldShowSnackbar = false,
+                errorCode = "NET_001",
             ),
         )
     }

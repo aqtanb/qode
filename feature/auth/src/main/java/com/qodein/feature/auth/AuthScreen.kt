@@ -39,8 +39,11 @@ import com.qodein.core.ui.FontScalePreviews
 import com.qodein.core.ui.MobilePreviews
 import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
-import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
+import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.result.suggestedAction
 
 @Composable
 fun AuthScreen(
@@ -91,15 +94,12 @@ fun AuthContent(
         ) {
             when (state) {
                 is AuthUiState.Error -> {
-                    // Show only error card when there's an error
-                    QodeErrorCard(
-                        message = state.exception.message ?: "An error occurred during sign-in",
-                        isRetryable = state.isRetryable,
-                        onRetry = if (state.isRetryable) {
-                            { onAction(AuthAction.RetryClicked) }
-                        } else {
-                            null
-                        },
+                    // Show action-based error card with intelligent action mapping
+                    QodeActionErrorCard(
+                        message = state.errorType.toLocalizedMessage(),
+                        errorAction = state.errorType.suggestedAction(),
+                        onActionClicked = { onAction(AuthAction.RetryClicked) },
+                        onDismiss = { onAction(AuthAction.DismissErrorClicked) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -319,8 +319,10 @@ fun AuthScreenErrorStatePreview() {
     QodeTheme {
         AuthScreenPreview(
             state = AuthUiState.Error(
-                exception = SecurityException("Sign-in was cancelled or rejected"),
+                errorType = ErrorType.AUTH_USER_CANCELLED,
                 isRetryable = false,
+                shouldShowSnackbar = false,
+                errorCode = "AUTH_001",
             ),
         )
     }
@@ -335,8 +337,10 @@ fun AuthScreenNetworkErrorPreview() {
     QodeTheme {
         AuthScreenPreview(
             state = AuthUiState.Error(
-                exception = java.io.IOException("Network error. Please check your connection"),
+                errorType = ErrorType.NETWORK_GENERAL,
                 isRetryable = true,
+                shouldShowSnackbar = false,
+                errorCode = "NET_001",
             ),
         )
     }

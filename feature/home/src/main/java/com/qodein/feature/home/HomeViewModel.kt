@@ -3,6 +3,11 @@ package com.qodein.feature.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.getErrorCode
+import com.qodein.shared.common.result.isRetryable
+import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
@@ -71,21 +76,22 @@ class HomeViewModel @Inject constructor(
                 loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
                 return@catch
             }.collect { result ->
-                result.fold(
-                    onSuccess = { promoCodes ->
-                        if (promoCodes.isNotEmpty()) {
-                            Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                            updateSuccessState(promoCodes)
+                when (result) {
+                    is Result.Loading -> { /* Loading already handled above */ }
+                    is Result.Success -> {
+                        if (result.data.isNotEmpty()) {
+                            Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY SUCCESS - Retrieved ${result.data.size} promo codes")
+                            updateSuccessState(result.data)
                         } else {
                             Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY returned empty, trying NEWEST fallback")
                             loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
                         }
-                    },
-                    onFailure = { error ->
-                        Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY failed, trying NEWEST fallback", error)
+                    }
+                    is Result.Error -> {
+                        Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY failed, trying NEWEST fallback", result.exception)
                         loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
-                    },
-                )
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.w(TAG, "loadPromoCodesWithFallback: Exception during POPULARITY query, trying NEWEST fallback", e)
@@ -100,25 +106,31 @@ class HomeViewModel @Inject constructor(
             limit = 20,
         ).catch { e ->
             Log.e(TAG, "loadPromoCodesWithSort: Query failed with exception", e)
+            val exception = Exception("Failed to load promocodes: ${e.message}")
             _uiState.value = HomeUiState.Error(
-                exception = Exception("Failed to load promocodes: ${e.message}"),
-                isRetryable = true,
+                errorType = exception.toErrorType(),
+                isRetryable = exception.isRetryable(),
+                shouldShowSnackbar = exception.shouldShowSnackbar(),
+                errorCode = exception.getErrorCode(),
             )
         }.collect { result ->
             Log.d(TAG, "loadPromoCodesWithSort: Query completed, processing result")
-            result.fold(
-                onSuccess = { promoCodes ->
-                    Log.d(TAG, "loadPromoCodesWithSort: SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                    updateSuccessState(promoCodes)
-                },
-                onFailure = { error ->
-                    Log.e(TAG, "loadPromoCodesWithSort: FAILURE - Query returned error", error)
+            when (result) {
+                is Result.Loading -> { /* Loading already handled above */ }
+                is Result.Success -> {
+                    Log.d(TAG, "loadPromoCodesWithSort: SUCCESS - Retrieved ${result.data.size} promo codes")
+                    updateSuccessState(result.data)
+                }
+                is Result.Error -> {
+                    Log.e(TAG, "loadPromoCodesWithSort: FAILURE - Query returned error", result.exception)
                     _uiState.value = HomeUiState.Error(
-                        exception = Exception("Failed to load promocodes: ${error.message}"),
-                        isRetryable = true,
+                        errorType = result.exception.toErrorType(),
+                        isRetryable = result.exception.isRetryable(),
+                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                        errorCode = result.exception.getErrorCode(),
                     )
-                },
-            )
+                }
+            }
         }
     }
 
@@ -155,9 +167,12 @@ class HomeViewModel @Inject constructor(
                 // Load banners and promocodes concurrently
                 loadBannersAndPromoCodes()
             } catch (exception: Exception) {
+                val errorException = Exception("Failed to load data. Please try again.")
                 _uiState.value = HomeUiState.Error(
-                    exception = Exception("Failed to load data. Please try again."),
-                    isRetryable = true,
+                    errorType = errorException.toErrorType(),
+                    isRetryable = errorException.isRetryable(),
+                    shouldShowSnackbar = errorException.shouldShowSnackbar(),
+                    errorCode = errorException.getErrorCode(),
                 )
             }
         }
@@ -168,20 +183,34 @@ class HomeViewModel @Inject constructor(
             Log.d(TAG, "loadBannersAndPromoCodes: Loading banners first, then promo codes")
 
             // Load banners first, then pass them to promo code loading
-            getBannersUseCase(limit = 10).catch { e ->
-                Log.w(TAG, "loadBannersAndPromoCodes: Failed to load banners, proceeding with empty list", e)
-                // Proceed with promo codes even if banners fail
-                loadPromoCodesWithBanners(emptyList())
-            }.collect { loadedBanners ->
-                Log.d(TAG, "loadBannersAndPromoCodes: Successfully loaded ${loadedBanners.size} banners, now loading promo codes")
-                // Load promo codes with the banners we just loaded
-                loadPromoCodesWithBanners(loadedBanners)
+            getBannersUseCase(limit = 10).collect { bannersResult ->
+                when (bannersResult) {
+                    is Result.Loading -> {
+                        Log.d(TAG, "loadBannersAndPromoCodes: Loading banners...")
+                        // Continue with loading state, banners will update when ready
+                    }
+                    is Result.Success -> {
+                        Log.d(
+                            TAG,
+                            "loadBannersAndPromoCodes: Successfully loaded ${bannersResult.data.size} banners, now loading promo codes",
+                        )
+                        loadPromoCodesWithBanners(bannersResult.data)
+                    }
+                    is Result.Error -> {
+                        Log.w(TAG, "loadBannersAndPromoCodes: Failed to load banners, proceeding with empty list", bannersResult.exception)
+                        // Proceed with promo codes even if banners fail
+                        loadPromoCodesWithBanners(emptyList())
+                    }
+                }
             }
         } catch (exception: Exception) {
             Log.e(TAG, "loadBannersAndPromoCodes: Failed to load data", exception)
+            val errorException = Exception("Failed to load data. Please try again.")
             _uiState.value = HomeUiState.Error(
-                exception = Exception("Failed to load data. Please try again."),
-                isRetryable = true,
+                errorType = errorException.toErrorType(),
+                isRetryable = errorException.isRetryable(),
+                shouldShowSnackbar = errorException.shouldShowSnackbar(),
+                errorCode = errorException.getErrorCode(),
             )
         }
     }
@@ -198,21 +227,22 @@ class HomeViewModel @Inject constructor(
                 loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
                 return@catch
             }.collect { result ->
-                result.fold(
-                    onSuccess = { promoCodes ->
-                        if (promoCodes.isNotEmpty()) {
-                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                            updateSuccessState(promoCodes, banners)
+                when (result) {
+                    is Result.Loading -> { /* Loading already handled above */ }
+                    is Result.Success -> {
+                        if (result.data.isNotEmpty()) {
+                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY SUCCESS - Retrieved ${result.data.size} promo codes")
+                            updateSuccessState(result.data, banners)
                         } else {
                             Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY returned empty, trying NEWEST fallback")
                             loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
                         }
-                    },
-                    onFailure = { error ->
-                        Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY failed, trying NEWEST fallback", error)
+                    }
+                    is Result.Error -> {
+                        Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY failed, trying NEWEST fallback", result.exception)
                         loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
-                    },
-                )
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.w(TAG, "loadPromoCodesWithBanners: Exception during POPULARITY query, trying NEWEST fallback", e)
@@ -230,25 +260,31 @@ class HomeViewModel @Inject constructor(
             limit = 20,
         ).catch { e ->
             Log.e(TAG, "loadPromoCodesWithSortAndBanners: Query failed with exception", e)
+            val exception = Exception("Failed to load promocodes: ${e.message}")
             _uiState.value = HomeUiState.Error(
-                exception = Exception("Failed to load promocodes: ${e.message}"),
-                isRetryable = true,
+                errorType = exception.toErrorType(),
+                isRetryable = exception.isRetryable(),
+                shouldShowSnackbar = exception.shouldShowSnackbar(),
+                errorCode = exception.getErrorCode(),
             )
         }.collect { result ->
             Log.d(TAG, "loadPromoCodesWithSortAndBanners: Query completed, processing result")
-            result.fold(
-                onSuccess = { promoCodes ->
-                    Log.d(TAG, "loadPromoCodesWithSortAndBanners: SUCCESS - Retrieved ${promoCodes.size} promo codes")
-                    updateSuccessState(promoCodes, banners)
-                },
-                onFailure = { error ->
-                    Log.e(TAG, "loadPromoCodesWithSortAndBanners: FAILURE - Query returned error", error)
+            when (result) {
+                is Result.Loading -> { /* Loading already handled above */ }
+                is Result.Success -> {
+                    Log.d(TAG, "loadPromoCodesWithSortAndBanners: SUCCESS - Retrieved ${result.data.size} promo codes")
+                    updateSuccessState(result.data, banners)
+                }
+                is Result.Error -> {
+                    Log.e(TAG, "loadPromoCodesWithSortAndBanners: FAILURE - Query returned error", result.exception)
                     _uiState.value = HomeUiState.Error(
-                        exception = Exception("Failed to load promocodes: ${error.message}"),
-                        isRetryable = true,
+                        errorType = result.exception.toErrorType(),
+                        isRetryable = result.exception.isRetryable(),
+                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                        errorCode = result.exception.getErrorCode(),
                     )
-                },
-            )
+                }
+            }
         }
     }
 
@@ -309,9 +345,12 @@ class HomeViewModel @Inject constructor(
                 ).catch { e ->
                     // Revert optimistic update on error
                     _uiState.value = currentState
+                    val exception = Exception("Failed to vote: ${e.message}")
                     _uiState.value = HomeUiState.Error(
-                        exception = Exception("Failed to vote: ${e.message}"),
-                        isRetryable = false,
+                        errorType = exception.toErrorType(),
+                        isRetryable = exception.isRetryable(),
+                        shouldShowSnackbar = exception.shouldShowSnackbar(),
+                        errorCode = exception.getErrorCode(),
                     )
                 }.collect { vote ->
                     // Success - the optimistic update is already in place
@@ -319,9 +358,12 @@ class HomeViewModel @Inject constructor(
             } catch (exception: Exception) {
                 // Revert to original state on error
                 _uiState.value = currentState
+                val exception = Exception("Failed to upvote. Please try again.")
                 _uiState.value = HomeUiState.Error(
-                    exception = Exception("Failed to upvote. Please try again."),
-                    isRetryable = false,
+                    errorType = exception.toErrorType(),
+                    isRetryable = exception.isRetryable(),
+                    shouldShowSnackbar = exception.shouldShowSnackbar(),
+                    errorCode = exception.getErrorCode(),
                 )
             }
         }
@@ -365,9 +407,12 @@ class HomeViewModel @Inject constructor(
                     hasMorePromoCodes = morePromoCodes.isNotEmpty(),
                 )
             } catch (exception: Exception) {
+                val errorException = Exception("Failed to load more promo codes.")
                 _uiState.value = HomeUiState.Error(
-                    exception = Exception("Failed to load more promo codes."),
-                    isRetryable = true,
+                    errorType = errorException.toErrorType(),
+                    isRetryable = errorException.isRetryable(),
+                    shouldShowSnackbar = errorException.shouldShowSnackbar(),
+                    errorCode = errorException.getErrorCode(),
                 )
             }
         }

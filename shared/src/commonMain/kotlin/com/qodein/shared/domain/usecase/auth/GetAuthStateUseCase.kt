@@ -1,10 +1,10 @@
 package com.qodein.shared.domain.usecase.auth
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 /**
  * Use case for observing authentication state following enterprise patterns.
@@ -20,10 +20,7 @@ class GetAuthStateUseCase constructor(private val authStateManager: AuthStateMan
     /**
      * Get authentication state as Flow<Result<AuthState>>
      *
-     * @return Flow that emits Result.success(AuthState) or Result.failure(Throwable)
+     * @return Flow that emits Result.Success(AuthState), Result.Loading, or Result.Error(Throwable)
      */
-    operator fun invoke(): Flow<Result<AuthState>> =
-        authStateManager.getAuthState()
-            .map { Result.success(it) }
-            .catch { emit(Result.failure(it)) }
+    operator fun invoke(): Flow<Result<AuthState>> = authStateManager.getAuthState().asResult()
 }

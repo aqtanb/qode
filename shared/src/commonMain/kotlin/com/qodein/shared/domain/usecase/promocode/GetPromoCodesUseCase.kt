@@ -1,11 +1,11 @@
 package com.qodein.shared.domain.usecase.promocode
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 class GetPromoCodesUseCase constructor(private val promoCodeRepository: PromoCodeRepository) {
     operator fun invoke(
@@ -28,6 +28,5 @@ class GetPromoCodesUseCase constructor(private val promoCodeRepository: PromoCod
             limit = limit,
             offset = offset,
         )
-            .map { Result.success(it) }
-            .catch { emit(Result.failure(it)) }
+            .asResult()
 }

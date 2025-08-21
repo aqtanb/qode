@@ -22,6 +22,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,37 +44,70 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
                 .addCredentialOption(option)
                 .build()
 
-            val response = credentialManager.getCredential(context, request)
-            val cred = response.credential
+            try {
+                val response = credentialManager.getCredential(context, request)
+                val cred = response.credential
 
-            if (cred is CustomCredential && cred.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                val googleIdToken = GoogleIdTokenCredential.createFrom(cred.data).idToken
-                val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
-                val authResult = auth.signInWithCredential(firebaseCredential).await()
-                val firebaseUser = authResult.user
+                if (cred is CustomCredential && cred.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    val googleIdToken = GoogleIdTokenCredential.createFrom(cred.data).idToken
+                    val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
+                    val authResult = auth.signInWithCredential(firebaseCredential).await()
+                    val firebaseUser = authResult.user
 
-                val user = firebaseUser?.let { user ->
-                    createUserFromFirebaseUser(user)
-                } ?: throw IllegalStateException("Null user after authentication")
+                    val user = firebaseUser?.let { user ->
+                        createUserFromFirebaseUser(user)
+                    } ?: throw SecurityException("authentication failed: user account not found")
 
-                emit(user)
-            } else {
-                throw IllegalArgumentException("Invalid credentials")
+                    emit(user)
+                } else {
+                    throw SecurityException("authentication failed: invalid credentials received")
+                }
+            } catch (e: Exception) {
+                when {
+                    e is SecurityException -> throw e // Re-throw security exceptions as-is
+                    e.message?.contains("network", ignoreCase = true) == true ||
+                        e.message?.contains("timeout", ignoreCase = true) == true ||
+                        e.message?.contains("no internet", ignoreCase = true) == true -> {
+                        throw IOException("connection error during authentication", e)
+                    }
+                    e.message?.contains("user_cancelled", ignoreCase = true) == true ||
+                        e.message?.contains("cancelled", ignoreCase = true) == true -> {
+                        throw IllegalArgumentException("authentication cancelled by user", e)
+                    }
+                    e.message?.contains("permission", ignoreCase = true) == true ||
+                        e.message?.contains("unauthorized", ignoreCase = true) == true -> {
+                        throw SecurityException("authentication failed: permission denied", e)
+                    }
+                    else -> {
+                        throw SecurityException("authentication failed: ${e.message ?: "unknown error"}", e)
+                    }
+                }
             }
         }
 
     fun signOut(): Flow<Unit> =
         flow {
-            val clearRequest = ClearCredentialStateRequest()
-            credentialManager.clearCredentialState(clearRequest)
-            auth.signOut()
-            emit(Unit)
+            try {
+                val clearRequest = ClearCredentialStateRequest()
+                credentialManager.clearCredentialState(clearRequest)
+                auth.signOut()
+                emit(Unit)
+            } catch (e: Exception) {
+                when {
+                    e.message?.contains("network", ignoreCase = true) == true -> {
+                        throw IOException("connection error during sign out", e)
+                    }
+                    else -> {
+                        throw IllegalStateException("service unavailable: failed to sign out", e)
+                    }
+                }
+            }
         }
 
     fun isSignedIn(): Boolean = auth.currentUser != null
 
     fun createUserFromFirebaseUser(firebaseUser: FirebaseUser): User {
-        val email = firebaseUser.email ?: throw IllegalStateException("Google Auth user must have an email")
+        val email = firebaseUser.email ?: throw SecurityException("authentication failed: user email not available")
         val userId = UserId(firebaseUser.uid)
         val baseUsername = generateUsernameFromEmail(email)
 

@@ -2,6 +2,7 @@ package com.qodein.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
@@ -48,38 +49,70 @@ class SettingsViewModel @Inject constructor(
             getThemeUseCase(),
             getLanguageUseCase(),
         ) { themeResult, languageResult ->
+            val theme = when (themeResult) {
+                is Result.Loading -> _state.value.theme // Keep current theme while loading
+                is Result.Success -> themeResult.data
+                is Result.Error -> Theme.SYSTEM // Fallback to system theme
+            }
+
+            val language = when (languageResult) {
+                is Result.Loading -> _state.value.language // Keep current language while loading
+                is Result.Success -> languageResult.data
+                is Result.Error -> Language.ENGLISH // Fallback to English
+            }
+
+            val error = when {
+                themeResult is Result.Error -> themeResult.exception
+                languageResult is Result.Error -> languageResult.exception
+                else -> null
+            }
+
             _state.value = _state.value.copy(
-                theme = themeResult.getOrElse { Theme.SYSTEM },
-                language = languageResult.getOrElse { Language.ENGLISH },
-                error = themeResult.exceptionOrNull() ?: languageResult.exceptionOrNull(),
+                theme = theme,
+                language = language,
+                error = error,
             )
         }.launchIn(viewModelScope)
     }
 
     private fun setTheme(theme: Theme) {
         viewModelScope.launch {
-            try {
-                _state.value = _state.value.copy(isLoading = true, error = null)
-                setThemeUseCase(theme)
-                emitEvent(SettingsEvent.ThemeChanged)
-            } catch (exception: Throwable) {
-                _state.value = _state.value.copy(error = exception)
-            } finally {
-                _state.value = _state.value.copy(isLoading = false)
+            _state.value = _state.value.copy(isLoading = true, error = null)
+
+            setThemeUseCase(theme).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true)
+                    }
+                    is Result.Success -> {
+                        _state.value = _state.value.copy(isLoading = false, error = null)
+                        emitEvent(SettingsEvent.ThemeChanged)
+                    }
+                    is Result.Error -> {
+                        _state.value = _state.value.copy(isLoading = false, error = result.exception)
+                    }
+                }
             }
         }
     }
 
     private fun setLanguage(language: Language) {
         viewModelScope.launch {
-            try {
-                _state.value = _state.value.copy(isLoading = true, error = null)
-                setLanguageUseCase(language)
-                emitEvent(SettingsEvent.LanguageChanged)
-            } catch (exception: Throwable) {
-                _state.value = _state.value.copy(error = exception)
-            } finally {
-                _state.value = _state.value.copy(isLoading = false)
+            _state.value = _state.value.copy(isLoading = true, error = null)
+
+            setLanguageUseCase(language).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true)
+                    }
+                    is Result.Success -> {
+                        _state.value = _state.value.copy(isLoading = false, error = null)
+                        emitEvent(SettingsEvent.LanguageChanged)
+                    }
+                    is Result.Error -> {
+                        _state.value = _state.value.copy(isLoading = false, error = result.exception)
+                    }
+                }
             }
         }
     }

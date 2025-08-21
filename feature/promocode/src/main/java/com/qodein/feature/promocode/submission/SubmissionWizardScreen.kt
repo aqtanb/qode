@@ -51,11 +51,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.step1.ServiceAndTypeScreen
 import com.qodein.feature.promocode.submission.step2.TypeDetailsScreen
 import com.qodein.feature.promocode.submission.step3.DateSettingsScreen
 import com.qodein.feature.promocode.submission.step4.OptionalDetailsScreen
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 import java.time.LocalDate
@@ -95,7 +97,7 @@ fun SubmissionWizardScreen(
         }
         is SubmissionWizardUiState.Error -> {
             WizardErrorContent(
-                error = currentState.exception,
+                errorType = currentState.errorType,
                 onRetry = { viewModel.onAction(SubmissionWizardAction.RetryClicked) },
             )
         }
@@ -141,7 +143,7 @@ private fun WizardLoadingContent() {
 
 @Composable
 private fun WizardErrorContent(
-    error: Throwable,
+    errorType: ErrorType,
     onRetry: () -> Unit
 ) {
     Column(
@@ -152,7 +154,7 @@ private fun WizardErrorContent(
         verticalArrangement = Arrangement.Center,
     ) {
         QodeErrorCard(
-            message = error.message ?: "Error",
+            message = errorType.toLocalizedMessage(),
             onRetry = onRetry,
         )
     }
@@ -464,7 +466,7 @@ private fun WizardLoadingPreview() {
 private fun WizardErrorPreview() {
     QodeTheme {
         WizardErrorContent(
-            error = Exception("Network connection failed"),
+            errorType = ErrorType.NETWORK_GENERAL,
             onRetry = {},
         )
     }

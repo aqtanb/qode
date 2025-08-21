@@ -2,6 +2,7 @@ package com.qodein.feature.auth
 
 import app.cash.turbine.test
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import io.mockk.every
 import io.mockk.mockk
@@ -66,7 +67,7 @@ class AuthViewModelTest {
     fun handleAction_whenSignInWithGoogleClicked_startsSignInFlow() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When
             viewModel.handleAction(AuthAction.SignInWithGoogleClicked)
@@ -80,7 +81,7 @@ class AuthViewModelTest {
     fun handleAction_whenRetryClicked_startsSignInFlow() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When
             viewModel.handleAction(AuthAction.RetryClicked)
@@ -122,7 +123,7 @@ class AuthViewModelTest {
     fun signInWithGoogle_whenSuccessful_emitsLoadingThenSuccessState() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When & Then
             viewModel.state.test {
@@ -149,7 +150,7 @@ class AuthViewModelTest {
     fun signInWithGoogle_whenSuccessful_emitsNavigateToHomeEvent() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When & Then
             viewModel.events.test {
@@ -166,7 +167,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val securityException = SecurityException("Sign-in was cancelled or rejected")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(securityException))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(securityException))
 
             // When & Then
             viewModel.state.test {
@@ -192,7 +193,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val ioException = IOException("Network error")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(ioException))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(ioException))
 
             // When & Then
             viewModel.state.test {
@@ -218,7 +219,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val illegalStateException = IllegalStateException("Google Play Services unavailable")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(illegalStateException))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(illegalStateException))
 
             // When & Then
             viewModel.state.test {
@@ -244,7 +245,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val genericException = RuntimeException("Unknown error")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(genericException))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(genericException))
 
             // When & Then
             viewModel.state.test {
@@ -272,7 +273,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val exception = IOException("Network error")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(exception))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(exception))
 
             // When
             viewModel.state.test {
@@ -306,8 +307,8 @@ class AuthViewModelTest {
             // Given
             val exception = SocketTimeoutException("Connection timeout")
             every { signInWithGoogleUseCase() } returnsMany listOf(
-                flowOf(Result.failure(exception)),
-                flowOf(Result.success(testUser)),
+                flowOf(Result.Error(exception)),
+                flowOf(Result.Success(testUser)),
             )
 
             // When & Then
@@ -350,7 +351,7 @@ class AuthViewModelTest {
     fun signInWithGoogle_cancelsExistingJobBeforeStartingNew() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             viewModel.state.test {
                 // Initial state
@@ -384,7 +385,7 @@ class AuthViewModelTest {
     fun stateTransition_idleToLoadingToSuccessWithEvent() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // Test both state and events in parallel
             viewModel.state.test {
@@ -446,7 +447,7 @@ class AuthViewModelTest {
     fun multipleQuickActions_handleGracefully() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When - Multiple rapid actions
             repeat(5) {
@@ -463,7 +464,7 @@ class AuthViewModelTest {
     fun clearError_fromNonErrorState_noSideEffects() =
         runTest(testDispatcher) {
             // Given
-            every { signInWithGoogleUseCase() } returns flowOf(Result.success(testUser))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Success(testUser))
 
             // When
             viewModel.clearError() // Clear error when not in error state

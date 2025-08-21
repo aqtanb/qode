@@ -2,6 +2,11 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.getErrorCode
+import com.qodein.shared.common.result.isRetryable
+import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -61,28 +66,35 @@ class ProfileViewModel @Inject constructor(
 
         authJob = getAuthStateUseCase()
             .onEach { result ->
-                _state.value = result.fold(
-                    onSuccess = { authState ->
+                _state.value = when (result) {
+                    is Result.Loading -> ProfileUiState.Loading
+                    is Result.Success -> {
+                        val authState = result.data
                         when (authState) {
                             is AuthState.Loading -> ProfileUiState.Loading
                             is AuthState.Authenticated -> ProfileUiState.Success(user = authState.user)
                             is AuthState.Unauthenticated -> {
                                 // With smart routing, this should not happen
                                 // If user is unauthenticated, navigation should have redirected to auth
+                                val exception = IllegalStateException("User not authenticated - navigation should have redirected to auth")
                                 ProfileUiState.Error(
-                                    exception = IllegalStateException("User not authenticated - navigation should have redirected to auth"),
-                                    isRetryable = true,
+                                    errorType = exception.toErrorType(),
+                                    isRetryable = exception.isRetryable(),
+                                    shouldShowSnackbar = exception.shouldShowSnackbar(),
+                                    errorCode = exception.getErrorCode(),
                                 )
                             }
                         }
-                    },
-                    onFailure = { exception ->
+                    }
+                    is Result.Error -> {
                         ProfileUiState.Error(
-                            exception = exception,
-                            isRetryable = true,
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = result.exception.isRetryable(),
+                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                            errorCode = result.exception.getErrorCode(),
                         )
-                    },
-                )
+                    }
+                }
             }
             .launchIn(viewModelScope)
     }
@@ -97,20 +109,23 @@ class ProfileViewModel @Inject constructor(
         // Perform sign out and navigate only on success
         signOutUseCase()
             .onEach { result ->
-                result.fold(
-                    onSuccess = {
+                when (result) {
+                    is Result.Loading -> { /* Loading already shown above */ }
+                    is Result.Success -> {
                         // Only navigate after successful sign out
                         emitEvent(ProfileEvent.SignedOut)
-                    },
-                    onFailure = { exception ->
+                    }
+                    is Result.Error -> {
                         // Restart auth monitoring if sign out fails
                         checkAuthState()
                         _state.value = ProfileUiState.Error(
-                            exception = exception,
-                            isRetryable = true,
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = result.exception.isRetryable(),
+                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                            errorCode = result.exception.getErrorCode(),
                         )
-                    },
-                )
+                    }
+                }
             }
             .launchIn(viewModelScope)
     }

@@ -1,7 +1,11 @@
 package com.qodein.shared.domain.usecase.preferences
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.model.Language
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * Use case for updating language preference.
@@ -15,9 +19,11 @@ class SetLanguageUseCase constructor(private val devicePreferencesRepository: De
      * Set language preference
      *
      * @param language The language to set
-     * @throws java.io.IOException when storage operation fails
+     * @return Flow<Result<Unit>> that emits success or error
      */
-    suspend operator fun invoke(language: Language) {
-        devicePreferencesRepository.setLanguage(language)
-    }
+    operator fun invoke(language: Language): Flow<Result<Unit>> =
+        flow {
+            emit(Unit)
+            devicePreferencesRepository.setLanguage(language)
+        }.asResult()
 }

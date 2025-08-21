@@ -1,9 +1,10 @@
 package com.qodein.shared.domain.usecase.promocode
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class ValidatePromoCodeUseCase constructor(private val promoCodeRepository: PromoCodeRepository) {
@@ -13,7 +14,7 @@ class ValidatePromoCodeUseCase constructor(private val promoCodeRepository: Prom
     ): Flow<Result<ValidationResult>> =
         promoCodeRepository.getPromoCodeByCode(code)
             .map { promoCode ->
-                val result = when {
+                when {
                     promoCode == null -> ValidationResult.NotFound
                     !promoCode.isValidNow -> ValidationResult.Expired
                     orderAmount < (getMinimumOrderAmount(promoCode) ?: 0.0) -> {
@@ -24,9 +25,8 @@ class ValidatePromoCodeUseCase constructor(private val promoCodeRepository: Prom
                         ValidationResult.Valid(promoCode, discountAmount)
                     }
                 }
-                Result.success(result)
             }
-            .catch { emit(Result.failure(it)) }
+            .asResult()
 
     private fun getMinimumOrderAmount(promoCode: PromoCode): Double? =
         when (promoCode) {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,8 +44,23 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 .set(dto)
                 .await()
         } catch (e: Exception) {
-            // Firestore will naturally prevent duplicates with composite IDs
-            throw IllegalStateException("PromoCode with code '${promoCode.code}' already exists for service '${promoCode.serviceName}'", e)
+            // Provide specific error context for extension function parsing
+            when {
+                e.message?.contains("ALREADY_EXISTS", ignoreCase = true) == true ||
+                    e.message?.contains("already exists", ignoreCase = true) == true -> {
+                    throw IllegalArgumentException("promo code already exists for service '${promoCode.serviceName}': ${promoCode.code}", e)
+                }
+                e.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true -> {
+                    throw SecurityException("permission denied: cannot create promo code", e)
+                }
+                e.message?.contains("network", ignoreCase = true) == true ||
+                    e.message?.contains("timeout", ignoreCase = true) == true -> {
+                    throw IOException("connection error while creating promo code", e)
+                }
+                else -> {
+                    throw IllegalStateException("service unavailable: failed to create promo code", e)
+                }
+            }
         }
 
         return promoCode
@@ -312,7 +328,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // Get current promo code
         val currentDoc = promoCodeRef.get().await()
         val currentDto = currentDoc.toObject<PromoCodeDto>()
-            ?: throw IllegalStateException("PromoCode not found")
+            ?: throw IllegalArgumentException("promo code not found: ${promoCodeId.value}")
 
         // Add comment to existing list
         val updatedComments = (currentDto.comments ?: emptyList()) + "$userId: $comment"
@@ -323,7 +339,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // Return updated promo code
         val updatedDoc = promoCodeRef.get().await()
         val updatedDto = updatedDoc.toObject<PromoCodeDto>()
-            ?: throw IllegalStateException("Failed to get updated PromoCode")
+            ?: throw IllegalStateException("service unavailable: failed to retrieve updated promo code")
 
         return PromoCodeMapper.toDomain(updatedDto)
     }
@@ -383,7 +399,14 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 .whereIn("__name__", ids.map { it.value })
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        close(error)
+                        val wrappedException = when {
+                            error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
+                                SecurityException("permission denied: cannot observe promo codes", error)
+                            error.message?.contains("network", ignoreCase = true) == true ->
+                                IOException("connection error while observing promo codes", error)
+                            else -> IllegalStateException("service unavailable: failed to observe promo codes", error)
+                        }
+                        close(wrappedException)
                         return@addSnapshotListener
                     }
 

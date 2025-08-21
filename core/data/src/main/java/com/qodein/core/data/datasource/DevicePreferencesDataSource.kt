@@ -27,7 +27,10 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
             try {
                 Theme.valueOf(themeName)
             } catch (e: IllegalArgumentException) {
+                // Log malformed theme preference but don't throw
                 Theme.SYSTEM
+            } catch (e: Exception) {
+                throw IllegalStateException("service unavailable: failed to read theme preference", e)
             }
         }
 
@@ -35,8 +38,12 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
      * Updates theme preference
      */
     suspend fun setTheme(theme: Theme) {
-        dataStore.edit { preferences ->
-            preferences[THEME_KEY] = theme.name
+        try {
+            dataStore.edit { preferences ->
+                preferences[THEME_KEY] = theme.name
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("service unavailable: failed to save theme preference", e)
         }
     }
 
@@ -53,8 +60,12 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
      * Updates language preference
      */
     suspend fun setLanguage(language: Language) {
-        dataStore.edit { preferences ->
-            preferences[LANGUAGE_KEY] = language.code
+        try {
+            dataStore.edit { preferences ->
+                preferences[LANGUAGE_KEY] = language.code
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("service unavailable: failed to save language preference", e)
         }
     }
 
@@ -62,8 +73,12 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
      * Clears all preferences
      */
     suspend fun clear() {
-        dataStore.edit { preferences ->
-            preferences.clear()
+        try {
+            dataStore.edit { preferences ->
+                preferences.clear()
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("service unavailable: failed to clear preferences", e)
         }
     }
 }

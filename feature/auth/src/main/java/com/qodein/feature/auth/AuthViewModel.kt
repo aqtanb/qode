@@ -2,6 +2,11 @@ package com.qodein.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.getErrorCode
+import com.qodein.shared.common.result.isRetryable
+import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -29,6 +34,7 @@ class AuthViewModel @Inject constructor(private val signInWithGoogleUseCase: Sig
         when (action) {
             is AuthAction.SignInWithGoogleClicked -> signInWithGoogle()
             is AuthAction.RetryClicked -> signInWithGoogle()
+            is AuthAction.DismissErrorClicked -> clearError()
             is AuthAction.TermsOfServiceClicked -> emitEvent(AuthEvent.TermsOfServiceRequested)
             is AuthAction.PrivacyPolicyClicked -> emitEvent(AuthEvent.PrivacyPolicyRequested)
         }
@@ -42,17 +48,21 @@ class AuthViewModel @Inject constructor(private val signInWithGoogleUseCase: Sig
 
         signInJob = signInWithGoogleUseCase()
             .onEach { result ->
-                _state.value = result.fold(
-                    onSuccess = { user ->
-                        val successState = AuthUiState.Success(user = user)
+                _state.value = when (result) {
+                    is Result.Loading -> AuthUiState.Loading
+                    is Result.Success -> {
                         emitEvent(AuthEvent.SignedIn)
-                        successState
-                    },
-                    onFailure = { exception ->
-                        val isRetryable = exception !is SecurityException
-                        AuthUiState.Error(exception, isRetryable)
-                    },
-                )
+                        AuthUiState.Success(user = result.data)
+                    }
+                    is Result.Error -> {
+                        AuthUiState.Error(
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = result.exception.isRetryable(),
+                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                            errorCode = result.exception.getErrorCode(),
+                        )
+                    }
+                }
             }
             .launchIn(viewModelScope)
     }

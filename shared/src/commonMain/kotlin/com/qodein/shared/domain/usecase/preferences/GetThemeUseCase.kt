@@ -1,10 +1,10 @@
 package com.qodein.shared.domain.usecase.preferences
 
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 /**
  * Use case for observing theme preference.
@@ -17,10 +17,7 @@ class GetThemeUseCase constructor(private val devicePreferencesRepository: Devic
     /**
      * Get theme preference as Flow<Result<Theme>>
      *
-     * @return Flow that emits Result.success(Theme) or Result.failure(Throwable)
+     * @return Flow that emits Result.Success(Theme), Result.Loading, or Result.Error(Throwable)
      */
-    operator fun invoke(): Flow<Result<Theme>> =
-        devicePreferencesRepository.getTheme()
-            .map { Result.success(it) }
-            .catch { emit(Result.failure(it)) }
+    operator fun invoke(): Flow<Result<Theme>> = devicePreferencesRepository.getTheme().asResult()
 }
