@@ -2,7 +2,7 @@ package com.qodein.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.domain.usecase.auth.SignInWithGoogleUseCase
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow

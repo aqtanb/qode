@@ -1,10 +1,10 @@
 package com.qodein.feature.profile
 
 import app.cash.turbine.test
-import com.qodein.core.domain.AuthState
-import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.core.domain.usecase.auth.SignOutUseCase
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

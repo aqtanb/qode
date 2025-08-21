@@ -30,19 +30,16 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "qode"
-include(":app")
+include(":androidApp")
 include(":core:designsystem")
 include(":core:ui")
 include(":feature:auth")
 include(":feature:home")
-include(":core:model")
 include(":core:data")
-include(":core:domain")
 include(":feature:search")
 include(":feature:inbox")
-include(":core:network")
-include(":core:common")
 include(":feature:profile")
 include(":core:testing")
 include(":feature:promocode")
 include(":feature:settings")
+include(":shared")

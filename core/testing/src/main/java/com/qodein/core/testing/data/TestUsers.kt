@@ -1,11 +1,11 @@
 package com.qodein.core.testing.data
 
-import com.qodein.core.model.Email
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
+import com.qodein.shared.model.Email
+import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserPreferences
+import com.qodein.shared.model.UserProfile
+import com.qodein.shared.model.UserStats
 
 /**
  * Shared test user data for consistent testing across modules

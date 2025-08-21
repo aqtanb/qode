@@ -2,8 +2,8 @@ package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
 import com.qodein.core.data.model.BannerDto
-import com.qodein.core.model.Banner
-import com.qodein.core.model.BannerId
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.BannerId
 
 /**
  * Mapper for converting between Banner domain models and DTOs.

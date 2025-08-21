@@ -9,10 +9,10 @@ import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PromoCodeRepositoryImpl
-import com.qodein.core.domain.repository.AuthRepository
-import com.qodein.core.domain.repository.BannerRepository
-import com.qodein.core.domain.repository.DevicePreferencesRepository
-import com.qodein.core.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.AuthRepository
+import com.qodein.shared.domain.repository.BannerRepository
+import com.qodein.shared.domain.repository.DevicePreferencesRepository
+import com.qodein.shared.domain.repository.PromoCodeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

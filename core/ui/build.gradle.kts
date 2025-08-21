@@ -32,7 +32,7 @@ kotlin {
 dependencies {
     // Project modules
     implementation(projects.core.designsystem)
-    implementation(projects.core.model)
+    implementation(project(":shared"))
 
     // Core Android
     implementation(libs.androidx.core.ktx)

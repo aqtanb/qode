@@ -3,19 +3,19 @@
 package com.qodein.core.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.qodein.core.model.Banner
-import com.qodein.core.model.BannerId
-import com.qodein.core.model.Email
-import com.qodein.core.model.Gender
-import com.qodein.core.model.User
-import com.qodein.core.model.UserId
-import com.qodein.core.model.UserPreferences
-import com.qodein.core.model.UserProfile
-import com.qodein.core.model.UserStats
-import java.time.LocalDate
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.BannerId
+import com.qodein.shared.model.Email
+import com.qodein.shared.model.Gender
+import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserPreferences
+import com.qodein.shared.model.UserProfile
+import com.qodein.shared.model.UserStats
+import kotlinx.datetime.LocalDate
 
 /**
- * Preview parameter provider for [User] data.
+ * Preview parameter provider for [com.qodein.shared.model.User] data.
  * Provides various user scenarios for Profile screen testing.
  */
 class UserPreviewParameterProvider : PreviewParameterProvider<User> {
@@ -28,7 +28,7 @@ class UserPreviewParameterProvider : PreviewParameterProvider<User> {
 }
 
 /**
- * Preview parameter provider for [UserStats] data.
+ * Preview parameter provider for [com.qodein.shared.model.UserStats] data.
  */
 class UserStatsPreviewParameterProvider : PreviewParameterProvider<UserStats> {
     override val values: Sequence<UserStats> = sequenceOf(
@@ -39,7 +39,7 @@ class UserStatsPreviewParameterProvider : PreviewParameterProvider<UserStats> {
 }
 
 /**
- * Preview parameter provider for [Banner] data.
+ * Preview parameter provider for [com.qodein.shared.model.Banner] data.
  * Provides various banner scenarios for component testing.
  */
 class BannerPreviewParameterProvider : PreviewParameterProvider<Banner> {
@@ -163,7 +163,7 @@ object PreviewParameterData {
                 lastName = "Doe",
                 bio = "Love finding the best deals! Android developer by day, savings hunter by night 🛒✨",
                 photoUrl = "https://i.pravatar.cc/250?u=mail@ashallendesign.co.uk",
-                birthday = LocalDate.of(1990, 5, 15),
+                birthday = LocalDate(1990, 5, 15),
                 gender = null,
                 isGenerated = false,
                 createdAt = 1699000000000L,
@@ -205,7 +205,7 @@ object PreviewParameterData {
                 lastName = "Powerov",
                 bio = "Qode enthusiast since day one! 🏆 Top contributor with 500+ verified codes. Always hunting for the best Kazakhstan deals. Follow me for daily savings tips! 💰",
                 photoUrl = "https://example.com/avatar/alexpower.jpg",
-                birthday = LocalDate.of(1985, 12, 3),
+                birthday = LocalDate(1985, 12, 3),
                 gender = Gender.MALE,
                 isGenerated = false,
                 createdAt = 1668000000000L,
@@ -246,7 +246,7 @@ object PreviewParameterData {
                 lastName = "Storyteller",
                 bio = "🌟 Welcome to my profile! I'm a passionate deal hunter from Almaty who loves sharing amazing savings opportunities with the community. I specialize in finding the best electronics deals, fashion discounts, and food delivery codes. When I'm not hunting for codes, I enjoy photography, hiking in the beautiful Kazakh mountains, and trying new restaurants around the city. Follow me for daily deals and let's save money together! 💫🛍️🏔️",
                 photoUrl = "https://example.com/avatar/maria.jpg",
-                birthday = LocalDate.of(1992, 8, 20),
+                birthday = LocalDate(1992, 8, 20),
                 gender = Gender.FEMALE,
                 isGenerated = false,
                 createdAt = 1684000000000L,

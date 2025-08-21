@@ -4,8 +4,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.qodein.core.data.datasource.GoogleAuthService
-import com.qodein.core.domain.repository.AuthRepository
-import com.qodein.core.model.User
+import com.qodein.shared.domain.repository.AuthRepository
+import com.qodein.shared.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

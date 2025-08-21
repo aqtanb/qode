@@ -26,7 +26,7 @@ import com.qodein.core.designsystem.component.QodeTopAppBarVariant
 import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SizeTokens
-import com.qodein.core.model.User
+import com.qodein.shared.model.User
 
 /**
  * Screen types that determine top app bar behavior and appearance

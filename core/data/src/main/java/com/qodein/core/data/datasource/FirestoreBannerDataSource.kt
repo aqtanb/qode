@@ -6,8 +6,8 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.mapper.BannerMapper
 import com.qodein.core.data.model.BannerDto
-import com.qodein.core.model.Banner
-import com.qodein.core.model.BannerId
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.BannerId
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

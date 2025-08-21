@@ -1,6 +1,6 @@
 package com.qodein.feature.auth
 
-import com.qodein.core.model.User
+import com.qodein.shared.model.User
 
 sealed interface AuthUiState {
 

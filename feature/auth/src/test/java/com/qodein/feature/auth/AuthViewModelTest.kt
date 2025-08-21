@@ -1,9 +1,8 @@
 package com.qodein.feature.auth
 
 import app.cash.turbine.test
-import app.cash.turbine.testIn
-import com.qodein.core.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

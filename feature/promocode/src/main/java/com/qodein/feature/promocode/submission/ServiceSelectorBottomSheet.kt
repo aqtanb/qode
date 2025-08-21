@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Service
+import com.qodein.shared.model.Service
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

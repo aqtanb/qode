@@ -1,9 +1,9 @@
 package com.qodein.core.data.mapper
 
 import com.qodein.core.data.model.ServiceDto
-import com.qodein.core.model.Service
-import com.qodein.core.model.ServiceId
-import java.time.Instant
+import com.qodein.shared.model.Service
+import com.qodein.shared.model.ServiceId
+import kotlinx.datetime.Instant
 
 object ServiceMapper {
 
@@ -14,7 +14,7 @@ object ServiceMapper {
             category = dto.category,
             logoUrl = dto.logoUrl,
             isPopular = dto.isPopular,
-            createdAt = Instant.ofEpochSecond(dto.createdAt),
+            createdAt = Instant.fromEpochSeconds(dto.createdAt),
         )
 
     fun toDto(service: Service): ServiceDto =
@@ -24,7 +24,7 @@ object ServiceMapper {
             category = service.category,
             logoUrl = service.logoUrl,
             isPopular = service.isPopular,
-            createdAt = service.createdAt.epochSecond,
+            createdAt = service.createdAt.epochSeconds,
         )
 
     fun toDomainList(dtos: List<ServiceDto>): List<Service> = dtos.map { toDomain(it) }

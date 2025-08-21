@@ -1,6 +1,6 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.core.model.Service
+import com.qodein.shared.model.Service
 import java.time.LocalDate
 
 enum class PromoCodeType {

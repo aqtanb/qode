@@ -1,7 +1,7 @@
 package com.qodein.feature.home
 
-import com.qodein.core.model.Banner
-import com.qodein.core.model.PromoCode
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.PromoCode
 
 sealed interface HomeEvent {
 

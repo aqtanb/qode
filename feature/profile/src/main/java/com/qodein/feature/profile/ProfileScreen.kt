@@ -67,8 +67,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.User
-import com.qodein.core.model.UserStats
 import com.qodein.core.ui.ComponentPreviews
 import com.qodein.core.ui.DevicePreviews
 import com.qodein.core.ui.FontScalePreviews
@@ -81,6 +79,8 @@ import com.qodein.core.ui.UserStatsPreviewParameterProvider
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.QodeRetryableErrorCard
+import com.qodein.shared.model.User
+import com.qodein.shared.model.UserStats
 import kotlinx.coroutines.delay
 
 @Composable

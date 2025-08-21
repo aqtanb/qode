@@ -33,11 +33,13 @@ kotlin {
 }
 
 dependencies {
-    // Project modules
+    // Shared multiplatform module
+    implementation(project(":shared"))
+
+    // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
-    implementation(projects.core.model)
-    implementation(projects.core.domain)
+
     implementation(projects.core.data)
 
     // Core Android & Compose
@@ -46,6 +48,9 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
+
+    // DateTime
+    implementation(libs.kotlinx.datetime)
 
     implementation(libs.bundles.image.loading)
 

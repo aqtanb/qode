@@ -1,6 +1,6 @@
 package com.qodein.feature.profile
 
-import com.qodein.core.model.User
+import com.qodein.shared.model.User
 
 sealed interface ProfileUiState {
     data class Success(val user: User) : ProfileUiState

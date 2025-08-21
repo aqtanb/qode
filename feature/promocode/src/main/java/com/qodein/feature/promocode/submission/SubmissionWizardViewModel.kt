@@ -2,10 +2,10 @@ package com.qodein.feature.promocode.submission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.domain.usecase.promocode.CreatePromoCodeUseCase
-import com.qodein.core.domain.usecase.service.GetPopularServicesUseCase
-import com.qodein.core.domain.usecase.service.SearchServicesUseCase
-import com.qodein.core.model.PromoCode
+import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
+import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
+import com.qodein.shared.model.PromoCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toKotlinInstant
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -274,8 +275,8 @@ class SubmissionWizardViewModel @Inject constructor(
                     title = wizardData.title,
                     description = wizardData.description.takeIf { it.isNotBlank() },
                     minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
+                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
                     screenshotUrl = wizardData.screenshotUrl,
                 )
@@ -286,8 +287,8 @@ class SubmissionWizardViewModel @Inject constructor(
                     title = wizardData.title,
                     description = wizardData.description.takeIf { it.isNotBlank() },
                     minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
+                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
                     screenshotUrl = wizardData.screenshotUrl,
                 )
@@ -326,7 +327,7 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     // Service search helper methods
-    private fun updateAvailableServices(services: List<com.qodein.core.model.Service>) {
+    private fun updateAvailableServices(services: List<com.qodein.shared.model.Service>) {
         val currentState = getCurrentSuccessState() ?: return
         _uiState.value = currentState.copy(availableServices = services)
     }

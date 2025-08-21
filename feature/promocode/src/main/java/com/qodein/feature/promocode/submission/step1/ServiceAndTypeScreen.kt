@@ -43,12 +43,12 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Service
 import com.qodein.core.ui.component.TypeableDropdown
 import com.qodein.core.ui.component.toDropdownItem
 import com.qodein.feature.promocode.submission.PromoCodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.shared.model.Service
 
 @Composable
 fun ServiceAndTypeScreen(

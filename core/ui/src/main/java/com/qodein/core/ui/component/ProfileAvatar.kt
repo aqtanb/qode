@@ -34,8 +34,8 @@ import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
-import com.qodein.core.model.User
 import com.qodein.core.ui.PreviewParameterData
+import com.qodein.shared.model.User
 
 /**
  * Profile avatar with smart fallback: Image → Initials → Icon

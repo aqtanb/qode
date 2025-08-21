@@ -38,13 +38,13 @@ import com.qodein.core.designsystem.component.ModernPageIndicator
 import com.qodein.core.designsystem.component.QodeDivider
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Banner
-import com.qodein.core.model.Language
 import com.qodein.core.ui.BannerListPreviewParameterProvider
 import com.qodein.core.ui.BannerPreviewParameterProvider
 import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.feature.home.R
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.Language
 import kotlin.time.Duration.Companion.seconds
 
 /**

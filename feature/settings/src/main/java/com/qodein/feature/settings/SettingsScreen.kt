@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,8 +35,8 @@ import com.qodein.core.designsystem.component.QodeGradient
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Language
-import com.qodein.core.model.Theme
+import com.qodein.shared.model.Language
+import com.qodein.shared.model.Theme
 
 @Composable
 fun SettingsScreen(

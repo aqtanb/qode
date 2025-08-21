@@ -1,9 +1,9 @@
 package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
-import com.qodein.core.domain.repository.BannerRepository
-import com.qodein.core.model.Banner
-import com.qodein.core.model.BannerId
+import com.qodein.shared.domain.repository.BannerRepository
+import com.qodein.shared.model.Banner
+import com.qodein.shared.model.BannerId
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

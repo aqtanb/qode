@@ -2,9 +2,9 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.domain.AuthState
-import com.qodein.core.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.core.domain.usecase.auth.SignOutUseCase
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow

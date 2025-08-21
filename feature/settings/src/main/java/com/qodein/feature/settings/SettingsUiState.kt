@@ -1,7 +1,7 @@
 package com.qodein.feature.settings
 
-import com.qodein.core.model.Language
-import com.qodein.core.model.Theme
+import com.qodein.shared.model.Language
+import com.qodein.shared.model.Theme
 
 data class SettingsUiState(
     val theme: Theme = Theme.SYSTEM,

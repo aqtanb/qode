@@ -26,9 +26,7 @@ kotlin {
 
 dependencies {
     // Core modules - expose as API so test modules can use them
-    api(projects.core.common)
-    api(projects.core.domain)
-    api(projects.core.model)
+    api(project(":shared"))
 
     // Compose BOM for consistent versions
     api(platform(libs.androidx.compose.bom))

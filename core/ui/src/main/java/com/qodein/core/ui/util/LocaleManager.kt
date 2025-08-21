@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.LocaleList
 import androidx.annotation.RequiresApi
-import com.qodein.core.model.Language
+import com.qodein.shared.model.Language
 import java.util.Locale
 
 /**

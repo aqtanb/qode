@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
 }
 
 subprojects {
@@ -50,25 +52,25 @@ subprojects {
     tasks.register("checkFullyQualifiedNames") {
         group = "verification"
         description = "Check for fully qualified class names in Kotlin source files"
-        
+
         doLast {
             val sourceFiles = fileTree("src") {
                 include("**/*.kt")
                 exclude("build/**")
             }
-            
+
             val fullyQualifiedPattern = Regex("""(?<!import\s)(?<!@file:)(?<!\*\s)(?<!//.*)\b([a-z]+\.){2,}[A-Z][a-zA-Z0-9]*""")
             var violationsFound = false
-            
+
             sourceFiles.forEach { file ->
                 val lines = file.readLines()
                 lines.forEachIndexed { index, line ->
                     // Skip import statements and comments
-                    if (!line.trimStart().startsWith("import ") && 
+                    if (!line.trimStart().startsWith("import ") &&
                         !line.trimStart().startsWith("//") &&
                         !line.trimStart().startsWith("*") &&
                         !line.contains("@file:")) {
-                        
+
                         fullyQualifiedPattern.findAll(line).forEach { match ->
                             println("ERROR: Fully qualified class name found in ${file.relativeTo(rootDir)}:${index + 1}")
                             println("   Line: ${line.trim()}")
@@ -80,7 +82,7 @@ subprojects {
                     }
                 }
             }
-            
+
             if (violationsFound) {
                 throw GradleException("Fully qualified class names found in code. Please use proper import statements instead.")
             } else {
@@ -93,7 +95,7 @@ subprojects {
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
             finalizedBy("spotlessApply")
         }
-        
+
         // Run the FQN check as part of the check task
         tasks.named("check") {
             dependsOn("checkFullyQualifiedNames")

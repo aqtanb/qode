@@ -37,8 +37,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(projects.core.model)
-    implementation(projects.core.domain)
+    // Shared multiplatform module
+    implementation(project(":shared"))
 
     // Hilt DI
     implementation(libs.hilt.android)

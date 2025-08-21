@@ -3,11 +3,13 @@ package com.qodein.core.data.mapper
 import com.google.firebase.Timestamp
 import com.qodein.core.data.model.PromoCodeDto
 import com.qodein.core.data.model.PromoCodeVoteDto
-import com.qodein.core.model.PromoCode
-import com.qodein.core.model.PromoCodeId
-import com.qodein.core.model.PromoCodeVote
-import com.qodein.core.model.UserId
-import java.time.Instant
+import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromoCodeVote
+import com.qodein.shared.model.UserId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toKotlinInstant
 
 /**
  * Mapper between PromoCode domain models and Firestore DTOs.
@@ -47,15 +49,15 @@ object PromoCodeMapper {
                 discountPercentage = dto.discountPercentage
                     ?: throw IllegalArgumentException("Percentage promo code missing discountPercentage"),
                 minimumOrderAmount = dto.minimumOrderAmount,
-                startDate = dto.startDate.toInstant(),
-                endDate = dto.endDate.toInstant(),
+                startDate = dto.startDate.toInstant().toKotlinInstant(),
+                endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
                 views = dto.views,
                 screenshotUrl = dto.screenshotUrl,
                 comments = dto.comments,
-                createdAt = dto.createdAt?.toInstant() ?: Instant.now(),
+                createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
             )
 
@@ -69,15 +71,15 @@ object PromoCodeMapper {
                 discountAmount = dto.discountAmount
                     ?: throw IllegalArgumentException("Fixed amount promo code missing discountAmount"),
                 minimumOrderAmount = dto.minimumOrderAmount,
-                startDate = dto.startDate.toInstant(),
-                endDate = dto.endDate.toInstant(),
+                startDate = dto.startDate.toInstant().toKotlinInstant(),
+                endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
                 views = dto.views,
                 screenshotUrl = dto.screenshotUrl,
                 comments = dto.comments,
-                createdAt = dto.createdAt?.toInstant() ?: Instant.now(),
+                createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
             )
 
@@ -103,9 +105,9 @@ object PromoCodeMapper {
                 views = domain.views,
                 screenshotUrl = domain.screenshotUrl,
                 comments = domain.comments,
-                startDate = domain.startDate.let { Timestamp(it.epochSecond, it.nano) },
-                endDate = domain.endDate.let { Timestamp(it.epochSecond, it.nano) },
-                createdAt = Timestamp(domain.createdAt.epochSecond, domain.createdAt.nano),
+                startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
+                endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
+                createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
             )
 
@@ -125,9 +127,9 @@ object PromoCodeMapper {
                 views = domain.views,
                 screenshotUrl = domain.screenshotUrl,
                 comments = domain.comments,
-                startDate = domain.startDate.let { Timestamp(it.epochSecond, it.nano) },
-                endDate = domain.endDate.let { Timestamp(it.epochSecond, it.nano) },
-                createdAt = Timestamp(domain.createdAt.epochSecond, domain.createdAt.nano),
+                startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
+                endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
+                createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
             )
         }
@@ -138,7 +140,7 @@ object PromoCodeMapper {
             promoCodeId = PromoCodeId(dto.promoCodeId),
             userId = UserId(dto.userId),
             isUpvote = dto.isUpvote,
-            votedAt = dto.votedAt?.toInstant() ?: Instant.now(),
+            votedAt = dto.votedAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
         )
 
     fun voteToDto(domain: PromoCodeVote): PromoCodeVoteDto =
@@ -147,6 +149,6 @@ object PromoCodeMapper {
             promoCodeId = domain.promoCodeId.value,
             userId = domain.userId.value,
             isUpvote = domain.isUpvote,
-            votedAt = Timestamp(domain.votedAt.epochSecond, domain.votedAt.nano),
+            votedAt = Timestamp(domain.votedAt.toJavaInstant()),
         )
 }

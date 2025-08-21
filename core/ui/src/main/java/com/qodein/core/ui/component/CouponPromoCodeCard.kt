@@ -66,13 +66,15 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.PromoCode
-import com.qodein.core.model.PromoCodeId
 import com.qodein.core.ui.R
-import java.time.Instant
+import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromoCodeId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
+import kotlin.time.Duration.Companion.days
 
 // Coupon-specific design tokens
 private object CouponTokens {
@@ -497,7 +499,7 @@ private fun DrawScope.drawPerforatedLine(
 @Composable
 private fun formatLastUpdated(instant: Instant): String {
     val formatter = DateTimeFormatter.ofPattern("MMM d")
-    val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+    val date = instant.toJavaInstant().atZone(ZoneId.systemDefault()).toLocalDate()
     return formatter.format(date)
 }
 
@@ -518,11 +520,11 @@ fun CouponPromoCodeCardPreview() {
                 title = "25% Off Your Order",
                 discountPercentage = 25.0,
                 minimumOrderAmount = 5000.0,
-                startDate = Instant.now(),
-                endDate = Instant.now().plus(7, ChronoUnit.DAYS),
+                startDate = Clock.System.now(),
+                endDate = Clock.System.now().plus(7.days),
                 upvotes = 125,
                 downvotes = 12,
-                createdAt = Instant.now().minus(2, ChronoUnit.DAYS),
+                createdAt = Clock.System.now().minus(2.days),
             )
 
             CouponPromoCodeCard(

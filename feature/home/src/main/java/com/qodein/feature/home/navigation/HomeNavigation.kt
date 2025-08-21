@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 
 fun NavGraphBuilder.homeSection(
-    userLanguage: com.qodein.core.model.Language,
+    userLanguage: com.qodein.shared.model.Language,
     onPromoCodeClick: (String) -> Unit,
     promoCodeDetail: NavGraphBuilder.() -> Unit
 ) {

@@ -1,13 +1,13 @@
 package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.FirestorePromoCodeDataSource
-import com.qodein.core.domain.repository.PromoCodeRepository
-import com.qodein.core.domain.repository.PromoCodeSortBy
-import com.qodein.core.model.PromoCode
-import com.qodein.core.model.PromoCodeId
-import com.qodein.core.model.PromoCodeVote
-import com.qodein.core.model.Service
-import com.qodein.core.model.UserId
+import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromoCodeVote
+import com.qodein.shared.model.Service
+import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject

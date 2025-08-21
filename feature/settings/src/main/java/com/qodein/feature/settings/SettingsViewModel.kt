@@ -2,12 +2,12 @@ package com.qodein.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.domain.usecase.preferences.GetLanguageUseCase
-import com.qodein.core.domain.usecase.preferences.GetThemeUseCase
-import com.qodein.core.domain.usecase.preferences.SetLanguageUseCase
-import com.qodein.core.domain.usecase.preferences.SetThemeUseCase
-import com.qodein.core.model.Language
-import com.qodein.core.model.Theme
+import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
+import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
+import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
+import com.qodein.shared.model.Language
+import com.qodein.shared.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

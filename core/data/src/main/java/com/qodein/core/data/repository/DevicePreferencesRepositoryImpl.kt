@@ -1,9 +1,9 @@
 package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
-import com.qodein.core.domain.repository.DevicePreferencesRepository
-import com.qodein.core.model.Language
-import com.qodein.core.model.Theme
+import com.qodein.shared.domain.repository.DevicePreferencesRepository
+import com.qodein.shared.model.Language
+import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

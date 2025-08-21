@@ -59,7 +59,7 @@ import androidx.compose.ui.zIndex
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.model.Service
+import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
 
 data class TypeableDropdownItem(
