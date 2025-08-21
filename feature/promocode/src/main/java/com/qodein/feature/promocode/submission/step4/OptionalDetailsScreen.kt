@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeTextField
@@ -39,6 +40,8 @@ fun OptionalDetailsScreen(
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    TrackScreenViewEvent(screenName = "SubmissionWizard_OptionalDetails")
+
     val focusManager = LocalFocusManager.current
 
     Column(

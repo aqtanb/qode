@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeHeroGradient
@@ -96,6 +97,8 @@ fun ProfileScreen(
     onAchievementsClick: () -> Unit = {},
     onUserJourneyClick: () -> Unit = {}
 ) {
+    TrackScreenViewEvent(screenName = "Profile")
+
     val state by viewModel.state.collectAsState()
     val uriHandler = LocalUriHandler.current
     var showComingSoon by remember { mutableStateOf(false) }

@@ -39,6 +39,7 @@ dependencies {
     // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
+    implementation(projects.core.analytics)
 
     implementation(projects.core.data)
 

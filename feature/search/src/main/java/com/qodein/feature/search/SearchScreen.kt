@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -18,6 +19,8 @@ import com.qodein.core.designsystem.theme.SpacingTokens
  */
 @Composable
 fun SearchScreen(modifier: Modifier = Modifier) {
+    TrackScreenViewEvent(screenName = "Search")
+
     Box(
         modifier = modifier
             .fillMaxSize()

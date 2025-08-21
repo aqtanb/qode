@@ -59,7 +59,8 @@ googleid = "1.1.1"
 composeIcons = "1.1.1"
 browser = "1.8.0"
 
-# Utilities
+# Logging
+kermit = "2.0.4"
 timber = "5.0.1"
 
 # Code Quality
@@ -161,6 +162,9 @@ compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "oc
 
 # Utilities
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# Logging
+kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 
 # Testing - Unit
 junit = { group = "junit", name = "junit", version.ref = "junit" }

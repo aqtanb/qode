@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -33,6 +34,8 @@ fun TypeDetailsScreen(
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    TrackScreenViewEvent(screenName = "SubmissionWizard_TypeDetails")
+
     when (wizardData.promoCodeType) {
         PromoCodeType.PERCENTAGE -> PercentageDetailsSection(wizardData, onAction, modifier)
         PromoCodeType.FIXED_AMOUNT -> FixedAmountDetailsSection(wizardData, onAction, modifier)

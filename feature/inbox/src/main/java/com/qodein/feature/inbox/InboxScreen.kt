@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 @Composable
@@ -52,6 +53,8 @@ fun InboxScreen(
     modifier: Modifier = Modifier,
     viewModel: InboxViewModel = hiltViewModel()
 ) {
+    TrackScreenViewEvent(screenName = "Inbox")
+
     val state by viewModel.state.collectAsState()
 
     InboxScreenContent(

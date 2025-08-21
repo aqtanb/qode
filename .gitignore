@@ -87,5 +87,3 @@ CLAUDE.local.md
 .github/workflows/claude.yml
 /.claude/
 
-# Claude documentation
-claude/

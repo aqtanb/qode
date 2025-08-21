@@ -2,6 +2,7 @@ package com.qodein.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
@@ -24,7 +25,8 @@ class SettingsViewModel @Inject constructor(
     private val getThemeUseCase: GetThemeUseCase,
     private val setThemeUseCase: SetThemeUseCase,
     private val getLanguageUseCase: GetLanguageUseCase,
-    private val setLanguageUseCase: SetLanguageUseCase
+    private val setLanguageUseCase: SetLanguageUseCase,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -76,6 +78,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setTheme(theme: Theme) {
+        val previousTheme = _state.value.theme
+
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
 
@@ -85,6 +89,16 @@ class SettingsViewModel @Inject constructor(
                         _state.value = _state.value.copy(isLoading = true)
                     }
                     is Result.Success -> {
+                        // Track theme change
+                        analyticsHelper.logEvent(
+                            com.qodein.core.analytics.AnalyticsEvent(
+                                type = "theme_changed",
+                                extras = listOf(
+                                    com.qodein.core.analytics.AnalyticsEvent.Param("theme_from", previousTheme.name.lowercase()),
+                                    com.qodein.core.analytics.AnalyticsEvent.Param("theme_to", theme.name.lowercase()),
+                                ),
+                            ),
+                        )
                         _state.value = _state.value.copy(isLoading = false, error = null)
                         emitEvent(SettingsEvent.ThemeChanged)
                     }
@@ -97,6 +111,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setLanguage(language: Language) {
+        val previousLanguage = _state.value.language
+
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
 
@@ -106,6 +122,16 @@ class SettingsViewModel @Inject constructor(
                         _state.value = _state.value.copy(isLoading = true)
                     }
                     is Result.Success -> {
+                        // Track language change
+                        analyticsHelper.logEvent(
+                            com.qodein.core.analytics.AnalyticsEvent(
+                                type = "language_changed",
+                                extras = listOf(
+                                    com.qodein.core.analytics.AnalyticsEvent.Param("language_from", previousLanguage.code),
+                                    com.qodein.core.analytics.AnalyticsEvent.Param("language_to", language.code),
+                                ),
+                            ),
+                        )
                         _state.value = _state.value.copy(isLoading = false, error = null)
                         emitEvent(SettingsEvent.LanguageChanged)
                     }

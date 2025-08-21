@@ -10,14 +10,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.LocalAnalyticsHelper
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.util.LocaleManager
 import com.qodein.qode.ui.QodeApp
 import com.qodein.qode.ui.rememberQodeAppState
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analyticsHelper: AnalyticsHelper
 
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -40,10 +46,14 @@ class MainActivity : ComponentActivity() {
             QodeTheme(
                 darkTheme = darkTheme,
             ) {
-                QodeApp(
-                    appState = rememberQodeAppState(),
-                    modifier = Modifier,
-                )
+                androidx.compose.runtime.CompositionLocalProvider(
+                    LocalAnalyticsHelper provides analyticsHelper,
+                ) {
+                    QodeApp(
+                        appState = rememberQodeAppState(),
+                        modifier = Modifier,
+                    )
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.qodein.core.data.datasource
 
-import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -20,6 +19,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,6 +44,9 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 .set(dto)
                 .await()
         } catch (e: Exception) {
+            // Log error at data layer boundary following NIA patterns
+            Timber.tag(TAG).e(e, "Error in createPromoCode")
+
             // Provide specific error context for extension function parsing
             when {
                 e.message?.contains("ALREADY_EXISTS", ignoreCase = true) == true ||
@@ -76,7 +79,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         limit: Int,
         offset: Int
     ): List<PromoCode> {
-        Log.d(TAG, "getPromoCodes: Starting query with sortBy=$sortBy, limit=$limit")
+        Timber.tag(TAG).d("getPromoCodes: Starting query with sortBy=$sortBy, limit=$limit")
         var firestoreQuery: Query = firestore.collection(PROMOCODES_COLLECTION)
 
         // Apply filters
@@ -137,37 +140,37 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // For proper pagination, implement cursor-based pagination with startAfter()
         firestoreQuery = firestoreQuery.limit(limit.toLong())
 
-        Log.d(TAG, "getPromoCodes: Executing Firestore query...")
+        Timber.tag(TAG).d("getPromoCodes: Executing Firestore query...")
         val querySnapshot = firestoreQuery.get().await()
-        Log.d(TAG, "getPromoCodes: Query returned ${querySnapshot.documents.size} documents")
+        Timber.tag(TAG).d("getPromoCodes: Query returned ${querySnapshot.documents.size} documents")
 
         val results = querySnapshot.documents.mapNotNull { document ->
             try {
-                Log.d(TAG, "getPromoCodes: Processing document ${document.id}")
-                Log.d(TAG, "  Document data: ${document.data}")
+                Timber.tag(TAG).d("getPromoCodes: Processing document ${document.id}")
+                Timber.tag(TAG).d("  Document data: ${document.data}")
 
                 val dto = document.toObject<PromoCodeDto>()
                 if (dto == null) {
-                    Log.w(TAG, "getPromoCodes: Document ${document.id} failed to convert to DTO")
+                    Timber.tag(TAG).w("getPromoCodes: Document ${document.id} failed to convert to DTO")
                     return@mapNotNull null
                 }
 
-                Log.d(TAG, "  DTO: code=${dto.code}, type=${dto.type}, title=${dto.title}")
-                Log.d(TAG, "  Dates: start=${dto.startDate}, end=${dto.endDate}")
+                Timber.tag(TAG).d("  DTO: code=${dto.code}, type=${dto.type}, title=${dto.title}")
+                Timber.tag(TAG).d("  Dates: start=${dto.startDate}, end=${dto.endDate}")
 
                 val domainModel = PromoCodeMapper.toDomain(dto)
-                Log.d(TAG, "  Successfully converted to domain model: ${domainModel.code}")
+                Timber.tag(TAG).d("  Successfully converted to domain model: ${domainModel.code}")
                 domainModel
             } catch (e: Exception) {
-                Log.e(TAG, "getPromoCodes: Failed to parse document ${document.id}", e)
-                Log.e(TAG, "  Document data: ${document.data}")
+                Timber.tag(TAG).e(e, "getPromoCodes: Failed to parse document ${document.id}")
+                Timber.tag(TAG).e("  Document data: ${document.data}")
                 null
             }
         }
 
-        Log.d(TAG, "getPromoCodes: Successfully parsed ${results.size} promo codes")
+        Timber.tag(TAG).d("getPromoCodes: Successfully parsed ${results.size} promo codes")
         results.forEachIndexed { index, promoCode ->
-            Log.d(TAG, "  [$index] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})")
+            Timber.tag(TAG).d("  [$index] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})")
         }
 
         return results

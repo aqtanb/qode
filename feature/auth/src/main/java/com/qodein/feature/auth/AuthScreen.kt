@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeHeroGradient
@@ -53,6 +54,9 @@ fun AuthScreen(
     onNavigateToTermsOfService: () -> Unit = {},
     onNavigateToPrivacyPolicy: () -> Unit = {}
 ) {
+    // Track screen view
+    TrackScreenViewEvent(screenName = "Auth")
+
     val state by viewModel.state.collectAsState()
 
     // Handle events

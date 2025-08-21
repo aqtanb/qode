@@ -48,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
@@ -69,6 +70,8 @@ fun SubmissionWizardScreen(
     onNavigateBack: () -> Unit,
     viewModel: SubmissionWizardViewModel = hiltViewModel()
 ) {
+    TrackScreenViewEvent(screenName = "SubmissionWizard")
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
 

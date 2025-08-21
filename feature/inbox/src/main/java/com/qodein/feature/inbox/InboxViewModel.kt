@@ -2,6 +2,9 @@ package com.qodein.feature.inbox
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logFilterContent
+import com.qodein.core.analytics.logSearch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class InboxViewModel @Inject constructor() : ViewModel() {
+class InboxViewModel @Inject constructor(private val analyticsHelper: AnalyticsHelper) : ViewModel() {
 
     private val _state = MutableStateFlow(InboxUiState())
     val state: StateFlow<InboxUiState> = _state.asStateFlow()
@@ -85,14 +88,30 @@ class InboxViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun filterMessages(filter: InboxFilter) {
+        analyticsHelper.logFilterContent(
+            filterType = "inbox_filter",
+            filterValue = filter.name.lowercase(),
+        )
         _state.value = _state.value.copy(selectedFilter = filter)
     }
 
     private fun searchMessages(query: String) {
+        if (query.isNotBlank()) {
+            analyticsHelper.logSearch(query)
+        }
         _state.value = _state.value.copy(searchQuery = query)
     }
 
     private fun markAsRead(messageId: String) {
+        analyticsHelper.logEvent(
+            com.qodein.core.analytics.AnalyticsEvent(
+                type = "mark_message_read",
+                extras = listOf(
+                    com.qodein.core.analytics.AnalyticsEvent.Param("message_id", messageId),
+                ),
+            ),
+        )
+
         val updatedMessages = _state.value.messages.map { message ->
             if (message.id == messageId) {
                 message.copy(isRead = true)
@@ -115,6 +134,15 @@ class InboxViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun deleteMessage(messageId: String) {
+        analyticsHelper.logEvent(
+            com.qodein.core.analytics.AnalyticsEvent(
+                type = "delete_message",
+                extras = listOf(
+                    com.qodein.core.analytics.AnalyticsEvent.Param("message_id", messageId),
+                ),
+            ),
+        )
+
         val updatedMessages = _state.value.messages.filter { it.id != messageId }
         _state.value = _state.value.copy(messages = updatedMessages)
     }

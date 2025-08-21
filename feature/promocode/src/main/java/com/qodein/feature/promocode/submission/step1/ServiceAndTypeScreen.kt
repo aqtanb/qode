@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -61,6 +62,8 @@ fun ServiceAndTypeScreen(
     onSearchServices: (String) -> Unit = {},
     shouldFocusService: Boolean = false
 ) {
+    TrackScreenViewEvent(screenName = "SubmissionWizard_ServiceAndType")
+
     var searchQuery by remember { mutableStateOf(wizardData.serviceName) }
 
     // Trigger search when query changes

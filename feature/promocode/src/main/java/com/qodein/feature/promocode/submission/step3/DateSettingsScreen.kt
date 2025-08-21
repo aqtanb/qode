@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
@@ -45,6 +46,8 @@ fun DateSettingsScreen(
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    TrackScreenViewEvent(screenName = "SubmissionWizard_DateSettings")
+
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
 

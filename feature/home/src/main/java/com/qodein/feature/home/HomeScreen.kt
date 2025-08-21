@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
@@ -74,6 +75,9 @@ fun HomeScreen(
     onNavigateToBannerDetail: (Banner) -> Unit = {},
     onShowPromoCodeCopied: (PromoCode) -> Unit = {}
 ) {
+    // Track screen view
+    TrackScreenViewEvent(screenName = "Home")
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
