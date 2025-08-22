@@ -9,10 +9,10 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
-import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.qode.R
 import kotlin.reflect.KClass
 import com.qodein.feature.home.R as homeR
@@ -38,7 +38,7 @@ enum class TopLevelDestination(
         unSelectedIcon = Icons.Outlined.Search,
         iconTextId = R.string.search_title,
         titleTextId = R.string.search_title,
-        route = SearchRoute::class,
+        route = FeedRoute::class,
     ),
     INBOX(
         selectedIcon = Icons.Filled.Inbox,

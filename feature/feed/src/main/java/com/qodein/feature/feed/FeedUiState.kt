@@ -1,4 +1,4 @@
-package com.qodein.feature.search
+package com.qodein.feature.feed
 
 import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Post
@@ -7,7 +7,7 @@ import com.qodein.shared.model.Tag
 /**
  * UI state for the search screen following MVI pattern
  */
-sealed interface SearchUiState {
+sealed interface FeedUiState {
     val searchQuery: String
     val selectedTags: List<Tag>
     val suggestedTags: List<Tag>
@@ -20,7 +20,7 @@ sealed interface SearchUiState {
         override val selectedTags: List<Tag> = emptyList(),
         override val suggestedTags: List<Tag> = emptyList(),
         override val isSearchFocused: Boolean = false
-    ) : SearchUiState
+    ) : FeedUiState
 
     data class Content(
         override val searchQuery: String = "",
@@ -31,7 +31,7 @@ sealed interface SearchUiState {
         val isRefreshing: Boolean = false,
         val isLoadingMore: Boolean = false,
         val hasMorePosts: Boolean = true
-    ) : SearchUiState {
+    ) : FeedUiState {
         val isEmpty: Boolean get() = posts.isEmpty()
         val hasContent: Boolean get() = posts.isNotEmpty()
     }
@@ -45,9 +45,9 @@ sealed interface SearchUiState {
         val isRetryable: Boolean = false,
         val shouldShowSnackbar: Boolean = false,
         val errorCode: String? = null
-    ) : SearchUiState
+    ) : FeedUiState
 
     companion object {
-        fun initial(): SearchUiState = Loading()
+        fun initial(): FeedUiState = Loading()
     }
 }

@@ -1,4 +1,4 @@
-package com.qodein.feature.search
+package com.qodein.feature.feed
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -48,20 +48,20 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.core.ui.error.toLocalizedMessage
-import com.qodein.feature.search.component.PostCard
-import com.qodein.feature.search.component.SearchBar
+import com.qodein.feature.feed.component.PostCard
+import com.qodein.feature.feed.component.SearchBar
 import com.qodein.shared.common.result.ErrorAction
 
 /**
- * Modern search screen with post feed and tag-based filtering
+ * Modern feed screen with post feed and tag-based filtering
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SearchScreen(
+fun FeedScreen(
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: FeedViewModel = hiltViewModel()
 ) {
-    TrackScreenViewEvent(screenName = "Search")
+    TrackScreenViewEvent(screenName = "Feed")
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -71,22 +71,22 @@ fun SearchScreen(
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
             when (event) {
-                is SearchEvent.NavigateToPost -> {
+                is FeedEvent.NavigateToPost -> {
                     // TODO: Handle navigation to post details
                 }
-                is SearchEvent.NavigateToComments -> {
+                is FeedEvent.NavigateToComments -> {
                     // TODO: Handle navigation to comments
                 }
-                is SearchEvent.NavigateToProfile -> {
+                is FeedEvent.NavigateToProfile -> {
                     // TODO: Handle navigation to user profile
                 }
-                is SearchEvent.ShowShareDialog -> {
+                is FeedEvent.ShowShareDialog -> {
                     // TODO: Handle share dialog
                 }
-                is SearchEvent.ShowError -> {
+                is FeedEvent.ShowError -> {
                     // TODO: Show error snackbar/toast
                 }
-                is SearchEvent.ShowSuccess -> {
+                is FeedEvent.ShowSuccess -> {
                     // TODO: Show success snackbar/toast
                 }
             }
@@ -102,15 +102,15 @@ fun SearchScreen(
 
             val currentState = uiState
             lastVisibleItemIndex > (totalItemsNumber - 3) &&
-                currentState is SearchUiState.Content &&
+                currentState is FeedUiState.Content &&
                 currentState.hasMorePosts
         }
     }
 
     LaunchedEffect(shouldLoadMore) {
         val currentState = uiState
-        if (shouldLoadMore && currentState is SearchUiState.Content && !currentState.isLoadingMore) {
-            viewModel.handleAction(SearchAction.LoadMorePosts)
+        if (shouldLoadMore && currentState is FeedUiState.Content && !currentState.isLoadingMore) {
+            viewModel.handleAction(FeedAction.LoadMorePosts)
         }
     }
 
@@ -124,9 +124,9 @@ fun SearchScreen(
         // Search bar
         SearchBar(
             query = uiState.searchQuery,
-            onQueryChange = { viewModel.handleAction(SearchAction.SearchQueryChanged(it)) },
-            onSearchSubmit = { viewModel.handleAction(SearchAction.SearchSubmitted) },
-            onClearSearch = { viewModel.handleAction(SearchAction.ClearSearch) },
+            onQueryChange = { viewModel.handleAction(FeedAction.FeedQueryChanged(it)) },
+            onSearchSubmit = { viewModel.handleAction(FeedAction.FeedSubmitted) },
+            onClearSearch = { viewModel.handleAction(FeedAction.ClearFeed) },
         )
 
         Spacer(modifier = Modifier.height(SpacingTokens.md))
@@ -175,7 +175,7 @@ fun SearchScreen(
                         }
 
                         Surface(
-                            onClick = { viewModel.handleAction(SearchAction.ClearAllTags) },
+                            onClick = { viewModel.handleAction(FeedAction.ClearAllTags) },
                             shape = RoundedCornerShape(20.dp),
                             color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f),
                         ) {
@@ -231,7 +231,7 @@ fun SearchScreen(
                                     )
 
                                     Surface(
-                                        onClick = { viewModel.handleAction(SearchAction.TagRemoved(tag)) },
+                                        onClick = { viewModel.handleAction(FeedAction.TagRemoved(tag)) },
                                         shape = CircleShape,
                                         color = tagColor.copy(alpha = 0.2f),
                                         modifier = Modifier.size(20.dp),
@@ -300,7 +300,7 @@ fun SearchScreen(
                             ?: androidx.compose.ui.graphics.Color(0xFF6C63FF)
 
                         Surface(
-                            onClick = { viewModel.handleAction(SearchAction.TagSelected(tag)) },
+                            onClick = { viewModel.handleAction(FeedAction.TagSelected(tag)) },
                             shape = RoundedCornerShape(24.dp),
                             color = tagColor.copy(alpha = 0.08f),
                             border = androidx.compose.foundation.BorderStroke(
@@ -344,7 +344,7 @@ fun SearchScreen(
 
         // Posts feed
         when (val currentState = uiState) {
-            is SearchUiState.Loading -> {
+            is FeedUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -363,7 +363,7 @@ fun SearchScreen(
                 }
             }
 
-            is SearchUiState.Content -> {
+            is FeedUiState.Content -> {
                 if (currentState.isEmpty) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -394,22 +394,22 @@ fun SearchScreen(
                                 post = post,
                                 onLikeClick = { postId ->
                                     if (post.isLikedByCurrentUser) {
-                                        viewModel.handleAction(SearchAction.PostUnliked(postId))
+                                        viewModel.handleAction(FeedAction.PostUnliked(postId))
                                     } else {
-                                        viewModel.handleAction(SearchAction.PostLiked(postId))
+                                        viewModel.handleAction(FeedAction.PostLiked(postId))
                                     }
                                 },
                                 onCommentClick = { postId ->
-                                    viewModel.handleAction(SearchAction.PostCommentClicked(postId))
+                                    viewModel.handleAction(FeedAction.PostCommentClicked(postId))
                                 },
                                 onShareClick = { postId ->
-                                    viewModel.handleAction(SearchAction.PostShared(postId))
+                                    viewModel.handleAction(FeedAction.PostShared(postId))
                                 },
                                 onUserClick = { username ->
                                     // TODO: Navigate to user profile
                                 },
                                 onTagClick = { tag ->
-                                    viewModel.handleAction(SearchAction.TagSelected(tag))
+                                    viewModel.handleAction(FeedAction.TagSelected(tag))
                                 },
                             )
                         }
@@ -431,7 +431,7 @@ fun SearchScreen(
                 }
             }
 
-            is SearchUiState.Error -> {
+            is FeedUiState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -439,8 +439,8 @@ fun SearchScreen(
                     QodeActionErrorCard(
                         message = currentState.errorType.toLocalizedMessage(),
                         errorAction = if (currentState.isRetryable) ErrorAction.RETRY else ErrorAction.DISMISS_ONLY,
-                        onActionClicked = { viewModel.handleAction(SearchAction.RetryClicked) },
-                        onDismiss = { viewModel.handleAction(SearchAction.ErrorDismissed) },
+                        onActionClicked = { viewModel.handleAction(FeedAction.RetryClicked) },
+                        onDismiss = { viewModel.handleAction(FeedAction.ErrorDismissed) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(SpacingTokens.md),
@@ -452,9 +452,9 @@ fun SearchScreen(
 }
 
 // Preview with mock data
-@Preview(name = "Search Screen", showBackground = true)
+@Preview(name = "Feed Screen", showBackground = true)
 @Composable
-private fun SearchScreenPreview() {
+private fun FeedScreenPreview() {
     QodeTheme {
         // Note: This preview won't show posts since we don't have a mock ViewModel
         // In a real implementation, you'd create a preview-specific version

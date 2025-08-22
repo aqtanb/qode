@@ -15,11 +15,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.AuthRoute
+import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.SubmissionRoute
-import com.qodein.feature.search.navigation.SearchRoute
 import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.HOME
@@ -146,7 +146,7 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
                     navOptions = topLevelNavOptions,
                 )
                 SEARCH -> navController.navigate(
-                    route = SearchRoute,
+                    route = FeedRoute,
                     navOptions = topLevelNavOptions,
                 )
                 INBOX -> navController.navigate(

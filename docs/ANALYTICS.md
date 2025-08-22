@@ -477,7 +477,7 @@ All main screens now have automatic view tracking:
 - **AuthScreen**: `TrackScreenViewEvent(screenName = "Auth")`
 - **ProfileScreen**: `TrackScreenViewEvent(screenName = "Profile")`
 - **InboxScreen**: `TrackScreenViewEvent(screenName = "Inbox")`
-- **SearchScreen**: `TrackScreenViewEvent(screenName = "Search")`
+- **FeedScreen**: `TrackScreenViewEvent(screenName = "Feed")`
 - **SettingsScreen**: `TrackScreenViewEvent(screenName = "Settings")`
 - **SubmissionWizardScreen**: `TrackScreenViewEvent(screenName = "SubmissionWizard")`
 - **Wizard Steps**: All 4 step screens with hierarchical naming

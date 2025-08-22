@@ -1,10 +1,10 @@
-# Search System
+# Feed System
 
 ## Overview
-Comprehensive search and discovery system with real-time search suggestions, advanced filtering, sorting capabilities, and infinite scroll. Features debounced search, category/store filtering, and sophisticated state management for optimal user experience.
+Comprehensive feed and discovery system with real-time search suggestions, advanced filtering, sorting capabilities, and infinite scroll. Features debounced search, category/store filtering, and sophisticated state management for optimal user experience.
 
 ## Architecture
-- **MVI Pattern**: SearchViewModel with SearchAction sealed classes and state management
+- **MVI Pattern**: FeedViewModel with FeedAction sealed classes and state management
 - **Real-Time Search**: Debounced search with live suggestions and auto-complete
 - **Advanced Filtering**: Quick filters, category filters, store filters, and sorting options
 - **Infinite Scroll**: Pagination with load-more functionality and smooth UX
@@ -14,11 +14,11 @@ Comprehensive search and discovery system with real-time search suggestions, adv
 ## Key Files
 
 ### Feature Layer
-- `feature/search/SearchScreen.kt` - Main search interface with flexible layout options
-- `feature/search/SearchViewModel.kt` - Complex search logic with filtering and pagination
-- `feature/search/SearchUiState.kt` - Search state management with filter tracking
-- `feature/search/SearchAction.kt` - User interactions for search, filtering, and navigation
-- `feature/search/navigation/SearchNavigation.kt` - Type-safe navigation integration
+- `feature/feed/FeedScreen.kt` - Main feed interface with flexible layout options
+- `feature/feed/FeedViewModel.kt` - Complex feed logic with filtering and pagination
+- `feature/feed/FeedUiState.kt` - Feed state management with filter tracking
+- `feature/feed/FeedAction.kt` - User interactions for search, filtering, and navigation
+- `feature/feed/navigation/FeedNavigation.kt` - Type-safe navigation integration
 
 ### UI Components
 - `core/ui/component/SearchHeader.kt` - Search bar with suggestions and filters

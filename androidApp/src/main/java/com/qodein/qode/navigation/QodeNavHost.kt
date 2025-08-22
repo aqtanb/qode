@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
+import com.qodein.feature.feed.navigation.feedSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.submissionSection
-import com.qodein.feature.search.navigation.searchSection
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.shared.model.Language
@@ -35,7 +35,7 @@ fun QodeNavHost(
             promoCodeDetail = {},
         )
 
-        searchSection()
+        feedSection()
 
         inboxSection()
 

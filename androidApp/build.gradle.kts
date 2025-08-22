@@ -84,7 +84,7 @@ dependencies {
     implementation(projects.feature.auth)
     implementation(projects.feature.home)
     implementation(projects.feature.inbox)
-    implementation(projects.feature.search)
+    implementation(projects.feature.feed)
     implementation(projects.feature.profile)
     implementation(projects.feature.promocode)
     implementation(projects.feature.settings)

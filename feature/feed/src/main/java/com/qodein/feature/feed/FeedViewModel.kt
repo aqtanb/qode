@@ -1,4 +1,4 @@
-package com.qodein.feature.search
+package com.qodein.feature.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,16 +32,16 @@ import javax.inject.Inject
  * ViewModel for search screen following MVI pattern with Events system
  */
 @HiltViewModel
-class SearchViewModel @Inject constructor(
+class FeedViewModel @Inject constructor(
     private val analyticsHelper: AnalyticsHelper
     // TODO: Inject actual repositories when available
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<SearchUiState>(SearchUiState.initial())
-    val state: StateFlow<SearchUiState> = _state.asStateFlow()
+    private val _state = MutableStateFlow<FeedUiState>(FeedUiState.initial())
+    val state: StateFlow<FeedUiState> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<SearchEvent>()
-    val events: SharedFlow<SearchEvent> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<FeedEvent>()
+    val events: SharedFlow<FeedEvent> = _events.asSharedFlow()
 
     private var searchJob: Job? = null
 
@@ -49,30 +49,30 @@ class SearchViewModel @Inject constructor(
         loadInitialData()
     }
 
-    fun handleAction(action: SearchAction) {
+    fun handleAction(action: FeedAction) {
         when (action) {
-            is SearchAction.SearchQueryChanged -> updateSearchQuery(action.query)
-            is SearchAction.SearchSubmitted -> performSearch()
-            is SearchAction.ClearSearch -> clearSearch()
-            is SearchAction.TagSelected -> selectTag(action.tag)
-            is SearchAction.TagRemoved -> removeTag(action.tag)
-            is SearchAction.ClearAllTags -> clearAllTags()
-            is SearchAction.PostLiked -> likePost(action.postId)
-            is SearchAction.PostUnliked -> unlikePost(action.postId)
-            is SearchAction.PostShared -> sharePost(action.postId)
-            is SearchAction.PostCommentClicked -> openComments(action.postId)
-            is SearchAction.LoadMorePosts -> loadMorePosts()
-            is SearchAction.RefreshPosts -> refreshPosts()
-            is SearchAction.RetryClicked -> retryLastAction()
-            is SearchAction.ErrorDismissed -> dismissError()
+            is FeedAction.FeedQueryChanged -> updateSearchQuery(action.query)
+            is FeedAction.FeedSubmitted -> performSearch()
+            is FeedAction.ClearFeed -> clearSearch()
+            is FeedAction.TagSelected -> selectTag(action.tag)
+            is FeedAction.TagRemoved -> removeTag(action.tag)
+            is FeedAction.ClearAllTags -> clearAllTags()
+            is FeedAction.PostLiked -> likePost(action.postId)
+            is FeedAction.PostUnliked -> unlikePost(action.postId)
+            is FeedAction.PostShared -> sharePost(action.postId)
+            is FeedAction.PostCommentClicked -> openComments(action.postId)
+            is FeedAction.LoadMorePosts -> loadMorePosts()
+            is FeedAction.RefreshPosts -> refreshPosts()
+            is FeedAction.RetryClicked -> retryLastAction()
+            is FeedAction.ErrorDismissed -> dismissError()
         }
     }
 
     private fun updateSearchQuery(query: String) {
         _state.value = when (val currentState = _state.value) {
-            is SearchUiState.Loading -> currentState.copy(searchQuery = query)
-            is SearchUiState.Content -> currentState.copy(searchQuery = query)
-            is SearchUiState.Error -> currentState.copy(searchQuery = query)
+            is FeedUiState.Loading -> currentState.copy(searchQuery = query)
+            is FeedUiState.Content -> currentState.copy(searchQuery = query)
+            is FeedUiState.Error -> currentState.copy(searchQuery = query)
         }
 
         // Debounce search
@@ -88,7 +88,7 @@ class SearchViewModel @Inject constructor(
     private fun performSearch() {
         viewModelScope.launch {
             val currentState = _state.value
-            _state.value = SearchUiState.Loading(
+            _state.value = FeedUiState.Loading(
                 searchQuery = currentState.searchQuery,
                 selectedTags = currentState.selectedTags,
                 suggestedTags = currentState.suggestedTags,
@@ -106,7 +106,7 @@ class SearchViewModel @Inject constructor(
                 delay(800) // Simulate network delay
                 val posts = generateMockPosts()
 
-                _state.value = SearchUiState.Content(
+                _state.value = FeedUiState.Content(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
@@ -115,7 +115,7 @@ class SearchViewModel @Inject constructor(
                     hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = SearchUiState.Error(
+                _state.value = FeedUiState.Error(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
@@ -125,7 +125,7 @@ class SearchViewModel @Inject constructor(
                     shouldShowSnackbar = e.shouldShowSnackbar(),
                     errorCode = e.getErrorCode(),
                 )
-                emitEvent(SearchEvent.ShowError("Search failed"))
+                emitEvent(FeedEvent.ShowError("Search failed"))
             }
         }
     }
@@ -133,9 +133,9 @@ class SearchViewModel @Inject constructor(
     private fun clearSearch() {
         val currentState = _state.value
         _state.value = when (currentState) {
-            is SearchUiState.Loading -> currentState.copy(searchQuery = "")
-            is SearchUiState.Content -> currentState.copy(searchQuery = "")
-            is SearchUiState.Error -> currentState.copy(searchQuery = "")
+            is FeedUiState.Loading -> currentState.copy(searchQuery = "")
+            is FeedUiState.Content -> currentState.copy(searchQuery = "")
+            is FeedUiState.Error -> currentState.copy(searchQuery = "")
         }
         loadInitialData()
     }
@@ -151,9 +151,9 @@ class SearchViewModel @Inject constructor(
             )
 
             _state.value = when (currentState) {
-                is SearchUiState.Loading -> currentState.copy(selectedTags = currentTags + tag)
-                is SearchUiState.Content -> currentState.copy(selectedTags = currentTags + tag)
-                is SearchUiState.Error -> currentState.copy(selectedTags = currentTags + tag)
+                is FeedUiState.Loading -> currentState.copy(selectedTags = currentTags + tag)
+                is FeedUiState.Content -> currentState.copy(selectedTags = currentTags + tag)
+                is FeedUiState.Error -> currentState.copy(selectedTags = currentTags + tag)
             }
             performSearch()
         }
@@ -170,9 +170,9 @@ class SearchViewModel @Inject constructor(
         )
 
         _state.value = when (currentState) {
-            is SearchUiState.Loading -> currentState.copy(selectedTags = currentTags - tag)
-            is SearchUiState.Content -> currentState.copy(selectedTags = currentTags - tag)
-            is SearchUiState.Error -> currentState.copy(selectedTags = currentTags - tag)
+            is FeedUiState.Loading -> currentState.copy(selectedTags = currentTags - tag)
+            is FeedUiState.Content -> currentState.copy(selectedTags = currentTags - tag)
+            is FeedUiState.Error -> currentState.copy(selectedTags = currentTags - tag)
         }
         performSearch()
     }
@@ -180,9 +180,9 @@ class SearchViewModel @Inject constructor(
     private fun clearAllTags() {
         val currentState = _state.value
         _state.value = when (currentState) {
-            is SearchUiState.Loading -> currentState.copy(selectedTags = emptyList())
-            is SearchUiState.Content -> currentState.copy(selectedTags = emptyList())
-            is SearchUiState.Error -> currentState.copy(selectedTags = emptyList())
+            is FeedUiState.Loading -> currentState.copy(selectedTags = emptyList())
+            is FeedUiState.Content -> currentState.copy(selectedTags = emptyList())
+            is FeedUiState.Error -> currentState.copy(selectedTags = emptyList())
         }
         performSearch()
     }
@@ -207,11 +207,11 @@ class SearchViewModel @Inject constructor(
                 // TODO: Call actual repository
                 delay(500)
 
-                emitEvent(SearchEvent.ShowSuccess("Post liked!"))
+                emitEvent(FeedEvent.ShowSuccess("Post liked!"))
             } catch (e: Exception) {
                 // Revert optimistic update
                 updatePostLike(postId, false)
-                emitEvent(SearchEvent.ShowError("Failed to like post"))
+                emitEvent(FeedEvent.ShowError("Failed to like post"))
             }
         }
     }
@@ -227,7 +227,7 @@ class SearchViewModel @Inject constructor(
             } catch (e: Exception) {
                 // Revert optimistic update
                 updatePostLike(postId, true)
-                emitEvent(SearchEvent.ShowError("Failed to unlike post"))
+                emitEvent(FeedEvent.ShowError("Failed to unlike post"))
             }
         }
     }
@@ -245,7 +245,7 @@ class SearchViewModel @Inject constructor(
                 ),
             )
 
-            emitEvent(SearchEvent.ShowShareDialog(postId))
+            emitEvent(FeedEvent.ShowShareDialog(postId))
         }
     }
 
@@ -262,13 +262,13 @@ class SearchViewModel @Inject constructor(
                 ),
             )
 
-            emitEvent(SearchEvent.NavigateToComments(postId))
+            emitEvent(FeedEvent.NavigateToComments(postId))
         }
     }
 
     private fun loadMorePosts() {
         val currentState = _state.value
-        if (currentState !is SearchUiState.Content || currentState.isLoadingMore || !currentState.hasMorePosts) return
+        if (currentState !is FeedUiState.Content || currentState.isLoadingMore || !currentState.hasMorePosts) return
 
         viewModelScope.launch {
             _state.value = currentState.copy(isLoadingMore = true)
@@ -284,7 +284,7 @@ class SearchViewModel @Inject constructor(
                     hasMorePosts = newPosts.isNotEmpty(),
                 )
             } catch (e: Exception) {
-                _state.value = SearchUiState.Error(
+                _state.value = FeedUiState.Error(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
@@ -300,7 +300,7 @@ class SearchViewModel @Inject constructor(
 
     private fun refreshPosts() {
         val currentState = _state.value
-        if (currentState !is SearchUiState.Content) return
+        if (currentState !is FeedUiState.Content) return
 
         viewModelScope.launch {
             _state.value = currentState.copy(isRefreshing = true)
@@ -316,7 +316,7 @@ class SearchViewModel @Inject constructor(
                     hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = SearchUiState.Error(
+                _state.value = FeedUiState.Error(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
@@ -336,8 +336,8 @@ class SearchViewModel @Inject constructor(
 
     private fun dismissError() {
         val currentState = _state.value
-        if (currentState is SearchUiState.Error) {
-            _state.value = SearchUiState.Content(
+        if (currentState is FeedUiState.Error) {
+            _state.value = FeedUiState.Content(
                 searchQuery = currentState.searchQuery,
                 selectedTags = currentState.selectedTags,
                 suggestedTags = currentState.suggestedTags,
@@ -349,7 +349,7 @@ class SearchViewModel @Inject constructor(
     private fun loadInitialData() {
         viewModelScope.launch {
             val currentState = _state.value
-            _state.value = SearchUiState.Loading(
+            _state.value = FeedUiState.Loading(
                 searchQuery = currentState.searchQuery,
                 selectedTags = currentState.selectedTags,
                 suggestedTags = currentState.suggestedTags,
@@ -362,7 +362,7 @@ class SearchViewModel @Inject constructor(
                 val posts = generateMockPosts()
                 val suggestedTags = generateMockTags()
 
-                _state.value = SearchUiState.Content(
+                _state.value = FeedUiState.Content(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = suggestedTags,
@@ -371,7 +371,7 @@ class SearchViewModel @Inject constructor(
                     hasMorePosts = true,
                 )
             } catch (e: Exception) {
-                _state.value = SearchUiState.Error(
+                _state.value = FeedUiState.Error(
                     searchQuery = currentState.searchQuery,
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
@@ -390,7 +390,7 @@ class SearchViewModel @Inject constructor(
         liked: Boolean
     ) {
         val currentState = _state.value
-        if (currentState is SearchUiState.Content) {
+        if (currentState is FeedUiState.Content) {
             val updatedPosts = currentState.posts.map { post ->
                 if (post.id == postId) {
                     post.copy(
@@ -405,7 +405,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun emitEvent(event: SearchEvent) {
+    private fun emitEvent(event: FeedEvent) {
         viewModelScope.launch {
             _events.emit(event)
         }

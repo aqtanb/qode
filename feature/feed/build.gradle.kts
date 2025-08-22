@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.feature.search"
+    namespace = "com.qodein.feature.feed"
     compileSdk =
         libs.versions.compileSdk
             .get()

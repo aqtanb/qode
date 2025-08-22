@@ -1,4 +1,4 @@
-package com.qodein.feature.search.component
+package com.qodein.feature.feed.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
