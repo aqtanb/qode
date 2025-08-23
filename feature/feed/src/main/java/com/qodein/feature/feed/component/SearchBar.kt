@@ -7,6 +7,7 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -73,7 +74,7 @@ fun SearchBar(
         color = MaterialTheme.colorScheme.surfaceContainer,
         shadowElevation = elevation.dp,
         border = if (isFocused) {
-            androidx.compose.foundation.BorderStroke(
+            BorderStroke(
                 width = 1.5.dp,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
             )

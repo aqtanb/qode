@@ -9,6 +9,7 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,8 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +50,8 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
@@ -83,7 +84,7 @@ fun PostCard(
 
     val likeButtonColor by animateColorAsState(
         targetValue = if (post.isUpvotedByCurrentUser) {
-            Color(0xFFFF6B6B) // Beautiful red
+            MaterialTheme.colorScheme.error
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         },
@@ -101,24 +102,22 @@ fun PostCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xs),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(ShapeTokens.Corner.large),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = cardElevation.dp,
         tonalElevation = 2.dp,
     ) {
         Box {
-            // Subtle gradient overlay for premium feel
+            // Subtle accent line for visual appeal
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
+                    .height(3.dp)
                     .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFF6C63FF).copy(alpha = 0.6f),
-                                Color(0xFF4ECDC4).copy(alpha = 0.6f),
-                                Color(0xFFFF6B6B).copy(alpha = 0.6f),
-                            ),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(
+                            topStart = ShapeTokens.Corner.large,
+                            topEnd = ShapeTokens.Corner.large,
                         ),
                     ),
             )
@@ -154,9 +153,9 @@ fun PostCard(
                         // Online indicator
                         Box(
                             modifier = Modifier
-                                .size(12.dp)
+                                .size(SizeTokens.Decoration.sizeSmall)
                                 .clip(CircleShape)
-                                .background(Color(0xFF4CAF50))
+                                .background(MaterialTheme.colorScheme.primary)
                                 .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
                                 .align(Alignment.BottomEnd),
                         )
@@ -191,15 +190,15 @@ fun PostCard(
                             // Engagement indicator
                             if (post.voteScore > 50) {
                                 Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFFFF6B6B).copy(alpha = 0.1f),
+                                    shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+                                    color = MaterialTheme.colorScheme.errorContainer,
                                 ) {
                                     Text(
                                         text = "🔥 Hot",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = Color(0xFFFF6B6B),
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
                                         modifier = Modifier.padding(
-                                            horizontal = 6.dp,
+                                            horizontal = SpacingTokens.xs + 2.dp,
                                             vertical = 2.dp,
                                         ),
                                     )
@@ -230,37 +229,34 @@ fun PostCard(
 
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                     ) {
                         post.tags.forEach { tag ->
-                            val tagColor = tag.color?.let { Color(android.graphics.Color.parseColor(it)) }
-                                ?: Color(0xFF6C63FF)
-
                             Surface(
                                 onClick = { onTagClick(tag) },
-                                shape = RoundedCornerShape(16.dp),
-                                color = tagColor.copy(alpha = 0.1f),
-                                border = androidx.compose.foundation.BorderStroke(
+                                shape = RoundedCornerShape(SpacingTokens.Chip.spacing + 8.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                border = BorderStroke(
                                     1.dp,
-                                    tagColor.copy(alpha = 0.3f),
+                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                                 ),
                                 modifier = Modifier.height(28.dp),
                             ) {
                                 Row(
                                     modifier = Modifier.padding(
-                                        horizontal = 12.dp,
-                                        vertical = 4.dp,
+                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                        vertical = SpacingTokens.xs,
                                     ),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                                 ) {
-                                    // Tag color indicator
+                                    // Tag indicator
                                     Box(
                                         modifier = Modifier
                                             .size(6.dp)
                                             .clip(CircleShape)
-                                            .background(tagColor),
+                                            .background(MaterialTheme.colorScheme.tertiary),
                                     )
 
                                     Text(
@@ -269,7 +265,7 @@ fun PostCard(
                                             fontWeight = FontWeight.Medium,
                                             letterSpacing = 0.3.sp,
                                         ),
-                                        color = tagColor,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
                                         maxLines = 1,
                                     )
                                 }
@@ -390,9 +386,9 @@ private fun PostCardPreview() {
             content = "🔥 Found an amazing subscription deal! Anyone tried this service before? " +
                 "The savings are incredible and I'm curious about the user experience.",
             tags = listOf(
-                Tag.create("streaming", "#FF6B6B"),
-                Tag.create("deals", "#4ECDC4"),
-                Tag.create("music", "#45B7D1"),
+                Tag.create("streaming"),
+                Tag.create("deals"),
+                Tag.create("music"),
             ),
             upvotes = 42,
             downvotes = 3,

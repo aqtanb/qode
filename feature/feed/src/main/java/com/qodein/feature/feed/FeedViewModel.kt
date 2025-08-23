@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
 import javax.inject.Inject
 
@@ -61,6 +62,8 @@ class FeedViewModel @Inject constructor(
             is FeedAction.PostUnliked -> unlikePost(action.postId)
             is FeedAction.PostShared -> sharePost(action.postId)
             is FeedAction.PostCommentClicked -> openComments(action.postId)
+            is FeedAction.PostClicked -> openPost(action.postId)
+            is FeedAction.UserClicked -> openUserProfile(action.username)
             is FeedAction.LoadMorePosts -> loadMorePosts()
             is FeedAction.RefreshPosts -> refreshPosts()
             is FeedAction.RetryClicked -> retryLastAction()
@@ -266,6 +269,40 @@ class FeedViewModel @Inject constructor(
         }
     }
 
+    private fun openPost(postId: PostId) {
+        viewModelScope.launch {
+            // Track post click analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "post_clicked",
+                    extras = listOf(
+                        AnalyticsEvent.Param("post_id", postId.value),
+                        AnalyticsEvent.Param("source", "feed"),
+                    ),
+                ),
+            )
+
+            emitEvent(FeedEvent.NavigateToPost(postId))
+        }
+    }
+
+    private fun openUserProfile(username: String) {
+        viewModelScope.launch {
+            // Track profile click analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "user_profile_clicked",
+                    extras = listOf(
+                        AnalyticsEvent.Param("username", username),
+                        AnalyticsEvent.Param("source", "feed"),
+                    ),
+                ),
+            )
+
+            emitEvent(FeedEvent.NavigateToProfile(username))
+        }
+    }
+
     private fun loadMorePosts() {
         val currentState = _state.value
         if (currentState !is FeedUiState.Content || currentState.isLoadingMore || !currentState.hasMorePosts) return
@@ -440,7 +477,7 @@ class FeedViewModel @Inject constructor(
         return (0..7).map { index ->
             val actualIndex = offset + index
             Post(
-                id = com.qodein.shared.model.PostId("post_$actualIndex"),
+                id = PostId("post_$actualIndex"),
                 authorId = UserId("user_${actualIndex % mockUsers.size}"),
                 authorUsername = mockUsers[actualIndex % mockUsers.size],
                 authorAvatarUrl = "https://picsum.photos/seed/$actualIndex/150/150",
@@ -449,7 +486,7 @@ class FeedViewModel @Inject constructor(
                 upvotes = (5..150).random(),
                 downvotes = (0..10).random(),
                 shares = (0..10).random(),
-                createdAt = Clock.System.now().minus((1..48).random(), kotlinx.datetime.DateTimeUnit.HOUR),
+                createdAt = Clock.System.now().minus((1..48).random(), DateTimeUnit.HOUR),
                 isUpvotedByCurrentUser = (0..10).random() < 3,
             )
         }

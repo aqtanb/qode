@@ -22,6 +22,8 @@ sealed class FeedAction {
     data class PostUnliked(val postId: PostId) : FeedAction()
     data class PostShared(val postId: PostId) : FeedAction()
     data class PostCommentClicked(val postId: PostId) : FeedAction()
+    data class PostClicked(val postId: PostId) : FeedAction()
+    data class UserClicked(val username: String) : FeedAction()
 
     // Feed actions
     data object LoadMorePosts : FeedAction()

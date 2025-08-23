@@ -1,10 +1,6 @@
 package com.qodein.feature.feed
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.core.ui.error.toLocalizedMessage
@@ -115,238 +113,34 @@ fun FeedScreen(
     }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = SpacingTokens.md),
+        modifier = modifier.fillMaxSize(),
     ) {
-        Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-        // Search bar
-        SearchBar(
-            query = uiState.searchQuery,
-            onQueryChange = { viewModel.handleAction(FeedAction.FeedQueryChanged(it)) },
-            onSearchSubmit = { viewModel.handleAction(FeedAction.FeedSubmitted) },
-            onClearSearch = { viewModel.handleAction(FeedAction.ClearFeed) },
-        )
-
-        Spacer(modifier = Modifier.height(SpacingTokens.md))
-
-        // Enhanced active filters section
-        AnimatedVisibility(
-            visible = uiState.selectedTags.isNotEmpty(),
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+        // Fixed search bar at top
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = SpacingTokens.md),
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = SpacingTokens.xs),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                shadowElevation = 2.dp,
-            ) {
-                Column(
-                    modifier = Modifier.padding(SpacingTokens.md),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = CircleShape,
-                                    ),
-                            )
-                            Text(
-                                text = "Active filters (${uiState.selectedTags.size})",
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
+            Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
-                        Surface(
-                            onClick = { viewModel.handleAction(FeedAction.ClearAllTags) },
-                            shape = RoundedCornerShape(20.dp),
-                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f),
-                        ) {
-                            Text(
-                                text = "Clear all",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp,
-                                ),
-                            )
-                        }
-                    }
+            // Search bar
+            SearchBar(
+                query = uiState.searchQuery,
+                onQueryChange = { viewModel.handleAction(FeedAction.FeedQueryChanged(it)) },
+                onSearchSubmit = { viewModel.handleAction(FeedAction.FeedSubmitted) },
+                onClearSearch = { viewModel.handleAction(FeedAction.ClearFeed) },
+            )
 
-                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        uiState.selectedTags.forEach { tag ->
-                            val tagColor = tag.color?.let { androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(it)) }
-                                ?: androidx.compose.ui.graphics.Color(0xFF6C63FF)
-
-                            Surface(
-                                onClick = {},
-                                shape = RoundedCornerShape(20.dp),
-                                color = tagColor.copy(alpha = 0.15f),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.5.dp,
-                                    tagColor.copy(alpha = 0.4f),
-                                ),
-                                shadowElevation = 1.dp,
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(
-                                        start = 14.dp,
-                                        end = 8.dp,
-                                        top = 8.dp,
-                                        bottom = 8.dp,
-                                    ),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    Text(
-                                        text = "#${tag.name}",
-                                        style = MaterialTheme.typography.labelMedium.copy(
-                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                                        ),
-                                        color = tagColor,
-                                    )
-
-                                    Surface(
-                                        onClick = { viewModel.handleAction(FeedAction.TagRemoved(tag)) },
-                                        shape = CircleShape,
-                                        color = tagColor.copy(alpha = 0.2f),
-                                        modifier = Modifier.size(20.dp),
-                                    ) {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier.fillMaxSize(),
-                                        ) {
-                                            Text(
-                                                text = "×",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = tagColor,
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
         }
 
-        // Enhanced suggested tags section
-        AnimatedVisibility(
-            visible = uiState.searchQuery.isBlank() && uiState.suggestedTags.isNotEmpty(),
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(
-                                color = androidx.compose.ui.graphics.Color(0xFF4ECDC4),
-                                shape = CircleShape,
-                            ),
-                    )
-                    Text(
-                        text = "Trending tags",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = "🔥",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    uiState.suggestedTags.take(8).forEach { tag ->
-                        val tagColor = tag.color?.let { androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(it)) }
-                            ?: androidx.compose.ui.graphics.Color(0xFF6C63FF)
-
-                        Surface(
-                            onClick = { viewModel.handleAction(FeedAction.TagSelected(tag)) },
-                            shape = RoundedCornerShape(24.dp),
-                            color = tagColor.copy(alpha = 0.08f),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                tagColor.copy(alpha = 0.2f),
-                            ),
-                            shadowElevation = 1.dp,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(
-                                    horizontal = 16.dp,
-                                    vertical = 10.dp,
-                                ),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .background(
-                                            color = tagColor,
-                                            shape = CircleShape,
-                                        ),
-                                )
-
-                                Text(
-                                    text = "#${tag.name}",
-                                    style = MaterialTheme.typography.labelLarge.copy(
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                                    ),
-                                    color = tagColor,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(SpacingTokens.lg))
-            }
-        }
-
-        // Posts feed
+        // Scrollable posts section
         when (val currentState = uiState) {
             is FeedUiState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(
@@ -366,7 +160,9 @@ fun FeedScreen(
             is FeedUiState.Content -> {
                 if (currentState.isEmpty) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = SpacingTokens.md),
                         contentAlignment = Alignment.Center,
                     ) {
                         QodeEmptyState(
@@ -384,8 +180,211 @@ fun FeedScreen(
                         state = lazyListState,
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                        contentPadding = PaddingValues(bottom = SpacingTokens.xl),
+                        contentPadding = PaddingValues(
+                            start = SpacingTokens.md,
+                            end = SpacingTokens.md,
+                            bottom = SpacingTokens.xxl,
+                        ),
                     ) {
+                        // Active filters section
+                        if (currentState.selectedTags.isNotEmpty()) {
+                            item("active_filters") {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = SpacingTokens.sm),
+                                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(SpacingTokens.md),
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(SpacingTokens.sm)
+                                                        .background(
+                                                            color = MaterialTheme.colorScheme.primary,
+                                                            shape = CircleShape,
+                                                        ),
+                                                )
+                                                Text(
+                                                    text = "Active filters (${currentState.selectedTags.size})",
+                                                    style = MaterialTheme.typography.labelLarge.copy(
+                                                        fontWeight = FontWeight.SemiBold,
+                                                    ),
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+
+                                            Surface(
+                                                onClick = { viewModel.handleAction(FeedAction.ClearAllTags) },
+                                                shape = RoundedCornerShape(ShapeTokens.Corner.large),
+                                                color = MaterialTheme.colorScheme.errorContainer,
+                                            ) {
+                                                Text(
+                                                    text = "Clear all",
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                                    modifier = Modifier.padding(
+                                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                                        vertical = SpacingTokens.xs,
+                                                    ),
+                                                )
+                                            }
+                                        }
+
+                                        Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+                                        FlowRow(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                                        ) {
+                                            currentState.selectedTags.forEach { tag ->
+                                                Surface(
+                                                    onClick = {},
+                                                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
+                                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                                    border = BorderStroke(
+                                                        1.dp,
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                                    ),
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(
+                                                            start = SpacingTokens.Chip.horizontalPadding,
+                                                            end = SpacingTokens.sm,
+                                                            top = SpacingTokens.sm,
+                                                            bottom = SpacingTokens.sm,
+                                                        ),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                                                    ) {
+                                                        Text(
+                                                            text = "#${tag.name}",
+                                                            style = MaterialTheme.typography.labelMedium.copy(
+                                                                fontWeight = FontWeight.Medium,
+                                                            ),
+                                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                        )
+
+                                                        Surface(
+                                                            onClick = { viewModel.handleAction(FeedAction.TagRemoved(tag)) },
+                                                            shape = CircleShape,
+                                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
+                                                            modifier = Modifier.size(20.dp),
+                                                        ) {
+                                                            Box(
+                                                                contentAlignment = Alignment.Center,
+                                                                modifier = Modifier.fillMaxSize(),
+                                                            ) {
+                                                                Text(
+                                                                    text = "×",
+                                                                    style = MaterialTheme.typography.labelSmall,
+                                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                                    fontWeight = FontWeight.Bold,
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Suggested tags section
+                        if (currentState.searchQuery.isBlank() && currentState.suggestedTags.isNotEmpty()) {
+                            item("suggested_tags") {
+                                Column(
+                                    modifier = Modifier.padding(bottom = SpacingTokens.md),
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.secondary,
+                                                    shape = CircleShape,
+                                                ),
+                                        )
+                                        Text(
+                                            text = "Trending tags",
+                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                fontWeight = FontWeight.SemiBold,
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                        Text(
+                                            text = "🔥",
+                                            style = MaterialTheme.typography.titleSmall,
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+                                    FlowRow(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                                    ) {
+                                        currentState.suggestedTags.take(8).forEach { tag ->
+                                            Surface(
+                                                onClick = { viewModel.handleAction(FeedAction.TagSelected(tag)) },
+                                                shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+                                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                                border = BorderStroke(
+                                                    1.dp,
+                                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                                ),
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(
+                                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                                        vertical = SpacingTokens.sm + 2.dp,
+                                                    ),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(6.dp)
+                                                            .background(
+                                                                color = MaterialTheme.colorScheme.secondary,
+                                                                shape = CircleShape,
+                                                            ),
+                                                    )
+
+                                                    Text(
+                                                        text = "#${tag.name}",
+                                                        style = MaterialTheme.typography.labelLarge.copy(
+                                                            fontWeight = FontWeight.Medium,
+                                                        ),
+                                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Posts
                         items(
                             items = currentState.posts,
                             key = { it.id.value },
@@ -406,7 +405,7 @@ fun FeedScreen(
                                     viewModel.handleAction(FeedAction.PostShared(postId))
                                 },
                                 onUserClick = { username ->
-                                    // TODO: Navigate to user profile
+                                    viewModel.handleAction(FeedAction.UserClicked(username))
                                 },
                                 onTagClick = { tag ->
                                     viewModel.handleAction(FeedAction.TagSelected(tag))
@@ -416,11 +415,11 @@ fun FeedScreen(
 
                         // Loading more indicator
                         if (currentState.isLoadingMore) {
-                            item {
+                            item("loading_more") {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(SpacingTokens.md),
+                                        .padding(vertical = SpacingTokens.md),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator()
@@ -433,7 +432,9 @@ fun FeedScreen(
 
             is FeedUiState.Error -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeActionErrorCard(
@@ -441,9 +442,7 @@ fun FeedScreen(
                         errorAction = if (currentState.isRetryable) ErrorAction.RETRY else ErrorAction.DISMISS_ONLY,
                         onActionClicked = { viewModel.handleAction(FeedAction.RetryClicked) },
                         onDismiss = { viewModel.handleAction(FeedAction.ErrorDismissed) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(SpacingTokens.md),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
