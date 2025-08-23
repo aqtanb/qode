@@ -58,6 +58,9 @@ dependencies {
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
+    // Logging
+    implementation(libs.timber)
+
     // Testing
     testImplementation(libs.bundles.testing.unit)
     testImplementation(projects.core.testing)

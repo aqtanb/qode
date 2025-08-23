@@ -45,6 +45,8 @@ import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.feature.home.R
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
+import com.qodein.shared.model.getTranslatedCtaDescription
+import com.qodein.shared.model.getTranslatedCtaTitle
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -139,7 +141,7 @@ private fun HeroBannerContent(
         if (banner.imageUrl.isNotBlank()) {
             AsyncImage(
                 model = banner.imageUrl,
-                contentDescription = banner.title,
+                contentDescription = banner.getTranslatedCtaTitle(userLanguage),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
@@ -257,7 +259,7 @@ private fun BannerCallToAction(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = banner.title,
+            text = banner.getTranslatedCtaTitle(userLanguage),
             style = MaterialTheme.typography.headlineMedium.copy(
                 letterSpacing = 0.5.sp,
             ),
@@ -267,7 +269,7 @@ private fun BannerCallToAction(
         )
 
         Text(
-            text = banner.description,
+            text = banner.getTranslatedCtaDescription(userLanguage),
             style = MaterialTheme.typography.bodyLarge.copy(
                 letterSpacing = 0.25.sp,
                 lineHeight = 24.sp,

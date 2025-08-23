@@ -21,7 +21,7 @@
     <string name="banner_country_picker_title">Ваша страна</string>
     <string name="banner_default_description">Эксклюзивные предложения и премиальные предложения</string>
     <string name="banner_explore_deals">Изучите сделки</string>
-    <string name="banner_loading_fallback">Загрузка удивительных предложений для вас ...</string>
+    <string name="banner_loading_fallback">Загрузка удивительных предложений для вас …</string>
 
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
@@ -54,6 +54,6 @@
     <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>
     <string name="empty_check_back_later">Позже проверьте удивительные предложения и скидки!</string>
     <string name="empty_no_banners_title">Нет баннеров</string>
-    <string name="empty_no_banners_description">Вы можете ссылаться с нами, чтобы продвигать свой бренд</string>
+    <string name="empty_no_banners_description">Вы можете связаться с нами, чтобы продвигать свой бренд</string>
 </resources>
 

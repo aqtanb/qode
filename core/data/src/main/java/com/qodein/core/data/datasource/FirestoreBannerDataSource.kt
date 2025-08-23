@@ -40,11 +40,10 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
         limit: Int = 10
     ): Flow<List<Banner>> =
         callbackFlow {
-            Timber.tag(TAG).d("getBannersForCountry: Starting query for country=$countryCode, limit=$limit")
+            Timber.tag(TAG).d("getBannersForCountry: Starting simplified query for country=$countryCode, limit=$limit")
 
             try {
-                // Note: Firestore doesn't support compound queries with array-contains and timestamp comparison
-                // We'll need to handle expiration filtering client-side or use composite queries
+                // Use simpler single query for country-specific banners to avoid timing issues
                 val query = firestore.collection(BANNERS_COLLECTION)
                     .whereEqualTo("isActive", true)
                     .whereArrayContains("targetCountries", countryCode.uppercase())
@@ -71,7 +70,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
 
                                 val banners = snapshot.documents.mapNotNull { document ->
                                     try {
-                                        Timber.tag(TAG).d("Processing banner document ${document.id}")
                                         document.toObject<BannerDto>()?.let { dto ->
                                             BannerMapper.toDomain(dto)
                                         }
@@ -111,8 +109,24 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
     fun getAllActiveBanners(limit: Int = 10): Flow<List<Banner>> =
         callbackFlow {
             Timber.tag(TAG).d("getAllActiveBanners: Starting query for limit=$limit")
+            Timber.tag(TAG).d("getAllActiveBanners: Firestore project ID: ${firestore.app.options.projectId}")
+            Timber.tag(TAG).d("getAllActiveBanners: Querying collection: $BANNERS_COLLECTION")
 
             try {
+                // First, let's check if ANY documents exist in the banners collection
+                val allDocsQuery = firestore.collection(BANNERS_COLLECTION).limit(10)
+
+                val allDocsListener = allDocsQuery.addSnapshotListener { snapshot, error ->
+                    if (error == null && snapshot != null) {
+                        Timber.tag(TAG).d("getAllActiveBanners: DEBUG - Total documents in banners collection: ${snapshot.documents.size}")
+                        snapshot.documents.forEach { doc ->
+                            Timber.tag(
+                                TAG,
+                            ).d("getAllActiveBanners: DEBUG - Document ${doc.id}: isActive=${doc.get("isActive")}, data=${doc.data}")
+                        }
+                    }
+                }
+
                 val query = firestore.collection(BANNERS_COLLECTION)
                     .whereEqualTo("isActive", true)
                     .orderBy("priority", Query.Direction.DESCENDING)

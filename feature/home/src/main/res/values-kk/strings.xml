@@ -21,7 +21,7 @@
     <string name="banner_country_picker_title">Сіздің еліңіз</string>
     <string name="banner_default_description">Ерекше мәмілелер және сыйлықақы ұсыныстары</string>
     <string name="banner_explore_deals">Мәмілелерді зерттеңіз</string>
-    <string name="banner_loading_fallback">Сіздерге таңғажайып келісімдерді жүктеу ...</string>
+    <string name="banner_loading_fallback">Сіздерге таңғажайып келісімдерді жүктеудеміз …</string>
 
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
@@ -54,6 +54,6 @@
     <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>
     <string name="empty_check_back_later">Кейінірек таңғажайып мәмілелер мен жеңілдіктер үшін тексеріңіз!</string>
     <string name="empty_no_banners_title">Баннерлер жоқ</string>
-    <string name="empty_no_banners_description">Брендті жылжыту үшін бізбен байланысуға болады</string>
+    <string name="empty_no_banners_description">Брендті жарнамалау үшін бізбен байланысуға болады</string>
 </resources>
 

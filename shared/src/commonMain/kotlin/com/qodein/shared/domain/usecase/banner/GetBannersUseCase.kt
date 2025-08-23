@@ -5,7 +5,6 @@ import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 
@@ -35,19 +34,17 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
         countryCode: String,
         limit: Int = 10
     ): Flow<Result<List<Banner>>> =
-        bannerRepository.getBannersForCountry(countryCode, limit)
-            .map { banners -> filterExpiredBanners(banners) }
-            .catch { exception ->
-                // Fallback to all active banners if country-specific fails
-                bannerRepository.getAllActiveBanners(limit)
-                    .map { banners -> filterExpiredBanners(banners) }
-                    .catch { fallbackException ->
-                        // Final fallback: emit default banners
-                        emit(getDefaultFallbackBanners())
-                    }
-                    .collect { fallbackBanners ->
-                        emit(fallbackBanners)
-                    }
+        // Use simple single query approach to avoid multiple emissions
+        bannerRepository.getAllActiveBanners(limit)
+            .map { banners ->
+                // Filter expired banners and prioritize country-specific ones
+                val filtered = filterExpiredBanners(banners)
+                val countryBanners = filtered.filter { banner ->
+                    banner.targetCountries.isEmpty() ||
+                        // Global banners
+                        banner.targetCountries.contains(countryCode.uppercase()) // Country-specific
+                }
+                countryBanners.ifEmpty { filtered.ifEmpty { getDefaultFallbackBanners() } }
             }
             .asResult()
 

@@ -107,6 +107,7 @@ data class PromoCodeDto(
     val discountAmount: Double? = null,
     val minimumOrderAmount: Double = 0.0,
 
+    @PropertyName("firstUserOnly")
     val isFirstUserOnly: Boolean = false,
     val upvotes: Int = 0,
     val downvotes: Int = 0,
@@ -115,6 +116,7 @@ data class PromoCodeDto(
     val screenshotUrl: String? = null,
     val targetCountries: List<String> = emptyList(),
     val isVerified: Boolean = false,
+    val comments: Int? = null,
 
     // Timestamps - using current time as fallback
     val startDate: Timestamp = Timestamp.now(),
@@ -313,12 +315,6 @@ data class BannerDto(
     @PropertyName("id")
     val id: String = "",
 
-    @PropertyName("title")
-    val title: String = "",
-
-    @PropertyName("description")
-    val description: String = "",
-
     @PropertyName("imageUrl")
     val imageUrl: String = "",
 
@@ -337,7 +333,6 @@ data class BannerDto(
     @PropertyName("ctaUrl")
     val ctaUrl: String? = null,
 
-    @PropertyName("isActive")
     val isActive: Boolean = true,
 
     @PropertyName("priority")
@@ -356,8 +351,6 @@ data class BannerDto(
     // Required no-argument constructor for Firestore
     constructor() : this(
         id = "",
-        title = "",
-        description = "",
         imageUrl = "",
         targetCountries = emptyList(),
         brandName = "",

@@ -567,8 +567,6 @@ value class BannerId(val value: String) {
 @Serializable
 data class Banner(
     val id: BannerId,
-    val title: String,
-    val description: String,
     val imageUrl: String,
     val targetCountries: List<String>, // ISO 3166-1 alpha-2 country codes (e.g., "KZ", "US", "GB") - empty means global
     val brandName: String,
@@ -597,14 +595,10 @@ data class Banner(
          */
         fun createFallback(
             id: String = "fallback",
-            brandName: String = "Qode",
-            title: String = "Advertise with us",
-            description: String = "Link with us"
+            brandName: String = "Qode"
         ): Banner =
             Banner(
                 id = BannerId(id),
-                title = title,
-                description = description,
                 imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755543893/gmail-background-xntgf4y7772j0g6i_bbgr2w.jpg",
                 targetCountries = emptyList(), // Show in all countries
                 brandName = brandName,

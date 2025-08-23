@@ -261,8 +261,6 @@ object PreviewParameterData {
     val sampleBanner by lazy {
         Banner(
             id = BannerId("sample-banner-1"),
-            title = "Summer Sale 2024",
-            description = "Get up to 70% off on all summer collections",
             imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755436194/main-sample.png",
             targetCountries = listOf("KZ", "US"),
             brandName = "Fashion Store",
@@ -290,8 +288,6 @@ object PreviewParameterData {
     val flashSaleBanner by lazy {
         Banner(
             id = BannerId("flash-sale-banner"),
-            title = "Flash Sale",
-            description = "Limited time offer - 24 hours only!",
             imageUrl = "https://example.com/banner-flash.jpg",
             targetCountries = listOf("KZ"),
             brandName = "Electronics Hub",
@@ -319,8 +315,6 @@ object PreviewParameterData {
     val expiredBanner by lazy {
         Banner(
             id = BannerId("expired-banner"),
-            title = "Black Friday Sale",
-            description = "This amazing deal has already ended",
             imageUrl = "https://example.com/banner-expired.jpg",
             targetCountries = listOf("KZ", "RU"),
             brandName = "Mega Store",
@@ -348,8 +342,6 @@ object PreviewParameterData {
     val noImageBanner by lazy {
         Banner(
             id = BannerId("no-image-banner"),
-            title = "Special Offer",
-            description = "Don't miss out on this amazing deal",
             imageUrl = "", // No image URL
             targetCountries = listOf("KZ", "RU"),
             brandName = "Winter Fashion",
@@ -377,8 +369,6 @@ object PreviewParameterData {
     val globalBanner by lazy {
         Banner(
             id = BannerId("global-banner"),
-            title = "Worldwide Free Shipping",
-            description = "Free shipping to all countries - no minimum order",
             imageUrl = "https://example.com/banner-global.jpg",
             targetCountries = emptyList(), // Global - empty means worldwide
             brandName = "Global Store",
@@ -406,8 +396,6 @@ object PreviewParameterData {
     val darkModeBanner by lazy {
         Banner(
             id = BannerId("dark-mode-banner"),
-            title = "Midnight Sale",
-            description = "Exclusive dark mode deals just for you",
             imageUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755543893/gmail-background-xntgf4y7772j0g6i_bbgr2w.jpg",
             targetCountries = listOf("KZ", "RU"),
             brandName = "Night Store",

@@ -1,8 +1,8 @@
 package com.qodein.feature.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
@@ -20,13 +20,15 @@ import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,11 +40,6 @@ class HomeViewModel @Inject constructor(
     // TODO: Inject other repositories when available
     // private val userRepository: UserRepository,
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "HomeViewModel"
-    }
-
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -67,72 +64,36 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadPromoCodesWithFallback() {
-        // Try POPULARITY first (preferred for established apps with voted content)
-        Log.d(TAG, "loadPromoCodesWithFallback: Trying POPULARITY sort first")
-        try {
-            getPromoCodesUseCase(
-                sortBy = PromoCodeSortBy.POPULARITY,
-                limit = 20,
-            ).catch { e ->
-                Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY query failed, trying NEWEST fallback", e)
-                loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
-                return@catch
-            }.collect { result ->
-                when (result) {
-                    is Result.Loading -> { /* Loading already handled above */ }
-                    is Result.Success -> {
-                        if (result.data.isNotEmpty()) {
-                            Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY SUCCESS - Retrieved ${result.data.size} promo codes")
-                            updateSuccessState(result.data)
-                        } else {
-                            Log.d(TAG, "loadPromoCodesWithFallback: POPULARITY returned empty, trying NEWEST fallback")
-                            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
+    private suspend fun loadPromoCodesWithFallback(banners: List<Banner> = emptyList()) {
+        suspend fun loadWithSort(sortBy: PromoCodeSortBy): Boolean {
+            try {
+                getPromoCodesUseCase(sortBy = sortBy, limit = 20).collect { result ->
+                    when (result) {
+                        is Result.Loading -> { /* Continue loading */ }
+                        is Result.Success -> {
+                            if (result.data.isNotEmpty()) {
+                                updateSuccessState(result.data, banners)
+                                return@collect
+                            }
                         }
-                    }
-                    is Result.Error -> {
-                        Log.w(TAG, "loadPromoCodesWithFallback: POPULARITY failed, trying NEWEST fallback", result.exception)
-                        loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
+                        is Result.Error -> return@collect
                     }
                 }
+                return true
+            } catch (e: Exception) {
+                return false
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "loadPromoCodesWithFallback: Exception during POPULARITY query, trying NEWEST fallback", e)
-            loadPromoCodesWithSort(PromoCodeSortBy.NEWEST)
         }
-    }
 
-    private suspend fun loadPromoCodesWithSort(sortBy: PromoCodeSortBy) {
-        Log.d(TAG, "loadPromoCodesWithSort: Starting query with $sortBy sort")
-        getPromoCodesUseCase(
-            sortBy = sortBy,
-            limit = 20,
-        ).catch { e ->
-            Log.e(TAG, "loadPromoCodesWithSort: Query failed with exception", e)
-            val exception = Exception("Failed to load promocodes: ${e.message}")
-            _uiState.value = HomeUiState.Error(
-                errorType = exception.toErrorType(),
-                isRetryable = exception.isRetryable(),
-                shouldShowSnackbar = exception.shouldShowSnackbar(),
-                errorCode = exception.getErrorCode(),
-            )
-        }.collect { result ->
-            Log.d(TAG, "loadPromoCodesWithSort: Query completed, processing result")
-            when (result) {
-                is Result.Loading -> { /* Loading already handled above */ }
-                is Result.Success -> {
-                    Log.d(TAG, "loadPromoCodesWithSort: SUCCESS - Retrieved ${result.data.size} promo codes")
-                    updateSuccessState(result.data)
-                }
-                is Result.Error -> {
-                    Log.e(TAG, "loadPromoCodesWithSort: FAILURE - Query returned error", result.exception)
-                    _uiState.value = HomeUiState.Error(
-                        errorType = result.exception.toErrorType(),
-                        isRetryable = result.exception.isRetryable(),
-                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                        errorCode = result.exception.getErrorCode(),
-                    )
-                }
+        // Try POPULARITY first, fallback to NEWEST
+        if (!loadWithSort(PromoCodeSortBy.POPULARITY)) {
+            if (!loadWithSort(PromoCodeSortBy.NEWEST)) {
+                _uiState.value = HomeUiState.Error(
+                    errorType = Exception("Failed to load data").toErrorType(),
+                    isRetryable = true,
+                    shouldShowSnackbar = true,
+                    errorCode = null,
+                )
             }
         }
     }
@@ -141,12 +102,7 @@ class HomeViewModel @Inject constructor(
         promoCodes: List<PromoCode>,
         banners: List<Banner> = emptyList()
     ) {
-        promoCodes.forEachIndexed { index, promoCode ->
-            Log.d(TAG, "  [$index] PromoCode: ${promoCode.code} for ${promoCode.serviceName}")
-        }
-        banners.forEachIndexed { index, banner ->
-            Log.d(TAG, "  [$index] Banner: ${banner.title} for ${banner.brandName}")
-        }
+        Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
         _uiState.value = HomeUiState.Success(
             banners = banners,
             promoCodes = promoCodes,
@@ -156,137 +112,31 @@ class HomeViewModel @Inject constructor(
 
     private fun loadHomeData(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            try {
-                Log.d(TAG, "loadHomeData: Starting data load, isRefresh=$isRefresh")
-                val currentState = _uiState.value
-                _uiState.value = if (isRefresh) {
-                    HomeUiState.Refreshing(
-                        previousData = if (currentState is HomeUiState.Success) currentState else null,
-                    )
-                } else {
-                    HomeUiState.Loading
-                }
-
-                // Load banners and promocodes concurrently
-                loadBannersAndPromoCodes()
-            } catch (exception: Exception) {
-                val errorException = Exception("Failed to load data. Please try again.")
-                _uiState.value = HomeUiState.Error(
-                    errorType = errorException.toErrorType(),
-                    isRetryable = errorException.isRetryable(),
-                    shouldShowSnackbar = errorException.shouldShowSnackbar(),
-                    errorCode = errorException.getErrorCode(),
+            val currentState = _uiState.value
+            _uiState.value = if (isRefresh) {
+                HomeUiState.Refreshing(
+                    previousData = if (currentState is HomeUiState.Success) currentState else null,
                 )
+            } else {
+                HomeUiState.Loading
             }
+
+            loadBannersAndPromoCodes()
         }
     }
 
     private suspend fun loadBannersAndPromoCodes() {
-        try {
-            Log.d(TAG, "loadBannersAndPromoCodes: Loading banners first, then promo codes")
+        withContext(Dispatchers.IO) {
+            var banners = emptyList<Banner>()
 
-            // Load banners first, then pass them to promo code loading
+            // Simple banner loading - let UI handle refresh states
             getBannersUseCase(limit = 10).collect { bannersResult ->
-                when (bannersResult) {
-                    is Result.Loading -> {
-                        Log.d(TAG, "loadBannersAndPromoCodes: Loading banners...")
-                        // Continue with loading state, banners will update when ready
-                    }
-                    is Result.Success -> {
-                        Log.d(
-                            TAG,
-                            "loadBannersAndPromoCodes: Successfully loaded ${bannersResult.data.size} banners, now loading promo codes",
-                        )
-                        loadPromoCodesWithBanners(bannersResult.data)
-                    }
-                    is Result.Error -> {
-                        Log.w(TAG, "loadBannersAndPromoCodes: Failed to load banners, proceeding with empty list", bannersResult.exception)
-                        // Proceed with promo codes even if banners fail
-                        loadPromoCodesWithBanners(emptyList())
-                    }
+                if (bannersResult is Result.Success) {
+                    banners = bannersResult.data
                 }
-            }
-        } catch (exception: Exception) {
-            Log.e(TAG, "loadBannersAndPromoCodes: Failed to load data", exception)
-            val errorException = Exception("Failed to load data. Please try again.")
-            _uiState.value = HomeUiState.Error(
-                errorType = errorException.toErrorType(),
-                isRetryable = errorException.isRetryable(),
-                shouldShowSnackbar = errorException.shouldShowSnackbar(),
-                errorCode = errorException.getErrorCode(),
-            )
-        }
-    }
-
-    private suspend fun loadPromoCodesWithBanners(banners: List<Banner>) {
-        // Try POPULARITY first (preferred for established apps with voted content)
-        Log.d(TAG, "loadPromoCodesWithBanners: Trying POPULARITY sort first")
-        try {
-            getPromoCodesUseCase(
-                sortBy = PromoCodeSortBy.POPULARITY,
-                limit = 20,
-            ).catch { e ->
-                Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY query failed, trying NEWEST fallback", e)
-                loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
-                return@catch
-            }.collect { result ->
-                when (result) {
-                    is Result.Loading -> { /* Loading already handled above */ }
-                    is Result.Success -> {
-                        if (result.data.isNotEmpty()) {
-                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY SUCCESS - Retrieved ${result.data.size} promo codes")
-                            updateSuccessState(result.data, banners)
-                        } else {
-                            Log.d(TAG, "loadPromoCodesWithBanners: POPULARITY returned empty, trying NEWEST fallback")
-                            loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
-                        }
-                    }
-                    is Result.Error -> {
-                        Log.w(TAG, "loadPromoCodesWithBanners: POPULARITY failed, trying NEWEST fallback", result.exception)
-                        loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "loadPromoCodesWithBanners: Exception during POPULARITY query, trying NEWEST fallback", e)
-            loadPromoCodesWithSortAndBanners(PromoCodeSortBy.NEWEST, banners)
-        }
-    }
-
-    private suspend fun loadPromoCodesWithSortAndBanners(
-        sortBy: PromoCodeSortBy,
-        banners: List<Banner>
-    ) {
-        Log.d(TAG, "loadPromoCodesWithSortAndBanners: Starting query with $sortBy sort")
-        getPromoCodesUseCase(
-            sortBy = sortBy,
-            limit = 20,
-        ).catch { e ->
-            Log.e(TAG, "loadPromoCodesWithSortAndBanners: Query failed with exception", e)
-            val exception = Exception("Failed to load promocodes: ${e.message}")
-            _uiState.value = HomeUiState.Error(
-                errorType = exception.toErrorType(),
-                isRetryable = exception.isRetryable(),
-                shouldShowSnackbar = exception.shouldShowSnackbar(),
-                errorCode = exception.getErrorCode(),
-            )
-        }.collect { result ->
-            Log.d(TAG, "loadPromoCodesWithSortAndBanners: Query completed, processing result")
-            when (result) {
-                is Result.Loading -> { /* Loading already handled above */ }
-                is Result.Success -> {
-                    Log.d(TAG, "loadPromoCodesWithSortAndBanners: SUCCESS - Retrieved ${result.data.size} promo codes")
-                    updateSuccessState(result.data, banners)
-                }
-                is Result.Error -> {
-                    Log.e(TAG, "loadPromoCodesWithSortAndBanners: FAILURE - Query returned error", result.exception)
-                    _uiState.value = HomeUiState.Error(
-                        errorType = result.exception.toErrorType(),
-                        isRetryable = result.exception.isRetryable(),
-                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                        errorCode = result.exception.getErrorCode(),
-                    )
-                }
+                // Continue regardless of banner result
+                loadPromoCodesWithFallback(banners)
+                return@collect
             }
         }
     }
@@ -299,11 +149,11 @@ class HomeViewModel @Inject constructor(
 
     private fun onBannerClicked(banner: Banner) {
         analyticsHelper.logEvent(
-            com.qodein.core.analytics.AnalyticsEvent(
-                type = com.qodein.core.analytics.AnalyticsEvent.Types.SELECT_CONTENT,
+            AnalyticsEvent(
+                type = AnalyticsEvent.Types.SELECT_CONTENT,
                 extras = listOf(
-                    com.qodein.core.analytics.AnalyticsEvent.Param("content_type", "banner"),
-                    com.qodein.core.analytics.AnalyticsEvent.Param("item_id", banner.id.value),
+                    AnalyticsEvent.Param("content_type", "banner"),
+                    AnalyticsEvent.Param("item_id", banner.id.value),
                 ),
             ),
         )
@@ -324,128 +174,57 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onUpvotePromoCode(promoCodeId: String) {
-        // TODO: Check auth state from AuthState or use case
-        // For now, allow voting
-
-        val currentState = _uiState.value
-        if (currentState !is HomeUiState.Success) return
-
-        viewModelScope.launch {
-            try {
-                // Update UI optimistically first
-                val wasUpvoted = false // TODO: track user votes from repository
-
-                val updatedPromoCodes = currentState.promoCodes.map { promoCode ->
-                    if (promoCode.id.value == promoCodeId) {
-                        when (promoCode) {
-                            is PromoCode.PercentagePromoCode -> promoCode.copy(
-                                upvotes = if (wasUpvoted) promoCode.upvotes - 1 else promoCode.upvotes + 1,
-                            )
-                            is PromoCode.FixedAmountPromoCode -> promoCode.copy(
-                                upvotes = if (wasUpvoted) promoCode.upvotes - 1 else promoCode.upvotes + 1,
-                            )
-                        }
-                    } else {
-                        promoCode
-                    }
-                }
-
-                _uiState.value = currentState.copy(promoCodes = updatedPromoCodes)
-
-                // Call the actual voting use case
-                voteOnPromoCodeUseCase(
-                    promoCodeId = PromoCodeId(promoCodeId),
-                    userId = UserId("current_user"), // TODO: Get actual user ID from auth state
-                    isUpvote = !wasUpvoted,
-                ).catch { e ->
-                    // Revert optimistic update on error
-                    _uiState.value = currentState
-                    val exception = Exception("Failed to vote: ${e.message}")
-                    _uiState.value = HomeUiState.Error(
-                        errorType = exception.toErrorType(),
-                        isRetryable = exception.isRetryable(),
-                        shouldShowSnackbar = exception.shouldShowSnackbar(),
-                        errorCode = exception.getErrorCode(),
-                    )
-                }.collect { vote ->
-                    // Success - log analytics and the optimistic update is already in place
-                    analyticsHelper.logVote(
-                        promocodeId = promoCodeId,
-                        voteType = "upvote",
-                    )
-                }
-            } catch (exception: Exception) {
-                // Revert to original state on error
-                _uiState.value = currentState
-                val exception = Exception("Failed to upvote. Please try again.")
-                _uiState.value = HomeUiState.Error(
-                    errorType = exception.toErrorType(),
-                    isRetryable = exception.isRetryable(),
-                    shouldShowSnackbar = exception.shouldShowSnackbar(),
-                    errorCode = exception.getErrorCode(),
-                )
-            }
-        }
+        voteOnPromoCode(promoCodeId, isUpvote = true)
     }
 
     private fun onDownvotePromoCode(promoCodeId: String) {
+        voteOnPromoCode(promoCodeId, isUpvote = false)
+    }
+
+    private fun voteOnPromoCode(
+        promoCodeId: String,
+        isUpvote: Boolean
+    ) {
         val currentState = _uiState.value
         if (currentState !is HomeUiState.Success) return
 
-        viewModelScope.launch {
-            try {
-                // Similar to upvote but for downvote
-                val wasDownvoted = false // TODO: track user votes from repository
-
-                val updatedPromoCodes = currentState.promoCodes.map { promoCode ->
-                    if (promoCode.id.value == promoCodeId) {
-                        when (promoCode) {
-                            is PromoCode.PercentagePromoCode -> promoCode.copy(
-                                downvotes = if (wasDownvoted) promoCode.downvotes - 1 else promoCode.downvotes + 1,
-                            )
-                            is PromoCode.FixedAmountPromoCode -> promoCode.copy(
-                                downvotes = if (wasDownvoted) promoCode.downvotes - 1 else promoCode.downvotes + 1,
-                            )
-                        }
-                    } else {
-                        promoCode
+        viewModelScope.launch(Dispatchers.IO) {
+            // Optimistic update
+            val wasVoted = false // TODO: track user votes
+            val updatedPromoCodes = currentState.promoCodes.map { promoCode ->
+                if (promoCode.id.value == promoCodeId) {
+                    val delta = if (wasVoted) -1 else 1
+                    when (promoCode) {
+                        is PromoCode.PercentagePromoCode -> promoCode.copy(
+                            upvotes = if (isUpvote) promoCode.upvotes + delta else promoCode.upvotes,
+                            downvotes = if (!isUpvote) promoCode.downvotes + delta else promoCode.downvotes,
+                        )
+                        is PromoCode.FixedAmountPromoCode -> promoCode.copy(
+                            upvotes = if (isUpvote) promoCode.upvotes + delta else promoCode.upvotes,
+                            downvotes = if (!isUpvote) promoCode.downvotes + delta else promoCode.downvotes,
+                        )
                     }
+                } else {
+                    promoCode
                 }
+            }
 
-                _uiState.value = currentState.copy(promoCodes = updatedPromoCodes)
+            _uiState.value = currentState.copy(promoCodes = updatedPromoCodes)
 
-                // Call the actual voting use case
+            try {
                 voteOnPromoCodeUseCase(
                     promoCodeId = PromoCodeId(promoCodeId),
-                    userId = UserId("current_user"), // TODO: Get actual user ID from auth state
-                    isUpvote = false,
-                ).catch { e ->
-                    // Revert optimistic update on error
-                    _uiState.value = currentState
-                    val exception = Exception("Failed to vote: ${e.message}")
-                    _uiState.value = HomeUiState.Error(
-                        errorType = exception.toErrorType(),
-                        isRetryable = exception.isRetryable(),
-                        shouldShowSnackbar = exception.shouldShowSnackbar(),
-                        errorCode = exception.getErrorCode(),
-                    )
-                }.collect { vote ->
-                    // Success - log analytics and the optimistic update is already in place
+                    userId = UserId("current_user"), // TODO: Get actual user ID
+                    isUpvote = isUpvote,
+                ).collect {
                     analyticsHelper.logVote(
                         promocodeId = promoCodeId,
-                        voteType = "downvote",
+                        voteType = if (isUpvote) "upvote" else "downvote",
                     )
                 }
-            } catch (exception: Exception) {
-                // Revert to original state on error
+            } catch (e: Exception) {
+                // Revert on error
                 _uiState.value = currentState
-                val exception = Exception("Failed to downvote. Please try again.")
-                _uiState.value = HomeUiState.Error(
-                    errorType = exception.toErrorType(),
-                    isRetryable = exception.isRetryable(),
-                    shouldShowSnackbar = exception.shouldShowSnackbar(),
-                    errorCode = exception.getErrorCode(),
-                )
             }
         }
     }
@@ -455,11 +234,11 @@ class HomeViewModel @Inject constructor(
         // clipboardRepository.copyToClipboard(promoCode.code)
 
         analyticsHelper.logEvent(
-            com.qodein.core.analytics.AnalyticsEvent(
+            AnalyticsEvent(
                 type = "copy_promocode",
                 extras = listOf(
-                    com.qodein.core.analytics.AnalyticsEvent.Param("promocode_id", promoCode.id.value),
-                    com.qodein.core.analytics.AnalyticsEvent.Param(
+                    AnalyticsEvent.Param("promocode_id", promoCode.id.value),
+                    AnalyticsEvent.Param(
                         "promocode_type",
                         when (promoCode) {
                             is PromoCode.PercentagePromoCode -> "percentage"
