@@ -265,7 +265,18 @@ class FeedViewModel @Inject constructor(
                 ),
             )
 
-            emitEvent(FeedEvent.NavigateToComments(postId))
+            // Find the post to get its title and content
+            val currentState = _state.value
+            val post = if (currentState is FeedUiState.Content) {
+                currentState.posts.find { it.id == postId }
+            } else {
+                null
+            }
+
+            val postTitle = post?.title ?: "Post"
+            val postContent = post?.content ?: "No content available"
+
+            emitEvent(FeedEvent.NavigateToComments(postId, postTitle, postContent))
         }
     }
 

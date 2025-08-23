@@ -57,6 +57,9 @@ import com.qodein.shared.common.result.ErrorAction
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
+    onNavigateToComments: (String, String, String) -> Unit = { _, _, _ -> },
+    onNavigateToProfile: (String) -> Unit = { _ -> },
+    onNavigateToPost: (String) -> Unit = { _ -> },
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Feed")
@@ -70,13 +73,13 @@ fun FeedScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is FeedEvent.NavigateToPost -> {
-                    // TODO: Handle navigation to post details
+                    onNavigateToPost(event.postId.value)
                 }
                 is FeedEvent.NavigateToComments -> {
-                    // TODO: Handle navigation to comments
+                    onNavigateToComments(event.postId.value, event.postTitle, event.postContent)
                 }
                 is FeedEvent.NavigateToProfile -> {
-                    // TODO: Handle navigation to user profile
+                    onNavigateToProfile(event.username)
                 }
                 is FeedEvent.ShowShareDialog -> {
                     // TODO: Handle share dialog

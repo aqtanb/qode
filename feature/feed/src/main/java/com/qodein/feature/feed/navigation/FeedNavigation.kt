@@ -23,8 +23,16 @@ fun NavController.navigateToFeed(navOptions: NavOptions? = null) {
 /**
  * Navigation graph builder extension for feed feature
  */
-fun NavGraphBuilder.feedSection() {
+fun NavGraphBuilder.feedSection(
+    onNavigateToComments: (String, String, String) -> Unit = { _, _, _ -> },
+    onNavigateToProfile: (String) -> Unit = { _ -> },
+    onNavigateToPost: (String) -> Unit = { _ -> }
+) {
     composable<FeedRoute> {
-        FeedScreen()
+        FeedScreen(
+            onNavigateToComments = onNavigateToComments,
+            onNavigateToProfile = onNavigateToProfile,
+            onNavigateToPost = onNavigateToPost,
+        )
     }
 }

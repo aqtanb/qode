@@ -75,6 +75,9 @@ object TopBarConfigProvider {
                     appState.isSettingsScreen -> {
                         TopBarConfig.Basic(title = stringResource(R.string.settings))
                     }
+                    appState.isCommentScreen -> {
+                        TopBarConfig.Basic(title = "Comments")
+                    }
                     else -> {
                         // Generic nested screen
                         TopBarConfig.Basic(title = "")

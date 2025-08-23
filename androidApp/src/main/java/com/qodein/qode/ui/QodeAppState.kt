@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.AuthRoute
+import com.qodein.feature.comment.navigation.CommentRoute
 import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
@@ -127,6 +128,14 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
     val isAuthScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<AuthRoute>() == true
+        }
+
+    /**
+     * Check if current destination is the comment screen
+     */
+    val isCommentScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<CommentRoute>() == true
         }
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {

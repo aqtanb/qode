@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
+import com.qodein.feature.comment.navigation.CommentRoute
+import com.qodein.feature.comment.navigation.commentScreen
 import com.qodein.feature.feed.navigation.feedSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
@@ -35,7 +37,24 @@ fun QodeNavHost(
             promoCodeDetail = {},
         )
 
-        feedSection()
+        feedSection(
+            onNavigateToComments = { postId, postTitle, postContent ->
+                navController.navigate(
+                    CommentRoute(
+                        parentId = postId,
+                        parentType = "post",
+                        postTitle = postTitle,
+                        postContent = postContent,
+                    ),
+                )
+            },
+            onNavigateToProfile = { username ->
+                // TODO: Navigate to user profile
+            },
+            onNavigateToPost = { postId ->
+                // TODO: Navigate to post details
+            },
+        )
 
         inboxSection()
 
@@ -69,6 +88,16 @@ fun QodeNavHost(
 
         settingsSection(
             onBackClick = {
+                navController.popBackStack()
+            },
+        )
+
+        commentScreen(
+            onNavigateBack = {
+                navController.popBackStack()
+            },
+            onNavigateToProfile = { username ->
+                // TODO: Navigate to user profile
                 navController.popBackStack()
             },
         )
