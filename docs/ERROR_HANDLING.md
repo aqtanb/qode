@@ -42,7 +42,7 @@ class GetPromoCodesUseCase @Inject constructor(
     private val repository: PromoCodeRepository
 ) {
     operator fun invoke(): Flow<Result<List<PromoCode>>> =
-        repository.getPromoCodes().asResult() // ✅ Always use this
+        repository.getPromoCodes().asResult() //  Always use this
 }
 ```
 
@@ -115,7 +115,7 @@ fun ErrorType.toLocalizedMessage(): String = when (this) {
 }
 ```
 
-## ✅ Benefits
+##  Benefits
 
 ### **Developer Experience**
 - **Consistent Patterns**: Same error handling everywhere
@@ -210,4 +210,4 @@ core/ui/src/main/res/
 └── values-kk/strings.xml    # Kazakh translations
 ```
 
-**Status**: ✅ Complete with 50+ files updated, ready for logging integration.
+**Status**:  Complete with 50+ files updated, ready for logging integration.

@@ -394,8 +394,8 @@ class FeedViewModel @Inject constructor(
             val updatedPosts = currentState.posts.map { post ->
                 if (post.id == postId) {
                     post.copy(
-                        isLikedByCurrentUser = liked,
-                        likes = if (liked) post.likes + 1 else post.likes - 1,
+                        isUpvotedByCurrentUser = liked,
+                        upvotes = if (liked) post.upvotes + 1 else post.upvotes - 1,
                     )
                 } else {
                     post
@@ -446,11 +446,11 @@ class FeedViewModel @Inject constructor(
                 authorAvatarUrl = "https://picsum.photos/seed/$actualIndex/150/150",
                 content = mockContent[actualIndex % mockContent.size],
                 tags = mockTags.shuffled().take((1..3).random()),
-                likes = (5..150).random(),
-                comments = (0..25).random(),
+                upvotes = (5..150).random(),
+                downvotes = (0..10).random(),
                 shares = (0..10).random(),
                 createdAt = Clock.System.now().minus((1..48).random(), kotlinx.datetime.DateTimeUnit.HOUR),
-                isLikedByCurrentUser = (0..10).random() < 3,
+                isUpvotedByCurrentUser = (0..10).random() < 3,
             )
         }
     }

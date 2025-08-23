@@ -85,7 +85,7 @@ QodeTertiaryGradient()    // Tertiary color gradient
 
 ### Always Use Design System Components
 ```kotlin
-// ✅ Correct
+//  Correct
 QodeButton(
     onClick = { },
     text = stringResource(R.string.action_submit),
@@ -101,7 +101,7 @@ Button(onClick = { }) {
 
 ### Icon Usage
 ```kotlin
-// ✅ Always use QodeIcons
+//  Always use QodeIcons
 Icon(
     imageVector = QodeActionIcons.Copy,
     contentDescription = stringResource(R.string.action_copy)
@@ -113,10 +113,10 @@ Icon(imageVector = Icons.Default.Copy)
 
 ### Spacing Usage
 ```kotlin
-// ✅ Use semantic tokens
+//  Use semantic tokens
 modifier = Modifier.padding(SpacingTokens.Card.padding)
 
-// ✅ Use generic tokens sparingly
+//  Use generic tokens sparingly
 modifier = Modifier.padding(SpacingTokens.lg)
 
 // ❌ Never hardcode

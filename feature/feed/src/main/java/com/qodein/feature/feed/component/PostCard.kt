@@ -76,13 +76,13 @@ fun PostCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     val likeButtonScale by animateFloatAsState(
-        targetValue = if (post.isLikedByCurrentUser) 1.1f else 1.0f,
+        targetValue = if (post.isUpvotedByCurrentUser) 1.1f else 1.0f,
         animationSpec = spring(dampingRatio = 0.6f, stiffness = 800f),
         label = "like_button_scale",
     )
 
     val likeButtonColor by animateColorAsState(
-        targetValue = if (post.isLikedByCurrentUser) {
+        targetValue = if (post.isUpvotedByCurrentUser) {
             Color(0xFFFF6B6B) // Beautiful red
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -92,7 +92,7 @@ fun PostCard(
     )
 
     val cardElevation by animateFloatAsState(
-        targetValue = if (post.isLikedByCurrentUser) 8f else 4f,
+        targetValue = if (post.isUpvotedByCurrentUser) 8f else 4f,
         animationSpec = spring(dampingRatio = 0.7f),
         label = "card_elevation",
     )
@@ -189,7 +189,7 @@ fun PostCard(
                             )
 
                             // Engagement indicator
-                            if (post.engagementScore > 50) {
+                            if (post.voteScore > 50) {
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
                                     color = Color(0xFFFF6B6B).copy(alpha = 0.1f),
@@ -294,19 +294,19 @@ fun PostCard(
                         QodeIconButton(
                             onClick = { onLikeClick(post.id) },
                             icon = QodeActionIcons.Like,
-                            contentDescription = if (post.isLikedByCurrentUser) "Unlike" else "Like",
+                            contentDescription = if (post.isUpvotedByCurrentUser) "Unlike" else "Like",
                             variant = QodeButtonVariant.Text,
                             size = QodeButtonSize.Small,
                             modifier = Modifier.scale(likeButtonScale),
                         )
 
                         AnimatedVisibility(
-                            visible = post.likes > 0,
+                            visible = post.upvotes > 0,
                             enter = expandHorizontally() + fadeIn(),
                             exit = shrinkHorizontally() + fadeOut(),
                         ) {
                             Text(
-                                text = formatCount(post.likes),
+                                text = formatCount(post.upvotes),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = likeButtonColor,
                                 modifier = Modifier.padding(start = SpacingTokens.xs),
@@ -327,14 +327,7 @@ fun PostCard(
                             size = QodeButtonSize.Small,
                         )
 
-                        if (post.comments > 0) {
-                            Text(
-                                text = formatCount(post.comments),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(start = SpacingTokens.xs),
-                            )
-                        }
+                        // Comments count removed - handled by separate system
                     }
 
                     // Share button
@@ -401,11 +394,11 @@ private fun PostCardPreview() {
                 Tag.create("deals", "#4ECDC4"),
                 Tag.create("music", "#45B7D1"),
             ),
-            likes = 42,
-            comments = 8,
+            upvotes = 42,
+            downvotes = 3,
             shares = 3,
             createdAt = Clock.System.now(),
-            isLikedByCurrentUser = true,
+            isUpvotedByCurrentUser = true,
         )
 
         PostCard(

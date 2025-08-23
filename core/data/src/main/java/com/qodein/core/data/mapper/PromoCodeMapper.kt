@@ -55,10 +55,15 @@ object PromoCodeMapper {
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
                 views = dto.views,
+                shares = dto.shares,
                 screenshotUrl = dto.screenshotUrl,
-                comments = dto.comments,
+                targetCountries = dto.targetCountries,
+                isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
+                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
+                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
+                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
             )
 
             "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
@@ -77,10 +82,15 @@ object PromoCodeMapper {
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
                 views = dto.views,
+                shares = dto.shares,
                 screenshotUrl = dto.screenshotUrl,
-                comments = dto.comments,
+                targetCountries = dto.targetCountries,
+                isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
+                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
+                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
+                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
             )
 
             else -> throw IllegalArgumentException("Unknown promo code type: ${dto.type}")
@@ -103,12 +113,17 @@ object PromoCodeMapper {
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
                 views = domain.views,
+                shares = domain.shares,
                 screenshotUrl = domain.screenshotUrl,
-                comments = domain.comments,
+                targetCountries = domain.targetCountries,
+                isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
+                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
+                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
+                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
             )
 
             is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
@@ -125,12 +140,17 @@ object PromoCodeMapper {
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
                 views = domain.views,
+                shares = domain.shares,
                 screenshotUrl = domain.screenshotUrl,
-                comments = domain.comments,
+                targetCountries = domain.targetCountries,
+                isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
+                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
+                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
+                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
             )
         }
 

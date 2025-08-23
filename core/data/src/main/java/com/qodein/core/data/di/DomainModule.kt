@@ -3,6 +3,7 @@ package com.qodein.core.data.di
 import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
+import com.qodein.shared.domain.repository.CommentRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -118,7 +119,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideAddCommentUseCase(promoCodeRepository: PromoCodeRepository): AddCommentUseCase = AddCommentUseCase(promoCodeRepository)
+    fun provideAddCommentUseCase(commentRepository: CommentRepository): AddCommentUseCase = AddCommentUseCase(commentRepository)
 
     // Service Use Cases
     @Provides

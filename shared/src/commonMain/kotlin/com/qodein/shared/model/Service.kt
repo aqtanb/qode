@@ -51,22 +51,28 @@ data class Service(
             return "${sanitizedCategory}_$sanitizedName"
         }
 
-        // Predefined categories for consistency
+        // Predefined categories for consistency - single words only
         object Categories {
             const val STREAMING = "Streaming"
-            const val FOOD_DELIVERY = "Food & Delivery"
-            const val RIDE_SHARING = "Transportation"
+            const val FOOD = "Food"
+            const val TRANSPORT = "Transport"
             const val SHOPPING = "Shopping"
             const val GAMING = "Gaming"
             const val MUSIC = "Music"
             const val EDUCATION = "Education"
             const val FITNESS = "Fitness"
             const val FINANCE = "Finance"
+            const val BEAUTY = "Beauty"
+            const val CLOTHING = "Clothing"
+            const val ELECTRONICS = "Electronics"
+            const val TRAVEL = "Travel"
+            const val PHARMACY = "Pharmacy"
             const val OTHER = "Other"
 
             val ALL = listOf(
-                STREAMING, FOOD_DELIVERY, RIDE_SHARING, SHOPPING,
-                GAMING, MUSIC, EDUCATION, FITNESS, FINANCE, OTHER,
+                STREAMING, FOOD, TRANSPORT, SHOPPING, GAMING, MUSIC,
+                EDUCATION, FITNESS, FINANCE, BEAUTY, CLOTHING,
+                ELECTRONICS, TRAVEL, PHARMACY, OTHER,
             )
         }
     }

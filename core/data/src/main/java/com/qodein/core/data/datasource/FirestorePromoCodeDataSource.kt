@@ -326,25 +326,12 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         userId: UserId,
         comment: String
     ): PromoCode {
-        val promoCodeRef = firestore.collection(PROMOCODES_COLLECTION).document(promoCodeId.value)
-
-        // Get current promo code
-        val currentDoc = promoCodeRef.get().await()
-        val currentDto = currentDoc.toObject<PromoCodeDto>()
-            ?: throw IllegalArgumentException("promo code not found: ${promoCodeId.value}")
-
-        // Add comment to existing list
-        val updatedComments = (currentDto.comments ?: emptyList()) + "$userId: $comment"
-
-        // Update with new comments list
-        promoCodeRef.update("comments", updatedComments).await()
-
-        // Return updated promo code
-        val updatedDoc = promoCodeRef.get().await()
-        val updatedDto = updatedDoc.toObject<PromoCodeDto>()
-            ?: throw IllegalStateException("service unavailable: failed to retrieve updated promo code")
-
-        return PromoCodeMapper.toDomain(updatedDto)
+        // Comments are now handled through CommentRepository using subcollections
+        // This method is deprecated and should be replaced by CommentRepository.createComment()
+        throw UnsupportedOperationException(
+            "Comments are now handled through CommentRepository. " +
+                "Use CommentRepository.createComment() with parentType=PROMO_CODE instead.",
+        )
     }
 
     suspend fun getPromoCodesByUser(

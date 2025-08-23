@@ -393,7 +393,7 @@ fun FeedScreen(
                             PostCard(
                                 post = post,
                                 onLikeClick = { postId ->
-                                    if (post.isLikedByCurrentUser) {
+                                    if (post.isUpvotedByCurrentUser) {
                                         viewModel.handleAction(FeedAction.PostUnliked(postId))
                                     } else {
                                         viewModel.handleAction(FeedAction.PostLiked(postId))
