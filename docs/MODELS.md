@@ -70,8 +70,9 @@ sealed class PromoCode {
     data class PercentagePromoCode(
         val id: PromoCodeId,
         val code: String,
-        val serviceName: String,
-        val category: String?,
+        val serviceId: ServiceId? = null, // Reference to Service document
+        val serviceName: String, // Denormalized for fast display/filtering
+        val category: String?, // Denormalized for fast filtering
         val title: String,
         val description: String?,
         val discountPercentage: Double,
@@ -94,7 +95,7 @@ sealed class PromoCode {
     ) : PromoCode()
 
     data class FixedAmountPromoCode(
-        // Similar structure with discountAmount instead of discountPercentage
+        // Similar structure with serviceId reference and discountAmount instead of discountPercentage
     ) : PromoCode()
 }
 ```
@@ -146,6 +147,45 @@ data class Comment(
 )
 ```
 
+## 🏪 **Service Models**
+
+### **Service Model (Category → Service Hierarchy)**
+```kotlin
+data class Service(
+    val id: ServiceId, // Composite ID: "food_mcdonalds", "transport_uber"
+    val name: String, // "McDonalds", "Uber"
+    val category: String, // "Food", "Transport" 
+    val logoUrl: String? = null,
+    val isPopular: Boolean = false,
+    val promoCodeCount: Int = 0, // Denormalized counter for UI display
+    val createdAt: Instant = Clock.System.now()
+) {
+    companion object {
+        // Generates composite IDs like "food_mcdonalds"
+        private fun generateServiceId(name: String, category: String): String {
+            val sanitizedName = name.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
+            val sanitizedCategory = category.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
+            return "${sanitizedCategory}_$sanitizedName"
+        }
+        
+        // Predefined categories for consistency
+        object Categories {
+            const val STREAMING = "Streaming"
+            const val FOOD = "Food"
+            const val TRANSPORT = "Transport"
+            // ... 15 total categories
+            val ALL = listOf(STREAMING, FOOD, TRANSPORT, /*...*/)
+        }
+    }
+}
+```
+
+**Benefits of Composite Service IDs:**
+- 🎯 **Natural hierarchy**: `food_mcdonalds` clearly shows category → service relationship
+- 🔍 **Unique identification**: No collision between services with same name in different categories
+- 📊 **Firebase optimization**: Works great as document IDs in `/services/{category_servicename}`
+- ⚡ **Query efficiency**: Can filter by category prefix if needed
+
 ## 👤 **User Models**
 
 ### **User Model**
@@ -196,8 +236,19 @@ data class UserVote(
 
 ### **Collections**
 ```
+/services/{category_servicename}
+  - id: "food_mcdonalds", "transport_uber"
+  - name: "McDonalds", "Uber"  
+  - category: "Food", "Transport"
+  - promoCodeCount: 15 (denormalized counter)
+  - isPopular: true
+  - logoUrl: "https://..."
+
 /promocodes/{promoCodeId}
-  - PromoCodeDto fields
+  - serviceId: "food_mcdonalds" (reference to Service)
+  - serviceName: "McDonalds" (denormalized for fast queries)
+  - category: "Food" (denormalized for filtering)
+  - code, title, description, etc.
   /comments/{commentId} - CommentDto
   /votes/{userId} - Vote data
 
@@ -211,9 +262,6 @@ data class UserVote(
   /votes/{userId} - Vote data
   /bookmarks/{userId} - Bookmark data
 
-/services/{serviceId}
-  - ServiceDto fields
-
 /users/{userId}
   - UserDto fields
   /bookmarks/{itemId} - UserBookmarkDto
@@ -224,9 +272,11 @@ data class UserVote(
 
 ### **Firebase Collections Strategy**
 - **Main collections**: `promocodes`, `posts`, `promos`, `services`, `users`
+- **Hierarchical services**: Composite IDs (`food_mcdonalds`) enable category → service navigation
+- **Denormalized relationships**: ServiceId + serviceName in promo codes for performance
 - **Subcollections**: `comments`, `votes`, `bookmarks` under parent documents
 - **Global collections**: `user_activities` for cross-content analytics
-- **Denormalized data**: Author info duplicated for fast queries without joins
+- **Service counters**: `promoCodeCount` denormalized for fast UI display
 
 ## 🛠️ **Mappers**
 

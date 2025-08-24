@@ -13,11 +13,12 @@ data class ServiceId(val value: String) {
 
 @Serializable
 data class Service(
-    val id: ServiceId,
+    val id: ServiceId, // We gotta use document id consisting of category_servicename, lowercase, sanitized
     val name: String,
     val category: String,
     val logoUrl: String? = null,
     val isPopular: Boolean = false,
+    val promoCodeCount: Int = 0, // Denormalized counter for display
     val createdAt: Instant = Clock.System.now()
 ) {
     init {
@@ -30,7 +31,8 @@ data class Service(
             name: String,
             category: String,
             logoUrl: String? = null,
-            isPopular: Boolean = false
+            isPopular: Boolean = false,
+            promoCodeCount: Int = 0
         ): Service {
             val id = ServiceId(generateServiceId(name, category))
             return Service(
@@ -39,6 +41,7 @@ data class Service(
                 category = category.trim(),
                 logoUrl = logoUrl,
                 isPopular = isPopular,
+                promoCodeCount = promoCodeCount,
             )
         }
 

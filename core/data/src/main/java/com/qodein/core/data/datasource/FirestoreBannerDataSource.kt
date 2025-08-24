@@ -27,6 +27,10 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
         private const val BANNERS_COLLECTION = "banners"
     }
 
+    init {
+        Timber.tag(TAG).d("FirestoreBannerDataSource constructor called - DI working correctly")
+    }
+
     /**
      * Gets active banners for a specific country with real-time updates.
      * Uses Firestore array-contains query for country targeting.

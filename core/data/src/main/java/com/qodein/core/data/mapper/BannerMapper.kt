@@ -19,7 +19,7 @@ object BannerMapper {
      */
     fun toDto(banner: Banner): BannerDto =
         BannerDto(
-            id = banner.id.value,
+            documentId = banner.id.value,
             imageUrl = banner.imageUrl,
             targetCountries = banner.targetCountries,
             brandName = banner.brandName,
@@ -43,13 +43,13 @@ object BannerMapper {
      */
     fun toDomain(dto: BannerDto): Banner {
         // Validate required fields
-        require(dto.id.isNotBlank()) { "Banner ID cannot be blank" }
+        require(dto.documentId.isNotBlank()) { "Banner ID cannot be blank" }
         require(dto.brandName.isNotBlank()) { "Banner brand name cannot be blank" }
         require(dto.ctaTitle.isNotEmpty()) { "Banner CTA title map cannot be empty" }
         require(dto.ctaDescription.isNotEmpty()) { "Banner CTA description map cannot be empty" }
 
         return Banner(
-            id = BannerId(dto.id),
+            id = BannerId(dto.documentId),
             imageUrl = dto.imageUrl,
             targetCountries = dto.targetCountries,
             brandName = dto.brandName,

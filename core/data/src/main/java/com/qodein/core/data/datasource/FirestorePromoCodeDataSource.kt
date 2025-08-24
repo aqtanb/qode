@@ -40,7 +40,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             // Use add() with specific document ID to ensure document doesn't already exist
             // This will fail if a document with this ID already exists
             firestore.collection(PROMOCODES_COLLECTION)
-                .document(dto.id)
+                .document(dto.documentId)
                 .set(dto)
                 .await()
         } catch (e: Exception) {
@@ -219,7 +219,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         val dto = PromoCodeMapper.toDto(promoCode)
 
         firestore.collection(PROMOCODES_COLLECTION)
-            .document(dto.id)
+            .document(dto.documentId)
             .set(dto)
             .await()
 

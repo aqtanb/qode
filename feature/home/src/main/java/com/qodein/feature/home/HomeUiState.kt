@@ -5,6 +5,7 @@ import com.qodein.feature.home.model.FilterState
 import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Service
 
 sealed interface HomeUiState {
 
@@ -17,6 +18,7 @@ sealed interface HomeUiState {
         val promoCodes: List<PromoCode>,
         val hasMorePromoCodes: Boolean,
         val isLoadingMore: Boolean = false,
+        val availableServices: List<Service> = emptyList(),
         val currentFilters: FilterState = FilterState(),
         val activeFilterDialog: FilterDialogType? = null
     ) : HomeUiState

@@ -21,9 +21,11 @@ import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -42,6 +46,7 @@ class HomeViewModel @Inject constructor(
     private val getPromoCodesUseCase: GetPromoCodesUseCase,
     private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
     private val getBannersUseCase: GetBannersUseCase,
+    private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val analyticsHelper: AnalyticsHelper
     // TODO: Inject other repositories when available
     // private val userRepository: UserRepository,
@@ -79,30 +84,47 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadPromoCodesWithFallback(banners: List<Banner> = emptyList()) {
+    private suspend fun loadPromoCodesWithFallback(
+        banners: List<Banner> = emptyList(),
+        services: List<Service> = emptyList()
+    ) {
         suspend fun loadWithSort(sortBy: PromoCodeSortBy): Boolean {
             try {
+                var success = false
                 getPromoCodesUseCase(sortBy = sortBy, limit = 20).collect { result ->
                     when (result) {
-                        is Result.Loading -> { /* Continue loading */ }
+                        is Result.Loading -> {
+                            Timber.d("HomeViewModel: Loading promo codes with sort $sortBy")
+                        }
                         is Result.Success -> {
                             if (result.data.isNotEmpty()) {
-                                updateSuccessState(result.data, banners)
-                                return@collect
+                                Timber.d("HomeViewModel: Successfully loaded ${result.data.size} promo codes with $sortBy")
+                                updateSuccessState(result.data, banners, services)
+                                success = true
+                            } else {
+                                Timber.w("HomeViewModel: No promo codes returned for sort $sortBy")
                             }
+                            return@collect
                         }
-                        is Result.Error -> return@collect
+                        is Result.Error -> {
+                            Timber.w("HomeViewModel: Error loading promo codes with $sortBy: ${result.exception}")
+                            return@collect
+                        }
                     }
                 }
-                return true
+                return success
             } catch (e: Exception) {
+                Timber.e("HomeViewModel: Exception loading promo codes with $sortBy: $e")
                 return false
             }
         }
 
+        Timber.d("HomeViewModel: Starting promo code loading with ${banners.size} banners, ${services.size} services")
+
         // Try POPULARITY first, fallback to NEWEST
         if (!loadWithSort(PromoCodeSortBy.POPULARITY)) {
             if (!loadWithSort(PromoCodeSortBy.NEWEST)) {
+                Timber.e("HomeViewModel: All promo code loading attempts failed")
                 _uiState.value = HomeUiState.Error(
                     errorType = Exception("Failed to load data").toErrorType(),
                     isRetryable = true,
@@ -115,13 +137,15 @@ class HomeViewModel @Inject constructor(
 
     private fun updateSuccessState(
         promoCodes: List<PromoCode>,
-        banners: List<Banner> = emptyList()
+        banners: List<Banner> = emptyList(),
+        services: List<Service> = emptyList()
     ) {
         Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
         _uiState.value = HomeUiState.Success(
             banners = banners,
             promoCodes = promoCodes,
             hasMorePromoCodes = promoCodes.size >= 20,
+            availableServices = services,
         )
     }
 
@@ -136,33 +160,65 @@ class HomeViewModel @Inject constructor(
                 HomeUiState.Loading
             }
 
-            loadBannersAndPromoCodes()
+            loadBannersPromoCodesAndServices()
         }
     }
 
-    private suspend fun loadBannersAndPromoCodes() {
+    private suspend fun loadBannersPromoCodesAndServices() {
         withContext(Dispatchers.IO) {
             var banners = emptyList<Banner>()
-            // Simple banner loading - return@collect already ensures single emission
-            getBannersUseCase(limit = 10).collect { bannersResult ->
+            var services = emptyList<Service>()
+
+            // Load banners first
+            // Fixed: Use firstOrNull instead of first() to wait for actual data, not just Result.Loading from asResult()
+            // Issue: first() was capturing Result.Loading immediately and terminating flow before Firebase query executed
+            Timber.d("HomeViewModel: About to start loading banners")
+            try {
+                Timber.d("HomeViewModel: Calling getBannersUseCase().firstOrNull { it !is Result.Loading }")
+                val bannersResult = getBannersUseCase(limit = 10).firstOrNull { it !is Result.Loading } ?: Result.Loading
+                Timber.d("HomeViewModel: getBannersUseCase() completed with result: $bannersResult")
                 when (bannersResult) {
+                    is Result.Loading -> {
+                        Timber.d("HomeViewModel: Loading banners")
+                    }
                     is Result.Success -> {
                         banners = bannersResult.data
                         Timber.d("HomeViewModel: Loaded ${banners.size} banners successfully")
-                        // Only update state for successful banner results
-                        loadPromoCodesWithFallback(banners)
-                    }
-                    is Result.Loading -> {
-                        // Don't update state for loading - wait for success/error
                     }
                     is Result.Error -> {
                         Timber.w("HomeViewModel: Banner loading failed: ${bannersResult.exception}")
-                        // Continue with empty banners on error
-                        loadPromoCodesWithFallback(emptyList())
+                        banners = emptyList()
                     }
                 }
-                return@collect
+            } catch (e: Exception) {
+                Timber.w("HomeViewModel: Banner loading failed with exception: $e")
+                banners = emptyList()
             }
+            Timber.d("HomeViewModel: Banner loading phase complete, banners.size = ${banners.size}")
+
+            // Load services second
+            try {
+                val servicesResult = getPopularServicesUseCase(limit = 50).first()
+                when (servicesResult) {
+                    is Result.Loading -> {
+                        Timber.d("HomeViewModel: Loading services")
+                    }
+                    is Result.Success -> {
+                        services = servicesResult.data
+                        Timber.d("HomeViewModel: Loaded ${services.size} services successfully")
+                    }
+                    is Result.Error -> {
+                        Timber.w("HomeViewModel: Services loading failed: ${servicesResult.exception}")
+                        services = emptyList()
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.w("HomeViewModel: Services loading failed: $e")
+                services = emptyList()
+            }
+
+            Timber.d("HomeViewModel: Got ${banners.size} banners and ${services.size} services, loading promo codes")
+            loadPromoCodesWithFallback(banners, services)
         }
     }
 

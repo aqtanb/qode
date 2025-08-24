@@ -1,4 +1,4 @@
-package com.qodein.core.ui.component
+package com.qodein.feature.home.component
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
@@ -293,7 +293,7 @@ fun CouponPromoCodeCard(
                 ) {
                     EnhancedStubContent(
                         discountText = discountText,
-                        createdAt = promoCode.createdAt,
+                        createdAt = promoCode.endDate,
                         upvotes = promoCode.upvotes,
                         downvotes = promoCode.downvotes,
                         modifier = Modifier.fillMaxSize(),

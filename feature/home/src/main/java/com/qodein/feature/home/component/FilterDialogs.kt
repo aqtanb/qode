@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -165,15 +167,27 @@ fun ServiceFilterDialog(
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredServices = remember(searchQuery, availableServices) {
-        if (searchQuery.isBlank()) {
-            availableServices.sortedByDescending { it.isPopular }
+    // Group services by category for hierarchical display
+    val servicesByCategory = remember(searchQuery, availableServices) {
+        val filtered = if (searchQuery.isBlank()) {
+            availableServices
         } else {
             availableServices.filter {
                 it.name.contains(searchQuery, ignoreCase = true) ||
                     it.category.contains(searchQuery, ignoreCase = true)
-            }.sortedByDescending { it.isPopular }
+            }
         }
+
+        filtered
+            .groupBy { it.category }
+            .mapValues { (_, services) ->
+                services.sortedWith(
+                    compareByDescending<Service> { it.isPopular }
+                        .thenByDescending { it.promoCodeCount }
+                        .thenBy { it.name },
+                )
+            }
+            .toSortedMap()
     }
 
     BasicAlertDialog(
@@ -216,17 +230,37 @@ fun ServiceFilterDialog(
 
                 HorizontalDivider()
 
-                // Services list
+                // Services list grouped by category
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                 ) {
-                    items(filteredServices) { service ->
-                        val isSelected = currentFilter is ServiceFilter.Selected && currentFilter.service.id == service.id
-                        ServiceFilterOption(
-                            service = service,
-                            isSelected = isSelected,
-                            onClick = { onFilterSelected(ServiceFilter.Selected(service)) },
-                        )
+                    servicesByCategory.forEach { (category, services) ->
+                        // Category header
+                        item(key = "category_$category") {
+                            Text(
+                                text = category,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(
+                                    vertical = SpacingTokens.xs,
+                                    horizontal = SpacingTokens.sm,
+                                ),
+                            )
+                        }
+
+                        // Services in this category
+                        items(
+                            items = services,
+                            key = { service -> "service_${service.id.value}" },
+                        ) { service ->
+                            val isSelected = currentFilter is ServiceFilter.Selected && currentFilter.service.id == service.id
+                            ServiceFilterOption(
+                                service = service,
+                                isSelected = isSelected,
+                                onClick = { onFilterSelected(ServiceFilter.Selected(service)) },
+                            )
+                        }
                     }
                 }
 
@@ -329,17 +363,30 @@ private fun ServiceFilterOption(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
     ) {
-        Column {
-            Text(
-                text = service?.name ?: stringResource(R.string.filter_service_all),
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            )
-            if (service != null) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = service.category,
+                    text = service?.name ?: stringResource(R.string.filter_service_all),
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                )
+                if (service != null && service.promoCodeCount > 0) {
+                    Text(
+                        text = "${service.promoCodeCount} codes",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            if (service != null && service.isPopular) {
+                Text(
+                    text = "✨",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

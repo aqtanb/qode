@@ -1,5 +1,6 @@
 package com.qodein.shared.domain.usecase.banner
 
+import co.touchlab.kermit.Logger
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.BannerRepository
@@ -13,6 +14,15 @@ import kotlinx.datetime.Clock
  * Implements fallback strategies for better UX.
  */
 class GetBannersUseCase constructor(private val bannerRepository: BannerRepository) {
+
+    companion object {
+        private val logger = Logger.withTag("GetBannersUseCase")
+        private const val DEFAULT_COUNTRY_CODE = "KZ" // Kazakhstan as fallback country for KZ market
+    }
+
+    init {
+        logger.d { "GetBannersUseCase constructor called - DI working correctly" }
+    }
 
     /**
      * Gets banners for Kazakhstan market with intelligent fallbacks.
@@ -33,10 +43,11 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
     fun getBannersForCountry(
         countryCode: String,
         limit: Int = 10
-    ): Flow<Result<List<Banner>>> =
-        // Use simple single query approach to avoid multiple emissions
-        bannerRepository.getAllActiveBanners(limit)
+    ): Flow<Result<List<Banner>>> {
+        logger.d { "getBannersForCountry called with countryCode=$countryCode, limit=$limit" }
+        return bannerRepository.getAllActiveBanners(limit)
             .map { banners ->
+                logger.d { "Received ${banners.size} banners from repository" }
                 // Filter expired banners and prioritize country-specific ones
                 val filtered = filterExpiredBanners(banners)
                 val countryBanners = filtered.filter { banner ->
@@ -44,9 +55,12 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
                         // Global banners
                         banner.targetCountries.contains(countryCode.uppercase()) // Country-specific
                 }
-                countryBanners.ifEmpty { filtered.ifEmpty { getDefaultFallbackBanners() } }
+                val result = countryBanners.ifEmpty { filtered.ifEmpty { getDefaultFallbackBanners() } }
+                logger.d { "Returning ${result.size} banners after filtering" }
+                result
             }
             .asResult()
+    }
 
     /**
      * Filters banners that have expired based on current server time.
@@ -64,8 +78,4 @@ class GetBannersUseCase constructor(private val bannerRepository: BannerReposito
      * Returns empty list so only real banners from server are displayed.
      */
     private fun getDefaultFallbackBanners(): List<Banner> = emptyList()
-
-    companion object {
-        private const val DEFAULT_COUNTRY_CODE = "KZ" // Kazakhstan as fallback country for KZ market
-    }
 }

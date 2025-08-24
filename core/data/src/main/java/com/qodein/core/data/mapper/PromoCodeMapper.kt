@@ -6,6 +6,7 @@ import com.qodein.core.data.model.PromoCodeVoteDto
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
@@ -19,8 +20,8 @@ object PromoCodeMapper {
 
     fun toDomain(dto: PromoCodeDto): PromoCode {
         // Validate required fields first
-        if (dto.id.isBlank()) {
-            throw IllegalArgumentException("PromoCode ID cannot be blank")
+        if (dto.documentId.isBlank()) {
+            throw IllegalArgumentException("PromoCode documentId cannot be blank")
         }
         if (dto.code.isBlank()) {
             throw IllegalArgumentException("PromoCode code cannot be blank")
@@ -35,13 +36,14 @@ object PromoCodeMapper {
             throw IllegalArgumentException("PromoCode type cannot be blank")
         }
 
-        val promoCodeId = PromoCodeId(dto.id)
+        val promoCodeId = PromoCodeId(dto.documentId)
         val createdBy = dto.createdBy?.let { UserId(it) }
 
         return when (dto.type.lowercase()) {
             "percentage" -> PromoCode.PercentagePromoCode(
                 id = promoCodeId,
                 code = dto.code,
+                serviceId = dto.serviceId?.let { ServiceId(it) },
                 serviceName = dto.serviceName,
                 category = dto.category,
                 title = dto.title,
@@ -69,6 +71,7 @@ object PromoCodeMapper {
             "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
                 id = promoCodeId,
                 code = dto.code,
+                serviceId = dto.serviceId?.let { ServiceId(it) },
                 serviceName = dto.serviceName,
                 category = dto.category,
                 title = dto.title,
@@ -100,8 +103,9 @@ object PromoCodeMapper {
     fun toDto(domain: PromoCode): PromoCodeDto =
         when (domain) {
             is PromoCode.PercentagePromoCode -> PromoCodeDto(
-                id = domain.id.value,
+                documentId = domain.id.value,
                 code = domain.code,
+                serviceId = domain.serviceId?.value,
                 serviceName = domain.serviceName,
                 category = domain.category,
                 title = domain.title,
@@ -127,8 +131,9 @@ object PromoCodeMapper {
             )
 
             is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
-                id = domain.id.value,
+                documentId = domain.id.value,
                 code = domain.code,
+                serviceId = domain.serviceId?.value,
                 serviceName = domain.serviceName,
                 category = domain.category,
                 title = domain.title,

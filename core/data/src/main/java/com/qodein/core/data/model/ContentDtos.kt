@@ -94,31 +94,38 @@ data class PostDto(
  */
 data class PromoCodeDto(
     @DocumentId
-    val id: String = "",
+    val documentId: String = "",
+
+    // Document data fields (no id field - Firebase provides document ID)
     val code: String = "",
-    val serviceName: String = "",
+    val serviceId: String? = null, // Reference to Service document ID
+    val serviceName: String = "", // Denormalized for display and filtering
     val category: String? = null,
     val title: String = "",
     val description: String? = null,
-    val type: String = "", // "percentage", "fixed",
+    val type: String = "", // "percentage", "fixed"
 
     // Type-specific fields (null for types that don't use them)
     val discountPercentage: Double? = null,
     val discountAmount: Double? = null,
     val minimumOrderAmount: Double = 0.0,
 
-    @PropertyName("firstUserOnly")
+    // User-specific flags (handle both field name variations from Firestore)
     val isFirstUserOnly: Boolean = false,
+
+    // Engagement metrics
     val upvotes: Int = 0,
     val downvotes: Int = 0,
     val views: Int = 0,
     val shares: Int = 0,
+    val comments: Int? = null,
+
+    // Media and verification
     val screenshotUrl: String? = null,
     val targetCountries: List<String> = emptyList(),
     val isVerified: Boolean = false,
-    val comments: Int? = null,
 
-    // Timestamps - using current time as fallback
+    // Timestamps
     val startDate: Timestamp = Timestamp.now(),
     val endDate: Timestamp = Timestamp.now(),
     @ServerTimestamp
@@ -129,7 +136,38 @@ data class PromoCodeDto(
     val isUpvotedByCurrentUser: Boolean = false,
     val isDownvotedByCurrentUser: Boolean = false,
     val isBookmarkedByCurrentUser: Boolean = false
-)
+) {
+    // Required no-argument constructor for Firestore
+    constructor() : this(
+        documentId = "",
+        code = "",
+        serviceId = null,
+        serviceName = "",
+        category = null,
+        title = "",
+        description = null,
+        type = "",
+        discountPercentage = null,
+        discountAmount = null,
+        minimumOrderAmount = 0.0,
+        isFirstUserOnly = false,
+        upvotes = 0,
+        downvotes = 0,
+        views = 0,
+        shares = 0,
+        comments = null,
+        screenshotUrl = null,
+        targetCountries = emptyList(),
+        isVerified = false,
+        startDate = Timestamp.now(),
+        endDate = Timestamp.now(),
+        createdAt = null,
+        createdBy = null,
+        isUpvotedByCurrentUser = false,
+        isDownvotedByCurrentUser = false,
+        isBookmarkedByCurrentUser = false,
+    )
+}
 
 /**
  * Firestore document model for PromoCodeVote.
@@ -312,7 +350,8 @@ data class PromoDto(
  * Follows Firebase naming conventions and supports automatic serialization.
  */
 data class BannerDto(
-    val id: String = "",
+    @DocumentId
+    val documentId: String = "",
     val imageUrl: String = "",
     val targetCountries: List<String> = emptyList(),
     val brandName: String = "",
@@ -328,7 +367,7 @@ data class BannerDto(
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
-        id = "",
+        documentId = "",
         imageUrl = "",
         targetCountries = emptyList(),
         brandName = "",

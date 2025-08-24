@@ -138,9 +138,10 @@ value class PromoCodeId(val value: String) {
 
 @Serializable
 sealed class PromoCode {
-    abstract val id: PromoCodeId
+    abstract val id: PromoCodeId // shouldnt we use composite document id lowercased brandname_promocode sanitized
     abstract val code: String
-    abstract val serviceName: String
+    abstract val serviceId: ServiceId? // Reference to Service document
+    abstract val serviceName: String // Denormalized for display and filtering
     abstract val category: String?
     abstract val title: String
     abstract val description: String?
@@ -171,6 +172,7 @@ sealed class PromoCode {
     data class PercentagePromoCode(
         override val id: PromoCodeId,
         override val code: String,
+        override val serviceId: ServiceId? = null,
         override val serviceName: String,
         override val category: String? = null,
         override val title: String,
@@ -212,6 +214,7 @@ sealed class PromoCode {
     data class FixedAmountPromoCode(
         override val id: PromoCodeId,
         override val code: String,
+        override val serviceId: ServiceId? = null,
         override val serviceName: String,
         override val category: String? = null,
         override val title: String,

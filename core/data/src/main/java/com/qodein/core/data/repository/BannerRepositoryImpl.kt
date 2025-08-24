@@ -15,12 +15,19 @@ import javax.inject.Singleton
 @Singleton
 class BannerRepositoryImpl @Inject constructor(private val firestoreBannerDataSource: FirestoreBannerDataSource) : BannerRepository {
 
+    init {
+        timber.log.Timber.d("BannerRepositoryImpl constructor called - DI working correctly")
+    }
+
     override fun getBannersForCountry(
         countryCode: String,
         limit: Int
     ): Flow<List<Banner>> = firestoreBannerDataSource.getBannersForCountry(countryCode, limit)
 
-    override fun getAllActiveBanners(limit: Int): Flow<List<Banner>> = firestoreBannerDataSource.getAllActiveBanners(limit)
+    override fun getAllActiveBanners(limit: Int): Flow<List<Banner>> {
+        timber.log.Timber.d("BannerRepositoryImpl.getAllActiveBanners called with limit=$limit")
+        return firestoreBannerDataSource.getAllActiveBanners(limit)
+    }
 
     override suspend fun getBannerById(bannerId: BannerId): Banner? = firestoreBannerDataSource.getBannerById(bannerId)
 

@@ -14,6 +14,7 @@ object ServiceMapper {
             category = dto.category,
             logoUrl = dto.logoUrl,
             isPopular = dto.isPopular,
+            promoCodeCount = dto.promoCodeCount,
             createdAt = Instant.fromEpochSeconds(dto.createdAt),
         )
 
@@ -24,6 +25,7 @@ object ServiceMapper {
             category = service.category,
             logoUrl = service.logoUrl,
             isPopular = service.isPopular,
+            promoCodeCount = service.promoCodeCount,
             createdAt = service.createdAt.epochSeconds,
         )
 

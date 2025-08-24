@@ -56,10 +56,10 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.CouponPromoCodeCard
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.component.CategoryFilterDialog
+import com.qodein.feature.home.component.CouponPromoCodeCard
 import com.qodein.feature.home.component.HeroBannerSection
 import com.qodein.feature.home.component.ServiceFilterDialog
 import com.qodein.feature.home.component.SortFilterDialog
@@ -258,10 +258,9 @@ private fun HomeContent(
                 )
             }
             FilterDialogType.Service -> {
-                // TODO: Get available services from ViewModel
                 ServiceFilterDialog(
                     currentFilter = uiState.currentFilters.serviceFilter,
-                    availableServices = emptyList(), // TODO: Pass actual services
+                    availableServices = uiState.availableServices,
                     onFilterSelected = { filter ->
                         onAction(HomeAction.ApplyServiceFilter(filter))
                         onAction(HomeAction.DismissFilterDialog)

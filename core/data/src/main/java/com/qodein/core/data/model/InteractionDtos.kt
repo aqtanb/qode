@@ -155,9 +155,12 @@ data class ServiceDto(
     @PropertyName("isPopular")
     val isPopular: Boolean = false,
 
+    @PropertyName("promoCodeCount")
+    val promoCodeCount: Int = 0,
+
     @PropertyName("createdAt")
     val createdAt: Long = 0L // Unix timestamp for Firestore compatibility
 ) {
     // No-args constructor required for Firestore deserialization
-    constructor() : this("", "", "", null, false, 0L)
+    constructor() : this("", "", "", null, false, 0, 0L)
 }
