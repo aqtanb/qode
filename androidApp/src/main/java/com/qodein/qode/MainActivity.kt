@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
             QodeTheme(
                 darkTheme = darkTheme,
             ) {
-                androidx.compose.runtime.CompositionLocalProvider(
+                CompositionLocalProvider(
                     LocalAnalyticsHelper provides analyticsHelper,
                 ) {
                     QodeApp(

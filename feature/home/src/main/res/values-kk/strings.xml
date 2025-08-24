@@ -50,6 +50,39 @@
     <!-- Country -->
     <string name="country_kazakhstan">Қазақстан</string>
 
+    <!-- Actions -->
+    <string name="action_close">Жабу</string>
+    <string name="action_reset">Қайта орнату</string>
+
+    <!-- Filter Chips -->
+    <string name="filter_chip_type">Түрі</string>
+    <string name="filter_chip_category">Санат</string>
+    <string name="filter_chip_service">Қызмет</string>
+    <string name="filter_chip_sort">Сұрыптау</string>
+
+    <!-- Filter Dialog Titles -->
+    <string name="filter_dialog_type_title">Промо-код түрі</string>
+    <string name="filter_dialog_category_title">Санат</string>
+    <string name="filter_dialog_service_title">Қызмет</string>
+    <string name="filter_dialog_sort_title">Бойынша сұрыптау</string>
+
+    <!-- Filter Options - Type -->
+    <string name="filter_type_all">Барлық түрлері</string>
+    <string name="filter_type_percentage">Пайыздық жеңілдік</string>
+    <string name="filter_type_fixed_amount">Бекітілген соmá</string>
+
+    <!-- Filter Options - Category -->
+    <string name="filter_category_all">Барлық санаттар</string>
+
+    <!-- Filter Options - Service -->
+    <string name="filter_service_all">Барлық қызметтер</string>
+    <string name="filter_search_services">Қызметтерді іздеу…</string>
+
+    <!-- Filter Options - Sort -->
+    <string name="filter_sort_popularity">Ең танымал</string>
+    <string name="filter_sort_newest">Алдымен жаңа</string>
+    <string name="filter_sort_expiry_soon">Жақында аяқталады</string>
+
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>
     <string name="empty_check_back_later">Кейінірек таңғажайып мәмілелер мен жеңілдіктер үшін тексеріңіз!</string>

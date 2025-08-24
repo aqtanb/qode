@@ -6,6 +6,12 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
+import com.qodein.feature.home.model.CategoryFilter
+import com.qodein.feature.home.model.FilterDialogType
+import com.qodein.feature.home.model.FilterState
+import com.qodein.feature.home.model.PromoCodeTypeFilter
+import com.qodein.feature.home.model.ServiceFilter
+import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -61,6 +67,15 @@ class HomeViewModel @Inject constructor(
             is HomeAction.LoadMorePromoCodes -> loadMorePromoCodes()
             is HomeAction.RetryClicked -> loadHomeData()
             is HomeAction.ErrorDismissed -> dismissError()
+
+            // Filter Actions
+            is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
+            is HomeAction.DismissFilterDialog -> dismissFilterDialog()
+            is HomeAction.ApplyTypeFilter -> applyTypeFilter(action.typeFilter)
+            is HomeAction.ApplyCategoryFilter -> applyCategoryFilter(action.categoryFilter)
+            is HomeAction.ApplyServiceFilter -> applyServiceFilter(action.serviceFilter)
+            is HomeAction.ApplySortFilter -> applySortFilter(action.sortFilter)
+            is HomeAction.ResetFilters -> resetFilters()
         }
     }
 
@@ -300,6 +315,213 @@ class HomeViewModel @Inject constructor(
         // Return to loading state to retry
         _uiState.value = HomeUiState.Loading
     }
+
+    // MARK: - Filter Actions
+
+    private fun showFilterDialog(type: FilterDialogType) {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            _uiState.value = currentState.copy(activeFilterDialog = type)
+        }
+    }
+
+    private fun dismissFilterDialog() {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            _uiState.value = currentState.copy(activeFilterDialog = null)
+        }
+    }
+
+    private fun applyTypeFilter(typeFilter: PromoCodeTypeFilter) {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            val newFilters = currentState.currentFilters.copy(typeFilter = typeFilter)
+            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
+            _uiState.value = currentState.copy(
+                currentFilters = newFilters,
+                promoCodes = filteredPromoCodes,
+            )
+
+            // Log analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "filter_applied",
+                    extras = listOf(
+                        AnalyticsEvent.Param("filter_type", "type"),
+                        AnalyticsEvent.Param(
+                            "filter_value",
+                            when (typeFilter) {
+                                PromoCodeTypeFilter.All -> "all"
+                                PromoCodeTypeFilter.Percentage -> "percentage"
+                                PromoCodeTypeFilter.FixedAmount -> "fixed_amount"
+                            },
+                        ),
+                    ),
+                ),
+            )
+        }
+    }
+
+    private fun applyCategoryFilter(categoryFilter: CategoryFilter) {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            val newFilters = currentState.currentFilters.copy(categoryFilter = categoryFilter)
+            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
+            _uiState.value = currentState.copy(
+                currentFilters = newFilters,
+                promoCodes = filteredPromoCodes,
+            )
+
+            // Log analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "filter_applied",
+                    extras = listOf(
+                        AnalyticsEvent.Param("filter_type", "category"),
+                        AnalyticsEvent.Param(
+                            "filter_value",
+                            when (categoryFilter) {
+                                CategoryFilter.All -> "all"
+                                is CategoryFilter.Selected -> categoryFilter.category
+                            },
+                        ),
+                    ),
+                ),
+            )
+        }
+    }
+
+    private fun applyServiceFilter(serviceFilter: ServiceFilter) {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            val newFilters = currentState.currentFilters.copy(serviceFilter = serviceFilter)
+            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
+            _uiState.value = currentState.copy(
+                currentFilters = newFilters,
+                promoCodes = filteredPromoCodes,
+            )
+
+            // Log analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "filter_applied",
+                    extras = listOf(
+                        AnalyticsEvent.Param("filter_type", "service"),
+                        AnalyticsEvent.Param(
+                            "filter_value",
+                            when (serviceFilter) {
+                                ServiceFilter.All -> "all"
+                                is ServiceFilter.Selected -> serviceFilter.service.name
+                            },
+                        ),
+                    ),
+                ),
+            )
+        }
+    }
+
+    private fun applySortFilter(sortFilter: SortFilter) {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            val newFilters = currentState.currentFilters.copy(sortFilter = sortFilter)
+            val sortBy = (sortFilter as SortFilter.Selected).sortBy
+            val sortedPromoCodes = applySortToPromoCodes(currentState.promoCodes, sortBy)
+            _uiState.value = currentState.copy(
+                currentFilters = newFilters,
+                promoCodes = sortedPromoCodes,
+            )
+
+            // Log analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "filter_applied",
+                    extras = listOf(
+                        AnalyticsEvent.Param("filter_type", "sort"),
+                        AnalyticsEvent.Param("filter_value", sortBy.name.lowercase()),
+                    ),
+                ),
+            )
+        }
+    }
+
+    private fun resetFilters() {
+        val currentState = _uiState.value
+        if (currentState is HomeUiState.Success) {
+            _uiState.value = currentState.copy(currentFilters = FilterState())
+
+            // Reload data with default sort
+            loadHomeData(isRefresh = true)
+
+            // Log analytics
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "filters_reset",
+                    extras = emptyList(),
+                ),
+            )
+        }
+    }
+
+    // MARK: - Filter Helper Functions
+
+    private fun applyFiltersToPromoCodes(
+        promoCodes: List<PromoCode>,
+        filters: FilterState
+    ): List<PromoCode> =
+        promoCodes
+            .filter { promoCode -> matchesTypeFilter(promoCode, filters.typeFilter) }
+            .filter { promoCode -> matchesCategoryFilter(promoCode, filters.categoryFilter) }
+            .filter { promoCode -> matchesServiceFilter(promoCode, filters.serviceFilter) }
+            .let { filteredCodes ->
+                val sortBy = (filters.sortFilter as SortFilter.Selected).sortBy
+                applySortToPromoCodes(filteredCodes, sortBy)
+            }
+
+    private fun matchesTypeFilter(
+        promoCode: PromoCode,
+        typeFilter: PromoCodeTypeFilter
+    ): Boolean =
+        when (typeFilter) {
+            PromoCodeTypeFilter.All -> true
+            PromoCodeTypeFilter.Percentage -> promoCode is PromoCode.PercentagePromoCode
+            PromoCodeTypeFilter.FixedAmount -> promoCode is PromoCode.FixedAmountPromoCode
+        }
+
+    private fun matchesCategoryFilter(
+        promoCode: PromoCode,
+        categoryFilter: CategoryFilter
+    ): Boolean =
+        when (categoryFilter) {
+            CategoryFilter.All -> true
+            is CategoryFilter.Selected -> {
+                promoCode.category?.equals(categoryFilter.category, ignoreCase = true) == true
+            }
+        }
+
+    private fun matchesServiceFilter(
+        promoCode: PromoCode,
+        serviceFilter: ServiceFilter
+    ): Boolean =
+        when (serviceFilter) {
+            ServiceFilter.All -> true
+            is ServiceFilter.Selected -> {
+                promoCode.serviceName.equals(serviceFilter.service.name, ignoreCase = true)
+            }
+        }
+
+    private fun applySortToPromoCodes(
+        promoCodes: List<PromoCode>,
+        sortBy: PromoCodeSortBy
+    ): List<PromoCode> =
+        when (sortBy) {
+            PromoCodeSortBy.POPULARITY -> promoCodes.sortedByDescending { it.voteScore }
+            PromoCodeSortBy.NEWEST -> promoCodes.sortedByDescending { it.createdAt }
+            PromoCodeSortBy.OLDEST -> promoCodes.sortedBy { it.createdAt }
+            PromoCodeSortBy.EXPIRING_SOON -> promoCodes.sortedBy { it.endDate }
+            PromoCodeSortBy.MOST_VIEWED -> promoCodes.sortedByDescending { it.views }
+            PromoCodeSortBy.MOST_USED -> promoCodes.sortedByDescending { it.voteScore } // Use voteScore as proxy for usage
+            PromoCodeSortBy.ALPHABETICAL -> promoCodes.sortedBy { it.code }
+        }
 
     // Mock data - TODO: Remove when repositories are implemented
 

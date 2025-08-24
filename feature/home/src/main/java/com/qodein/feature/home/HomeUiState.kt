@@ -1,5 +1,7 @@
 package com.qodein.feature.home
 
+import com.qodein.feature.home.model.FilterDialogType
+import com.qodein.feature.home.model.FilterState
 import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PromoCode
@@ -14,7 +16,9 @@ sealed interface HomeUiState {
         val banners: List<Banner> = emptyList(),
         val promoCodes: List<PromoCode>,
         val hasMorePromoCodes: Boolean,
-        val isLoadingMore: Boolean = false
+        val isLoadingMore: Boolean = false,
+        val currentFilters: FilterState = FilterState(),
+        val activeFilterDialog: FilterDialogType? = null
     ) : HomeUiState
 
     data class Error(

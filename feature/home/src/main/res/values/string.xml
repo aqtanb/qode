@@ -51,6 +51,39 @@
     <!-- Country -->
     <string name="country_kazakhstan">Kazakhstan</string>
 
+    <!-- Actions -->
+    <string name="action_close">Close</string>
+    <string name="action_reset">Reset</string>
+
+    <!-- Filter Chips -->
+    <string name="filter_chip_type">Type</string>
+    <string name="filter_chip_category">Category</string>
+    <string name="filter_chip_service">Service</string>
+    <string name="filter_chip_sort">Sort</string>
+
+    <!-- Filter Dialog Titles -->
+    <string name="filter_dialog_type_title">Promo Code Type</string>
+    <string name="filter_dialog_category_title">Category</string>
+    <string name="filter_dialog_service_title">Service</string>
+    <string name="filter_dialog_sort_title">Sort by</string>
+
+    <!-- Filter Options - Type -->
+    <string name="filter_type_all">All Types</string>
+    <string name="filter_type_percentage">Percentage Off</string>
+    <string name="filter_type_fixed_amount">Fixed Amount</string>
+
+    <!-- Filter Options - Category -->
+    <string name="filter_category_all">All Categories</string>
+
+    <!-- Filter Options - Service -->
+    <string name="filter_service_all">All Services</string>
+    <string name="filter_search_services">Search services…</string>
+
+    <!-- Filter Options - Sort -->
+    <string name="filter_sort_popularity">Most Popular</string>
+    <string name="filter_sort_newest">Newest First</string>
+    <string name="filter_sort_expiry_soon">Expiring Soon</string>
+
     <!-- Empty State -->
     <string name="empty_no_promo_codes">No promo codes available</string>
     <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>

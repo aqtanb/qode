@@ -50,6 +50,39 @@
     <!-- Country -->
     <string name="country_kazakhstan">Казахстан</string>
 
+    <!-- Actions -->
+    <string name="action_close">Закрыть</string>
+    <string name="action_reset">Сбросить</string>
+
+    <!-- Filter Chips -->
+    <string name="filter_chip_type">Тип</string>
+    <string name="filter_chip_category">Категория</string>
+    <string name="filter_chip_service">Сервис</string>
+    <string name="filter_chip_sort">Сортировать</string>
+
+    <!-- Filter Dialog Titles -->
+    <string name="filter_dialog_type_title">Тип промо-кода</string>
+    <string name="filter_dialog_category_title">Категория</string>
+    <string name="filter_dialog_service_title">Сервис</string>
+    <string name="filter_dialog_sort_title">Сортировать по</string>
+
+    <!-- Filter Options - Type -->
+    <string name="filter_type_all">Все типы</string>
+    <string name="filter_type_percentage">Процентная скидка</string>
+    <string name="filter_type_fixed_amount">Фиксированная сумма</string>
+
+    <!-- Filter Options - Category -->
+    <string name="filter_category_all">Все категории</string>
+
+    <!-- Filter Options - Service -->
+    <string name="filter_service_all">Все сервисы</string>
+    <string name="filter_search_services">Поиск сервисов…</string>
+
+    <!-- Filter Options - Sort -->
+    <string name="filter_sort_popularity">Самые популярные</string>
+    <string name="filter_sort_newest">Сначала новые</string>
+    <string name="filter_sort_expiry_soon">Скоро истекают</string>
+
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>
     <string name="empty_check_back_later">Позже проверьте удивительные предложения и скидки!</string>

@@ -1,6 +1,7 @@
 package com.qodein.qode
 
 import android.app.Application
+import android.util.Log
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import com.qodein.qode.logging.KermitTimberWriter
@@ -44,7 +45,7 @@ class QodeApplication : Application() {
                     t: Throwable?
                 ) {
                     // In release builds, only log errors and crashes
-                    if (priority >= android.util.Log.ERROR) {
+                    if (priority >= Log.ERROR) {
                         // TODO: Send to Crashlytics
                     }
                 }

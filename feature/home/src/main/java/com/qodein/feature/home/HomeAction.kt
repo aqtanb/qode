@@ -1,5 +1,10 @@
 package com.qodein.feature.home
 
+import com.qodein.feature.home.model.CategoryFilter
+import com.qodein.feature.home.model.FilterDialogType
+import com.qodein.feature.home.model.PromoCodeTypeFilter
+import com.qodein.feature.home.model.ServiceFilter
+import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PromoCode
 
@@ -22,4 +27,19 @@ sealed interface HomeAction {
     data object RetryClicked : HomeAction
 
     data object ErrorDismissed : HomeAction
+
+    // Filter Actions
+    data class ShowFilterDialog(val type: FilterDialogType) : HomeAction
+
+    data object DismissFilterDialog : HomeAction
+
+    data class ApplyTypeFilter(val typeFilter: PromoCodeTypeFilter) : HomeAction
+
+    data class ApplyCategoryFilter(val categoryFilter: CategoryFilter) : HomeAction
+
+    data class ApplyServiceFilter(val serviceFilter: ServiceFilter) : HomeAction
+
+    data class ApplySortFilter(val sortFilter: SortFilter) : HomeAction
+
+    data object ResetFilters : HomeAction
 }

@@ -50,7 +50,6 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -60,7 +59,16 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CouponPromoCodeCard
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.util.CustomTabsUtils
+import com.qodein.feature.home.component.CategoryFilterDialog
 import com.qodein.feature.home.component.HeroBannerSection
+import com.qodein.feature.home.component.ServiceFilterDialog
+import com.qodein.feature.home.component.SortFilterDialog
+import com.qodein.feature.home.component.TypeFilterDialog
+import com.qodein.feature.home.model.CategoryFilter
+import com.qodein.feature.home.model.FilterDialogType
+import com.qodein.feature.home.model.FilterState
+import com.qodein.feature.home.model.PromoCodeTypeFilter
+import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.PromoCode
@@ -206,7 +214,8 @@ private fun HomeContent(
         // Section 2: Quick Filters Section
         item(key = "quick_filters_section") {
             QuickFiltersSection(
-                onFilterSelected = { /* TODO: Handle filter */ },
+                currentFilters = uiState.currentFilters,
+                onFilterSelected = { filterType -> onAction(HomeAction.ShowFilterDialog(filterType)) },
             )
         }
 
@@ -222,6 +231,54 @@ private fun HomeContent(
         // Bottom spacer for navigation bar
         item(key = "bottom_spacer") {
             Spacer(modifier = Modifier.height(SpacingTokens.xxl))
+        }
+    }
+
+    // Filter Dialogs
+    uiState.activeFilterDialog?.let { dialogType ->
+        when (dialogType) {
+            FilterDialogType.Type -> {
+                TypeFilterDialog(
+                    currentFilter = uiState.currentFilters.typeFilter,
+                    onFilterSelected = { filter ->
+                        onAction(HomeAction.ApplyTypeFilter(filter))
+                        onAction(HomeAction.DismissFilterDialog)
+                    },
+                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                )
+            }
+            FilterDialogType.Category -> {
+                CategoryFilterDialog(
+                    currentFilter = uiState.currentFilters.categoryFilter,
+                    onFilterSelected = { filter ->
+                        onAction(HomeAction.ApplyCategoryFilter(filter))
+                        onAction(HomeAction.DismissFilterDialog)
+                    },
+                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                )
+            }
+            FilterDialogType.Service -> {
+                // TODO: Get available services from ViewModel
+                ServiceFilterDialog(
+                    currentFilter = uiState.currentFilters.serviceFilter,
+                    availableServices = emptyList(), // TODO: Pass actual services
+                    onFilterSelected = { filter ->
+                        onAction(HomeAction.ApplyServiceFilter(filter))
+                        onAction(HomeAction.DismissFilterDialog)
+                    },
+                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                )
+            }
+            FilterDialogType.Sort -> {
+                SortFilterDialog(
+                    currentFilter = uiState.currentFilters.sortFilter,
+                    onFilterSelected = { filter ->
+                        onAction(HomeAction.ApplySortFilter(filter))
+                        onAction(HomeAction.DismissFilterDialog)
+                    },
+                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                )
+            }
         }
     }
 }
@@ -316,11 +373,12 @@ private fun PromoCodesEmptyState() {
 
 /**
  * Section 2: Quick Filters Section
- * Contains circular filter chips for category navigation
+ * Contains filter chips for type, category, service, and sort
  */
 @Composable
 private fun QuickFiltersSection(
-    onFilterSelected: (String) -> Unit,
+    currentFilters: FilterState,
+    onFilterSelected: (FilterDialogType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -333,26 +391,43 @@ private fun QuickFiltersSection(
             contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            items(6) { index ->
+            // Type Filter
+            item(key = "type_filter") {
                 FilterChip(
-                    nameRes = when (index) {
-                        0 -> R.string.filter_kaspi
-                        1 -> R.string.filter_top_rated
-                        2 -> R.string.filter_latest
-                        3 -> R.string.filter_food
-                        4 -> R.string.filter_fashion
-                        else -> R.string.filter_tech
-                    },
-                    icon = when (index) {
-                        0 -> QodeCommerceIcons.Voucher
-                        1 -> QodeStatusIcons.Silver
-                        2 -> QodeNavigationIcons.Trending
-                        3 -> QodeCategoryIcons.Coffee
-                        4 -> QodeCategoryIcons.Clothing
-                        else -> QodeSocialIcons.Beeline
-                    },
-                    onClick = { onFilterSelected("filter_$index") },
-                    isSelected = index == 0,
+                    nameRes = R.string.filter_chip_type,
+                    icon = QodeCommerceIcons.Voucher,
+                    onClick = { onFilterSelected(FilterDialogType.Type) },
+                    isSelected = currentFilters.typeFilter !is PromoCodeTypeFilter.All,
+                )
+            }
+
+            // Category Filter
+            item(key = "category_filter") {
+                FilterChip(
+                    nameRes = R.string.filter_chip_category,
+                    icon = QodeCategoryIcons.Coffee,
+                    onClick = { onFilterSelected(FilterDialogType.Category) },
+                    isSelected = currentFilters.categoryFilter !is CategoryFilter.All,
+                )
+            }
+
+            // Service Filter
+            item(key = "service_filter") {
+                FilterChip(
+                    nameRes = R.string.filter_chip_service,
+                    icon = QodeSocialIcons.Beeline,
+                    onClick = { onFilterSelected(FilterDialogType.Service) },
+                    isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
+                )
+            }
+
+            // Sort Filter
+            item(key = "sort_filter") {
+                FilterChip(
+                    nameRes = R.string.filter_chip_sort,
+                    icon = QodeStatusIcons.Silver,
+                    onClick = { onFilterSelected(FilterDialogType.Sort) },
+                    isSelected = true, // Sort is always selected (has default value)
                 )
             }
         }

@@ -61,6 +61,9 @@ dependencies {
     // Logging
     implementation(libs.timber)
 
+    // DateTime
+    implementation(libs.kotlinx.datetime)
+
     // Testing
     testImplementation(libs.bundles.testing.unit)
     testImplementation(projects.core.testing)
