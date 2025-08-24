@@ -128,14 +128,24 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadBannersAndPromoCodes() {
         withContext(Dispatchers.IO) {
             var banners = emptyList<Banner>()
-
-            // Simple banner loading - let UI handle refresh states
+            // Simple banner loading - return@collect already ensures single emission
             getBannersUseCase(limit = 10).collect { bannersResult ->
-                if (bannersResult is Result.Success) {
-                    banners = bannersResult.data
+                when (bannersResult) {
+                    is Result.Success -> {
+                        banners = bannersResult.data
+                        Timber.d("HomeViewModel: Loaded ${banners.size} banners successfully")
+                        // Only update state for successful banner results
+                        loadPromoCodesWithFallback(banners)
+                    }
+                    is Result.Loading -> {
+                        // Don't update state for loading - wait for success/error
+                    }
+                    is Result.Error -> {
+                        Timber.w("HomeViewModel: Banner loading failed: ${bannersResult.exception}")
+                        // Continue with empty banners on error
+                        loadPromoCodesWithFallback(emptyList())
+                    }
                 }
-                // Continue regardless of banner result
-                loadPromoCodesWithFallback(banners)
                 return@collect
             }
         }

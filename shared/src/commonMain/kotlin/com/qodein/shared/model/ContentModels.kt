@@ -568,7 +568,7 @@ value class BannerId(val value: String) {
 data class Banner(
     val id: BannerId,
     val imageUrl: String,
-    val targetCountries: List<String>, // ISO 3166-1 alpha-2 country codes (e.g., "KZ", "US", "GB") - empty means global
+    val targetCountries: List<String>, // ISO 3166-1 alpha-2 country codes (ce.g., "KZ", "US", "GB") - empty means global
     val brandName: String,
     val ctaTitle: Map<String, String>, // CTA titles by language code ("default", "en", "kk", "ru")
     val ctaDescription: Map<String, String>, // CTA descriptions by language code ("default", "en", "kk", "ru")

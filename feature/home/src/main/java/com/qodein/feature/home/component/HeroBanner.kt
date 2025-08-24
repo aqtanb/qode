@@ -47,6 +47,7 @@ import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.getTranslatedCtaDescription
 import com.qodein.shared.model.getTranslatedCtaTitle
+import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -60,9 +61,16 @@ fun HeroBannerSection(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
-    // Track pager state for page indicator
+    // Track pager state for page indicator - stabilize with banners.size
     var currentPage by remember { mutableIntStateOf(0) }
-    var totalPages by remember { mutableIntStateOf(0) }
+    var totalPages by remember(banners.size) { mutableIntStateOf(banners.size) }
+
+    // Debug banner recomposition
+    val bannerKeys = banners.map {
+        "${it.id.value}-${it.getTranslatedCtaTitle(userLanguage)}-${it.getTranslatedCtaDescription(userLanguage)}"
+    }
+    Timber.tag("HeroBannerSection").d("Recomposing with ${banners.size} banners, currentPage: $currentPage, totalPages: $totalPages")
+    Timber.tag("HeroBannerSection").d("Banner keys: $bannerKeys")
 
     // Only use real banners from server, no fallback
     val bannerItems = banners
@@ -78,7 +86,10 @@ fun HeroBannerSection(
             autoScrollDelay = 4.seconds,
             onPagerStateChange = { page, total ->
                 currentPage = page
-                totalPages = total
+                // Only update totalPages if it's a valid count and matches our banners
+                if (total > 0 && total == banners.size) {
+                    totalPages = total
+                }
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -112,6 +123,8 @@ private fun HeroBannerContent(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
+    Timber.tag("HeroBannerContent").d("Recomposing banner content - ID: ${banner.id.value}, Page: $currentPage")
+
     // Use default brand color since gradientColors was removed
     val primaryGradientColor = Color(0xFF6366F1)
 
@@ -251,6 +264,10 @@ private fun BannerCallToAction(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
+    val ctaTitle = banner.getTranslatedCtaTitle(userLanguage)
+    val ctaDescription = banner.getTranslatedCtaDescription(userLanguage)
+
+    Timber.tag("BannerCallToAction").d("Recomposing CTA - Title: $ctaTitle, Page: $currentPage/$totalPages")
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -259,7 +276,7 @@ private fun BannerCallToAction(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = banner.getTranslatedCtaTitle(userLanguage),
+            text = ctaTitle,
             style = MaterialTheme.typography.headlineMedium.copy(
                 letterSpacing = 0.5.sp,
             ),
@@ -269,7 +286,7 @@ private fun BannerCallToAction(
         )
 
         Text(
-            text = banner.getTranslatedCtaDescription(userLanguage),
+            text = ctaDescription,
             style = MaterialTheme.typography.bodyLarge.copy(
                 letterSpacing = 0.25.sp,
                 lineHeight = 24.sp,

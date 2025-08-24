@@ -312,39 +312,17 @@ data class PromoDto(
  * Follows Firebase naming conventions and supports automatic serialization.
  */
 data class BannerDto(
-    @PropertyName("id")
     val id: String = "",
-
-    @PropertyName("imageUrl")
     val imageUrl: String = "",
-
-    @PropertyName("targetCountries")
     val targetCountries: List<String> = emptyList(),
-
-    @PropertyName("brandName")
     val brandName: String = "",
-
-    @PropertyName("ctaTitle")
     val ctaTitle: Map<String, String> = emptyMap(),
-
-    @PropertyName("ctaDescription")
     val ctaDescription: Map<String, String> = emptyMap(),
-
-    @PropertyName("ctaUrl")
     val ctaUrl: String? = null,
-
     val isActive: Boolean = true,
-
-    @PropertyName("priority")
     val priority: Int = 0,
-
-    @PropertyName("createdAt")
     val createdAt: Timestamp? = null,
-
-    @PropertyName("updatedAt")
     val updatedAt: Timestamp? = null,
-
-    @PropertyName("expiresAt")
     val expiresAt: Timestamp? = null
 
 ) {
