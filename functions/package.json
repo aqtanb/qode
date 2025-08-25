@@ -12,7 +12,8 @@
     "populate": "node lib/populators/populateServices.js",
     "populate:codes": "node lib/populators/populatePromoCodes.js",
     "init:votescores": "node lib/populators/initializeVoteScores.js",
-    "fix:votescores": "npm run build && node lib/initVoteScores.js"
+    "fix:votescores": "npm run build && node lib/initVoteScores.js",
+    "update:counts": "node lib/scheduledTasks/updateServiceCounts.js"
   },
   "engines": {
     "node": ">=20"

@@ -5,11 +5,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ServiceId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "Service ID cannot be blank" }
-    }
-}
+data class ServiceId(val value: String)
 
 @Serializable
 data class Service(
@@ -70,12 +66,21 @@ data class Service(
             const val ELECTRONICS = "Electronics"
             const val TRAVEL = "Travel"
             const val PHARMACY = "Pharmacy"
+            const val JEWELRY = "Jewelry"
+            const val HEALTH = "Health"
+            const val ENTERTAINMENT = "Entertainment"
+            const val MARKETPLACE = "Marketplace"
+            const val SERVICES = "Services"
+            const val TELECOM = "Telecom"
             const val OTHER = "Other"
+            const val UNSPECIFIED = "Unspecified"
 
             val ALL = listOf(
                 STREAMING, FOOD, TRANSPORT, SHOPPING, GAMING, MUSIC,
                 EDUCATION, FITNESS, FINANCE, BEAUTY, CLOTHING,
-                ELECTRONICS, TRAVEL, PHARMACY, OTHER,
+                ELECTRONICS, TRAVEL, PHARMACY, JEWELRY, HEALTH,
+                ENTERTAINMENT, MARKETPLACE, SERVICES, TELECOM,
+                OTHER, UNSPECIFIED,
             )
         }
     }

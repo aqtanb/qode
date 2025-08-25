@@ -140,8 +140,8 @@ data class UserActivityDto(
  * Represents services/brands that offer promo codes.
  */
 data class ServiceDto(
-    @PropertyName("id")
-    val id: String = "",
+    @DocumentId
+    val documentId: String = "",
 
     @PropertyName("name")
     val name: String = "",
@@ -159,8 +159,8 @@ data class ServiceDto(
     val promoCodeCount: Int = 0,
 
     @PropertyName("createdAt")
-    val createdAt: Long = 0L // Unix timestamp for Firestore compatibility
+    val createdAt: Timestamp? = null
 ) {
     // No-args constructor required for Firestore deserialization
-    constructor() : this("", "", "", null, false, 0, 0L)
+    constructor() : this("", "", "", null, false, 0, null)
 }

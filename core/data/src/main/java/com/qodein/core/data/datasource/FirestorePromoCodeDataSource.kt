@@ -160,19 +160,19 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             cursor.sortFieldValue?.let { sortValue ->
                 firestoreQuery = when (sortBy) {
                     PromoCodeSortBy.POPULARITY -> {
-                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                        firestoreQuery.startAfter(sortValue)
                     }
                     PromoCodeSortBy.NEWEST, PromoCodeSortBy.OLDEST -> {
-                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                        firestoreQuery.startAfter(sortValue)
                     }
                     PromoCodeSortBy.EXPIRING_SOON -> {
-                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                        firestoreQuery.startAfter(sortValue)
                     }
                     PromoCodeSortBy.ALPHABETICAL -> {
-                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                        firestoreQuery.startAfter(sortValue)
                     }
                 }
-                Timber.tag(TAG).d("getPromoCodes: Applied cursor startAfter with sortValue=$sortValue, docId=${cursor.documentId}")
+                Timber.tag(TAG).d("getPromoCodes: Applied cursor startAfter with sortValue=$sortValue")
             } ?: run {
                 Timber.tag(TAG).w("getPromoCodes: Cursor missing sortFieldValue, skipping pagination")
             }
@@ -506,7 +506,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         val dto = ServiceMapper.toDto(service)
 
         firestore.collection(SERVICES_COLLECTION)
-            .document(dto.id)
+            .document(dto.documentId)
             .set(dto)
             .await()
 
@@ -523,15 +523,12 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
 
         val queryLower = query.lowercase().trim()
 
-        // Search by name (prefix match)
-        val nameQuery = firestore.collection(SERVICES_COLLECTION)
-            .whereGreaterThanOrEqualTo("name", query)
-            .whereLessThanOrEqualTo("name", query + "\uf8ff")
-            .limit(limit.toLong())
+        // Get all services for client-side filtering (better search flexibility)
+        val allServicesQuery = firestore.collection(SERVICES_COLLECTION)
             .get()
             .await()
 
-        val nameResults = nameQuery.documents.mapNotNull { document ->
+        val allServices = allServicesQuery.documents.mapNotNull { document ->
             try {
                 document.toObject<ServiceDto>()?.let { dto ->
                     ServiceMapper.toDomain(dto)
@@ -541,64 +538,71 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
-        // If we have enough results, return them
-        if (nameResults.size >= limit) {
-            return nameResults.take(limit)
-        }
+        // Smart client-side search with ranking
+        val searchResults = allServices.filter { service ->
+            val serviceName = service.name.lowercase()
+            val serviceCategory = service.category.lowercase()
 
-        // Otherwise, search by category as well
-        val categoryQuery = firestore.collection(SERVICES_COLLECTION)
-            .whereGreaterThanOrEqualTo("category", query)
-            .whereLessThanOrEqualTo("category", query + "\uf8ff")
-            .limit((limit - nameResults.size).toLong())
-            .get()
-            .await()
+            // Match if query is contained in service name or category
+            serviceName.contains(queryLower) || serviceCategory.contains(queryLower)
+        }.sortedWith(
+            compareByDescending<Service> { service ->
+                val serviceName = service.name.lowercase()
+                val serviceCategory = service.category.lowercase()
 
-        val categoryResults = categoryQuery.documents.mapNotNull { document ->
-            try {
-                document.toObject<ServiceDto>()?.let { dto ->
-                    ServiceMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        // Combine results and remove duplicates
-        val allResults = (nameResults + categoryResults).distinctBy { it.id.value }
-
-        // Sort by relevance: exact matches first, then popular services
-        return allResults.sortedWith(
-            compareBy<Service> { service ->
                 when {
-                    service.name.equals(query, ignoreCase = true) -> 0
-                    service.name.startsWith(query, ignoreCase = true) -> 1
-                    service.category.equals(query, ignoreCase = true) -> 2
-                    service.isPopular -> 3
-                    else -> 4
+                    // Exact name match (highest priority)
+                    serviceName == queryLower -> 5
+                    // Name starts with query (second priority)
+                    serviceName.startsWith(queryLower) -> 4
+                    // Name contains query (third priority)
+                    serviceName.contains(queryLower) -> 3
+                    // Exact category match (fourth priority)
+                    serviceCategory == queryLower -> 2
+                    // Category contains query (lowest priority)
+                    serviceCategory.contains(queryLower) -> 1
+                    else -> 0
                 }
-            }.thenBy { it.name },
+            }.thenByDescending { service ->
+                // Popular services get boost
+                if (service.isPopular) 1 else 0
+            }.thenByDescending { service ->
+                // Services with more promo codes get boost
+                service.promoCodeCount
+            },
         )
-            .take(limit)
+
+        return searchResults.take(limit)
     }
 
-    suspend fun getPopularServices(limit: Int = 10): List<Service> {
+    suspend fun getPopularServices(limit: Int = 20): List<Service> {
+        Timber.d("FirestoreDataSource: getPopularServices called with limit=$limit")
         val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .whereEqualTo("isPopular", true)
+            .orderBy("promoCodeCount", Query.Direction.DESCENDING)
             .orderBy("name", Query.Direction.ASCENDING)
             .limit(limit.toLong())
             .get()
             .await()
 
-        return querySnapshot.documents.mapNotNull { document ->
+        Timber.d("FirestoreDataSource: Query completed, found ${querySnapshot.documents.size} documents")
+        querySnapshot.documents.forEachIndexed { index, document ->
+            Timber.d("FirestoreDataSource: Document $index: ${document.id} - data: ${document.data}")
+        }
+
+        val services = querySnapshot.documents.mapNotNull { document ->
             try {
                 document.toObject<ServiceDto>()?.let { dto ->
+                    Timber.d("FirestoreDataSource: Mapping service: ${dto.name} with promoCodeCount=${dto.promoCodeCount}")
                     ServiceMapper.toDomain(dto)
                 }
             } catch (e: Exception) {
+                Timber.w("FirestoreDataSource: Failed to map document ${document.id}: $e")
                 null
             }
         }
+
+        Timber.d("FirestoreDataSource: Returning ${services.size} services")
+        return services
     }
 
     suspend fun getServicesByCategory(

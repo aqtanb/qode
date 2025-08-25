@@ -42,4 +42,7 @@ sealed interface HomeAction {
     data class ApplySortFilter(val sortFilter: SortFilter) : HomeAction
 
     data object ResetFilters : HomeAction
+
+    // Service search actions
+    data class SearchServices(val query: String) : HomeAction
 }

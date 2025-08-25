@@ -208,7 +208,9 @@ private fun WizardMainContent(
                             wizardData = uiState.wizardData,
                             onAction = onAction,
                             availableServices = uiState.availableServices,
-                            isLoadingServices = uiState.isLoadingServices,
+                            popularServices = uiState.popularServices,
+                            serviceSearchResults = uiState.serviceSearchResults,
+                            isSearchingServices = uiState.isSearchingServices,
                             onSearchServices = { query ->
                                 onAction(SubmissionWizardAction.SearchServices(query))
                             },
@@ -445,12 +447,14 @@ private object PreviewData {
         step: SubmissionWizardStep,
         wizardData: SubmissionWizardData = emptyWizardData,
         services: List<Service> = sampleServices,
-        isLoadingServices: Boolean = false
+        isSearchingServices: Boolean = false
     ) = SubmissionWizardUiState.Success(
         currentStep = step,
         wizardData = wizardData,
         availableServices = services,
-        isLoadingServices = isLoadingServices,
+        popularServices = services,
+        serviceSearchResults = emptyList(),
+        isSearchingServices = isSearchingServices,
     )
 }
 

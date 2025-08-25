@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin (if not already initialized)
 if (!admin.apps.length) {
-  const serviceAccount = require('../serviceAccountKey.json');
+  const serviceAccount = require('../../src/serviceAccountKey.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
@@ -17,24 +17,92 @@ const sampleCodes = [
   "ALMATY10", "ASTANA20", "KAZAKHSTAN30", "TENGE40", "QAZAQ50", "BAITEREK60"
 ];
 
-// Kazakhstan-focused service names from your existing services
-const kazakhServiceNames = [
-  "Яндекс Лавка", "Dodo", "chocofood", "arbuz", "abr", "Sulpak", "Technodom", "anytime",
-  "Halyk Market", "ForteMarket", "Naimi.kz", "izi", "Золотое Яблоко", "Letoile", 
-  "Sokolov", "iHerb", "Яндекс Практикум", "Яндекс Плюс", "КиноПоиск", "Teez",
-  "clever market", "flowwow", "Freedom Travel"
-];
+// Service definitions with proper category linking
+const serviceDefinitions = [
+  // Food
+  { name: "Яндекс Лавка", category: "Food" },
+  { name: "Dodo", category: "Food" },
+  { name: "chocofood", category: "Food" },
+  { name: "arbuz", category: "Food" },
+  { name: "abr", category: "Food" },
 
-const kazakhCategories = [
-  "Food", "Electronics", "Beauty", "Jewelry", "Health", "Transport", "Education", 
-  "Entertainment", "Marketplace", "Services", "Telecom"
+  // Beauty
+  { name: "Золотое Яблоко", category: "Beauty" },
+  { name: "Letoile", category: "Beauty" },
+
+  // Electronics
+  { name: "Sulpak", category: "Electronics" },
+  { name: "Technodom", category: "Electronics" },
+
+  // Jewelry
+  { name: "Sokolov", category: "Jewelry" },
+
+  // Health
+  { name: "iHerb", category: "Health" },
+
+  // Transport
+  { name: "anytime", category: "Transport" },
+
+  // Education
+  { name: "Яндекс Практикум", category: "Education" },
+
+  // Entertainment/Streaming
+  { name: "Яндекс Плюс", category: "Entertainment" },
+  { name: "КиноПоиск", category: "Entertainment" },
+  { name: "YouTube Premium", category: "Streaming" },
+  { name: "Netflix", category: "Streaming" },
+  { name: "Spotify", category: "Music" },
+
+  // Marketplace
+  { name: "Teez", category: "Marketplace" },
+  { name: "Halyk Market", category: "Marketplace" },
+  { name: "clever market", category: "Marketplace" },
+  { name: "ForteMarket", category: "Marketplace" },
+  { name: "flowwow", category: "Marketplace" },
+
+  // Shopping
+  { name: "Kaspi.kz", category: "Shopping" },
+  { name: "Wildberries", category: "Shopping" },
+
+  // Gaming
+  { name: "Steam", category: "Gaming" },
+  { name: "Epic Games", category: "Gaming" },
+
+  // Finance
+  { name: "Kaspi Bank", category: "Finance" },
+  { name: "Halyk Bank", category: "Finance" },
+
+  // Services
+  { name: "Naimi.kz", category: "Services" },
+  { name: "Freedom Travel", category: "Services" },
+
+  // Telecom
+  { name: "izi", category: "Telecom" },
+  { name: "Beeline", category: "Telecom" },
+  { name: "Tele2", category: "Telecom" },
+
+  // Fitness
+  { name: "World Class", category: "Fitness" },
+
+  // Travel
+  { name: "Booking.com", category: "Travel" },
+  { name: "Airbnb", category: "Travel" },
+
+  // Pharmacy
+  { name: "Eapteka", category: "Pharmacy" },
+
+  // Clothing
+  { name: "Zara", category: "Clothing" },
+
+  // Other
+  { name: "Google", category: "Other" }
 ];
 
 const sampleTitles = [
   "Жаңа қолданушыларға арнайы жеңілдік", "Астанада тегін жеткізу", "Алматыда арнайы ұсыныс",
-  "Special Discount for Kazakhstan", "Limited Time Offer", "Flash Sale", "Exclusive Deal", 
-  "Welcome Bonus", "Seasonal Savings", "Holiday Special", "New User Promo", "Loyalty Reward", 
-  "Clearance Sale", "Free Shipping", "Extra Savings", "Weekend Deal", "Midweek Madness", 
+  "Special Discount for Kazakhstan", "Limited Time Offer", "Flash Sale", "Exclusive Deal",
+  "Welcome Bonus", "Seasonal Savings", "Holiday Special", "New User Promo", "Loyalty Reward",
+  "Clearance Sale", "Free Shipping", "Extra Savings", "Weekend Deal", "Midweek Madness",
   "Казахстанда арнайы баға", "Тегін жеткізу", "Жаз маусымының жеңілдігі"
 ];
 
@@ -79,8 +147,12 @@ interface PromoCodeData {
 
 function createSamplePromoCode(): PromoCodeData {
   const randomCode = sampleCodes[Math.floor(Math.random() * sampleCodes.length)];
-  const randomServiceName = kazakhServiceNames[Math.floor(Math.random() * kazakhServiceNames.length)];
-  const randomCategory = kazakhCategories[Math.floor(Math.random() * kazakhCategories.length)];
+
+  // Select a service and use its proper category (no more random assignment!)
+  const randomService = serviceDefinitions[Math.floor(Math.random() * serviceDefinitions.length)];
+  const serviceName = randomService.name;
+  const category = randomService.category;
+
   const randomTitle = sampleTitles[Math.floor(Math.random() * sampleTitles.length)];
   const randomDescription = sampleDescriptions[Math.floor(Math.random() * sampleDescriptions.length)];
 
@@ -103,15 +175,13 @@ function createSamplePromoCode(): PromoCodeData {
   const startDate = admin.firestore.Timestamp.fromDate(new Date(now.getTime() - startOffset));
   const endDate = admin.firestore.Timestamp.fromDate(new Date(now.getTime() + endOffset));
 
-  return {
+  const data: any = {
     code: randomCode,
-    serviceName: randomServiceName,
-    category: randomCategory,
+    serviceName: serviceName,
+    category: category,
     title: randomTitle,
     description: randomDescription,
     type: type,
-    discountPercentage: discountPercentage,
-    discountAmount: discountAmount,
     minimumOrderAmount: minimumOrderAmount,
     isFirstUserOnly: isFirstUserOnly,
     upvotes: upvotes,
@@ -119,7 +189,6 @@ function createSamplePromoCode(): PromoCodeData {
     voteScore: voteScore, // 🆕 Store computed voteScore!
     views: Math.floor(Math.random() * 1000), // Random view count
     shares: Math.floor(Math.random() * 50), // Random share count
-    screenshotUrl: Math.random() < 0.3 ? `https://res.cloudinary.com/demo/image/upload/sample_${Math.floor(Math.random() * 5) + 1}.jpg` : undefined,
     targetCountries: kazakhTargetCountries[0],
     isVerified: isVerified,
     startDate: startDate,
@@ -130,39 +199,58 @@ function createSamplePromoCode(): PromoCodeData {
     isDownvotedByCurrentUser: false,
     isBookmarkedByCurrentUser: false
   };
+
+  // Only add optional fields if they have values
+  if (discountPercentage !== undefined) {
+    data.discountPercentage = discountPercentage;
+  }
+  if (discountAmount !== undefined) {
+    data.discountAmount = discountAmount;
+  }
+  if (Math.random() < 0.3) {
+    data.screenshotUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png";
+  }
+
+  return data;
 }
 
 async function populatePromoCodes(count: number = 100): Promise<void> {
   console.log(`🚀 Starting promo codes population (${count} codes)...`);
 
   const collectionRef = db.collection("promocodes");
-  
+
   // Process in batches of 500 (Firestore batch limit)
   const batchSize = 500;
   const batches = Math.ceil(count / batchSize);
-  
+
   for (let batchIndex = 0; batchIndex < batches; batchIndex++) {
     const batch = db.batch();
     const startIndex = batchIndex * batchSize;
     const endIndex = Math.min(startIndex + batchSize, count);
     const currentBatchSize = endIndex - startIndex;
-    
+
     console.log(`📝 Processing batch ${batchIndex + 1}/${batches} (${currentBatchSize} codes)...`);
-    
+
     for (let i = 0; i < currentBatchSize; i++) {
       const promoCodeData = createSamplePromoCode();
-      
-      // Create composite document ID: SERVICENAME_CODE (your pattern)
-      const docId = `${promoCodeData.serviceName.toUpperCase().replace(/\s+/g, '_')}_${promoCodeData.code}`;
+
+      // Create composite document ID: lowercase sanitized servicename_promocode
+      const sanitizedServiceName = promoCodeData.serviceName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '_')
+        .replace(/_{2,}/g, '_')
+        .replace(/^_+|_+$/g, '');
+      const sanitizedCode = promoCodeData.code.toLowerCase();
+      const docId = `${sanitizedServiceName}_${sanitizedCode}`;
       const docRef = collectionRef.doc(docId);
-      
+
       batch.set(docRef, promoCodeData);
     }
 
     await batch.commit();
     console.log(`✅ Batch ${batchIndex + 1} committed successfully!`);
   }
-  
+
   console.log(`🎉 Successfully populated ${count} promo codes!`);
   console.log('💡 Run the initializeVoteScores Cloud Function to ensure all voteScores are correct.');
 }

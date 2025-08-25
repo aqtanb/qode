@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,7 +147,8 @@ fun BottomWizardController(
     // Service Selector Bottom Sheet
     ServiceSelectorBottomSheet(
         isVisible = showServiceSelector.value,
-        services = uiState.availableServices,
+        services = uiState.serviceSearchResults,
+        popularServices = uiState.popularServices,
         currentSelection = uiState.wizardData.serviceName,
         onServiceSelected = { service ->
             onAction(SubmissionWizardAction.UpdateServiceName(service.name))
@@ -156,7 +158,7 @@ fun BottomWizardController(
         onSearch = { query ->
             onAction(SubmissionWizardAction.SearchServices(query))
         },
-        isLoading = uiState.isLoadingServices,
+        isLoading = uiState.isSearchingServices,
         sheetState = serviceSheetState,
     )
 }

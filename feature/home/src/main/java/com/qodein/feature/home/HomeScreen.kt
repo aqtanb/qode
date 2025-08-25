@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -55,12 +56,12 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.component.CategoryFilterDialog
 import com.qodein.feature.home.component.CouponPromoCodeCard
 import com.qodein.feature.home.component.HeroBannerSection
-import com.qodein.feature.home.component.ServiceFilterDialog
 import com.qodein.feature.home.component.SortFilterDialog
 import com.qodein.feature.home.component.TypeFilterDialog
 import com.qodein.feature.home.model.CategoryFilter
@@ -192,6 +193,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeContent(
     uiState: HomeUiState.Success,
@@ -262,14 +264,26 @@ private fun HomeContent(
                 )
             }
             FilterDialogType.Service -> {
-                ServiceFilterDialog(
-                    currentFilter = uiState.currentFilters.serviceFilter,
-                    availableServices = uiState.availableServices,
-                    onFilterSelected = { filter ->
-                        onAction(HomeAction.ApplyServiceFilter(filter))
+                val sheetState = rememberModalBottomSheetState()
+                ServiceSelectorBottomSheet(
+                    isVisible = true,
+                    services = uiState.serviceSearchResults,
+                    popularServices = uiState.popularServices,
+                    currentSelection = when (val filter = uiState.currentFilters.serviceFilter) {
+                        is ServiceFilter.Selected -> filter.service.name
+                        ServiceFilter.All -> ""
+                    },
+                    onServiceSelected = { service ->
+                        onAction(HomeAction.ApplyServiceFilter(ServiceFilter.Selected(service)))
                         onAction(HomeAction.DismissFilterDialog)
                     },
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                    onSearch = { query -> onAction(HomeAction.SearchServices(query)) },
+                    isLoading = uiState.isSearchingServices,
+                    sheetState = sheetState,
+                    title = "Filter by Service",
+                    searchPlaceholder = "Search for services...",
+                    emptyMessage = "No services found",
                 )
             }
             FilterDialogType.Sort -> {

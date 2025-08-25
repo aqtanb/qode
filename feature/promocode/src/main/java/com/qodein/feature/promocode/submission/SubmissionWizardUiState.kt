@@ -66,7 +66,9 @@ sealed interface SubmissionWizardUiState {
         val validationErrors: Map<String, String> = emptyMap(),
         // Service search state
         val availableServices: List<Service> = emptyList(),
-        val isLoadingServices: Boolean = false,
+        val popularServices: List<Service> = emptyList(),
+        val serviceSearchResults: List<Service> = emptyList(),
+        val isSearchingServices: Boolean = false,
         val serviceSearchQuery: String = ""
     ) : SubmissionWizardUiState {
         val canGoNext: Boolean get() = wizardData.canProceedFromStep(currentStep) && !isSubmitting

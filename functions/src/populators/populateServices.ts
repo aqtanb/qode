@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 // Initialize Firebase Admin (if not already initialized)
 if (!admin.apps.length) {
   // For populators, we'll load service account from environment or file
-  const serviceAccount = require('../serviceAccountKey.json');
+  const serviceAccount = require('../../src/serviceAccountKey.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
@@ -35,40 +35,82 @@ interface ServiceData {
 }
 
 const services: ServiceData[] = [
+  // Food
   { name: "Яндекс Лавка", category: "Food", domain: "lavka.yandex.ru" },
   { name: "Dodo", category: "Food", domain: "dodopizza.kz" },
   { name: "chocofood", category: "Food", domain: "chocofood.kz" },
   { name: "arbuz", category: "Food", domain: "arbuz.kz" },
   { name: "abr", category: "Food", domain: "" },
 
+  // Beauty
   { name: "Золотое Яблоко", category: "Beauty", domain: "goldapple.ru" },
   { name: "Letoile", category: "Beauty", domain: "letoile.ru" },
 
+  // Electronics
   { name: "Sulpak", category: "Electronics", domain: "sulpak.kz" },
   { name: "Technodom", category: "Electronics", domain: "technodom.kz" },
 
+  // Jewelry
   { name: "Sokolov", category: "Jewelry", domain: "sokolov.ru" },
 
+  // Health
   { name: "iHerb", category: "Health", domain: "iherb.com" },
 
+  // Transport
   { name: "anytime", category: "Transport", domain: "anytime.kz" },
 
+  // Education
   { name: "Яндекс Практикум", category: "Education", domain: "practicum.yandex.ru" },
 
+  // Entertainment / Streaming
   { name: "Яндекс Плюс", category: "Entertainment", domain: "plus.yandex.ru" },
   { name: "КиноПоиск", category: "Entertainment", domain: "kinopoisk.ru" },
+  { name: "YouTube Premium", category: "Streaming", domain: "youtube.com" },
+  { name: "Netflix", category: "Streaming", domain: "netflix.com" },
+  { name: "Spotify", category: "Music", domain: "spotify.com" },
 
+  // Marketplace
   { name: "Teez", category: "Marketplace", domain: "" },
   { name: "Halyk Market", category: "Marketplace", domain: "halykmarket.kz" },
   { name: "clever market", category: "Marketplace", domain: "" },
   { name: "ForteMarket", category: "Marketplace", domain: "fortemarket.kz" },
   { name: "flowwow", category: "Marketplace", domain: "flowwow.com" },
 
+  // Shopping
+  { name: "Kaspi.kz", category: "Shopping", domain: "kaspi.kz" },
+  { name: "Wildberries", category: "Shopping", domain: "wildberries.kz" },
+
+  // Gaming
+  { name: "Steam", category: "Gaming", domain: "store.steampowered.com" },
+  { name: "Epic Games", category: "Gaming", domain: "epicgames.com" },
+
+  // Finance
+  { name: "Kaspi Bank", category: "Finance", domain: "kaspi.kz" },
+  { name: "Halyk Bank", category: "Finance", domain: "halykbank.kz" },
+
+  // Services
   { name: "Naimi.kz", category: "Services", domain: "naimi.kz" },
   { name: "Freedom Travel", category: "Services", domain: "" },
 
+  // Telecom
   { name: "izi", category: "Telecom", domain: "izi.me" },
+  { name: "Beeline", category: "Telecom", domain: "beeline.kz" },
+  { name: "Tele2", category: "Telecom", domain: "tele2.kz" },
 
+  // Fitness
+  { name: "World Class", category: "Fitness", domain: "worldclass.kz" },
+
+  // Travel
+  { name: "Booking.com", category: "Travel", domain: "booking.com" },
+  { name: "Airbnb", category: "Travel", domain: "airbnb.com" },
+
+  // Pharmacy
+  { name: "Eapteka", category: "Pharmacy", domain: "eapteka.kz" },
+
+  // Clothing
+  { name: "Zara", category: "Clothing", domain: "zara.com" },
+
+  // Other
   { name: "Google", category: "Other", domain: "google.com" }
 ];
 

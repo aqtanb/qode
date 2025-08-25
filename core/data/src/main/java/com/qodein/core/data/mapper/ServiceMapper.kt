@@ -1,32 +1,34 @@
 package com.qodein.core.data.mapper
 
+import com.google.firebase.Timestamp
 import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 import kotlinx.datetime.Instant
+import kotlinx.datetime.toKotlinInstant
 
 object ServiceMapper {
 
     fun toDomain(dto: ServiceDto): Service =
         Service(
-            id = ServiceId(dto.id),
+            id = ServiceId(dto.documentId),
             name = dto.name,
             category = dto.category,
             logoUrl = dto.logoUrl,
             isPopular = dto.isPopular,
             promoCodeCount = dto.promoCodeCount,
-            createdAt = Instant.fromEpochSeconds(dto.createdAt),
+            createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Instant.fromEpochSeconds(0),
         )
 
     fun toDto(service: Service): ServiceDto =
         ServiceDto(
-            id = service.id.value,
+            documentId = service.id.value,
             name = service.name,
             category = service.category,
             logoUrl = service.logoUrl,
             isPopular = service.isPopular,
             promoCodeCount = service.promoCodeCount,
-            createdAt = service.createdAt.epochSeconds,
+            createdAt = Timestamp(service.createdAt.epochSeconds, 0),
         )
 
     fun toDomainList(dtos: List<ServiceDto>): List<Service> = dtos.map { toDomain(it) }

@@ -19,6 +19,9 @@ sealed interface HomeUiState {
         val hasMorePromoCodes: Boolean,
         val isLoadingMore: Boolean = false,
         val availableServices: List<Service> = emptyList(),
+        val popularServices: List<Service> = emptyList(),
+        val serviceSearchResults: List<Service> = emptyList(),
+        val isSearchingServices: Boolean = false,
         val currentFilters: FilterState = FilterState(),
         val activeFilterDialog: FilterDialogType? = null
     ) : HomeUiState

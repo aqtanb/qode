@@ -23,11 +23,13 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,34 +46,28 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.TypeableDropdown
-import com.qodein.core.ui.component.toDropdownItem
+import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.feature.promocode.submission.PromoCodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.shared.model.Service
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceAndTypeScreen(
     wizardData: SubmissionWizardData,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier,
-    // These will be passed from the ViewModel in the next step
     availableServices: List<Service> = emptyList(),
-    isLoadingServices: Boolean = false,
-    onSearchServices: (String) -> Unit = {},
-    shouldFocusService: Boolean = false
+    popularServices: List<Service> = emptyList(),
+    serviceSearchResults: List<Service> = emptyList(),
+    isSearchingServices: Boolean = false,
+    onSearchServices: (String) -> Unit = {}
 ) {
     TrackScreenViewEvent(screenName = "SubmissionWizard_ServiceAndType")
 
-    var searchQuery by remember { mutableStateOf(wizardData.serviceName) }
-
-    // Trigger search when query changes
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotEmpty()) {
-            onSearchServices(searchQuery)
-        }
-    }
+    var showServiceSelector by remember { mutableStateOf(false) }
+    val serviceSelectorSheetState = rememberModalBottomSheetState()
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -86,24 +82,35 @@ fun ServiceAndTypeScreen(
                 color = MaterialTheme.colorScheme.onSurface,
             )
 
-            TypeableDropdown(
-                value = searchQuery,
-                onValueChange = { newValue ->
-                    searchQuery = newValue
-                    // Update the wizard data when typing
-                    onAction(SubmissionWizardAction.UpdateServiceName(newValue))
-                },
-                onItemSelected = { item ->
-                    searchQuery = item.text
-                    onAction(SubmissionWizardAction.UpdateServiceName(item.text))
-                },
-                items = availableServices.map { it.toDropdownItem() },
-                label = "Service",
-                placeholder = "Type to search services...",
-                isLoading = isLoadingServices,
-                modifier = Modifier.fillMaxWidth(),
+            OutlinedTextField(
+                value = wizardData.serviceName,
+                onValueChange = { },
+                label = { Text("Service") },
+                placeholder = { Text("Tap to select service...") },
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showServiceSelector = true },
             )
         }
+
+        ServiceSelectorBottomSheet(
+            isVisible = showServiceSelector,
+            services = serviceSearchResults,
+            popularServices = popularServices,
+            currentSelection = wizardData.serviceName,
+            onServiceSelected = { service ->
+                onAction(SubmissionWizardAction.UpdateServiceName(service.name))
+                showServiceSelector = false
+            },
+            onDismiss = { showServiceSelector = false },
+            onSearch = onSearchServices,
+            isLoading = isSearchingServices,
+            sheetState = serviceSelectorSheetState,
+            title = "Select Service",
+            searchPlaceholder = "Search services...",
+            emptyMessage = "No services found",
+        )
 
         Spacer(modifier = Modifier.height(SpacingTokens.md))
 
@@ -262,6 +269,8 @@ private fun ServiceAndTypeScreenEmptyPreview() {
         ServiceAndTypeScreen(
             wizardData = SubmissionWizardData(),
             onAction = {},
+            popularServices = emptyList(),
+            serviceSearchResults = emptyList(),
         )
     }
 }
@@ -276,6 +285,8 @@ private fun ServiceAndTypeScreenPercentagePreview() {
                 promoCodeType = PromoCodeType.PERCENTAGE,
             ),
             onAction = {},
+            popularServices = emptyList(),
+            serviceSearchResults = emptyList(),
         )
     }
 }

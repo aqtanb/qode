@@ -21,12 +21,12 @@ import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
+import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +48,7 @@ class HomeViewModel @Inject constructor(
     private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
     private val getBannersUseCase: GetBannersUseCase,
     private val getPopularServicesUseCase: GetPopularServicesUseCase,
+    private val searchServicesUseCase: SearchServicesUseCase,
     private val analyticsHelper: AnalyticsHelper
     // TODO: Inject other repositories when available
     // private val userRepository: UserRepository,
@@ -86,13 +87,11 @@ class HomeViewModel @Inject constructor(
             is HomeAction.ApplyServiceFilter -> applyServiceFilter(action.serviceFilter)
             is HomeAction.ApplySortFilter -> applySortFilter(action.sortFilter)
             is HomeAction.ResetFilters -> resetFilters()
+            is HomeAction.SearchServices -> searchServices(action.query)
         }
     }
 
-    private suspend fun loadPromoCodesWithFallback(
-        banners: List<Banner> = emptyList(),
-        services: List<Service> = emptyList()
-    ) {
+    private suspend fun loadPromoCodesWithFallback(banners: List<Banner> = emptyList()) {
         suspend fun loadWithSort(sortBy: PromoCodeSortBy): Boolean {
             try {
                 var success = false
@@ -112,7 +111,6 @@ class HomeViewModel @Inject constructor(
                                 updateSuccessState(
                                     promoCodes = result.data.data,
                                     banners = banners,
-                                    services = services,
                                     hasMore = result.data.hasMore,
                                 )
                                 success = true
@@ -134,7 +132,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        Timber.d("HomeViewModel: Starting promo code loading with ${banners.size} banners, ${services.size} services")
+        Timber.d("HomeViewModel: Starting promo code loading with ${banners.size} banners")
 
         // Load with POPULARITY sorting (now optimized with voteScore and caching)
         if (!loadWithSort(PromoCodeSortBy.POPULARITY)) {
@@ -151,15 +149,19 @@ class HomeViewModel @Inject constructor(
     private fun updateSuccessState(
         promoCodes: List<PromoCode>,
         banners: List<Banner> = emptyList(),
-        services: List<Service> = emptyList(),
         hasMore: Boolean = false
     ) {
+        // Preserve existing services state - don't reset it
+        val currentState = _uiState.value as? HomeUiState.Success
         Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
         _uiState.value = HomeUiState.Success(
             banners = banners,
             promoCodes = promoCodes,
             hasMorePromoCodes = hasMore,
-            availableServices = services,
+            availableServices = currentState?.availableServices ?: emptyList(),
+            popularServices = currentState?.popularServices ?: emptyList(),
+            serviceSearchResults = currentState?.serviceSearchResults ?: emptyList(),
+            isSearchingServices = currentState?.isSearchingServices ?: false,
         )
     }
 
@@ -180,14 +182,13 @@ class HomeViewModel @Inject constructor(
                 currentSortBy = PromoCodeSortBy.POPULARITY
             }
 
-            loadBannersPromoCodesAndServices()
+            loadBannersAndPromoCodes()
         }
     }
 
-    private suspend fun loadBannersPromoCodesAndServices() {
+    private suspend fun loadBannersAndPromoCodes() {
         withContext(Dispatchers.IO) {
             var banners = emptyList<Banner>()
-            var services = emptyList<Service>()
 
             // Load banners first
             // Fixed: Use firstOrNull instead of first() to wait for actual data, not just Result.Loading from asResult()
@@ -216,29 +217,8 @@ class HomeViewModel @Inject constructor(
             }
             Timber.d("HomeViewModel: Banner loading phase complete, banners.size = ${banners.size}")
 
-            // Load services second
-            try {
-                val servicesResult = getPopularServicesUseCase(limit = 50).first()
-                when (servicesResult) {
-                    is Result.Loading -> {
-                        Timber.d("HomeViewModel: Loading services")
-                    }
-                    is Result.Success -> {
-                        services = servicesResult.data
-                        Timber.d("HomeViewModel: Loaded ${services.size} services successfully")
-                    }
-                    is Result.Error -> {
-                        Timber.w("HomeViewModel: Services loading failed: ${servicesResult.exception}")
-                        services = emptyList()
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.w("HomeViewModel: Services loading failed: $e")
-                services = emptyList()
-            }
-
-            Timber.d("HomeViewModel: Got ${banners.size} banners and ${services.size} services, loading promo codes")
-            loadPromoCodesWithFallback(banners, services)
+            Timber.d("HomeViewModel: Got ${banners.size} banners, loading promo codes")
+            loadPromoCodesWithFallback(banners)
         }
     }
 
@@ -415,9 +395,16 @@ class HomeViewModel @Inject constructor(
     // MARK: - Filter Actions
 
     private fun showFilterDialog(type: FilterDialogType) {
+        Timber.d("HomeViewModel: showFilterDialog called with type: $type")
         val currentState = _uiState.value
         if (currentState is HomeUiState.Success) {
             _uiState.value = currentState.copy(activeFilterDialog = type)
+
+            // Load popular services when service dialog is opened
+            if (type == FilterDialogType.Service) {
+                Timber.d("HomeViewModel: Service dialog opened, loading popular services")
+                loadPopularServicesIfNeeded()
+            }
         }
     }
 
@@ -616,4 +603,131 @@ class HomeViewModel @Inject constructor(
             PromoCodeSortBy.EXPIRING_SOON -> promoCodes.sortedBy { it.endDate }
             PromoCodeSortBy.ALPHABETICAL -> promoCodes.sortedBy { it.serviceName }
         }
+
+    private fun searchServices(query: String) {
+        val currentState = _uiState.value
+        if (currentState !is HomeUiState.Success) return
+
+        if (query.length < 2) {
+            // Clear search results for short queries
+            _uiState.value = currentState.copy(
+                serviceSearchResults = emptyList(),
+                isSearchingServices = false,
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = currentState.copy(isSearchingServices = true)
+
+                val searchResult = searchServicesUseCase(query = query, limit = 20).first()
+
+                when (searchResult) {
+                    is Result.Success -> {
+                        _uiState.value = currentState.copy(
+                            serviceSearchResults = searchResult.data,
+                            isSearchingServices = false,
+                        )
+                    }
+                    is Result.Error -> {
+                        Timber.e("Error searching services: ${searchResult.exception}")
+                        _uiState.value = currentState.copy(
+                            serviceSearchResults = emptyList(),
+                            isSearchingServices = false,
+                        )
+                    }
+                    is Result.Loading -> {
+                        // Keep loading state
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error in searchServices")
+                _uiState.value = currentState.copy(
+                    serviceSearchResults = emptyList(),
+                    isSearchingServices = false,
+                )
+            }
+        }
+    }
+
+    private fun loadPopularServicesIfNeeded() {
+        val currentState = _uiState.value as? HomeUiState.Success ?: return
+
+        Timber.d("HomeViewModel: loadPopularServicesIfNeeded - current popular services count: ${currentState.popularServices.size}")
+
+        // Only load if we don't have popular services yet
+        if (currentState.popularServices.isEmpty()) {
+            Timber.d("HomeViewModel: Popular services empty, starting to load...")
+            viewModelScope.launch {
+                try {
+                    Timber.d("HomeViewModel: Calling getPopularServicesUseCase...")
+                    // Use firstOrNull to skip Result.Loading and get actual data
+                    val servicesResult = getPopularServicesUseCase(limit = 20).firstOrNull { it !is Result.Loading } ?: Result.Loading
+                    Timber.d("HomeViewModel: getPopularServicesUseCase result: $servicesResult")
+                    when (servicesResult) {
+                        is Result.Success -> {
+                            Timber.d("HomeViewModel: Loaded ${servicesResult.data.size} popular services")
+                            if (servicesResult.data.isEmpty()) {
+                                Timber.w("HomeViewModel: Popular services query returned empty - trying fallback")
+                                // Fallback: try to load any services without sorting
+                                try {
+                                    val fallbackResult = searchServicesUseCase(query = "", limit = 20).first()
+                                    when (fallbackResult) {
+                                        is Result.Success -> {
+                                            Timber.d("HomeViewModel: Fallback loaded ${fallbackResult.data.size} services")
+                                            fallbackResult.data.forEachIndexed { index, service ->
+                                                Timber.d(
+                                                    "HomeViewModel: Fallback service $index: ${service.name} (${service.promoCodeCount} codes)",
+                                                )
+                                            }
+                                            _uiState.value = currentState.copy(
+                                                popularServices = fallbackResult.data,
+                                            )
+                                        }
+                                        else -> Timber.w("HomeViewModel: Fallback also failed: $fallbackResult")
+                                    }
+                                } catch (e: Exception) {
+                                    Timber.w("HomeViewModel: Fallback failed: $e")
+                                }
+                            } else {
+                                servicesResult.data.forEachIndexed { index, service ->
+                                    Timber.d("HomeViewModel: Popular service $index: ${service.name} (${service.promoCodeCount} codes)")
+                                }
+                                _uiState.value = currentState.copy(
+                                    popularServices = servicesResult.data,
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                            Timber.w("HomeViewModel: Popular services loading failed: ${servicesResult.exception}")
+                            // Fallback: try to load any services without sorting
+                            Timber.d("HomeViewModel: Trying fallback - loading services without promoCodeCount sorting...")
+                            try {
+                                val fallbackResult = searchServicesUseCase(query = "", limit = 20).first()
+                                when (fallbackResult) {
+                                    is Result.Success -> {
+                                        Timber.d("HomeViewModel: Fallback loaded ${fallbackResult.data.size} services")
+                                        _uiState.value = currentState.copy(
+                                            popularServices = fallbackResult.data,
+                                        )
+                                    }
+                                    else -> Timber.w("HomeViewModel: Fallback also failed: $fallbackResult")
+                                }
+                            } catch (e: Exception) {
+                                Timber.w("HomeViewModel: Fallback failed: $e")
+                            }
+                        }
+                        is Result.Loading -> {
+                            Timber.d("HomeViewModel: Popular services still loading...")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.w("HomeViewModel: Popular services loading failed: $e")
+                }
+            }
+        } else {
+            Timber.d("HomeViewModel: Popular services already loaded, skipping")
+        }
+    }
 }

@@ -126,7 +126,7 @@ class SubmissionWizardViewModel @Inject constructor(
                     when (result) {
                         is Result.Loading -> { /* Loading already handled above */ }
                         is Result.Success -> {
-                            updateAvailableServices(result.data)
+                            updatePopularServices(result.data)
                             updateServiceLoadingState(false)
                         }
                         is Result.Error -> {
@@ -150,7 +150,7 @@ class SubmissionWizardViewModel @Inject constructor(
                     when (result) {
                         is Result.Loading -> { /* Loading already handled above */ }
                         is Result.Success -> {
-                            updateAvailableServices(result.data)
+                            updateServiceSearchResults(result.data)
                             updateServiceLoadingState(false)
                         }
                         is Result.Error -> {
@@ -395,14 +395,19 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     // Service search helper methods
-    private fun updateAvailableServices(services: List<com.qodein.shared.model.Service>) {
+    private fun updatePopularServices(services: List<com.qodein.shared.model.Service>) {
         val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(availableServices = services)
+        _uiState.value = currentState.copy(popularServices = services)
+    }
+
+    private fun updateServiceSearchResults(services: List<com.qodein.shared.model.Service>) {
+        val currentState = getCurrentSuccessState() ?: return
+        _uiState.value = currentState.copy(serviceSearchResults = services)
     }
 
     private fun updateServiceLoadingState(isLoading: Boolean) {
         val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(isLoadingServices = isLoading)
+        _uiState.value = currentState.copy(isSearchingServices = isLoading)
     }
 
     private fun updateServiceSearchQuery(query: String) {
