@@ -1,5 +1,7 @@
 package com.qodein.shared.domain.repository
 
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
@@ -29,7 +31,10 @@ interface PromoCodeRepository {
     fun createPromoCode(promoCode: PromoCode): Flow<PromoCode>
 
     /**
-     * Get promo codes with filtering and sorting.
+     * Get promo codes with filtering and sorting using cursor-based pagination.
+     *
+     * Uses Firebase-native cursor pagination for enterprise-grade performance
+     * that scales to millions of documents with minimal read costs.
      *
      * @param query Search query text (optional)
      * @param sortBy Sort criteria (popularity, newest, expiring, etc.)
@@ -37,9 +42,8 @@ interface PromoCodeRepository {
      * @param filterByService Filter by service name (optional)
      * @param filterByCategory Filter by category (optional)
      * @param isFirstUserOnly Filter first-user-only codes
-     * @param limit Maximum number of results
-     * @param offset Pagination offset
-     * @return Flow that emits List<[com.qodein.shared.model.PromoCode]>
+     * @param paginationRequest Cursor-based pagination parameters
+     * @return Flow that emits [com.qodein.shared.model.PaginatedResult] with data and next cursor
      * @throws java.io.IOException when network request fails
      * @throws IllegalStateException when Firestore is unavailable
      */
@@ -50,9 +54,8 @@ interface PromoCodeRepository {
         filterByService: String? = null,
         filterByCategory: String? = null,
         isFirstUserOnly: Boolean? = null,
-        limit: Int = 20,
-        offset: Int = 0
-    ): Flow<List<PromoCode>>
+        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
+    ): Flow<PaginatedResult<PromoCode>>
 
     /**
      * Get a specific promo code by ID.
@@ -269,7 +272,5 @@ enum class PromoCodeSortBy {
     NEWEST, // Sort by creation date (newest first)
     OLDEST, // Sort by creation date (oldest first)
     EXPIRING_SOON, // Sort by end date (expiring first)
-    MOST_VIEWED, // Sort by view count
-    MOST_USED, // Sort by usage count
-    ALPHABETICAL // Sort by code alphabetically
+    ALPHABETICAL // Sort by service name alphabetically
 }

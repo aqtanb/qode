@@ -7,6 +7,13 @@
     <string name="home_welcome_subtitle">Үздік брендтерден ең жақсы жарнамалық кодтармен ақша үнемдеңіз</string>
     <string name="home_section_title">Тринг ұсыныстары</string>
     <string name="home_section_subtitle">Бүгін ең танымал промо-кодтар</string>
+    
+    <!-- Dynamic Section Titles -->
+    <string name="home_section_title_popularity">Тринг ұсыныстары</string>
+    <string name="home_section_title_newest">Жаңа ұсыныстар</string>
+    <string name="home_section_title_oldest">Ескі ұсыныстар</string>
+    <string name="home_section_title_expiring">Мерзімі аяқталатын ұсыныстар</string>
+    <string name="home_section_title_alphabetical">Барлық ұсыныстар</string>
     <string name="home_quick_filters">Жылдам сүзгілер</string>
     <string name="home_trending_badge">Қазір трейдер</string>
     <string name="home_featured_deals">Таңдаулы мәмілелер</string>
@@ -82,6 +89,7 @@
     <string name="filter_sort_popularity">Ең танымал</string>
     <string name="filter_sort_newest">Алдымен жаңа</string>
     <string name="filter_sort_expiry_soon">Жақында аяқталады</string>
+    <string name="filter_sort_alphabetical">А-Я бренд бойынша</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>

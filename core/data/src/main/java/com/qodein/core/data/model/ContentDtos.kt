@@ -116,6 +116,7 @@ data class PromoCodeDto(
     // Engagement metrics
     val upvotes: Int = 0,
     val downvotes: Int = 0,
+    val voteScore: Int = 0, // Computed by Cloud Function: upvotes - downvotes
     val views: Int = 0,
     val shares: Int = 0,
     val comments: Int? = null,
@@ -153,6 +154,7 @@ data class PromoCodeDto(
         isFirstUserOnly = false,
         upvotes = 0,
         downvotes = 0,
+        voteScore = 0,
         views = 0,
         shares = 0,
         comments = null,

@@ -87,3 +87,22 @@ CLAUDE.local.md
 .github/workflows/claude.yml
 /.claude/
 
+# Firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebaserc
+
+# Functions (Node.js)
+functions/node_modules/
+functions/lib/
+functions/*.log
+functions/.env
+functions/.env.local
+
+# Service account keys (CRITICAL - NEVER commit these!)
+functions/src/serviceAccountKey.json
+functions/src/*-service-account.json
+**/serviceAccountKey.json
+**/*-service-account.json
+

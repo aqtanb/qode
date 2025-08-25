@@ -7,6 +7,13 @@
     <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
     <string name="home_section_title">Trending Offers</string>
     <string name="home_section_subtitle">Most popular promo codes today</string>
+    
+    <!-- Dynamic Section Titles -->
+    <string name="home_section_title_popularity">Trending Offers</string>
+    <string name="home_section_title_newest">Newest Offers</string>
+    <string name="home_section_title_oldest">Oldest Offers</string>
+    <string name="home_section_title_expiring">Expiring Offers</string>
+    <string name="home_section_title_alphabetical">All Offers</string>
     <string name="home_quick_filters">Quick Filters</string>
     <string name="home_trending_badge">TRENDING NOW</string>
     <string name="home_featured_deals">Featured Deals</string>
@@ -83,6 +90,7 @@
     <string name="filter_sort_popularity">Most Popular</string>
     <string name="filter_sort_newest">Newest First</string>
     <string name="filter_sort_expiry_soon">Expiring Soon</string>
+    <string name="filter_sort_alphabetical">A-Z by Brand</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">No promo codes available</string>

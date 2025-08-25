@@ -320,6 +320,13 @@ fun SortFilterDialog(
                         isSelected = (currentFilter as SortFilter.Selected).sortBy == PromoCodeSortBy.EXPIRING_SOON,
                         onClick = { onFilterSelected(SortFilter.Selected(PromoCodeSortBy.EXPIRING_SOON)) },
                     )
+
+                    SortFilterOption(
+                        sortBy = PromoCodeSortBy.ALPHABETICAL,
+                        text = stringResource(R.string.filter_sort_alphabetical),
+                        isSelected = (currentFilter as SortFilter.Selected).sortBy == PromoCodeSortBy.ALPHABETICAL,
+                        onClick = { onFilterSelected(SortFilter.Selected(PromoCodeSortBy.ALPHABETICAL)) },
+                    )
                 }
 
                 TextButton(

@@ -13,7 +13,6 @@ import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
@@ -23,6 +22,8 @@ import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.model.Banner
+import com.qodein.shared.model.PaginationCursor
+import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.Service
@@ -56,6 +57,10 @@ class HomeViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
+
+    private var currentCursor: PaginationCursor? = null
+    private var currentSortBy = PromoCodeSortBy.POPULARITY
+    private val pageSize = 20
 
     init {
         loadHomeData()
@@ -91,15 +96,25 @@ class HomeViewModel @Inject constructor(
         suspend fun loadWithSort(sortBy: PromoCodeSortBy): Boolean {
             try {
                 var success = false
-                getPromoCodesUseCase(sortBy = sortBy, limit = 20).collect { result ->
+                getPromoCodesUseCase(
+                    sortBy = sortBy,
+                    paginationRequest = PaginationRequest.firstPage(pageSize),
+                ).collect { result ->
                     when (result) {
                         is Result.Loading -> {
                             Timber.d("HomeViewModel: Loading promo codes with sort $sortBy")
                         }
                         is Result.Success -> {
-                            if (result.data.isNotEmpty()) {
-                                Timber.d("HomeViewModel: Successfully loaded ${result.data.size} promo codes with $sortBy")
-                                updateSuccessState(result.data, banners, services)
+                            if (result.data.data.isNotEmpty()) {
+                                Timber.d("HomeViewModel: Successfully loaded ${result.data.data.size} promo codes with $sortBy")
+                                currentSortBy = sortBy
+                                currentCursor = result.data.nextCursor
+                                updateSuccessState(
+                                    promoCodes = result.data.data,
+                                    banners = banners,
+                                    services = services,
+                                    hasMore = result.data.hasMore,
+                                )
                                 success = true
                             } else {
                                 Timber.w("HomeViewModel: No promo codes returned for sort $sortBy")
@@ -121,30 +136,29 @@ class HomeViewModel @Inject constructor(
 
         Timber.d("HomeViewModel: Starting promo code loading with ${banners.size} banners, ${services.size} services")
 
-        // Try POPULARITY first, fallback to NEWEST
+        // Load with POPULARITY sorting (now optimized with voteScore and caching)
         if (!loadWithSort(PromoCodeSortBy.POPULARITY)) {
-            if (!loadWithSort(PromoCodeSortBy.NEWEST)) {
-                Timber.e("HomeViewModel: All promo code loading attempts failed")
-                _uiState.value = HomeUiState.Error(
-                    errorType = Exception("Failed to load data").toErrorType(),
-                    isRetryable = true,
-                    shouldShowSnackbar = true,
-                    errorCode = null,
-                )
-            }
+            Timber.e("HomeViewModel: Failed to load promo codes with popularity sorting")
+            _uiState.value = HomeUiState.Error(
+                errorType = Exception("Failed to load promo codes").toErrorType(),
+                isRetryable = true,
+                shouldShowSnackbar = true,
+                errorCode = null,
+            )
         }
     }
 
     private fun updateSuccessState(
         promoCodes: List<PromoCode>,
         banners: List<Banner> = emptyList(),
-        services: List<Service> = emptyList()
+        services: List<Service> = emptyList(),
+        hasMore: Boolean = false
     ) {
         Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
         _uiState.value = HomeUiState.Success(
             banners = banners,
             promoCodes = promoCodes,
-            hasMorePromoCodes = promoCodes.size >= 20,
+            hasMorePromoCodes = hasMore,
             availableServices = services,
         )
     }
@@ -158,6 +172,12 @@ class HomeViewModel @Inject constructor(
                 )
             } else {
                 HomeUiState.Loading
+            }
+
+            // Reset pagination state on refresh
+            if (isRefresh) {
+                currentCursor = null
+                currentSortBy = PromoCodeSortBy.POPULARITY
             }
 
             loadBannersPromoCodesAndServices()
@@ -338,31 +358,51 @@ class HomeViewModel @Inject constructor(
         if (currentState !is HomeUiState.Success) return
         if (currentState.isLoadingMore || !currentState.hasMorePromoCodes) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 _uiState.value = currentState.copy(isLoadingMore = true)
 
-                // TODO: Load more promo codes from repository
-                // val morePromoCodes = promoCodeRepository.getPromoCodes(
-                //     offset = currentState.promoCodes.size
-                // )
+                Timber.d("HomeViewModel: Loading more promo codes with cursor=${currentCursor?.documentId}, sortBy=$currentSortBy")
 
-                // Mock additional promo codes
-                val morePromoCodes = getMockPromoCodes().take(5)
+                val paginationRequest = if (currentCursor != null) {
+                    PaginationRequest.nextPage(currentCursor!!, pageSize)
+                } else {
+                    PaginationRequest.firstPage(pageSize)
+                }
 
-                _uiState.value = currentState.copy(
-                    isLoadingMore = false,
-                    promoCodes = currentState.promoCodes + morePromoCodes,
-                    hasMorePromoCodes = morePromoCodes.isNotEmpty(),
-                )
+                getPromoCodesUseCase(
+                    sortBy = currentSortBy,
+                    paginationRequest = paginationRequest,
+                ).collect { result ->
+                    when (result) {
+                        is Result.Loading -> {
+                            Timber.d("HomeViewModel: Loading more promo codes...")
+                        }
+                        is Result.Success -> {
+                            val paginatedResult = result.data
+                            val morePromoCodes = paginatedResult.data
+                            Timber.d("HomeViewModel: Loaded ${morePromoCodes.size} more promo codes")
+
+                            // Update cursor for next pagination
+                            currentCursor = paginatedResult.nextCursor
+
+                            _uiState.value = currentState.copy(
+                                isLoadingMore = false,
+                                promoCodes = currentState.promoCodes + morePromoCodes,
+                                hasMorePromoCodes = paginatedResult.hasMore,
+                            )
+                            return@collect
+                        }
+                        is Result.Error -> {
+                            Timber.w("HomeViewModel: Error loading more promo codes: ${result.exception}")
+                            _uiState.value = currentState.copy(isLoadingMore = false)
+                            return@collect
+                        }
+                    }
+                }
             } catch (exception: Exception) {
-                val errorException = Exception("Failed to load more promo codes.")
-                _uiState.value = HomeUiState.Error(
-                    errorType = errorException.toErrorType(),
-                    isRetryable = errorException.isRetryable(),
-                    shouldShowSnackbar = errorException.shouldShowSnackbar(),
-                    errorCode = errorException.getErrorCode(),
-                )
+                Timber.e("HomeViewModel: Exception loading more promo codes: $exception")
+                _uiState.value = currentState.copy(isLoadingMore = false)
             }
         }
     }
@@ -574,15 +614,6 @@ class HomeViewModel @Inject constructor(
             PromoCodeSortBy.NEWEST -> promoCodes.sortedByDescending { it.createdAt }
             PromoCodeSortBy.OLDEST -> promoCodes.sortedBy { it.createdAt }
             PromoCodeSortBy.EXPIRING_SOON -> promoCodes.sortedBy { it.endDate }
-            PromoCodeSortBy.MOST_VIEWED -> promoCodes.sortedByDescending { it.views }
-            PromoCodeSortBy.MOST_USED -> promoCodes.sortedByDescending { it.voteScore } // Use voteScore as proxy for usage
-            PromoCodeSortBy.ALPHABETICAL -> promoCodes.sortedBy { it.code }
+            PromoCodeSortBy.ALPHABETICAL -> promoCodes.sortedBy { it.serviceName }
         }
-
-    // Mock data - TODO: Remove when repositories are implemented
-
-    private fun getMockPromoCodes(): List<PromoCode> {
-        // Return mock promo codes
-        return emptyList() // Implementation would go here
-    }
 }

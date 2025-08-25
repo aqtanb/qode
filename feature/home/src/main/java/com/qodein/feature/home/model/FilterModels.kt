@@ -1,6 +1,10 @@
 package com.qodein.feature.home.model
 
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeStatusIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.Service
 
@@ -50,3 +54,22 @@ sealed class FilterDialogType {
     data object Service : FilterDialogType()
     data object Sort : FilterDialogType()
 }
+
+// Extension functions for dynamic UI
+fun PromoCodeSortBy.toIcon(): ImageVector =
+    when (this) {
+        PromoCodeSortBy.POPULARITY -> QodeStatusIcons.Popular
+        PromoCodeSortBy.NEWEST -> QodeStatusIcons.New
+        PromoCodeSortBy.OLDEST -> QodeStatusIcons.Gold
+        PromoCodeSortBy.EXPIRING_SOON -> QodeCommerceIcons.Limited
+        PromoCodeSortBy.ALPHABETICAL -> QodeUIIcons.Filter
+    }
+
+fun PromoCodeSortBy.toSectionTitleRes(): Int =
+    when (this) {
+        PromoCodeSortBy.POPULARITY -> com.qodein.feature.home.R.string.home_section_title_popularity
+        PromoCodeSortBy.NEWEST -> com.qodein.feature.home.R.string.home_section_title_newest
+        PromoCodeSortBy.OLDEST -> com.qodein.feature.home.R.string.home_section_title_oldest
+        PromoCodeSortBy.EXPIRING_SOON -> com.qodein.feature.home.R.string.home_section_title_expiring
+        PromoCodeSortBy.ALPHABETICAL -> com.qodein.feature.home.R.string.home_section_title_alphabetical
+    }

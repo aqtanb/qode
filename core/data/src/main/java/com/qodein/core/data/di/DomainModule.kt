@@ -20,7 +20,6 @@ import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.GetUserVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.IncrementViewCountUseCase
-import com.qodein.shared.domain.usecase.promocode.SearchPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.ValidatePromoCodeUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
@@ -97,11 +96,6 @@ object DomainModule {
     @Singleton
     fun provideVoteOnPromoCodeUseCase(promoCodeRepository: PromoCodeRepository): VoteOnPromoCodeUseCase =
         VoteOnPromoCodeUseCase(promoCodeRepository)
-
-    @Provides
-    @Singleton
-    fun provideSearchPromoCodesUseCase(promoCodeRepository: PromoCodeRepository): SearchPromoCodesUseCase =
-        SearchPromoCodesUseCase(promoCodeRepository)
 
     @Provides
     @Singleton

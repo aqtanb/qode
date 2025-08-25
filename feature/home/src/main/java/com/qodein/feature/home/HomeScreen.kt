@@ -51,7 +51,6 @@ import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeSocialIcons
-import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -69,6 +68,10 @@ import com.qodein.feature.home.model.FilterDialogType
 import com.qodein.feature.home.model.FilterState
 import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
+import com.qodein.feature.home.model.SortFilter
+import com.qodein.feature.home.model.toIcon
+import com.qodein.feature.home.model.toSectionTitleRes
+import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.PromoCode
@@ -223,6 +226,7 @@ private fun HomeContent(
         item(key = "promo_codes_section") {
             PromoCodesSection(
                 promoCodes = uiState.promoCodes,
+                currentFilters = uiState.currentFilters,
                 isLoadingMore = uiState.isLoadingMore,
                 onAction = onAction,
             )
@@ -422,11 +426,12 @@ private fun QuickFiltersSection(
 
             // Sort Filter
             item(key = "sort_filter") {
+                val currentSortBy = (currentFilters.sortFilter as SortFilter.Selected).sortBy
                 FilterChip(
                     nameRes = R.string.filter_chip_sort,
-                    icon = QodeStatusIcons.Silver,
+                    icon = currentSortBy.toIcon(),
                     onClick = { onFilterSelected(FilterDialogType.Sort) },
-                    isSelected = true, // Sort is always selected (has default value)
+                    isSelected = currentSortBy != PromoCodeSortBy.POPULARITY, // Only show as selected when not default
                 )
             }
         }
@@ -525,6 +530,7 @@ private fun FilterChip(
 @Composable
 private fun PromoCodesSection(
     promoCodes: List<PromoCode>,
+    currentFilters: FilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
@@ -534,7 +540,9 @@ private fun PromoCodesSection(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         // Section header
+        val currentSortBy = (currentFilters.sortFilter as SortFilter.Selected).sortBy
         PromoCodesSectionHeader(
+            titleRes = currentSortBy.toSectionTitleRes(),
             modifier = Modifier.padding(horizontal = SpacingTokens.lg),
         )
 
@@ -556,13 +564,17 @@ private fun PromoCodesSection(
 }
 
 @Composable
-private fun PromoCodesSectionHeader(modifier: Modifier = Modifier) {
+private fun PromoCodesSectionHeader(
+    titleRes: Int,
+    modifier: Modifier = Modifier
+) {
     Text(
-        text = stringResource(R.string.home_section_title),
+        text = stringResource(titleRes),
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.ExtraBold,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier,
+        textAlign = TextAlign.Center,
+        modifier = modifier.fillMaxWidth(),
     )
 }
 

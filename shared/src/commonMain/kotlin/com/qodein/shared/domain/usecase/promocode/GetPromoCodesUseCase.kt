@@ -4,6 +4,8 @@ import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
 
@@ -15,9 +17,8 @@ class GetPromoCodesUseCase constructor(private val promoCodeRepository: PromoCod
         filterByService: String? = null,
         filterByCategory: String? = null,
         isFirstUserOnly: Boolean? = null,
-        limit: Int = 20,
-        offset: Int = 0
-    ): Flow<Result<List<PromoCode>>> =
+        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
+    ): Flow<Result<PaginatedResult<PromoCode>>> =
         promoCodeRepository.getPromoCodes(
             query = query,
             sortBy = sortBy,
@@ -25,8 +26,7 @@ class GetPromoCodesUseCase constructor(private val promoCodeRepository: PromoCod
             filterByService = filterByService,
             filterByCategory = filterByCategory,
             isFirstUserOnly = isFirstUserOnly,
-            limit = limit,
-            offset = offset,
+            paginationRequest = paginationRequest,
         )
             .asResult()
 }

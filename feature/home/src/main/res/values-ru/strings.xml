@@ -7,6 +7,13 @@
     <string name="home_welcome_subtitle">Сэкономьте деньги с лучшими промо -кодами от лучших брендов</string>
     <string name="home_section_title">Трендовые предложения</string>
     <string name="home_section_subtitle">Самые популярные промо -коды сегодня</string>
+    
+    <!-- Dynamic Section Titles -->
+    <string name="home_section_title_popularity">Трендовые предложения</string>
+    <string name="home_section_title_newest">Новые предложения</string>
+    <string name="home_section_title_oldest">Старые предложения</string>
+    <string name="home_section_title_expiring">Истекающие предложения</string>
+    <string name="home_section_title_alphabetical">Все предложения</string>
     <string name="home_quick_filters">Быстрые фильтры</string>
     <string name="home_trending_badge">Тенденция сейчас</string>
     <string name="home_featured_deals">Показанные предложения</string>
@@ -82,6 +89,7 @@
     <string name="filter_sort_popularity">Самые популярные</string>
     <string name="filter_sort_newest">Сначала новые</string>
     <string name="filter_sort_expiry_soon">Скоро истекают</string>
+    <string name="filter_sort_alphabetical">А-Я по бренду</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>

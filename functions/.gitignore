@@ -1,0 +1,28 @@
+# Compiled JavaScript files
+lib/
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+
+# Service account keys (NEVER commit these!)
+serviceAccountKey.json
+*-service-account.json
+
+# Logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

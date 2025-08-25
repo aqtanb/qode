@@ -4,12 +4,16 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.qodein.core.data.cache.QueryCache
 import com.qodein.core.data.mapper.PromoCodeMapper
 import com.qodein.core.data.mapper.ServiceMapper
 import com.qodein.core.data.model.PromoCodeDto
 import com.qodein.core.data.model.PromoCodeVoteDto
 import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationCursor
+import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
@@ -25,7 +29,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirestorePromoCodeDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestorePromoCodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
@@ -76,10 +80,31 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         filterByService: String?,
         filterByCategory: String?,
         isFirstUserOnly: Boolean?,
-        limit: Int,
-        offset: Int
-    ): List<PromoCode> {
-        Timber.tag(TAG).d("getPromoCodes: Starting query with sortBy=$sortBy, limit=$limit")
+        paginationRequest: PaginationRequest
+    ): PaginatedResult<PromoCode> {
+        val isFirstPage = paginationRequest.cursor == null
+
+        // Check cache for first page queries
+        if (isFirstPage) {
+            queryCache.get(
+                query = query,
+                sortBy = sortBy.name,
+                filterByType = filterByType,
+                filterByService = filterByService,
+                filterByCategory = filterByCategory,
+                isFirstUserOnly = isFirstUserOnly,
+                isFirstPage = true,
+            )?.let { cachedResult ->
+                Timber.tag(TAG).d("getPromoCodes: Returning cached result (${cachedResult.data.size} items)")
+                return cachedResult
+            }
+        }
+
+        Timber.tag(
+            TAG,
+        ).d(
+            "getPromoCodes: Starting query with sortBy=$sortBy, limit=${paginationRequest.limit}, cursor=${paginationRequest.cursor?.documentId}",
+        )
         var firestoreQuery: Query = firestore.collection(PROMOCODES_COLLECTION)
 
         // Apply filters
@@ -113,7 +138,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         firestoreQuery = when (sortBy) {
             PromoCodeSortBy.POPULARITY -> {
                 // Sort by vote score (upvotes - downvotes) - requires composite index
-                firestoreQuery.orderBy("upvotes", Query.Direction.DESCENDING)
+                firestoreQuery.orderBy("voteScore", Query.Direction.DESCENDING)
             }
             PromoCodeSortBy.NEWEST -> {
                 firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
@@ -124,27 +149,45 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             PromoCodeSortBy.EXPIRING_SOON -> {
                 firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
             }
-            PromoCodeSortBy.MOST_VIEWED -> {
-                firestoreQuery.orderBy("views", Query.Direction.DESCENDING)
-            }
-            PromoCodeSortBy.MOST_USED -> {
-                firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING) // Fallback to newest
-            }
             PromoCodeSortBy.ALPHABETICAL -> {
-                firestoreQuery.orderBy("code", Query.Direction.ASCENDING)
+                firestoreQuery.orderBy("serviceName", Query.Direction.ASCENDING)
             }
         }
 
-        // Apply pagination
-        // Note: Firestore doesn't have offset(), using limit only for now
-        // For proper pagination, implement cursor-based pagination with startAfter()
-        firestoreQuery = firestoreQuery.limit(limit.toLong())
+        // Apply cursor-based pagination (Firebase best practice)
+        paginationRequest.cursor?.let { cursor ->
+            // Use startAfter with field values to avoid extra document read
+            cursor.sortFieldValue?.let { sortValue ->
+                firestoreQuery = when (sortBy) {
+                    PromoCodeSortBy.POPULARITY -> {
+                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                    }
+                    PromoCodeSortBy.NEWEST, PromoCodeSortBy.OLDEST -> {
+                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                    }
+                    PromoCodeSortBy.EXPIRING_SOON -> {
+                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                    }
+                    PromoCodeSortBy.ALPHABETICAL -> {
+                        firestoreQuery.startAfter(sortValue, cursor.documentId)
+                    }
+                }
+                Timber.tag(TAG).d("getPromoCodes: Applied cursor startAfter with sortValue=$sortValue, docId=${cursor.documentId}")
+            } ?: run {
+                Timber.tag(TAG).w("getPromoCodes: Cursor missing sortFieldValue, skipping pagination")
+            }
+        }
+
+        // Apply limit
+        firestoreQuery = firestoreQuery.limit(paginationRequest.limit.toLong())
 
         Timber.tag(TAG).d("getPromoCodes: Executing Firestore query...")
         val querySnapshot = firestoreQuery.get().await()
         Timber.tag(TAG).d("getPromoCodes: Query returned ${querySnapshot.documents.size} documents")
 
-        val results = querySnapshot.documents.mapNotNull { document ->
+        val documents = querySnapshot.documents
+
+        val results = documents.mapNotNull { document ->
             try {
                 Timber.tag(TAG).d("getPromoCodes: Processing document ${document.id}")
                 Timber.tag(TAG).d("  Document data: ${document.data}")
@@ -168,12 +211,52 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
+        // Create next cursor from the last document if available
+        val nextCursor = if (documents.isNotEmpty() && results.size == paginationRequest.limit) {
+            val lastDoc = documents.last()
+            val sortFieldValue = when (sortBy) {
+                PromoCodeSortBy.POPULARITY -> lastDoc.getLong("voteScore")
+                PromoCodeSortBy.NEWEST, PromoCodeSortBy.OLDEST -> lastDoc.getTimestamp("createdAt")
+                PromoCodeSortBy.EXPIRING_SOON -> lastDoc.getTimestamp("endDate")
+                PromoCodeSortBy.ALPHABETICAL -> lastDoc.getString("serviceName")
+            }
+            PaginationCursor.fromDocumentSnapshot(
+                documentId = lastDoc.id,
+                sortFieldValue = sortFieldValue,
+            )
+        } else {
+            null
+        }
+
+        val hasMore = results.size == paginationRequest.limit
+
         Timber.tag(TAG).d("getPromoCodes: Successfully parsed ${results.size} promo codes")
         results.forEachIndexed { index, promoCode ->
             Timber.tag(TAG).d("  [$index] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})")
         }
+        Timber.tag(TAG).d("getPromoCodes: hasMore=$hasMore, nextCursor=${nextCursor?.documentId}")
 
-        return results
+        val result = PaginatedResult.of(
+            data = results,
+            nextCursor = nextCursor,
+            hasMore = hasMore,
+        )
+
+        // Cache first page results for popular queries
+        if (isFirstPage && results.isNotEmpty()) {
+            queryCache.put(
+                query = query,
+                sortBy = sortBy.name,
+                filterByType = filterByType,
+                filterByService = filterByService,
+                filterByCategory = filterByCategory,
+                isFirstUserOnly = isFirstUserOnly,
+                isFirstPage = true,
+                result = result,
+            )
+        }
+
+        return result
     }
 
     suspend fun getPromoCodeById(id: PromoCodeId): PromoCode? {

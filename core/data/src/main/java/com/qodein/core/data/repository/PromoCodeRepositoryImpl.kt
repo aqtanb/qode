@@ -3,6 +3,8 @@ package com.qodein.core.data.repository
 import com.qodein.core.data.datasource.FirestorePromoCodeDataSource
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
@@ -28,9 +30,8 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         filterByService: String?,
         filterByCategory: String?,
         isFirstUserOnly: Boolean?,
-        limit: Int,
-        offset: Int
-    ): Flow<List<PromoCode>> =
+        paginationRequest: PaginationRequest
+    ): Flow<PaginatedResult<PromoCode>> =
         flow {
             emit(
                 dataSource.getPromoCodes(
@@ -40,8 +41,7 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
                     filterByService = filterByService,
                     filterByCategory = filterByCategory,
                     isFirstUserOnly = isFirstUserOnly,
-                    limit = limit,
-                    offset = offset,
+                    paginationRequest = paginationRequest,
                 ),
             )
         }
