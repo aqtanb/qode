@@ -2,7 +2,6 @@ package com.qodein.feature.home
 
 import com.qodein.feature.home.model.CategoryFilter
 import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.model.Banner
@@ -32,8 +31,6 @@ sealed interface HomeAction {
     data class ShowFilterDialog(val type: FilterDialogType) : HomeAction
 
     data object DismissFilterDialog : HomeAction
-
-    data class ApplyTypeFilter(val typeFilter: PromoCodeTypeFilter) : HomeAction
 
     data class ApplyCategoryFilter(val categoryFilter: CategoryFilter) : HomeAction
 

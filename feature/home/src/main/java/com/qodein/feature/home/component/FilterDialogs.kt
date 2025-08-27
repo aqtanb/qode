@@ -28,73 +28,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.home.R
 import com.qodein.feature.home.model.CategoryFilter
-import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.Service
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TypeFilterDialog(
-    currentFilter: PromoCodeTypeFilter,
-    onFilterSelected: (PromoCodeTypeFilter) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    BasicAlertDialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        modifier = modifier.padding(SpacingTokens.lg),
-    ) {
-        Card {
-            Column(
-                modifier = Modifier.padding(SpacingTokens.lg),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-            ) {
-                Text(
-                    text = stringResource(R.string.filter_dialog_type_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Column {
-                    TypeFilterOption(
-                        text = stringResource(R.string.filter_type_all),
-                        isSelected = currentFilter is PromoCodeTypeFilter.All,
-                        onClick = { onFilterSelected(PromoCodeTypeFilter.All) },
-                    )
-
-                    TypeFilterOption(
-                        text = stringResource(R.string.filter_type_percentage),
-                        isSelected = currentFilter is PromoCodeTypeFilter.Percentage,
-                        onClick = { onFilterSelected(PromoCodeTypeFilter.Percentage) },
-                    )
-
-                    TypeFilterOption(
-                        text = stringResource(R.string.filter_type_fixed_amount),
-                        isSelected = currentFilter is PromoCodeTypeFilter.FixedAmount,
-                        onClick = { onFilterSelected(PromoCodeTypeFilter.FixedAmount) },
-                    )
-                }
-
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.action_close))
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -123,7 +65,10 @@ fun CategoryFilterDialog(
                 // All Categories option
                 FilterChip(
                     selected = currentFilter is CategoryFilter.All,
-                    onClick = { onFilterSelected(CategoryFilter.All) },
+                    onClick = {
+                        onFilterSelected(CategoryFilter.All)
+                        onDismiss()
+                    },
                     label = { Text(stringResource(R.string.filter_category_all)) },
                 )
 
@@ -136,10 +81,17 @@ fun CategoryFilterDialog(
                     verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     for (category in Service.Companion.Categories.ALL) {
-                        val isSelected = currentFilter is CategoryFilter.Selected && currentFilter.category == category
+                        val isSelected = currentFilter is CategoryFilter.Selected && currentFilter.contains(category)
                         FilterChip(
                             selected = isSelected,
-                            onClick = { onFilterSelected(CategoryFilter.Selected(category)) },
+                            onClick = {
+                                val newFilter = when (currentFilter) {
+                                    CategoryFilter.All -> CategoryFilter.Selected(setOf(category))
+                                    is CategoryFilter.Selected -> currentFilter.toggle(category)
+                                }
+                                onFilterSelected(newFilter)
+                                onDismiss()
+                            },
                             label = { Text(category) },
                         )
                     }
@@ -225,7 +177,10 @@ fun ServiceFilterDialog(
                 ServiceFilterOption(
                     service = null,
                     isSelected = currentFilter is ServiceFilter.All,
-                    onClick = { onFilterSelected(ServiceFilter.All) },
+                    onClick = {
+                        onFilterSelected(ServiceFilter.All)
+                        onDismiss()
+                    },
                 )
 
                 HorizontalDivider()
@@ -254,11 +209,18 @@ fun ServiceFilterDialog(
                             items = services,
                             key = { service -> "service_${service.id.value}" },
                         ) { service ->
-                            val isSelected = currentFilter is ServiceFilter.Selected && currentFilter.service.id == service.id
+                            val isSelected = currentFilter is ServiceFilter.Selected && currentFilter.contains(service)
                             ServiceFilterOption(
                                 service = service,
                                 isSelected = isSelected,
-                                onClick = { onFilterSelected(ServiceFilter.Selected(service)) },
+                                onClick = {
+                                    val newFilter = when (currentFilter) {
+                                        ServiceFilter.All -> ServiceFilter.Selected(setOf(service))
+                                        is ServiceFilter.Selected -> currentFilter.toggle(service)
+                                    }
+                                    onFilterSelected(newFilter)
+                                    onDismiss()
+                                },
                             )
                         }
                     }
@@ -320,13 +282,6 @@ fun SortFilterDialog(
                         isSelected = (currentFilter as SortFilter.Selected).sortBy == PromoCodeSortBy.EXPIRING_SOON,
                         onClick = { onFilterSelected(SortFilter.Selected(PromoCodeSortBy.EXPIRING_SOON)) },
                     )
-
-                    SortFilterOption(
-                        sortBy = PromoCodeSortBy.ALPHABETICAL,
-                        text = stringResource(R.string.filter_sort_alphabetical),
-                        isSelected = (currentFilter as SortFilter.Selected).sortBy == PromoCodeSortBy.ALPHABETICAL,
-                        onClick = { onFilterSelected(SortFilter.Selected(PromoCodeSortBy.ALPHABETICAL)) },
-                    )
                 }
 
                 TextButton(
@@ -337,25 +292,6 @@ fun SortFilterDialog(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun TypeFilterOption(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = text,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-        )
     }
 }
 
@@ -416,18 +352,6 @@ private fun SortFilterOption(
             text = text,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun TypeFilterDialogPreview() {
-    QodeTheme {
-        TypeFilterDialog(
-            currentFilter = PromoCodeTypeFilter.All,
-            onFilterSelected = {},
-            onDismiss = {},
         )
     }
 }

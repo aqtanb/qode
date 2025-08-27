@@ -37,11 +37,9 @@ interface PromoCodeRepository {
      * that scales to millions of documents with minimal read costs.
      *
      * @param query Search query text (optional)
-     * @param sortBy Sort criteria (popularity, newest, expiring, etc.)
-     * @param filterByType Filter by promo code type (optional)
-     * @param filterByService Filter by service name (optional)
-     * @param filterByCategory Filter by category (optional)
-     * @param isFirstUserOnly Filter first-user-only codes
+     * @param sortBy Sort criteria (popularity, newest, expiring)
+     * @param filterByServices Filter by service names (optional) - supports multiple services
+     * @param filterByCategories Filter by categories (optional) - supports multiple categories
      * @param paginationRequest Cursor-based pagination parameters
      * @return Flow that emits [com.qodein.shared.model.PaginatedResult] with data and next cursor
      * @throws java.io.IOException when network request fails
@@ -50,10 +48,8 @@ interface PromoCodeRepository {
     fun getPromoCodes(
         query: String? = null,
         sortBy: PromoCodeSortBy = PromoCodeSortBy.POPULARITY,
-        filterByType: String? = null,
-        filterByService: String? = null,
-        filterByCategory: String? = null,
-        isFirstUserOnly: Boolean? = null,
+        filterByServices: List<String>? = null,
+        filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest = PaginationRequest.firstPage()
     ): Flow<PaginatedResult<PromoCode>>
 
@@ -270,7 +266,5 @@ interface PromoCodeRepository {
 enum class PromoCodeSortBy {
     POPULARITY, // Sort by vote score (upvotes - downvotes)
     NEWEST, // Sort by creation date (newest first)
-    OLDEST, // Sort by creation date (oldest first)
-    EXPIRING_SOON, // Sort by end date (expiring first)
-    ALPHABETICAL // Sort by service name alphabetically
+    EXPIRING_SOON // Sort by end date (expiring first)
 }

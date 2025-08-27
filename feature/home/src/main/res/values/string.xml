@@ -7,7 +7,7 @@
     <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
     <string name="home_section_title">Trending Offers</string>
     <string name="home_section_subtitle">Most popular promo codes today</string>
-    
+
     <!-- Dynamic Section Titles -->
     <string name="home_section_title_popularity">Trending Offers</string>
     <string name="home_section_title_newest">Newest Offers</string>
@@ -21,6 +21,7 @@
 
     <!-- Banner Carousel -->
     <string name="banner_featured_title">Featured Deal</string>
+    <string name="filter_chip_first_user">First user</string>
     <string name="banner_up_to">Up to</string>
     <string name="banner_off">OFF</string>
     <string name="banner_claim_now">Claim Now</string>

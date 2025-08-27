@@ -46,12 +46,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
-import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
-import com.qodein.core.designsystem.icon.QodeSocialIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -63,13 +63,14 @@ import com.qodein.feature.home.component.CategoryFilterDialog
 import com.qodein.feature.home.component.CouponPromoCodeCard
 import com.qodein.feature.home.component.HeroBannerSection
 import com.qodein.feature.home.component.SortFilterDialog
-import com.qodein.feature.home.component.TypeFilterDialog
 import com.qodein.feature.home.model.CategoryFilter
 import com.qodein.feature.home.model.FilterDialogType
 import com.qodein.feature.home.model.FilterState
-import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
+import com.qodein.feature.home.model.ServiceIconData
 import com.qodein.feature.home.model.SortFilter
+import com.qodein.feature.home.model.getServiceIconData
+import com.qodein.feature.home.model.toCategoryIcon
 import com.qodein.feature.home.model.toIcon
 import com.qodein.feature.home.model.toSectionTitleRes
 import com.qodein.shared.domain.repository.PromoCodeSortBy
@@ -221,6 +222,7 @@ private fun HomeContent(
             QuickFiltersSection(
                 currentFilters = uiState.currentFilters,
                 onFilterSelected = { filterType -> onAction(HomeAction.ShowFilterDialog(filterType)) },
+                onAction = onAction,
             )
         }
 
@@ -243,16 +245,6 @@ private fun HomeContent(
     // Filter Dialogs
     uiState.activeFilterDialog?.let { dialogType ->
         when (dialogType) {
-            FilterDialogType.Type -> {
-                TypeFilterDialog(
-                    currentFilter = uiState.currentFilters.typeFilter,
-                    onFilterSelected = { filter ->
-                        onAction(HomeAction.ApplyTypeFilter(filter))
-                        onAction(HomeAction.DismissFilterDialog)
-                    },
-                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
-                )
-            }
             FilterDialogType.Category -> {
                 CategoryFilterDialog(
                     currentFilter = uiState.currentFilters.categoryFilter,
@@ -269,12 +261,14 @@ private fun HomeContent(
                     isVisible = true,
                     services = uiState.serviceSearchResults,
                     popularServices = uiState.popularServices,
-                    currentSelection = when (val filter = uiState.currentFilters.serviceFilter) {
-                        is ServiceFilter.Selected -> filter.service.name
-                        ServiceFilter.All -> ""
-                    },
+                    currentSelection = "",
                     onServiceSelected = { service ->
-                        onAction(HomeAction.ApplyServiceFilter(ServiceFilter.Selected(service)))
+                        val currentFilter = uiState.currentFilters.serviceFilter
+                        val newFilter = when (currentFilter) {
+                            ServiceFilter.All -> ServiceFilter.Selected(setOf(service))
+                            is ServiceFilter.Selected -> currentFilter.toggle(service)
+                        }
+                        onAction(HomeAction.ApplyServiceFilter(newFilter))
                         onAction(HomeAction.DismissFilterDialog)
                     },
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
@@ -284,6 +278,10 @@ private fun HomeContent(
                     title = "Filter by Service",
                     searchPlaceholder = "Search for services...",
                     emptyMessage = "No services found",
+                    selectedServices = when (val filter = uiState.currentFilters.serviceFilter) {
+                        ServiceFilter.All -> emptyList()
+                        is ServiceFilter.Selected -> filter.services.toList()
+                    },
                 )
             }
             FilterDialogType.Sort -> {
@@ -396,6 +394,7 @@ private fun PromoCodesEmptyState() {
 private fun QuickFiltersSection(
     currentFilters: FilterState,
     onFilterSelected: (FilterDialogType) -> Unit,
+    onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -408,32 +407,52 @@ private fun QuickFiltersSection(
             contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            // Type Filter
-            item(key = "type_filter") {
-                FilterChip(
-                    nameRes = R.string.filter_chip_type,
-                    icon = QodeCommerceIcons.Voucher,
-                    onClick = { onFilterSelected(FilterDialogType.Type) },
-                    isSelected = currentFilters.typeFilter !is PromoCodeTypeFilter.All,
-                )
-            }
-
             // Category Filter
             item(key = "category_filter") {
                 FilterChip(
                     nameRes = R.string.filter_chip_category,
-                    icon = QodeCategoryIcons.Coffee,
-                    onClick = { onFilterSelected(FilterDialogType.Category) },
+                    icon = when (val filter = currentFilters.categoryFilter) {
+                        CategoryFilter.All -> QodeNavigationIcons.Categories
+                        is CategoryFilter.Selected -> {
+                            if (filter.categories.size > 1) {
+                                QodeNavigationIcons.More
+                            } else {
+                                filter.categories.firstOrNull()?.toCategoryIcon() ?: QodeCommerceIcons.Deal
+                            }
+                        }
+                    },
+                    onClick = {
+                        // Always open dialog to allow multi-selection
+                        onFilterSelected(FilterDialogType.Category)
+                    },
                     isSelected = currentFilters.categoryFilter !is CategoryFilter.All,
                 )
             }
 
             // Service Filter
             item(key = "service_filter") {
+                val (icon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
+                    ServiceFilter.All -> Triple(QodeCommerceIcons.Store, null, null)
+                    is ServiceFilter.Selected -> {
+                        if (filter.services.size > 1) {
+                            // Multiple services - use generic icon
+                            Triple(QodeNavigationIcons.More, null, null)
+                        } else {
+                            // Single service - use specific service data
+                            val serviceData = filter.services.firstOrNull()?.getServiceIconData() ?: ServiceIconData()
+                            Triple(QodeCommerceIcons.Store, serviceData.logoUrl, serviceData.fallbackText)
+                        }
+                    }
+                }
                 FilterChip(
                     nameRes = R.string.filter_chip_service,
-                    icon = QodeSocialIcons.Beeline,
-                    onClick = { onFilterSelected(FilterDialogType.Service) },
+                    icon = icon,
+                    logoUrl = logoUrl,
+                    fallbackText = fallbackText,
+                    onClick = {
+                        // Always open dialog to allow multi-selection
+                        onFilterSelected(FilterDialogType.Service)
+                    },
                     isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
                 )
             }
@@ -458,7 +477,9 @@ private fun FilterChip(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    logoUrl: String? = null,
+    fallbackText: String? = null
 ) {
     Column(
         modifier = modifier.clickable { onClick() },
@@ -500,21 +521,24 @@ private fun FilterChip(
                         },
                     ),
                 ) {
-                    Box(
+                    CircularImage(
+                        imageUrl = logoUrl,
+                        initials = fallbackText,
+                        fallbackIcon = icon,
+                        size = SizeTokens.Avatar.sizeMedium,
+                        backgroundColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        contentColor = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                        contentDescription = stringResource(nameRes),
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = stringResource(nameRes),
-                            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                            tint = if (isSelected) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                        )
-                    }
+                    )
                 }
             }
         }

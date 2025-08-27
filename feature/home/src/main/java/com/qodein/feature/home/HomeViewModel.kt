@@ -9,7 +9,6 @@ import com.qodein.core.analytics.logVote
 import com.qodein.feature.home.model.CategoryFilter
 import com.qodein.feature.home.model.FilterDialogType
 import com.qodein.feature.home.model.FilterState
-import com.qodein.feature.home.model.PromoCodeTypeFilter
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.common.result.Result
@@ -82,12 +81,70 @@ class HomeViewModel @Inject constructor(
             // Filter Actions
             is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
             is HomeAction.DismissFilterDialog -> dismissFilterDialog()
-            is HomeAction.ApplyTypeFilter -> applyTypeFilter(action.typeFilter)
             is HomeAction.ApplyCategoryFilter -> applyCategoryFilter(action.categoryFilter)
             is HomeAction.ApplyServiceFilter -> applyServiceFilter(action.serviceFilter)
             is HomeAction.ApplySortFilter -> applySortFilter(action.sortFilter)
             is HomeAction.ResetFilters -> resetFilters()
             is HomeAction.SearchServices -> searchServices(action.query)
+        }
+    }
+
+    private suspend fun loadPromoCodesWithFilters(
+        banners: List<Banner> = emptyList(),
+        filters: FilterState = FilterState()
+    ) {
+        try {
+            var success = false
+            val sortBy = (filters.sortFilter as SortFilter.Selected).sortBy
+
+            getPromoCodesUseCase(
+                sortBy = sortBy,
+                filterByCategories = when (filters.categoryFilter) {
+                    CategoryFilter.All -> null
+                    is CategoryFilter.Selected -> filters.categoryFilter.categories.toList()
+                },
+                filterByServices = when (filters.serviceFilter) {
+                    ServiceFilter.All -> null
+                    is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
+                },
+                paginationRequest = PaginationRequest.firstPage(pageSize),
+            ).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        Timber.d("HomeViewModel: Loading promo codes with filters")
+                    }
+                    is Result.Success -> {
+                        Timber.d("HomeViewModel: Successfully loaded ${result.data.data.size} promo codes with filters")
+                        currentSortBy = sortBy
+                        currentCursor = result.data.nextCursor
+                        updateSuccessState(
+                            promoCodes = result.data.data,
+                            banners = banners,
+                            hasMore = result.data.hasMore,
+                        )
+                        success = true
+                        return@collect
+                    }
+                    is Result.Error -> {
+                        Timber.w("HomeViewModel: Error loading promo codes with filters: ${result.exception}")
+                        _uiState.value = HomeUiState.Error(
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = true,
+                            shouldShowSnackbar = true,
+                            errorCode = null,
+                        )
+                        return@collect
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e("HomeViewModel: Exception loading promo codes with filters: $e")
+            _uiState.value = HomeUiState.Error(
+                errorType = e.toErrorType(),
+                isRetryable = true,
+                shouldShowSnackbar = true,
+                errorCode = null,
+            )
         }
     }
 
@@ -151,7 +208,7 @@ class HomeViewModel @Inject constructor(
         banners: List<Banner> = emptyList(),
         hasMore: Boolean = false
     ) {
-        // Preserve existing services state - don't reset it
+        // Preserve existing state - don't reset it
         val currentState = _uiState.value as? HomeUiState.Success
         Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
         _uiState.value = HomeUiState.Success(
@@ -162,6 +219,8 @@ class HomeViewModel @Inject constructor(
             popularServices = currentState?.popularServices ?: emptyList(),
             serviceSearchResults = currentState?.serviceSearchResults ?: emptyList(),
             isSearchingServices = currentState?.isSearchingServices ?: false,
+            currentFilters = currentState?.currentFilters ?: FilterState(),
+            activeFilterDialog = currentState?.activeFilterDialog,
         )
     }
 
@@ -350,8 +409,17 @@ class HomeViewModel @Inject constructor(
                     PaginationRequest.firstPage(pageSize)
                 }
 
+                val filters = currentState.currentFilters
                 getPromoCodesUseCase(
-                    sortBy = currentSortBy,
+                    sortBy = (filters.sortFilter as SortFilter.Selected).sortBy,
+                    filterByCategories = when (filters.categoryFilter) {
+                        CategoryFilter.All -> null
+                        is CategoryFilter.Selected -> filters.categoryFilter.categories.toList()
+                    },
+                    filterByServices = when (filters.serviceFilter) {
+                        ServiceFilter.All -> null
+                        is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
+                    },
                     paginationRequest = paginationRequest,
                 ).collect { result ->
                     when (result) {
@@ -415,45 +483,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun applyTypeFilter(typeFilter: PromoCodeTypeFilter) {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            val newFilters = currentState.currentFilters.copy(typeFilter = typeFilter)
-            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
-            _uiState.value = currentState.copy(
-                currentFilters = newFilters,
-                promoCodes = filteredPromoCodes,
-            )
-
-            // Log analytics
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "filter_applied",
-                    extras = listOf(
-                        AnalyticsEvent.Param("filter_type", "type"),
-                        AnalyticsEvent.Param(
-                            "filter_value",
-                            when (typeFilter) {
-                                PromoCodeTypeFilter.All -> "all"
-                                PromoCodeTypeFilter.Percentage -> "percentage"
-                                PromoCodeTypeFilter.FixedAmount -> "fixed_amount"
-                            },
-                        ),
-                    ),
-                ),
-            )
-        }
-    }
-
     private fun applyCategoryFilter(categoryFilter: CategoryFilter) {
         val currentState = _uiState.value
         if (currentState is HomeUiState.Success) {
-            val newFilters = currentState.currentFilters.copy(categoryFilter = categoryFilter)
-            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
+            // Mutually exclusive: clear service when category is selected
+            val newFilters = currentState.currentFilters.copy(
+                categoryFilter = categoryFilter,
+                serviceFilter = if (categoryFilter !is CategoryFilter.All) ServiceFilter.All else currentState.currentFilters.serviceFilter,
+            )
+
+            // Reset pagination
+            currentCursor = null
+
+            // Update filters immediately and show loading state
             _uiState.value = currentState.copy(
                 currentFilters = newFilters,
-                promoCodes = filteredPromoCodes,
+                promoCodes = emptyList(),
             )
+
+            // Reload data with new category filter
+            viewModelScope.launch {
+                loadPromoCodesWithFilters(currentState.banners, newFilters)
+            }
 
             // Log analytics
             analyticsHelper.logEvent(
@@ -465,7 +516,7 @@ class HomeViewModel @Inject constructor(
                             "filter_value",
                             when (categoryFilter) {
                                 CategoryFilter.All -> "all"
-                                is CategoryFilter.Selected -> categoryFilter.category
+                                is CategoryFilter.Selected -> categoryFilter.categories.firstOrNull() ?: "unknown"
                             },
                         ),
                     ),
@@ -477,12 +528,29 @@ class HomeViewModel @Inject constructor(
     private fun applyServiceFilter(serviceFilter: ServiceFilter) {
         val currentState = _uiState.value
         if (currentState is HomeUiState.Success) {
-            val newFilters = currentState.currentFilters.copy(serviceFilter = serviceFilter)
-            val filteredPromoCodes = applyFiltersToPromoCodes(currentState.promoCodes, newFilters)
+            // Mutually exclusive: clear category when service is selected
+            val newFilters = currentState.currentFilters.copy(
+                serviceFilter = serviceFilter,
+                categoryFilter = if (serviceFilter !is ServiceFilter.All) {
+                    CategoryFilter.All
+                } else {
+                    currentState.currentFilters.categoryFilter
+                },
+            )
+
+            // Reset pagination
+            currentCursor = null
+
+            // Update filters immediately and show loading state
             _uiState.value = currentState.copy(
                 currentFilters = newFilters,
-                promoCodes = filteredPromoCodes,
+                promoCodes = emptyList(),
             )
+
+            // Reload data with new service filter
+            viewModelScope.launch {
+                loadPromoCodesWithFilters(currentState.banners, newFilters)
+            }
 
             // Log analytics
             analyticsHelper.logEvent(
@@ -494,7 +562,7 @@ class HomeViewModel @Inject constructor(
                             "filter_value",
                             when (serviceFilter) {
                                 ServiceFilter.All -> "all"
-                                is ServiceFilter.Selected -> serviceFilter.service.name
+                                is ServiceFilter.Selected -> serviceFilter.services.firstOrNull()?.name ?: "unknown"
                             },
                         ),
                     ),
@@ -506,13 +574,23 @@ class HomeViewModel @Inject constructor(
     private fun applySortFilter(sortFilter: SortFilter) {
         val currentState = _uiState.value
         if (currentState is HomeUiState.Success) {
-            val newFilters = currentState.currentFilters.copy(sortFilter = sortFilter)
             val sortBy = (sortFilter as SortFilter.Selected).sortBy
-            val sortedPromoCodes = applySortToPromoCodes(currentState.promoCodes, sortBy)
+            val newFilters = currentState.currentFilters.copy(sortFilter = sortFilter)
+
+            // Update current sort and reset pagination
+            currentSortBy = sortBy
+            currentCursor = null
+
+            // Update filters immediately and show loading state
             _uiState.value = currentState.copy(
                 currentFilters = newFilters,
-                promoCodes = sortedPromoCodes,
+                promoCodes = emptyList(),
             )
+
+            // Reload data with new sort criteria using filters to preserve other active filters
+            viewModelScope.launch {
+                loadPromoCodesWithFilters(currentState.banners, newFilters)
+            }
 
             // Log analytics
             analyticsHelper.logEvent(
@@ -530,10 +608,20 @@ class HomeViewModel @Inject constructor(
     private fun resetFilters() {
         val currentState = _uiState.value
         if (currentState is HomeUiState.Success) {
-            _uiState.value = currentState.copy(currentFilters = FilterState())
+            // Reset sort criteria and pagination
+            currentSortBy = PromoCodeSortBy.POPULARITY
+            currentCursor = null
 
-            // Reload data with default sort
-            loadHomeData(isRefresh = true)
+            // Immediately clear filters and show loading state with existing banners
+            _uiState.value = currentState.copy(
+                currentFilters = FilterState(),
+                promoCodes = emptyList(),
+            )
+
+            // Reload data with default settings
+            viewModelScope.launch {
+                loadPromoCodesWithFallback(currentState.banners)
+            }
 
             // Log analytics
             analyticsHelper.logEvent(
@@ -545,64 +633,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // MARK: - Filter Helper Functions
-
-    private fun applyFiltersToPromoCodes(
-        promoCodes: List<PromoCode>,
-        filters: FilterState
-    ): List<PromoCode> =
-        promoCodes
-            .filter { promoCode -> matchesTypeFilter(promoCode, filters.typeFilter) }
-            .filter { promoCode -> matchesCategoryFilter(promoCode, filters.categoryFilter) }
-            .filter { promoCode -> matchesServiceFilter(promoCode, filters.serviceFilter) }
-            .let { filteredCodes ->
-                val sortBy = (filters.sortFilter as SortFilter.Selected).sortBy
-                applySortToPromoCodes(filteredCodes, sortBy)
-            }
-
-    private fun matchesTypeFilter(
-        promoCode: PromoCode,
-        typeFilter: PromoCodeTypeFilter
-    ): Boolean =
-        when (typeFilter) {
-            PromoCodeTypeFilter.All -> true
-            PromoCodeTypeFilter.Percentage -> promoCode is PromoCode.PercentagePromoCode
-            PromoCodeTypeFilter.FixedAmount -> promoCode is PromoCode.FixedAmountPromoCode
-        }
-
-    private fun matchesCategoryFilter(
-        promoCode: PromoCode,
-        categoryFilter: CategoryFilter
-    ): Boolean =
-        when (categoryFilter) {
-            CategoryFilter.All -> true
-            is CategoryFilter.Selected -> {
-                promoCode.category?.equals(categoryFilter.category, ignoreCase = true) == true
-            }
-        }
-
-    private fun matchesServiceFilter(
-        promoCode: PromoCode,
-        serviceFilter: ServiceFilter
-    ): Boolean =
-        when (serviceFilter) {
-            ServiceFilter.All -> true
-            is ServiceFilter.Selected -> {
-                promoCode.serviceName.equals(serviceFilter.service.name, ignoreCase = true)
-            }
-        }
-
-    private fun applySortToPromoCodes(
-        promoCodes: List<PromoCode>,
-        sortBy: PromoCodeSortBy
-    ): List<PromoCode> =
-        when (sortBy) {
-            PromoCodeSortBy.POPULARITY -> promoCodes.sortedByDescending { it.voteScore }
-            PromoCodeSortBy.NEWEST -> promoCodes.sortedByDescending { it.createdAt }
-            PromoCodeSortBy.OLDEST -> promoCodes.sortedBy { it.createdAt }
-            PromoCodeSortBy.EXPIRING_SOON -> promoCodes.sortedBy { it.endDate }
-            PromoCodeSortBy.ALPHABETICAL -> promoCodes.sortedBy { it.serviceName }
-        }
+    // MARK: - Helper Functions
 
     private fun searchServices(query: String) {
         val currentState = _uiState.value
@@ -678,7 +709,8 @@ class HomeViewModel @Inject constructor(
                                             Timber.d("HomeViewModel: Fallback loaded ${fallbackResult.data.size} services")
                                             fallbackResult.data.forEachIndexed { index, service ->
                                                 Timber.d(
-                                                    "HomeViewModel: Fallback service $index: ${service.name} (${service.promoCodeCount} codes)",
+                                                    "HomeViewModel: Fallback service " +
+                                                        "$index: ${service.name} (${service.promoCodeCount} codes)",
                                                 )
                                             }
                                             _uiState.value = currentState.copy(

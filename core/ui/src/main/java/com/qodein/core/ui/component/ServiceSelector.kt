@@ -56,7 +56,8 @@ fun ServiceSelectorBottomSheet(
     modifier: Modifier = Modifier,
     title: String = "Select Service",
     searchPlaceholder: String = "Search services...",
-    emptyMessage: String = "No services found"
+    emptyMessage: String = "No services found",
+    selectedServices: List<Service> = emptyList()
 ) {
     if (isVisible) {
         ModalBottomSheet(
@@ -75,6 +76,7 @@ fun ServiceSelectorBottomSheet(
                 title = title,
                 searchPlaceholder = searchPlaceholder,
                 emptyMessage = emptyMessage,
+                selectedServices = selectedServices,
             )
         }
     }
@@ -91,7 +93,8 @@ private fun ServiceSelectorContent(
     isLoading: Boolean,
     title: String,
     searchPlaceholder: String,
-    emptyMessage: String
+    emptyMessage: String,
+    selectedServices: List<Service> = emptyList()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val showingPopular = searchQuery.length < 2
@@ -151,7 +154,7 @@ private fun ServiceSelectorContent(
             ) {
                 popularServices.take(12).forEach { service ->
                     FilterChip(
-                        selected = service.name == currentSelection,
+                        selected = selectedServices.any { it.id == service.id },
                         onClick = { onServiceSelected(service) },
                         label = {
                             Text(
@@ -192,7 +195,7 @@ private fun ServiceSelectorContent(
                     items(popularServices.drop(12)) { service ->
                         ServiceItem(
                             service = service,
-                            isSelected = service.name == currentSelection,
+                            isSelected = selectedServices.any { it.id == service.id },
                             onClick = { onServiceSelected(service) },
                         )
                     }
@@ -201,7 +204,7 @@ private fun ServiceSelectorContent(
                     items(services) { service ->
                         ServiceItem(
                             service = service,
-                            isSelected = service.name == currentSelection,
+                            isSelected = selectedServices.any { it.id == service.id },
                             onClick = { onServiceSelected(service) },
                         )
                     }

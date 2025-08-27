@@ -5,11 +5,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "category",
+          "fieldPath": "serviceName",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "voteScore",
+          "fieldPath": "voteScore", 
           "order": "DESCENDING"
         }
       ]
@@ -23,7 +23,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "voteScore", 
+          "fieldPath": "createdAt", 
           "order": "DESCENDING"
         }
       ]
@@ -33,7 +33,21 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "type",
+          "fieldPath": "serviceName",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "category",
           "order": "ASCENDING"
         },
         {
@@ -44,15 +58,29 @@
     },
     {
       "collectionGroup": "promocodes",
-      "queryScope": "COLLECTION", 
+      "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "isFirstUserOnly",
+          "fieldPath": "category",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "voteScore",
+          "fieldPath": "createdAt",
           "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "category",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
         }
       ]
     },

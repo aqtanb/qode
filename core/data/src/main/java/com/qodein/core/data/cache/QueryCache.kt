@@ -31,10 +31,8 @@ class QueryCache @Inject constructor() {
     private fun generateCacheKey(
         query: String?,
         sortBy: String,
-        filterByType: String?,
         filterByService: String?,
         filterByCategory: String?,
-        isFirstUserOnly: Boolean?,
         isFirstPage: Boolean
     ): String {
         // Only cache first page queries (most common)
@@ -43,10 +41,8 @@ class QueryCache @Inject constructor() {
         return listOf(
             "q=${query ?: ""}",
             "sort=$sortBy",
-            "type=${filterByType ?: ""}",
             "service=${filterByService ?: ""}",
             "category=${filterByCategory ?: ""}",
-            "firstUser=${isFirstUserOnly ?: ""}",
         ).joinToString("|")
     }
 
@@ -56,13 +52,11 @@ class QueryCache @Inject constructor() {
     suspend fun get(
         query: String?,
         sortBy: String,
-        filterByType: String?,
         filterByService: String?,
         filterByCategory: String?,
-        isFirstUserOnly: Boolean?,
         isFirstPage: Boolean
     ): PaginatedResult<PromoCode>? {
-        val key = generateCacheKey(query, sortBy, filterByType, filterByService, filterByCategory, isFirstUserOnly, isFirstPage)
+        val key = generateCacheKey(query, sortBy, filterByService, filterByCategory, isFirstPage)
         if (key.isEmpty()) return null
 
         return mutex.withLock {
@@ -88,14 +82,12 @@ class QueryCache @Inject constructor() {
     suspend fun put(
         query: String?,
         sortBy: String,
-        filterByType: String?,
         filterByService: String?,
         filterByCategory: String?,
-        isFirstUserOnly: Boolean?,
         isFirstPage: Boolean,
         result: PaginatedResult<PromoCode>
     ) {
-        val key = generateCacheKey(query, sortBy, filterByType, filterByService, filterByCategory, isFirstUserOnly, isFirstPage)
+        val key = generateCacheKey(query, sortBy, filterByService, filterByCategory, isFirstPage)
         if (key.isEmpty()) return
 
         mutex.withLock {

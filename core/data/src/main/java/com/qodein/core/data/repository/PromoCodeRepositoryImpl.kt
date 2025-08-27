@@ -26,10 +26,8 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
     override fun getPromoCodes(
         query: String?,
         sortBy: PromoCodeSortBy,
-        filterByType: String?,
-        filterByService: String?,
-        filterByCategory: String?,
-        isFirstUserOnly: Boolean?,
+        filterByServices: List<String>?,
+        filterByCategories: List<String>?,
         paginationRequest: PaginationRequest
     ): Flow<PaginatedResult<PromoCode>> =
         flow {
@@ -37,10 +35,8 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
                 dataSource.getPromoCodes(
                     query = query,
                     sortBy = sortBy,
-                    filterByType = filterByType,
-                    filterByService = filterByService,
-                    filterByCategory = filterByCategory,
-                    isFirstUserOnly = isFirstUserOnly,
+                    filterByServices = filterByServices,
+                    filterByCategories = filterByCategories,
                     paginationRequest = paginationRequest,
                 ),
             )

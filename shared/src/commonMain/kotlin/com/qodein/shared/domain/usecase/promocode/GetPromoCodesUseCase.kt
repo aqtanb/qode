@@ -13,19 +13,15 @@ class GetPromoCodesUseCase constructor(private val promoCodeRepository: PromoCod
     operator fun invoke(
         query: String? = null,
         sortBy: PromoCodeSortBy = PromoCodeSortBy.POPULARITY,
-        filterByType: String? = null,
-        filterByService: String? = null,
-        filterByCategory: String? = null,
-        isFirstUserOnly: Boolean? = null,
+        filterByServices: List<String>? = null,
+        filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest = PaginationRequest.firstPage()
     ): Flow<Result<PaginatedResult<PromoCode>>> =
         promoCodeRepository.getPromoCodes(
             query = query,
             sortBy = sortBy,
-            filterByType = filterByType,
-            filterByService = filterByService,
-            filterByCategory = filterByCategory,
-            isFirstUserOnly = isFirstUserOnly,
+            filterByServices = filterByServices,
+            filterByCategories = filterByCategories,
             paginationRequest = paginationRequest,
         )
             .asResult()

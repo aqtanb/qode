@@ -76,10 +76,8 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
     suspend fun getPromoCodes(
         query: String?,
         sortBy: PromoCodeSortBy,
-        filterByType: String?,
-        filterByService: String?,
-        filterByCategory: String?,
-        isFirstUserOnly: Boolean?,
+        filterByServices: List<String>?,
+        filterByCategories: List<String>?,
         paginationRequest: PaginationRequest
     ): PaginatedResult<PromoCode> {
         val isFirstPage = paginationRequest.cursor == null
@@ -89,10 +87,8 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             queryCache.get(
                 query = query,
                 sortBy = sortBy.name,
-                filterByType = filterByType,
-                filterByService = filterByService,
-                filterByCategory = filterByCategory,
-                isFirstUserOnly = isFirstUserOnly,
+                filterByService = filterByServices?.joinToString(","),
+                filterByCategory = filterByCategories?.joinToString(","),
                 isFirstPage = true,
             )?.let { cachedResult ->
                 Timber.tag(TAG).d("getPromoCodes: Returning cached result (${cachedResult.data.size} items)")
@@ -118,20 +114,24 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
-        filterByType?.let { type ->
-            firestoreQuery = firestoreQuery.whereEqualTo("type", type)
+        filterByServices?.let { services ->
+            if (services.isNotEmpty()) {
+                firestoreQuery = if (services.size == 1) {
+                    firestoreQuery.whereEqualTo("serviceName", services.first())
+                } else {
+                    firestoreQuery.whereIn("serviceName", services)
+                }
+            }
         }
 
-        filterByService?.let { service ->
-            firestoreQuery = firestoreQuery.whereEqualTo("serviceName", service)
-        }
-
-        filterByCategory?.let { category ->
-            firestoreQuery = firestoreQuery.whereEqualTo("category", category)
-        }
-
-        isFirstUserOnly?.let { firstUserOnly ->
-            firestoreQuery = firestoreQuery.whereEqualTo("isFirstUserOnly", firstUserOnly)
+        filterByCategories?.let { categories ->
+            if (categories.isNotEmpty()) {
+                firestoreQuery = if (categories.size == 1) {
+                    firestoreQuery.whereEqualTo("category", categories.first())
+                } else {
+                    firestoreQuery.whereIn("category", categories)
+                }
+            }
         }
 
         // Apply sorting
@@ -143,14 +143,8 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             PromoCodeSortBy.NEWEST -> {
                 firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
             }
-            PromoCodeSortBy.OLDEST -> {
-                firestoreQuery.orderBy("createdAt", Query.Direction.ASCENDING)
-            }
             PromoCodeSortBy.EXPIRING_SOON -> {
                 firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
-            }
-            PromoCodeSortBy.ALPHABETICAL -> {
-                firestoreQuery.orderBy("serviceName", Query.Direction.ASCENDING)
             }
         }
 
@@ -162,13 +156,10 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                     PromoCodeSortBy.POPULARITY -> {
                         firestoreQuery.startAfter(sortValue)
                     }
-                    PromoCodeSortBy.NEWEST, PromoCodeSortBy.OLDEST -> {
+                    PromoCodeSortBy.NEWEST -> {
                         firestoreQuery.startAfter(sortValue)
                     }
                     PromoCodeSortBy.EXPIRING_SOON -> {
-                        firestoreQuery.startAfter(sortValue)
-                    }
-                    PromoCodeSortBy.ALPHABETICAL -> {
                         firestoreQuery.startAfter(sortValue)
                     }
                 }
@@ -216,9 +207,8 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             val lastDoc = documents.last()
             val sortFieldValue = when (sortBy) {
                 PromoCodeSortBy.POPULARITY -> lastDoc.getLong("voteScore")
-                PromoCodeSortBy.NEWEST, PromoCodeSortBy.OLDEST -> lastDoc.getTimestamp("createdAt")
+                PromoCodeSortBy.NEWEST -> lastDoc.getTimestamp("createdAt")
                 PromoCodeSortBy.EXPIRING_SOON -> lastDoc.getTimestamp("endDate")
-                PromoCodeSortBy.ALPHABETICAL -> lastDoc.getString("serviceName")
             }
             PaginationCursor.fromDocumentSnapshot(
                 documentId = lastDoc.id,
@@ -247,10 +237,8 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             queryCache.put(
                 query = query,
                 sortBy = sortBy.name,
-                filterByType = filterByType,
-                filterByService = filterByService,
-                filterByCategory = filterByCategory,
-                isFirstUserOnly = isFirstUserOnly,
+                filterByService = filterByServices?.joinToString(","),
+                filterByCategory = filterByCategories?.joinToString(","),
                 isFirstPage = true,
                 result = result,
             )
