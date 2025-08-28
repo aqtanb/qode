@@ -30,6 +30,15 @@
     <string name="banner_default_description">Exclusive deals and premium offers</string>
     <string name="banner_explore_deals">Explore Deals</string>
     <string name="banner_loading_fallback">Loading amazing deals for you…</string>
+    
+    <!-- Banner States -->
+    <string name="banner_section_title">Featured Promotions</string>
+    <string name="banner_loading_content">Loading Deals...</string>
+    <string name="banner_loading_title">Discovering Amazing Offers</string>
+    <string name="banner_loading_description">We are finding the best deals just for you</string>
+    <string name="banner_empty_title">No Promotions Available</string>
+    <string name="banner_empty_description">Check back later for exclusive deals</string>
+    <string name="banner_error_title">Unable to Load Promotions</string>
 
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
@@ -92,6 +101,11 @@
     <string name="filter_sort_newest">Newest First</string>
     <string name="filter_sort_expiry_soon">Expiring Soon</string>
     <string name="filter_sort_alphabetical">A-Z by Brand</string>
+
+    <!-- PromoCode Section -->
+    <string name="promocodes_section_title">Available Promo Codes</string>
+    <string name="promocodes_loading_title">Finding Best Deals</string>
+    <string name="promocodes_loading_description">Searching for the latest promo codes...</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">No promo codes available</string>

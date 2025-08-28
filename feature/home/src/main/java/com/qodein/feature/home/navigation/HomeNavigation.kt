@@ -6,6 +6,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.qodein.feature.home.HomeScreen
+import com.qodein.feature.home.ui.HomeIconService
+import com.qodein.shared.model.Language
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute // screen
@@ -15,7 +17,7 @@ import kotlinx.serialization.Serializable
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 
 fun NavGraphBuilder.homeSection(
-    userLanguage: com.qodein.shared.model.Language,
+    userLanguage: Language,
     onPromoCodeClick: (String) -> Unit,
     promoCodeDetail: NavGraphBuilder.() -> Unit
 ) {
@@ -23,6 +25,7 @@ fun NavGraphBuilder.homeSection(
         composable<HomeRoute> {
             HomeScreen(
                 userLanguage = userLanguage,
+                iconService = HomeIconService(),
             )
         }
     }

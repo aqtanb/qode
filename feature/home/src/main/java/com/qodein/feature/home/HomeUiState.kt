@@ -1,35 +1,41 @@
 package com.qodein.feature.home
 
 import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.FilterState
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.model.Banner
-import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.Service
+import com.qodein.feature.home.ui.state.BannerState
+import com.qodein.feature.home.ui.state.FilterState
+import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.feature.home.ui.state.ServiceSearchState
 
-sealed interface HomeUiState {
+/**
+ * Single HomeUiState following MVI pattern
+ * Contains independent states for different content types
+ */
+data class HomeUiState(
+    // Content states (independent loading/error/success)
+    val bannerState: BannerState = BannerState.Loading,
+    val promoCodeState: PromoCodeState = PromoCodeState.Loading,
 
-    data object Loading : HomeUiState
+    // Filter management
+    val currentFilters: FilterState = FilterState(),
+    val activeFilterDialog: FilterDialogType? = null,
 
-    data class Refreshing(val previousData: Success? = null) : HomeUiState
+    // Service search (for service filter dialog)
+    val serviceSearchState: ServiceSearchState = ServiceSearchState.Empty,
 
-    data class Success(
-        val banners: List<Banner> = emptyList(),
-        val promoCodes: List<PromoCode>,
-        val hasMorePromoCodes: Boolean,
-        val isLoadingMore: Boolean = false,
-        val availableServices: List<Service> = emptyList(),
-        val popularServices: List<Service> = emptyList(),
-        val serviceSearchResults: List<Service> = emptyList(),
-        val isSearchingServices: Boolean = false,
-        val currentFilters: FilterState = FilterState(),
-        val activeFilterDialog: FilterDialogType? = null
-    ) : HomeUiState
+    // Pagination state
+    val isLoadingMore: Boolean = false
+) {
 
-    data class Error(
-        val errorType: ErrorType,
-        val isRetryable: Boolean,
-        val shouldShowSnackbar: Boolean = true,
-        val errorCode: String? = null
-    ) : HomeUiState
+    // Convenience properties for UI
+    val isInitialLoading: Boolean
+        get() = bannerState is BannerState.Loading && promoCodeState is PromoCodeState.Loading
+
+    val hasContent: Boolean
+        get() = bannerState is BannerState.Success || promoCodeState is PromoCodeState.Success
+
+    val hasActiveFilters: Boolean
+        get() = currentFilters.hasActiveFilters
+
+    val isDialogVisible: Boolean
+        get() = activeFilterDialog != null
 }

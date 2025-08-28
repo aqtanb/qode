@@ -1,9 +1,9 @@
 package com.qodein.feature.home.domain
 
 import com.qodein.feature.home.model.CategoryFilter
-import com.qodein.feature.home.model.FilterState
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
+import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.Service
 import javax.inject.Inject
@@ -13,6 +13,7 @@ import javax.inject.Singleton
  * Domain service responsible for managing filter state and business rules
  * Centralizes all filter logic away from UI components
  */
+
 @Singleton
 class FilterStateManager @Inject constructor() {
 
@@ -67,14 +68,6 @@ class FilterStateManager @Inject constructor() {
      * Resets all filters to default state
      */
     fun resetFilters(): FilterState = FilterState()
-
-    /**
-     * Checks if any non-default filters are active
-     */
-    fun hasActiveFilters(filters: FilterState): Boolean =
-        filters.categoryFilter !is CategoryFilter.All ||
-            filters.serviceFilter !is ServiceFilter.All ||
-            (filters.sortFilter as SortFilter.Selected).sortBy != PromoCodeSortBy.POPULARITY
 
     /**
      * Gets selected category names for filtering
@@ -140,10 +133,27 @@ class FilterStateManager @Inject constructor() {
      * Validates filter state consistency
      */
     fun validateFilters(filters: FilterState): Boolean {
-        // Business rule: Can't have both categories and services selected simultaneously
-        val hasCategoriesSelected = filters.categoryFilter is CategoryFilter.Selected
-        val hasServicesSelected = filters.serviceFilter is ServiceFilter.Selected
+        // Rule 1: Categories and Services are mutually exclusive
+        if (filters.categoryFilter is CategoryFilter.Selected &&
+            filters.serviceFilter is ServiceFilter.Selected
+        ) {
+            return false
+        }
 
-        return !(hasCategoriesSelected && hasServicesSelected)
+        // Rule 2: If categories are selected, the list cannot be empty
+        if (filters.categoryFilter is CategoryFilter.Selected &&
+            filters.categoryFilter.categories.isEmpty()
+        ) {
+            return false
+        }
+
+        // Rule 3: If services are selected, the list cannot be empty
+        if (filters.serviceFilter is ServiceFilter.Selected &&
+            filters.serviceFilter.services.isEmpty()
+        ) {
+            return false
+        }
+
+        return true
     }
 }

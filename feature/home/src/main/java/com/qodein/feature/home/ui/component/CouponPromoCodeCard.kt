@@ -1,4 +1,4 @@
-package com.qodein.feature.home.component
+package com.qodein.feature.home.ui.component
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState

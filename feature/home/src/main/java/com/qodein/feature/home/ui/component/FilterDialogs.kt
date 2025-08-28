@@ -1,4 +1,4 @@
-package com.qodein.feature.home.component
+package com.qodein.feature.home.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

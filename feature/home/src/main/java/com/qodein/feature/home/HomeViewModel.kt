@@ -2,81 +2,97 @@ package com.qodein.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
-import com.qodein.core.analytics.logVote
+import com.qodein.feature.home.domain.FilterStateManager
 import com.qodein.feature.home.model.CategoryFilter
 import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.FilterState
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
+import com.qodein.feature.home.ui.state.BannerState
+import com.qodein.feature.home.ui.state.FilterState
+import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.feature.home.ui.state.ServiceSearchState
 import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
-import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Banner
-import com.qodein.shared.model.PaginationCursor
+import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getPromoCodesUseCase: GetPromoCodesUseCase,
-    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
+    // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
+    private val getPromoCodesUseCase: GetPromoCodesUseCase,
     private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val searchServicesUseCase: SearchServicesUseCase,
+    // Domain services for business logic
+    private val filterStateManager: FilterStateManager,
+    // Analytics
     private val analyticsHelper: AnalyticsHelper
-    // TODO: Inject other repositories when available
-    // private val userRepository: UserRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
 
-    private var currentCursor: PaginationCursor? = null
-    private var currentSortBy = PromoCodeSortBy.POPULARITY
-    private val pageSize = 20
+    private val searchQueryFlow = MutableSharedFlow<String>()
+
+    companion object {
+        private const val DEFAULT_PAGE_SIZE = 20
+        private const val SEARCH_DEBOUNCE_MILLIS = 300L
+        private const val MIN_SEARCH_QUERY_LENGTH = 2
+
+        // Analytics constants
+        private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
+        private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
+        private const val CONTENT_TYPE_BANNER = "banner"
+        private const val EVENT_COPY_PROMOCODE = "copy_promocode"
+    }
 
     init {
         loadHomeData()
+        setupServiceSearch()
     }
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.RefreshData -> loadHomeData(isRefresh = true)
+            is HomeAction.RefreshData -> loadHomeData()
             is HomeAction.BannerClicked -> onBannerClicked(action.banner)
             is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promoCode)
-            is HomeAction.UpvotePromoCode -> onUpvotePromoCode(action.promoCodeId)
-            is HomeAction.DownvotePromoCode -> onDownvotePromoCode(action.promoCodeId)
             is HomeAction.CopyPromoCode -> onCopyPromoCode(action.promoCode)
-            is HomeAction.LoadMorePromoCodes -> loadMorePromoCodes()
-            is HomeAction.RetryClicked -> loadHomeData()
+            is HomeAction.LoadMorePromoCodes -> loadNextPage()
             is HomeAction.ErrorDismissed -> dismissError()
+            is HomeAction.RetryBannersClicked -> retryBanners()
+            is HomeAction.RetryPromoCodesClicked -> retryPromoCodes()
+            is HomeAction.RetryServicesClicked -> retryServices()
 
             // Filter Actions
             is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
@@ -89,16 +105,49 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadPromoCodesWithFilters(
-        banners: List<Banner> = emptyList(),
-        filters: FilterState = FilterState()
-    ) {
-        try {
-            var success = false
-            val sortBy = (filters.sortFilter as SortFilter.Selected).sortBy
+    // MARK: Loading and Error Handling
+    private fun loadHomeData() {
+        loadBanners()
+        loadInitialPage()
+    }
 
-            getPromoCodesUseCase(
-                sortBy = sortBy,
+    private fun loadBanners() {
+        viewModelScope.launch {
+            val result = getBannersUseCase(limit = DEFAULT_PAGE_SIZE).first()
+            _uiState.update { state ->
+                state.copy(
+                    bannerState = when (result) {
+                        is Result.Loading -> BannerState.Loading
+                        is Result.Success -> BannerState.Success(result.data)
+                        is Result.Error -> BannerState.Error(
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = result.exception.isRetryable(),
+                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                            errorCode = result.exception.getErrorCode(),
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun loadPromoCodes(paginationRequest: PaginationRequest) {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            val filters = currentState.currentFilters
+            val isLoadMore = paginationRequest.cursor != null
+
+            // Set the appropriate loading state immediately
+            _uiState.update { state ->
+                if (isLoadMore) {
+                    state.copy(isLoadingMore = true)
+                } else {
+                    state.copy(promoCodeState = PromoCodeState.Loading)
+                }
+            }
+
+            val result = getPromoCodesUseCase(
+                sortBy = (filters.sortFilter as SortFilter.Selected).sortBy,
                 filterByCategories = when (filters.categoryFilter) {
                     CategoryFilter.All -> null
                     is CategoryFilter.Selected -> filters.categoryFilter.categories.toList()
@@ -107,659 +156,290 @@ class HomeViewModel @Inject constructor(
                     ServiceFilter.All -> null
                     is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
                 },
-                paginationRequest = PaginationRequest.firstPage(pageSize),
-            ).collect { result ->
+                paginationRequest = paginationRequest,
+            ).first()
+
+            // Update the state based on the final result, clearing the loading flag
+            _uiState.update { state ->
                 when (result) {
-                    is Result.Loading -> {
-                        Timber.d("HomeViewModel: Loading promo codes with filters")
-                    }
                     is Result.Success -> {
-                        Timber.d("HomeViewModel: Successfully loaded ${result.data.data.size} promo codes with filters")
-                        currentSortBy = sortBy
-                        currentCursor = result.data.nextCursor
-                        updateSuccessState(
-                            promoCodes = result.data.data,
-                            banners = banners,
-                            hasMore = result.data.hasMore,
-                        )
-                        success = true
-                        return@collect
+                        val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
+                        updatedState.copy(isLoadingMore = false)
                     }
                     is Result.Error -> {
-                        Timber.w("HomeViewModel: Error loading promo codes with filters: ${result.exception}")
-                        _uiState.value = HomeUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = true,
-                            shouldShowSnackbar = true,
-                            errorCode = null,
-                        )
-                        return@collect
+                        val updatedState = handlePromoCodesError(result, isLoadMore, state)
+                        updatedState.copy(isLoadingMore = false)
                     }
+                    else -> state // The Loading case will not be reached due to .first()
                 }
             }
-        } catch (e: Exception) {
-            Timber.e("HomeViewModel: Exception loading promo codes with filters: $e")
-            _uiState.value = HomeUiState.Error(
-                errorType = e.toErrorType(),
-                isRetryable = true,
-                shouldShowSnackbar = true,
-                errorCode = null,
+        }
+    }
+
+    private fun loadInitialPage() {
+        loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
+    }
+
+    private fun loadNextPage() {
+        val currentState = _uiState.value
+        val promoState = currentState.promoCodeState
+        if (promoState !is PromoCodeState.Success || !promoState.hasMore || currentState.isLoadingMore) {
+            return
+        }
+
+        val cursor = promoState.nextCursor ?: return
+        loadPromoCodes(PaginationRequest.nextPage(cursor, DEFAULT_PAGE_SIZE))
+    }
+
+    private fun handlePromoCodesSuccess(
+        paginatedResult: PaginatedResult<PromoCode>,
+        isLoadMore: Boolean,
+        currentState: HomeUiState
+    ): HomeUiState =
+        if (isLoadMore) {
+            val currentPromoCodes = (currentState.promoCodeState as? PromoCodeState.Success)?.promoCodes ?: emptyList()
+            currentState.copy(
+                promoCodeState = PromoCodeState.Success(
+                    promoCodes = currentPromoCodes + paginatedResult.data,
+                    hasMore = paginatedResult.hasMore,
+                    nextCursor = paginatedResult.nextCursor,
+                ),
+            )
+        } else {
+            currentState.copy(
+                promoCodeState = if (paginatedResult.data.isNotEmpty()) {
+                    PromoCodeState.Success(
+                        promoCodes = paginatedResult.data,
+                        hasMore = paginatedResult.hasMore,
+                        nextCursor = paginatedResult.nextCursor,
+                    )
+                } else {
+                    PromoCodeState.Empty
+                },
             )
         }
-    }
 
-    private suspend fun loadPromoCodesWithFallback(banners: List<Banner> = emptyList()) {
-        suspend fun loadWithSort(sortBy: PromoCodeSortBy): Boolean {
-            try {
-                var success = false
-                getPromoCodesUseCase(
-                    sortBy = sortBy,
-                    paginationRequest = PaginationRequest.firstPage(pageSize),
-                ).collect { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            Timber.d("HomeViewModel: Loading promo codes with sort $sortBy")
-                        }
-                        is Result.Success -> {
-                            if (result.data.data.isNotEmpty()) {
-                                Timber.d("HomeViewModel: Successfully loaded ${result.data.data.size} promo codes with $sortBy")
-                                currentSortBy = sortBy
-                                currentCursor = result.data.nextCursor
-                                updateSuccessState(
-                                    promoCodes = result.data.data,
-                                    banners = banners,
-                                    hasMore = result.data.hasMore,
-                                )
-                                success = true
-                            } else {
-                                Timber.w("HomeViewModel: No promo codes returned for sort $sortBy")
-                            }
-                            return@collect
-                        }
-                        is Result.Error -> {
-                            Timber.w("HomeViewModel: Error loading promo codes with $sortBy: ${result.exception}")
-                            return@collect
-                        }
-                    }
-                }
-                return success
-            } catch (e: Exception) {
-                Timber.e("HomeViewModel: Exception loading promo codes with $sortBy: $e")
-                return false
-            }
-        }
-
-        Timber.d("HomeViewModel: Starting promo code loading with ${banners.size} banners")
-
-        // Load with POPULARITY sorting (now optimized with voteScore and caching)
-        if (!loadWithSort(PromoCodeSortBy.POPULARITY)) {
-            Timber.e("HomeViewModel: Failed to load promo codes with popularity sorting")
-            _uiState.value = HomeUiState.Error(
-                errorType = Exception("Failed to load promo codes").toErrorType(),
-                isRetryable = true,
-                shouldShowSnackbar = true,
-                errorCode = null,
+    private fun handlePromoCodesError(
+        result: Result.Error,
+        isLoadMore: Boolean,
+        currentState: HomeUiState
+    ): HomeUiState =
+        if (isLoadMore) {
+            // For load more errors, keep existing data but stop loading
+            currentState
+        } else {
+            currentState.copy(
+                promoCodeState = PromoCodeState.Error(
+                    errorType = result.exception.toErrorType(),
+                    isRetryable = result.exception.isRetryable(),
+                    shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                    errorCode = result.exception.getErrorCode(),
+                ),
             )
         }
-    }
-
-    private fun updateSuccessState(
-        promoCodes: List<PromoCode>,
-        banners: List<Banner> = emptyList(),
-        hasMore: Boolean = false
-    ) {
-        // Preserve existing state - don't reset it
-        val currentState = _uiState.value as? HomeUiState.Success
-        Timber.d("Success: ${promoCodes.size} promo codes, ${banners.size} banners")
-        _uiState.value = HomeUiState.Success(
-            banners = banners,
-            promoCodes = promoCodes,
-            hasMorePromoCodes = hasMore,
-            availableServices = currentState?.availableServices ?: emptyList(),
-            popularServices = currentState?.popularServices ?: emptyList(),
-            serviceSearchResults = currentState?.serviceSearchResults ?: emptyList(),
-            isSearchingServices = currentState?.isSearchingServices ?: false,
-            currentFilters = currentState?.currentFilters ?: FilterState(),
-            activeFilterDialog = currentState?.activeFilterDialog,
-        )
-    }
-
-    private fun loadHomeData(isRefresh: Boolean = false) {
-        viewModelScope.launch {
-            val currentState = _uiState.value
-            _uiState.value = if (isRefresh) {
-                HomeUiState.Refreshing(
-                    previousData = if (currentState is HomeUiState.Success) currentState else null,
-                )
-            } else {
-                HomeUiState.Loading
-            }
-
-            // Reset pagination state on refresh
-            if (isRefresh) {
-                currentCursor = null
-                currentSortBy = PromoCodeSortBy.POPULARITY
-            }
-
-            loadBannersAndPromoCodes()
-        }
-    }
-
-    private suspend fun loadBannersAndPromoCodes() {
-        withContext(Dispatchers.IO) {
-            var banners = emptyList<Banner>()
-
-            // Load banners first
-            // Fixed: Use firstOrNull instead of first() to wait for actual data, not just Result.Loading from asResult()
-            // Issue: first() was capturing Result.Loading immediately and terminating flow before Firebase query executed
-            Timber.d("HomeViewModel: About to start loading banners")
-            try {
-                Timber.d("HomeViewModel: Calling getBannersUseCase().firstOrNull { it !is Result.Loading }")
-                val bannersResult = getBannersUseCase(limit = 10).firstOrNull { it !is Result.Loading } ?: Result.Loading
-                Timber.d("HomeViewModel: getBannersUseCase() completed with result: $bannersResult")
-                when (bannersResult) {
-                    is Result.Loading -> {
-                        Timber.d("HomeViewModel: Loading banners")
-                    }
-                    is Result.Success -> {
-                        banners = bannersResult.data
-                        Timber.d("HomeViewModel: Loaded ${banners.size} banners successfully")
-                    }
-                    is Result.Error -> {
-                        Timber.w("HomeViewModel: Banner loading failed: ${bannersResult.exception}")
-                        banners = emptyList()
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.w("HomeViewModel: Banner loading failed with exception: $e")
-                banners = emptyList()
-            }
-            Timber.d("HomeViewModel: Banner loading phase complete, banners.size = ${banners.size}")
-
-            Timber.d("HomeViewModel: Got ${banners.size} banners, loading promo codes")
-            loadPromoCodesWithFallback(banners)
-        }
-    }
 
     private fun emitEvent(event: HomeEvent) {
-        viewModelScope.launch {
-            _events.emit(event)
+        val success = _events.tryEmit(event)
+        if (!success) {
+            // Fallback to coroutine if buffer is full (unlikely but safer)
+            viewModelScope.launch {
+                _events.emit(event)
+            }
         }
     }
 
     private fun onBannerClicked(banner: Banner) {
-        analyticsHelper.logEvent(
-            AnalyticsEvent(
-                type = AnalyticsEvent.Types.SELECT_CONTENT,
-                extras = listOf(
-                    AnalyticsEvent.Param("content_type", "banner"),
-                    AnalyticsEvent.Param("item_id", banner.id.value),
-                ),
-            ),
-        )
-
+        logBannerAnalytics(banner)
         emitEvent(HomeEvent.BannerDetailRequested(banner))
     }
 
     private fun onPromoCodeClicked(promoCode: PromoCode) {
-        analyticsHelper.logPromoCodeView(
-            promocodeId = promoCode.id.value,
-            promocodeType = when (promoCode) {
-                is PromoCode.PercentagePromoCode -> "percentage"
-                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-            },
-        )
-
+        logPromoCodeViewAnalytics(promoCode)
         emitEvent(HomeEvent.PromoCodeDetailRequested(promoCode))
     }
 
-    private fun onUpvotePromoCode(promoCodeId: String) {
-        voteOnPromoCode(promoCodeId, isUpvote = true)
-    }
-
-    private fun onDownvotePromoCode(promoCodeId: String) {
-        voteOnPromoCode(promoCodeId, isUpvote = false)
-    }
-
-    private fun voteOnPromoCode(
-        promoCodeId: String,
-        isUpvote: Boolean
-    ) {
-        val currentState = _uiState.value
-        if (currentState !is HomeUiState.Success) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            // Optimistic update
-            val wasVoted = false // TODO: track user votes
-            val updatedPromoCodes = currentState.promoCodes.map { promoCode ->
-                if (promoCode.id.value == promoCodeId) {
-                    val delta = if (wasVoted) -1 else 1
-                    when (promoCode) {
-                        is PromoCode.PercentagePromoCode -> promoCode.copy(
-                            upvotes = if (isUpvote) promoCode.upvotes + delta else promoCode.upvotes,
-                            downvotes = if (!isUpvote) promoCode.downvotes + delta else promoCode.downvotes,
-                        )
-                        is PromoCode.FixedAmountPromoCode -> promoCode.copy(
-                            upvotes = if (isUpvote) promoCode.upvotes + delta else promoCode.upvotes,
-                            downvotes = if (!isUpvote) promoCode.downvotes + delta else promoCode.downvotes,
-                        )
-                    }
-                } else {
-                    promoCode
-                }
-            }
-
-            _uiState.value = currentState.copy(promoCodes = updatedPromoCodes)
-
-            try {
-                voteOnPromoCodeUseCase(
-                    promoCodeId = PromoCodeId(promoCodeId),
-                    userId = UserId("current_user"), // TODO: Get actual user ID
-                    isUpvote = isUpvote,
-                ).collect {
-                    analyticsHelper.logVote(
-                        promocodeId = promoCodeId,
-                        voteType = if (isUpvote) "upvote" else "downvote",
-                    )
-                }
-            } catch (e: Exception) {
-                // Revert on error
-                _uiState.value = currentState
-            }
-        }
-    }
-
     private fun onCopyPromoCode(promoCode: PromoCode) {
-        // TODO: Copy to clipboard
-        // clipboardRepository.copyToClipboard(promoCode.code)
-
-        analyticsHelper.logEvent(
-            AnalyticsEvent(
-                type = "copy_promocode",
-                extras = listOf(
-                    AnalyticsEvent.Param("promocode_id", promoCode.id.value),
-                    AnalyticsEvent.Param(
-                        "promocode_type",
-                        when (promoCode) {
-                            is PromoCode.PercentagePromoCode -> "percentage"
-                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-                        },
-                    ),
-                ),
-            ),
-        )
-
+        // Note: Clipboard functionality not yet implemented
+        logPromoCodeCopyAnalytics(promoCode)
         emitEvent(HomeEvent.PromoCodeCopied(promoCode))
     }
 
-    private fun loadMorePromoCodes() {
-        val currentState = _uiState.value
-        if (currentState !is HomeUiState.Success) return
-        if (currentState.isLoadingMore || !currentState.hasMorePromoCodes) return
+    // MARK: - Analytics Helpers
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _uiState.value = currentState.copy(isLoadingMore = true)
-
-                Timber.d("HomeViewModel: Loading more promo codes with cursor=${currentCursor?.documentId}, sortBy=$currentSortBy")
-
-                val paginationRequest = if (currentCursor != null) {
-                    PaginationRequest.nextPage(currentCursor!!, pageSize)
-                } else {
-                    PaginationRequest.firstPage(pageSize)
-                }
-
-                val filters = currentState.currentFilters
-                getPromoCodesUseCase(
-                    sortBy = (filters.sortFilter as SortFilter.Selected).sortBy,
-                    filterByCategories = when (filters.categoryFilter) {
-                        CategoryFilter.All -> null
-                        is CategoryFilter.Selected -> filters.categoryFilter.categories.toList()
-                    },
-                    filterByServices = when (filters.serviceFilter) {
-                        ServiceFilter.All -> null
-                        is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
-                    },
-                    paginationRequest = paginationRequest,
-                ).collect { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            Timber.d("HomeViewModel: Loading more promo codes...")
-                        }
-                        is Result.Success -> {
-                            val paginatedResult = result.data
-                            val morePromoCodes = paginatedResult.data
-                            Timber.d("HomeViewModel: Loaded ${morePromoCodes.size} more promo codes")
-
-                            // Update cursor for next pagination
-                            currentCursor = paginatedResult.nextCursor
-
-                            _uiState.value = currentState.copy(
-                                isLoadingMore = false,
-                                promoCodes = currentState.promoCodes + morePromoCodes,
-                                hasMorePromoCodes = paginatedResult.hasMore,
-                            )
-                            return@collect
-                        }
-                        is Result.Error -> {
-                            Timber.w("HomeViewModel: Error loading more promo codes: ${result.exception}")
-                            _uiState.value = currentState.copy(isLoadingMore = false)
-                            return@collect
-                        }
-                    }
-                }
-            } catch (exception: Exception) {
-                Timber.e("HomeViewModel: Exception loading more promo codes: $exception")
-                _uiState.value = currentState.copy(isLoadingMore = false)
-            }
-        }
+    private fun logBannerAnalytics(banner: Banner) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = AnalyticsEvent.Types.SELECT_CONTENT,
+                extras = listOf(
+                    AnalyticsEvent.Param("content_type", CONTENT_TYPE_BANNER),
+                    AnalyticsEvent.Param("item_id", banner.id.value),
+                ),
+            ),
+        )
     }
 
+    private fun logPromoCodeViewAnalytics(promoCode: PromoCode) {
+        analyticsHelper.logPromoCodeView(
+            promocodeId = promoCode.id.value,
+            promocodeType = promoCode.getAnalyticsType(),
+        )
+    }
+
+    private fun logPromoCodeCopyAnalytics(promoCode: PromoCode) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = EVENT_COPY_PROMOCODE,
+                extras = listOf(
+                    AnalyticsEvent.Param("promocode_id", promoCode.id.value),
+                    AnalyticsEvent.Param("promocode_type", promoCode.getAnalyticsType()),
+                ),
+            ),
+        )
+    }
+
+    private fun PromoCode.getAnalyticsType(): String =
+        when (this) {
+            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
+            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
+        }
+
     private fun dismissError() {
-        // Return to loading state to retry
-        _uiState.value = HomeUiState.Loading
+        loadHomeData()
+    }
+
+    // MARK: - Specific Error Recovery Methods
+
+    private fun retryBanners() {
+        Logger.d("HomeViewModel: Retrying banner load")
+        loadBanners()
+    }
+
+    private fun retryPromoCodes() {
+        Logger.d("HomeViewModel: Retrying promo codes load")
+        loadInitialPage()
+    }
+
+    private fun retryServices() {
+        Logger.d("HomeViewModel: Retrying services load")
+        searchServices("")
     }
 
     // MARK: - Filter Actions
 
     private fun showFilterDialog(type: FilterDialogType) {
-        Timber.d("HomeViewModel: showFilterDialog called with type: $type")
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            _uiState.value = currentState.copy(activeFilterDialog = type)
+        _uiState.update { state ->
+            state.copy(activeFilterDialog = type)
+        }
 
-            // Load popular services when service dialog is opened
-            if (type == FilterDialogType.Service) {
-                Timber.d("HomeViewModel: Service dialog opened, loading popular services")
-                loadPopularServicesIfNeeded()
+        // Load popular services when service dialog is opened
+        if (type == FilterDialogType.Service) {
+            viewModelScope.launch {
+                searchQueryFlow.emit("") // Trigger popular services loading
             }
         }
     }
 
     private fun dismissFilterDialog() {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            _uiState.value = currentState.copy(activeFilterDialog = null)
+        _uiState.update { state ->
+            state.copy(activeFilterDialog = null)
         }
     }
 
     private fun applyCategoryFilter(categoryFilter: CategoryFilter) {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            // Mutually exclusive: clear service when category is selected
-            val newFilters = currentState.currentFilters.copy(
-                categoryFilter = categoryFilter,
-                serviceFilter = if (categoryFilter !is CategoryFilter.All) ServiceFilter.All else currentState.currentFilters.serviceFilter,
-            )
-
-            // Reset pagination
-            currentCursor = null
-
-            // Update filters immediately and show loading state
-            _uiState.value = currentState.copy(
-                currentFilters = newFilters,
-                promoCodes = emptyList(),
-            )
-
-            // Reload data with new category filter
-            viewModelScope.launch {
-                loadPromoCodesWithFilters(currentState.banners, newFilters)
-            }
-
-            // Log analytics
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "filter_applied",
-                    extras = listOf(
-                        AnalyticsEvent.Param("filter_type", "category"),
-                        AnalyticsEvent.Param(
-                            "filter_value",
-                            when (categoryFilter) {
-                                CategoryFilter.All -> "all"
-                                is CategoryFilter.Selected -> categoryFilter.categories.firstOrNull() ?: "unknown"
-                            },
-                        ),
-                    ),
-                ),
-            )
+        applyFilterChange { currentFilters ->
+            filterStateManager.applyCategoryFilter(currentFilters, categoryFilter)
         }
     }
 
     private fun applyServiceFilter(serviceFilter: ServiceFilter) {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            // Mutually exclusive: clear category when service is selected
-            val newFilters = currentState.currentFilters.copy(
-                serviceFilter = serviceFilter,
-                categoryFilter = if (serviceFilter !is ServiceFilter.All) {
-                    CategoryFilter.All
-                } else {
-                    currentState.currentFilters.categoryFilter
-                },
-            )
-
-            // Reset pagination
-            currentCursor = null
-
-            // Update filters immediately and show loading state
-            _uiState.value = currentState.copy(
-                currentFilters = newFilters,
-                promoCodes = emptyList(),
-            )
-
-            // Reload data with new service filter
-            viewModelScope.launch {
-                loadPromoCodesWithFilters(currentState.banners, newFilters)
-            }
-
-            // Log analytics
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "filter_applied",
-                    extras = listOf(
-                        AnalyticsEvent.Param("filter_type", "service"),
-                        AnalyticsEvent.Param(
-                            "filter_value",
-                            when (serviceFilter) {
-                                ServiceFilter.All -> "all"
-                                is ServiceFilter.Selected -> serviceFilter.services.firstOrNull()?.name ?: "unknown"
-                            },
-                        ),
-                    ),
-                ),
-            )
+        applyFilterChange { currentFilters ->
+            filterStateManager.applyServiceFilter(currentFilters, serviceFilter)
         }
     }
 
     private fun applySortFilter(sortFilter: SortFilter) {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            val sortBy = (sortFilter as SortFilter.Selected).sortBy
-            val newFilters = currentState.currentFilters.copy(sortFilter = sortFilter)
-
-            // Update current sort and reset pagination
-            currentSortBy = sortBy
-            currentCursor = null
-
-            // Update filters immediately and show loading state
-            _uiState.value = currentState.copy(
-                currentFilters = newFilters,
-                promoCodes = emptyList(),
-            )
-
-            // Reload data with new sort criteria using filters to preserve other active filters
-            viewModelScope.launch {
-                loadPromoCodesWithFilters(currentState.banners, newFilters)
-            }
-
-            // Log analytics
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "filter_applied",
-                    extras = listOf(
-                        AnalyticsEvent.Param("filter_type", "sort"),
-                        AnalyticsEvent.Param("filter_value", sortBy.name.lowercase()),
-                    ),
-                ),
-            )
+        applyFilterChange { currentFilters ->
+            filterStateManager.applySortFilter(currentFilters, sortFilter)
         }
     }
 
+    private inline fun applyFilterChange(filterChange: (FilterState) -> FilterState) {
+        val currentFilters = _uiState.value.currentFilters
+        val newFilters = filterChange(currentFilters)
+        applyFilters(newFilters)
+    }
+
     private fun resetFilters() {
-        val currentState = _uiState.value
-        if (currentState is HomeUiState.Success) {
-            // Reset sort criteria and pagination
-            currentSortBy = PromoCodeSortBy.POPULARITY
-            currentCursor = null
+        val resetFilters = filterStateManager.resetFilters()
+        applyFilters(resetFilters)
+    }
 
-            // Immediately clear filters and show loading state with existing banners
-            _uiState.value = currentState.copy(
-                currentFilters = FilterState(),
-                promoCodes = emptyList(),
-            )
+    private fun applyFilters(newFilters: FilterState) {
+        if (!filterStateManager.validateFilters(newFilters)) {
+            return
+        }
 
-            // Reload data with default settings
-            viewModelScope.launch {
-                loadPromoCodesWithFallback(currentState.banners)
-            }
-
-            // Log analytics
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "filters_reset",
-                    extras = emptyList(),
-                ),
+        _uiState.update {
+            it.copy(
+                currentFilters = newFilters,
+                promoCodeState = PromoCodeState.Loading,
             )
         }
+
+        loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
     // MARK: - Helper Functions
 
-    private fun searchServices(query: String) {
-        val currentState = _uiState.value
-        if (currentState !is HomeUiState.Success) return
-
-        if (query.length < 2) {
-            // Clear search results for short queries
-            _uiState.value = currentState.copy(
-                serviceSearchResults = emptyList(),
-                isSearchingServices = false,
-            )
-            return
-        }
-
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    private fun setupServiceSearch() {
         viewModelScope.launch {
-            try {
-                _uiState.value = currentState.copy(isSearchingServices = true)
-
-                val searchResult = searchServicesUseCase(query = query, limit = 20).first()
-
-                when (searchResult) {
-                    is Result.Success -> {
-                        _uiState.value = currentState.copy(
-                            serviceSearchResults = searchResult.data,
-                            isSearchingServices = false,
-                        )
-                    }
-                    is Result.Error -> {
-                        Timber.e("Error searching services: ${searchResult.exception}")
-                        _uiState.value = currentState.copy(
-                            serviceSearchResults = emptyList(),
-                            isSearchingServices = false,
-                        )
-                    }
-                    is Result.Loading -> {
-                        // Keep loading state
+            searchQueryFlow
+                .distinctUntilChanged()
+                .debounce(SEARCH_DEBOUNCE_MILLIS)
+                .flatMapLatest { query ->
+                    when {
+                        // Load popular services for empty query (when dialog opens)
+                        query.isEmpty() -> getPopularServicesUseCase(limit = DEFAULT_PAGE_SIZE)
+                        // Emit empty state for short queries
+                        query.length < MIN_SEARCH_QUERY_LENGTH -> flowOf(Result.Success(emptyList()))
+                        // Perform search for valid queries
+                        else -> searchServicesUseCase(query = query, limit = DEFAULT_PAGE_SIZE)
                     }
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "Error in searchServices")
-                _uiState.value = currentState.copy(
-                    serviceSearchResults = emptyList(),
-                    isSearchingServices = false,
-                )
-            }
+                .collect { result ->
+                    _uiState.update { state ->
+                        state.copy(
+                            serviceSearchState = when (result) {
+                                is Result.Loading -> ServiceSearchState.Loading
+                                is Result.Success -> {
+                                    if (result.data.isEmpty()) {
+                                        ServiceSearchState.Empty
+                                    } else {
+                                        ServiceSearchState.Success(result.data)
+                                    }
+                                }
+                                is Result.Error -> ServiceSearchState.Error(
+                                    errorType = result.exception.toErrorType(),
+                                    isRetryable = result.exception.isRetryable(),
+                                    shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                    errorCode = result.exception.getErrorCode(),
+                                )
+                            },
+                        )
+                    }
+                }
         }
     }
 
-    private fun loadPopularServicesIfNeeded() {
-        val currentState = _uiState.value as? HomeUiState.Success ?: return
-
-        Timber.d("HomeViewModel: loadPopularServicesIfNeeded - current popular services count: ${currentState.popularServices.size}")
-
-        // Only load if we don't have popular services yet
-        if (currentState.popularServices.isEmpty()) {
-            Timber.d("HomeViewModel: Popular services empty, starting to load...")
-            viewModelScope.launch {
-                try {
-                    Timber.d("HomeViewModel: Calling getPopularServicesUseCase...")
-                    // Use firstOrNull to skip Result.Loading and get actual data
-                    val servicesResult = getPopularServicesUseCase(limit = 20).firstOrNull { it !is Result.Loading } ?: Result.Loading
-                    Timber.d("HomeViewModel: getPopularServicesUseCase result: $servicesResult")
-                    when (servicesResult) {
-                        is Result.Success -> {
-                            Timber.d("HomeViewModel: Loaded ${servicesResult.data.size} popular services")
-                            if (servicesResult.data.isEmpty()) {
-                                Timber.w("HomeViewModel: Popular services query returned empty - trying fallback")
-                                // Fallback: try to load any services without sorting
-                                try {
-                                    val fallbackResult = searchServicesUseCase(query = "", limit = 20).first()
-                                    when (fallbackResult) {
-                                        is Result.Success -> {
-                                            Timber.d("HomeViewModel: Fallback loaded ${fallbackResult.data.size} services")
-                                            fallbackResult.data.forEachIndexed { index, service ->
-                                                Timber.d(
-                                                    "HomeViewModel: Fallback service " +
-                                                        "$index: ${service.name} (${service.promoCodeCount} codes)",
-                                                )
-                                            }
-                                            _uiState.value = currentState.copy(
-                                                popularServices = fallbackResult.data,
-                                            )
-                                        }
-                                        else -> Timber.w("HomeViewModel: Fallback also failed: $fallbackResult")
-                                    }
-                                } catch (e: Exception) {
-                                    Timber.w("HomeViewModel: Fallback failed: $e")
-                                }
-                            } else {
-                                servicesResult.data.forEachIndexed { index, service ->
-                                    Timber.d("HomeViewModel: Popular service $index: ${service.name} (${service.promoCodeCount} codes)")
-                                }
-                                _uiState.value = currentState.copy(
-                                    popularServices = servicesResult.data,
-                                )
-                            }
-                        }
-                        is Result.Error -> {
-                            Timber.w("HomeViewModel: Popular services loading failed: ${servicesResult.exception}")
-                            // Fallback: try to load any services without sorting
-                            Timber.d("HomeViewModel: Trying fallback - loading services without promoCodeCount sorting...")
-                            try {
-                                val fallbackResult = searchServicesUseCase(query = "", limit = 20).first()
-                                when (fallbackResult) {
-                                    is Result.Success -> {
-                                        Timber.d("HomeViewModel: Fallback loaded ${fallbackResult.data.size} services")
-                                        _uiState.value = currentState.copy(
-                                            popularServices = fallbackResult.data,
-                                        )
-                                    }
-                                    else -> Timber.w("HomeViewModel: Fallback also failed: $fallbackResult")
-                                }
-                            } catch (e: Exception) {
-                                Timber.w("HomeViewModel: Fallback failed: $e")
-                            }
-                        }
-                        is Result.Loading -> {
-                            Timber.d("HomeViewModel: Popular services still loading...")
-                        }
-                    }
-                } catch (e: Exception) {
-                    Timber.w("HomeViewModel: Popular services loading failed: $e")
-                }
-            }
-        } else {
-            Timber.d("HomeViewModel: Popular services already loaded, skipping")
+    private fun searchServices(query: String) {
+        viewModelScope.launch {
+            searchQueryFlow.emit(query)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Logger.d("HomeViewModel: Clearing resources")
     }
 }
