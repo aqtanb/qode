@@ -19,6 +19,7 @@ import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
+import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
 import com.qodein.feature.promocode.navigation.SubmissionRoute
 import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
@@ -122,6 +123,14 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
     val isSettingsScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<SettingsRoute>() == true
+        }
+
+    /**
+     * Check if current destination is the promocode detail screen
+     */
+    val isPromocodeDetailScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<PromocodeDetailRoute>() == true
         }
 
     val isAuthScreen: Boolean

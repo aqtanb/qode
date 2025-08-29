@@ -1,5 +1,6 @@
 package com.qodein.core.data.datasource
 
+import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -91,23 +92,19 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 filterByCategory = filterByCategories?.joinToString(","),
                 isFirstPage = true,
             )?.let { cachedResult ->
-                Timber.tag(TAG).d("getPromoCodes: Returning cached result (${cachedResult.data.size} items)")
+                Logger.d { "Returning cached result for promo codes (${cachedResult.data.size} items)" }
                 return cachedResult
             }
         }
 
-        Timber.tag(
-            TAG,
-        ).d(
-            "getPromoCodes: Starting query with sortBy=$sortBy, limit=${paginationRequest.limit}, cursor=${paginationRequest.cursor?.documentId}",
-        )
+        Logger.d {
+            "Starting promo code query: sortBy=$sortBy, limit=${paginationRequest.limit}, cursor=${paginationRequest.cursor?.documentId}"
+        }
         var firestoreQuery: Query = firestore.collection(PROMOCODES_COLLECTION)
 
         // Apply filters
         query?.let { searchQuery ->
             if (searchQuery.isNotBlank()) {
-                // Firestore text search is limited, this is a basic implementation
-                // For better search, consider using Algolia or similar
                 firestoreQuery = firestoreQuery
                     .whereGreaterThanOrEqualTo("code", searchQuery.uppercase())
                     .whereLessThanOrEqualTo("code", searchQuery.uppercase() + "\uf8ff")
@@ -137,7 +134,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         // Apply sorting
         firestoreQuery = when (sortBy) {
             PromoCodeSortBy.POPULARITY -> {
-                // Sort by vote score (upvotes - downvotes) - requires composite index
                 firestoreQuery.orderBy("voteScore", Query.Direction.DESCENDING)
             }
             PromoCodeSortBy.NEWEST -> {
@@ -148,61 +144,42 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
-        // Apply cursor-based pagination (Firebase best practice)
+        // Apply cursor-based pagination
         paginationRequest.cursor?.let { cursor ->
-            // Use startAfter with field values to avoid extra document read
             cursor.sortFieldValue?.let { sortValue ->
-                firestoreQuery = when (sortBy) {
-                    PromoCodeSortBy.POPULARITY -> {
-                        firestoreQuery.startAfter(sortValue)
-                    }
-                    PromoCodeSortBy.NEWEST -> {
-                        firestoreQuery.startAfter(sortValue)
-                    }
-                    PromoCodeSortBy.EXPIRING_SOON -> {
-                        firestoreQuery.startAfter(sortValue)
-                    }
-                }
-                Timber.tag(TAG).d("getPromoCodes: Applied cursor startAfter with sortValue=$sortValue")
+                firestoreQuery = firestoreQuery.startAfter(sortValue)
+                Logger.d { "Applied cursor with sortValue=$sortValue" }
             } ?: run {
-                Timber.tag(TAG).w("getPromoCodes: Cursor missing sortFieldValue, skipping pagination")
+                Logger.w { "Cursor missing sortFieldValue, skipping pagination" }
             }
         }
 
         // Apply limit
         firestoreQuery = firestoreQuery.limit(paginationRequest.limit.toLong())
 
-        Timber.tag(TAG).d("getPromoCodes: Executing Firestore query...")
+        Logger.d { "Executing Firestore query..." }
         val querySnapshot = firestoreQuery.get().await()
-        Timber.tag(TAG).d("getPromoCodes: Query returned ${querySnapshot.documents.size} documents")
+        Logger.d { "Query returned ${querySnapshot.documents.size} documents" }
 
         val documents = querySnapshot.documents
 
         val results = documents.mapNotNull { document ->
             try {
-                Timber.tag(TAG).d("getPromoCodes: Processing document ${document.id}")
-                Timber.tag(TAG).d("  Document data: ${document.data}")
-
                 val dto = document.toObject<PromoCodeDto>()
                 if (dto == null) {
-                    Timber.tag(TAG).w("getPromoCodes: Document ${document.id} failed to convert to DTO")
+                    Logger.w { "Document ${document.id} failed to convert to DTO" }
                     return@mapNotNull null
                 }
 
-                Timber.tag(TAG).d("  DTO: code=${dto.code}, type=${dto.type}, title=${dto.title}")
-                Timber.tag(TAG).d("  Dates: start=${dto.startDate}, end=${dto.endDate}")
-
                 val domainModel = PromoCodeMapper.toDomain(dto)
-                Timber.tag(TAG).d("  Successfully converted to domain model: ${domainModel.code}")
+                Logger.d { "Successfully parsed document ${document.id}" }
                 domainModel
             } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "getPromoCodes: Failed to parse document ${document.id}")
-                Timber.tag(TAG).e("  Document data: ${document.data}")
+                Logger.e(e) { "Failed to parse document ${document.id}" }
                 null
             }
         }
 
-        // Create next cursor from the last document if available
         val nextCursor = if (documents.isNotEmpty() && results.size == paginationRequest.limit) {
             val lastDoc = documents.last()
             val sortFieldValue = when (sortBy) {
@@ -220,11 +197,12 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
 
         val hasMore = results.size == paginationRequest.limit
 
-        Timber.tag(TAG).d("getPromoCodes: Successfully parsed ${results.size} promo codes")
+        Logger.d { "Successfully loaded ${results.size} promo codes" }
         results.forEachIndexed { index, promoCode ->
-            Timber.tag(TAG).d("  [$index] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})")
+            // The index here is relative to the current page, not the total count
+            Logger.d { "  [${index + 1}] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})" }
         }
-        Timber.tag(TAG).d("getPromoCodes: hasMore=$hasMore, nextCursor=${nextCursor?.documentId}")
+        Logger.d { "hasMore=$hasMore, nextCursor=${nextCursor?.documentId}" }
 
         val result = PaginatedResult.of(
             data = results,
@@ -232,7 +210,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             hasMore = hasMore,
         )
 
-        // Cache first page results for popular queries
         if (isFirstPage && results.isNotEmpty()) {
             queryCache.put(
                 query = query,

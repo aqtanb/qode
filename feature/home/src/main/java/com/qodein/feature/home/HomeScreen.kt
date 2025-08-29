@@ -30,7 +30,6 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.util.CustomTabsUtils
-import com.qodein.feature.home.ui.HomeIconService
 import com.qodein.feature.home.ui.component.DialogCoordinator
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
@@ -50,7 +49,6 @@ fun HomeScreen(
     userLanguage: Language,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    iconService: HomeIconService,
     onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
     onNavigateToBannerDetail: (Banner) -> Unit = {},
     onShowPromoCodeCopied: (PromoCode) -> Unit = {}
@@ -110,7 +108,6 @@ fun HomeScreen(
             HomeContent(
                 uiState = uiState,
                 listState = listState,
-                iconService = iconService,
                 userLanguage = userLanguage,
                 onAction = viewModel::onAction,
             )
@@ -127,7 +124,6 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState,
     listState: LazyListState,
-    iconService: HomeIconService,
     userLanguage: Language,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
@@ -155,7 +151,6 @@ private fun HomeContent(
                 onFilterSelected = { filterType ->
                     onAction(HomeAction.ShowFilterDialog(filterType))
                 },
-                iconService = iconService,
             )
         }
 
@@ -165,7 +160,6 @@ private fun HomeContent(
                 promoCodeState = uiState.promoCodeState,
                 currentFilters = uiState.currentFilters,
                 isLoadingMore = uiState.isLoadingMore,
-                iconService = iconService,
                 onAction = onAction,
             )
         }
@@ -205,7 +199,6 @@ private fun HomeScreenPreview() {
     QodeTheme {
         HomeScreen(
             userLanguage = Language.ENGLISH,
-            iconService = HomeIconService(),
         )
     }
 }

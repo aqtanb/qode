@@ -9,6 +9,7 @@ import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.profile.navigation.profileSection
+import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.submissionSection
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
@@ -31,8 +32,12 @@ fun QodeNavHost(
     ) {
         homeSection(
             userLanguage = userLanguage,
-            onPromoCodeClick = {},
-            promoCodeDetail = {},
+            onPromoCodeClick = { promoCode ->
+                navController.navigateToPromocodeDetail(promoCode.id)
+            },
+            promoCodeDetail = { promoCodeId ->
+                navController.navigateToPromocodeDetail(promoCodeId)
+            },
         )
 
         feedSection()
@@ -64,6 +69,9 @@ fun QodeNavHost(
         submissionSection(
             onNavigateBack = {
                 navController.popBackStack()
+            },
+            onPromoCodeDetail = { promoCodeId ->
+                // Navigate to promo code detail
             },
         )
 

@@ -30,13 +30,13 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.category.CategoryIconHelper
 import com.qodein.feature.home.R
 import com.qodein.feature.home.model.CategoryFilter
 import com.qodein.feature.home.model.FilterDialogType
 import com.qodein.feature.home.model.ServiceFilter
 import com.qodein.feature.home.model.SortFilter
-import com.qodein.feature.home.ui.HomeIconService
-import com.qodein.feature.home.ui.ServiceIconData
+import com.qodein.feature.home.ui.SortIconHelper
 import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 
@@ -48,8 +48,7 @@ import com.qodein.shared.domain.repository.PromoCodeSortBy
 fun FiltersSection(
     currentFilters: FilterState,
     onFilterSelected: (FilterDialogType) -> Unit,
-    modifier: Modifier = Modifier,
-    iconService: HomeIconService? = null
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -70,7 +69,7 @@ fun FiltersSection(
                         is CategoryFilter.Selected -> {
                             when (filter.categories.size) {
                                 0 -> QodeNavigationIcons.Categories
-                                1 -> iconService?.getCategoryIcon(filter.categories.first()) ?: QodeNavigationIcons.Categories
+                                1 -> CategoryIconHelper.getCategoryIcon(filter.categories.first())
                                 else -> QodeNavigationIcons.More
                             }
                         }
@@ -88,8 +87,8 @@ fun FiltersSection(
                         when (filter.services.size) {
                             0 -> Triple(QodeCommerceIcons.Store, null, null)
                             1 -> {
-                                val serviceData = iconService?.getServiceIconData(filter.services.first()) ?: ServiceIconData()
-                                Triple(QodeCommerceIcons.Store, serviceData.logoUrl, serviceData.fallbackText)
+                                val service = filter.services.first()
+                                Triple(QodeCommerceIcons.Store, service.logoUrl, service.name.take(2))
                             }
                             else -> Triple(QodeNavigationIcons.More, null, null)
                         }
@@ -111,7 +110,7 @@ fun FiltersSection(
                 val currentSortBy = (currentFilters.sortFilter as SortFilter.Selected).sortBy
                 FilterChip(
                     nameRes = R.string.filter_chip_sort,
-                    icon = iconService?.getSortIcon(currentSortBy) ?: QodeCommerceIcons.Store,
+                    icon = SortIconHelper.getSortIcon(currentSortBy),
                     onClick = { onFilterSelected(FilterDialogType.Sort) },
                     isSelected = currentSortBy != PromoCodeSortBy.POPULARITY,
                 )

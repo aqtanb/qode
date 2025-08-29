@@ -111,6 +111,8 @@ data class PromoCodeDto(
     val minimumOrderAmount: Double = 0.0,
 
     // User-specific flags (handle both field name variations from Firestore)
+    @get:PropertyName("isFirstUserOnly")
+    @JvmField
     val isFirstUserOnly: Boolean = false,
 
     // Engagement metrics
@@ -124,6 +126,8 @@ data class PromoCodeDto(
     // Media and verification
     val screenshotUrl: String? = null,
     val targetCountries: List<String> = emptyList(),
+    @get:PropertyName("isVerified")
+    @JvmField
     val isVerified: Boolean = false,
 
     // Timestamps
@@ -134,8 +138,16 @@ data class PromoCodeDto(
     val createdBy: String? = null,
 
     // User interaction flags (computed at query time)
+    @get:PropertyName("isUpvotedByCurrentUser")
+    @JvmField
     val isUpvotedByCurrentUser: Boolean = false,
+
+    @get:PropertyName("isDownvotedByCurrentUser")
+    @JvmField
     val isDownvotedByCurrentUser: Boolean = false,
+
+    @get:PropertyName("isBookmarkedByCurrentUser")
+    @JvmField
     val isBookmarkedByCurrentUser: Boolean = false
 ) {
     // Required no-argument constructor for Firestore
@@ -360,6 +372,7 @@ data class BannerDto(
     val ctaTitle: Map<String, String> = emptyMap(),
     val ctaDescription: Map<String, String> = emptyMap(),
     val ctaUrl: String? = null,
+    @PropertyName("isActive")
     val isActive: Boolean = true,
     val priority: Int = 0,
     val createdAt: Timestamp? = null,

@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Qode</string>
+    <string name="home_title">Басты бет</string>
+
+    <string name="catalog_title">Каталог</string>
+    <string name="search_title">Іздеу</string>
+    <string name="inbox_title">Кіріс хабарлар</string>
+    <string name="history_title">Тарих</string>
+    <string name="more_title">Тағы</string>
+
+    <!-- Navigation and UI -->
+    <string name="add">Қосу</string>
+    <string name="profile_title">Профиль</string>
+    <string name="sign_in_title">Кіру</string>
+    <string name="settings">Баптаулар</string>
+    <string name="back">Артқа</string>
+    <string name="favorites">Таңдаулылар</string>
+
+    <!-- Promocode Detail Screen -->
+    <string name="promocode_details_title">Промокод туралы мәліметтер</string>
+    <string name="loading_promocode">Промокод мәліметтері жүктелуде...</string>
+    <string name="failed_load_promocode">Промокод мәліметтерін жүктеу сәтсіз. Қайталап көріңіз.</string>
+    <string name="promocode_statistics">Статистика</string>
+    <string name="promocode_views">Қараулар</string>
+    <string name="promocode_votes">Дауыстар</string>
+    <string name="promocode_shares">Бөлісулер</string>
+    <string name="promocode_details">Промокод мәліметтері</string>
+    <string name="minimum_order">Ең төмен тапсырыс</string>
+    <string name="valid_from">Жарамды басталу күні</string>
+    <string name="valid_until">Жарамды аяқталу күні</string>
+    <string name="availability">Қолжетімділік</string>
+    <string name="first_user_only">Тек жаңа пайдаланушыларға</string>
+    <string name="created">Құрылған</string>
+    <string name="service_information">Сервис туралы ақпарат</string>
+    <string name="follow">Жазылу</string>
+    <string name="following">Жазылған</string>
+    <string name="verified_service">Тексерілген сервис</string>
+    <string name="community_rating">Қауымдастық рейтингі</string>
+    <string name="upvote">Ұнайды</string>
+    <string name="downvote">Ұнамайды</string>
+    <string name="share">Бөлісу</string>
+    <string name="comments">Пікірлер</string>
+    <string name="copy_code">Кодты көшіру</string>
+    <string name="promocode_expired">Бұл промокодтың мерзімі өткен</string>
+    <string name="promocode_not_active">Бұл промокод әлі белсенді емес</string>
+    <string name="promocode_expires_soon">Промокод мерзімі жақында аяқталады</string>
+    <string name="promocode_active">Бұл промокод белсенді</string>
+    <string name="code_copied">Код алмасу буферіне көшірілді!</string>
+    <string name="thanks_upvote">Дауысыңызға рахмет!</string>
+    <string name="thanks_feedback">Пікіріңізге рахмет!</string>
+    <string name="vote_failed">Дауыс беру сәтсіз. Қайталап көріңіз.</string>
+    <string name="voting_failed_connection">Дауыс беру сәтсіз. Интернет байланысын тексеріңіз.</string>
+    <string name="bookmarked">Таңдаулыларға қосылды!</string>
+    <string name="bookmark_removed">Таңдаулылардан алынды</string>
+    <string name="todo_follow_service">TODO: %s-ке жазылу жақында қолжетімді болады!</string>
+    <string name="todo_follow_category">TODO: %s санатына жазылу жақында қолжетімді болады!</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Біз осы функция үстінде жұмыс істеп жатырмыз</string>
+    <string name="coming_soon_description">Сіз бізбен байланысып, біздің прогресімізді мұнда көре аласыз</string>
+</resources>

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +24,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
-import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.shared.model.User
@@ -83,7 +83,7 @@ fun QodeAppTopAppBar(
     user: User? = null,
     navigationIcon: ImageVector? = null,
     onNavigationClick: (() -> Unit)? = null,
-    actions: List<TopAppBarAction> = emptyList(),
+    actions: (@Composable RowScope.() -> Unit)? = null,
     onProfileClick: ((User?) -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
     showProfile: Boolean = true,
@@ -115,7 +115,7 @@ fun QodeAppTopAppBar(
                 title = title,
                 navigationIcon = navigationIcon,
                 onNavigationClick = onNavigationClick,
-                actions = actions,
+                customActions = actions,
                 variant = QodeTopAppBarVariant.CenterAligned,
                 navigationIconTint = MaterialTheme.colorScheme.onSurface,
                 titleColor = MaterialTheme.colorScheme.onSurface,
@@ -155,13 +155,15 @@ fun QodeAppTopAppBar(
                     title = title,
                     navigationIcon = navigationIcon,
                     onNavigationClick = onNavigationClick,
-                    actions = actions,
                     variant = QodeTopAppBarVariant.Transparent,
                     statusBarPadding = true,
                     navigationIconTint = MaterialTheme.colorScheme.onSurface,
                     titleColor = MaterialTheme.colorScheme.onSurface,
                     actionIconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                     customActions = {
+                        // Custom actions from parameter
+                        actions?.invoke(this)
+
                         // Add profile and settings for scroll-aware (Profile screen)
                         if (showProfile && onProfileClick != null) {
                             IconButton(onClick = { onProfileClick(user) }) {

@@ -29,7 +29,7 @@ import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.feature.home.HomeAction
 import com.qodein.feature.home.R
 import com.qodein.feature.home.model.SortFilter
-import com.qodein.feature.home.ui.HomeIconService
+import com.qodein.feature.home.ui.SortIconHelper
 import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.PromoCode
@@ -44,15 +44,14 @@ fun PromocodesSection(
     currentFilters: FilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier,
-    iconService: HomeIconService? = null
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         // Section header for ALL states
         val currentSortBy = (currentFilters.sortFilter as? SortFilter.Selected)?.sortBy
         PromoCodesSectionHeader(
-            titleRes = if (currentSortBy != null && iconService != null) {
-                iconService.getSortSectionTitleRes(currentSortBy)
+            titleRes = if (currentSortBy != null) {
+                SortIconHelper.getSortSectionTitleRes(currentSortBy)
             } else {
                 R.string.home_section_title_popularity
             },
@@ -73,7 +72,6 @@ fun PromocodesSection(
                     currentFilters = currentFilters,
                     isLoadingMore = isLoadingMore,
                     onAction = onAction,
-                    iconService = iconService,
                 )
             }
             PromoCodeState.Empty -> {
@@ -99,11 +97,10 @@ private fun PromoCodeContent(
     currentFilters: FilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier,
-    iconService: HomeIconService? = null
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(top = SpacingTokens.md),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         // Promo codes list

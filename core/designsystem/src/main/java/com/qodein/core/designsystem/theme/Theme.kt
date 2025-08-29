@@ -10,7 +10,16 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 @Immutable
-data class ExtendedColorScheme(val complementary: ColorFamily)
+data class ExtendedColorScheme(
+    val complementary: Color,
+    val onComplementary: Color,
+    val complementaryContainer: Color,
+    val onComplementaryContainer: Color,
+    val success: Color,
+    val onSuccess: Color,
+    val successContainer: Color,
+    val onSuccessContainer: Color
+)
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -26,8 +35,8 @@ private val lightScheme = lightColorScheme(
     onTertiaryContainer = onTertiaryContainerLight,
     error = errorLight,
     onError = onErrorLight,
-    errorContainer = errorContainerDark,
-    onErrorContainer = onErrorContainerDark,
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
     background = backgroundLight,
     onBackground = onBackgroundLight,
     surface = surfaceLight,
@@ -240,73 +249,82 @@ private val highContrastDarkColorScheme = darkColorScheme(
 )
 
 val extendedLight = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryLight,
-        onComplementaryLight,
-        complementaryContainerLight,
-        onComplementaryContainerLight,
-    ),
+    complementary = complementaryLight,
+    onComplementary = onComplementaryLight,
+    complementaryContainer = complementaryContainerLight,
+    onComplementaryContainer = onComplementaryContainerLight,
+    success = successLight,
+    onSuccess = onSuccessLight,
+    successContainer = successContainerLight,
+    onSuccessContainer = onSuccessContainerLight,
 )
 
 val extendedDark = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryDark,
-        onComplementaryDark,
-        complementaryContainerDark,
-        onComplementaryContainerDark,
-    ),
+    complementary = complementaryDark,
+    onComplementary = onComplementaryDark,
+    complementaryContainer = complementaryContainerDark,
+    onComplementaryContainer = onComplementaryContainerDark,
+    success = successDark,
+    onSuccess = onSuccessDark,
+    successContainer = successContainerDark,
+    onSuccessContainer = onSuccessContainerDark,
 )
 
 val extendedLightMediumContrast = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryLightMediumContrast,
-        onComplementaryLightMediumContrast,
-        complementaryContainerLightMediumContrast,
-        onComplementaryContainerLightMediumContrast,
-    ),
+    complementary = complementaryLightMediumContrast,
+    onComplementary = onComplementaryLightMediumContrast,
+    complementaryContainer = complementaryContainerLightMediumContrast,
+    onComplementaryContainer = onComplementaryContainerLightMediumContrast,
+    success = successLight,
+    onSuccess = onSuccessLight,
+    successContainer = successContainerLight,
+    onSuccessContainer = onSuccessContainerLight,
 )
 
 val extendedLightHighContrast = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryLightHighContrast,
-        onComplementaryLightHighContrast,
-        complementaryContainerLightHighContrast,
-        onComplementaryContainerLightHighContrast,
-    ),
+    complementary = complementaryLightHighContrast,
+    onComplementary = onComplementaryLightHighContrast,
+    complementaryContainer = complementaryContainerLightHighContrast,
+    onComplementaryContainer = onComplementaryContainerLightHighContrast,
+    success = successLight,
+    onSuccess = onSuccessLight,
+    successContainer = successContainerLight,
+    onSuccessContainer = onSuccessContainerLight,
 )
 
 val extendedDarkMediumContrast = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryDarkMediumContrast,
-        onComplementaryDarkMediumContrast,
-        complementaryContainerDarkMediumContrast,
-        onComplementaryContainerDarkMediumContrast,
-    ),
+    complementary = complementaryDarkMediumContrast,
+    onComplementary = onComplementaryDarkMediumContrast,
+    complementaryContainer = complementaryContainerDarkMediumContrast,
+    onComplementaryContainer = onComplementaryContainerDarkMediumContrast,
+    success = successDark,
+    onSuccess = onSuccessDark,
+    successContainer = successContainerDark,
+    onSuccessContainer = onSuccessContainerDark,
 )
 
 val extendedDarkHighContrast = ExtendedColorScheme(
-    complementary = ColorFamily(
-        complementaryDarkHighContrast,
-        onComplementaryDarkHighContrast,
-        complementaryContainerDarkHighContrast,
-        onComplementaryContainerDarkHighContrast,
-    ),
-)
-
-@Immutable
-data class ColorFamily(val color: Color, val onColor: Color, val colorContainer: Color, val onColorContainer: Color)
-
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified,
-    Color.Unspecified,
-    Color.Unspecified,
-    Color.Unspecified,
+    complementary = complementaryDarkHighContrast,
+    onComplementary = onComplementaryDarkHighContrast,
+    complementaryContainer = complementaryContainerDarkHighContrast,
+    onComplementaryContainer = onComplementaryContainerDarkHighContrast,
+    success = successDark,
+    onSuccess = onSuccessDark,
+    successContainer = successContainerDark,
+    onSuccessContainer = onSuccessContainerDark,
 )
 
 // CompositionLocal for extended colors
 val LocalExtendedColorScheme = staticCompositionLocalOf {
     ExtendedColorScheme(
-        complementary = unspecified_scheme,
+        complementary = Color.Unspecified,
+        onComplementary = Color.Unspecified,
+        complementaryContainer = Color.Unspecified,
+        onComplementaryContainer = Color.Unspecified,
+        success = Color.Unspecified,
+        onSuccess = Color.Unspecified,
+        successContainer = Color.Unspecified,
+        onSuccessContainer = Color.Unspecified,
     )
 }
 

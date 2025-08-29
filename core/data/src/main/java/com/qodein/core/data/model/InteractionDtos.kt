@@ -159,8 +159,18 @@ data class ServiceDto(
     val promoCodeCount: Int = 0,
 
     @PropertyName("createdAt")
-    val createdAt: Timestamp? = null
+    val createdAt: Timestamp? = null,
+
+    // Add these missing fields
+    @PropertyName("updatedAt")
+    val updatedAt: Timestamp? = null,
+
+    @PropertyName("domain")
+    val domain: String? = null,
+
+    @PropertyName("countsUpdatedAt")
+    val countsUpdatedAt: Timestamp? = null
 ) {
     // No-args constructor required for Firestore deserialization
-    constructor() : this("", "", "", null, false, 0, null)
+    constructor() : this("", "", "", null, false, 0, null, null, null, null)
 }

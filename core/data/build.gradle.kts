@@ -62,6 +62,7 @@ dependencies {
 
     // Logging
     implementation(libs.timber)
+    implementation(libs.kermit)
 
     // DateTime
     implementation(libs.kotlinx.datetime)

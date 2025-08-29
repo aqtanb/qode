@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
@@ -113,40 +112,31 @@ class HomeViewModel @Inject constructor(
 
     private fun loadBanners() {
         viewModelScope.launch {
-            val result = getBannersUseCase(limit = DEFAULT_PAGE_SIZE).first()
-            _uiState.update { state ->
-                state.copy(
-                    bannerState = when (result) {
-                        is Result.Loading -> BannerState.Loading
-                        is Result.Success -> BannerState.Success(result.data)
-                        is Result.Error -> BannerState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
-                        )
-                    },
-                )
+            getBannersUseCase(limit = DEFAULT_PAGE_SIZE).collect { result ->
+                _uiState.update { state ->
+                    state.copy(
+                        bannerState = when (result) {
+                            is Result.Loading -> BannerState.Loading
+                            is Result.Success -> BannerState.Success(result.data)
+                            is Result.Error -> BannerState.Error(
+                                errorType = result.exception.toErrorType(),
+                                isRetryable = result.exception.isRetryable(),
+                                shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                errorCode = result.exception.getErrorCode(),
+                            )
+                        },
+                    )
+                }
             }
         }
     }
 
     private fun loadPromoCodes(paginationRequest: PaginationRequest) {
         viewModelScope.launch {
-            val currentState = _uiState.value
-            val filters = currentState.currentFilters
+            val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
 
-            // Set the appropriate loading state immediately
-            _uiState.update { state ->
-                if (isLoadMore) {
-                    state.copy(isLoadingMore = true)
-                } else {
-                    state.copy(promoCodeState = PromoCodeState.Loading)
-                }
-            }
-
-            val result = getPromoCodesUseCase(
+            getPromoCodesUseCase(
                 sortBy = (filters.sortFilter as SortFilter.Selected).sortBy,
                 filterByCategories = when (filters.categoryFilter) {
                     CategoryFilter.All -> null
@@ -157,25 +147,29 @@ class HomeViewModel @Inject constructor(
                     is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
                 },
                 paginationRequest = paginationRequest,
-            ).first()
-
-            // Update the state based on the final result, clearing the loading flag
-            _uiState.update { state ->
-                when (result) {
-                    is Result.Success -> {
-                        val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
-                        updatedState.copy(isLoadingMore = false)
+            ).collect { result ->
+                _uiState.update { state ->
+                    when (result) {
+                        is Result.Loading -> {
+                            if (isLoadMore) {
+                                state.copy(isLoadingMore = true)
+                            } else {
+                                state.copy(promoCodeState = PromoCodeState.Loading)
+                            }
+                        }
+                        is Result.Success -> {
+                            val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
+                            updatedState.copy(isLoadingMore = false)
+                        }
+                        is Result.Error -> {
+                            val updatedState = handlePromoCodesError(result, isLoadMore, state)
+                            updatedState.copy(isLoadingMore = false)
+                        }
                     }
-                    is Result.Error -> {
-                        val updatedState = handlePromoCodesError(result, isLoadMore, state)
-                        updatedState.copy(isLoadingMore = false)
-                    }
-                    else -> state // The Loading case will not be reached due to .first()
                 }
             }
         }
     }
-
     private fun loadInitialPage() {
         loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }

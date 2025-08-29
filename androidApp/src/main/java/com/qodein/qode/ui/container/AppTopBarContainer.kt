@@ -93,6 +93,7 @@ fun AppTopBarContainer(
                 onNavigationClick = {
                     onEvent(AppUiEvents.Navigate(NavigationActions.NavigateBack))
                 },
+                actions = config.actions,
                 onProfileClick = onProfileClick ?: { _ ->
                     onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToProfile))
                 },
@@ -102,7 +103,6 @@ fun AppTopBarContainer(
                 showProfile = showProfile,
                 showSettings = showSettings,
                 scrollState = null,
-                // TODO: Handle subtitle and custom actions when QodeAppTopAppBar supports them
             )
         }
 

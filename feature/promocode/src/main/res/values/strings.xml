@@ -21,4 +21,71 @@
 
     <!-- Progress -->
     <string name="wizard_step_progress">Step %1$d of %2$d</string>
+
+    <!-- Promocode Detail Screen -->
+    <string name="promocode_details">Promocode Details</string>
+    <string name="loading_promocode_details">Loading promocode details…</string>
+    <string name="failed_to_load_promocode">Failed to load promocode details. Please try again.</string>
+
+    <!-- Service Info Section -->
+    <string name="service_provider">Service Provider</string>
+    <string name="category">Category</string>
+    <string name="available_in">Available in</string>
+    <string name="verified_promocode">Verified Promocode</string>
+    <string name="follow_service">Follow service</string>
+    <string name="unfollow_service">Unfollow service</string>
+    <string name="follow_category">Follow category</string>
+    <string name="unfollow_category">Unfollow category</string>
+
+    <!-- Statistics Section -->
+    <string name="statistics">Statistics</string>
+    <string name="views">Views</string>
+    <string name="score">Score</string>
+    <string name="upvotes">Upvotes</string>
+    <string name="downvotes">Downvotes</string>
+    <string name="shares">Shares</string>
+
+    <!-- Details Section -->
+    <string name="minimum_order">Minimum Order</string>
+    <string name="valid_from">Valid From</string>
+    <string name="valid_until">Valid Until</string>
+    <string name="availability">Availability</string>
+    <string name="first_time_users_only">First-time users only</string>
+    <string name="created">Created</string>
+
+    <!-- Status Messages -->
+    <string name="promocode_expired">This promocode has expired</string>
+    <string name="promocode_not_active">This promocode is not yet active</string>
+    <string name="promocode_expires_soon">This promocode expires soon</string>
+    <string name="promocode_active">This promocode is active</string>
+
+    <!-- Actions -->
+    <string name="copy_promo_code">Copy promo code</string>
+    <string name="upvote">Upvote</string>
+    <string name="downvote">Downvote</string>
+    <string name="share_promocode">Share Promocode</string>
+    <string name="comments">Comments</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="add_bookmark">Add bookmark</string>
+
+    <!-- Feedback Messages -->
+    <string name="code_copied_to_clipboard">Code copied to clipboard!</string>
+    <string name="bookmarked">Bookmarked!</string>
+    <string name="bookmark_removed">Bookmark removed</string>
+    <string name="thanks_for_upvote">Thanks for your upvote!</string>
+    <string name="thanks_for_feedback">Thanks for your feedback!</string>
+    <string name="failed_to_vote">Failed to vote. Please try again.</string>
+    <string name="voting_failed_connection">Voting failed. Please check your connection.</string>
+
+    <!-- TODO Messages -->
+    <string name="follow_service_todo">TODO: Follow %1$s feature coming soon!</string>
+    <string name="follow_category_todo">TODO: Follow %1$s category coming soon!</string>
+
+    <!-- Community Rating -->
+    <string name="community_rating">Community Rating</string>
+
+    <!-- Share Template -->
+    <string name="share_template_title">Amazing Deal: %1$s</string>
+    <string name="share_via_qode">Shared via Qode App</string>
 </resources>

@@ -14,7 +14,46 @@
     <string name="sign_in_title">Sign In</string>
     <string name="settings">Settings</string>
     <string name="back">Back</string>
-    <string name="favorites">Favorites</string>">
+    <string name="favorites">Favorites</string>
+
+    <!-- Promocode Detail Screen -->
+    <string name="promocode_details_title">Promocode Details</string>
+    <string name="loading_promocode">Loading promocode details...</string>
+    <string name="failed_load_promocode">Failed to load promocode details. Please try again.</string>
+    <string name="promocode_statistics">Statistics</string>
+    <string name="promocode_views">Views</string>
+    <string name="promocode_votes">Votes</string>
+    <string name="promocode_shares">Shares</string>
+    <string name="promocode_details">Promocode Details</string>
+    <string name="minimum_order">Minimum Order</string>
+    <string name="valid_from">Valid From</string>
+    <string name="valid_until">Valid Until</string>
+    <string name="availability">Availability</string>
+    <string name="first_user_only">First-time users only</string>
+    <string name="created">Created</string>
+    <string name="service_information">Service Information</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
+    <string name="verified_service">Verified Service</string>
+    <string name="community_rating">Community Rating</string>
+    <string name="upvote">Upvote</string>
+    <string name="downvote">Downvote</string>
+    <string name="share">Share</string>
+    <string name="comments">Comments</string>
+    <string name="copy_code">Copy Code</string>
+    <string name="promocode_expired">This promocode has expired</string>
+    <string name="promocode_not_active">This promocode is not yet active</string>
+    <string name="promocode_expires_soon">This promocode expires soon</string>
+    <string name="promocode_active">This promocode is active</string>
+    <string name="code_copied">Code copied to clipboard!</string>
+    <string name="thanks_upvote">Thanks for your upvote!</string>
+    <string name="thanks_feedback">Thanks for your feedback!</string>
+    <string name="vote_failed">Failed to vote. Please try again.</string>
+    <string name="voting_failed_connection">Voting failed. Please check your connection.</string>
+    <string name="bookmarked">Bookmarked!</string>
+    <string name="bookmark_removed">Bookmark removed</string>
+    <string name="todo_follow_service">TODO: Follow %s feature coming soon!</string>
+    <string name="todo_follow_category">TODO: Follow %s category coming soon!</string>
 
     <!-- Coming Soon Dialog -->
     <string name="coming_soon_title">We\'re Working On This Feature</string>

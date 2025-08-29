@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Qode</string>
+    <string name="home_title">Главная</string>
+
+    <string name="catalog_title">Каталог</string>
+    <string name="search_title">Поиск</string>
+    <string name="inbox_title">Входящие</string>
+    <string name="history_title">История</string>
+    <string name="more_title">Еще</string>
+
+    <!-- Navigation and UI -->
+    <string name="add">Добавить</string>
+    <string name="profile_title">Профиль</string>
+    <string name="sign_in_title">Войти</string>
+    <string name="settings">Настройки</string>
+    <string name="back">Назад</string>
+    <string name="favorites">Избранное</string>
+
+    <!-- Promocode Detail Screen -->
+    <string name="promocode_details_title">Детали промокода</string>
+    <string name="loading_promocode">Загрузка деталей промокода...</string>
+    <string name="failed_load_promocode">Не удалось загрузить детали промокода. Попробуйте снова.</string>
+    <string name="promocode_statistics">Статистика</string>
+    <string name="promocode_views">Просмотры</string>
+    <string name="promocode_votes">Голоса</string>
+    <string name="promocode_shares">Поделились</string>
+    <string name="promocode_details">Детали промокода</string>
+    <string name="minimum_order">Минимальный заказ</string>
+    <string name="valid_from">Действителен с</string>
+    <string name="valid_until">Действителен до</string>
+    <string name="availability">Доступность</string>
+    <string name="first_user_only">Только для новых пользователей</string>
+    <string name="created">Создан</string>
+    <string name="service_information">Информация о сервисе</string>
+    <string name="follow">Подписаться</string>
+    <string name="following">Подписан</string>
+    <string name="verified_service">Проверенный сервис</string>
+    <string name="community_rating">Рейтинг сообщества</string>
+    <string name="upvote">Нравится</string>
+    <string name="downvote">Не нравится</string>
+    <string name="share">Поделиться</string>
+    <string name="comments">Комментарии</string>
+    <string name="copy_code">Копировать код</string>
+    <string name="promocode_expired">Этот промокод истек</string>
+    <string name="promocode_not_active">Этот промокод еще не активен</string>
+    <string name="promocode_expires_soon">Срок действия промокода скоро истечет</string>
+    <string name="promocode_active">Этот промокод активен</string>
+    <string name="code_copied">Код скопирован в буфер обмена!</string>
+    <string name="thanks_upvote">Спасибо за ваш голос!</string>
+    <string name="thanks_feedback">Спасибо за отзыв!</string>
+    <string name="vote_failed">Не удалось проголосовать. Попробуйте снова.</string>
+    <string name="voting_failed_connection">Голосование не удалось. Проверьте подключение к интернету.</string>
+    <string name="bookmarked">Добавлено в избранное!</string>
+    <string name="bookmark_removed">Удалено из избранного</string>
+    <string name="todo_follow_service">TODO: Подписка на %s скоро будет доступна!</string>
+    <string name="todo_follow_category">TODO: Подписка на категорию %s скоро будет доступна!</string>
+
+    <!-- Coming Soon Dialog -->
+    <string name="coming_soon_title">Мы работаем над этой функцией</string>
+    <string name="coming_soon_description">Вы можете связаться с нами и следить за нашим прогрессом здесь</string>
+</resources>
