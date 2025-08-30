@@ -1,8 +1,12 @@
+
+@file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
+
 package com.qodein.shared.model
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Represents a user's bookmark on content (promo codes or posts).

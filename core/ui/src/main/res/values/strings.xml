@@ -147,4 +147,23 @@
     <string name="action_check_network">Check Network</string>
     <string name="action_contact_support">Contact Support</string>
     <string name="action_dismiss">Dismiss</string>
+    <string name="action_close">Close</string>
+
+    <!-- Filter Components -->
+    <string name="filter_category_title">Filter by Category</string>
+    <string name="filter_category_all">All Categories</string>
+    <string name="filter_service_title">Filter by Service</string>
+    <string name="filter_sort_title">Sort Options</string>
+    <string name="filter_tag_title">Filter by Tags</string>
+    <string name="filter_tag_all">All Tags</string>
+    
+    <!-- Sort Options -->
+    <string name="sort_popularity">Most Popular</string>
+    <string name="sort_newest">Newest First</string>
+    <string name="sort_expiring_soon">Expiring Soon</string>
+    
+    <!-- Sort Section Titles -->
+    <string name="sort_section_title_popularity">Popular Deals</string>
+    <string name="sort_section_title_newest">Latest Deals</string>
+    <string name="sort_section_title_expiring">Expiring Soon</string>
 </resources>

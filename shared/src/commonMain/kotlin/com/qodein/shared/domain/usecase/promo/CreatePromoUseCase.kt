@@ -6,7 +6,7 @@ import com.qodein.shared.domain.repository.PromoRepository
 import com.qodein.shared.model.Promo
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class CreatePromoUseCase constructor(private val promoRepository: PromoRepository) {
     operator fun invoke(

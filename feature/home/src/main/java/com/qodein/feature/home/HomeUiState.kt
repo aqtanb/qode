@@ -1,10 +1,10 @@
 package com.qodein.feature.home
 
-import com.qodein.feature.home.model.FilterDialogType
 import com.qodein.feature.home.ui.state.BannerState
-import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.feature.home.ui.state.ServiceSearchState
+import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.ui.FilterDialogType
 
 /**
  * Single HomeUiState following MVI pattern
@@ -16,7 +16,7 @@ data class HomeUiState(
     val promoCodeState: PromoCodeState = PromoCodeState.Loading,
 
     // Filter management
-    val currentFilters: FilterState = FilterState(),
+    val currentFilters: CompleteFilterState = CompleteFilterState(),
     val activeFilterDialog: FilterDialogType? = null,
 
     // Service search (for service filter dialog)

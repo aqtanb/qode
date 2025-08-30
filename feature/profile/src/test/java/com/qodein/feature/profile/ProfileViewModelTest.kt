@@ -1,7 +1,9 @@
 package com.qodein.feature.profile
 
 import app.cash.turbine.test
+import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -31,6 +33,7 @@ class ProfileViewModelTest {
 
     private lateinit var getAuthStateUseCase: GetAuthStateUseCase
     private lateinit var signOutUseCase: SignOutUseCase
+    private lateinit var analyticsHelper: AnalyticsHelper
     private lateinit var viewModel: ProfileViewModel
     private lateinit var testDispatcher: TestDispatcher
 
@@ -43,6 +46,7 @@ class ProfileViewModelTest {
 
         getAuthStateUseCase = mockk()
         signOutUseCase = mockk()
+        analyticsHelper = mockk(relaxed = true)
     }
 
     @After
@@ -55,7 +59,7 @@ class ProfileViewModelTest {
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
 
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             val finalState = viewModel.state.value
@@ -68,12 +72,12 @@ class ProfileViewModelTest {
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Unauthenticated))
 
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             val finalState = viewModel.state.value
             assertTrue(finalState is ProfileUiState.Error)
-            assertTrue((finalState as ProfileUiState.Error).exception is IllegalStateException)
+            assertEquals(ErrorType.SERVICE_UNAVAILABLE_GENERAL, (finalState as ProfileUiState.Error).errorType)
         }
 
     @Test
@@ -82,14 +86,14 @@ class ProfileViewModelTest {
             val testException = RuntimeException("Network error")
             every { getAuthStateUseCase() } returns flow { emit(Result.Error(testException)) }
 
-            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
 
             localViewModel.state.test {
                 assertEquals(ProfileUiState.Loading, awaitItem())
                 advanceUntilIdle()
                 val errorState = awaitItem() as ProfileUiState.Error
                 assertTrue(errorState is ProfileUiState.Error)
-                assertEquals(testException, errorState.exception)
+                assertEquals(ErrorType.NETWORK_GENERAL, errorState.errorType)
             }
         }
 
@@ -97,7 +101,7 @@ class ProfileViewModelTest {
     fun handleAction_whenRetryClicked_callsAuthStateManager() =
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             viewModel.handleAction(ProfileAction.RetryClicked)
@@ -111,7 +115,7 @@ class ProfileViewModelTest {
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
             every { signOutUseCase() } returns flowOf(Result.Success(Unit))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             viewModel.events.test {
@@ -129,7 +133,7 @@ class ProfileViewModelTest {
             val testException = IOException("Network connection failed")
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
             every { signOutUseCase() } returns flowOf(Result.Error(testException))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             // When & Then
@@ -146,7 +150,7 @@ class ProfileViewModelTest {
                 // 4. State becomes Error because the use case fails
                 val errorState = awaitItem() as ProfileUiState.Error
                 assertTrue(errorState is ProfileUiState.Error)
-                assertEquals(testException, errorState.exception)
+                assertEquals(ErrorType.NETWORK_GENERAL, errorState.errorType)
 
                 // 5. Run the recovery logic (checkAuthState)
                 advanceUntilIdle()
@@ -166,7 +170,7 @@ class ProfileViewModelTest {
     fun handleAction_whenEditProfileClicked_emitsNavigateToEditProfileEvent() =
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             viewModel.events.test {
@@ -179,7 +183,7 @@ class ProfileViewModelTest {
     fun handleAction_whenAchievementsClicked_emitsNavigateToAchievementsEvent() =
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             viewModel.events.test {
@@ -192,7 +196,7 @@ class ProfileViewModelTest {
     fun handleAction_whenUserJourneyClicked_emitsNavigateToUserJourneyEvent() =
         runTest {
             every { getAuthStateUseCase() } returns flowOf(Result.Success(AuthState.Authenticated(testUser)))
-            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
             viewModel.events.test {
@@ -208,7 +212,7 @@ class ProfileViewModelTest {
             val successFlow = flowOf(Result.Success(AuthState.Authenticated(testUser)))
             every { getAuthStateUseCase() }.returns(errorFlow).andThen(successFlow)
 
-            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase)
+            val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
 
             localViewModel.state.test {
                 assertEquals(ProfileUiState.Loading, awaitItem())

@@ -30,9 +30,9 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 @Composable
 fun ServiceInfoSection(

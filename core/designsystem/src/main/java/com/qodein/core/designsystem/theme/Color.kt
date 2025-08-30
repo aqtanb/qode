@@ -254,3 +254,27 @@ val complementaryDarkHighContrast = Color(0xFFF8ECFF)
 val onComplementaryDarkHighContrast = Color(0xFF000000)
 val complementaryContainerDarkHighContrast = Color(0xFFD3B6F7)
 val onComplementaryContainerDarkHighContrast = Color(0xFF14002E)
+
+// MARK: - Category Gradient Colors
+// Beautiful gradients for category groups with app's color psychology
+
+// Primary gradient - Main app colors (Purple to Orange)
+// Used for: Other category, Profile, Settings, Authentication
+val primaryGradientStart = Color(0xFF6C538C) // complementaryLight
+val primaryGradientEnd = Color(0xFF8F4C34) // primaryLight
+
+// Shopping gradient - Warm, appetizing, urgent (Orange to Reddish Pink)
+val shoppingGradientStart = Color(0xFFFF6B35) // Vibrant Orange
+val shoppingGradientEnd = Color(0xFFE74C3C) // Reddish Pink
+
+// Media gradient - Creativity, play, imagination (Purple to Electric Blue)
+val mediaGradientStart = Color(0xFF6C5CE7) // Creative Purple
+val mediaGradientEnd = Color(0xFF00BFFF) // Electric Blue
+
+// Lifestyle gradient - Natural, healthy (Green to Teal)
+val lifestyleGradientStart = Color(0xFF2ECC71) // Fresh Green
+val lifestyleGradientEnd = Color(0xFF1ABC9C) // Teal
+
+// Services gradient - Professional, trustworthy (Royal Blue to Cyan)
+val servicesGradientStart = Color(0xFF3742FA) // Royal Blue
+val servicesGradientEnd = Color(0xFF2ED8FF) // Cyan

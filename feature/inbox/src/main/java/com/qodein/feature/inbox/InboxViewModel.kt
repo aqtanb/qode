@@ -2,6 +2,7 @@ package com.qodein.feature.inbox
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logFilterContent
 import com.qodein.core.analytics.logSearch
@@ -104,10 +105,10 @@ class InboxViewModel @Inject constructor(private val analyticsHelper: AnalyticsH
 
     private fun markAsRead(messageId: String) {
         analyticsHelper.logEvent(
-            com.qodein.core.analytics.AnalyticsEvent(
+            AnalyticsEvent(
                 type = "mark_message_read",
                 extras = listOf(
-                    com.qodein.core.analytics.AnalyticsEvent.Param("message_id", messageId),
+                    AnalyticsEvent.Param("message_id", messageId),
                 ),
             ),
         )
@@ -135,10 +136,10 @@ class InboxViewModel @Inject constructor(private val analyticsHelper: AnalyticsH
 
     private fun deleteMessage(messageId: String) {
         analyticsHelper.logEvent(
-            com.qodein.core.analytics.AnalyticsEvent(
+            AnalyticsEvent(
                 type = "delete_message",
                 extras = listOf(
-                    com.qodein.core.analytics.AnalyticsEvent.Param("message_id", messageId),
+                    AnalyticsEvent.Param("message_id", messageId),
                 ),
             ),
         )

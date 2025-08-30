@@ -1,9 +1,13 @@
+
+@file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
+
 package com.qodein.shared.model
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 // ================================================================================================
 // POST MODELS
@@ -46,7 +50,8 @@ data class Tag(val id: String, val name: String, val color: String? = null) {
 }
 
 @Serializable
-data class Post(
+data class Post
+constructor(
     val id: PostId,
     val authorId: UserId,
     val authorUsername: String,
@@ -79,6 +84,7 @@ data class Post(
     val voteScore: Int get() = upvotes - downvotes
 
     companion object {
+
         fun create(
             authorId: UserId,
             authorUsername: String,
@@ -109,7 +115,13 @@ data class Post(
 }
 
 @Serializable
-data class PostInteraction(val postId: PostId, val userId: UserId, val type: InteractionType, val createdAt: Instant = Clock.System.now())
+data class PostInteraction
+constructor(
+    val postId: PostId,
+    val userId: UserId,
+    val type: InteractionType,
+    val createdAt: Instant = Clock.System.now()
+)
 
 @Serializable
 enum class InteractionType {

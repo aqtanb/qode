@@ -1,13 +1,17 @@
+
+@file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
+
 package com.qodein.shared.model
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearsUntil
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 // ================================================================================================
 // BASIC VALUE CLASSES

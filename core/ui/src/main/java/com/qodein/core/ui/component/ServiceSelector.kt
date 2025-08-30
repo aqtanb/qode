@@ -3,6 +3,7 @@ package com.qodein.core.ui.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -43,8 +45,6 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
-
-// TODO: Make all Service items look the same, popular ones, and search ones, they should show logourl, name, and category, promocodeCount, write preview
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -143,7 +143,7 @@ private fun ServiceSelectorContent(
             singleLine = true,
         )
 
-        // Popular services as quick buttons (when not searching)
+        // Popular services as FlowRow chips (when not searching)
         if (showingPopular && popularServices.isNotEmpty()) {
             Text(
                 text = "Popular Services",
@@ -151,6 +151,31 @@ private fun ServiceSelectorContent(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            ) {
+                // Show first 8 popular services as chips for quick selection
+                popularServices.take(8).forEach { service ->
+                    ServiceChip(
+                        service = service,
+                        isSelected = selectedServices.any { it.id == service.id },
+                        onClick = { onServiceSelected(service) },
+                    )
+                }
+            }
+
+            if (popularServices.size > 8) {
+                Text(
+                    text = "All Services",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = SpacingTokens.md),
+                )
+            }
         }
 
         // Services list (search results or remaining popular services)
@@ -362,4 +387,41 @@ private fun ServiceItemPreview() {
             )
         }
     }
+}
+
+@Composable
+private fun ServiceChip(
+    service: Service,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = {
+            Text(
+                text = service.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+            )
+        },
+        leadingIcon = if (service.logoUrl != null) {
+            {
+                CircularImage(
+                    imageUrl = service.logoUrl,
+                    fallbackText = service.name,
+                    fallbackIcon = QodeCommerceIcons.Store,
+                    size = SizeTokens.Icon.sizeSmall,
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    contentDescription = service.name,
+                )
+            }
+        } else {
+            null
+        },
+        modifier = modifier,
+    )
 }

@@ -6,9 +6,9 @@ import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 /**
  * Mapper between Post domain models and Firestore DTOs.

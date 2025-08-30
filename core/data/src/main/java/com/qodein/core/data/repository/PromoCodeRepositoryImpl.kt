@@ -4,7 +4,7 @@ import com.qodein.core.data.datasource.FirebaseVoteDataSource
 import com.qodein.core.data.datasource.FirestorePromoCodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.shared.domain.repository.PromoCodeRepository
-import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
@@ -31,7 +31,7 @@ class PromoCodeRepositoryImpl @Inject constructor(
 
     override fun getPromoCodes(
         query: String?,
-        sortBy: PromoCodeSortBy,
+        sortBy: ContentSortBy,
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
         paginationRequest: PaginationRequest

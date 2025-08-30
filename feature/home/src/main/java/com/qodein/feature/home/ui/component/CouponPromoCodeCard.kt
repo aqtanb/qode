@@ -69,12 +69,12 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 // Coupon-specific design tokens
 private object CouponTokens {

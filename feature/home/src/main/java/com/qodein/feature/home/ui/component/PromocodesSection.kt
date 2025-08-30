@@ -25,14 +25,12 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.feature.home.HomeAction
 import com.qodein.feature.home.R
-import com.qodein.feature.home.model.SortFilter
-import com.qodein.feature.home.ui.SortIconHelper
-import com.qodein.feature.home.ui.component.CouponPromoCodeCard
-import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.PromoCode
 
 /**
@@ -42,7 +40,7 @@ import com.qodein.shared.model.PromoCode
 @Composable
 fun PromocodesSection(
     promoCodeState: PromoCodeState,
-    currentFilters: FilterState,
+    currentFilters: CompleteFilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
@@ -50,7 +48,6 @@ fun PromocodesSection(
     Column(modifier = modifier) {
         // Section header for ALL states
         PromoCodesSectionHeader(
-            promoCodeState = promoCodeState,
             currentFilters = currentFilters,
             modifier = Modifier.padding(horizontal = SpacingTokens.lg),
         )
@@ -66,8 +63,6 @@ fun PromocodesSection(
             is PromoCodeState.Success -> {
                 PromoCodeContent(
                     promoCodes = promoCodeState.promoCodes,
-                    hasMore = promoCodeState.hasMore,
-                    currentFilters = currentFilters,
                     isLoadingMore = isLoadingMore,
                     onAction = onAction,
                 )
@@ -91,15 +86,12 @@ fun PromocodesSection(
 @Composable
 private fun PromoCodeContent(
     promoCodes: List<PromoCode>,
-    hasMore: Boolean,
-    currentFilters: FilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PromoCodesList(
         promoCodes = promoCodes,
-        hasMore = hasMore,
         isLoadingMore = isLoadingMore,
         onAction = onAction,
         modifier = modifier.fillMaxWidth().padding(top = SpacingTokens.md),
@@ -108,28 +100,11 @@ private fun PromoCodeContent(
 
 @Composable
 fun PromoCodesSectionHeader(
-    promoCodeState: PromoCodeState,
-    currentFilters: FilterState,
+    currentFilters: CompleteFilterState,
     modifier: Modifier = Modifier
 ) {
-    val currentSortBy = (currentFilters.sortFilter as? SortFilter.Selected)?.sortBy
-    val titleRes = if (currentSortBy != null) {
-        SortIconHelper.getSortSectionTitleRes(currentSortBy)
-    } else {
-        R.string.home_section_title_popularity
-    }
+    val titleRes = SortIconHelper.getSortSectionTitleRes(sortBy = currentFilters.sortFilter.sortBy)
 
-    PromoCodesSectionHeaderContent(
-        titleRes = titleRes,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun PromoCodesSectionHeaderContent(
-    titleRes: Int,
-    modifier: Modifier = Modifier
-) {
     Text(
         text = stringResource(titleRes),
         style = MaterialTheme.typography.headlineSmall,
@@ -143,7 +118,6 @@ private fun PromoCodesSectionHeaderContent(
 @Composable
 private fun PromoCodesList(
     promoCodes: List<PromoCode>,
-    hasMore: Boolean,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
@@ -307,7 +281,6 @@ fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
 // MARK: - Constants
 
 private const val ERROR_ICON_ALPHA = 0.6f
-private const val PAGINATION_LOAD_THRESHOLD = 3
 
 @Preview(name = "PromoCodesSection - Loading", showBackground = true)
 @Composable
@@ -315,7 +288,7 @@ private fun PromoCodesSectionPreview() {
     QodeTheme {
         PromocodesSection(
             promoCodeState = PromoCodeState.Loading,
-            currentFilters = FilterState(),
+            currentFilters = CompleteFilterState(),
             isLoadingMore = false,
             onAction = { },
         )

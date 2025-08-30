@@ -8,9 +8,9 @@ import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 /**
  * Mapper between PromoCode domain models and Firestore DTOs.

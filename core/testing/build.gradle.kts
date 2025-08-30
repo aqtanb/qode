@@ -31,6 +31,9 @@ dependencies {
     // Compose BOM for consistent versions
     api(platform(libs.androidx.compose.bom))
 
+    // DateTime
+    api(libs.kotlinx.datetime)
+
     // Coroutines testing
     api(libs.kotlinx.coroutines.test)
 

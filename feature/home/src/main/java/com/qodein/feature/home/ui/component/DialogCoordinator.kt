@@ -1,37 +1,45 @@
+
 package com.qodein.feature.home.ui.component
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import com.qodein.core.ui.component.CategoryFilterBottomSheet
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
+import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.feature.home.HomeAction
-import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.ServiceFilter
-import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.ServiceSearchState
+import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.ServiceFilter
+import com.qodein.shared.model.SortFilter
+import com.qodein.shared.ui.FilterDialogType
 
 /**
  * Centralized dialog management for home screen
  * Handles all filter dialogs and their state
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DialogCoordinator(
     activeDialog: FilterDialogType?,
-    currentFilters: FilterState,
+    currentFilters: CompleteFilterState,
     serviceSearchState: ServiceSearchState,
     onAction: (HomeAction) -> Unit
 ) {
     activeDialog?.let { dialogType ->
         when (dialogType) {
             FilterDialogType.Category -> {
-                CategoryFilterDialog(
+                val sheetState = rememberModalBottomSheetState()
+                CategoryFilterBottomSheet(
+                    isVisible = true,
                     currentFilter = currentFilters.categoryFilter,
                     onFilterSelected = { filter ->
                         onAction(HomeAction.ApplyCategoryFilter(filter))
                         onAction(HomeAction.DismissFilterDialog)
                     },
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                    sheetState = sheetState,
                 )
             }
 
@@ -72,14 +80,22 @@ fun DialogCoordinator(
             }
 
             FilterDialogType.Sort -> {
-                SortFilterDialog(
-                    currentFilter = currentFilters.sortFilter,
-                    onFilterSelected = { filter ->
-                        onAction(HomeAction.ApplySortFilter(filter))
+                val sheetState = rememberModalBottomSheetState()
+                SortFilterBottomSheet(
+                    isVisible = true,
+                    currentSortBy = currentFilters.sortFilter.sortBy,
+                    onSortBySelected = { sortBy ->
+                        onAction(HomeAction.ApplySortFilter(SortFilter(sortBy)))
                         onAction(HomeAction.DismissFilterDialog)
                     },
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
+                    sheetState = sheetState,
                 )
+            }
+
+            FilterDialogType.Tag -> {
+                // Home doesn't use tag filters, but we handle it for completeness
+                onAction(HomeAction.DismissFilterDialog)
             }
         }
     }

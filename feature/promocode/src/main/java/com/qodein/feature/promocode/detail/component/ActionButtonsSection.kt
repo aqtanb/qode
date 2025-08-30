@@ -40,7 +40,7 @@ import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.feature.promocode.detail.VoteType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Composable

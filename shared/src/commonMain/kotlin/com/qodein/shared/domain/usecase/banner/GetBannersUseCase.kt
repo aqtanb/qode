@@ -7,13 +7,13 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 /**
  * Use case for retrieving banners based on user's country and preferences.
  * Implements fallback strategies for better UX.
  */
-class GetBannersUseCase constructor(private val bannerRepository: BannerRepository) {
+class GetBannersUseCase(private val bannerRepository: BannerRepository) {
 
     companion object {
         private val logger = Logger.withTag("GetBannersUseCase")

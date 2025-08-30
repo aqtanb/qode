@@ -308,44 +308,4 @@ class NavigationHandlerTest {
         // Then - Should route to settings since the feature exists
         verify { navController.navigateToSettings() }
     }
-
-    // getProfileNavigationAction Tests
-
-    @Test
-    fun getProfileNavigationAction_whenAuthenticated_returnsNavigateToProfile() {
-        // Given
-        val authState = AuthState.Authenticated(authenticatedUser)
-
-        // When
-        val result = navigationHandler.getProfileNavigationAction(authState)
-
-        // Then
-        assert(result == NavigationActions.NavigateToProfile)
-    }
-
-    @Test
-    fun getProfileNavigationAction_whenUnauthenticated_returnsNavigateToProfile() {
-        // Given
-        val authState = AuthState.Unauthenticated
-
-        // When
-        val result = navigationHandler.getProfileNavigationAction(authState)
-
-        // Then
-        // Note: Returns NavigateToProfile in all cases, the routing decision is made in handleNavigation
-        assert(result == NavigationActions.NavigateToProfile)
-    }
-
-    @Test
-    fun getProfileNavigationAction_whenLoading_returnsNavigateToProfile() {
-        // Given
-        val authState = AuthState.Loading
-
-        // When
-        val result = navigationHandler.getProfileNavigationAction(authState)
-
-        // Then
-        // Note: Returns NavigateToProfile in all cases, the routing decision is made in handleNavigation
-        assert(result == NavigationActions.NavigateToProfile)
-    }
 }

@@ -88,4 +88,9 @@
     <!-- Share Template -->
     <string name="share_template_title">Amazing Deal: %1$s</string>
     <string name="share_via_qode">Shared via Qode App</string>
+
+    <!-- Filter Components -->
+    <string name="filter_chip_category">Category</string>
+    <string name="filter_chip_service">Service</string>
+    <string name="filter_chip_sort">Sort</string>
 </resources>

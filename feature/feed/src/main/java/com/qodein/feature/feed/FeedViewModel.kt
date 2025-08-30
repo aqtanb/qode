@@ -24,10 +24,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
 import javax.inject.Inject
+import kotlin.time.Clock
 
 /**
  * ViewModel for search screen following MVI pattern with Events system

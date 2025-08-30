@@ -1,7 +1,9 @@
 package com.qodein.feature.auth
 
 import app.cash.turbine.test
+import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import io.mockk.every
@@ -31,6 +33,7 @@ import java.net.SocketTimeoutException
 class AuthViewModelTest {
 
     private lateinit var signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private lateinit var analyticsHelper: AnalyticsHelper
     private lateinit var viewModel: AuthViewModel
     private lateinit var testDispatcher: TestDispatcher
 
@@ -41,7 +44,8 @@ class AuthViewModelTest {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
         signInWithGoogleUseCase = mockk()
-        viewModel = AuthViewModel(signInWithGoogleUseCase)
+        analyticsHelper = mockk(relaxed = true)
+        viewModel = AuthViewModel(signInWithGoogleUseCase, analyticsHelper)
     }
 
     @After
@@ -183,8 +187,8 @@ class AuthViewModelTest {
                 // Error state
                 val errorState = awaitItem()
                 assertTrue(errorState is AuthUiState.Error)
-                assertEquals(securityException, (errorState as AuthUiState.Error).exception)
-                assertEquals(false, errorState.isRetryable) // SecurityException is not retryable
+                assertEquals(ErrorType.AUTH_USER_CANCELLED, (errorState as AuthUiState.Error).errorType)
+                assertEquals(true, errorState.isRetryable) // User cancelled auth is retryable
             }
         }
 
@@ -209,7 +213,7 @@ class AuthViewModelTest {
                 // Error state
                 val errorState = awaitItem()
                 assertTrue(errorState is AuthUiState.Error)
-                assertEquals(ioException, (errorState as AuthUiState.Error).exception)
+                assertEquals(ErrorType.NETWORK_GENERAL, (errorState as AuthUiState.Error).errorType)
                 assertEquals(true, errorState.isRetryable) // IOException is retryable
             }
         }
@@ -235,7 +239,7 @@ class AuthViewModelTest {
                 // Error state
                 val errorState = awaitItem()
                 assertTrue(errorState is AuthUiState.Error)
-                assertEquals(illegalStateException, (errorState as AuthUiState.Error).exception)
+                assertEquals(ErrorType.SERVICE_UNAVAILABLE, (errorState as AuthUiState.Error).errorType)
                 assertEquals(true, errorState.isRetryable) // IllegalStateException is retryable
             }
         }
@@ -261,7 +265,7 @@ class AuthViewModelTest {
                 // Error state
                 val errorState = awaitItem()
                 assertTrue(errorState is AuthUiState.Error)
-                assertEquals(genericException, (errorState as AuthUiState.Error).exception)
+                assertEquals(ErrorType.UNKNOWN_ERROR, (errorState as AuthUiState.Error).errorType)
                 assertEquals(true, errorState.isRetryable) // Generic exceptions are retryable
             }
         }
@@ -418,7 +422,7 @@ class AuthViewModelTest {
         runTest(testDispatcher) {
             // Given
             val networkException = SocketTimeoutException("Timeout")
-            every { signInWithGoogleUseCase() } returns flowOf(Result.failure(networkException))
+            every { signInWithGoogleUseCase() } returns flowOf(Result.Error(networkException))
 
             // When & Then
             viewModel.state.test {
@@ -436,7 +440,7 @@ class AuthViewModelTest {
                 // Error state with correct retryability
                 val errorState = awaitItem()
                 assertTrue(errorState is AuthUiState.Error)
-                assertEquals(networkException, (errorState as AuthUiState.Error).exception)
+                assertEquals(ErrorType.NETWORK_TIMEOUT, (errorState as AuthUiState.Error).errorType)
                 assertEquals(true, errorState.isRetryable)
             }
         }

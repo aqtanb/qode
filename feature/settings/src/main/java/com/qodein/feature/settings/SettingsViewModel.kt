@@ -2,6 +2,7 @@ package com.qodein.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
@@ -91,11 +92,11 @@ class SettingsViewModel @Inject constructor(
                     is Result.Success -> {
                         // Track theme change
                         analyticsHelper.logEvent(
-                            com.qodein.core.analytics.AnalyticsEvent(
+                            AnalyticsEvent(
                                 type = "theme_changed",
                                 extras = listOf(
-                                    com.qodein.core.analytics.AnalyticsEvent.Param("theme_from", previousTheme.name.lowercase()),
-                                    com.qodein.core.analytics.AnalyticsEvent.Param("theme_to", theme.name.lowercase()),
+                                    AnalyticsEvent.Param("theme_from", previousTheme.name.lowercase()),
+                                    AnalyticsEvent.Param("theme_to", theme.name.lowercase()),
                                 ),
                             ),
                         )
@@ -124,11 +125,11 @@ class SettingsViewModel @Inject constructor(
                     is Result.Success -> {
                         // Track language change
                         analyticsHelper.logEvent(
-                            com.qodein.core.analytics.AnalyticsEvent(
+                            AnalyticsEvent(
                                 type = "language_changed",
                                 extras = listOf(
-                                    com.qodein.core.analytics.AnalyticsEvent.Param("language_from", previousLanguage.code),
-                                    com.qodein.core.analytics.AnalyticsEvent.Param("language_to", language.code),
+                                    AnalyticsEvent.Param("language_from", previousLanguage.code),
+                                    AnalyticsEvent.Param("language_to", language.code),
                                 ),
                             ),
                         )

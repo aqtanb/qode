@@ -2,6 +2,7 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
 import com.qodein.shared.common.result.Result
@@ -51,10 +52,10 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.RetryClicked -> checkAuthState()
             is ProfileAction.EditProfileClicked -> {
                 analyticsHelper.logEvent(
-                    com.qodein.core.analytics.AnalyticsEvent(
+                    AnalyticsEvent(
                         type = "profile_action",
                         extras = listOf(
-                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "edit_profile"),
+                            AnalyticsEvent.Param("action", "edit_profile"),
                         ),
                     ),
                 )
@@ -62,10 +63,10 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileAction.AchievementsClicked -> {
                 analyticsHelper.logEvent(
-                    com.qodein.core.analytics.AnalyticsEvent(
+                    AnalyticsEvent(
                         type = "profile_action",
                         extras = listOf(
-                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "view_achievements"),
+                            AnalyticsEvent.Param("action", "view_achievements"),
                         ),
                     ),
                 )
@@ -73,10 +74,10 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileAction.UserJourneyClicked -> {
                 analyticsHelper.logEvent(
-                    com.qodein.core.analytics.AnalyticsEvent(
+                    AnalyticsEvent(
                         type = "profile_action",
                         extras = listOf(
-                            com.qodein.core.analytics.AnalyticsEvent.Param("action", "view_user_journey"),
+                            AnalyticsEvent.Param("action", "view_user_journey"),
                         ),
                     ),
                 )

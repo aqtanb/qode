@@ -5,9 +5,9 @@ import com.qodein.core.data.model.UserActivityDto
 import com.qodein.shared.model.ActivityType
 import com.qodein.shared.model.UserActivity
 import com.qodein.shared.model.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 object UserActivityMapper {
 

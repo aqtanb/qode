@@ -4,8 +4,8 @@ import com.google.firebase.Timestamp
 import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 object ServiceMapper {
 

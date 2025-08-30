@@ -81,7 +81,7 @@ class PromoCodeRepositoryImpl @Inject constructor(
     
     override fun getPromoCodes(
         query: String?,
-        sortBy: PromoCodeSortBy,
+        sortBy: ContentSortBy,
         filterByType: String?,
         filterByService: String?,
         filterByCategory: String?,
@@ -196,7 +196,7 @@ class FirestorePromoCodeDataSource @Inject constructor(
     
     suspend fun getPromoCodes(
         query: String?,
-        sortBy: PromoCodeSortBy,
+        sortBy: ContentSortBy,
         filterByType: String?,
         filterByService: String?,
         filterByCategory: String?,
@@ -225,9 +225,9 @@ class FirestorePromoCodeDataSource @Inject constructor(
         
         // Apply sorting
         firestoreQuery = when (sortBy) {
-            PromoCodeSortBy.POPULARITY -> firestoreQuery.orderBy("upvotes", Query.Direction.DESCENDING)
-            PromoCodeSortBy.NEWEST -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
-            PromoCodeSortBy.EXPIRING_SOON -> firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
+            ContentSortBy.POPULARITY -> firestoreQuery.orderBy("upvotes", Query.Direction.DESCENDING)
+            ContentSortBy.NEWEST -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
+            ContentSortBy.EXPIRING_SOON -> firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
             // ... other sorting options
         }
         
@@ -284,7 +284,7 @@ object PromoCodeMapper {
                 views = dto.views,
                 screenshotUrl = dto.screenshotUrl,
                 comments = dto.comments,
-                createdAt = dto.createdAt?.toInstant() ?: Instant.now(),
+                createdAt = dto.createdAt?.toInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
             )
             
@@ -340,7 +340,7 @@ object PromoCodeMapper {
 ```kotlin
 suspend fun getPromoCodes(
     query: String?,
-    sortBy: PromoCodeSortBy,
+    sortBy: ContentSortBy,
     filterByType: String?,
     filterByService: String?,
     filterByCategory: String?,
@@ -378,13 +378,13 @@ suspend fun getPromoCodes(
     
     // Dynamic sorting
     firestoreQuery = when (sortBy) {
-        PromoCodeSortBy.POPULARITY -> firestoreQuery.orderBy("upvotes", Query.Direction.DESCENDING)
-        PromoCodeSortBy.NEWEST -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
-        PromoCodeSortBy.OLDEST -> firestoreQuery.orderBy("createdAt", Query.Direction.ASCENDING)
-        PromoCodeSortBy.EXPIRING_SOON -> firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
-        PromoCodeSortBy.MOST_VIEWED -> firestoreQuery.orderBy("views", Query.Direction.DESCENDING)
-        PromoCodeSortBy.MOST_USED -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
-        PromoCodeSortBy.ALPHABETICAL -> firestoreQuery.orderBy("code", Query.Direction.ASCENDING)
+        ContentSortBy.POPULARITY -> firestoreQuery.orderBy("upvotes", Query.Direction.DESCENDING)
+        ContentSortBy.NEWEST -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
+        ContentSortBy.OLDEST -> firestoreQuery.orderBy("createdAt", Query.Direction.ASCENDING)
+        ContentSortBy.EXPIRING_SOON -> firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
+        ContentSortBy.MOST_VIEWED -> firestoreQuery.orderBy("views", Query.Direction.DESCENDING)
+        ContentSortBy.MOST_USED -> firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
+        ContentSortBy.ALPHABETICAL -> firestoreQuery.orderBy("code", Query.Direction.ASCENDING)
     }
     
     // Pagination
@@ -620,7 +620,7 @@ return querySnapshot.documents.mapNotNull { document ->
 ```kotlin
 fun toDomain(dto: PromoCodeDto): PromoCode {
     // Handle optional fields that might not exist in older documents
-    val createdAt = dto.createdAt?.toInstant() ?: Instant.now()
+    val createdAt = dto.createdAt?.toInstant() ?: Clock.System.now()
     val createdBy = dto.createdBy?.let { UserId(it) }
     
     // Provide defaults for new fields

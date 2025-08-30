@@ -19,12 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 @Composable
 fun FooterSection(

@@ -57,8 +57,8 @@ import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Beautiful modern post card with glassmorphism and premium animations

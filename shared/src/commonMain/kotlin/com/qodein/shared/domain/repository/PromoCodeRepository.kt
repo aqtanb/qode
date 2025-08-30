@@ -1,5 +1,6 @@
 package com.qodein.shared.domain.repository
 
+import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
@@ -47,7 +48,7 @@ interface PromoCodeRepository {
      */
     fun getPromoCodes(
         query: String? = null,
-        sortBy: PromoCodeSortBy = PromoCodeSortBy.POPULARITY,
+        sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
         filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest = PaginationRequest.firstPage()
@@ -244,13 +245,4 @@ interface PromoCodeRepository {
         category: String,
         limit: Int = 20
     ): Flow<List<Service>>
-}
-
-/**
- * Enum for promo code sorting options.
- */
-enum class PromoCodeSortBy {
-    POPULARITY, // Sort by vote score (upvotes - downvotes)
-    NEWEST, // Sort by creation date (newest first)
-    EXPIRING_SOON // Sort by end date (expiring first)
 }

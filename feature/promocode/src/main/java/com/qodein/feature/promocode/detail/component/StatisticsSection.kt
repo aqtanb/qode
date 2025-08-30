@@ -22,7 +22,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Composable

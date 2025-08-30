@@ -5,9 +5,9 @@ import com.qodein.core.data.model.UserVoteDto
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserVote
 import com.qodein.shared.model.VoteType
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 object UserVoteMapper {
 

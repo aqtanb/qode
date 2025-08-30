@@ -5,9 +5,9 @@ import com.qodein.core.data.model.PromoDto
 import com.qodein.shared.model.Promo
 import com.qodein.shared.model.PromoId
 import com.qodein.shared.model.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toJavaInstant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 object PromoMapper {
 

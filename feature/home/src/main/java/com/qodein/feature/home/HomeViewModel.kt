@@ -6,13 +6,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
-import com.qodein.feature.home.domain.FilterStateManager
-import com.qodein.feature.home.model.CategoryFilter
-import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.ServiceFilter
-import com.qodein.feature.home.model.SortFilter
 import com.qodein.feature.home.ui.state.BannerState
-import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.feature.home.ui.state.ServiceSearchState
 import com.qodein.shared.common.result.Result
@@ -25,9 +19,14 @@ import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Banner
+import com.qodein.shared.model.CategoryFilter
+import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.ServiceFilter
+import com.qodein.shared.model.SortFilter
+import com.qodein.shared.ui.FilterDialogType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -51,8 +50,6 @@ class HomeViewModel @Inject constructor(
     private val getPromoCodesUseCase: GetPromoCodesUseCase,
     private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val searchServicesUseCase: SearchServicesUseCase,
-    // Domain services for business logic
-    private val filterStateManager: FilterStateManager,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -137,14 +134,14 @@ class HomeViewModel @Inject constructor(
             val isLoadMore = paginationRequest.cursor != null
 
             getPromoCodesUseCase(
-                sortBy = (filters.sortFilter as SortFilter.Selected).sortBy,
-                filterByCategories = when (filters.categoryFilter) {
+                sortBy = filters.sortFilter.sortBy,
+                filterByCategories = when (val categoryFilter = filters.categoryFilter) {
                     CategoryFilter.All -> null
-                    is CategoryFilter.Selected -> filters.categoryFilter.categories.toList()
+                    is CategoryFilter.Selected -> categoryFilter.categories.toList()
                 },
-                filterByServices = when (filters.serviceFilter) {
+                filterByServices = when (val serviceFilter = filters.serviceFilter) {
                     ServiceFilter.All -> null
-                    is ServiceFilter.Selected -> filters.serviceFilter.services.map { it.name }
+                    is ServiceFilter.Selected -> serviceFilter.services.map { it.name }
                 },
                 paginationRequest = paginationRequest,
             ).collect { result ->
@@ -341,38 +338,35 @@ class HomeViewModel @Inject constructor(
 
     private fun applyCategoryFilter(categoryFilter: CategoryFilter) {
         applyFilterChange { currentFilters ->
-            filterStateManager.applyCategoryFilter(currentFilters, categoryFilter)
+            currentFilters.applyCategoryFilter(categoryFilter)
         }
     }
 
     private fun applyServiceFilter(serviceFilter: ServiceFilter) {
         applyFilterChange { currentFilters ->
-            filterStateManager.applyServiceFilter(currentFilters, serviceFilter)
+            currentFilters.applyServiceFilter(serviceFilter)
         }
     }
 
     private fun applySortFilter(sortFilter: SortFilter) {
         applyFilterChange { currentFilters ->
-            filterStateManager.applySortFilter(currentFilters, sortFilter)
+            currentFilters.applySortFilter(sortFilter)
         }
     }
 
-    private inline fun applyFilterChange(filterChange: (FilterState) -> FilterState) {
+    private inline fun applyFilterChange(filterChange: (CompleteFilterState) -> CompleteFilterState) {
         val currentFilters = _uiState.value.currentFilters
         val newFilters = filterChange(currentFilters)
         applyFilters(newFilters)
     }
 
     private fun resetFilters() {
-        val resetFilters = filterStateManager.resetFilters()
+        val currentFilters = _uiState.value.currentFilters
+        val resetFilters = currentFilters.reset()
         applyFilters(resetFilters)
     }
 
-    private fun applyFilters(newFilters: FilterState) {
-        if (!filterStateManager.validateFilters(newFilters)) {
-            return
-        }
-
+    private fun applyFilters(newFilters: CompleteFilterState) {
         _uiState.update {
             it.copy(
                 currentFilters = newFilters,

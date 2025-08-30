@@ -167,7 +167,6 @@ private fun HomeContent(
         // Promo Codes Section Header
         item(key = PROMO_CODES_HEADER_KEY) {
             PromoCodesSectionHeader(
-                promoCodeState = uiState.promoCodeState,
                 currentFilters = uiState.currentFilters,
                 modifier = Modifier.padding(horizontal = SpacingTokens.lg),
             )
@@ -247,7 +246,6 @@ private fun HomeContent(
 // MARK: - Constants
 
 private const val HOME_SCREEN_NAME = "Home"
-private const val ERROR_ICON_ALPHA = 0.6f
 private const val PAGINATION_LOAD_THRESHOLD = 1
 
 // Content keys for LazyColumn items

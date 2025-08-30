@@ -122,7 +122,7 @@ interface PromoCodeRepository {
     fun createPromoCode(promoCode: PromoCode): Flow<PromoCode>
     fun getPromoCodes(
         query: String? = null,
-        sortBy: PromoCodeSortBy = PromoCodeSortBy.POPULARITY,
+        sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByType: String? = null,
         filterByService: String? = null,
         filterByCategory: String? = null,
@@ -172,7 +172,7 @@ fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>>
 
 ### Sort Options
 ```kotlin
-enum class PromoCodeSortBy {
+enum class ContentSortBy {
     POPULARITY,     // Sort by vote score
     NEWEST,         // Creation date (newest first)
     OLDEST,         // Creation date (oldest first)

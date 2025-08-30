@@ -5,6 +5,7 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.BannerId
 import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,7 +17,7 @@ import javax.inject.Singleton
 class BannerRepositoryImpl @Inject constructor(private val firestoreBannerDataSource: FirestoreBannerDataSource) : BannerRepository {
 
     init {
-        timber.log.Timber.d("BannerRepositoryImpl constructor called - DI working correctly")
+        Timber.d("BannerRepositoryImpl constructor called - DI working correctly")
     }
 
     override fun getBannersForCountry(
@@ -25,7 +26,7 @@ class BannerRepositoryImpl @Inject constructor(private val firestoreBannerDataSo
     ): Flow<List<Banner>> = firestoreBannerDataSource.getBannersForCountry(countryCode, limit)
 
     override fun getAllActiveBanners(limit: Int): Flow<List<Banner>> {
-        timber.log.Timber.d("BannerRepositoryImpl.getAllActiveBanners called with limit=$limit")
+        Timber.d("BannerRepositoryImpl.getAllActiveBanners called with limit=$limit")
         return firestoreBannerDataSource.getAllActiveBanners(limit)
     }
 

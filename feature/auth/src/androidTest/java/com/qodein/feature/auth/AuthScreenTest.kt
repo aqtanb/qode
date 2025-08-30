@@ -252,7 +252,7 @@ class AuthScreenTest {
 
         // Click retry button on error card using design system string
         composeTestRule
-            .onNodeWithText(context.getString(com.qodein.core.designsystem.R.string.error_retry_button))
+            .onNodeWithText(context.getString(R.string.error_retry_button))
             .performClick()
 
         // Then

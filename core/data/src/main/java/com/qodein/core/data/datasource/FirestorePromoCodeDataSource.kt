@@ -9,7 +9,7 @@ import com.google.firebase.firestore.toObject
 import com.qodein.core.data.cache.QueryCache
 import com.qodein.core.data.mapper.PromoCodeMapper
 import com.qodein.core.data.model.PromoCodeDto
-import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
@@ -45,7 +45,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
 
     suspend fun getPromoCodes(
         query: String?,
-        sortBy: PromoCodeSortBy,
+        sortBy: ContentSortBy,
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
         paginationRequest: PaginationRequest
@@ -99,13 +99,13 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
 
         // Apply sorting
         firestoreQuery = when (sortBy) {
-            PromoCodeSortBy.POPULARITY -> {
+            ContentSortBy.POPULARITY -> {
                 firestoreQuery.orderBy("voteScore", Query.Direction.DESCENDING)
             }
-            PromoCodeSortBy.NEWEST -> {
+            ContentSortBy.NEWEST -> {
                 firestoreQuery.orderBy("createdAt", Query.Direction.DESCENDING)
             }
-            PromoCodeSortBy.EXPIRING_SOON -> {
+            ContentSortBy.EXPIRING_SOON -> {
                 firestoreQuery.orderBy("endDate", Query.Direction.ASCENDING)
             }
         }
@@ -151,9 +151,9 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
         val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
             val lastDoc = documents.last()
             val sortFieldValue = when (sortBy) {
-                PromoCodeSortBy.POPULARITY -> lastDoc.getLong("voteScore")
-                PromoCodeSortBy.NEWEST -> lastDoc.getTimestamp("createdAt")
-                PromoCodeSortBy.EXPIRING_SOON -> lastDoc.getTimestamp("endDate")
+                ContentSortBy.POPULARITY -> lastDoc.getLong("voteScore")
+                ContentSortBy.NEWEST -> lastDoc.getTimestamp("createdAt")
+                ContentSortBy.EXPIRING_SOON -> lastDoc.getTimestamp("endDate")
             }
             PaginationCursor.fromDocumentSnapshot(
                 documentId = lastDoc.id,

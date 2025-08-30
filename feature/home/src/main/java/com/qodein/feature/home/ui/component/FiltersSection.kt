@@ -30,15 +30,15 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.category.CategoryIconHelper
+import com.qodein.core.ui.component.CategoryIconHelper
+import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.feature.home.R
-import com.qodein.feature.home.model.CategoryFilter
-import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.ServiceFilter
-import com.qodein.feature.home.model.SortFilter
-import com.qodein.feature.home.ui.SortIconHelper
-import com.qodein.feature.home.ui.state.FilterState
-import com.qodein.shared.domain.repository.PromoCodeSortBy
+import com.qodein.shared.model.CategoryFilter
+import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.ContentSortBy
+import com.qodein.shared.model.ServiceFilter
+import com.qodein.shared.ui.FilterChipType
+import com.qodein.shared.ui.FilterDialogType
 
 /**
  * Quick filters section with category, service, and sort chips
@@ -46,7 +46,7 @@ import com.qodein.shared.domain.repository.PromoCodeSortBy
  */
 @Composable
 fun FiltersSection(
-    currentFilters: FilterState,
+    currentFilters: CompleteFilterState,
     onFilterSelected: (FilterDialogType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +61,7 @@ fun FiltersSection(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             // Category Filter
-            item(key = "category_filter") {
+            item(key = FilterChipType.Category.key) {
                 FilterChip(
                     nameRes = R.string.filter_chip_category,
                     icon = when (val filter = currentFilters.categoryFilter) {
@@ -80,7 +80,7 @@ fun FiltersSection(
             }
 
             // Service Filter
-            item(key = "service_filter") {
+            item(key = FilterChipType.Service.key) {
                 val (icon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
                     ServiceFilter.All -> Triple(QodeCommerceIcons.Store, null, null)
                     is ServiceFilter.Selected -> {
@@ -106,13 +106,13 @@ fun FiltersSection(
             }
 
             // Sort Filter
-            item(key = "sort_filter") {
-                val currentSortBy = (currentFilters.sortFilter as SortFilter.Selected).sortBy
+            item(key = FilterChipType.Sort.key) {
+                val currentSortBy = currentFilters.sortFilter.sortBy
                 FilterChip(
                     nameRes = R.string.filter_chip_sort,
                     icon = SortIconHelper.getSortIcon(currentSortBy),
                     onClick = { onFilterSelected(FilterDialogType.Sort) },
-                    isSelected = currentSortBy != PromoCodeSortBy.POPULARITY,
+                    isSelected = currentSortBy != ContentSortBy.POPULARITY,
                 )
             }
         }
@@ -212,7 +212,7 @@ private fun FilterChip(
 private fun FiltersSectionPreview() {
     QodeTheme {
         FiltersSection(
-            currentFilters = FilterState(),
+            currentFilters = CompleteFilterState(),
             onFilterSelected = { },
         )
     }

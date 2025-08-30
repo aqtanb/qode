@@ -1,6 +1,7 @@
 package com.qodein.core.designsystem.theme
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Immutable
@@ -218,17 +219,17 @@ object AnimationTokens {
     object Spec {
         val fast: AnimationSpec<Float> = tween(
             durationMillis = MotionTokens.Duration.FAST,
-            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+            easing = FastOutSlowInEasing,
         )
 
         val medium: AnimationSpec<Float> = tween(
             durationMillis = MotionTokens.Duration.MEDIUM,
-            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+            easing = FastOutSlowInEasing,
         )
 
         val slow: AnimationSpec<Float> = tween(
             durationMillis = MotionTokens.Duration.SLOW,
-            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+            easing = FastOutSlowInEasing,
         )
 
         // Spring animations for more natural feel

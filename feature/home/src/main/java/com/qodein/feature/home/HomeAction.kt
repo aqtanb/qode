@@ -1,11 +1,11 @@
 package com.qodein.feature.home
 
-import com.qodein.feature.home.model.CategoryFilter
-import com.qodein.feature.home.model.FilterDialogType
-import com.qodein.feature.home.model.ServiceFilter
-import com.qodein.feature.home.model.SortFilter
 import com.qodein.shared.model.Banner
+import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.ServiceFilter
+import com.qodein.shared.model.SortFilter
+import com.qodein.shared.ui.FilterDialogType
 
 sealed interface HomeAction {
 

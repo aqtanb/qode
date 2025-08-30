@@ -2,6 +2,7 @@ package com.qodein.feature.promocode.submission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeSubmission
 import com.qodein.shared.common.result.Result
@@ -13,6 +14,7 @@ import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Service
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,10 +29,10 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toKotlinInstant
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
+import kotlin.time.toKotlinInstant
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
@@ -184,12 +186,12 @@ class SubmissionWizardViewModel @Inject constructor(
 
             // Track step navigation
             analyticsHelper.logEvent(
-                com.qodein.core.analytics.AnalyticsEvent(
+                AnalyticsEvent(
                     type = "wizard_step_navigation",
                     extras = listOf(
-                        com.qodein.core.analytics.AnalyticsEvent.Param("step_from", currentState.currentStep.name),
-                        com.qodein.core.analytics.AnalyticsEvent.Param("step_to", nextStep.name),
-                        com.qodein.core.analytics.AnalyticsEvent.Param("direction", "next"),
+                        AnalyticsEvent.Param("step_from", currentState.currentStep.name),
+                        AnalyticsEvent.Param("step_to", nextStep.name),
+                        AnalyticsEvent.Param("direction", "next"),
                     ),
                 ),
             )
@@ -205,12 +207,12 @@ class SubmissionWizardViewModel @Inject constructor(
 
             // Track step navigation
             analyticsHelper.logEvent(
-                com.qodein.core.analytics.AnalyticsEvent(
+                AnalyticsEvent(
                     type = "wizard_step_navigation",
                     extras = listOf(
-                        com.qodein.core.analytics.AnalyticsEvent.Param("step_from", currentState.currentStep.name),
-                        com.qodein.core.analytics.AnalyticsEvent.Param("step_to", previousStep.name),
-                        com.qodein.core.analytics.AnalyticsEvent.Param("direction", "previous"),
+                        AnalyticsEvent.Param("step_from", currentState.currentStep.name),
+                        AnalyticsEvent.Param("step_to", previousStep.name),
+                        AnalyticsEvent.Param("direction", "previous"),
                     ),
                 ),
             )
@@ -395,12 +397,12 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     // Service search helper methods
-    private fun updatePopularServices(services: List<com.qodein.shared.model.Service>) {
+    private fun updatePopularServices(services: List<Service>) {
         val currentState = getCurrentSuccessState() ?: return
         _uiState.value = currentState.copy(popularServices = services)
     }
 
-    private fun updateServiceSearchResults(services: List<com.qodein.shared.model.Service>) {
+    private fun updateServiceSearchResults(services: List<Service>) {
         val currentState = getCurrentSuccessState() ?: return
         _uiState.value = currentState.copy(serviceSearchResults = services)
     }

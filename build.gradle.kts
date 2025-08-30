@@ -94,6 +94,9 @@ subprojects {
     afterEvaluate {
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
             finalizedBy("spotlessApply")
+            compilerOptions {
+                freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+            }
         }
 
         // Run the FQN check as part of the check task

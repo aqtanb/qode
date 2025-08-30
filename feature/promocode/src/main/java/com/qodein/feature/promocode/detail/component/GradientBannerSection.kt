@@ -31,11 +31,11 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.category.CategoryIconHelper
-import com.qodein.core.ui.category.CategoryIconHelper.getCategoryGradient
+import com.qodein.core.ui.component.CategoryIconHelper
+import com.qodein.core.ui.component.CategoryIconHelper.getCategoryGradient
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Composable
@@ -46,7 +46,7 @@ fun GradientBannerSection(
     modifier: Modifier = Modifier
 ) {
     // Get category-specific gradient scheme
-    val gradientScheme = CategoryIconHelper.getCategoryGradient(promoCode.category)
+    val gradientScheme = getCategoryGradient(promoCode.category)
 
     // Get category icon from centralized helper
     val categoryIcon = CategoryIconHelper.getCategoryIcon(promoCode.category)

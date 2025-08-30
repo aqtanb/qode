@@ -42,7 +42,7 @@ import com.qodein.feature.promocode.detail.component.ServiceInfoSection
 import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Composable

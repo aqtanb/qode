@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -673,7 +674,7 @@ private fun GamingChipButton(
         modifier = modifier.size(width = 32.dp, height = 24.dp),
         shape = RoundedCornerShape(12.dp),
         color = backgroundColor,
-        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
+        border = BorderStroke(1.dp, borderColor),
     ) {
         Box(
             contentAlignment = Alignment.Center,
