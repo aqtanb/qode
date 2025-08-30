@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHost
@@ -30,10 +33,15 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.util.CustomTabsUtils
+import com.qodein.feature.home.ui.component.CouponPromoCodeCard
 import com.qodein.feature.home.ui.component.DialogCoordinator
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
-import com.qodein.feature.home.ui.component.PromocodesSection
+import com.qodein.feature.home.ui.component.LoadingMoreIndicator
+import com.qodein.feature.home.ui.component.PromoCodesEmptyState
+import com.qodein.feature.home.ui.component.PromoCodesErrorState
+import com.qodein.feature.home.ui.component.PromoCodesLoadingState
+import com.qodein.feature.home.ui.component.PromoCodesSectionHeader
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
@@ -78,24 +86,26 @@ fun HomeScreen(
         }
     }
 
-    // Handle pagination with proper snapshotFlow pattern
-    LaunchedEffect(listState, uiState) {
+    // Handle pagination
+    LaunchedEffect(listState, uiState.promoCodeState, uiState.isLoadingMore) {
         snapshotFlow {
             val promoState = uiState.promoCodeState
-            if (promoState !is PromoCodeState.Success || !promoState.hasMore || uiState.isLoadingMore) {
-                return@snapshotFlow false
-            }
+            // Only handle pagination when we have successful promo code data
+            if (promoState is PromoCodeState.Success && promoState.hasMore && !uiState.isLoadingMore) {
+                val layoutInfo = listState.layoutInfo
+                val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                val totalItems = layoutInfo.totalItemsCount
 
-            val layoutInfo = listState.layoutInfo
-            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val totalItems = layoutInfo.totalItemsCount
-            lastVisibleIndex >= totalItems - PAGINATION_LOAD_THRESHOLD
-        }
-            .collect { shouldLoadMore ->
-                if (shouldLoadMore) {
-                    viewModel.onAction(HomeAction.LoadMorePromoCodes)
-                }
+                // Trigger when user scrolls to near the end
+                lastVisibleIndex >= totalItems - PAGINATION_LOAD_THRESHOLD
+            } else {
+                false
             }
+        }.collect { shouldLoadMore ->
+            if (shouldLoadMore) {
+                viewModel.onAction(HomeAction.LoadMorePromoCodes)
+            }
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -154,14 +164,69 @@ private fun HomeContent(
             )
         }
 
-        // Promo Codes Section
-        item(key = PROMO_CODES_SECTION_KEY) {
-            PromocodesSection(
+        // Promo Codes Section Header
+        item(key = PROMO_CODES_HEADER_KEY) {
+            PromoCodesSectionHeader(
                 promoCodeState = uiState.promoCodeState,
                 currentFilters = uiState.currentFilters,
-                isLoadingMore = uiState.isLoadingMore,
-                onAction = onAction,
+                modifier = Modifier.padding(horizontal = SpacingTokens.lg),
             )
+        }
+
+        // Promo Codes Content - handle each state appropriately
+        when (val promoState = uiState.promoCodeState) {
+            PromoCodeState.Loading -> {
+                item(key = PROMO_CODES_LOADING_KEY) {
+                    PromoCodesLoadingState(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpacingTokens.xl),
+                    )
+                }
+            }
+            is PromoCodeState.Success -> {
+                items(
+                    items = promoState.promoCodes,
+                    key = { promoCode -> promoCode.id.value },
+                ) { promoCode ->
+                    CouponPromoCodeCard(
+                        promoCode = promoCode,
+                        onCardClick = {
+                            onAction(HomeAction.PromoCodeClicked(promoCode))
+                        },
+                        onCopyCodeClick = {
+                            onAction(HomeAction.CopyPromoCode(promoCode))
+                        },
+                        modifier = Modifier.padding(
+                            horizontal = SpacingTokens.lg,
+                            vertical = SpacingTokens.xs,
+                        ),
+                    )
+                }
+
+                // Loading more indicator
+                if (uiState.isLoadingMore) {
+                    item(key = PROMO_CODES_LOADING_MORE_KEY) {
+                        LoadingMoreIndicator()
+                    }
+                }
+            }
+            PromoCodeState.Empty -> {
+                item(key = PROMO_CODES_EMPTY_KEY) {
+                    PromoCodesEmptyState(
+                        modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                    )
+                }
+            }
+            is PromoCodeState.Error -> {
+                item(key = PROMO_CODES_ERROR_KEY) {
+                    PromoCodesErrorState(
+                        errorState = promoState,
+                        onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
+                        modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                    )
+                }
+            }
         }
 
         // Bottom spacer
@@ -182,13 +247,17 @@ private fun HomeContent(
 // MARK: - Constants
 
 private const val HOME_SCREEN_NAME = "Home"
-private const val PAGINATION_LOAD_THRESHOLD = 3
 private const val ERROR_ICON_ALPHA = 0.6f
+private const val PAGINATION_LOAD_THRESHOLD = 1
 
 // Content keys for LazyColumn items
 private const val BANNER_SECTION_KEY = "banner_section"
 private const val FILTERS_SECTION_KEY = "filters_section"
-private const val PROMO_CODES_SECTION_KEY = "promo_codes_section"
+private const val PROMO_CODES_HEADER_KEY = "promo_codes_header"
+private const val PROMO_CODES_LOADING_KEY = "promo_codes_loading"
+private const val PROMO_CODES_EMPTY_KEY = "promo_codes_empty"
+private const val PROMO_CODES_ERROR_KEY = "promo_codes_error"
+private const val PROMO_CODES_LOADING_MORE_KEY = "promo_codes_loading_more"
 private const val BOTTOM_SPACER_KEY = "bottom_spacer"
 
 // MARK: - Previews

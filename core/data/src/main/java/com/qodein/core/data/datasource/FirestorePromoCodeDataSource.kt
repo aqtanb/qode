@@ -1,75 +1,44 @@
 package com.qodein.core.data.datasource
 
 import co.touchlab.kermit.Logger
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.cache.QueryCache
 import com.qodein.core.data.mapper.PromoCodeMapper
-import com.qodein.core.data.mapper.ServiceMapper
 import com.qodein.core.data.model.PromoCodeDto
-import com.qodein.core.data.model.PromoCodeVoteDto
-import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
-import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
 
 @Singleton
 class FirestorePromoCodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
-        private const val VOTES_COLLECTION = "votes"
-        private const val SERVICES_COLLECTION = "services"
     }
 
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
         val dto = PromoCodeMapper.toDto(promoCode)
 
-        try {
-            // Use add() with specific document ID to ensure document doesn't already exist
-            // This will fail if a document with this ID already exists
-            firestore.collection(PROMOCODES_COLLECTION)
-                .document(dto.documentId)
-                .set(dto)
-                .await()
-        } catch (e: Exception) {
-            // Log error at data layer boundary following NIA patterns
-            Timber.tag(TAG).e(e, "Error in createPromoCode")
-
-            // Provide specific error context for extension function parsing
-            when {
-                e.message?.contains("ALREADY_EXISTS", ignoreCase = true) == true ||
-                    e.message?.contains("already exists", ignoreCase = true) == true -> {
-                    throw IllegalArgumentException("promo code already exists for service '${promoCode.serviceName}': ${promoCode.code}", e)
-                }
-                e.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true -> {
-                    throw SecurityException("permission denied: cannot create promo code", e)
-                }
-                e.message?.contains("network", ignoreCase = true) == true ||
-                    e.message?.contains("timeout", ignoreCase = true) == true -> {
-                    throw IOException("connection error while creating promo code", e)
-                }
-                else -> {
-                    throw IllegalStateException("service unavailable: failed to create promo code", e)
-                }
-            }
-        }
+        firestore.collection(PROMOCODES_COLLECTION)
+            .document(dto.documentId)
+            .set(dto)
+            .await()
 
         return promoCode
     }
@@ -97,9 +66,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
-        Logger.d {
-            "Starting promo code query: sortBy=$sortBy, limit=${paginationRequest.limit}, cursor=${paginationRequest.cursor?.documentId}"
-        }
         var firestoreQuery: Query = firestore.collection(PROMOCODES_COLLECTION)
 
         // Apply filters
@@ -146,20 +112,17 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
 
         // Apply cursor-based pagination
         paginationRequest.cursor?.let { cursor ->
-            cursor.sortFieldValue?.let { sortValue ->
-                firestoreQuery = firestoreQuery.startAfter(sortValue)
-                Logger.d { "Applied cursor with sortValue=$sortValue" }
+            cursor.lastDocumentSnapshot?.let { docSnapshot ->
+                // Use DocumentSnapshot for proper Firestore cursor pagination
+                firestoreQuery = firestoreQuery.startAfter(docSnapshot as DocumentSnapshot)
             } ?: run {
-                Logger.w { "Cursor missing sortFieldValue, skipping pagination" }
             }
         }
 
         // Apply limit
         firestoreQuery = firestoreQuery.limit(paginationRequest.limit.toLong())
 
-        Logger.d { "Executing Firestore query..." }
         val querySnapshot = firestoreQuery.get().await()
-        Logger.d { "Query returned ${querySnapshot.documents.size} documents" }
 
         val documents = querySnapshot.documents
 
@@ -172,7 +135,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 }
 
                 val domainModel = PromoCodeMapper.toDomain(dto)
-                Logger.d { "Successfully parsed document ${document.id}" }
                 domainModel
             } catch (e: Exception) {
                 Logger.e(e) { "Failed to parse document ${document.id}" }
@@ -180,7 +142,13 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             }
         }
 
-        val nextCursor = if (documents.isNotEmpty() && results.size == paginationRequest.limit) {
+        // Add back detailed logging for debugging
+        Logger.d { "Successfully loaded ${results.size} promo codes" }
+        results.forEachIndexed { index, promoCode ->
+            Logger.d { "  [${index + 1}] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})" }
+        }
+
+        val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
             val lastDoc = documents.last()
             val sortFieldValue = when (sortBy) {
                 PromoCodeSortBy.POPULARITY -> lastDoc.getLong("voteScore")
@@ -190,19 +158,13 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             PaginationCursor.fromDocumentSnapshot(
                 documentId = lastDoc.id,
                 sortFieldValue = sortFieldValue,
+                lastDocumentSnapshot = lastDoc, // Store the actual DocumentSnapshot
             )
         } else {
             null
         }
 
-        val hasMore = results.size == paginationRequest.limit
-
-        Logger.d { "Successfully loaded ${results.size} promo codes" }
-        results.forEachIndexed { index, promoCode ->
-            // The index here is relative to the current page, not the total count
-            Logger.d { "  [${index + 1}] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})" }
-        }
-        Logger.d { "hasMore=$hasMore, nextCursor=${nextCursor?.documentId}" }
+        val hasMore = documents.size == paginationRequest.limit
 
         val result = PaginatedResult.of(
             data = results,
@@ -230,9 +192,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .get()
             .await()
 
-        return document.toObject<PromoCodeDto>()?.let { dto ->
-            PromoCodeMapper.toDomain(dto)
-        }
+        return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
     }
 
     suspend fun getPromoCodeByCode(code: String): PromoCode? {
@@ -242,9 +202,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .get()
             .await()
 
-        return querySnapshot.documents.firstOrNull()?.toObject<PromoCodeDto>()?.let { dto ->
-            PromoCodeMapper.toDomain(dto)
-        }
+        return querySnapshot.documents.firstOrNull()?.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
     }
 
     suspend fun getPromoCodeByCodeAndService(
@@ -258,9 +216,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .get()
             .await()
 
-        return document.toObject<PromoCodeDto>()?.let { dto ->
-            PromoCodeMapper.toDomain(dto)
-        }
+        return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
     }
 
     suspend fun updatePromoCode(promoCode: PromoCode): PromoCode {
@@ -279,87 +235,6 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
             .document(id.value)
             .delete()
             .await()
-    }
-
-    suspend fun voteOnPromoCode(
-        promoCodeId: PromoCodeId,
-        userId: UserId,
-        isUpvote: Boolean
-    ): PromoCodeVote {
-        val voteDto = PromoCodeVoteDto(
-            id = "${promoCodeId.value}_${userId.value}",
-            promoCodeId = promoCodeId.value,
-            userId = userId.value,
-            isUpvote = isUpvote,
-        )
-
-        // Use batch write to ensure atomicity
-        val batch = firestore.batch()
-
-        // Add/update vote
-        val voteRef = firestore.collection(VOTES_COLLECTION).document(voteDto.id)
-        batch.set(voteRef, voteDto)
-
-        // Update vote counts on promocode
-        val promoCodeRef = firestore.collection(PROMOCODES_COLLECTION).document(promoCodeId.value)
-        if (isUpvote) {
-            batch.update(promoCodeRef, "upvotes", FieldValue.increment(1))
-        } else {
-            batch.update(promoCodeRef, "downvotes", FieldValue.increment(1))
-        }
-
-        batch.commit().await()
-
-        return PromoCodeMapper.voteToDomain(voteDto)
-    }
-
-    suspend fun removeVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ) {
-        val voteId = "${promoCodeId.value}_${userId.value}"
-
-        // Get existing vote to know which counter to decrement
-        val existingVoteSnapshot = firestore.collection(VOTES_COLLECTION)
-            .document(voteId)
-            .get()
-            .await()
-
-        val existingVote = existingVoteSnapshot.toObject<PromoCodeVoteDto>()
-
-        if (existingVote != null) {
-            val batch = firestore.batch()
-
-            // Remove vote
-            val voteRef = firestore.collection(VOTES_COLLECTION).document(voteId)
-            batch.delete(voteRef)
-
-            // Update vote counts on promocode
-            val promoCodeRef = firestore.collection(PROMOCODES_COLLECTION).document(promoCodeId.value)
-            if (existingVote.isUpvote) {
-                batch.update(promoCodeRef, "upvotes", FieldValue.increment(-1))
-            } else {
-                batch.update(promoCodeRef, "downvotes", FieldValue.increment(-1))
-            }
-
-            batch.commit().await()
-        }
-    }
-
-    suspend fun getUserVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ): PromoCodeVote? {
-        val voteId = "${promoCodeId.value}_${userId.value}"
-
-        val document = firestore.collection(VOTES_COLLECTION)
-            .document(voteId)
-            .get()
-            .await()
-
-        return document.toObject<PromoCodeVoteDto>()?.let { dto ->
-            PromoCodeMapper.voteToDomain(dto)
-        }
     }
 
     suspend fun incrementViewCount(id: PromoCodeId) {
@@ -437,14 +312,7 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 .whereIn("__name__", ids.map { it.value })
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        val wrappedException = when {
-                            error.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true ->
-                                SecurityException("permission denied: cannot observe promo codes", error)
-                            error.message?.contains("network", ignoreCase = true) == true ->
-                                IOException("connection error while observing promo codes", error)
-                            else -> IllegalStateException("service unavailable: failed to observe promo codes", error)
-                        }
-                        close(wrappedException)
+                        close(error)
                         return@addSnapshotListener
                     }
 
@@ -465,148 +333,4 @@ class FirestorePromoCodeDataSource @Inject constructor(private val firestore: Fi
                 listener.remove()
             }
         }
-
-    // Service-related methods
-    suspend fun createService(service: Service): Service {
-        val dto = ServiceMapper.toDto(service)
-
-        firestore.collection(SERVICES_COLLECTION)
-            .document(dto.documentId)
-            .set(dto)
-            .await()
-
-        return service
-    }
-
-    suspend fun searchServices(
-        query: String,
-        limit: Int = 20
-    ): List<Service> {
-        if (query.isBlank()) {
-            return getPopularServices(limit)
-        }
-
-        val queryLower = query.lowercase().trim()
-
-        // Get all services for client-side filtering (better search flexibility)
-        val allServicesQuery = firestore.collection(SERVICES_COLLECTION)
-            .get()
-            .await()
-
-        val allServices = allServicesQuery.documents.mapNotNull { document ->
-            try {
-                document.toObject<ServiceDto>()?.let { dto ->
-                    ServiceMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        // Smart client-side search with ranking
-        val searchResults = allServices.filter { service ->
-            val serviceName = service.name.lowercase()
-            val serviceCategory = service.category.lowercase()
-
-            // Match if query is contained in service name or category
-            serviceName.contains(queryLower) || serviceCategory.contains(queryLower)
-        }.sortedWith(
-            compareByDescending<Service> { service ->
-                val serviceName = service.name.lowercase()
-                val serviceCategory = service.category.lowercase()
-
-                when {
-                    // Exact name match (highest priority)
-                    serviceName == queryLower -> 5
-                    // Name starts with query (second priority)
-                    serviceName.startsWith(queryLower) -> 4
-                    // Name contains query (third priority)
-                    serviceName.contains(queryLower) -> 3
-                    // Exact category match (fourth priority)
-                    serviceCategory == queryLower -> 2
-                    // Category contains query (lowest priority)
-                    serviceCategory.contains(queryLower) -> 1
-                    else -> 0
-                }
-            }.thenByDescending { service ->
-                // Popular services get boost
-                if (service.isPopular) 1 else 0
-            }.thenByDescending { service ->
-                // Services with more promo codes get boost
-                service.promoCodeCount
-            },
-        )
-
-        return searchResults.take(limit)
-    }
-
-    suspend fun getPopularServices(limit: Int = 20): List<Service> {
-        Timber.d("FirestoreDataSource: getPopularServices called with limit=$limit")
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .orderBy("promoCodeCount", Query.Direction.DESCENDING)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
-            .get()
-            .await()
-
-        Timber.d("FirestoreDataSource: Query completed, found ${querySnapshot.documents.size} documents")
-        querySnapshot.documents.forEachIndexed { index, document ->
-            Timber.d("FirestoreDataSource: Document $index: ${document.id} - data: ${document.data}")
-        }
-
-        val services = querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<ServiceDto>()?.let { dto ->
-                    Timber.d("FirestoreDataSource: Mapping service: ${dto.name} with promoCodeCount=${dto.promoCodeCount}")
-                    ServiceMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                Timber.w("FirestoreDataSource: Failed to map document ${document.id}: $e")
-                null
-            }
-        }
-
-        Timber.d("FirestoreDataSource: Returning ${services.size} services")
-        return services
-    }
-
-    suspend fun getServicesByCategory(
-        category: String,
-        limit: Int = 20
-    ): List<Service> {
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .whereEqualTo("category", category)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<ServiceDto>()?.let { dto ->
-                    ServiceMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-
-    suspend fun getAllServices(limit: Int = 100): List<Service> {
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<ServiceDto>()?.let { dto ->
-                    ServiceMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
 }

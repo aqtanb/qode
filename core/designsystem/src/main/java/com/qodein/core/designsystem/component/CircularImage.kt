@@ -42,7 +42,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 @Composable
 fun CircularImage(
     imageUrl: String? = null,
-    initials: String? = null,
+    fallbackText: String? = null,
     fallbackIcon: ImageVector,
     modifier: Modifier = Modifier,
     size: Dp = SizeTokens.Avatar.sizeLarge,
@@ -74,7 +74,7 @@ fun CircularImage(
                 contentScale = ContentScale.Crop,
                 error = {
                     CircularImageFallback(
-                        initials = initials,
+                        fallbackText = fallbackText,
                         fallbackIcon = fallbackIcon,
                         size = size,
                         backgroundColor = backgroundColor,
@@ -91,7 +91,7 @@ fun CircularImage(
             )
         } else {
             CircularImageFallback(
-                initials = initials,
+                fallbackText = fallbackText,
                 fallbackIcon = fallbackIcon,
                 size = size,
                 backgroundColor = backgroundColor,
@@ -104,7 +104,7 @@ fun CircularImage(
 
 @Composable
 private fun CircularImageFallback(
-    initials: String?,
+    fallbackText: String?,
     fallbackIcon: ImageVector,
     size: Dp,
     backgroundColor: Color,
@@ -121,7 +121,7 @@ private fun CircularImageFallback(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize(),
         ) {
-            val displayInitials = initials?.takeIf { it.isNotBlank() }?.take(2)?.uppercase()
+            val displayInitials = fallbackText?.takeIf { it.isNotBlank() }?.take(2)?.uppercase()
 
             if (displayInitials != null) {
                 Text(
@@ -187,13 +187,13 @@ private fun CircularImagePreview() {
                 // With image URL
                 CircularImage(
                     imageUrl = "https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250",
-                    initials = "JD",
+                    fallbackText = "JD",
                     fallbackIcon = QodeNavigationIcons.Profile,
                     contentDescription = "Profile with image",
                 )
                 // With initials only
                 CircularImage(
-                    initials = "HB",
+                    fallbackText = "HB",
                     fallbackIcon = QodeNavigationIcons.Profile,
                     contentDescription = "Halyk Bank initials",
                 )
@@ -212,13 +212,13 @@ private fun CircularImagePreview() {
                 // Service with logo URL
                 CircularImage(
                     imageUrl = "https://kaspi.kz/img/kaspi_logo.svg",
-                    initials = "KS",
+                    fallbackText = "KS",
                     fallbackIcon = QodeNavigationIcons.Profile,
                     contentDescription = "Kaspi service",
                 )
                 // Service with initials
                 CircularImage(
-                    initials = "HB",
+                    fallbackText = "HB",
                     fallbackIcon = QodeNavigationIcons.Profile,
                     contentDescription = "Halyk Bank service",
                 )
@@ -236,22 +236,22 @@ private fun CircularImageSizesPreview() {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CircularImage(
-                initials = "SM",
+                fallbackText = "SM",
                 fallbackIcon = QodeNavigationIcons.Profile,
                 size = SizeTokens.Avatar.sizeSmall,
             )
             CircularImage(
-                initials = "MD",
+                fallbackText = "MD",
                 fallbackIcon = QodeNavigationIcons.Profile,
                 size = SizeTokens.Avatar.sizeMedium,
             )
             CircularImage(
-                initials = "LG",
+                fallbackText = "LG",
                 fallbackIcon = QodeNavigationIcons.Profile,
                 size = SizeTokens.Avatar.sizeLarge,
             )
             CircularImage(
-                initials = "XL",
+                fallbackText = "XL",
                 fallbackIcon = QodeNavigationIcons.Profile,
                 size = SizeTokens.Avatar.sizeXLarge,
             )

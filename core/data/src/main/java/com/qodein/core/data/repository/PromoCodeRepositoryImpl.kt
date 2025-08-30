@@ -1,6 +1,8 @@
 package com.qodein.core.data.repository
 
+import com.qodein.core.data.datasource.FirebaseVoteDataSource
 import com.qodein.core.data.datasource.FirestorePromoCodeDataSource
+import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.repository.PromoCodeSortBy
 import com.qodein.shared.model.PaginatedResult
@@ -16,11 +18,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: FirestorePromoCodeDataSource) : PromoCodeRepository {
+class PromoCodeRepositoryImpl @Inject constructor(
+    private val promoCodeDataSource: FirestorePromoCodeDataSource,
+    private val serviceDataSource: FirestoreServiceDataSource,
+    private val voteDataSource: FirebaseVoteDataSource
+) : PromoCodeRepository {
 
     override fun createPromoCode(promoCode: PromoCode): Flow<PromoCode> =
         flow {
-            emit(dataSource.createPromoCode(promoCode))
+            emit(promoCodeDataSource.createPromoCode(promoCode))
         }
 
     override fun getPromoCodes(
@@ -32,7 +38,7 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
     ): Flow<PaginatedResult<PromoCode>> =
         flow {
             emit(
-                dataSource.getPromoCodes(
+                promoCodeDataSource.getPromoCodes(
                     query = query,
                     sortBy = sortBy,
                     filterByServices = filterByServices,
@@ -44,22 +50,22 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
 
     override fun getPromoCodeById(id: PromoCodeId): Flow<PromoCode?> =
         flow {
-            emit(dataSource.getPromoCodeById(id))
+            emit(promoCodeDataSource.getPromoCodeById(id))
         }
 
     override fun getPromoCodeByCode(code: String): Flow<PromoCode?> =
         flow {
-            emit(dataSource.getPromoCodeByCode(code))
+            emit(promoCodeDataSource.getPromoCodeByCode(code))
         }
 
     override fun updatePromoCode(promoCode: PromoCode): Flow<PromoCode> =
         flow {
-            emit(dataSource.updatePromoCode(promoCode))
+            emit(promoCodeDataSource.updatePromoCode(promoCode))
         }
 
     override fun deletePromoCode(id: PromoCodeId): Flow<Unit> =
         flow {
-            dataSource.deletePromoCode(id)
+            promoCodeDataSource.deletePromoCode(id)
             emit(Unit)
         }
 
@@ -67,18 +73,9 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         promoCodeId: PromoCodeId,
         userId: UserId,
         isUpvote: Boolean
-    ): Flow<PromoCodeVote> =
+    ): Flow<PromoCodeVote?> =
         flow {
-            emit(dataSource.voteOnPromoCode(promoCodeId, userId, isUpvote))
-        }
-
-    override fun removeVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ): Flow<Unit> =
-        flow {
-            dataSource.removeVote(promoCodeId, userId)
-            emit(Unit)
+            emit(voteDataSource.voteOnPromoCode(promoCodeId, userId, isUpvote))
         }
 
     override fun getUserVote(
@@ -86,12 +83,12 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         userId: UserId
     ): Flow<PromoCodeVote?> =
         flow {
-            emit(dataSource.getUserVote(promoCodeId, userId))
+            emit(voteDataSource.getUserVote(promoCodeId, userId))
         }
 
     override fun incrementViewCount(id: PromoCodeId): Flow<Unit> =
         flow {
-            dataSource.incrementViewCount(id)
+            promoCodeDataSource.incrementViewCount(id)
             emit(Unit)
         }
 
@@ -101,7 +98,7 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         comment: String
     ): Flow<PromoCode> =
         flow {
-            emit(dataSource.addComment(promoCodeId, userId, comment))
+            emit(promoCodeDataSource.addComment(promoCodeId, userId, comment))
         }
 
     override fun getPromoCodesByUser(
@@ -110,12 +107,12 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         offset: Int
     ): Flow<List<PromoCode>> =
         flow {
-            emit(dataSource.getPromoCodesByUser(userId, limit, offset))
+            emit(promoCodeDataSource.getPromoCodesByUser(userId, limit, offset))
         }
 
     override fun getPromoCodesByService(serviceName: String): Flow<List<PromoCode>> =
         flow {
-            emit(dataSource.getPromoCodesByService(serviceName))
+            emit(promoCodeDataSource.getPromoCodesByService(serviceName))
         }
 
     override fun getPromoCodeByCodeAndService(
@@ -123,10 +120,10 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         serviceName: String
     ): Flow<PromoCode?> =
         flow {
-            emit(dataSource.getPromoCodeByCodeAndService(code, serviceName))
+            emit(promoCodeDataSource.getPromoCodeByCodeAndService(code, serviceName))
         }
 
-    override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> = dataSource.observePromoCodes(ids)
+    override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> = promoCodeDataSource.observePromoCodes(ids)
 
     // Service-related methods
 
@@ -135,12 +132,12 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         limit: Int
     ): Flow<List<Service>> =
         flow {
-            emit(dataSource.searchServices(query, limit))
+            emit(serviceDataSource.searchServices(query, limit))
         }
 
     override fun getPopularServices(limit: Int): Flow<List<Service>> =
         flow {
-            emit(dataSource.getPopularServices(limit))
+            emit(serviceDataSource.getPopularServices(limit))
         }
 
     override fun getServicesByCategory(
@@ -148,6 +145,6 @@ class PromoCodeRepositoryImpl @Inject constructor(private val dataSource: Firest
         limit: Int
     ): Flow<List<Service>> =
         flow {
-            emit(dataSource.getServicesByCategory(category, limit))
+            emit(serviceDataSource.getServicesByCategory(category, limit))
         }
 }

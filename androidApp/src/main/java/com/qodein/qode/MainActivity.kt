@@ -34,6 +34,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            // Don't render UI until preferences are loaded to prevent theme flashing
+            if (uiState.shouldKeepSplashScreen()) return@setContent
+
             val darkTheme = uiState.shouldUseDarkTheme(isSystemInDarkTheme())
 
             // Apply language changes immediately when state changes

@@ -26,7 +26,7 @@ fun ProfileAvatar(
 ) {
     CircularImage(
         imageUrl = optimizeImageUrl(user?.profile?.photoUrl),
-        initials = user?.let { extractInitials("${it.profile.firstName} ${it.profile.lastName ?: ""}".trim()) },
+        fallbackText = user?.let { extractInitials("${it.profile.firstName} ${it.profile.lastName ?: ""}".trim()) },
         fallbackIcon = QodeNavigationIcons.Profile,
         modifier = modifier,
         size = size,

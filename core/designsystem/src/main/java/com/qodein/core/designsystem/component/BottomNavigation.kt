@@ -50,8 +50,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeElevation
+import com.qodein.core.designsystem.theme.ElevationTokens
+import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 
@@ -90,7 +90,7 @@ fun QodeBottomNavigation(
         modifier = modifier,
         containerColor = containerColor,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        tonalElevation = QodeElevation.xs,
+        tonalElevation = ElevationTokens.small,
     ) {
         items.forEach { item ->
             QodeNavigationBarItem(
@@ -130,7 +130,7 @@ private fun RowScope.QodeNavigationBarItem(
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },
-        animationSpec = tween(durationMillis = QodeAnimation.MEDIUM),
+        animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM),
         label = "nav_item_color",
     )
 

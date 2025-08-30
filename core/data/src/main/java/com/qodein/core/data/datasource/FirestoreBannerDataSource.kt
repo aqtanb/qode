@@ -27,10 +27,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
         private const val BANNERS_COLLECTION = "banners"
     }
 
-    init {
-        Timber.tag(TAG).d("FirestoreBannerDataSource constructor called - DI working correctly")
-    }
-
     /**
      * Gets active banners for a specific country with real-time updates.
      * Uses Firestore array-contains query for country targeting.
@@ -44,8 +40,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
         limit: Int = 10
     ): Flow<List<Banner>> =
         callbackFlow {
-            Timber.tag(TAG).d("getBannersForCountry: Starting simplified query for country=$countryCode, limit=$limit")
-
             try {
                 // Use simpler single query for country-specific banners to avoid timing issues
                 val query = firestore.collection(BANNERS_COLLECTION)
@@ -70,8 +64,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                         }
                         snapshot != null -> {
                             try {
-                                Timber.tag(TAG).d("getBannersForCountry: Received ${snapshot.documents.size} documents")
-
                                 val banners = snapshot.documents.mapNotNull { document ->
                                     try {
                                         document.toObject<BannerDto>()?.let { dto ->
@@ -83,7 +75,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                     }
                                 }
 
-                                Timber.tag(TAG).d("getBannersForCountry: Successfully parsed ${banners.size} banners")
                                 trySend(banners)
                             } catch (e: Exception) {
                                 Timber.tag(TAG).e(e, "getBannersForCountry: Failed to process snapshot")
@@ -94,7 +85,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 }
 
                 awaitClose {
-                    Timber.tag(TAG).d("getBannersForCountry: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {
@@ -112,25 +102,7 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
      */
     fun getAllActiveBanners(limit: Int = 10): Flow<List<Banner>> =
         callbackFlow {
-            Timber.tag(TAG).d("getAllActiveBanners: Starting query for limit=$limit")
-            Timber.tag(TAG).d("getAllActiveBanners: Firestore project ID: ${firestore.app.options.projectId}")
-            Timber.tag(TAG).d("getAllActiveBanners: Querying collection: $BANNERS_COLLECTION")
-
             try {
-                // First, let's check if ANY documents exist in the banners collection
-                val allDocsQuery = firestore.collection(BANNERS_COLLECTION).limit(10)
-
-                val allDocsListener = allDocsQuery.addSnapshotListener { snapshot, error ->
-                    if (error == null && snapshot != null) {
-                        Timber.tag(TAG).d("getAllActiveBanners: DEBUG - Total documents in banners collection: ${snapshot.documents.size}")
-                        snapshot.documents.forEach { doc ->
-                            Timber.tag(
-                                TAG,
-                            ).d("getAllActiveBanners: DEBUG - Document ${doc.id}: isActive=${doc.get("isActive")}, data=${doc.data}")
-                        }
-                    }
-                }
-
                 val query = firestore.collection(BANNERS_COLLECTION)
                     .whereEqualTo("isActive", true)
                     .orderBy("priority", Query.Direction.DESCENDING)
@@ -152,8 +124,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                         }
                         snapshot != null -> {
                             try {
-                                Timber.tag(TAG).d("getAllActiveBanners: Received ${snapshot.documents.size} documents")
-
                                 val banners = snapshot.documents.mapNotNull { document ->
                                     try {
                                         document.toObject<BannerDto>()?.let { dto ->
@@ -165,7 +135,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                     }
                                 }
 
-                                Timber.tag(TAG).d("getAllActiveBanners: Successfully parsed ${banners.size} banners")
                                 trySend(banners)
                             } catch (e: Exception) {
                                 Timber.tag(TAG).e(e, "getAllActiveBanners: Failed to process snapshot")
@@ -176,7 +145,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                 }
 
                 awaitClose {
-                    Timber.tag(TAG).d("getAllActiveBanners: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {
@@ -193,8 +161,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
      */
     suspend fun getBannerById(bannerId: BannerId): Banner? =
         try {
-            Timber.tag(TAG).d("getBannerById: Fetching banner ${bannerId.value}")
-
             val document = firestore.collection(BANNERS_COLLECTION)
                 .document(bannerId.value)
                 .get()
@@ -202,11 +168,9 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
 
             if (document.exists()) {
                 document.toObject<BannerDto>()?.let { dto ->
-                    Timber.tag(TAG).d("getBannerById: Successfully found banner ${bannerId.value}")
                     BannerMapper.toDomain(dto)
                 }
             } else {
-                Timber.tag(TAG).d("getBannerById: Banner ${bannerId.value} not found")
                 null
             }
         } catch (e: Exception) {
@@ -229,13 +193,10 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
     fun observeBanners(bannerIds: List<BannerId>): Flow<List<Banner>> =
         callbackFlow {
             if (bannerIds.isEmpty()) {
-                Timber.tag(TAG).d("observeBanners: Empty banner IDs list, emitting empty list")
                 trySend(emptyList())
                 awaitClose { }
                 return@callbackFlow
             }
-
-            Timber.tag(TAG).d("observeBanners: Starting observation for ${bannerIds.size} banners")
 
             try {
                 val listener = firestore.collection(BANNERS_COLLECTION)
@@ -259,7 +220,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                                         }
                                     }
 
-                                    Timber.tag(TAG).d("observeBanners: Successfully parsed ${banners.size} banners")
                                     trySend(banners)
                                 } catch (e: Exception) {
                                     Timber.tag(TAG).e(e, "observeBanners: Failed to process snapshot")
@@ -270,7 +230,6 @@ class FirestoreBannerDataSource @Inject constructor(private val firestore: Fireb
                     }
 
                 awaitClose {
-                    Timber.tag(TAG).d("observeBanners: Removing listener")
                     listener.remove()
                 }
             } catch (e: Exception) {

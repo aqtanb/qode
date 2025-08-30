@@ -3,7 +3,6 @@ package com.qodein.core.ui.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,12 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -34,12 +31,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
+
+// TODO: Make all Service items look the same, popular ones, and search ones, they should show logourl, name, and category, promocodeCount, write preview
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -146,25 +151,6 @@ private fun ServiceSelectorContent(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                popularServices.take(12).forEach { service ->
-                    FilterChip(
-                        selected = selectedServices.any { it.id == service.id },
-                        onClick = { onServiceSelected(service) },
-                        label = {
-                            Text(
-                                text = service.name,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        },
-                    )
-                }
-            }
         }
 
         // Services list (search results or remaining popular services)
@@ -192,7 +178,7 @@ private fun ServiceSelectorContent(
             } else {
                 if (showingPopular) {
                     // Show remaining popular services (after the chips)
-                    items(popularServices.drop(12)) { service ->
+                    items(popularServices) { service ->
                         ServiceItem(
                             service = service,
                             isSelected = selectedServices.any { it.id == service.id },
@@ -241,41 +227,139 @@ private fun ServiceItem(
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier.padding(SpacingTokens.lg),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            modifier = modifier.fillMaxWidth(),
         ) {
-            Icon(
-                imageVector = Icons.Default.Business,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            CircularImage(
+                imageUrl = service.logoUrl,
+                fallbackText = service.name,
+                fallbackIcon = QodeCommerceIcons.Store,
+                size = SizeTokens.Icon.sizeMedium,
+                backgroundColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surface
+                },
+                contentColor = if (isSelected) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                contentDescription = "stringResource(nameRes)",
             )
 
-            Column {
-                Text(
-                    text = service.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                )
+            Text(
+                text = service.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(3f),
+            )
 
-                if (service.category.isNotBlank()) {
-                    Text(
-                        text = service.category,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            Text(
+                text = service.category,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
 
-                if (service.promoCodeCount > 0) {
-                    Text(
-                        text = "${service.promoCodeCount} promo codes",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
-                }
-            }
+            Text(
+                text = "${service.promoCodeCount} codes",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+// Preview for the ServiceItem
+@Preview(showBackground = true)
+@Composable
+private fun ServiceItemPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                "Service Items Preview",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+
+            // Popular service with logo and high promo count
+            ServiceItem(
+                service = Service.create(
+                    name = "Netflix",
+                    category = "Streaming",
+                    logoUrl = "https://logo.url/netflix.png",
+                    isPopular = true,
+                    promoCodeCount = 25,
+                ),
+                isSelected = false,
+                onClick = {},
+            )
+
+            // Selected service
+            ServiceItem(
+                service = Service.create(
+                    name = "Uber Eats",
+                    category = "Food",
+                    logoUrl = null, // No logo - will show first letter
+                    isPopular = false,
+                    promoCodeCount = 12,
+                ),
+                isSelected = true,
+                onClick = {},
+            )
+
+            // Service without promo codes
+            ServiceItem(
+                service = Service.create(
+                    name = "Spotify Premium",
+                    category = "Music",
+                    logoUrl = "https://logo.url/spotify.png",
+                    isPopular = true,
+                    promoCodeCount = 0,
+                ),
+                isSelected = false,
+                onClick = {},
+            )
+
+            // Long name service
+            ServiceItem(
+                service = Service.create(
+                    name = "Super Long Service Name That Gets Truncated",
+                    category = "Shopping",
+                    logoUrl = null,
+                    isPopular = false,
+                    promoCodeCount = 156,
+                ),
+                isSelected = false,
+                onClick = {},
+            )
+
+            // Minimal service
+            ServiceItem(
+                service = Service.create(
+                    name = "Epic Games",
+                    category = "Gaming",
+                    logoUrl = null,
+                    isPopular = false,
+                    promoCodeCount = 3,
+                ),
+                isSelected = false,
+                onClick = {},
+            )
         }
     }
 }

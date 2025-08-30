@@ -88,7 +88,7 @@ fun FiltersSection(
                             0 -> Triple(QodeCommerceIcons.Store, null, null)
                             1 -> {
                                 val service = filter.services.first()
-                                Triple(QodeCommerceIcons.Store, service.logoUrl, service.name.take(2))
+                                Triple(QodeCommerceIcons.Store, service.logoUrl, service.name)
                             }
                             else -> Triple(QodeNavigationIcons.More, null, null)
                         }
@@ -171,7 +171,7 @@ private fun FilterChip(
                 ) {
                     CircularImage(
                         imageUrl = logoUrl,
-                        initials = fallbackText,
+                        fallbackText = fallbackText,
                         fallbackIcon = icon,
                         size = SizeTokens.Avatar.sizeMedium,
                         backgroundColor = if (isSelected) {

@@ -102,7 +102,7 @@ interface PromoCodeRepository {
      * @param promoCodeId The promo code ID
      * @param userId The user ID casting the vote
      * @param isUpvote true for upvote, false for downvote
-     * @return Flow that emits [com.qodein.shared.model.PromoCodeVote] on successful vote
+     * @return Flow that emits [com.qodein.shared.model.PromoCodeVote] on successful vote, or null when vote is removed
      * @throws java.io.IOException when network request fails
      * @throws IllegalStateException when Firestore is unavailable
      * @throws IllegalArgumentException when user already voted
@@ -111,21 +111,7 @@ interface PromoCodeRepository {
         promoCodeId: PromoCodeId,
         userId: UserId,
         isUpvote: Boolean
-    ): Flow<PromoCodeVote>
-
-    /**
-     * Remove a user's vote from a promo code.
-     *
-     * @param promoCodeId The promo code ID
-     * @param userId The user ID removing the vote
-     * @return Flow that emits [Unit] on successful removal
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun removeVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ): Flow<Unit>
+    ): Flow<PromoCodeVote?>
 
     /**
      * Get user's vote on a specific promo code.

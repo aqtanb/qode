@@ -30,6 +30,7 @@ import com.qodein.feature.home.HomeAction
 import com.qodein.feature.home.R
 import com.qodein.feature.home.model.SortFilter
 import com.qodein.feature.home.ui.SortIconHelper
+import com.qodein.feature.home.ui.component.CouponPromoCodeCard
 import com.qodein.feature.home.ui.state.FilterState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.PromoCode
@@ -48,13 +49,9 @@ fun PromocodesSection(
 ) {
     Column(modifier = modifier) {
         // Section header for ALL states
-        val currentSortBy = (currentFilters.sortFilter as? SortFilter.Selected)?.sortBy
         PromoCodesSectionHeader(
-            titleRes = if (currentSortBy != null) {
-                SortIconHelper.getSortSectionTitleRes(currentSortBy)
-            } else {
-                R.string.home_section_title_popularity
-            },
+            promoCodeState = promoCodeState,
+            currentFilters = currentFilters,
             modifier = Modifier.padding(horizontal = SpacingTokens.lg),
         )
 
@@ -69,6 +66,7 @@ fun PromocodesSection(
             is PromoCodeState.Success -> {
                 PromoCodeContent(
                     promoCodes = promoCodeState.promoCodes,
+                    hasMore = promoCodeState.hasMore,
                     currentFilters = currentFilters,
                     isLoadingMore = isLoadingMore,
                     onAction = onAction,
@@ -80,9 +78,8 @@ fun PromocodesSection(
                 )
             }
             is PromoCodeState.Error -> {
-                ErrorCard(
-                    message = promoCodeState.errorType.toLocalizedMessage(),
-                    isRetryable = promoCodeState.isRetryable,
+                PromoCodesErrorState(
+                    errorState = promoCodeState,
                     onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
                     modifier = Modifier.padding(horizontal = SpacingTokens.lg),
                 )
@@ -94,30 +91,42 @@ fun PromocodesSection(
 @Composable
 private fun PromoCodeContent(
     promoCodes: List<PromoCode>,
+    hasMore: Boolean,
     currentFilters: FilterState,
     isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    PromoCodesList(
+        promoCodes = promoCodes,
+        hasMore = hasMore,
+        isLoadingMore = isLoadingMore,
+        onAction = onAction,
         modifier = modifier.fillMaxWidth().padding(top = SpacingTokens.md),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        // Promo codes list
-        PromoCodesList(
-            promoCodes = promoCodes,
-            onAction = onAction,
-        )
-
-        // Loading indicator for pagination
-        if (isLoadingMore) {
-            LoadingMoreIndicator()
-        }
-    }
+    )
 }
 
 @Composable
-private fun PromoCodesSectionHeader(
+fun PromoCodesSectionHeader(
+    promoCodeState: PromoCodeState,
+    currentFilters: FilterState,
+    modifier: Modifier = Modifier
+) {
+    val currentSortBy = (currentFilters.sortFilter as? SortFilter.Selected)?.sortBy
+    val titleRes = if (currentSortBy != null) {
+        SortIconHelper.getSortSectionTitleRes(currentSortBy)
+    } else {
+        R.string.home_section_title_popularity
+    }
+
+    PromoCodesSectionHeaderContent(
+        titleRes = titleRes,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun PromoCodesSectionHeaderContent(
     titleRes: Int,
     modifier: Modifier = Modifier
 ) {
@@ -134,6 +143,8 @@ private fun PromoCodesSectionHeader(
 @Composable
 private fun PromoCodesList(
     promoCodes: List<PromoCode>,
+    hasMore: Boolean,
+    isLoadingMore: Boolean,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -156,11 +167,16 @@ private fun PromoCodesList(
                 ),
             )
         }
+
+        // Loading indicator for pagination
+        if (isLoadingMore) {
+            LoadingMoreIndicator()
+        }
     }
 }
 
 @Composable
-private fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
+fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -184,6 +200,20 @@ private fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.primary,
         )
     }
+}
+
+@Composable
+fun PromoCodesErrorState(
+    errorState: PromoCodeState.Error,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ErrorCard(
+        message = errorState.errorType.toLocalizedMessage(),
+        isRetryable = errorState.isRetryable,
+        onRetry = onRetry,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -225,7 +255,7 @@ private fun ErrorCard(
 }
 
 @Composable
-private fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
+fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -260,7 +290,7 @@ private fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
+fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -277,6 +307,7 @@ private fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
 // MARK: - Constants
 
 private const val ERROR_ICON_ALPHA = 0.6f
+private const val PAGINATION_LOAD_THRESHOLD = 3
 
 @Preview(name = "PromoCodesSection - Loading", showBackground = true)
 @Composable

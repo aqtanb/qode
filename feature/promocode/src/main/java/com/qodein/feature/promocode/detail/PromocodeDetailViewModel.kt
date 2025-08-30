@@ -135,6 +135,20 @@ class PromocodeDetailViewModel @Inject constructor(
 
         if (currentState.isVoting) return
 
+        // Determine what action to take based on current vote state
+        val currentlyUpvoted = promoCode.isUpvotedByCurrentUser
+        val currentlyDownvoted = promoCode.isDownvotedByCurrentUser
+
+        val actionDescription = when {
+            isUpvote && currentlyUpvoted -> "remove upvote"
+            isUpvote && currentlyDownvoted -> "switch to upvote"
+            isUpvote && !currentlyUpvoted && !currentlyDownvoted -> "add upvote"
+            !isUpvote && currentlyDownvoted -> "remove downvote"
+            !isUpvote && currentlyUpvoted -> "switch to downvote"
+            !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> "add downvote"
+            else -> "vote"
+        }
+
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -144,6 +158,10 @@ class PromocodeDetailViewModel @Inject constructor(
                 )
             }
 
+            // Optimistically update UI state
+            val optimisticPromoCode = updatePromoCodeOptimistically(promoCode, isUpvote)
+            _uiState.update { it.copy(promoCode = optimisticPromoCode) }
+
             try {
                 // TODO: Get actual user ID from authentication
                 val userId = UserId("current_user")
@@ -151,7 +169,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 voteOnPromoCodeUseCase(promoCode.id, userId, isUpvote).collect { result ->
                     when (result) {
                         is Result.Success -> {
-                            // Refresh the promocode to get updated vote counts
+                            // Refresh to get actual server state (in case of conflicts)
                             refreshCurrentPromocode()
 
                             _events.emit(PromocodeDetailEvent.ShowVoteFeedback(isUpvote))
@@ -159,25 +177,37 @@ class PromocodeDetailViewModel @Inject constructor(
                             // Track analytics
                             val voteType = if (isUpvote) "upvote" else "downvote"
                             analyticsHelper.logVote(promoCode.id.value, voteType)
+
+                            Logger.d("PromocodeDetailViewModel") { "Successfully $actionDescription" }
                         }
                         is Result.Loading -> {
                             // Loading state already handled by isVoting flag
                         }
                         is Result.Error -> {
-                            _events.emit(
-                                PromocodeDetailEvent.ShowSnackbar(
-                                    "Failed to vote. Please try again.",
-                                ),
-                            )
+                            // Rollback optimistic update
+                            _uiState.update { it.copy(promoCode = promoCode) }
+
+                            val errorMessage = when {
+                                result.exception.message?.contains("already voted") == true -> {
+                                    "You have already voted on this promocode"
+                                }
+                                result.exception.message?.contains("network") == true -> {
+                                    "Network error. Please check your connection"
+                                }
+                                else -> "Failed to vote. Please try again"
+                            }
+
+                            _events.emit(PromocodeDetailEvent.ShowSnackbar(errorMessage))
                             Logger.e("PromocodeDetailViewModel") {
-                                "Failed to vote: ${result.exception.message}"
+                                "Failed to $actionDescription: ${result.exception.message}"
                             }
                         }
                     }
                     _uiState.update { it.copy(isVoting = false) }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isVoting = false) }
+                // Rollback optimistic update
+                _uiState.update { it.copy(promoCode = promoCode, isVoting = false) }
                 _events.emit(
                     PromocodeDetailEvent.ShowSnackbar(
                         "Voting failed. Please check your connection.",
@@ -189,6 +219,127 @@ class PromocodeDetailViewModel @Inject constructor(
             // Hide vote animation after delay
             delay(VOTE_ANIMATION_DURATION)
             _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
+        }
+    }
+
+    private fun updatePromoCodeOptimistically(
+        promoCode: PromoCode,
+        isUpvote: Boolean
+    ): PromoCode {
+        val currentlyUpvoted = promoCode.isUpvotedByCurrentUser
+        val currentlyDownvoted = promoCode.isDownvotedByCurrentUser
+
+        return when (promoCode) {
+            is PromoCode.PercentagePromoCode -> {
+                when {
+                    isUpvote && currentlyUpvoted -> {
+                        // Remove upvote
+                        promoCode.copy(
+                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    isUpvote && currentlyDownvoted -> {
+                        // Switch from downvote to upvote
+                        promoCode.copy(
+                            upvotes = promoCode.upvotes + 1,
+                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = true,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
+                        // Add upvote
+                        promoCode.copy(
+                            upvotes = promoCode.upvotes + 1,
+                            isUpvotedByCurrentUser = true,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    !isUpvote && currentlyDownvoted -> {
+                        // Remove downvote
+                        promoCode.copy(
+                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    !isUpvote && currentlyUpvoted -> {
+                        // Switch from upvote to downvote
+                        promoCode.copy(
+                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
+                            downvotes = promoCode.downvotes + 1,
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = true,
+                        )
+                    }
+                    !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
+                        // Add downvote
+                        promoCode.copy(
+                            downvotes = promoCode.downvotes + 1,
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = true,
+                        )
+                    }
+                    else -> promoCode
+                }
+            }
+            is PromoCode.FixedAmountPromoCode -> {
+                when {
+                    isUpvote && currentlyUpvoted -> {
+                        // Remove upvote
+                        promoCode.copy(
+                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    isUpvote && currentlyDownvoted -> {
+                        // Switch from downvote to upvote
+                        promoCode.copy(
+                            upvotes = promoCode.upvotes + 1,
+                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = true,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
+                        // Add upvote
+                        promoCode.copy(
+                            upvotes = promoCode.upvotes + 1,
+                            isUpvotedByCurrentUser = true,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    !isUpvote && currentlyDownvoted -> {
+                        // Remove downvote
+                        promoCode.copy(
+                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = false,
+                        )
+                    }
+                    !isUpvote && currentlyUpvoted -> {
+                        // Switch from upvote to downvote
+                        promoCode.copy(
+                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
+                            downvotes = promoCode.downvotes + 1,
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = true,
+                        )
+                    }
+                    !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
+                        // Add downvote
+                        promoCode.copy(
+                            downvotes = promoCode.downvotes + 1,
+                            isUpvotedByCurrentUser = false,
+                            isDownvotedByCurrentUser = true,
+                        )
+                    }
+                    else -> promoCode
+                }
+            }
         }
     }
 

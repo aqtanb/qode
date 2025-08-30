@@ -8,12 +8,12 @@ import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 
-class VoteOnPromoCodeUseCase constructor(private val promoCodeRepository: PromoCodeRepository) {
+class VoteOnPromoCodeUseCase(private val promoCodeRepository: PromoCodeRepository) {
     operator fun invoke(
         promoCodeId: PromoCodeId,
         userId: UserId,
         isUpvote: Boolean
-    ): Flow<Result<PromoCodeVote>> =
+    ): Flow<Result<PromoCodeVote?>> =
         promoCodeRepository.voteOnPromoCode(promoCodeId, userId, isUpvote)
             .asResult()
 }

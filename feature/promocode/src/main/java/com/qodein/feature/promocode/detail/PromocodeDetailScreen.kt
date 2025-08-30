@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,9 +36,9 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
+import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.feature.promocode.detail.component.StatisticsSection
 import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -173,12 +174,6 @@ private fun PromocodeDetailContent(
                         onFollowCategoryClicked = { onAction(PromocodeDetailAction.FollowCategoryClicked) },
                     )
 
-                    // Statistics Section - now horizontal and compact
-                    StatisticsSection(
-                        promoCode = promoCode,
-                        showVoteAnimation = uiState.showVoteAnimation,
-                    )
-
                     // Details Section
                     DetailsSection(promoCode = promoCode)
 
@@ -193,6 +188,12 @@ private fun PromocodeDetailContent(
                         onDownvoteClicked = { onAction(PromocodeDetailAction.DownvoteClicked) },
                         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
                         onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
+                    )
+
+                    FooterSection(
+                        views = promoCode.views,
+                        createdAt = promoCode.createdAt,
+                        modifier = Modifier.padding(horizontal = SpacingTokens.md),
                     )
 
                     // Bottom spacing - much smaller
@@ -247,10 +248,14 @@ private fun copyToClipboard(
     clipboard.setPrimaryClip(clip)
 }
 
-@Preview
+@Preview(
+    name = "Light Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true,
+)
 @Composable
 private fun PromocodeDetailScreenPreview() {
-    QodeTheme {
+    QodeTheme(darkTheme = false) {
         val samplePromoCode = PromoCode.PercentagePromoCode(
             id = PromoCodeId("SAMPLE_ID"),
             code = "FALL60",

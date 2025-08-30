@@ -27,7 +27,12 @@ class MainActivityViewModel @Inject constructor(devicePreferencesRepository: Dev
 }
 
 sealed interface MainActivityUiState {
-    data object Loading : MainActivityUiState
+    data object Loading : MainActivityUiState {
+        override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean {
+            // This should never be called since UI is hidden during Loading
+            error("shouldUseDarkTheme called on Loading state")
+        }
+    }
 
     data class Success(val theme: Theme, val language: Language) : MainActivityUiState {
         override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean =
@@ -46,5 +51,5 @@ sealed interface MainActivityUiState {
     /**
      * Returns `true` if dark theme should be used.
      */
-    fun shouldUseDarkTheme(isSystemDarkTheme: Boolean) = isSystemDarkTheme
+    fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean
 }

@@ -134,13 +134,6 @@ fun DetailsSection(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                 thickness = 1.dp,
             )
-
-            DetailRow(
-                icon = QodeActionIcons.Add,
-                label = "Created",
-                value = formatDateWithTime(promoCode.createdAt),
-                valueColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

@@ -4,7 +4,12 @@ package com.qodein.shared.model
  * Represents a pagination cursor for Firebase Firestore queries.
  * Contains the serialized document snapshot data needed for cursor-based pagination.
  */
-data class PaginationCursor(val documentId: String, val sortFieldValue: Any? = null, val additionalFields: Map<String, Any> = emptyMap()) {
+data class PaginationCursor(
+    val documentId: String,
+    val sortFieldValue: Any? = null,
+    val additionalFields: Map<String, Any> = emptyMap(),
+    val lastDocumentSnapshot: Any? = null // Store DocumentSnapshot for proper Firestore pagination
+) {
     companion object {
         /**
          * Create a cursor from Firebase DocumentSnapshot.
@@ -13,12 +18,14 @@ data class PaginationCursor(val documentId: String, val sortFieldValue: Any? = n
         fun fromDocumentSnapshot(
             documentId: String,
             sortFieldValue: Any?,
-            additionalFields: Map<String, Any> = emptyMap()
+            additionalFields: Map<String, Any> = emptyMap(),
+            lastDocumentSnapshot: Any? = null
         ): PaginationCursor =
             PaginationCursor(
                 documentId = documentId,
                 sortFieldValue = sortFieldValue,
                 additionalFields = additionalFields,
+                lastDocumentSnapshot = lastDocumentSnapshot,
             )
     }
 }

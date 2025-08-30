@@ -15,29 +15,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,18 +36,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.ElevationTokens
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeBorder
-import com.qodein.core.designsystem.theme.QodeCorners
-import com.qodein.core.designsystem.theme.QodeSize
+import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -72,23 +57,12 @@ enum class QodeCardVariant {
     Outlined
 }
 
-/**
- * Production-ready card component for Qode design system
- *
- * @param modifier Modifier to be applied to the card
- * @param variant The visual variant of the card
- * @param onClick Optional click handler (makes the card clickable)
- * @param shape The shape of the card
- * @param enabled Whether the card is enabled (for clickable cards)
- * @param contentPadding Padding for the card content
- * @param content The content of the card
- */
 @Composable
 fun QodeCard(
     modifier: Modifier = Modifier,
     variant: QodeCardVariant = QodeCardVariant.Elevated,
     onClick: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.large),
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
     content: @Composable ColumnScope.() -> Unit
@@ -137,8 +111,8 @@ fun QodeCard(
                 modifier = cardModifier,
                 shape = shape,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f),
                     disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                 ),
@@ -155,12 +129,12 @@ fun QodeCard(
                 modifier = cardModifier,
                 shape = shape,
                 border = BorderStroke(
-                    width = QodeBorder.thin,
+                    width = ShapeTokens.Border.thin,
                     color = MaterialTheme.colorScheme.outline,
                 ),
                 colors = CardDefaults.outlinedCardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
                     disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f),
                     disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 ),
@@ -174,18 +148,6 @@ fun QodeCard(
     }
 }
 
-/**
- * An expandable card that can show/hide additional content
- *
- * @param modifier Modifier to be applied to the card
- * @param variant The visual variant of the card
- * @param shape The shape of the card
- * @param title The title content of the card
- * @param expandedContent The content to show when expanded
- * @param expanded Whether the card is expanded
- * @param onExpandedChange Called when expansion state changes
- * @param enabled Whether the card is enabled
- */
 @Composable
 fun QodeExpandableCard(
     modifier: Modifier = Modifier,
@@ -199,13 +161,13 @@ fun QodeExpandableCard(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = QodeAnimation.MEDIUM),
+        animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM),
         label = "expand_icon_rotation",
     )
 
     QodeCard(
         modifier = modifier.animateContentSize(
-            animationSpec = tween(durationMillis = QodeAnimation.MEDIUM),
+            animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM),
         ),
         variant = variant,
         shape = shape,
@@ -238,127 +200,13 @@ fun QodeExpandableCard(
 
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(animationSpec = tween(durationMillis = QodeAnimation.MEDIUM)),
-            exit = shrinkVertically(animationSpec = tween(durationMillis = QodeAnimation.MEDIUM)),
+            enter = expandVertically(animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM)),
+            exit = shrinkVertically(animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM)),
         ) {
             Column(
                 modifier = Modifier.padding(top = SpacingTokens.md),
                 content = expandedContent,
             )
-        }
-    }
-}
-
-/**
- * A card with actions at the bottom
- *
- * @param modifier Modifier to be applied to the card
- * @param variant The visual variant of the card
- * @param shape The shape of the card
- * @param content The main content of the card
- * @param actions The action buttons to display at the bottom
- */
-@Composable
-fun QodeCardWithActions(
-    modifier: Modifier = Modifier,
-    variant: QodeCardVariant = QodeCardVariant.Elevated,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
-    content: @Composable ColumnScope.() -> Unit,
-    actions: @Composable RowScope.() -> Unit
-) {
-    QodeCard(
-        modifier = modifier,
-        variant = variant,
-        shape = shape,
-        contentPadding = PaddingValues(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(SpacingTokens.md),
-            content = content,
-        )
-
-        HorizontalDivider(
-            thickness = QodeBorder.thin,
-            color = MaterialTheme.colorScheme.outlineVariant,
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-            horizontalArrangement = Arrangement.End,
-            content = actions,
-        )
-    }
-}
-
-/**
- * A simple list item card for displaying items in a list
- *
- * @param modifier Modifier to be applied to the card
- * @param title The title text
- * @param subtitle Optional subtitle text
- * @param leadingContent Optional leading content (e.g., icon, avatar)
- * @param trailingContent Optional trailing content (e.g., icon, switch)
- * @param onClick Optional click handler
- * @param enabled Whether the card is enabled
- */
-@Composable
-fun QodeListCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String? = null,
-    leadingContent: @Composable (() -> Unit)? = null,
-    trailingContent: @Composable (() -> Unit)? = null,
-    onClick: (() -> Unit)? = null,
-    enabled: Boolean = true
-) {
-    val cardModifier = if (onClick != null) {
-        modifier.clickable(enabled = enabled, onClick = onClick)
-    } else {
-        modifier
-    }
-
-    Surface(
-        modifier = cardModifier,
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            leadingContent?.let {
-                it()
-                Spacer(modifier = Modifier.width(SpacingTokens.md))
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                subtitle?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-
-            trailingContent?.let {
-                Spacer(modifier = Modifier.width(SpacingTokens.md))
-                it()
-            }
         }
     }
 }
@@ -432,96 +280,5 @@ private fun QodeExpandableCardPreview() {
                 )
             },
         )
-    }
-}
-
-@Preview(name = "Card with Actions", showBackground = true)
-@Composable
-private fun QodeCardWithActionsPreview() {
-    QodeTheme {
-        QodeCardWithActions(
-            modifier = Modifier.padding(SpacingTokens.md),
-            content = {
-                Text("Promo Code: SAVE20", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(SpacingTokens.xs))
-                Text(
-                    "Get 20% off on all electronics",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-            actions = {
-                QodeButton(
-                    onClick = {},
-                    text = "Copy",
-                    variant = QodeButtonVariant.Text,
-                    size = QodeButtonSize.Small,
-                )
-                QodeButton(
-                    onClick = {},
-                    text = "Use Now",
-                    variant = QodeButtonVariant.Primary,
-                    size = QodeButtonSize.Small,
-                )
-            },
-        )
-    }
-}
-
-@Preview(name = "List Cards", showBackground = true)
-@Composable
-private fun QodeListCardPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(SpacingTokens.md),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            QodeListCard(
-                title = "Kaspi Bank",
-                subtitle = "5 active promo codes",
-                leadingContent = {
-                    Surface(
-                        modifier = Modifier.size(40.dp),
-                        shape = RoundedCornerShape(QodeCorners.sm),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Default.ShoppingCart,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        }
-                    }
-                },
-                trailingContent = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "View details",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                onClick = {},
-            )
-
-            QodeListCard(
-                title = "Notifications",
-                subtitle = "Get alerts for new promo codes",
-                leadingContent = {
-                    Icon(
-                        Icons.Default.Notifications,
-                        contentDescription = null,
-                        modifier = Modifier.size(QodeSize.iconMedium),
-                    )
-                },
-                trailingContent = {
-                    Switch(
-                        checked = true,
-                        onCheckedChange = {},
-                        modifier = Modifier.height(QodeSize.iconMedium),
-                    )
-                },
-            )
-        }
     }
 }

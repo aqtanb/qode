@@ -125,6 +125,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -240,7 +241,8 @@ firebase = [
     "firebase-auth",
     "firebase-firestore",
     "firebase-analytics",
-    "firebase-messaging"
+    "firebase-messaging",
+    "firebase-functions"
 ]
 
 firebase-extended = [

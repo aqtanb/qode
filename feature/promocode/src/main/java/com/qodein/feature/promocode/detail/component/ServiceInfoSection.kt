@@ -143,7 +143,7 @@ fun ServiceInfoSection(
                 promoCode.targetCountries.take(2).forEach { countryCode ->
                     CircularImage(
                         imageUrl = "https://flagcdn.com/w80/${countryCode.lowercase()}.png",
-                        initials = countryCode,
+                        fallbackText = countryCode,
                         fallbackIcon = QodeLocationIcons.Territory,
                         size = 28.dp,
                         contentDescription = "Flag of $countryCode",

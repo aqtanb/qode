@@ -135,6 +135,7 @@ data class PromoCodeDto(
     val endDate: Timestamp = Timestamp.now(),
     @ServerTimestamp
     val createdAt: Timestamp? = null,
+    val updatedAt: Timestamp? = null,
     val createdBy: String? = null,
 
     // User interaction flags (computed at query time)
@@ -176,6 +177,7 @@ data class PromoCodeDto(
         startDate = Timestamp.now(),
         endDate = Timestamp.now(),
         createdAt = null,
+        updatedAt = null,
         createdBy = null,
         isUpvotedByCurrentUser = false,
         isDownvotedByCurrentUser = false,
@@ -372,7 +374,7 @@ data class BannerDto(
     val ctaTitle: Map<String, String> = emptyMap(),
     val ctaDescription: Map<String, String> = emptyMap(),
     val ctaUrl: String? = null,
-    @PropertyName("isActive")
+    @get:PropertyName("isActive")
     val isActive: Boolean = true,
     val priority: Int = 0,
     val createdAt: Timestamp? = null,
