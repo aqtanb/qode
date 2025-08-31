@@ -99,7 +99,6 @@ fun ServiceAndTypeScreen(
             isVisible = showServiceSelector,
             services = serviceSearchResults,
             popularServices = popularServices,
-            currentSelection = wizardData.serviceName,
             onServiceSelected = { service ->
                 onAction(SubmissionWizardAction.UpdateServiceName(service.name))
                 showServiceSelector = false
@@ -108,9 +107,8 @@ fun ServiceAndTypeScreen(
             onSearch = onSearchServices,
             isLoading = isSearchingServices,
             sheetState = serviceSelectorSheetState,
-            title = "Select Service",
-            searchPlaceholder = "Search services...",
-            emptyMessage = "No services found",
+            searchQuery = "",
+            onSearchQueryChange = {},
         )
 
         Spacer(modifier = Modifier.height(SpacingTokens.md))

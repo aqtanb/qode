@@ -5,13 +5,14 @@ import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
+import com.qodein.shared.model.Language
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
 /**
  * Use case for retrieving banners based on user's country and preferences.
- * Implements fallback strategies for better UX.
+ * Implements fallback strategies and language prioritization for better UX.
  */
 class GetBannersUseCase(private val bannerRepository: BannerRepository) {
 
@@ -25,42 +26,54 @@ class GetBannersUseCase(private val bannerRepository: BannerRepository) {
     }
 
     /**
-     * Gets banners for Kazakhstan market with intelligent fallbacks.
+     * Gets banners with intelligent filtering and prioritization.
      *
+     * @param countryCode ISO 3166-1 alpha-2 country code (defaults to KZ)
+     * @param userLanguage Optional user language for banner prioritization
      * @param limit Maximum number of banners to return
-     * @return Flow<Result<List<Banner>>> with automatic fallbacks and error handling
+     * @return Flow<Result<List<Banner>>> with filtering, prioritization and fallbacks
      */
-    operator fun invoke(limit: Int = 10): Flow<Result<List<Banner>>> = getBannersForCountry(DEFAULT_COUNTRY_CODE, limit)
-
-    /**
-     * Gets banners for a specific country code.
-     * Useful for testing or manual country selection.
-     *
-     * @param countryCode ISO 3166-1 alpha-2 country code
-     * @param limit Maximum number of banners to return
-     * @return Flow<Result<List<Banner>>> for the specified country
-     */
-    fun getBannersForCountry(
-        countryCode: String,
-        limit: Int = 10
+    fun getBanners(
+        countryCode: String = DEFAULT_COUNTRY_CODE,
+        userLanguage: Language? = null,
+        limit: Int = 5
     ): Flow<Result<List<Banner>>> {
-        logger.d { "getBannersForCountry called with countryCode=$countryCode, limit=$limit" }
+        logger.d { "getBanners called with countryCode=$countryCode, language=$userLanguage, limit=$limit" }
         return bannerRepository.getAllActiveBanners(limit)
             .map { banners ->
                 logger.d { "Received ${banners.size} banners from repository" }
-                // Filter expired banners and prioritize country-specific ones
-                val filtered = filterExpiredBanners(banners)
-                val countryBanners = filtered.filter { banner ->
-                    banner.targetCountries.isEmpty() ||
-                        // Global banners
-                        banner.targetCountries.contains(countryCode.uppercase()) // Country-specific
+
+                // Step 1: Filter expired banners
+                val validBanners = filterExpiredBanners(banners)
+
+                // Step 2: Filter by country (global + country-specific)
+                val countryBanners = filterBannersByCountry(validBanners, countryCode)
+
+                // Step 3: Apply language prioritization if specified
+                val finalResult = if (userLanguage != null) {
+                    prioritizeBannersByLanguage(countryBanners, userLanguage)
+                } else {
+                    countryBanners
                 }
-                val result = countryBanners.ifEmpty { filtered.ifEmpty { getDefaultFallbackBanners() } }
-                logger.d { "Returning ${result.size} banners after filtering" }
+
+                // Step 4: Apply fallback logic
+                val result = when {
+                    finalResult.isNotEmpty() -> finalResult
+                    countryBanners.isNotEmpty() -> countryBanners
+                    validBanners.isNotEmpty() -> validBanners
+                    else -> getDefaultFallbackBanners()
+                }
+
+                logger.d { "Returning ${result.size} banners after filtering and prioritization" }
                 result
             }
             .asResult()
     }
+
+    /**
+     * Convenience operator function for default Kazakhstan market.
+     */
+    operator fun invoke(limit: Int = 5): Flow<Result<List<Banner>>> = getBanners(limit = limit)
 
     /**
      * Filters banners that have expired based on current server time.
@@ -71,6 +84,47 @@ class GetBannersUseCase(private val bannerRepository: BannerRepository) {
         return banners.filter { banner ->
             banner.isDisplayable(currentTime)
         }
+    }
+
+    /**
+     * Filters banners by country targeting.
+     * Includes global banners (no country targeting) and country-specific banners.
+     */
+    private fun filterBannersByCountry(
+        banners: List<Banner>,
+        countryCode: String
+    ): List<Banner> =
+        banners.filter { banner ->
+            banner.targetCountries.isEmpty() ||
+                // Global banners
+                banner.targetCountries.contains(countryCode.uppercase()) // Country-specific
+        }
+
+    /**
+     * Prioritizes banners by language availability.
+     * Banners with content in the user's preferred language appear first.
+     */
+    private fun prioritizeBannersByLanguage(
+        banners: List<Banner>,
+        userLanguage: Language
+    ): List<Banner> {
+        val languageKey = when (userLanguage) {
+            Language.ENGLISH -> "en"
+            Language.RUSSIAN -> "ru"
+            Language.KAZAKH -> "kk"
+        }
+
+        // Separate banners into those with and without user's language
+        val bannersWithUserLanguage = banners.filter { banner ->
+            banner.ctaTitle.containsKey(languageKey) && banner.ctaDescription.containsKey(languageKey)
+        }
+
+        val bannersWithoutUserLanguage = banners.filter { banner ->
+            !banner.ctaTitle.containsKey(languageKey) || !banner.ctaDescription.containsKey(languageKey)
+        }
+
+        // Return banners with user's language first, followed by others
+        return bannersWithUserLanguage + bannersWithoutUserLanguage
     }
 
     /**

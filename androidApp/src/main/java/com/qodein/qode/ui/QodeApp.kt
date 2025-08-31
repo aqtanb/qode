@@ -135,7 +135,7 @@ internal fun QodeApp(
                             contentDescription = stringResource(R.string.add),
                             variant = QodeButtonVariant.Primary,
                             size = QodeButtonSize.Large,
-                            modifier = Modifier.padding(SpacingTokens.sm),
+                            modifier = modifier.padding(SpacingTokens.sm),
                         )
                     }
                 },
@@ -180,7 +180,7 @@ internal fun QodeApp(
                 }
 
                 Box(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
                         .height(statusBarHeight)
                         .background(statusBarOverlayColor),

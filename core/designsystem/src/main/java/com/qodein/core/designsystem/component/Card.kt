@@ -62,7 +62,7 @@ fun QodeCard(
     modifier: Modifier = Modifier,
     variant: QodeCardVariant = QodeCardVariant.Elevated,
     onClick: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.large),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.full),
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
     content: @Composable ColumnScope.() -> Unit
@@ -100,7 +100,7 @@ fun QodeCard(
                 ),
             ) {
                 Column(
-                    modifier = Modifier.padding(contentPadding),
+                    modifier = modifier.padding(contentPadding),
                     content = content,
                 )
             }
@@ -118,7 +118,7 @@ fun QodeCard(
                 ),
             ) {
                 Column(
-                    modifier = Modifier.padding(contentPadding),
+                    modifier = modifier.padding(contentPadding),
                     content = content,
                 )
             }

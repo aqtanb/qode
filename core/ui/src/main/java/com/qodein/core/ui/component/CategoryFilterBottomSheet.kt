@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeColorScheme
@@ -80,47 +81,44 @@ fun CategoryFilterBottomSheet(
         Column(
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            // All Categories option with outlined style
-            FilterChip(
-                selected = currentFilter is CategoryFilter.All,
+            // All Categories option with circular outlined style
+            OutlinedButton(
                 onClick = {
                     onFilterSelected(CategoryFilter.All)
                     onDismiss()
                 },
-                label = {
-                    Text(
-                        text = stringResource(R.string.filter_category_all),
-                        fontWeight = if (currentFilter is CategoryFilter.All) FontWeight.SemiBold else FontWeight.Medium,
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = Color.Transparent,
-                    selectedContainerColor = Color.Transparent,
-                    labelColor = MaterialTheme.colorScheme.onSurface,
-                    selectedLabelColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = CircleShape,
+                border = BorderStroke(
+                    width = if (currentFilter is CategoryFilter.All) 2.dp else 1.dp,
+                    color = if (currentFilter is CategoryFilter.All) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.outline
+                    },
                 ),
-                border = FilterChipDefaults.filterChipBorder(
-                    enabled = true,
-                    selected = currentFilter is CategoryFilter.All,
-                    borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                    selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                    borderWidth = 1.dp,
-                    selectedBorderWidth = 2.dp,
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = if (currentFilter is CategoryFilter.All) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
                 ),
-            )
+            ) {
+                Text(
+                    text = stringResource(R.string.filter_category_all),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+            }
 
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp,
             )
 
-            // Category grid with gradient chips - smaller size
+            // Category chips with service-like design
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
@@ -128,7 +126,6 @@ fun CategoryFilterBottomSheet(
             ) {
                 for (category in availableCategories) {
                     val isSelected = currentFilter is CategoryFilter.Selected && currentFilter.contains(category)
-                    val gradient = CategoryIconHelper.getCategoryGradient(category)
 
                     FilterChip(
                         selected = isSelected,
@@ -140,73 +137,25 @@ fun CategoryFilterBottomSheet(
                             onFilterSelected(newFilter)
                         },
                         label = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(
-                                    imageVector = CategoryIconHelper.getCategoryIcon(category),
-                                    contentDescription = category,
-                                    tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                                Spacer(modifier = Modifier.width(SpacingTokens.xs))
-                                Text(
-                                    text = category,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-                        },
-                        modifier = Modifier.height(36.dp),
-                        colors = if (isSelected) {
-                            FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.Transparent,
-                                selectedLabelColor = Color.White,
-                            )
-                        } else {
-                            FilterChipDefaults.filterChipColors(
-                                containerColor = Color.Transparent,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            Text(
+                                text = category,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                             )
                         },
-                        border = if (isSelected) {
-                            FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = true,
-                                selectedBorderColor = Color.Transparent,
-                            )
-                        } else {
-                            FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = false,
-                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = CategoryIconHelper.getCategoryIcon(category),
+                                contentDescription = category,
+                                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                             )
                         },
+                        modifier = Modifier,
+                        shape = RoundedCornerShape(20.dp),
                     )
                 }
             }
-
-            // Close button with outlined style
-            OutlinedButton(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                ),
-            ) {
-                Text(
-                    text = stringResource(R.string.action_close),
-                    modifier = Modifier.padding(SpacingTokens.sm),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            // Bottom spacing for gesture area
-            Spacer(modifier = Modifier.height(SpacingTokens.lg))
         }
     }
 }

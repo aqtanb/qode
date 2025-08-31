@@ -5,10 +5,15 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.qodein.core.ui.component.CategoryFilterBottomSheet
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.feature.home.HomeAction
+import com.qodein.feature.home.ui.state.SearchResultState
 import com.qodein.feature.home.ui.state.ServiceSearchState
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ServiceFilter
@@ -44,18 +49,25 @@ fun DialogCoordinator(
             }
 
             FilterDialogType.Service -> {
-                val sheetState = rememberModalBottomSheetState()
-                val services = when (serviceSearchState) {
-                    is ServiceSearchState.Success -> serviceSearchState.services
+                var isSearchFocused by remember { mutableStateOf(false) }
+                val isSearching = serviceSearchState.query.length >= 2
+
+                // Use different sheet state based on focus/search mode
+                val sheetState = rememberModalBottomSheetState(
+                    skipPartiallyExpanded = isSearchFocused || isSearching,
+                )
+
+                val services = when (serviceSearchState.state) {
+                    is SearchResultState.Success -> serviceSearchState.state.services
                     else -> emptyList()
                 }
-                val isLoading = serviceSearchState is ServiceSearchState.Loading
 
                 ServiceSelectorBottomSheet(
                     isVisible = true,
                     services = services,
-                    popularServices = services,
-                    currentSelection = "",
+                    popularServices = services, // TODO: Separate popular services from search results
+                    searchQuery = serviceSearchState.query,
+                    onSearchQueryChange = { query -> onAction(HomeAction.SearchServices(query)) },
                     onServiceSelected = { service ->
                         val currentFilter = currentFilters.serviceFilter
                         val newFilter = when (currentFilter) {
@@ -67,15 +79,13 @@ fun DialogCoordinator(
                     },
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
                     onSearch = { query -> onAction(HomeAction.SearchServices(query)) },
-                    isLoading = isLoading,
+                    isLoading = serviceSearchState.isLoading,
                     sheetState = sheetState,
-                    title = "Filter by Service",
-                    searchPlaceholder = "Search for services...",
-                    emptyMessage = "No services found",
                     selectedServices = when (val filter = currentFilters.serviceFilter) {
                         ServiceFilter.All -> emptyList()
                         is ServiceFilter.Selected -> filter.services.toList()
                     },
+                    onSearchFocused = { focused -> isSearchFocused = focused },
                 )
             }
 

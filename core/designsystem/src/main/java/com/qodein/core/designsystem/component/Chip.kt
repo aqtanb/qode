@@ -90,7 +90,7 @@ fun QodeChip(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(
+                    modifier = modifier.size(
                         when (size) {
                             QodeChipSize.Small -> 14.dp
                             QodeChipSize.Medium -> 18.dp
@@ -105,7 +105,7 @@ fun QodeChip(
                 {
                     IconButton(
                         onClick = onClose,
-                        modifier = Modifier.size(
+                        modifier = modifier.size(
                             when (size) {
                                 QodeChipSize.Small -> 16.dp
                                 QodeChipSize.Medium -> 20.dp
@@ -116,7 +116,7 @@ fun QodeChip(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Remove",
-                            modifier = Modifier.size(
+                            modifier = modifier.size(
                                 when (size) {
                                     QodeChipSize.Small -> 12.dp
                                     QodeChipSize.Medium -> 16.dp

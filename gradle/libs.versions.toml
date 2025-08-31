@@ -2,7 +2,7 @@
 # Build Tools & SDK
 agp = "8.11.1"
 kotlin = "2.2.10"
-ksp = "2.2.0-2.0.2"
+ksp = "2.2.10-2.0.2"
 
 # SDK Versions
 compileSdk = "36"

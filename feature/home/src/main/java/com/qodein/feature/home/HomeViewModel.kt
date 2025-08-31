@@ -8,7 +8,7 @@ import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.feature.home.ui.state.ServiceSearchState
+import com.qodein.feature.home.ui.state.SearchResultState
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
@@ -21,6 +21,7 @@ import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
@@ -107,9 +108,9 @@ class HomeViewModel @Inject constructor(
         loadInitialPage()
     }
 
-    private fun loadBanners() {
+    private fun loadBanners(userLanguage: Language? = null) {
         viewModelScope.launch {
-            getBannersUseCase(limit = DEFAULT_PAGE_SIZE).collect { result ->
+            getBannersUseCase.getBanners(userLanguage = userLanguage, limit = DEFAULT_PAGE_SIZE).collect { result ->
                 _uiState.update { state ->
                     state.copy(
                         bannerState = when (result) {
@@ -396,24 +397,27 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 .collect { result ->
+                    val currentQuery = _uiState.value.serviceSearchState.query
                     _uiState.update { state ->
                         state.copy(
-                            serviceSearchState = when (result) {
-                                is Result.Loading -> ServiceSearchState.Loading
-                                is Result.Success -> {
-                                    if (result.data.isEmpty()) {
-                                        ServiceSearchState.Empty
-                                    } else {
-                                        ServiceSearchState.Success(result.data)
+                            serviceSearchState = state.serviceSearchState.copy(
+                                state = when (result) {
+                                    is Result.Loading -> SearchResultState.Loading
+                                    is Result.Success -> {
+                                        if (result.data.isEmpty()) {
+                                            SearchResultState.Empty
+                                        } else {
+                                            SearchResultState.Success(result.data)
+                                        }
                                     }
-                                }
-                                is Result.Error -> ServiceSearchState.Error(
-                                    errorType = result.exception.toErrorType(),
-                                    isRetryable = result.exception.isRetryable(),
-                                    shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                    errorCode = result.exception.getErrorCode(),
-                                )
-                            },
+                                    is Result.Error -> SearchResultState.Error(
+                                        errorType = result.exception.toErrorType(),
+                                        isRetryable = result.exception.isRetryable(),
+                                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                        errorCode = result.exception.getErrorCode(),
+                                    )
+                                },
+                            ),
                         )
                     }
                 }
@@ -421,6 +425,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun searchServices(query: String) {
+        // Update query immediately in UI state
+        _uiState.update { state ->
+            state.copy(
+                serviceSearchState = state.serviceSearchState.copy(query = query),
+            )
+        }
+
         viewModelScope.launch {
             searchQueryFlow.emit(query)
         }

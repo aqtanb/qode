@@ -89,7 +89,7 @@ fun AuthContent(
         QodeHeroGradient()
 
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = SpacingTokens.lg),
@@ -104,7 +104,7 @@ fun AuthContent(
                         errorAction = state.errorType.suggestedAction(),
                         onActionClicked = { onAction(AuthAction.RetryClicked) },
                         onDismiss = { onAction(AuthAction.DismissErrorClicked) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = modifier.fillMaxWidth(),
                     )
                 }
 
@@ -113,7 +113,7 @@ fun AuthContent(
                     AuthSignInCard(
                         state = state,
                         onAction = onAction,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -133,7 +133,7 @@ private fun AuthSignInCard(
         modifier = modifier,
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .padding(SpacingTokens.md)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,7 +143,7 @@ private fun AuthSignInCard(
                 size = QodeLogoSize.Large,
                 style = QodeLogoStyle.Default,
                 backgroundColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.padding(bottom = SpacingTokens.sm),
+                modifier = modifier.padding(bottom = SpacingTokens.sm),
             )
 
             Text(
@@ -165,12 +165,12 @@ private fun AuthSignInCard(
                 onClick = {
                     onAction(AuthAction.SignInWithGoogleClicked)
                 },
-                modifier = Modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
+                modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
                 isLoading = state is AuthUiState.Loading,
             )
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
             ) {

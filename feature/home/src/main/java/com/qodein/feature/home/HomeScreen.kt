@@ -161,6 +161,9 @@ private fun HomeContent(
                 onFilterSelected = { filterType ->
                     onAction(HomeAction.ShowFilterDialog(filterType))
                 },
+                onResetFilters = {
+                    onAction(HomeAction.ResetFilters)
+                },
             )
         }
 

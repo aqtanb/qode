@@ -12,15 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -32,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,10 +39,13 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.R
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
 
@@ -52,36 +55,42 @@ fun ServiceSelectorBottomSheet(
     isVisible: Boolean,
     services: List<Service>,
     popularServices: List<Service>,
-    currentSelection: String,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onServiceSelected: (Service) -> Unit,
     onDismiss: () -> Unit,
     onSearch: (String) -> Unit,
+    modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     sheetState: SheetState,
-    modifier: Modifier = Modifier,
-    title: String = "Select Service",
-    searchPlaceholder: String = "Search services...",
-    emptyMessage: String = "No services found",
-    selectedServices: List<Service> = emptyList()
+    selectedServices: List<Service> = emptyList(),
+    onSearchFocused: (Boolean) -> Unit = {}
 ) {
     if (isVisible) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
+        var isSearchFocused by remember { mutableStateOf(false) }
+
+        SharedFilterBottomSheet(
+            isVisible = isVisible,
+            title = stringResource(R.string.select_service_title),
+            onDismiss = onDismiss,
             sheetState = sheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() },
             modifier = modifier,
         ) {
             ServiceSelectorContent(
                 services = services,
                 popularServices = popularServices,
-                currentSelection = currentSelection,
+                searchQuery = searchQuery,
+                onSearchQueryChange = onSearchQueryChange,
                 onServiceSelected = onServiceSelected,
                 onSearch = onSearch,
                 isLoading = isLoading,
-                title = title,
-                searchPlaceholder = searchPlaceholder,
-                emptyMessage = emptyMessage,
                 selectedServices = selectedServices,
+                onDismiss = onDismiss,
+                isSearchMode = false,
+                onSearchFocusChange = { focused ->
+                    isSearchFocused = focused
+                    onSearchFocused(focused)
+                },
             )
         }
     }
@@ -92,150 +101,188 @@ fun ServiceSelectorBottomSheet(
 private fun ServiceSelectorContent(
     services: List<Service>,
     popularServices: List<Service>,
-    currentSelection: String,
     onServiceSelected: (Service) -> Unit,
     onSearch: (String) -> Unit,
     isLoading: Boolean,
-    title: String,
-    searchPlaceholder: String,
-    emptyMessage: String,
-    selectedServices: List<Service> = emptyList()
+    selectedServices: List<Service>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    isSearchMode: Boolean,
+    onSearchFocusChange: ((Boolean) -> Unit)? = null
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    val showingPopular = searchQuery.length < 2
-    val displayServices = if (showingPopular) popularServices else services
+    var isSearchFocused by remember { mutableStateOf(false) }
+    val isSearching = searchQuery.length >= 2
+
+    // Only show services for 2+ character searches
+    val displayServices = if (isSearching) {
+        services
+    } else {
+        emptyList()
+    }
+
+    // Sort popular services alphabetically
+    val sortedPopularServices = remember(popularServices) {
+        popularServices.sortedBy { it.name }
+    }
 
     // Debounced search
     LaunchedEffect(searchQuery) {
         if (searchQuery.length >= 2) {
-            delay(500) // 500ms debounce
+            delay(300)
             onSearch(searchQuery)
         }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(SpacingTokens.lg),
+        modifier = if (isSearchMode) Modifier.fillMaxWidth().padding(SpacingTokens.lg) else Modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // Header
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        // Search mode header and back button
+        if (isSearchMode) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = QodeActionIcons.Back,
+                        contentDescription = stringResource(R.string.action_back),
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.search_services_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
 
-        // Search field
+        // Circular search field
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search services") },
-            placeholder = { Text(searchPlaceholder) },
+            onValueChange = onSearchQueryChange,
+            label = { Text(stringResource(R.string.search_services_label)) },
+            placeholder = { Text(stringResource(R.string.search_services_placeholder)) },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
+                    imageVector = QodeNavigationIcons.Search,
+                    contentDescription = stringResource(R.string.search_icon_description),
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = if (searchQuery.isNotEmpty()) {
+                {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            imageVector = QodeActionIcons.Close,
+                            contentDescription = stringResource(R.string.action_clear),
+                        )
+                    }
+                }
+            } else {
+                null
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    isSearchFocused = focusState.isFocused
+                    onSearchFocusChange?.invoke(focusState.isFocused)
+                },
             singleLine = true,
+            shape = RoundedCornerShape(28.dp),
         )
 
-        // Popular services as FlowRow chips (when not searching)
-        if (showingPopular && popularServices.isNotEmpty()) {
+        // Popular services chips (when search query is empty)
+        if (searchQuery.isEmpty()) {
             Text(
-                text = "Popular Services",
+                text = stringResource(R.string.popular_services_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                // Show first 8 popular services as chips for quick selection
-                popularServices.take(8).forEach { service ->
-                    ServiceChip(
-                        service = service,
-                        isSelected = selectedServices.any { it.id == service.id },
-                        onClick = { onServiceSelected(service) },
+            val servicesToShow = sortedPopularServices
+
+            if (servicesToShow.isNotEmpty()) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    servicesToShow.take(20).forEach { service ->
+                        ServiceChip(
+                            service = service,
+                            isSelected = selectedServices.any { it.id == service.id },
+                            onClick = { onServiceSelected(service) },
+                        )
+                    }
+                }
+            } else if (isLoading) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(SpacingTokens.lg),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.size(SpacingTokens.sm))
+                    Text(
+                        text = stringResource(R.string.searching_message),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-
-            if (popularServices.size > 8) {
-                Text(
-                    text = "All Services",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = SpacingTokens.md),
-                )
-            }
         }
 
-        // Services list (search results or remaining popular services)
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            modifier = Modifier.height(if (showingPopular && popularServices.isNotEmpty()) 300.dp else 400.dp),
-        ) {
-            if (isLoading && !showingPopular) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(SpacingTokens.xl),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        Spacer(modifier = Modifier.size(SpacingTokens.md))
-                        Text(
-                            text = "Loading services...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            } else {
-                if (showingPopular) {
-                    // Show remaining popular services (after the chips)
-                    items(popularServices) { service ->
-                        ServiceItem(
-                            service = service,
-                            isSelected = selectedServices.any { it.id == service.id },
-                            onClick = { onServiceSelected(service) },
-                        )
+        // Search results (only when searching)
+        if (isSearching) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                modifier = Modifier.height(if (isSearchMode) 600.dp else 400.dp),
+            ) {
+                if (isLoading) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(SpacingTokens.xl),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.size(SpacingTokens.md))
+                            Text(
+                                text = stringResource(R.string.searching_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 } else {
-                    // Show search results
-                    items(services) { service ->
+                    items(displayServices) { service ->
                         ServiceItem(
                             service = service,
                             isSelected = selectedServices.any { it.id == service.id },
                             onClick = { onServiceSelected(service) },
                         )
                     }
-                }
 
-                if (displayServices.isEmpty() && !isLoading) {
-                    item {
-                        Text(
-                            text = emptyMessage,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(SpacingTokens.xl),
-                        )
+                    if (displayServices.isEmpty() && !isLoading) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.no_services_found_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(SpacingTokens.xl),
+                            )
+                        }
                     }
                 }
             }
         }
-
-        // Bottom spacing
-        Spacer(modifier = Modifier.height(SpacingTokens.lg))
     }
 }
 
@@ -423,5 +470,6 @@ private fun ServiceChip(
             null
         },
         modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
     )
 }

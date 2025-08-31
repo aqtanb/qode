@@ -92,8 +92,9 @@ object TopBarConfigProvider {
                         )
                     }
                     else -> {
-                        // Generic nested screen
-                        TopBarConfig.Basic(title = "")
+                        // During startup, navigation isn't fully initialized yet
+                        // App starts on Home screen, so return None during this phase
+                        TopBarConfig.None
                     }
                 }
             }

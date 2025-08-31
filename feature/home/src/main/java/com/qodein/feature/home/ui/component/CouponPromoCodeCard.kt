@@ -1,9 +1,11 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.qodein.feature.home.ui.component
 
+import android.content.ClipData
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,21 +31,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,9 +68,11 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.core.ui.R
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
@@ -80,17 +84,13 @@ import kotlin.time.toJavaInstant
 private object CouponTokens {
     val cardHeight = 140.dp
     val stubWidth = 90.dp // Slightly wider for more content
-    val dividerWidth = 4.dp
     val iconSize = SizeTokens.Icon.sizeMedium
-    val dashInterval = floatArrayOf(6f, 4f)
 
     // Coupon cutout dimensions
-    val cutoutRadius = 8.dp
+    val cutoutRadius = 12.dp
     val cutoutDiameter = cutoutRadius * 2
 
-    // Vibrant colors for better UX
-    val percentageColor = Color(0xFF16A34A) // Success green
-    val fixedAmountColor = Color(0xFFEA580C) // Warning orange
+    // Colors will be determined from theme at runtime
 }
 
 // Custom coupon shape with actual cuts at perforation line
@@ -116,12 +116,18 @@ private class CouponShape(private val cornerRadius: Float, private val cutoutRad
                 forceMoveTo = false,
             )
 
-            // Top edge to perforation
+            // Top edge to cutout start
             lineTo(perforationX - cutoutRadius, 0f)
 
-            // Top triangle cutout at perforation line - taller
-            lineTo(perforationX, cutoutRadius * 2)
-            lineTo(perforationX + cutoutRadius, 0f)
+            // TOP circular cutout (using cubicTo for precise control)
+            cubicTo(
+                x1 = perforationX - cutoutRadius / 2,
+                y1 = cutoutRadius,
+                x2 = perforationX + cutoutRadius / 2,
+                y2 = cutoutRadius,
+                x3 = perforationX + cutoutRadius,
+                y3 = 0f,
+            )
 
             // Continue top edge
             lineTo(width - cornerRadius, 0f)
@@ -145,12 +151,18 @@ private class CouponShape(private val cornerRadius: Float, private val cutoutRad
                 forceMoveTo = false,
             )
 
-            // Bottom edge to perforation
+            // Bottom edge to cutout start
             lineTo(perforationX + cutoutRadius, height)
 
-            // Bottom triangle cutout at perforation line - taller
-            lineTo(perforationX, height - cutoutRadius * 2)
-            lineTo(perforationX - cutoutRadius, height)
+            // BOTTOM circular cutout (using cubicTo for precise control)
+            cubicTo(
+                x1 = perforationX + cutoutRadius / 2,
+                y1 = height - cutoutRadius,
+                x2 = perforationX - cutoutRadius / 2,
+                y2 = height - cutoutRadius,
+                x3 = perforationX - cutoutRadius,
+                y3 = height,
+            )
 
             // Continue bottom edge
             lineTo(cornerRadius, height)
@@ -175,7 +187,7 @@ private class CouponShape(private val cornerRadius: Float, private val cutoutRad
 
 /**
  * Coupon-style promo code card that looks like a real coupon with a detachable stub.
- * Features improved layout, visible perforated divider, and vibrant color scheme.
+ * Features Material 3 theming, circular cutouts, working copy functionality, and enhanced accessibility.
  */
 @Composable
 fun CouponPromoCodeCard(
@@ -184,6 +196,9 @@ fun CouponPromoCodeCard(
     onCopyCodeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val clipboard = LocalClipboard.current
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     var isPressed by remember { mutableStateOf(false) }
 
     val scale by animateFloatAsState(
@@ -198,14 +213,21 @@ fun CouponPromoCodeCard(
         is PromoCode.FixedAmountPromoCode -> "${promoCode.discountAmount.toInt()}\nKZT\nOFF"
     }
 
-    // Vibrant color scheme for better visual appeal
+    // Theme-aware color scheme for better visual appeal
+    val extendedColors = MaterialTheme.extendedColorScheme
     val (stubColor, stubGradient) = when (promoCode) {
-        is PromoCode.PercentagePromoCode ->
-            CouponTokens.percentageColor to
-                Brush.verticalGradient(listOf(CouponTokens.percentageColor, CouponTokens.percentageColor.copy(alpha = 0.8f)))
-        is PromoCode.FixedAmountPromoCode ->
-            CouponTokens.fixedAmountColor to
-                Brush.verticalGradient(listOf(CouponTokens.fixedAmountColor, CouponTokens.fixedAmountColor.copy(alpha = 0.8f)))
+        is PromoCode.PercentagePromoCode -> {
+            val baseColor = MaterialTheme.colorScheme.primary
+            baseColor to Brush.verticalGradient(
+                listOf(baseColor, baseColor.copy(alpha = 0.8f)),
+            )
+        }
+        is PromoCode.FixedAmountPromoCode -> {
+            val baseColor = extendedColors.complementary
+            baseColor to Brush.verticalGradient(
+                listOf(baseColor, baseColor.copy(alpha = 0.8f)),
+            )
+        }
     }
 
     // Create custom coupon shape with actual cuts
@@ -253,7 +275,7 @@ fun CouponPromoCodeCard(
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     // Top section - Service name and category
-                    CouponHeaderSection(
+                    CouponHeader(
                         serviceName = promoCode.serviceName,
                         category = promoCode.category,
                     )
@@ -261,20 +283,18 @@ fun CouponPromoCodeCard(
                     Spacer(modifier = Modifier.height(SpacingTokens.md))
 
                     // Clean promo code section (no ugly background)
-                    CleanCodeSection(
+                    PromoCodeRow(
                         code = promoCode.code,
-                        onCopyClick = onCopyCodeClick,
+                        onCopyClick = {
+                            // Copy to clipboard using coroutine
+                            coroutineScope.launch {
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("promo_code", promoCode.code)))
+                            }
+                            // Call the provided callback
+                            onCopyCodeClick()
+                        },
                     )
                 }
-
-                // Enhanced perforated divider aligned with cutouts
-                EnhancedPerforatedDivider(
-                    modifier = Modifier
-                        .width(CouponTokens.dividerWidth)
-                        .fillMaxHeight()
-                        .padding(vertical = CouponTokens.cutoutDiameter)
-                        .offset(x = 3.dp), // Move slightly right to align with cutouts
-                )
 
                 // Right section - Enhanced coupon stub with gradient
                 Box(
@@ -306,7 +326,7 @@ fun CouponPromoCodeCard(
 
 // MARK: - Header Section
 @Composable
-private fun CouponHeaderSection(
+private fun CouponHeader(
     serviceName: String,
     category: String?,
     modifier: Modifier = Modifier
@@ -314,7 +334,7 @@ private fun CouponHeaderSection(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = serviceName,
@@ -323,33 +343,39 @@ private fun CouponHeaderSection(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
+            modifier = modifier.weight(1f),
         )
 
-        category?.let { categoryText ->
-            Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(ShapeTokens.Corner.small),
-                modifier = Modifier.padding(start = SpacingTokens.sm),
-            ) {
-                Text(
-                    text = categoryText,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(
-                        horizontal = SpacingTokens.sm,
-                        vertical = SpacingTokens.xs,
-                    ),
-                )
-            }
+        Spacer(modifier = Modifier.width(SpacingTokens.sm))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+        ) {
+            Icon(
+                imageVector = QodeCommerceIcons.Store,
+                contentDescription = "active",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+            )
+            Icon(
+                imageVector = QodeCommerceIcons.Store,
+                contentDescription = "first user only",
+                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Icon(
+                imageVector = QodeCommerceIcons.Store,
+                contentDescription = "verified",
+                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
 
-// MARK: - Clean Code Section (no background)
 @Composable
-private fun CleanCodeSection(
+private fun PromoCodeRow(
     code: String,
     onCopyClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -359,7 +385,9 @@ private fun CleanCodeSection(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
             Text(
                 text = "PROMO CODE",
                 style = MaterialTheme.typography.labelSmall,
@@ -368,7 +396,7 @@ private fun CleanCodeSection(
             )
             Text(
                 text = code,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurface,
                 letterSpacing = 2.sp,
@@ -377,11 +405,13 @@ private fun CleanCodeSection(
             )
         }
 
+        Spacer(modifier = modifier.width(SpacingTokens.md))
+
         QodeIconButton(
             onClick = onCopyClick,
             icon = QodeActionIcons.Copy,
             contentDescription = stringResource(R.string.copy_code),
-            variant = QodeButtonVariant.Primary,
+            variant = QodeButtonVariant.Outlined,
             size = QodeButtonSize.Small,
         )
     }
@@ -411,15 +441,6 @@ private fun EnhancedStubContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                imageVector = QodeCommerceIcons.Coupon,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(CouponTokens.iconSize),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.xs))
-
             Text(
                 text = discountText,
                 style = MaterialTheme.typography.labelLarge,
@@ -459,41 +480,6 @@ private fun StubRating(
     )
 }
 
-// MARK: - Enhanced Perforated Divider
-@Composable
-private fun EnhancedPerforatedDivider(modifier: Modifier = Modifier) {
-    val dividerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-
-    Canvas(modifier = modifier) {
-        drawPerforatedLine(
-            color = dividerColor,
-            start = Offset(size.width / 2, 0f),
-            end = Offset(size.width / 2, size.height),
-            strokeWidth = CouponTokens.dividerWidth.toPx(),
-        )
-    }
-}
-
-private fun DrawScope.drawPerforatedLine(
-    color: Color,
-    start: Offset,
-    end: Offset,
-    strokeWidth: Float
-) {
-    val pathEffect = PathEffect.dashPathEffect(
-        intervals = CouponTokens.dashInterval,
-        phase = 0f,
-    )
-
-    drawLine(
-        color = color,
-        start = start,
-        end = end,
-        strokeWidth = strokeWidth,
-        pathEffect = pathEffect,
-    )
-}
-
 // MARK: - Utility Functions
 
 @Composable
@@ -516,7 +502,7 @@ fun CouponPromoCodeCardPreview() {
                 id = PromoCodeId("SAMPLE_PERCENTAGE"),
                 code = "SAVE25",
                 serviceName = "Food Delivery",
-                category = "Restaurant",
+                category = "Marketplace",
                 title = "25% Off Your Order",
                 discountPercentage = 25.0,
                 minimumOrderAmount = 5000.0,

@@ -108,7 +108,7 @@ fun HeroBannerSection(
                         Icon(
                             imageVector = QodeBusinessIcons.Asset,
                             contentDescription = null,
-                            modifier = Modifier.size(SizeTokens.Avatar.sizeLarge),
+                            modifier = modifier.size(SizeTokens.Avatar.sizeLarge),
                             tint = Color.White.copy(alpha = EMPTY_ICON_ALPHA),
                         )
                     },
@@ -128,7 +128,7 @@ fun HeroBannerSection(
                         Icon(
                             imageVector = QodeBusinessIcons.Asset,
                             contentDescription = null,
-                            modifier = Modifier.size(SizeTokens.Avatar.sizeLarge),
+                            modifier = modifier.size(SizeTokens.Avatar.sizeLarge),
                             tint = Color.White.copy(alpha = ERROR_ICON_ALPHA),
                         )
 
@@ -184,7 +184,7 @@ private fun SuccessBannerContent(
             currentPage = currentPage,
             totalPages = totalPages,
             userLanguage = userLanguage,
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
         )
     }
 }
@@ -205,7 +205,7 @@ private fun BannerItem(
     ) {
         // Background layer
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center,
@@ -224,7 +224,7 @@ private fun BannerItem(
             AsyncImage(
                 model = banner.imageUrl,
                 contentDescription = banner.getTranslatedCtaTitle(userLanguage),
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
         }
@@ -234,7 +234,7 @@ private fun BannerItem(
 
         // Content overlay
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             CountryPicker()
@@ -272,14 +272,14 @@ private fun BannerStructure(
 
         // Center image content
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             imageContent()
         }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             CountryPicker()
@@ -297,9 +297,9 @@ private fun BannerStructure(
 // MARK: - Shared Components
 
 @Composable
-private fun VignetteOverlay() {
+private fun VignetteOverlay(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
@@ -325,7 +325,7 @@ private fun CountryPicker(modifier: Modifier = Modifier) {
         color = Color.Black.copy(alpha = 0.01f),
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.sm),
@@ -341,20 +341,20 @@ private fun CountryPicker(modifier: Modifier = Modifier) {
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                QodeDivider(modifier = Modifier.weight(1f))
+                QodeDivider(modifier = modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.country_kazakhstan),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
+                    modifier = modifier
                         .clickable { showComingSoonDialog = true }
                         .padding(horizontal = SpacingTokens.md),
                 )
-                QodeDivider(modifier = Modifier.weight(1f))
+                QodeDivider(modifier = modifier.weight(1f))
             }
         }
     }
@@ -409,7 +409,7 @@ private fun BannerCallToAction(
             ModernPageIndicator(
                 currentPage = currentPage,
                 totalPages = totalPages,
-                modifier = Modifier.padding(top = SpacingTokens.xs),
+                modifier = modifier.padding(top = SpacingTokens.xs),
                 inactiveColor = Color.White.copy(alpha = INDICATOR_INACTIVE_ALPHA),
                 activeColor = Color.White,
             )

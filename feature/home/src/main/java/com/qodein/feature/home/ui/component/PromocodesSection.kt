@@ -49,13 +49,13 @@ fun PromocodesSection(
         // Section header for ALL states
         PromoCodesSectionHeader(
             currentFilters = currentFilters,
-            modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+            modifier = modifier.padding(horizontal = SpacingTokens.lg),
         )
 
         when (promoCodeState) {
             PromoCodeState.Loading -> {
                 PromoCodesLoadingState(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
                         .padding(SpacingTokens.xl),
                 )
@@ -69,14 +69,14 @@ fun PromocodesSection(
             }
             PromoCodeState.Empty -> {
                 PromoCodesEmptyState(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                    modifier = modifier.padding(horizontal = SpacingTokens.lg),
                 )
             }
             is PromoCodeState.Error -> {
                 PromoCodesErrorState(
                     errorState = promoCodeState,
                     onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
-                    modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                    modifier = modifier.padding(horizontal = SpacingTokens.lg),
                 )
             }
         }
@@ -135,7 +135,7 @@ private fun PromoCodesList(
                 onCopyCodeClick = {
                     onAction(HomeAction.CopyPromoCode(promoCode))
                 },
-                modifier = Modifier.padding(
+                modifier = modifier.padding(
                     horizontal = SpacingTokens.lg,
                     vertical = SpacingTokens.xs,
                 ),
@@ -169,7 +169,7 @@ fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
         )
         CircularProgressIndicator(
-            modifier = Modifier.size(20.dp),
+            modifier = modifier.size(20.dp),
             strokeWidth = 2.dp,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -207,7 +207,7 @@ private fun ErrorCard(
         Icon(
             imageVector = QodeBusinessIcons.Asset,
             contentDescription = null,
-            modifier = Modifier.size(SizeTokens.Avatar.sizeLarge),
+            modifier = modifier.size(SizeTokens.Avatar.sizeLarge),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = ERROR_ICON_ALPHA),
         )
 
@@ -240,7 +240,7 @@ fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
         Icon(
             imageVector = QodeBusinessIcons.Asset,
             contentDescription = null,
-            modifier = Modifier.size(SizeTokens.Avatar.sizeLarge),
+            modifier = modifier.size(SizeTokens.Avatar.sizeLarge),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = ERROR_ICON_ALPHA),
         )
 
@@ -250,7 +250,7 @@ fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = SpacingTokens.lg),
+            modifier = modifier.padding(top = SpacingTokens.lg),
         )
 
         Text(
@@ -258,7 +258,7 @@ fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = SpacingTokens.sm),
+            modifier = modifier.padding(top = SpacingTokens.sm),
         )
     }
 }

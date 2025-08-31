@@ -1,10 +1,7 @@
-
-@file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
-
 package com.qodein.shared.model
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -19,7 +16,7 @@ data class Service(
     val logoUrl: String? = null,
     val isPopular: Boolean = false,
     val promoCodeCount: Int = 0, // Denormalized counter for display
-    val createdAt: Instant = Clock.System.now()
+    @Contextual val createdAt: Instant = Clock.System.now()
 ) {
     init {
         require(name.isNotBlank()) { "Service name cannot be blank" }

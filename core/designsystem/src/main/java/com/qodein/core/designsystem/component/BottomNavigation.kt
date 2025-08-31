@@ -98,6 +98,7 @@ fun QodeBottomNavigation(
                 selected = selectedRoute == item.route,
                 onClick = { onItemClick(item) },
                 showLabel = showLabels,
+                modifier = modifier,
             )
         }
     }
@@ -111,7 +112,8 @@ private fun RowScope.QodeNavigationBarItem(
     item: QodeNavigationItem,
     selected: Boolean,
     onClick: () -> Unit,
-    showLabel: Boolean
+    showLabel: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -139,7 +141,7 @@ private fun RowScope.QodeNavigationBarItem(
         onClick = onClick,
         icon = {
             Box(
-                modifier = Modifier.scale(scale),
+                modifier = modifier.scale(scale),
                 contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(
@@ -207,12 +209,13 @@ fun QodeNavigationRail(
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         header = header,
     ) {
-        Spacer(modifier = Modifier.height(SpacingTokens.sm))
+        Spacer(modifier = modifier.height(SpacingTokens.sm))
         items.forEach { item ->
             QodeNavigationRailItem(
                 item = item,
                 selected = selectedRoute == item.route,
                 onClick = { onItemClick(item) },
+                modifier = modifier,
             )
         }
     }
@@ -225,7 +228,8 @@ fun QodeNavigationRail(
 private fun QodeNavigationRailItem(
     item: QodeNavigationItem,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scale by animateFloatAsState(
         targetValue = if (selected) 1.1f else 1f,
@@ -241,7 +245,7 @@ private fun QodeNavigationRailItem(
         onClick = onClick,
         icon = {
             Box(
-                modifier = Modifier.scale(scale),
+                modifier = modifier.scale(scale),
                 contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(

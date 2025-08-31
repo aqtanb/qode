@@ -157,6 +157,18 @@
     <string name="filter_tag_title">Filter by Tags</string>
     <string name="filter_tag_all">All Tags</string>
     
+    <!-- Service Selector -->
+    <string name="select_service_title">Select Service</string>
+    <string name="search_services_title">Search Services</string>
+    <string name="search_services_label">Search services</string>
+    <string name="search_services_placeholder">Search services...</string>
+    <string name="popular_services_title">Popular Services</string>
+    <string name="searching_message">Searching...</string>
+    <string name="no_services_found_message">No services found</string>
+    <string name="action_back">Back</string>
+    <string name="action_clear">Clear</string>
+    <string name="search_icon_description">Search</string>
+    
     <!-- Sort Options -->
     <string name="sort_popularity">Most Popular</string>
     <string name="sort_newest">Newest First</string>

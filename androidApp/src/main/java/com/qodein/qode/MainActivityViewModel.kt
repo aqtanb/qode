@@ -22,7 +22,7 @@ class MainActivityViewModel @Inject constructor(devicePreferencesRepository: Dev
     }.stateIn(
         scope = viewModelScope,
         initialValue = MainActivityUiState.Loading,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(1_000), // Extended for smoother banner loading
     )
 }
 

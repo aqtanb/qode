@@ -150,7 +150,10 @@ fun BottomWizardController(
         isVisible = showServiceSelector.value,
         services = uiState.serviceSearchResults,
         popularServices = uiState.popularServices,
-        currentSelection = uiState.wizardData.serviceName,
+        searchQuery = "", // TODO: Add searchQuery to SubmissionWizardUiState
+        onSearchQueryChange = { query ->
+            onAction(SubmissionWizardAction.SearchServices(query))
+        },
         onServiceSelected = { service ->
             onAction(SubmissionWizardAction.UpdateServiceName(service.name))
             showServiceSelector.value = false

@@ -3,7 +3,6 @@ package com.qodein.qode.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.qode.navigation.NavigationActions
-import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.AuthState
@@ -38,8 +37,7 @@ import javax.inject.Inject
 class QodeAppViewModel @Inject constructor(
     getAuthStateUseCase: GetAuthStateUseCase,
     getThemeUseCase: GetThemeUseCase,
-    getLanguageUseCase: GetLanguageUseCase,
-    private val navigationHandler: NavigationHandler
+    getLanguageUseCase: GetLanguageUseCase
 ) : ViewModel() {
 
     // Auth state from domain layer with proper error handling
@@ -78,16 +76,16 @@ class QodeAppViewModel @Inject constructor(
     val languageState: StateFlow<Language> = getLanguageUseCase()
         .map { result ->
             when (result) {
-                is Result.Loading -> Language.RUSSIAN
+                is Result.Loading -> Language.ENGLISH
                 is Result.Success -> result.data
-                is Result.Error -> Language.RUSSIAN
+                is Result.Error -> Language.ENGLISH
             }
         }
-        .catch { emit(Language.RUSSIAN) }
+        .catch { emit(Language.ENGLISH) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Language.RUSSIAN,
+            initialValue = Language.ENGLISH,
         )
 
     // Navigation events flow
@@ -114,12 +112,5 @@ class QodeAppViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    /**
-     * Handle navigation action directly (backwards compatibility)
-     */
-    fun handleNavigation(action: NavigationActions) {
-        handleUiEvent(AppUiEvents.Navigate(action))
     }
 }

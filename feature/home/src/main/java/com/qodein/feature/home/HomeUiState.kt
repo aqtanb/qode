@@ -20,7 +20,7 @@ data class HomeUiState(
     val activeFilterDialog: FilterDialogType? = null,
 
     // Service search (for service filter dialog)
-    val serviceSearchState: ServiceSearchState = ServiceSearchState.Empty,
+    val serviceSearchState: ServiceSearchState = ServiceSearchState(),
 
     // Pagination state
     val isLoadingMore: Boolean = false

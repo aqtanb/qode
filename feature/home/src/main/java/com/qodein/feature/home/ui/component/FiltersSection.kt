@@ -48,6 +48,7 @@ import com.qodein.shared.ui.FilterDialogType
 fun FiltersSection(
     currentFilters: CompleteFilterState,
     onFilterSelected: (FilterDialogType) -> Unit,
+    onResetFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -115,6 +116,22 @@ fun FiltersSection(
                     isSelected = currentSortBy != ContentSortBy.POPULARITY,
                 )
             }
+
+            // Reset Filter - only show when any filters are applied
+            val hasActiveFilters = currentFilters.categoryFilter !is CategoryFilter.All ||
+                currentFilters.serviceFilter !is ServiceFilter.All ||
+                currentFilters.sortFilter.sortBy != ContentSortBy.POPULARITY
+
+            if (hasActiveFilters) {
+                item(key = "reset") {
+                    FilterChip(
+                        nameRes = R.string.filter_chip_reset,
+                        icon = QodeNavigationIcons.Refresh,
+                        onClick = onResetFilters,
+                        isSelected = false,
+                    )
+                }
+            }
         }
     }
 }
@@ -136,12 +153,12 @@ private fun FilterChip(
     ) {
         // Circular container with borders
         Box(
-            modifier = Modifier.size(SizeTokens.Avatar.sizeMedium + SpacingTokens.sm),
+            modifier = modifier.size(SizeTokens.Avatar.sizeMedium + SpacingTokens.sm),
             contentAlignment = Alignment.Center,
         ) {
             // Outer surface
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 shape = CircleShape,
                 color = if (isSelected) {
                     MaterialTheme.colorScheme.surface
@@ -151,7 +168,7 @@ private fun FilterChip(
             ) {
                 // Inner surface with border
                 Surface(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxSize()
                         .padding(ShapeTokens.Border.thick),
                     shape = CircleShape,
@@ -185,7 +202,7 @@ private fun FilterChip(
                             MaterialTheme.colorScheme.onSurface
                         },
                         contentDescription = stringResource(nameRes),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = modifier.fillMaxSize(),
                     )
                 }
             }
@@ -214,6 +231,7 @@ private fun FiltersSectionPreview() {
         FiltersSection(
             currentFilters = CompleteFilterState(),
             onFilterSelected = { },
+            onResetFilters = { },
         )
     }
 }

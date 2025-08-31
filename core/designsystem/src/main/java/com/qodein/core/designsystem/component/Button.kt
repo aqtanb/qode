@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -49,8 +47,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.OpacityTokens
@@ -74,6 +74,7 @@ enum class QodeButtonVariant {
  * Button sizes for Qode design system
  */
 enum class QodeButtonSize {
+    ExtraSmall,
     Small,
     Medium,
     Large
@@ -120,24 +121,28 @@ fun QodeButton(
 
     // Consistent sizing using modern tokens
     val buttonHeight = when (size) {
+        QodeButtonSize.ExtraSmall -> 28.dp
         QodeButtonSize.Small -> SizeTokens.Button.heightSmall
         QodeButtonSize.Medium -> SizeTokens.Button.heightMedium
         QodeButtonSize.Large -> SizeTokens.Button.heightLarge
     }
 
     val horizontalPadding = when (size) {
+        QodeButtonSize.ExtraSmall -> SpacingTokens.xs
         QodeButtonSize.Small -> SpacingTokens.Button.horizontalPaddingSmall
         QodeButtonSize.Medium -> SpacingTokens.Button.horizontalPadding
         QodeButtonSize.Large -> SpacingTokens.Button.horizontalPaddingLarge
     }
 
     val textStyle = when (size) {
+        QodeButtonSize.ExtraSmall -> MaterialTheme.typography.labelSmall
         QodeButtonSize.Small -> MaterialTheme.typography.labelMedium
         QodeButtonSize.Medium -> MaterialTheme.typography.labelLarge
         QodeButtonSize.Large -> MaterialTheme.typography.titleMedium
     }
 
     val iconSize = when (size) {
+        QodeButtonSize.ExtraSmall -> SizeTokens.Icon.sizeSmall
         QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
         QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
         QodeButtonSize.Large -> SizeTokens.Icon.sizeLarge
@@ -145,7 +150,6 @@ fun QodeButton(
 
     val buttonModifier = modifier
         .height(buttonHeight)
-        .widthIn(min = SizeTokens.Button.widthMin, max = SizeTokens.Button.widthMax)
         .scale(scale)
         .semantics {
             role = Role.Button
@@ -247,7 +251,7 @@ fun QodeButton(
                         MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
                     },
                 ),
-                contentPadding = PaddingValues(horizontal = horizontalPadding),
+                contentPadding = PaddingValues(horizontalPadding),
                 interactionSource = interactionSource,
             ) {
                 ButtonContent(
@@ -314,12 +318,14 @@ fun QodeIconButton(
 
     // Consistent sizing using modern tokens
     val buttonSize = when (size) {
+        QodeButtonSize.ExtraSmall -> 24.dp
         QodeButtonSize.Small -> SizeTokens.IconButton.sizeSmall
         QodeButtonSize.Medium -> SizeTokens.IconButton.sizeMedium
         QodeButtonSize.Large -> SizeTokens.IconButton.sizeLarge
     }
 
     val iconSize = when (size) {
+        QodeButtonSize.ExtraSmall -> SizeTokens.Icon.sizeSmall
         QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
         QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
         QodeButtonSize.Large -> SizeTokens.Icon.sizeXLarge
@@ -465,7 +471,7 @@ fun QodeTextButton(
 }
 
 /**
- * Button content with consistent icon-text layout
+ * Button content with optimized icon-text layout and proper spacing
  */
 @Composable
 private fun ButtonContent(
@@ -474,52 +480,74 @@ private fun ButtonContent(
     trailingIcon: ImageVector?,
     loading: Boolean,
     textStyle: TextStyle,
-    iconSize: Dp
+    iconSize: Dp,
+    modifier: Modifier = Modifier
 ) {
     if (loading) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(iconSize),
-            strokeWidth = ShapeTokens.Border.thin,
-        )
+        Box(
+            modifier = modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(iconSize),
+                strokeWidth = ShapeTokens.Border.thin,
+            )
+        }
     } else {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = SpacingTokens.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = if (leadingIcon != null || trailingIcon != null) {
-                Arrangement.Start
-            } else {
-                Arrangement.Center
+            horizontalArrangement = when {
+                leadingIcon != null && trailingIcon != null -> Arrangement.SpaceBetween
+                leadingIcon != null || trailingIcon != null -> Arrangement.Start
+                else -> Arrangement.Center
             },
         ) {
             // Leading icon
-            leadingIcon?.let {
+            leadingIcon?.let { icon ->
                 Icon(
-                    imageVector = it,
+                    imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(iconSize),
+                    modifier = Modifier
+                        .size(iconSize)
+                        .padding(end = SpacingTokens.xs),
                 )
-                Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
             }
 
-            // Text
+            // Text - optimized for different scenarios
             Text(
                 text = text,
                 style = textStyle,
-                modifier = if (leadingIcon != null || trailingIcon != null) {
-                    Modifier.weight(1f)
-                } else {
-                    Modifier
+                modifier = when {
+                    leadingIcon != null && trailingIcon != null -> {
+                        Modifier
+                            .weight(1f, fill = false)
+                            .padding(horizontal = SpacingTokens.xs)
+                    }
+                    leadingIcon != null || trailingIcon != null -> {
+                        Modifier.weight(1f, fill = false)
+                    }
+                    else -> Modifier
                 },
-                textAlign = TextAlign.Center,
+                textAlign = if (leadingIcon != null || trailingIcon != null) {
+                    TextAlign.Start
+                } else {
+                    TextAlign.Center
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
 
             // Trailing icon
-            trailingIcon?.let {
-                Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
+            trailingIcon?.let { icon ->
                 Icon(
-                    imageVector = it,
+                    imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(iconSize),
+                    modifier = Modifier
+                        .size(iconSize)
+                        .padding(start = SpacingTokens.xs),
                 )
             }
         }
