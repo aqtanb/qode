@@ -61,7 +61,7 @@ import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -70,6 +70,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.core.ui.R
+import com.qodein.core.ui.component.getPromoCodeStatus
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.coroutines.launch
@@ -276,8 +277,7 @@ fun CouponPromoCodeCard(
                 ) {
                     // Top section - Service name and category
                     CouponHeader(
-                        serviceName = promoCode.serviceName,
-                        category = promoCode.category,
+                        promoCode = promoCode,
                     )
 
                     Spacer(modifier = Modifier.height(SpacingTokens.md))
@@ -327,17 +327,19 @@ fun CouponPromoCodeCard(
 // MARK: - Header Section
 @Composable
 private fun CouponHeader(
-    serviceName: String,
-    category: String?,
+    promoCode: PromoCode,
     modifier: Modifier = Modifier
 ) {
+    val now = Clock.System.now()
+    val statusInfo = getPromoCodeStatus(promoCode, now)
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = serviceName,
+            text = promoCode.serviceName,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -352,24 +354,46 @@ private fun CouponHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         ) {
-            Icon(
-                imageVector = QodeCommerceIcons.Store,
-                contentDescription = "active",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
-            )
-            Icon(
-                imageVector = QodeCommerceIcons.Store,
-                contentDescription = "first user only",
-                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Icon(
-                imageVector = QodeCommerceIcons.Store,
-                contentDescription = "verified",
-                modifier = modifier.size(SizeTokens.Icon.sizeSmall),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            // Only show First User Only icon if it's actually first user only
+            if (promoCode.isFirstUserOnly) {
+                Icon(
+                    imageVector = QodeNavigationIcons.Popular,
+                    contentDescription = "First user only",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            }
+
+            // Only show status icon for expiring soon or not active (no expired since they don't load)
+            when (statusInfo.text) {
+                "Expiring Soon" -> {
+                    Icon(
+                        imageVector = QodeNavigationIcons.Warning,
+                        contentDescription = "Expiring soon",
+                        tint = Color(0xFFFF8A00),
+                        modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                    )
+                }
+                "Not Active" -> {
+                    Icon(
+                        imageVector = QodeNavigationIcons.Calendar,
+                        contentDescription = "Not active yet",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                    )
+                }
+                // No icon for "Active" (default) or "Expired" (never loads in list)
+            }
+
+            // Only show verified icon if it's actually verified
+            if (promoCode.isVerified) {
+                Icon(
+                    imageVector = QodeActionIcons.Check,
+                    contentDescription = "Verified",
+                    tint = MaterialTheme.extendedColorScheme.success,
+                    modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            }
         }
     }
 }

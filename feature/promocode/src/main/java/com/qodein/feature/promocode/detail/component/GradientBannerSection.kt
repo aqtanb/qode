@@ -32,7 +32,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CategoryIconHelper
-import com.qodein.core.ui.component.CategoryIconHelper.getCategoryGradient
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
@@ -45,8 +44,8 @@ fun GradientBannerSection(
     onCopyClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Get category-specific gradient scheme
-    val gradientScheme = getCategoryGradient(promoCode.category)
+    // Get PromoCode type-specific gradient scheme (purple for fixed amount, orange for percentage)
+    val gradientScheme = CategoryIconHelper.getPromoCodeGradient(promoCode)
 
     // Get category icon from centralized helper
     val categoryIcon = CategoryIconHelper.getCategoryIcon(promoCode.category)
@@ -144,8 +143,8 @@ fun GradientBannerSection(
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     color = Color.White.copy(alpha = 0.8f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 4,
+                    overflow = TextOverflow.Clip,
                 )
             }
         }

@@ -114,21 +114,6 @@ fun DetailsSection(
                 },
             )
 
-            // First User Only (if applicable)
-            if (promoCode.isFirstUserOnly) {
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                    thickness = 1.dp,
-                )
-
-                DetailRow(
-                    icon = QodeCommerceIcons.Exclusive,
-                    label = "Availability",
-                    value = "First-time users only",
-                    valueColor = MaterialTheme.colorScheme.secondary, // Purple for exclusive
-                )
-            }
-
             // Created date
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),

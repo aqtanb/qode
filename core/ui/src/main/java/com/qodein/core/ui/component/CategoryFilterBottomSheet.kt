@@ -171,8 +171,11 @@ private fun GradientCategoryChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Simple bright gradients for category groups
-    val categoryGradient = CategoryIconHelper.getCategoryGradientColors(category)
+    // Default gradient colors
+    val categoryGradient = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary,
+    )
 
     val backgroundColor = if (isSelected) {
         Brush.linearGradient(categoryGradient)
@@ -357,21 +360,21 @@ private fun GradientCategoryChipSelectedPreview() {
                 GradientCategoryChip(
                     category = Service.Companion.Categories.FOOD,
                     isSelected = true,
-                    gradient = CategoryIconHelper.getCategoryGradient(Service.Companion.Categories.FOOD),
+                    gradient = QodeColorScheme.BannerOrange,
                     onClick = { },
                 )
 
                 GradientCategoryChip(
                     category = Service.Companion.Categories.STREAMING,
                     isSelected = false,
-                    gradient = CategoryIconHelper.getCategoryGradient(Service.Companion.Categories.STREAMING),
+                    gradient = QodeColorScheme.BannerPurple,
                     onClick = { },
                 )
 
                 GradientCategoryChip(
                     category = Service.Companion.Categories.GAMING,
                     isSelected = true,
-                    gradient = CategoryIconHelper.getCategoryGradient(Service.Companion.Categories.GAMING),
+                    gradient = QodeColorScheme.BannerPurple,
                     onClick = { },
                 )
             }

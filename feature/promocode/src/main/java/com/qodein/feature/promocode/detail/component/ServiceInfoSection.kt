@@ -15,8 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,14 +23,18 @@ import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeLocationIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeSecurityIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
+import com.qodein.core.ui.component.getPromoCodeStatus
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Instant
+
+// MARK: - Main Component
 
 @Composable
 fun ServiceInfoSection(
@@ -44,38 +46,38 @@ fun ServiceInfoSection(
     onFollowCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(SpacingTokens.md),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        // Left side: Service name and category with follow icons
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-            modifier = Modifier.weight(1f),
+        // Top row: Service name + countries
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Service name with follow icon
+            // Left: Service name with follow button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                modifier = Modifier.weight(1f, fill = false),
             ) {
                 Text(
                     text = promoCode.serviceName,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false),
                 )
 
                 Surface(
                     color = if (isFollowingService) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(50), // Circular
+                    shape = RoundedCornerShape(50),
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(SizeTokens.Icon.sizeLarge)
                         .clickable { onFollowServiceClicked() },
                 ) {
                     Icon(
@@ -88,54 +90,8 @@ fun ServiceInfoSection(
                     )
                 }
             }
-            // Category with follow icon (if exists)
-            promoCode.category?.let { category ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Text(
-                        text = category.replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
 
-                    Surface(
-                        color = if (isFollowingCategory) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                        shape = RoundedCornerShape(50), // Circular
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clickable { onFollowCategoryClicked() },
-                    ) {
-                        Icon(
-                            imageVector = if (isFollowingCategory) QodeActionIcons.Unfollow else QodeActionIcons.Follow,
-                            contentDescription = if (isFollowingCategory) "Following" else "Follow",
-                            modifier = Modifier
-                                .size(10.dp)
-                                .padding(4.dp),
-                            tint = if (isFollowingCategory) {
-                                MaterialTheme.colorScheme.onPrimary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        )
-                    }
-                }
-            }
-        }
-
-        // Right side: Country flags and badges
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-        ) {
-            // Target countries row
+            // Right: Target countries
             Row(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                 verticalAlignment = Alignment.CenterVertically,
@@ -153,7 +109,7 @@ fun ServiceInfoSection(
                 if (promoCode.targetCountries.size > 2) {
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(50), // Fully circular
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier.size(28.dp),
                     ) {
                         Icon(
@@ -167,74 +123,130 @@ fun ServiceInfoSection(
                     }
                 }
             }
+        }
 
-            // Badges row
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                verticalAlignment = Alignment.CenterVertically,
+        // Status chips row - full width, centered
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm, Alignment.Start),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // First User Only chip
+            Surface(
+                color = if (promoCode.isFirstUserOnly) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                shape = RoundedCornerShape(50),
             ) {
-                // Status chip - shows promo code status
-                val now = Clock.System.now()
-                val statusInfo = getPromoCodeStatus(promoCode, now)
-
-                Surface(
-                    color = statusInfo.backgroundColor,
-                    shape = RoundedCornerShape(50), // Fully circular pill
-                    modifier = Modifier,
+                Row(
+                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                    ) {
-                        Icon(
-                            imageVector = statusInfo.icon,
-                            contentDescription = statusInfo.text,
-                            tint = statusInfo.contentColor,
-                            modifier = Modifier.size(12.dp),
-                        )
+                    Icon(
+                        imageVector = if (promoCode.isFirstUserOnly) QodeNavigationIcons.Popular else QodeNavigationIcons.Team,
+                        contentDescription = if (promoCode.isFirstUserOnly) "First user only" else "All users",
+                        tint = if (promoCode.isFirstUserOnly) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(12.dp),
+                    )
 
-                        Text(
-                            text = statusInfo.text,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Medium,
-                            color = statusInfo.contentColor,
-                        )
-                    }
+                    Text(
+                        text = if (promoCode.isFirstUserOnly) "First User Only" else "All Users",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = if (promoCode.isFirstUserOnly) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
                 }
+            }
 
-                // Verified badge - green circular success card (only if verified)
-                if (promoCode.isVerified) {
-                    Surface(
-                        color = MaterialTheme.extendedColorScheme.successContainer,
-                        shape = RoundedCornerShape(50), // Fully circular pill
-                        modifier = Modifier,
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                        ) {
-                            Icon(
-                                imageVector = QodeActionIcons.Check,
-                                contentDescription = "Verified",
-                                tint = MaterialTheme.extendedColorScheme.onSuccessContainer,
-                                modifier = Modifier.size(12.dp),
-                            )
+            // Status chip
+            val now = Clock.System.now()
+            val statusInfo = getPromoCodeStatus(promoCode, now)
+            val statusIcon = when {
+                statusInfo.text == "Active" -> QodeActionIcons.Play
+                statusInfo.text == "Expiring Soon" -> QodeNavigationIcons.Warning
+                statusInfo.text == "Expired" -> QodeActionIcons.Block
+                statusInfo.text == "Not Active" -> QodeNavigationIcons.Calendar
+                else -> QodeNavigationIcons.Help
+            }
 
-                            Text(
-                                text = "Verified",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.extendedColorScheme.onSuccessContainer,
-                            )
-                        }
-                    }
+            Surface(
+                color = statusInfo.backgroundColor,
+                shape = RoundedCornerShape(50),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                ) {
+                    Icon(
+                        imageVector = statusIcon,
+                        contentDescription = statusInfo.text,
+                        tint = statusInfo.contentColor,
+                        modifier = Modifier.size(12.dp),
+                    )
+
+                    Text(
+                        text = statusInfo.text,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = statusInfo.contentColor,
+                    )
+                }
+            }
+
+            // Verified badge
+            Surface(
+                color = if (promoCode.isVerified) {
+                    MaterialTheme.extendedColorScheme.successContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                shape = RoundedCornerShape(50),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                ) {
+                    Icon(
+                        imageVector = if (promoCode.isVerified) QodeActionIcons.Check else QodeSecurityIcons.Secure,
+                        contentDescription = if (promoCode.isVerified) "Verified" else "Unverified",
+                        tint = if (promoCode.isVerified) {
+                            MaterialTheme.extendedColorScheme.onSuccessContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(12.dp),
+                    )
+
+                    Text(
+                        text = if (promoCode.isVerified) "Verified" else "Unverified",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = if (promoCode.isVerified) {
+                            MaterialTheme.extendedColorScheme.onSuccessContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
                 }
             }
         }
     }
 }
+
+// MARK: - Preview
 
 @Preview
 @Composable
@@ -252,6 +264,7 @@ private fun ServiceInfoSectionPreview() {
             endDate = Clock.System.now().plus(7.days),
             targetCountries = listOf("KZ", "US"),
             isVerified = true,
+            isFirstUserOnly = true,
         )
 
         Surface {
@@ -264,45 +277,5 @@ private fun ServiceInfoSectionPreview() {
                 onFollowCategoryClicked = {},
             )
         }
-    }
-}
-
-private data class StatusInfo(val text: String, val icon: ImageVector, val backgroundColor: Color, val contentColor: Color)
-
-@Composable
-private fun getPromoCodeStatus(
-    promoCode: PromoCode,
-    now: Instant
-): StatusInfo {
-    val threeDaysFromNow = now.plus(3.days)
-
-    return when {
-        now < promoCode.startDate -> StatusInfo(
-            text = "Not Active",
-            icon = QodeNavigationIcons.Calendar,
-            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        now > promoCode.endDate -> StatusInfo(
-            text = "Expired",
-            icon = QodeActionIcons.Block,
-            backgroundColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-        )
-
-        promoCode.endDate < threeDaysFromNow -> StatusInfo(
-            text = "Expiring Soon",
-            icon = QodeNavigationIcons.Warning,
-            backgroundColor = Color(0xFFFF8A00).copy(alpha = 0.1f), // Orange warning
-            contentColor = Color(0xFFFF8A00),
-        )
-
-        else -> StatusInfo(
-            text = "Active",
-            icon = QodeActionIcons.Check,
-            backgroundColor = MaterialTheme.extendedColorScheme.successContainer,
-            contentColor = MaterialTheme.extendedColorScheme.onSuccessContainer,
-        )
     }
 }
