@@ -169,7 +169,7 @@ fun QodeTelegramFollowButton(
                 modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             )
 
-            Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
+            Spacer(modifier = Modifier.width(SpacingTokens.xs))
 
             if (isLoading) {
                 CircularProgressIndicator(
@@ -245,7 +245,7 @@ fun QodeSocialPlatformButton(
                 modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             )
 
-            Spacer(modifier = Modifier.width(SpacingTokens.Button.iconSpacing))
+            Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
             if (isLoading) {
                 CircularProgressIndicator(

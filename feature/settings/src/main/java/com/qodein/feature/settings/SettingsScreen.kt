@@ -62,9 +62,9 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = SpacingTokens.screenPadding)
+                    .padding(horizontal = SpacingTokens.md)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.List.sectionSpacing),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
             ) {
                 // Theme Section
                 SettingsSection(
@@ -92,7 +92,7 @@ fun SettingsScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(SpacingTokens.sectionSpacing))
+                Spacer(modifier = Modifier.height(SpacingTokens.lg))
             }
         }
     }
@@ -108,7 +108,7 @@ private fun SettingsSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingTokens.Card.padding),
+                .padding(SpacingTokens.xs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

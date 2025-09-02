@@ -527,7 +527,6 @@ fun CouponPromoCodeCardPreview() {
                 code = "SAVE25",
                 serviceName = "Food Delivery",
                 category = "Marketplace",
-                title = "25% Off Your Order",
                 discountPercentage = 25.0,
                 minimumOrderAmount = 5000.0,
                 startDate = Clock.System.now(),

@@ -4,76 +4,70 @@ import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Service
 import java.time.LocalDate
 
+sealed interface ServiceSelectionUiState {
+    data object Default : ServiceSelectionUiState
+    data object ManualEntry : ServiceSelectionUiState
+    data class Searching(val query: String, val results: List<Service>) : ServiceSelectionUiState
+}
+
 enum class PromoCodeType {
     PERCENTAGE,
     FIXED_AMOUNT
 }
 
 data class SubmissionWizardData(
-    // Step 1: Service & Type
+    // Service Details
     val serviceName: String = "",
-    val promoCodeType: PromoCodeType? = null,
 
-    // Step 2: Type Details
+    // Promo Code Details
     val promoCode: String = "",
+    val promoCodeType: PromoCodeType? = null,
     val discountPercentage: String = "",
     val discountAmount: String = "",
     val minimumOrderAmount: String = "",
+
+    // Options
     val isFirstUserOnly: Boolean = false,
-
-    // Step 3: Date Settings
-    val startDate: LocalDate = LocalDate.now(),
-    val endDate: LocalDate? = null,
-
-    // Step 4: Optional Details
-    val title: String = "",
     val description: String = "",
-    val screenshotUrl: String? = null
+
+    // Date Settings
+    val startDate: LocalDate = LocalDate.now(),
+    val endDate: LocalDate? = null
 ) {
-    fun isStep1Valid(): Boolean = serviceName.isNotBlank() && promoCodeType != null
+    val hasValidService: Boolean get() = serviceName.isNotBlank()
 
-    fun isStep2Valid(): Boolean =
-        when (promoCodeType) {
-            PromoCodeType.PERCENTAGE -> promoCode.isNotBlank() &&
-                discountPercentage.isNotBlank() &&
-                minimumOrderAmount.isNotBlank()
-            PromoCodeType.FIXED_AMOUNT -> promoCode.isNotBlank() &&
-                discountAmount.isNotBlank() &&
-                minimumOrderAmount.isNotBlank()
-            null -> false
-        }
+    val hasValidPromoCode: Boolean get() = promoCode.isNotBlank()
 
-    fun isStep3Valid(): Boolean = endDate != null && endDate.isAfter(startDate)
+    val hasValidDiscount: Boolean get() = when (promoCodeType) {
+        PromoCodeType.PERCENTAGE -> discountPercentage.isNotBlank()
+        PromoCodeType.FIXED_AMOUNT -> discountAmount.isNotBlank()
+        null -> false
+    }
 
-    fun isStep4Valid(): Boolean = title.isNotBlank()
+    val hasValidMinimumOrder: Boolean get() = minimumOrderAmount.isNotBlank()
 
-    fun canProceedFromStep(step: SubmissionWizardStep): Boolean =
-        when (step) {
-            SubmissionWizardStep.SERVICE_AND_TYPE -> isStep1Valid()
-            SubmissionWizardStep.TYPE_DETAILS -> isStep2Valid()
-            SubmissionWizardStep.DATE_SETTINGS -> isStep3Valid()
-            SubmissionWizardStep.OPTIONAL_DETAILS -> isStep4Valid()
-        }
+    fun canProceedFromProgressiveStep(step: ProgressiveStep): Boolean = step.canProceed(this)
 }
 
 sealed interface SubmissionWizardUiState {
     data object Loading : SubmissionWizardUiState
 
     data class Success(
-        val currentStep: SubmissionWizardStep,
         val wizardData: SubmissionWizardData,
         val isSubmitting: Boolean = false,
         val validationErrors: Map<String, String> = emptyMap(),
-        // Service search state
-        val availableServices: List<Service> = emptyList(),
-        val popularServices: List<Service> = emptyList(),
-        val serviceSearchResults: List<Service> = emptyList(),
-        val isSearchingServices: Boolean = false,
-        val serviceSearchQuery: String = ""
+        // Progressive step state
+        val currentProgressiveStep: ProgressiveStep = ProgressiveStep.SERVICE,
+        // UI state
+        val serviceSelectionUiState: ServiceSelectionUiState = ServiceSelectionUiState.Default,
+        val showServiceSelector: Boolean = false
     ) : SubmissionWizardUiState {
-        val canGoNext: Boolean get() = wizardData.canProceedFromStep(currentStep) && !isSubmitting
-        val canGoPrevious: Boolean get() = !currentStep.isFirst && !isSubmitting
-        val canSubmit: Boolean get() = currentStep.isLast && wizardData.isStep4Valid() && !isSubmitting
+        // Progressive step methods
+        val canGoNextProgressive: Boolean get() = wizardData.canProceedFromProgressiveStep(currentProgressiveStep) && !isSubmitting
+        val canGoPreviousProgressive: Boolean get() = !currentProgressiveStep.isFirst && !isSubmitting
+        val canSubmitProgressive: Boolean get() = currentProgressiveStep.isLast &&
+            wizardData.canProceedFromProgressiveStep(currentProgressiveStep) &&
+            !isSubmitting
     }
 
     data class Error(

@@ -229,13 +229,13 @@ fun PostCard(
 
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                     ) {
                         post.tags.forEach { tag ->
                             Surface(
                                 onClick = { onTagClick(tag) },
-                                shape = RoundedCornerShape(SpacingTokens.Chip.spacing + 8.dp),
+                                shape = RoundedCornerShape(SpacingTokens.md),
                                 color = MaterialTheme.colorScheme.tertiaryContainer,
                                 border = BorderStroke(
                                     1.dp,
@@ -245,7 +245,7 @@ fun PostCard(
                             ) {
                                 Row(
                                     modifier = Modifier.padding(
-                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                        horizontal = SpacingTokens.lg,
                                         vertical = SpacingTokens.xs,
                                     ),
                                     verticalAlignment = Alignment.CenterVertically,

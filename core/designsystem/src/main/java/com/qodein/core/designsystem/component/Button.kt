@@ -129,9 +129,9 @@ fun QodeButton(
 
     val horizontalPadding = when (size) {
         QodeButtonSize.ExtraSmall -> SpacingTokens.xs
-        QodeButtonSize.Small -> SpacingTokens.Button.horizontalPaddingSmall
-        QodeButtonSize.Medium -> SpacingTokens.Button.horizontalPadding
-        QodeButtonSize.Large -> SpacingTokens.Button.horizontalPaddingLarge
+        QodeButtonSize.Small -> SpacingTokens.sm
+        QodeButtonSize.Medium -> SpacingTokens.md
+        QodeButtonSize.Large -> SpacingTokens.lg
     }
 
     val textStyle = when (size) {
@@ -240,7 +240,9 @@ fun QodeButton(
                 enabled = enabled && !loading,
                 shape = shape,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = OpacityTokens.DISABLED_CONTAINER),
                     disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
                 ),
                 border = BorderStroke(
@@ -251,7 +253,7 @@ fun QodeButton(
                         MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
                     },
                 ),
-                contentPadding = PaddingValues(horizontalPadding),
+                contentPadding = PaddingValues(horizontal = horizontalPadding),
                 interactionSource = interactionSource,
             ) {
                 ButtonContent(
@@ -499,11 +501,7 @@ private fun ButtonContent(
                 .fillMaxWidth()
                 .padding(vertical = SpacingTokens.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = when {
-                leadingIcon != null && trailingIcon != null -> Arrangement.SpaceBetween
-                leadingIcon != null || trailingIcon != null -> Arrangement.Start
-                else -> Arrangement.Center
-            },
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             // Leading icon
             leadingIcon?.let { icon ->
@@ -516,26 +514,11 @@ private fun ButtonContent(
                 )
             }
 
-            // Text - optimized for different scenarios
             Text(
                 text = text,
                 style = textStyle,
-                modifier = when {
-                    leadingIcon != null && trailingIcon != null -> {
-                        Modifier
-                            .weight(1f, fill = false)
-                            .padding(horizontal = SpacingTokens.xs)
-                    }
-                    leadingIcon != null || trailingIcon != null -> {
-                        Modifier.weight(1f, fill = false)
-                    }
-                    else -> Modifier
-                },
-                textAlign = if (leadingIcon != null || trailingIcon != null) {
-                    TextAlign.Start
-                } else {
-                    TextAlign.Center
-                },
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -592,22 +575,22 @@ private fun QodeButtonVariantsPreview() {
         ) {
             QodeButton(
                 onClick = {},
-                text = "Primary Button", // TODO: Use stringResource(R.string.button_primary)
+                text = "Primary Button",
                 variant = QodeButtonVariant.Primary,
             )
             QodeButton(
                 onClick = {},
-                text = "Secondary Button", // TODO: Use stringResource(R.string.button_secondary)
+                text = "Secondary Button",
                 variant = QodeButtonVariant.Secondary,
             )
             QodeButton(
                 onClick = {},
-                text = "Text Button", // TODO: Use stringResource(R.string.button_text)
+                text = "Text Button",
                 variant = QodeButtonVariant.Text,
             )
             QodeButton(
                 onClick = {},
-                text = "Outlined Button", // TODO: Use stringResource(R.string.button_outlined)
+                text = "Outlined Button",
                 variant = QodeButtonVariant.Outlined,
             )
         }
@@ -624,17 +607,17 @@ private fun QodeButtonSizesPreview() {
         ) {
             QodeButton(
                 onClick = {},
-                text = "Small Button", // TODO: Use stringResource(R.string.button_small)
+                text = "Small Button",
                 size = QodeButtonSize.Small,
             )
             QodeButton(
                 onClick = {},
-                text = "Medium Button", // TODO: Use stringResource(R.string.button_medium)
+                text = "Medium Button",
                 size = QodeButtonSize.Medium,
             )
             QodeButton(
                 onClick = {},
-                text = "Large Button", // TODO: Use stringResource(R.string.button_large)
+                text = "Large Button",
                 size = QodeButtonSize.Large,
             )
         }

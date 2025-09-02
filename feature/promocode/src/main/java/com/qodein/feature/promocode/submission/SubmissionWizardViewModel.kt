@@ -10,36 +10,28 @@ import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
-import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
-import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.Service
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.time.toKotlinInstant
 
-@OptIn(FlowPreview::class)
 @HiltViewModel
 class SubmissionWizardViewModel @Inject constructor(
     private val createPromoCodeUseCase: CreatePromoCodeUseCase,
-    private val searchServicesUseCase: SearchServicesUseCase,
-    private val getPopularServicesUseCase: GetPopularServicesUseCase,
+    private val serviceSearchManager: ServiceSearchManager,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
@@ -49,41 +41,52 @@ class SubmissionWizardViewModel @Inject constructor(
     private val _events = MutableSharedFlow<SubmissionWizardEvent>()
     val events = _events.asSharedFlow()
 
-    // Service search state
-    private val searchQueryFlow = MutableStateFlow("")
+    companion object {
+        // Analytics constants
+        private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
+        private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
+        private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
+
+        // Analytics parameter keys
+        private const val PARAM_STEP_FROM = "step_from"
+        private const val PARAM_STEP_TO = "step_to"
+        private const val PARAM_DIRECTION = "direction"
+        private const val DIRECTION_NEXT = "next"
+        private const val DIRECTION_PREVIOUS = "previous"
+    }
 
     init {
         initialize()
         setupServiceSearch()
     }
 
+    // MARK: - Public API
+
     fun onAction(action: SubmissionWizardAction) {
         when (action) {
-            // Navigation
-            SubmissionWizardAction.GoToNextStep -> goToNextStep()
-            SubmissionWizardAction.GoToPreviousStep -> goToPreviousStep()
-            is SubmissionWizardAction.GoToStep -> goToStep(action.step)
+            // Progressive step navigation
+            SubmissionWizardAction.NextProgressiveStep -> goToNextProgressiveStep()
+            SubmissionWizardAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
 
-            // Step 1: Service & Type
+            // Service selection UI actions
+            SubmissionWizardAction.ShowServiceSelector -> showServiceSelector()
+            SubmissionWizardAction.HideServiceSelector -> hideServiceSelector()
+            SubmissionWizardAction.ToggleManualEntry -> toggleManualEntry()
+
+            // Step 1: Core Details
             is SubmissionWizardAction.UpdateServiceName -> updateServiceName(action.serviceName)
             is SubmissionWizardAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
             is SubmissionWizardAction.SearchServices -> searchServices(action.query)
-
-            // Step 2: Type Details
             is SubmissionWizardAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
             is SubmissionWizardAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
             is SubmissionWizardAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
             is SubmissionWizardAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
             is SubmissionWizardAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
+            is SubmissionWizardAction.UpdateDescription -> updateDescription(action.description)
 
-            // Step 3: Date Settings
+            // Step 2: Date Settings
             is SubmissionWizardAction.UpdateStartDate -> updateStartDate(action.date)
             is SubmissionWizardAction.UpdateEndDate -> updateEndDate(action.date)
-
-            // Step 4: Optional Details
-            is SubmissionWizardAction.UpdateTitle -> updateTitle(action.title)
-            is SubmissionWizardAction.UpdateDescription -> updateDescription(action.description)
-            is SubmissionWizardAction.UpdateScreenshotUrl -> updateScreenshotUrl(action.url)
 
             // Submission
             SubmissionWizardAction.SubmitPromoCode -> submitPromoCode()
@@ -94,137 +97,135 @@ class SubmissionWizardViewModel @Inject constructor(
         }
     }
 
-    private fun initialize() {
-        _uiState.value = SubmissionWizardUiState.Success(
-            currentStep = SubmissionWizardStep.SERVICE_AND_TYPE,
-            wizardData = SubmissionWizardData(),
-        )
+    // MARK: - Initialization
 
-        // Load popular services initially
-        loadPopularServices()
+    private fun initialize() {
+        _uiState.update {
+            SubmissionWizardUiState.Success(
+                wizardData = SubmissionWizardData(),
+                currentProgressiveStep = ProgressiveStep.SERVICE,
+            )
+        }
     }
 
     private fun setupServiceSearch() {
-        searchQueryFlow
-            .debounce(300) // Debounce for 300ms
-            .distinctUntilChanged()
-            .filter { it.isNotBlank() }
-            .onEach { query ->
-                performServiceSearch(query)
+        viewModelScope.launch {
+            combine(
+                serviceSearchManager.searchQuery,
+                serviceSearchManager.searchResult,
+            ) { query, result ->
+                when (result) {
+                    is Result.Loading -> ServiceSelectionUiState.Searching(query, emptyList())
+                    is Result.Success -> ServiceSelectionUiState.Searching(query, result.data)
+                    is Result.Error -> ServiceSelectionUiState.Searching(query, emptyList())
+                }
+            }.collect { newSelectionUiState ->
+                _uiState.update { currentState ->
+                    when (currentState) {
+                        is SubmissionWizardUiState.Success -> currentState.copy(serviceSelectionUiState = newSelectionUiState)
+                        else -> currentState
+                    }
+                }
             }
-            .launchIn(viewModelScope)
-    }
-
-    private fun loadPopularServices() {
-        viewModelScope.launch {
-            updateServiceLoadingState(true)
-
-            getPopularServicesUseCase()
-                .catch { exception ->
-                    // Silently fail for popular services, continue with empty list
-                    updateServiceLoadingState(false)
-                }
-                .collect { result ->
-                    when (result) {
-                        is Result.Loading -> { /* Loading already handled above */ }
-                        is Result.Success -> {
-                            updatePopularServices(result.data)
-                            updateServiceLoadingState(false)
-                        }
-                        is Result.Error -> {
-                            // Silently fail for popular services
-                            updateServiceLoadingState(false)
-                        }
-                    }
-                }
         }
     }
 
-    private fun performServiceSearch(query: String) {
-        viewModelScope.launch {
-            updateServiceLoadingState(true)
+    // MARK: - Service Selection
 
-            searchServicesUseCase(query)
-                .catch { exception ->
-                    updateServiceLoadingState(false)
-                }
-                .collect { result ->
-                    when (result) {
-                        is Result.Loading -> { /* Loading already handled above */ }
-                        is Result.Success -> {
-                            updateServiceSearchResults(result.data)
-                            updateServiceLoadingState(false)
-                        }
-                        is Result.Error -> {
-                            updateServiceLoadingState(false)
-                        }
-                    }
-                }
+    private fun showServiceSelector() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> currentState.copy(showServiceSelector = true)
+                else -> currentState
+            }
         }
+        serviceSearchManager.clearQuery()
     }
 
-    private fun goToNextStep() {
-        val currentState = getCurrentSuccessState() ?: return
-        val nextStep = currentState.currentStep.next() ?: return
-
-        if (currentState.canGoNext) {
-            // Auto-fill title when moving to OPTIONAL_DETAILS step
-            val updatedData = if (nextStep == SubmissionWizardStep.OPTIONAL_DETAILS &&
-                currentState.wizardData.title.isBlank()
-            ) {
-                currentState.wizardData.copy(
-                    title = generateAutoTitle(currentState.wizardData),
+    private fun hideServiceSelector() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> currentState.copy(
+                    showServiceSelector = false,
                 )
-            } else {
-                currentState.wizardData
+                else -> currentState
             }
-
-            _uiState.value = currentState.copy(
-                currentStep = nextStep,
-                wizardData = updatedData,
-            )
-
-            // Track step navigation
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "wizard_step_navigation",
-                    extras = listOf(
-                        AnalyticsEvent.Param("step_from", currentState.currentStep.name),
-                        AnalyticsEvent.Param("step_to", nextStep.name),
-                        AnalyticsEvent.Param("direction", "next"),
-                    ),
-                ),
-            )
         }
     }
 
-    private fun goToPreviousStep() {
-        val currentState = getCurrentSuccessState() ?: return
-        val previousStep = currentState.currentStep.previous() ?: return
-
-        if (currentState.canGoPrevious) {
-            _uiState.value = currentState.copy(currentStep = previousStep)
-
-            // Track step navigation
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "wizard_step_navigation",
-                    extras = listOf(
-                        AnalyticsEvent.Param("step_from", currentState.currentStep.name),
-                        AnalyticsEvent.Param("step_to", previousStep.name),
-                        AnalyticsEvent.Param("direction", "previous"),
-                    ),
-                ),
-            )
+    private fun toggleManualEntry() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    val newState = when (currentState.serviceSelectionUiState) {
+                        ServiceSelectionUiState.ManualEntry -> ServiceSelectionUiState.Default
+                        else -> ServiceSelectionUiState.ManualEntry
+                    }
+                    currentState.copy(serviceSelectionUiState = newState)
+                }
+                else -> currentState
+            }
         }
     }
 
-    private fun goToStep(step: SubmissionWizardStep) {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(currentStep = step)
+    // MARK: - Navigation
+
+    private fun goToNextProgressiveStep() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    val nextStep = currentState.currentProgressiveStep.next()
+                    if (nextStep != null && currentState.canGoNextProgressive) {
+                        // Track progressive step navigation
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                extras = listOf(
+                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
+                                    AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
+                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
+                                ),
+                            ),
+                        )
+                        currentState.copy(currentProgressiveStep = nextStep)
+                    } else {
+                        currentState
+                    }
+                }
+                else -> currentState
+            }
+        }
     }
 
-    // Step 1 Updates
+    private fun goToPreviousProgressiveStep() {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    val previousStep = currentState.currentProgressiveStep.previous()
+                    if (previousStep != null && currentState.canGoPreviousProgressive) {
+                        // Track progressive step navigation
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                extras = listOf(
+                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
+                                    AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
+                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
+                                ),
+                            ),
+                        )
+                        currentState.copy(currentProgressiveStep = previousStep)
+                    } else {
+                        currentState
+                    }
+                }
+                else -> currentState
+            }
+        }
+    }
+
+    // MARK: - Data Updates
+
     private fun updateServiceName(serviceName: String) {
         updateWizardData { it.copy(serviceName = serviceName) }
     }
@@ -234,8 +235,7 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun searchServices(query: String) {
-        searchQueryFlow.value = query
-        updateServiceSearchQuery(query)
+        serviceSearchManager.updateQuery(query)
     }
 
     // Step 2 Updates
@@ -268,39 +268,31 @@ class SubmissionWizardViewModel @Inject constructor(
         updateWizardData { it.copy(endDate = date) }
     }
 
-    // Step 4 Updates
-    private fun updateTitle(title: String) {
-        updateWizardData { it.copy(title = title) }
-    }
-
     private fun updateDescription(description: String) {
         updateWizardData { it.copy(description = description) }
     }
 
-    private fun updateScreenshotUrl(url: String?) {
-        updateWizardData { it.copy(screenshotUrl = url) }
-    }
-
     private fun clearValidationErrors() {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(validationErrors = emptyMap())
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> currentState.copy(validationErrors = emptyMap())
+                else -> currentState
+            }
+        }
     }
 
     private fun submitPromoCode() {
-        val currentState = getCurrentSuccessState() ?: return
-        if (!currentState.canSubmit) return
+        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: return
+        if (!currentState.canSubmitProgressive) return
 
         val wizardData = currentState.wizardData
 
-        // Validate dates
-        if (wizardData.endDate == null || !wizardData.endDate.isAfter(wizardData.startDate)) {
-            _uiState.value = currentState.copy(
-                validationErrors = mapOf("endDate" to "End date must be selected and after start date"),
-            )
-            return
+        _uiState.update { state ->
+            when (state) {
+                is SubmissionWizardUiState.Success -> state.copy(isSubmitting = true)
+                else -> state
+            }
         }
-
-        _uiState.value = currentState.copy(isSubmitting = true)
 
         viewModelScope.launch {
             val promoCodeResult = when (wizardData.promoCodeType) {
@@ -308,25 +300,21 @@ class SubmissionWizardViewModel @Inject constructor(
                     code = wizardData.promoCode,
                     serviceName = wizardData.serviceName,
                     discountPercentage = wizardData.discountPercentage.toDoubleOrNull() ?: 0.0,
-                    title = wizardData.title,
                     description = wizardData.description.takeIf { it.isNotBlank() },
                     minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
+                    endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
-                    screenshotUrl = wizardData.screenshotUrl,
                 )
                 PromoCodeType.FIXED_AMOUNT -> PromoCode.createFixedAmount(
                     code = wizardData.promoCode,
                     serviceName = wizardData.serviceName,
                     discountAmount = wizardData.discountAmount.toDoubleOrNull() ?: 0.0,
-                    title = wizardData.title,
                     description = wizardData.description.takeIf { it.isNotBlank() },
                     minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    endDate = wizardData.endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
+                    endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
-                    screenshotUrl = wizardData.screenshotUrl,
                 )
                 null -> return@launch
             }
@@ -335,12 +323,14 @@ class SubmissionWizardViewModel @Inject constructor(
                 onSuccess = { promoCode ->
                     createPromoCodeUseCase(promoCode)
                         .catch { exception ->
-                            _uiState.value = SubmissionWizardUiState.Error(
-                                errorType = exception.toErrorType(),
-                                isRetryable = exception.isRetryable(),
-                                shouldShowSnackbar = exception.shouldShowSnackbar(),
-                                errorCode = exception.getErrorCode(),
-                            )
+                            _uiState.update {
+                                SubmissionWizardUiState.Error(
+                                    errorType = exception.toErrorType(),
+                                    isRetryable = exception.isRetryable(),
+                                    shouldShowSnackbar = exception.shouldShowSnackbar(),
+                                    errorCode = exception.getErrorCode(),
+                                )
+                            }
                         }
                         .collect { result ->
                             when (result) {
@@ -350,8 +340,8 @@ class SubmissionWizardViewModel @Inject constructor(
                                     analyticsHelper.logPromoCodeSubmission(
                                         promocodeId = result.data.id.value,
                                         promocodeType = when (promoCode) {
-                                            is PromoCode.PercentagePromoCode -> "percentage"
-                                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                                            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
+                                            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
                                         },
                                         success = true,
                                     )
@@ -363,72 +353,46 @@ class SubmissionWizardViewModel @Inject constructor(
                                     analyticsHelper.logPromoCodeSubmission(
                                         promocodeId = "unknown",
                                         promocodeType = when (promoCode) {
-                                            is PromoCode.PercentagePromoCode -> "percentage"
-                                            is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                                            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
+                                            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
                                         },
                                         success = false,
                                     )
-                                    _uiState.value = SubmissionWizardUiState.Error(
-                                        errorType = result.exception.toErrorType(),
-                                        isRetryable = result.exception.isRetryable(),
-                                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                        errorCode = result.exception.getErrorCode(),
-                                    )
+                                    _uiState.update {
+                                        SubmissionWizardUiState.Error(
+                                            errorType = result.exception.toErrorType(),
+                                            isRetryable = result.exception.isRetryable(),
+                                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                            errorCode = result.exception.getErrorCode(),
+                                        )
+                                    }
                                 }
                             }
                         }
                 },
                 onFailure = { exception ->
-                    _uiState.value = SubmissionWizardUiState.Error(
-                        errorType = exception.toErrorType(),
-                        isRetryable = exception.isRetryable(),
-                        shouldShowSnackbar = exception.shouldShowSnackbar(),
-                        errorCode = exception.getErrorCode(),
-                    )
+                    _uiState.update {
+                        SubmissionWizardUiState.Error(
+                            errorType = exception.toErrorType(),
+                            isRetryable = exception.isRetryable(),
+                            shouldShowSnackbar = exception.shouldShowSnackbar(),
+                            errorCode = exception.getErrorCode(),
+                        )
+                    }
                 },
             )
         }
     }
 
     private fun updateWizardData(update: (SubmissionWizardData) -> SubmissionWizardData) {
-        val currentState = getCurrentSuccessState() ?: return
-        val newData = update(currentState.wizardData)
-        _uiState.value = currentState.copy(wizardData = newData)
-    }
-
-    // Service search helper methods
-    private fun updatePopularServices(services: List<Service>) {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(popularServices = services)
-    }
-
-    private fun updateServiceSearchResults(services: List<Service>) {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(serviceSearchResults = services)
-    }
-
-    private fun updateServiceLoadingState(isLoading: Boolean) {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(isSearchingServices = isLoading)
-    }
-
-    private fun updateServiceSearchQuery(query: String) {
-        val currentState = getCurrentSuccessState() ?: return
-        _uiState.value = currentState.copy(serviceSearchQuery = query)
-    }
-
-    private fun getCurrentSuccessState(): SubmissionWizardUiState.Success? = _uiState.value as? SubmissionWizardUiState.Success
-
-    private fun generateAutoTitle(wizardData: SubmissionWizardData): String =
-        when (wizardData.promoCodeType) {
-            PromoCodeType.PERCENTAGE -> {
-                val percentage = wizardData.discountPercentage.toIntOrNull() ?: 0
-                "$percentage% off at ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    val newData = update(currentState.wizardData)
+                    currentState.copy(wizardData = newData)
+                }
+                else -> currentState
             }
-            PromoCodeType.FIXED_AMOUNT -> {
-                val amount = wizardData.discountAmount.toIntOrNull() ?: 0
-                "₸$amount off at ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
-            }
-            null -> "Promo code for ${wizardData.serviceName.takeIf { it.isNotBlank() } ?: "this service"}"
         }
+    }
 }

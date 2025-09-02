@@ -13,51 +13,19 @@ import androidx.compose.ui.unit.dp
  */
 @Immutable
 object SpacingTokens {
-    // Screen-level spacing
-    val screenPadding = 16.dp
-    val sectionSpacing = 24.dp
-
-    @Immutable
-    object Button {
-        val horizontalPaddingSmall = 12.dp
-        val horizontalPadding = 16.dp
-        val horizontalPaddingLarge = 24.dp
-        val iconSpacing = 8.dp
-    }
-
-    @Immutable
-    object Card {
-        val padding = 16.dp
-        val margin = 8.dp
-        val headerPadding = 16.dp
-    }
-
-    @Immutable
-    object TextField {
-        val horizontalPadding = 16.dp
-        val verticalPadding = 12.dp
-    }
-
-    @Immutable
-    object List {
-        val itemSpacing = 8.dp
-        val sectionSpacing = 16.dp
-    }
-
-    @Immutable
-    object Chip {
-        val horizontalPadding = 12.dp
-        val spacing = 8.dp
-    }
-
-    // Generic spacing (use sparingly)
-    val xs = 4.dp // Removed xxs as discussed
-    val sm = 8.dp
-    val md = 16.dp
-    val lg = 24.dp
-    val xl = 32.dp
-    val xxl = 48.dp
-    val xxxl = 64.dp
+    val none = 0.dp // dividers, tight separators
+    val xxxs = 2.dp // hairline gaps, icon nudges
+    val xxs = 4.dp // compact chip spacing, dense lists
+    val xs = 8.dp // small gaps, icon + text, compact padding
+    val sm = 12.dp // button inner padding, medium chips
+    val md = 16.dp // default padding, list items
+    val lg = 24.dp // section spacing, cards margin
+    val xl = 32.dp // screen padding, large components
+    val xxl = 40.dp // modal spacing, wide gutters
+    val xxxl = 48.dp // page section breaks, toolbars
+    val huge = 64.dp // hero sections, large dialog content
+    val massive = 80.dp // landing screens, wide layouts
+    val gigantic = 96.dp // banners, big empty states
 }
 
 /**
@@ -65,17 +33,12 @@ object SpacingTokens {
  */
 @Immutable
 object SizeTokens {
-    // Shared sizing
-    val minTouchTarget = 48.dp
-    val maxContentWidth = 280.dp
 
     @Immutable
     object Button {
         val heightSmall = 32.dp
         val heightMedium = 40.dp
         val heightLarge = 48.dp
-        val widthMin = 64.dp
-        val widthMax = 280.dp
     }
 
     @Immutable
@@ -131,7 +94,6 @@ object SizeTokens {
         val sizeMedium = 16.dp
         val sizeLarge = 24.dp
         val sizeXLarge = 32.dp
-        val sizeXXLarge = 48.dp
     }
 }
 
@@ -142,13 +104,12 @@ object SizeTokens {
 object ShapeTokens {
     @Immutable
     object Corner {
-        val none = 0.dp
-        val small = 4.dp
-        val medium = 8.dp
-        val large = 12.dp
-        val extraLarge = 16.dp
-        val xxl = 28.dp
-        val full = 999.dp
+        val none = 0.dp // dividers, tables, separators
+        val small = 4.dp // badges, tiny chips, tooltips
+        val medium = 8.dp // buttons, small cards, text fields
+        val large = 12.dp // cards, bottom sheets, drawers
+        val extraLarge = 16.dp // dialogs, large containers, modals
+        val full = 999.dp // pills/circles: chips, tags, search bars, avatars, icons, pill buttons
     }
 
     @Immutable
@@ -248,174 +209,4 @@ object ElevationTokens {
     val medium = 3.dp
     val large = 6.dp
     val extraLarge = 12.dp
-}
-
-// =============================================================================
-// BACKWARD COMPATIBILITY - DEPRECATED
-// These will be removed in next major version
-// =============================================================================
-
-@Deprecated(
-    "Use SpacingTokens with semantic names instead",
-    ReplaceWith("SpacingTokens"),
-)
-object QodeSpacing {
-    @Deprecated("Use SpacingTokens.xs", ReplaceWith("SpacingTokens.xs"))
-    val xs = SpacingTokens.xs
-
-    @Deprecated("Use SpacingTokens.sm", ReplaceWith("SpacingTokens.sm"))
-    val sm = SpacingTokens.sm
-
-    @Deprecated("Use SpacingTokens.md", ReplaceWith("SpacingTokens.md"))
-    val md = SpacingTokens.md
-
-    @Deprecated("Use SpacingTokens.lg", ReplaceWith("SpacingTokens.lg"))
-    val lg = SpacingTokens.lg
-
-    @Deprecated("Use SpacingTokens.xl", ReplaceWith("SpacingTokens.xl"))
-    val xl = SpacingTokens.xl
-
-    @Deprecated("Use SpacingTokens.xxl", ReplaceWith("SpacingTokens.xxl"))
-    val xxl = SpacingTokens.xxl
-
-    @Deprecated("Use SpacingTokens.xxxl", ReplaceWith("SpacingTokens.xxxl"))
-    val xxxl = SpacingTokens.xxxl
-}
-
-@Deprecated(
-    "Use SizeTokens with semantic names instead",
-    ReplaceWith("SizeTokens"),
-)
-object QodeSize {
-    @Deprecated("Use SizeTokens.Button.heightSmall", ReplaceWith("SizeTokens.Button.heightSmall"))
-    val buttonHeightSmall = SizeTokens.Button.heightSmall
-
-    @Deprecated("Use SizeTokens.Button.heightMedium", ReplaceWith("SizeTokens.Button.heightMedium"))
-    val buttonHeightMedium = SizeTokens.Button.heightMedium
-
-    @Deprecated("Use SizeTokens.Button.heightLarge", ReplaceWith("SizeTokens.Button.heightLarge"))
-    val buttonHeightLarge = SizeTokens.Button.heightLarge
-
-    @Deprecated("Use SizeTokens.IconButton.sizeSmall", ReplaceWith("SizeTokens.IconButton.sizeSmall"))
-    val iconButtonSmall = SizeTokens.IconButton.sizeSmall
-
-    @Deprecated("Use SizeTokens.IconButton.sizeMedium", ReplaceWith("SizeTokens.IconButton.sizeMedium"))
-    val iconButtonMedium = SizeTokens.IconButton.sizeMedium
-
-    @Deprecated("Use SizeTokens.IconButton.sizeLarge", ReplaceWith("SizeTokens.IconButton.sizeLarge"))
-    val iconButtonLarge = SizeTokens.IconButton.sizeLarge
-
-    @Deprecated("Use SizeTokens.TextField.height", ReplaceWith("SizeTokens.TextField.height"))
-    val textFieldHeight = SizeTokens.TextField.height
-
-    @Deprecated("Use SizeTokens.TextField.heightSmall", ReplaceWith("SizeTokens.TextField.heightSmall"))
-    val textFieldHeightSmall = SizeTokens.TextField.heightSmall
-
-    @Deprecated("Use SizeTokens.Chip.height", ReplaceWith("SizeTokens.Chip.height"))
-    val chipHeight = SizeTokens.Chip.height
-
-    @Deprecated("Use SizeTokens.Chip.heightSmall", ReplaceWith("SizeTokens.Chip.heightSmall"))
-    val chipHeightSmall = SizeTokens.Chip.heightSmall
-
-    @Deprecated("Use SizeTokens.Icon.sizeSmall", ReplaceWith("SizeTokens.Icon.sizeSmall"))
-    val iconSmall = SizeTokens.Icon.sizeSmall
-
-    @Deprecated("Use SizeTokens.Icon.sizeMedium", ReplaceWith("SizeTokens.Icon.sizeMedium"))
-    val iconMedium = SizeTokens.Icon.sizeMedium
-
-    @Deprecated("Use SizeTokens.Icon.sizeLarge", ReplaceWith("SizeTokens.Icon.sizeLarge"))
-    val iconLarge = SizeTokens.Icon.sizeLarge
-
-    @Deprecated("Use SizeTokens.Card.minHeight", ReplaceWith("SizeTokens.Card.minHeight"))
-    val cardMinHeight = SizeTokens.Card.minHeight
-
-    @Deprecated("Use SizeTokens.Button.widthMin", ReplaceWith("SizeTokens.Button.widthMin"))
-    val minButtonWidth = SizeTokens.Button.widthMin
-
-    @Deprecated("Use SizeTokens.Button.widthMax", ReplaceWith("SizeTokens.Button.widthMax"))
-    val maxButtonWidth = SizeTokens.Button.widthMax
-}
-
-@Deprecated(
-    "Use ShapeTokens instead",
-    ReplaceWith("ShapeTokens"),
-)
-object QodeCorners {
-    @Deprecated("Use ShapeTokens.Corner.none", ReplaceWith("ShapeTokens.Corner.none"))
-    val none = ShapeTokens.Corner.none
-
-    @Deprecated("Use ShapeTokens.Corner.small", ReplaceWith("ShapeTokens.Corner.small"))
-    val xs = ShapeTokens.Corner.small
-
-    @Deprecated("Use ShapeTokens.Corner.small", ReplaceWith("ShapeTokens.Corner.small"))
-    val sm = ShapeTokens.Corner.small
-
-    @Deprecated("Use ShapeTokens.Corner.medium", ReplaceWith("ShapeTokens.Corner.medium"))
-    val md = ShapeTokens.Corner.medium
-
-    @Deprecated("Use ShapeTokens.Corner.large", ReplaceWith("ShapeTokens.Corner.large"))
-    val lg = ShapeTokens.Corner.large
-
-    @Deprecated("Use ShapeTokens.Corner.extraLarge", ReplaceWith("ShapeTokens.Corner.extraLarge"))
-    val xl = ShapeTokens.Corner.extraLarge
-
-    @Deprecated("Use ShapeTokens.Corner.xxl", ReplaceWith("ShapeTokens.Corner.xxl"))
-    val xxl = ShapeTokens.Corner.xxl
-
-    @Deprecated("Use ShapeTokens.Corner.FULL", ReplaceWith("ShapeTokens.Corner.FULL"))
-    val full = ShapeTokens.Corner.full
-}
-
-@Deprecated(
-    "Use ElevationTokens instead",
-    ReplaceWith("ElevationTokens"),
-)
-object QodeElevation {
-    @Deprecated("Use ElevationTokens.none", ReplaceWith("ElevationTokens.none"))
-    val none = ElevationTokens.none
-
-    @Deprecated("Use ElevationTokens.small", ReplaceWith("ElevationTokens.small"))
-    val xs = ElevationTokens.small
-
-    @Deprecated("Use ElevationTokens.small", ReplaceWith("ElevationTokens.small"))
-    val sm = ElevationTokens.small
-
-    @Deprecated("Use ElevationTokens.medium", ReplaceWith("ElevationTokens.medium"))
-    val md = ElevationTokens.medium
-
-    @Deprecated("Use ElevationTokens.large", ReplaceWith("ElevationTokens.large"))
-    val lg = ElevationTokens.large
-
-    @Deprecated("Use ElevationTokens.extraLarge", ReplaceWith("ElevationTokens.extraLarge"))
-    val xl = ElevationTokens.extraLarge
-}
-
-@Deprecated(
-    "Use ShapeTokens.Border instead",
-    ReplaceWith("ShapeTokens.Border"),
-)
-object QodeBorder {
-    @Deprecated("Use ShapeTokens.Border.thin", ReplaceWith("ShapeTokens.Border.thin"))
-    val thin = ShapeTokens.Border.thin
-
-    @Deprecated("Use ShapeTokens.Border.medium", ReplaceWith("ShapeTokens.Border.medium"))
-    val medium = ShapeTokens.Border.medium
-
-    @Deprecated("Use ShapeTokens.Border.thick", ReplaceWith("ShapeTokens.Border.thick"))
-    val thick = ShapeTokens.Border.thick
-}
-
-@Deprecated(
-    "Use MotionTokens.Duration instead",
-    ReplaceWith("MotionTokens.Duration"),
-)
-object QodeAnimation {
-    @Deprecated("Use MotionTokens.Duration.FAST", ReplaceWith("MotionTokens.Duration.FAST"))
-    const val FAST = MotionTokens.Duration.FAST
-
-    @Deprecated("Use MotionTokens.Duration.MEDIUM", ReplaceWith("MotionTokens.Duration.MEDIUM"))
-    const val MEDIUM = MotionTokens.Duration.MEDIUM
-
-    @Deprecated("Use MotionTokens.Duration.SLOW", ReplaceWith("MotionTokens.Duration.SLOW"))
-    const val SLOW = MotionTokens.Duration.SLOW
 }

@@ -14,9 +14,13 @@ import javax.inject.Singleton
 @Singleton
 class FirestoreServiceDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
     companion object {
-        private const val TAG = "FirestoreServiceDS"
         private const val SERVICES_COLLECTION = "services"
+        private const val CACHE_DURATION_MS = 30_000L // 30 seconds
     }
+
+    // Simple in-memory cache for popular services
+    private var cachedPopularServices: List<Service>? = null
+    private var lastFetchTime: Long = 0L
 
     suspend fun createService(service: Service): Service {
         val dto = ServiceMapper.toDto(service)
@@ -78,7 +82,18 @@ class FirestoreServiceDataSource @Inject constructor(private val firestore: Fire
     }
 
     suspend fun getPopularServices(limit: Int = 20): List<Service> {
-        Logger.d { "$TAG: getPopularServices called with limit=$limit" }
+        val currentTime = System.currentTimeMillis()
+
+        // Return cached data if it's still fresh
+        cachedPopularServices?.let { cached ->
+            if (currentTime - lastFetchTime < CACHE_DURATION_MS) {
+                Logger.d { "FirestoreServiceDataSource: Returning cached popular services (${cached.size} items)" }
+                return cached.take(limit)
+            }
+        }
+
+        Logger.i { "FirestoreServiceDataSource: Fetching popular services from Firestore (limit=$limit)" }
+
         val querySnapshot = firestore.collection(SERVICES_COLLECTION)
             .orderBy("promoCodeCount", Query.Direction.DESCENDING)
             .orderBy("name", Query.Direction.ASCENDING)
@@ -86,19 +101,21 @@ class FirestoreServiceDataSource @Inject constructor(private val firestore: Fire
             .get()
             .await()
 
-        Logger.d { "$TAG: Query completed, found ${querySnapshot.documents.size} documents" }
-        querySnapshot.documents.forEachIndexed { index, document ->
-            Logger.d { "$TAG: Document $index: ${document.id} - data: ${document.data}" }
-        }
-
         val services = querySnapshot.documents.mapNotNull { document ->
             document.toObject<ServiceDto>()?.let { dto ->
-                Logger.d { "$TAG: Mapping service: ${dto.name} with promoCodeCount=${dto.promoCodeCount}" }
                 ServiceMapper.toDomain(dto)
             }
         }
 
-        Logger.d { "$TAG: Returning ${services.size} services" }
+        // Update cache
+        cachedPopularServices = services
+        lastFetchTime = currentTime
+
+        Logger.i { "FirestoreServiceDataSource: Retrieved ${services.size} popular services from Firestore" }
+        services.forEachIndexed { index, service ->
+            Logger.d { "  [$index] ${service.name} (${service.category}) - ${service.promoCodeCount} promos" }
+        }
+
         return services
     }
 

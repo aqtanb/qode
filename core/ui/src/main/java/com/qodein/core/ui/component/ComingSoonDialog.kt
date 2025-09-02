@@ -84,7 +84,7 @@ fun ComingSoonDialog(
             modifier = modifier
                 .fillMaxWidth()
                 .alpha(alpha)
-                .padding(SpacingTokens.screenPadding)
+                .padding(SpacingTokens.md)
                 .semantics {
                     contentDescription = dialogDescription
                 },
@@ -108,7 +108,7 @@ fun ComingSoonDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(SpacingTokens.sectionSpacing),
+                        .padding(SpacingTokens.lg),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                 ) {

@@ -10,7 +10,6 @@ import kotlin.time.Instant
 
 class CreatePromoUseCase constructor(private val promoRepository: PromoRepository) {
     operator fun invoke(
-        title: String,
         description: String,
         serviceName: String,
         createdBy: UserId,
@@ -19,15 +18,12 @@ class CreatePromoUseCase constructor(private val promoRepository: PromoRepositor
         targetCountries: List<String> = emptyList(),
         expiresAt: Instant? = null
     ): Flow<Result<Promo>> {
-        require(title.isNotBlank()) { "Promo title cannot be blank" }
-        require(title.length <= 100) { "Promo title cannot exceed 100 characters" }
         require(description.isNotBlank()) { "Promo description cannot be blank" }
         require(description.length <= 1000) { "Promo description cannot exceed 1000 characters" }
         require(serviceName.isNotBlank()) { "Service name cannot be blank" }
         require(imageUrls.size <= 5) { "Promo cannot have more than 5 images" }
 
         val promo = Promo.create(
-            title = title.trim(),
             description = description.trim(),
             serviceName = serviceName.trim(),
             createdBy = createdBy,

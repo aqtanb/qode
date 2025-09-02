@@ -1,5 +1,6 @@
 package com.qodein.core.designsystem.component
 
+import android.R.attr.singleLine
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -19,7 +20,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -40,14 +40,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.theme.QodeAnimation
-import com.qodein.core.designsystem.theme.QodeSize
+import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 /**
@@ -56,7 +54,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 enum class QodeTextFieldVariant {
     Standard,
     Search,
-    Password,
     Multiline
 }
 
@@ -110,11 +107,9 @@ fun QodeTextField(
     maxCharacters: Int? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.small),
-    singleLine: Boolean = variant != QodeTextFieldVariant.Multiline,
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.full),
     maxLines: Int = if (variant == QodeTextFieldVariant.Multiline) 5 else 1
 ) {
-    var passwordVisible by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
@@ -127,7 +122,7 @@ fun QodeTextField(
             isFocused -> MaterialTheme.colorScheme.primary
             else -> MaterialTheme.colorScheme.outline
         },
-        animationSpec = tween(durationMillis = QodeAnimation.FAST),
+        animationSpec = tween(durationMillis = MotionTokens.Duration.FAST),
         label = "border_color",
     )
 
@@ -142,22 +137,11 @@ fun QodeTextField(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Search,
         )
-        QodeTextFieldVariant.Password -> keyboardOptions.copy(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done,
-        )
         QodeTextFieldVariant.Multiline -> keyboardOptions.copy(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Default,
         )
         else -> keyboardOptions
-    }
-
-    val visualTransformation = when (variant) {
-        QodeTextFieldVariant.Password -> {
-            if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-        }
-        else -> VisualTransformation.None
     }
 
     Column(modifier = modifier) {
@@ -202,31 +186,18 @@ fun QodeTextField(
                     Icon(
                         imageVector = it,
                         contentDescription = null,
-                        modifier = Modifier.size(QodeSize.iconMedium),
+                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     )
                 }
             },
             trailingIcon = {
                 when {
-                    variant == QodeTextFieldVariant.Password -> {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) {
-                                    Icons.Default.Close
-                                } else {
-                                    Icons.Default.Email // Using Email as a placeholder for visibility
-                                },
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                modifier = Modifier.size(QodeSize.iconMedium),
-                            )
-                        }
-                    }
                     state is QodeTextFieldState.Error -> {
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = "Error",
                             tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(QodeSize.iconMedium),
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         )
                     }
                     state is QodeTextFieldState.Success -> {
@@ -234,7 +205,7 @@ fun QodeTextField(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Success",
                             tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(QodeSize.iconMedium),
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         )
                     }
                     value.isNotEmpty() && enabled && !readOnly && variant != QodeTextFieldVariant.Search -> {
@@ -242,17 +213,15 @@ fun QodeTextField(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Clear text",
-                                modifier = Modifier.size(QodeSize.iconSmall),
+                                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                             )
                         }
                     }
                 }
             },
             isError = state is QodeTextFieldState.Error,
-            visualTransformation = visualTransformation,
             keyboardOptions = effectiveKeyboardOptions,
             keyboardActions = keyboardActions,
-            singleLine = singleLine,
             maxLines = maxLines,
             interactionSource = interactionSource,
             shape = shape,
@@ -350,15 +319,6 @@ private fun QodeTextFieldVariantsPreview() {
                 variant = QodeTextFieldVariant.Search,
             )
 
-            var passwordValue by remember { mutableStateOf("") }
-            QodeTextField(
-                value = passwordValue,
-                onValueChange = { passwordValue = it },
-                label = "Password",
-                placeholder = "Enter password...",
-                variant = QodeTextFieldVariant.Password,
-            )
-
             var multilineValue by remember { mutableStateOf("") }
             QodeTextField(
                 value = multilineValue,
@@ -428,8 +388,7 @@ private fun QodeTextFieldFeaturesPreview() {
                 onValueChange = { counterValue = it },
                 label = "Promo Code",
                 placeholder = "Enter code...",
-                helperText = "Enter the promo code exactly as shown",
-                characterCounter = true,
+                required = true,
                 maxCharacters = 20,
             )
 

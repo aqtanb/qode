@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.qodein.feature.promocode.detail.PromocodeDetailScreen
-import com.qodein.feature.promocode.submission.SubmissionWizardScreen
+import com.qodein.feature.promocode.submission.SubmissionScreen
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.serialization.Serializable
 
@@ -21,12 +21,9 @@ fun NavController.navigateToPromocodeDetail(
     navOptions: NavOptions? = null
 ) = navigate(route = PromocodeDetailRoute(promoCodeId.value), navOptions = navOptions)
 
-fun NavGraphBuilder.submissionSection(
-    onNavigateBack: () -> Unit = {},
-    onPromoCodeDetail: (PromoCodeId) -> Unit = {}
-) {
+fun NavGraphBuilder.submissionSection(onNavigateBack: () -> Unit = {}) {
     composable<SubmissionRoute> {
-        SubmissionWizardScreen(
+        SubmissionScreen(
             onNavigateBack = onNavigateBack,
         )
     }

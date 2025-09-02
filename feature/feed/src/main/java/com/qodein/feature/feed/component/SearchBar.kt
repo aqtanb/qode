@@ -112,7 +112,7 @@ fun SearchBar(
                     color = MaterialTheme.colorScheme.onSurface,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                singleLine = true,
+
                 interactionSource = interactionSource,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -227,7 +227,7 @@ fun SearchBarMinimal(
                     color = MaterialTheme.colorScheme.onSurface,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                singleLine = true,
+
                 interactionSource = interactionSource,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Search,

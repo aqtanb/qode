@@ -35,10 +35,10 @@ Multi-step submission wizard for creating promo codes with sophisticated UX, for
 ### Step Enumeration
 ```kotlin
 enum class SubmissionWizardStep(val stepNumber: Int) {
-    SERVICE_AND_TYPE(1),    // Service name and discount type selection
-    TYPE_DETAILS(2),        // Promo code and discount configuration
+    CORE_DETAILS(1),    // Service name and discount type selection
+    CORE_DETAILS(2),        // Promo code and discount configuration
     DATE_SETTINGS(3),       // Start and end date configuration
-    OPTIONAL_DETAILS(4);    // Title, description, screenshot
+    DATE_SETTINGS(4);    // Title, description, screenshot
 
     val isFirst: Boolean
     val isLast: Boolean

@@ -29,9 +29,6 @@ object PromoCodeMapper {
         if (dto.serviceName.isBlank()) {
             throw IllegalArgumentException("PromoCode serviceName cannot be blank")
         }
-        if (dto.title.isBlank()) {
-            throw IllegalArgumentException("PromoCode title cannot be blank")
-        }
         if (dto.type.isBlank()) {
             throw IllegalArgumentException("PromoCode type cannot be blank")
         }
@@ -46,7 +43,6 @@ object PromoCodeMapper {
                 serviceId = dto.serviceId?.let { ServiceId(it) },
                 serviceName = dto.serviceName,
                 category = dto.category,
-                title = dto.title,
                 description = dto.description,
                 discountPercentage = dto.discountPercentage
                     ?: throw IllegalArgumentException("Percentage promo code missing discountPercentage"),
@@ -58,7 +54,6 @@ object PromoCodeMapper {
                 downvotes = dto.downvotes,
                 views = dto.views,
                 shares = dto.shares,
-                screenshotUrl = dto.screenshotUrl,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
@@ -74,7 +69,6 @@ object PromoCodeMapper {
                 serviceId = dto.serviceId?.let { ServiceId(it) },
                 serviceName = dto.serviceName,
                 category = dto.category,
-                title = dto.title,
                 description = dto.description,
                 discountAmount = dto.discountAmount
                     ?: throw IllegalArgumentException("Fixed amount promo code missing discountAmount"),
@@ -86,7 +80,6 @@ object PromoCodeMapper {
                 downvotes = dto.downvotes,
                 views = dto.views,
                 shares = dto.shares,
-                screenshotUrl = dto.screenshotUrl,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
@@ -108,7 +101,6 @@ object PromoCodeMapper {
                 serviceId = domain.serviceId?.value,
                 serviceName = domain.serviceName,
                 category = domain.category,
-                title = domain.title,
                 description = domain.description,
                 type = "percentage",
                 discountPercentage = domain.discountPercentage,
@@ -118,7 +110,6 @@ object PromoCodeMapper {
                 downvotes = domain.downvotes,
                 views = domain.views,
                 shares = domain.shares,
-                screenshotUrl = domain.screenshotUrl,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
@@ -136,7 +127,6 @@ object PromoCodeMapper {
                 serviceId = domain.serviceId?.value,
                 serviceName = domain.serviceName,
                 category = domain.category,
-                title = domain.title,
                 description = domain.description,
                 type = "fixed",
                 discountAmount = domain.discountAmount,
@@ -146,7 +136,6 @@ object PromoCodeMapper {
                 downvotes = domain.downvotes,
                 views = domain.views,
                 shares = domain.shares,
-                screenshotUrl = domain.screenshotUrl,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },

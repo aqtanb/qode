@@ -257,7 +257,6 @@ private fun ServiceInfoSectionPreview() {
             code = "FALL60",
             serviceName = "Food Delivery Pro Service",
             category = "Food",
-            title = "51% Off Food Orders",
             discountPercentage = 51.0,
             minimumOrderAmount = 5000.0,
             startDate = Clock.System.now(),

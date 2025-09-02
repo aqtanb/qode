@@ -160,7 +160,6 @@ private fun GradientBannerSectionPreview() {
             code = "FALL60",
             serviceName = "Food Delivery Pro",
             category = "Food",
-            title = "51% Off Food Orders",
             description = "Қазақстандағы ең жақсы бағалар",
             discountPercentage = 51.0,
             minimumOrderAmount = 5000.0,

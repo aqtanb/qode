@@ -20,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.R
-import com.qodein.core.designsystem.theme.QodeCorners
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -54,9 +53,9 @@ fun QodeLogo(
     }
 
     val cornerRadius = when (size) {
-        QodeLogoSize.Small -> QodeCorners.sm
+        QodeLogoSize.Small -> ShapeTokens.Corner.small
         QodeLogoSize.Medium -> ShapeTokens.Corner.medium
-        QodeLogoSize.Large -> QodeCorners.lg
+        QodeLogoSize.Large -> ShapeTokens.Corner.large
         QodeLogoSize.XLarge -> ShapeTokens.Corner.extraLarge
     }
 

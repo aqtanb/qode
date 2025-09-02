@@ -155,7 +155,6 @@ sealed class PromoCode {
     abstract val serviceId: ServiceId? // Reference to Service document
     abstract val serviceName: String // Denormalized for display and filtering
     abstract val category: String?
-    abstract val title: String
     abstract val description: String?
     abstract val startDate: Instant
     abstract val endDate: Instant
@@ -187,7 +186,6 @@ sealed class PromoCode {
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
         override val category: String? = null,
-        override val title: String,
         override val description: String? = null,
         val discountPercentage: Double,
         val minimumOrderAmount: Double,
@@ -229,7 +227,6 @@ sealed class PromoCode {
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
         override val category: String? = null,
-        override val title: String,
         override val description: String? = null,
         val discountAmount: Double,
         val minimumOrderAmount: Double,
@@ -269,9 +266,9 @@ sealed class PromoCode {
             code: String,
             serviceName: String
         ): String {
-            val cleanCode = code.uppercase().trim().replace(" ", "_")
-            val cleanService = serviceName.uppercase().trim().replace(" ", "_")
-            return "${cleanCode}_$cleanService"
+            val cleanCode = code.lowercase().trim().replace(Regex("\\s+"), "_")
+            val cleanService = serviceName.lowercase().trim().replace(Regex("\\s+"), "_")
+            return "${cleanService}_$cleanCode"
         }
 
         fun createPercentage(
@@ -279,13 +276,11 @@ sealed class PromoCode {
             serviceName: String,
             discountPercentage: Double,
             category: String? = null,
-            title: String,
             description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
-            screenshotUrl: String? = null,
             targetCountries: List<String> = emptyList(),
             createdBy: UserId? = null
         ): Result<PercentagePromoCode> =
@@ -297,14 +292,12 @@ sealed class PromoCode {
                     code = cleanCode,
                     serviceName = cleanServiceName,
                     category = category?.trim(),
-                    title = title.trim(),
                     description = description?.trim(),
                     discountPercentage = discountPercentage,
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
                     endDate = endDate,
                     isFirstUserOnly = isFirstUserOnly,
-                    screenshotUrl = screenshotUrl?.trim(),
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
                 )
@@ -315,13 +308,11 @@ sealed class PromoCode {
             serviceName: String,
             discountAmount: Double,
             category: String? = null,
-            title: String,
             description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
-            screenshotUrl: String? = null,
             targetCountries: List<String> = emptyList(),
             createdBy: UserId? = null
         ): Result<FixedAmountPromoCode> =
@@ -333,14 +324,12 @@ sealed class PromoCode {
                     code = cleanCode,
                     serviceName = cleanServiceName,
                     category = category?.trim(),
-                    title = title.trim(),
                     description = description?.trim(),
                     discountAmount = discountAmount,
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
                     endDate = endDate,
                     isFirstUserOnly = isFirstUserOnly,
-                    screenshotUrl = screenshotUrl?.trim(),
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
                 )
@@ -534,7 +523,6 @@ data class Promo(
 
     companion object {
         fun create(
-            title: String,
             description: String,
             serviceName: String,
             createdBy: UserId,
@@ -544,9 +532,13 @@ data class Promo(
             expiresAt: Instant? = null
         ): Result<Promo> =
             runCatching {
+                // Generate title from service name
+                val generatedTitle = serviceName.trim().takeIf { it.isNotBlank() }
+                    ?: "Promo"
+
                 Promo(
                     id = PromoId(generateId()),
-                    title = title.trim(),
+                    title = generatedTitle,
                     description = description.trim(),
                     serviceName = serviceName.trim(),
                     createdBy = createdBy,

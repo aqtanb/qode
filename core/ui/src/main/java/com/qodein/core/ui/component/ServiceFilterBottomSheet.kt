@@ -190,7 +190,7 @@ private fun ServiceSelectorContent(
                     isSearchFocused = focusState.isFocused
                     onSearchFocusChange?.invoke(focusState.isFocused)
                 },
-            singleLine = true,
+
             shape = RoundedCornerShape(28.dp),
         )
 

@@ -65,11 +65,9 @@ object TopBarConfigProvider {
                 when {
                     appState.isSubmissionScreen -> {
                         // TODO: Implement proper dynamic titles per wizard step
-                        // The wizard has 4 steps that should show different titles:
-                        // Step 1: "Select Service" (SERVICE_AND_TYPE)
-                        // Step 2: "Enter Details" (TYPE_DETAILS)
-                        // Step 3: "Set Dates" (DATE_SETTINGS)
-                        // Step 4: "Final Details" (OPTIONAL_DETAILS)
+                        // The wizard has 2 steps that should show different titles:
+                        // Step 1: "Core Details" (CORE_DETAILS)
+                        // Step 2: "Set Dates" (DATE_SETTINGS)
                         // Currently using generic title since wizard step state is not accessible here
                         TopBarConfig.Basic(title = "Create Promo Code")
                     }

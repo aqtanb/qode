@@ -50,7 +50,8 @@ fun DialogCoordinator(
 
             FilterDialogType.Service -> {
                 var isSearchFocused by remember { mutableStateOf(false) }
-                val isSearching = serviceSearchState.query.length >= 2
+                val searchQuery = serviceSearchState.query
+                val isSearching = serviceSearchState.isSearching
 
                 // Use different sheet state based on focus/search mode
                 val sheetState = rememberModalBottomSheetState(
@@ -66,7 +67,7 @@ fun DialogCoordinator(
                     isVisible = true,
                     services = services,
                     popularServices = services, // TODO: Separate popular services from search results
-                    searchQuery = serviceSearchState.query,
+                    searchQuery = searchQuery,
                     onSearchQueryChange = { query -> onAction(HomeAction.SearchServices(query)) },
                     onServiceSelected = { service ->
                         val currentFilter = currentFilters.serviceFilter

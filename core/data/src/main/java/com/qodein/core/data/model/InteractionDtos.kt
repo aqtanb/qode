@@ -152,7 +152,7 @@ data class ServiceDto(
     @PropertyName("logoUrl")
     val logoUrl: String? = null,
 
-    @PropertyName("isPopular")
+    @get:PropertyName("isPopular")
     val isPopular: Boolean = false,
 
     @PropertyName("promoCodeCount")

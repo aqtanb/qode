@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
  * - Popular services fourth
  * - Others last
  */
-class SearchServicesUseCase constructor(private val repository: PromoCodeRepository) {
+class SearchServicesUseCase(private val repository: PromoCodeRepository) {
     /**
      * Search for services matching the query.
      *
@@ -26,6 +26,6 @@ class SearchServicesUseCase constructor(private val repository: PromoCodeReposit
      */
     operator fun invoke(
         query: String,
-        limit: Int = 20
+        limit: Int = 5
     ): Flow<Result<List<Service>>> = repository.searchServices(query.trim(), limit).asResult()
 }

@@ -238,7 +238,7 @@ analyticsHelper.logEvent(
         type = "wizard_step_navigation",
         extras = listOf(
             AnalyticsEvent.Param("step_from", "SERVICE_SELECTION"),
-            AnalyticsEvent.Param("step_to", "TYPE_DETAILS"),
+            AnalyticsEvent.Param("step_to", "CORE_DETAILS"),
             AnalyticsEvent.Param("direction", "next")
         )
     )

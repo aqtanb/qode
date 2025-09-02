@@ -235,7 +235,7 @@ fun FeedScreen(
                                                     style = MaterialTheme.typography.labelMedium,
                                                     color = MaterialTheme.colorScheme.onErrorContainer,
                                                     modifier = Modifier.padding(
-                                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                                        horizontal = SpacingTokens.sm,
                                                         vertical = SpacingTokens.xs,
                                                     ),
                                                 )
@@ -246,7 +246,7 @@ fun FeedScreen(
 
                                         FlowRow(
                                             modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                                             verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                                         ) {
                                             currentState.selectedTags.forEach { tag ->
@@ -261,7 +261,7 @@ fun FeedScreen(
                                                 ) {
                                                     Row(
                                                         modifier = Modifier.padding(
-                                                            start = SpacingTokens.Chip.horizontalPadding,
+                                                            start = SpacingTokens.lg,
                                                             end = SpacingTokens.sm,
                                                             top = SpacingTokens.sm,
                                                             bottom = SpacingTokens.sm,
@@ -339,8 +339,8 @@ fun FeedScreen(
 
                                     FlowRow(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
-                                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.Chip.spacing),
+                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                                     ) {
                                         currentState.suggestedTags.take(8).forEach { tag ->
                                             Surface(
@@ -354,7 +354,7 @@ fun FeedScreen(
                                             ) {
                                                 Row(
                                                     modifier = Modifier.padding(
-                                                        horizontal = SpacingTokens.Chip.horizontalPadding,
+                                                        horizontal = SpacingTokens.lg,
                                                         vertical = SpacingTokens.sm + 2.dp,
                                                     ),
                                                     verticalAlignment = Alignment.CenterVertically,

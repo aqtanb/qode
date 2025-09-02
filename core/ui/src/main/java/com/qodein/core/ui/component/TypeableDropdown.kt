@@ -184,7 +184,7 @@ fun TypeableDropdown(
                 errorBorderColor = MaterialTheme.colorScheme.error,
                 errorLabelColor = MaterialTheme.colorScheme.error,
             ),
-            singleLine = true,
+
         )
 
         // Error message

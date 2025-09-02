@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.qodein.core.designsystem.component.ModernPageIndicator
+import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeDivider
@@ -406,7 +406,7 @@ private fun BannerCallToAction(
         )
 
         if (totalPages > 1) {
-            ModernPageIndicator(
+            PageIndicator(
                 currentPage = currentPage,
                 totalPages = totalPages,
                 modifier = modifier.padding(top = SpacingTokens.xs),

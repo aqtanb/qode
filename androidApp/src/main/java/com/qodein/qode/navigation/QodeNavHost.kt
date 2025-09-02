@@ -70,9 +70,6 @@ fun QodeNavHost(
             onNavigateBack = {
                 navController.popBackStack()
             },
-            onPromoCodeDetail = { promoCodeId ->
-                // Navigate to promo code detail
-            },
         )
 
         settingsSection(

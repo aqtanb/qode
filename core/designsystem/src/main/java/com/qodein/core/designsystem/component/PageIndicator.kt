@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -27,7 +28,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
  * Works perfectly with bi-directional swiping
  */
 @Composable
-fun ModernPageIndicator(
+fun PageIndicator(
     currentPage: Int,
     totalPages: Int,
     modifier: Modifier = Modifier,
@@ -41,7 +42,7 @@ fun ModernPageIndicator(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(spacing),
+        horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
     ) {
         repeat(totalPages) { index ->
             val isActive = index == currentPage
@@ -73,7 +74,7 @@ private fun ModernPageIndicatorBeginningPreview() {
                 .background(Color.Gray)
                 .padding(SpacingTokens.lg),
         ) {
-            ModernPageIndicator(
+            PageIndicator(
                 currentPage = 0,
                 totalPages = 4,
             )
@@ -90,7 +91,7 @@ private fun ModernPageIndicatorMiddlePreview() {
                 .background(Color.Gray)
                 .padding(SpacingTokens.lg),
         ) {
-            ModernPageIndicator(
+            PageIndicator(
                 currentPage = 2,
                 totalPages = 4,
             )
@@ -107,7 +108,7 @@ private fun ModernPageIndicatorEndPreview() {
                 .background(Color.Gray)
                 .padding(SpacingTokens.lg),
         ) {
-            ModernPageIndicator(
+            PageIndicator(
                 currentPage = 3,
                 totalPages = 4,
             )

@@ -9,15 +9,15 @@ import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.feature.home.ui.state.SearchResultState
+import com.qodein.feature.home.ui.state.ServiceSearchState
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
-import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
-import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
@@ -29,17 +29,12 @@ import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,8 +44,8 @@ class HomeViewModel @Inject constructor(
     // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromoCodesUseCase: GetPromoCodesUseCase,
-    private val getPopularServicesUseCase: GetPopularServicesUseCase,
-    private val searchServicesUseCase: SearchServicesUseCase,
+    // Service search manager
+    private val serviceSearchManager: ServiceSearchManager,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -59,8 +54,6 @@ class HomeViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
-
-    private val searchQueryFlow = MutableSharedFlow<String>()
 
     companion object {
         private const val DEFAULT_PAGE_SIZE = 20
@@ -313,7 +306,7 @@ class HomeViewModel @Inject constructor(
 
     private fun retryServices() {
         Logger.d("HomeViewModel: Retrying services load")
-        searchServices("")
+        serviceSearchManager.clearQuery()
     }
 
     // MARK: - Filter Actions
@@ -325,9 +318,7 @@ class HomeViewModel @Inject constructor(
 
         // Load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
-            viewModelScope.launch {
-                searchQueryFlow.emit("") // Trigger popular services loading
-            }
+            serviceSearchManager.clearQuery()
         }
     }
 
@@ -378,63 +369,43 @@ class HomeViewModel @Inject constructor(
         loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
-    // MARK: - Helper Functions
+    // MARK: - Service Search
 
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     private fun setupServiceSearch() {
         viewModelScope.launch {
-            searchQueryFlow
-                .distinctUntilChanged()
-                .debounce(SEARCH_DEBOUNCE_MILLIS)
-                .flatMapLatest { query ->
-                    when {
-                        // Load popular services for empty query (when dialog opens)
-                        query.isEmpty() -> getPopularServicesUseCase(limit = DEFAULT_PAGE_SIZE)
-                        // Emit empty state for short queries
-                        query.length < MIN_SEARCH_QUERY_LENGTH -> flowOf(Result.Success(emptyList()))
-                        // Perform search for valid queries
-                        else -> searchServicesUseCase(query = query, limit = DEFAULT_PAGE_SIZE)
-                    }
-                }
-                .collect { result ->
-                    val currentQuery = _uiState.value.serviceSearchState.query
-                    _uiState.update { state ->
-                        state.copy(
-                            serviceSearchState = state.serviceSearchState.copy(
-                                state = when (result) {
-                                    is Result.Loading -> SearchResultState.Loading
-                                    is Result.Success -> {
-                                        if (result.data.isEmpty()) {
-                                            SearchResultState.Empty
-                                        } else {
-                                            SearchResultState.Success(result.data)
-                                        }
-                                    }
-                                    is Result.Error -> SearchResultState.Error(
-                                        errorType = result.exception.toErrorType(),
-                                        isRetryable = result.exception.isRetryable(),
-                                        shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                        errorCode = result.exception.getErrorCode(),
-                                    )
-                                },
-                            ),
+            combine(
+                serviceSearchManager.searchQuery,
+                serviceSearchManager.searchResult,
+            ) { query, result ->
+                ServiceSearchState(
+                    query = query,
+                    state = when (result) {
+                        is Result.Loading -> SearchResultState.Loading
+                        is Result.Success -> {
+                            if (result.data.isEmpty()) {
+                                SearchResultState.Empty
+                            } else {
+                                SearchResultState.Success(result.data)
+                            }
+                        }
+                        is Result.Error -> SearchResultState.Error(
+                            errorType = result.exception.toErrorType(),
+                            isRetryable = result.exception.isRetryable(),
+                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                            errorCode = result.exception.getErrorCode(),
                         )
-                    }
+                    },
+                )
+            }.collect { searchState ->
+                _uiState.update { state ->
+                    state.copy(serviceSearchState = searchState)
                 }
+            }
         }
     }
 
     private fun searchServices(query: String) {
-        // Update query immediately in UI state
-        _uiState.update { state ->
-            state.copy(
-                serviceSearchState = state.serviceSearchState.copy(query = query),
-            )
-        }
-
-        viewModelScope.launch {
-            searchQueryFlow.emit(query)
-        }
+        serviceSearchManager.updateQuery(query)
     }
 
     override fun onCleared() {

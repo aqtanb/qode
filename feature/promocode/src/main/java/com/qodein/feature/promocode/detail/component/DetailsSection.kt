@@ -198,7 +198,6 @@ private fun DetailsSectionPreview() {
             code = "FALL60",
             serviceName = "Food Delivery Pro",
             category = "Food",
-            title = "51% Off Food Orders",
             discountPercentage = 51.0,
             minimumOrderAmount = 76060.0,
             startDate = Clock.System.now().minus(1.days),
