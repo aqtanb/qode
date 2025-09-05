@@ -9,6 +9,8 @@ import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -24,16 +26,23 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Loading)
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<AuthEvent>()
     val events = _events.asSharedFlow()
 
     private var signInJob: Job? = null
+    private var authStateJob: Job? = null
+
+    init {
+        // Initialize with current auth state
+        checkAuthState()
+    }
 
     fun handleAction(action: AuthAction) {
         when (action) {
@@ -80,6 +89,30 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    private fun checkAuthState() {
+        // Cancel any existing auth state monitoring
+        authStateJob?.cancel()
+
+        authStateJob = getAuthStateUseCase()
+            .onEach { result ->
+                _state.value = when (result) {
+                    is Result.Loading -> AuthUiState.Loading
+                    is Result.Success -> {
+                        when (val authState = result.data) {
+                            is AuthState.Loading -> AuthUiState.Loading
+                            is AuthState.Unauthenticated -> AuthUiState.Idle
+                            is AuthState.Authenticated -> AuthUiState.Success(user = authState.user)
+                        }
+                    }
+                    is Result.Error -> {
+                        // If we can't determine auth state, assume not authenticated
+                        AuthUiState.Idle
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun clearError() {
         _state.value = AuthUiState.Idle
     }
@@ -87,5 +120,6 @@ class AuthViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         signInJob?.cancel()
+        authStateJob?.cancel()
     }
 }
