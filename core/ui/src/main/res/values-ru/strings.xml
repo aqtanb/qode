@@ -32,7 +32,7 @@
     <!-- Coming Soon Dialog -->
     <string name="coming_soon_title">Мы работаем над этой функцией</string>
     <string name="coming_soon_description">Вы можете связаться с нами и следить за нашим прогрессом в канале Telegram.</string>
-    <string name="coming_soon_telegram_button">Подписаться в Telegram</string>
+    <string name="coming_soon_telegram_button">Подписаться на Telegram</string>
     <string name="coming_soon_dialog_description">Диалог "Скоро" для новых функций</string>
 
     <!-- Accessibility -->
@@ -50,8 +50,8 @@
     <!-- Promo Code Card Strings -->
     <string name="promo_code_label">ПРОМО КОД</string>
     <string name="copy_code">Копировать код</string>
-    <string name="upvotes">Голоса за</string>
-    <string name="downvotes">Голоса против</string>
+    <string name="upvotes">Положительные</string>
+    <string name="downvotes">Отрицательные</string>
     <string name="updated_format">Обновлено %s</string>
     <string name="percentage_discount">%d%%</string>
     <string name="fixed_amount_discount">%d₸</string>
@@ -78,7 +78,7 @@
     <string name="stats_total_saved_label">Всего сэкономлено</string>
     
     <!-- Filter Categories -->
-    <string name="filter_top_rated">Топ рейтинга</string>
+    <string name="filter_top_rated">Лучшие по рейтингу</string>
     <string name="filter_latest">Последние</string>
     <string name="filter_food">Еда</string>
     <string name="filter_fashion">Мода</string>

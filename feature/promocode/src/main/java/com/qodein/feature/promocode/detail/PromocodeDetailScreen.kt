@@ -9,15 +9,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -31,9 +32,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeTopAppBarVariant
+import com.qodein.core.designsystem.component.TopAppBarAction
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
@@ -45,6 +52,7 @@ import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeDetailScreen(
     promoCodeId: PromoCodeId,
@@ -62,6 +70,12 @@ fun PromocodeDetailScreen(
     LaunchedEffect(promoCodeId) {
         viewModel.onAction(PromocodeDetailAction.LoadPromocode(promoCodeId))
     }
+
+    // Authentication-protected bookmark action
+    val requireBookmark = requireAuthentication(
+        action = AuthPromptAction.BookmarkPromoCode,
+        onAuthenticated = { viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked) },
+    )
 
     // Handle events
     LaunchedEffect(Unit) {
@@ -89,19 +103,48 @@ fun PromocodeDetailScreen(
         }
     }
 
-    PromocodeDetailContent(
-        uiState = uiState,
-        snackbarHostState = snackbarHostState,
-        onAction = viewModel::onAction,
-        modifier = modifier,
-    )
+    // Screen-level scaffold with own top bar to avoid app-level coupling
+    Scaffold(
+        topBar = {
+            QodeTopAppBar(
+                title = "Promocode Details",
+                navigationIcon = QodeActionIcons.Back,
+                onNavigationClick = onNavigateBack,
+                variant = QodeTopAppBarVariant.CenterAligned,
+                statusBarPadding = true, // Add status bar padding manually
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = QodeActionIcons.Bookmark,
+                        contentDescription = if (uiState.promoCode?.isBookmarkedByCurrentUser == true) {
+                            "Remove bookmark"
+                        } else {
+                            "Bookmark promocode"
+                        },
+                        onClick = requireBookmark,
+                    ),
+                ),
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+            )
+        },
+        contentWindowInsets = WindowInsets(0), // Remove automatic window insets
+        modifier = modifier.fillMaxSize(),
+    ) { paddingValues ->
+        PromocodeDetailContent(
+            uiState = uiState,
+            onAction = viewModel::onAction,
+            modifier = Modifier.padding(paddingValues),
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PromocodeDetailContent(
     uiState: PromocodeDetailUiState,
-    snackbarHostState: SnackbarHostState,
     onAction: (PromocodeDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -201,14 +244,6 @@ private fun PromocodeDetailContent(
                 }
             }
         }
-
-        // Snackbar Host positioned at bottom
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding(),
-        )
     }
 }
 
@@ -283,7 +318,6 @@ private fun PromocodeDetailScreenPreview() {
                 isLoading = false,
                 isBookmarked = true,
             ),
-            snackbarHostState = remember { SnackbarHostState() },
             onAction = {},
         )
     }

@@ -24,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -55,7 +54,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
  * TopAppBar variants for Qode design system
  */
 enum class QodeTopAppBarVariant {
-    Default,
     CenterAligned,
     Large,
     Transparent
@@ -96,7 +94,7 @@ fun QodeTopAppBar(
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     actionIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    variant: QodeTopAppBarVariant = QodeTopAppBarVariant.Default,
+    variant: QodeTopAppBarVariant = QodeTopAppBarVariant.CenterAligned,
     elevation: Dp = 0.dp,
     statusBarPadding: Boolean = false,
     scrollBehavior: TopAppBarScrollBehavior? = null,
@@ -193,16 +191,6 @@ fun QodeTopAppBar(
     }
 
     when (variant) {
-        QodeTopAppBarVariant.Default -> {
-            TopAppBar(
-                title = titleContent,
-                modifier = finalModifier,
-                navigationIcon = navigationContent,
-                actions = actionsContent,
-                colors = finalColors,
-                scrollBehavior = scrollBehavior,
-            )
-        }
         QodeTopAppBarVariant.CenterAligned -> {
             CenterAlignedTopAppBar(
                 title = titleContent,

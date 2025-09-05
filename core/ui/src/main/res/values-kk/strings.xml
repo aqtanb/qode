@@ -50,8 +50,8 @@
     <!-- Promo Code Card Strings -->
     <string name="promo_code_label">ПРОМО КОД</string>
     <string name="copy_code">Кодты көшіру</string>
-    <string name="upvotes">Қолдау дауыстары</string>
-    <string name="downvotes">Қарсы дауыстар</string>
+    <string name="upvotes">Оң дауыстар</string>
+    <string name="downvotes">Теріс дауыстар</string>
     <string name="updated_format">%s жаңартылды</string>
     <string name="percentage_discount">%d%%</string>
     <string name="fixed_amount_discount">%d₸</string>

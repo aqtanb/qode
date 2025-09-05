@@ -1,11 +1,9 @@
 package com.qodein.qode.ui.state
 
-import android.R.attr.contentDescription
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.qode.R
 import com.qodein.qode.navigation.TopLevelDestination
@@ -75,19 +73,8 @@ object TopBarConfigProvider {
                         TopBarConfig.Basic(title = stringResource(R.string.settings))
                     }
                     appState.isPromocodeDetailScreen -> {
-                        TopBarConfig.Basic(
-                            title = "Promocode Details",
-                            actions = {
-                                IconButton(
-                                    onClick = { /* TODO: Handle bookmark/favorite click */ },
-                                ) {
-                                    Icon(
-                                        imageVector = QodeActionIcons.Bookmark,
-                                        contentDescription = "Bookmark promocode",
-                                    )
-                                }
-                            },
-                        )
+                        // Screen handles its own top bar to avoid architecture coupling
+                        TopBarConfig.None
                     }
                     else -> {
                         // During startup, navigation isn't fully initialized yet

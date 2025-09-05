@@ -2,7 +2,7 @@
 <resources>
     <!-- Auth Screen -->
     <string name="sign_in_title">Кіру</string>
-    <string name="sign_in_subtitle">Телефон арқылы кіру жақында! Қазір Google пайдаланыңыз.</string>
+    <string name="sign_in_subtitle">Телефон арқылы кіру жақында қосылады! Қазір Google пайдаланыңыз.</string>
     <string name="phone_number_label">Телефон нөмірі</string>
     <string name="send_verification_code">Растау кодын жіберу</string>
     <string name="or_continue_with">Немесе мынау арқылы жалғастыру</string>
@@ -10,8 +10,8 @@
     <string name="forgot_password">Құпия сөзіңізді ұмыттыңыз ба?</string>
     <string name="dont_have_account">Аккаунтыңыз жоқ па?</string>
     <string name="sign_up">Тіркелу</string>
-    <string name="terms_and_privacy">Жалғастыра отырып, сіз біздің %1$s және %2$s келісесіз</string>
-    <string name="terms_of_service">Қызмет шарттары</string>
+    <string name="terms_and_privacy">Жалғастыра отырып, сіз біздің %1$s пен %2$s келісесіз</string>
+    <string name="terms_of_service">Қызмет көрсету шарттары</string>
     <string name="privacy_policy">Құпиялылық саясаты</string>
 
     <!-- Verification Screen -->
@@ -86,7 +86,7 @@
 
     <!-- Auth Flow -->
     <string name="welcome_title">Qode-ға қош келдіңіз</string>
-    <string name="welcome_subtitle">Керемет промо кодтарды ашыңыз</string>
+    <string name="welcome_subtitle">Керемет промо кодтарды ашып алыңыз</string>
     <string name="get_started">Бастау</string>
     <string name="continue_as_guest">Қонақ ретінде жалғастыру</string>
 

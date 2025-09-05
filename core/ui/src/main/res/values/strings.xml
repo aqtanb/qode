@@ -178,4 +178,19 @@
     <string name="sort_section_title_popularity">Popular Deals</string>
     <string name="sort_section_title_newest">Latest Deals</string>
     <string name="sort_section_title_expiring">Expiring Soon</string>
+    
+    <!-- Authentication Bottom Sheet -->
+    <string name="auth_submit_promo_title">Sign in to submit promo code</string>
+    <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
+    <string name="auth_upvote_title">Sign in to upvote</string>
+    <string name="auth_upvote_message">Help others discover great deals by upvoting the best promo codes.</string>
+    <string name="auth_downvote_title">Sign in to downvote</string>
+    <string name="auth_downvote_message">Keep the community quality high by downvoting expired or invalid codes.</string>
+    <string name="auth_comment_title">Sign in to comment</string>
+    <string name="auth_comment_message">Share your experience and help others with tips about this promo code.</string>
+    <string name="auth_bookmark_promo_title">Sign in to bookmark</string>
+    <string name="auth_bookmark_promo_message">Save this promo code to your personal collection for easy access later.</string>
+    <string name="auth_follow_store_title">Sign in to follow store</string>
+    <string name="auth_follow_store_message">Get notified when this store has new deals and promo codes available.</string>
+    <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
 </resources>

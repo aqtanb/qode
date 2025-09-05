@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_home_title">Дом</string>
+    <string name="feature_home_title">Главная</string>
 
     <!-- Home Screen Strings -->
     <string name="home_welcome_title">Откройте для себя удивительные предложения</string>
-    <string name="home_welcome_subtitle">Сэкономьте деньги с лучшими промо -кодами от лучших брендов</string>
+    <string name="home_welcome_subtitle">Экономьте деньги с лучшими промо-кодами от топовых брендов</string>
     <string name="home_section_title">Трендовые предложения</string>
-    <string name="home_section_subtitle">Самые популярные промо -коды сегодня</string>
+    <string name="home_section_subtitle">Самые популярные промо-коды сегодня</string>
     
     <!-- Dynamic Section Titles -->
     <string name="home_section_title_popularity">Трендовые предложения</string>
@@ -15,9 +15,9 @@
     <string name="home_section_title_expiring">Истекающие предложения</string>
     <string name="home_section_title_alphabetical">Все предложения</string>
     <string name="home_quick_filters">Быстрые фильтры</string>
-    <string name="home_trending_badge">Тенденция сейчас</string>
-    <string name="home_featured_deals">Показанные предложения</string>
-    <string name="home_featured_subtitle">Исключенные эксклюзивные предложения только для вас</string>
+    <string name="home_trending_badge">Сейчас в тренде</string>
+    <string name="home_featured_deals">Рекомендуемые предложения</string>
+    <string name="home_featured_subtitle">Эксклюзивные предложения, отобранные вручную специально для вас</string>
 
     <!-- Banner Carousel -->
     <string name="banner_featured_title">Показанная сделка</string>

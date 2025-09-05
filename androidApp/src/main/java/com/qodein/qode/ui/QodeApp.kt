@@ -26,6 +26,8 @@ import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationHandler
@@ -37,6 +39,7 @@ import com.qodein.qode.ui.container.AppThemeContainer
 import com.qodein.qode.ui.container.AppTopBarContainer
 import com.qodein.qode.ui.container.rememberDialogState
 import com.qodein.qode.ui.state.AppUiEvents
+import com.qodein.qode.ui.state.TopBarConfig
 import com.qodein.qode.ui.state.getTopBarConfig
 import com.qodein.qode.ui.state.shouldShowProfile
 import com.qodein.qode.ui.state.shouldShowSettings
@@ -110,6 +113,12 @@ internal fun QodeApp(
         appViewModel.handleUiEvent(event)
     }
 
+    // Authentication-protected submission navigation
+    val requireSubmissionNavigation = requireAuthentication(
+        action = AuthPromptAction.SubmitPromoCode,
+        onAuthenticated = { appState.navController.navigateToSubmission() },
+    )
+
     // Theme container wraps everything for status bar management
     AppThemeContainer(appViewModel) { statusBarOverlayColor ->
 
@@ -130,7 +139,7 @@ internal fun QodeApp(
                     // FAB only on home screen
                     if (appState.currentTopLevelDestination == TopLevelDestination.HOME) {
                         QodeIconButton(
-                            onClick = onTopBarActionClick,
+                            onClick = requireSubmissionNavigation,
                             icon = QodeActionIcons.Add,
                             contentDescription = stringResource(R.string.add),
                             variant = QodeButtonVariant.Primary,
@@ -168,6 +177,8 @@ internal fun QodeApp(
                             bottom = innerPadding.calculateBottomPadding(),
                             // No top padding - let content flow behind transparent top bar
                         )
+                        // Screens that manage their own scaffolds (TopBarConfig.None) - no padding
+                        appState.getTopBarConfig() is TopBarConfig.None -> Modifier.fillMaxSize()
                         // All other screens with solid top bars - full padding
                         else -> Modifier.padding(innerPadding)
                     },

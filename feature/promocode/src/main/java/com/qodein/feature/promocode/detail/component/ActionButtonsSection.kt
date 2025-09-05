@@ -37,6 +37,8 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
+import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.detail.VoteType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -56,6 +58,21 @@ fun ActionButtonsSection(
     onCommentsClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Authentication-protected actions
+    val requireUpvote = requireAuthentication(
+        action = AuthPromptAction.UpvotePromoCode,
+        onAuthenticated = onUpvoteClicked,
+    )
+
+    val requireDownvote = requireAuthentication(
+        action = AuthPromptAction.DownvotePromoCode,
+        onAuthenticated = onDownvoteClicked,
+    )
+
+    val requireComment = requireAuthentication(
+        action = AuthPromptAction.WriteComment,
+        onAuthenticated = onCommentsClicked,
+    )
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SpacingTokens.lg),
@@ -67,7 +84,7 @@ fun ActionButtonsSection(
             modifier = Modifier.padding(SpacingTokens.md),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            // Upvote Button
+            // Upvote Button (Authentication Protected)
             ActionButton(
                 type = ActionButtonType.Upvote,
                 icon = QodeActionIcons.Thumbs,
@@ -76,11 +93,11 @@ fun ActionButtonsSection(
                 isLoading = isVoting && lastVoteType == VoteType.UPVOTE,
                 showAnimation = showVoteAnimation && lastVoteType == VoteType.UPVOTE,
                 activeColor = MaterialTheme.extendedColorScheme.success,
-                onClick = onUpvoteClicked,
+                onClick = requireUpvote,
                 modifier = Modifier.weight(1f),
             )
 
-            // Downvote Button
+            // Downvote Button (Authentication Protected)
             ActionButton(
                 type = ActionButtonType.Downvote,
                 icon = QodeActionIcons.ThumbsDown,
@@ -89,11 +106,11 @@ fun ActionButtonsSection(
                 isLoading = isVoting && lastVoteType == VoteType.DOWNVOTE,
                 showAnimation = showVoteAnimation && lastVoteType == VoteType.DOWNVOTE,
                 activeColor = MaterialTheme.colorScheme.error,
-                onClick = onDownvoteClicked,
+                onClick = requireDownvote,
                 modifier = Modifier.weight(1f),
             )
 
-            // Comment Button
+            // Comment Button (Authentication Protected)
             ActionButton(
                 type = ActionButtonType.Comment,
                 icon = QodeActionIcons.Comment,
@@ -102,7 +119,7 @@ fun ActionButtonsSection(
                 isLoading = false,
                 showAnimation = false,
                 activeColor = MaterialTheme.colorScheme.tertiary,
-                onClick = onCommentsClicked,
+                onClick = requireComment,
                 modifier = Modifier.weight(1f),
             )
 

@@ -2,7 +2,7 @@
 <resources>
     <!-- Auth Screen -->
     <string name="sign_in_title">Войти</string>
-    <string name="sign_in_subtitle">Вход по телефону скоро! Пока используйте Google.</string>
+    <string name="sign_in_subtitle">Вход по телефону скоро появится! Пока используйте Google.</string>
     <string name="phone_number_label">Номер телефона</string>
     <string name="send_verification_code">Отправить код подтверждения</string>
     <string name="or_continue_with">Или продолжить с</string>
@@ -11,7 +11,7 @@
     <string name="dont_have_account">Нет аккаунта?</string>
     <string name="sign_up">Зарегистрироваться</string>
     <string name="terms_and_privacy">Продолжая, вы соглашаетесь с нашими %1$s и %2$s</string>
-    <string name="terms_of_service">Условиями обслуживания</string>
+    <string name="terms_of_service">Условиями предоставления услуг</string>
     <string name="privacy_policy">Политикой конфиденциальности</string>
 
     <!-- Verification Screen -->
@@ -30,7 +30,7 @@
     <string name="sign_up_title">Создать аккаунт</string>
     <string name="sign_up_subtitle">Присоединяйтесь к тысячам пользователей, находящих лучшие предложения</string>
     <string name="full_name_label">Полное имя</string>
-    <string name="email_label">Email (Необязательно)</string>
+    <string name="email_label">Электронная почта (необязательно)</string>
     <string name="create_account">Создать аккаунт</string>
     <string name="already_have_account">Уже есть аккаунт?</string>
     <string name="sign_in">Войти</string>

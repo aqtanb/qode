@@ -7,21 +7,20 @@
     <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
     <string name="home_section_title">Trending Offers</string>
     <string name="home_section_subtitle">Most popular promo codes today</string>
-
+    
     <!-- Dynamic Section Titles -->
     <string name="home_section_title_popularity">Trending Offers</string>
-    <string name="home_section_title_newest">Newest Offers</string>
-    <string name="home_section_title_oldest">Oldest Offers</string>
+    <string name="home_section_title_newest">New Offers</string>
+    <string name="home_section_title_oldest">Older Offers</string>
     <string name="home_section_title_expiring">Expiring Offers</string>
     <string name="home_section_title_alphabetical">All Offers</string>
     <string name="home_quick_filters">Quick Filters</string>
-    <string name="home_trending_badge">TRENDING NOW</string>
+    <string name="home_trending_badge">Trending Now</string>
     <string name="home_featured_deals">Featured Deals</string>
     <string name="home_featured_subtitle">Hand-picked exclusive offers just for you</string>
 
     <!-- Banner Carousel -->
     <string name="banner_featured_title">Featured Deal</string>
-    <string name="filter_chip_first_user">First user</string>
     <string name="banner_up_to">Up to</string>
     <string name="banner_off">OFF</string>
     <string name="banner_claim_now">Claim Now</string>
@@ -30,15 +29,6 @@
     <string name="banner_default_description">Exclusive deals and premium offers</string>
     <string name="banner_explore_deals">Explore Deals</string>
     <string name="banner_loading_fallback">Loading amazing deals for you…</string>
-    
-    <!-- Banner States -->
-    <string name="banner_section_title">Featured Promotions</string>
-    <string name="banner_loading_content">Loading Deals...</string>
-    <string name="banner_loading_title">Discovering Amazing Offers</string>
-    <string name="banner_loading_description">We are finding the best deals just for you</string>
-    <string name="banner_empty_title">No Promotions Available</string>
-    <string name="banner_empty_description">Check back later for exclusive deals</string>
-    <string name="banner_error_title">Unable to Load Promotions</string>
 
     <!-- Stats Section -->
     <string name="stats_active_deals">500+</string>
@@ -49,7 +39,6 @@
     <string name="stats_total_saved_label">Total Saved</string>
 
     <!-- Filter Categories -->
-    <string name="filter_kaspi" translatable="false">Kaspi</string>
     <string name="filter_top_rated">Top Rated</string>
     <string name="filter_latest">Latest</string>
     <string name="filter_food">Food</string>
@@ -58,12 +47,12 @@
 
     <!-- Error Messages -->
     <string name="error_something_went_wrong">Something went wrong</string>
-    <string name="error_retry">Try Again</string>
+    <string name="error_retry">Try again</string>
     <string name="error_image_not_available">Image not available</string>
 
     <!-- Coming Soon Dialog -->
     <string name="coming_soon_title">Coming Soon</string>
-    <string name="coming_soon_country_description">Country selection is coming soon!</string>
+    <string name="coming_soon_country_description">Country selection coming soon!</string>
 
     <!-- Country -->
     <string name="country_kazakhstan">Kazakhstan</string>
@@ -72,22 +61,39 @@
     <string name="action_close">Close</string>
     <string name="action_reset">Reset</string>
 
+    <!-- Filter Chip Reset -->
+    <string name="filter_chip_reset">Reset</string>
+
+    <!-- Banner Loading States -->
+    <string name="banner_loading_title">Loading Deals</string>
+    <string name="banner_loading_description">Getting the best offers for you…</string>
+
+    <!-- Banner Empty States -->
+    <string name="banner_empty_title">No Banners Available</string>
+    <string name="banner_empty_description">Check back later for exciting deals</string>
+
+    <!-- Banner Error States -->
+    <string name="banner_error_title">Failed to Load Banners</string>
+
+    <!-- Promocodes Loading States -->
+    <string name="promocodes_loading_title">Loading Promo Codes</string>
+    <string name="promocodes_loading_description">Finding the best deals for you…</string>
+
     <!-- Filter Chips -->
     <string name="filter_chip_type">Type</string>
     <string name="filter_chip_category">Category</string>
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>
-    <string name="filter_chip_reset">Reset</string>
 
     <!-- Filter Dialog Titles -->
     <string name="filter_dialog_type_title">Promo Code Type</string>
     <string name="filter_dialog_category_title">Category</string>
     <string name="filter_dialog_service_title">Service</string>
-    <string name="filter_dialog_sort_title">Sort by</string>
+    <string name="filter_dialog_sort_title">Sort By</string>
 
     <!-- Filter Options - Type -->
     <string name="filter_type_all">All Types</string>
-    <string name="filter_type_percentage">Percentage Off</string>
+    <string name="filter_type_percentage">Percentage Discount</string>
     <string name="filter_type_fixed_amount">Fixed Amount</string>
 
     <!-- Filter Options - Category -->
@@ -103,14 +109,9 @@
     <string name="filter_sort_expiry_soon">Expiring Soon</string>
     <string name="filter_sort_alphabetical">A-Z by Brand</string>
 
-    <!-- PromoCode Section -->
-    <string name="promocodes_section_title">Available Promo Codes</string>
-    <string name="promocodes_loading_title">Finding Best Deals</string>
-    <string name="promocodes_loading_description">Searching for the latest promo codes...</string>
-
     <!-- Empty State -->
     <string name="empty_no_promo_codes">No promo codes available</string>
     <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>
-    <string name="empty_no_banners_title">There are no banners</string>
-    <string name="empty_no_banners_description">You can link with us to promote your brand</string>
+    <string name="empty_no_banners_title">No banners</string>
+    <string name="empty_no_banners_description">You can contact us to promote your brand</string>
 </resources>
