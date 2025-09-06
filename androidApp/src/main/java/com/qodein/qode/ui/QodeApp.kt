@@ -113,14 +113,15 @@ internal fun QodeApp(
         appViewModel.handleUiEvent(event)
     }
 
-    // Authentication-protected submission navigation
-    val requireSubmissionNavigation = requireAuthentication(
-        action = AuthPromptAction.SubmitPromoCode,
-        onAuthenticated = { appState.navController.navigateToSubmission() },
-    )
-
     // Theme container wraps everything for status bar management
-    AppThemeContainer(appViewModel) { statusBarOverlayColor ->
+    AppThemeContainer(appViewModel) { statusBarOverlayColor, isDarkTheme ->
+
+        // Authentication-protected submission navigation
+        val requireSubmissionNavigation = requireAuthentication(
+            action = AuthPromptAction.SubmitPromoCode,
+            onAuthenticated = { appState.navController.navigateToSubmission() },
+            isDarkTheme = isDarkTheme,
+        )
 
         Box(modifier = modifier.fillMaxSize()) {
             Scaffold(
@@ -167,6 +168,7 @@ internal fun QodeApp(
                 QodeNavHost(
                     appState = appState,
                     userLanguage = languageState,
+                    isDarkTheme = isDarkTheme,
                     modifier = when {
                         // Home screens handle their own UI - no padding for translucent effect
                         isHomeDestination -> Modifier.fillMaxSize()

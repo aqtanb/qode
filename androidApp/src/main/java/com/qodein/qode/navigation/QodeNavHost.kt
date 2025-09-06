@@ -19,7 +19,8 @@ import com.qodein.shared.model.Language
 fun QodeNavHost(
     appState: QodeAppState,
     userLanguage: Language,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean
 ) {
     val navController = appState.navController
     // Capture the selectedTabDestination at composable level
@@ -64,12 +65,14 @@ fun QodeNavHost(
                 // Navigate back to the last top-level destination instead of empty profile
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
+            isDarkTheme = isDarkTheme,
         )
 
         submissionSection(
             onNavigateBack = {
                 navController.popBackStack()
             },
+            isDarkTheme = isDarkTheme,
         )
 
         settingsSection(

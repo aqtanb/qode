@@ -56,22 +56,26 @@ fun ActionButtonsSection(
     onDownvoteClicked: () -> Unit,
     onShareClicked: () -> Unit,
     onCommentsClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean
 ) {
     // Authentication-protected actions
     val requireUpvote = requireAuthentication(
         action = AuthPromptAction.UpvotePromoCode,
         onAuthenticated = onUpvoteClicked,
+        isDarkTheme = isDarkTheme,
     )
 
     val requireDownvote = requireAuthentication(
         action = AuthPromptAction.DownvotePromoCode,
         onAuthenticated = onDownvoteClicked,
+        isDarkTheme = isDarkTheme,
     )
 
     val requireComment = requireAuthentication(
         action = AuthPromptAction.WriteComment,
         onAuthenticated = onCommentsClicked,
+        isDarkTheme = isDarkTheme,
     )
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -320,6 +324,7 @@ private fun ActionButtonsPreview() {
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
+                isDarkTheme = false,
             )
 
             Text(
@@ -341,6 +346,7 @@ private fun ActionButtonsPreview() {
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
+                isDarkTheme = false,
             )
 
             Text(
@@ -360,6 +366,7 @@ private fun ActionButtonsPreview() {
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
+                isDarkTheme = false,
             )
         }
     }

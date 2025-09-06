@@ -2,7 +2,6 @@ package com.qodein.core.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,21 +38,23 @@ import com.qodein.core.ui.R
 /**
  * Google Sign-In button following Google's brand guidelines
  * Features a 40x40 Google logo with "Continue with Google" text
- * Automatically switches between light/dark theme variants
+ * Switches between light/dark theme variants based on app theme preference
  *
  * @param onClick Called when the button is clicked
  * @param modifier Modifier to be applied to the button
  * @param enabled Whether the button is enabled
  * @param isLoading Whether the button is in loading state
+ * @param isDarkTheme Whether to use dark theme styling (from app preferences, not system)
  */
 @Composable
 fun QodeGoogleSignInButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    isDarkTheme: Boolean
 ) {
-    val isLight = !isSystemInDarkTheme()
+    val isLight = !isDarkTheme
 
     // Google brand colors and styles following their guidelines
     val buttonBackgroundColor = if (isLight) Color.White else Color(0xFF131314)
@@ -277,16 +278,21 @@ private fun QodeGoogleSignInButtonLightPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QodeGoogleSignInButton(onClick = {})
+            QodeGoogleSignInButton(
+                onClick = {},
+                isDarkTheme = false,
+            )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 enabled = false,
+                isDarkTheme = false,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 isLoading = true,
+                isDarkTheme = false,
             )
         }
     }
@@ -301,16 +307,21 @@ private fun QodeGoogleSignInButtonDarkPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            QodeGoogleSignInButton(onClick = {})
+            QodeGoogleSignInButton(
+                onClick = {},
+                isDarkTheme = true,
+            )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 enabled = false,
+                isDarkTheme = true,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 isLoading = true,
+                isDarkTheme = true,
             )
         }
     }
@@ -329,6 +340,7 @@ private fun QodeGoogleSignInButtonInFormPreview() {
             QodeGoogleSignInButton(
                 onClick = {},
                 modifier = Modifier.fillMaxWidth(), // This will center it in the full width
+                isDarkTheme = false,
             )
         }
     }
@@ -403,7 +415,10 @@ private fun AllSocialButtonsPreview() {
                 modifier = Modifier.padding(bottom = SpacingTokens.sm),
             )
 
-            QodeGoogleSignInButton(onClick = {})
+            QodeGoogleSignInButton(
+                onClick = {},
+                isDarkTheme = false,
+            )
 
             QodeTelegramFollowButton(onClick = {})
         }

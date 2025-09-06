@@ -15,7 +15,6 @@ import com.qodein.core.data.R
 import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserPreferences
 import com.qodein.shared.model.UserProfile
 import com.qodein.shared.model.UserStats
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -109,19 +108,12 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
     fun createUserFromFirebaseUser(firebaseUser: FirebaseUser): User {
         val email = firebaseUser.email ?: throw SecurityException("authentication failed: user email not available")
         val userId = UserId(firebaseUser.uid)
-        val baseUsername = generateUsernameFromEmail(email)
 
         val profile = UserProfile(
-            username = baseUsername,
-            firstName = extractFirstName(firebaseUser.displayName) ?: baseUsername,
+            firstName = extractFirstName(firebaseUser.displayName) ?: "User",
             lastName = extractLastName(firebaseUser.displayName),
             bio = null,
             photoUrl = firebaseUser.photoUrl?.toString(),
-            birthday = null,
-            gender = null,
-            isGenerated = firebaseUser.displayName.isNullOrBlank(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
         )
 
         return User(
@@ -129,16 +121,8 @@ class GoogleAuthService @Inject constructor(@ApplicationContext private val cont
             email = Email(email),
             profile = profile,
             stats = UserStats.initial(userId),
-            preferences = UserPreferences.default(userId),
+            country = "KZ", // Default to Kazakhstan for your market
         )
-    }
-
-    private fun generateUsernameFromEmail(email: String): String {
-        val localPart = email.substringBefore("@")
-        return localPart.replace("[^a-zA-Z0-9]".toRegex(), "")
-            .lowercase()
-            .take(20)
-            .ifEmpty { "user" }
     }
 
     private fun extractFirstName(displayName: String?): String? = displayName?.trim()?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() }

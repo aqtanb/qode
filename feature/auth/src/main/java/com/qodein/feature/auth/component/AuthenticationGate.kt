@@ -27,6 +27,7 @@ import com.qodein.feature.auth.AuthViewModel
  * @param onAuthenticated Called when user is authenticated and can perform the action
  * @param modifier Modifier for the authentication bottom sheet
  * @param authViewModel ViewModel for handling authentication logic
+ * @param isDarkTheme Whether to use dark theme styling (from app preferences)
  * @param content Content that should be displayed (usually a button or interactive element)
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +37,7 @@ fun AuthenticationGate(
     onAuthenticated: () -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
     content: @Composable (requireAuth: () -> Unit) -> Unit
 ) {
     val authState by authViewModel.state.collectAsStateWithLifecycle()
@@ -67,6 +69,11 @@ fun AuthenticationGate(
             },
             modifier = modifier,
             isLoading = authState is AuthUiState.Loading,
+            errorType = (authState as? AuthUiState.Error)?.takeIf { it.shouldShowSnackbar }?.errorType,
+            onErrorDismissed = {
+                authViewModel.handleAction(AuthAction.DismissErrorClicked)
+            },
+            isDarkTheme = isDarkTheme,
         )
     }
 
@@ -92,7 +99,8 @@ fun requireAuthentication(
     action: AuthPromptAction,
     onAuthenticated: () -> Unit,
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    isDarkTheme: Boolean
 ): () -> Unit {
     val authState by authViewModel.state.collectAsStateWithLifecycle()
     var showAuthSheet by remember { mutableStateOf(false) }
@@ -111,6 +119,11 @@ fun requireAuthentication(
             },
             modifier = modifier,
             isLoading = authState is AuthUiState.Loading,
+            errorType = (authState as? AuthUiState.Error)?.takeIf { it.shouldShowSnackbar }?.errorType,
+            onErrorDismissed = {
+                authViewModel.handleAction(AuthAction.DismissErrorClicked)
+            },
+            isDarkTheme = isDarkTheme,
         )
     }
 

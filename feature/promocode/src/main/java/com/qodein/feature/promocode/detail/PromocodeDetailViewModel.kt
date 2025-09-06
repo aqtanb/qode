@@ -12,6 +12,7 @@ import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
+import com.qodein.shared.domain.usecase.promocode.GetUserVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -30,6 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PromocodeDetailViewModel @Inject constructor(
     private val getPromoCodeByIdUseCase: GetPromoCodeByIdUseCase,
+    private val getUserVoteUseCase: GetUserVoteUseCase,
     private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {

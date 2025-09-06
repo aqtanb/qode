@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -60,6 +61,7 @@ fun PromocodeDetailScreen(
     onNavigateToComments: (PromoCodeId) -> Unit = {},
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
     viewModel: PromocodeDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +77,7 @@ fun PromocodeDetailScreen(
     val requireBookmark = requireAuthentication(
         action = AuthPromptAction.BookmarkPromoCode,
         onAuthenticated = { viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked) },
+        isDarkTheme = isDarkTheme,
     )
 
     // Handle events
@@ -87,17 +90,29 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.SharePromocode -> sharePromocode(context, event.promoCode)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(context, event.code)
                 is PromocodeDetailEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(event.message)
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        duration = SnackbarDuration.Short,
+                    )
                 }
                 is PromocodeDetailEvent.ShowVoteFeedback -> {
                     val message = if (event.isUpvote) "Thanks for your upvote!" else "Thanks for your feedback!"
-                    snackbarHostState.showSnackbar(message)
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short,
+                    )
                 }
                 is PromocodeDetailEvent.ShowFollowServiceTodo -> {
-                    snackbarHostState.showSnackbar("TODO: Follow ${event.serviceName} feature coming soon!")
+                    snackbarHostState.showSnackbar(
+                        message = "TODO: Follow ${event.serviceName} feature coming soon!",
+                        duration = SnackbarDuration.Short,
+                    )
                 }
                 is PromocodeDetailEvent.ShowFollowCategoryTodo -> {
-                    snackbarHostState.showSnackbar("TODO: Follow ${event.categoryName} category coming soon!")
+                    snackbarHostState.showSnackbar(
+                        message = "TODO: Follow ${event.categoryName} category coming soon!",
+                        duration = SnackbarDuration.Short,
+                    )
                 }
             }
         }
@@ -137,6 +152,7 @@ fun PromocodeDetailScreen(
             uiState = uiState,
             onAction = viewModel::onAction,
             modifier = Modifier.padding(paddingValues),
+            isDarkTheme = isDarkTheme,
         )
     }
 }
@@ -146,7 +162,8 @@ fun PromocodeDetailScreen(
 private fun PromocodeDetailContent(
     uiState: PromocodeDetailUiState,
     onAction: (PromocodeDetailAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -215,6 +232,7 @@ private fun PromocodeDetailContent(
                         onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
                         onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
                         onFollowCategoryClicked = { onAction(PromocodeDetailAction.FollowCategoryClicked) },
+                        isDarkTheme = isDarkTheme,
                     )
 
                     // Details Section
@@ -231,6 +249,7 @@ private fun PromocodeDetailContent(
                         onDownvoteClicked = { onAction(PromocodeDetailAction.DownvoteClicked) },
                         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
                         onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
+                        isDarkTheme = isDarkTheme,
                     )
 
                     FooterSection(
@@ -319,6 +338,7 @@ private fun PromocodeDetailScreenPreview() {
                 isBookmarked = true,
             ),
             onAction = {},
+            isDarkTheme = false,
         )
     }
 }

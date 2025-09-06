@@ -6,13 +6,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.BannerId
 import com.qodein.shared.model.Email
-import com.qodein.shared.model.Gender
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserPreferences
 import com.qodein.shared.model.UserProfile
 import com.qodein.shared.model.UserStats
-import kotlinx.datetime.LocalDate
 
 /**
  * Preview parameter provider for [com.qodein.shared.model.User] data.
@@ -83,19 +80,9 @@ object PreviewParameterData {
         UserStats(
             userId = UserId("sample-user-123"),
             followedStores = listOf("Kaspi", "Technodom", "Arbuz"),
-            followedCategories = listOf("Electronics", "Fashion", "Food"),
-            upvotes = 234,
-            downvotes = 8,
             submittedCodes = 42,
-            verifiedCodes = 38,
-            achievements = listOf(
-                "First Code",
-                "Code Hunter",
-                "Community Helper",
-                "Savings Master",
-            ),
-            commentsCount = 156,
-            lastActiveAt = 1700000000000L,
+            upvotesReceived = 234,
+            downvotesReceived = 8,
             createdAt = 1699000000000L,
         )
     }
@@ -104,14 +91,9 @@ object PreviewParameterData {
         UserStats(
             userId = UserId("new-user-456"),
             followedStores = emptyList(),
-            followedCategories = emptyList(),
-            upvotes = 0,
-            downvotes = 0,
             submittedCodes = 0,
-            verifiedCodes = 0,
-            achievements = emptyList(),
-            commentsCount = 0,
-            lastActiveAt = 1700000000000L,
+            upvotesReceived = 0,
+            downvotesReceived = 0,
             createdAt = 1699000000000L,
         )
     }
@@ -123,32 +105,9 @@ object PreviewParameterData {
                 "Kaspi", "Technodom", "Arbuz.kz", "Sulpak", "Mechta",
                 "Wildberries", "Ozon", "Magnum", "Small", "Beeline",
             ),
-            followedCategories = listOf(
-                "Electronics",
-                "Fashion",
-                "Food & Drinks",
-                "Beauty & Health",
-                "Sports & Outdoor",
-                "Home & Garden",
-                "Books & Education",
-            ),
-            upvotes = 2847,
-            downvotes = 23,
             submittedCodes = 567,
-            verifiedCodes = 534,
-            achievements = listOf(
-                "First Code",
-                "Code Hunter",
-                "Community Helper",
-                "Savings Master",
-                "Review Champion",
-                "Early Adopter",
-                "Top Contributor",
-                "Legend",
-                "Verification Hero",
-            ),
-            commentsCount = 1204,
-            lastActiveAt = 1700000000000L,
+            upvotesReceived = 2847,
+            downvotesReceived = 23,
             createdAt = 1668000000000L,
         )
     }
@@ -158,19 +117,14 @@ object PreviewParameterData {
             id = UserId("sample-user-123"),
             email = Email("john.doe@example.com"),
             profile = UserProfile(
-                username = "aqtanb",
                 firstName = "John",
                 lastName = "Doe",
                 bio = "Love finding the best deals! Android developer by day, savings hunter by night 🛒✨",
                 photoUrl = "https://i.pravatar.cc/250?u=mail@ashallendesign.co.uk",
-                birthday = LocalDate(1990, 5, 15),
-                gender = null,
-                isGenerated = false,
                 createdAt = 1699000000000L,
                 updatedAt = 1700000000000L,
             ),
             stats = sampleUserStats,
-            preferences = UserPreferences(userId = UserId("sample-user-123")),
         )
     }
 
@@ -179,19 +133,14 @@ object PreviewParameterData {
             id = UserId("new-user-456"),
             email = Email("sarah.wilson@gmail.com"),
             profile = UserProfile(
-                username = "sarahw",
                 firstName = "Sarah",
                 lastName = "Wilson",
                 bio = null,
                 photoUrl = null,
-                birthday = null,
-                gender = null,
-                isGenerated = false,
                 createdAt = 1699900000000L,
                 updatedAt = 1700000000000L,
             ),
             stats = newUserStats,
-            preferences = UserPreferences.default(UserId("new-user-456")),
         )
     }
 
@@ -200,19 +149,14 @@ object PreviewParameterData {
             id = UserId("power-user-789"),
             email = Email("alex.power@qode.kz"),
             profile = UserProfile(
-                username = "alexpower",
                 firstName = "Alex",
                 lastName = "Powerov",
                 bio = "Qode enthusiast since day one! 🏆 Top contributor with 500+ verified codes. Always hunting for the best Kazakhstan deals. Follow me for daily savings tips! 💰",
                 photoUrl = "https://example.com/avatar/alexpower.jpg",
-                birthday = LocalDate(1985, 12, 3),
-                gender = Gender.MALE,
-                isGenerated = false,
                 createdAt = 1668000000000L,
                 updatedAt = 1699000000000L,
             ),
             stats = powerUserStats,
-            preferences = UserPreferences(userId = UserId("power-user-789")),
         )
     }
 
@@ -220,18 +164,9 @@ object PreviewParameterData {
         UserStats(
             userId = UserId("long-bio-user"),
             followedStores = listOf("Kaspi", "Technodom", "Arbuz"),
-            followedCategories = listOf("Electronics", "Fashion", "Food"),
-            upvotes = 156,
-            downvotes = 3,
             submittedCodes = 28,
-            verifiedCodes = 25,
-            achievements = listOf(
-                "First Code",
-                "Community Helper",
-                "Savings Master",
-            ),
-            commentsCount = 89,
-            lastActiveAt = 1699900000000L,
+            upvotesReceived = 156,
+            downvotesReceived = 3,
             createdAt = 1684000000000L,
         )
     }
@@ -241,19 +176,14 @@ object PreviewParameterData {
             id = UserId("long-bio-user"),
             email = Email("storyteller@example.com"),
             profile = UserProfile(
-                username = "storyteller",
                 firstName = "Maria",
                 lastName = "Storyteller",
                 bio = "🌟 Welcome to my profile! I'm a passionate deal hunter from Almaty who loves sharing amazing savings opportunities with the community. I specialize in finding the best electronics deals, fashion discounts, and food delivery codes. When I'm not hunting for codes, I enjoy photography, hiking in the beautiful Kazakh mountains, and trying new restaurants around the city. Follow me for daily deals and let's save money together! 💫🛍️🏔️",
                 photoUrl = "https://example.com/avatar/maria.jpg",
-                birthday = LocalDate(1992, 8, 20),
-                gender = Gender.FEMALE,
-                isGenerated = false,
                 createdAt = 1684000000000L,
                 updatedAt = 1699900000000L,
             ),
             stats = longBioUserStats,
-            preferences = UserPreferences(userId = UserId("long-bio-user")),
         )
     }
 

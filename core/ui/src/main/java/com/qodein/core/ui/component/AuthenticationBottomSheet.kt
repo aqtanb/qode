@@ -18,9 +18,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -36,6 +41,8 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
+import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.shared.common.result.ErrorType
 
 /**
  * Authentication prompt actions that trigger contextual auth prompts
@@ -85,6 +92,9 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
  * @param modifier Modifier to be applied to the bottom sheet
  * @param sheetState State for controlling the bottom sheet behavior
  * @param isLoading Whether the sign-in process is currently loading
+ * @param errorType Optional error to show in snackbar
+ * @param onErrorDismissed Called when error snackbar is dismissed
+ * @param isDarkTheme Whether to use dark theme styling (from app preferences)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,7 +104,10 @@ fun AuthenticationBottomSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    errorType: ErrorType? = null,
+    onErrorDismissed: () -> Unit = {},
+    isDarkTheme: Boolean
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -121,16 +134,44 @@ fun AuthenticationBottomSheet(
             }
         },
     ) {
-        AuthenticationBottomSheetContent(
-            action = action,
-            onSignInClick = onSignInClick,
-            onDismiss = onDismiss,
-            isLoading = isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SpacingTokens.lg)
-                .padding(bottom = SpacingTokens.xl),
-        )
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        // Get localized error message in composable context
+        val errorMessage = errorType?.toLocalizedMessage()
+
+        // Show error snackbar when there's an error
+        LaunchedEffect(errorType) {
+            errorMessage?.let { message ->
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short,
+                )
+                onErrorDismissed()
+            }
+        }
+
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            AuthenticationBottomSheetContent(
+                action = action,
+                onSignInClick = onSignInClick,
+                onDismiss = onDismiss,
+                isLoading = isLoading,
+                isDarkTheme = isDarkTheme,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingTokens.lg)
+                    .padding(bottom = SpacingTokens.xl),
+            )
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(SpacingTokens.md),
+            )
+        }
     }
 }
 
@@ -140,6 +181,7 @@ private fun AuthenticationBottomSheetContent(
     onSignInClick: () -> Unit,
     onDismiss: () -> Unit,
     isLoading: Boolean,
+    isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -207,6 +249,7 @@ private fun AuthenticationBottomSheetContent(
             onClick = onSignInClick,
             isLoading = isLoading,
             modifier = Modifier.fillMaxWidth(),
+            isDarkTheme = isDarkTheme,
         )
 
         // Footer text - tighter to button
@@ -232,6 +275,7 @@ private fun AuthenticationBottomSheetSubmitPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
+            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -247,6 +291,7 @@ private fun AuthenticationBottomSheetUpvotePreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
+            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -262,6 +307,7 @@ private fun AuthenticationBottomSheetCommentPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
+            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -277,6 +323,7 @@ private fun AuthenticationBottomSheetBookmarkPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
+            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -292,6 +339,25 @@ private fun AuthenticationBottomSheetLoadingPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = true,
+            isDarkTheme = false,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "Error State", showBackground = true)
+@Composable
+private fun AuthenticationBottomSheetErrorPreview() {
+    QodeTheme {
+        AuthenticationBottomSheet(
+            action = AuthPromptAction.UpvotePromoCode,
+            onSignInClick = {},
+            onDismiss = {},
+            isLoading = false,
+            errorType = ErrorType.AUTH_USER_CANCELLED,
+            onErrorDismissed = {},
+            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }

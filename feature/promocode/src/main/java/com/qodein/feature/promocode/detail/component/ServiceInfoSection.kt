@@ -46,12 +46,14 @@ fun ServiceInfoSection(
     onServiceClicked: () -> Unit,
     onFollowServiceClicked: () -> Unit,
     onFollowCategoryClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean
 ) {
     // Authentication-protected follow service action
     val requireFollowService = requireAuthentication(
         action = AuthPromptAction.FollowStore,
         onAuthenticated = onFollowServiceClicked,
+        isDarkTheme = isDarkTheme,
     )
     Column(
         modifier = modifier
@@ -281,6 +283,7 @@ private fun ServiceInfoSectionPreview() {
                 onServiceClicked = {},
                 onFollowServiceClicked = {},
                 onFollowCategoryClicked = {},
+                isDarkTheme = false,
             )
         }
     }

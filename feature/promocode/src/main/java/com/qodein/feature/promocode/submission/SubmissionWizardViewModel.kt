@@ -5,14 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeSubmission
+import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +35,7 @@ import kotlin.time.toKotlinInstant
 @HiltViewModel
 class SubmissionWizardViewModel @Inject constructor(
     private val createPromoCodeUseCase: CreatePromoCodeUseCase,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
     private val serviceSearchManager: ServiceSearchManager,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -295,6 +300,45 @@ class SubmissionWizardViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            // Get current user ID
+            var currentUserId: UserId? = null
+            getAuthStateUseCase().collect { authResult ->
+                when (authResult) {
+                    is Result.Success -> {
+                        when (val authState = authResult.data) {
+                            is AuthState.Authenticated -> {
+                                currentUserId = authState.user.id
+                                return@collect
+                            }
+                            else -> {
+                                // User not authenticated, handle error
+                                _uiState.update {
+                                    SubmissionWizardUiState.Error(
+                                        errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                        isRetryable = false,
+                                        shouldShowSnackbar = true,
+                                        errorCode = "auth_required",
+                                    )
+                                }
+                                return@collect
+                            }
+                        }
+                    }
+                    else -> {
+                        // Auth state loading or error, handle it
+                        _uiState.update {
+                            SubmissionWizardUiState.Error(
+                                errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                isRetryable = true,
+                                shouldShowSnackbar = true,
+                                errorCode = "auth_check_failed",
+                            )
+                        }
+                        return@collect
+                    }
+                }
+            }
+
             val promoCodeResult = when (wizardData.promoCodeType) {
                 PromoCodeType.PERCENTAGE -> PromoCode.createPercentage(
                     code = wizardData.promoCode,
@@ -305,6 +349,7 @@ class SubmissionWizardViewModel @Inject constructor(
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
+                    createdBy = currentUserId,
                 )
                 PromoCodeType.FIXED_AMOUNT -> PromoCode.createFixedAmount(
                     code = wizardData.promoCode,
@@ -315,6 +360,7 @@ class SubmissionWizardViewModel @Inject constructor(
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
+                    createdBy = currentUserId,
                 )
                 null -> return@launch
             }

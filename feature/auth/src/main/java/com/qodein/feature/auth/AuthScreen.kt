@@ -52,7 +52,8 @@ fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit = {},
     onNavigateToTermsOfService: () -> Unit = {},
-    onNavigateToPrivacyPolicy: () -> Unit = {}
+    onNavigateToPrivacyPolicy: () -> Unit = {},
+    isDarkTheme: Boolean
 ) {
     // Track screen view
     TrackScreenViewEvent(screenName = "Auth")
@@ -74,6 +75,7 @@ fun AuthScreen(
         modifier = modifier,
         state = state,
         onAction = viewModel::handleAction,
+        isDarkTheme = isDarkTheme,
     )
 }
 
@@ -81,7 +83,8 @@ fun AuthScreen(
 fun AuthContent(
     modifier: Modifier = Modifier,
     state: AuthUiState,
-    onAction: (AuthAction) -> Unit
+    onAction: (AuthAction) -> Unit,
+    isDarkTheme: Boolean
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -114,6 +117,7 @@ fun AuthContent(
                         state = state,
                         onAction = onAction,
                         modifier = modifier.fillMaxWidth(),
+                        isDarkTheme = isDarkTheme,
                     )
                 }
             }
@@ -125,7 +129,8 @@ fun AuthContent(
 private fun AuthSignInCard(
     state: AuthUiState,
     onAction: (AuthAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean
 ) {
     QodeCard(
         variant = QodeCardVariant.Elevated,
@@ -167,6 +172,7 @@ private fun AuthSignInCard(
                 },
                 modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
                 isLoading = state is AuthUiState.Loading,
+                isDarkTheme = isDarkTheme,
             )
 
             Column(
@@ -222,12 +228,14 @@ private fun AuthSignInCard(
 @Composable
 private fun AuthScreenPreview(
     state: AuthUiState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean = false
 ) {
     AuthContent(
         state = state,
         onAction = {}, // Empty for previews
         modifier = modifier,
+        isDarkTheme = isDarkTheme,
     )
 }
 

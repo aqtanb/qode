@@ -24,7 +24,7 @@ import com.qodein.shared.model.Theme
 @Composable
 fun AppThemeContainer(
     viewModel: QodeAppViewModel,
-    content: @Composable (statusBarOverlayColor: Color) -> Unit
+    content: @Composable (statusBarOverlayColor: Color, isDarkTheme: Boolean) -> Unit
 ) {
     // Theme state observation
     val themeState by viewModel.themeState.collectAsStateWithLifecycle()
@@ -57,5 +57,5 @@ fun AppThemeContainer(
         Color.White.copy(alpha = 0.3f) // Light overlay for dark status text
     }
 
-    content(statusBarOverlayColor)
+    content(statusBarOverlayColor, isDarkTheme)
 }

@@ -360,12 +360,6 @@ private fun UserInfo(
             firstName = user.profile.firstName,
             lastName = user.profile.lastName,
         )
-        Username(username = user.profile.username)
-        user.profile.bio?.let { bio ->
-            if (bio.isNotBlank()) {
-                UserBio(bio = bio)
-            }
-        }
     }
 }
 
@@ -449,7 +443,7 @@ private fun StatsCards(
         )
 
         StatCard(
-            value = userStats.upvotes,
+            value = userStats.upvotesReceived,
             label = stringResource(R.string.profile_upvotes_label),
             icon = QodeStatusIcons.Recommended,
             gradientColors = listOf(
@@ -460,7 +454,7 @@ private fun StatsCards(
         )
 
         StatCard(
-            value = userStats.downvotes,
+            value = userStats.downvotesReceived,
             label = stringResource(R.string.profile_downvotes_label),
             icon = QodeSecurityIcons.Denied,
             gradientColors = listOf(
@@ -496,7 +490,7 @@ private fun StatsCardsPreview(
         )
 
         StatCardPreview(
-            value = userStats.upvotes,
+            value = userStats.upvotesReceived,
             label = stringResource(R.string.profile_upvotes_label),
             icon = QodeStatusIcons.Recommended,
             gradientColors = listOf(
@@ -507,7 +501,7 @@ private fun StatsCardsPreview(
         )
 
         StatCardPreview(
-            value = userStats.downvotes,
+            value = userStats.downvotesReceived,
             label = stringResource(R.string.profile_downvotes_label),
             icon = QodeSecurityIcons.Denied,
             gradientColors = listOf(
