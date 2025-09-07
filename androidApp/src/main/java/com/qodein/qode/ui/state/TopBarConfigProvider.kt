@@ -35,8 +35,8 @@ object TopBarConfigProvider {
             // Profile screen - no app-level top bar (screen handles its own beautiful transparent one)
             isProfileScreen -> TopBarConfig.None
 
-            // Auth screens - transparent/scroll-aware
-            isAuthScreen -> TopBarConfig.ScrollAware
+            // Auth screens - no app-level top bar (screen handles its own)
+            isAuthScreen -> TopBarConfig.None
 
             // Top level destinations - handle ALL of them explicitly
             isFeedDestination -> {

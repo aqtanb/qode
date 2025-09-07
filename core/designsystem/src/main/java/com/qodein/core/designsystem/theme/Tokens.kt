@@ -95,6 +95,23 @@ object SizeTokens {
         val sizeLarge = 24.dp
         val sizeXLarge = 32.dp
     }
+
+    @Immutable
+    object Controller {
+        val pillWidth = 220.dp
+        val pillHeight = 80.dp
+        val pillHeightWithLabels = 96.dp
+
+        val containerHeight = 160.dp
+        val containerHeightWithLabels = 180.dp
+    }
+
+    @Immutable
+    object Fab {
+        val size = 56.dp
+        val sizeSmall = 48.dp
+        val iconSize = 24.dp
+    }
 }
 
 /**

@@ -16,6 +16,10 @@
     <string name="settings">Настройки</string>
     <string name="back">Назад</string>
     <string name="favorites">Избранное</string>
+    
+    <!-- Floating Action Button -->
+    <string name="create_promo_code">Добавить промокод</string>
+    <string name="add_to_feed">Добавить в ленту</string>
 
     <!-- Promocode Detail Screen -->
     <string name="promocode_details_title">Детали промо-кода</string>

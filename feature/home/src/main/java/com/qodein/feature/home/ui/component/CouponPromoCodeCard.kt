@@ -235,7 +235,7 @@ fun CouponPromoCodeCard(
     val density = LocalDensity.current
     val couponShape = remember {
         CouponShape(
-            cornerRadius = with(density) { ShapeTokens.Corner.large.toPx() },
+            cornerRadius = with(density) { ShapeTokens.Corner.extraLarge.toPx() },
             cutoutRadius = with(density) { CouponTokens.cutoutRadius.toPx() },
             stubWidthPx = with(density) { CouponTokens.stubWidth.toPx() },
         )

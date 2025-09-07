@@ -16,6 +16,10 @@
     <string name="settings">Settings</string>
     <string name="back">Back</string>
     <string name="favorites">Favorites</string>
+    
+    <!-- Floating Action Button -->
+    <string name="create_promo_code">Create Promo Code</string>
+    <string name="add_to_feed">Add to Feed</string>
 
     <!-- Promocode Detail Screen -->
     <string name="promocode_details_title">Promocode Details</string>

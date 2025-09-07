@@ -22,12 +22,6 @@ sealed class TopBarConfig {
     data object None : TopBarConfig()
 
     /**
-     * Transparent/scroll-aware top bar - for immersive experiences
-     * Examples: Profile screen, Auth screens
-     */
-    data object ScrollAware : TopBarConfig()
-
-    /**
      * Main screen top bar - for top-level destinations with titles
      * Shows profile/settings buttons, no back navigation
      *

@@ -16,6 +16,10 @@
     <string name="settings">Баптаулар</string>
     <string name="back">Артқа</string>
     <string name="favorites">Таңдаулылар</string>
+    
+    <!-- Floating Action Button -->
+    <string name="create_promo_code">Промокод тапсыру</string>
+    <string name="add_to_feed">Арнаға қосу</string>
 
     <!-- Promocode Detail Screen -->
     <string name="promocode_details_title">Промо-код мәліметтері</string>

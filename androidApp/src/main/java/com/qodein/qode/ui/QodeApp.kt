@@ -17,24 +17,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.component.QodeButtonSize
-import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeIconButton
-import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.navigation.navigateToSubmission
-import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.container.AppBottomBarContainer
 import com.qodein.qode.ui.container.AppDialogsContainer
+import com.qodein.qode.ui.container.AppFabContainer
 import com.qodein.qode.ui.container.AppThemeContainer
 import com.qodein.qode.ui.container.AppTopBarContainer
 import com.qodein.qode.ui.container.rememberDialogState
@@ -137,17 +131,11 @@ internal fun QodeApp(
                 },
 
                 floatingActionButton = {
-                    // FAB only on home screen
-                    if (appState.currentTopLevelDestination == TopLevelDestination.HOME) {
-                        QodeIconButton(
-                            onClick = requireSubmissionNavigation,
-                            icon = QodeActionIcons.Add,
-                            contentDescription = stringResource(R.string.add),
-                            variant = QodeButtonVariant.Primary,
-                            size = QodeButtonSize.Large,
-                            modifier = modifier.padding(SpacingTokens.sm),
-                        )
-                    }
+                    // Centralized FAB with auto-hiding for all top-level destinations
+                    AppFabContainer(
+                        appState = appState,
+                        onEvent = onEvent,
+                    )
                 },
 
                 bottomBar = {

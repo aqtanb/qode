@@ -3,6 +3,8 @@ package com.qodein.core.designsystem.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ScrollState
@@ -87,10 +89,10 @@ data class HidingAnimation(val hideStiffness: Float, val showStiffness: Float, v
     companion object {
         fun default() =
             HidingAnimation(
-                hideStiffness = Spring.StiffnessMedium,
-                showStiffness = Spring.StiffnessMediumLow,
+                hideStiffness = Spring.StiffnessLow,
+                showStiffness = Spring.StiffnessLow,
                 hideDamping = Spring.DampingRatioNoBouncy,
-                showDamping = Spring.DampingRatioMediumBouncy,
+                showDamping = Spring.DampingRatioNoBouncy,
             )
     }
 }
@@ -556,19 +558,33 @@ fun AutoHidingContent(
             )
         }
         AutoHideDirection.UP -> {
-            slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = spring(
-                    dampingRatio = animation.showDamping,
-                    stiffness = animation.showStiffness,
-                ),
-            ) to slideOutVertically(
-                targetOffsetY = { it },
-                animationSpec = spring(
-                    dampingRatio = animation.hideDamping,
-                    stiffness = animation.hideStiffness,
-                ),
-            )
+            (
+                slideInVertically(
+                    initialOffsetY = { 40 }, // Minimal slide
+                    animationSpec = spring(
+                        dampingRatio = animation.showDamping,
+                        stiffness = animation.showStiffness,
+                    ),
+                ) + fadeIn(
+                    animationSpec = spring(
+                        dampingRatio = animation.showDamping,
+                        stiffness = animation.showStiffness,
+                    ),
+                )
+                ) to (
+                slideOutVertically(
+                    targetOffsetY = { 40 }, // Minimal slide
+                    animationSpec = spring(
+                        dampingRatio = animation.hideDamping,
+                        stiffness = animation.hideStiffness,
+                    ),
+                ) + fadeOut(
+                    animationSpec = spring(
+                        dampingRatio = animation.hideDamping,
+                        stiffness = animation.hideStiffness,
+                    ),
+                )
+                )
         }
     }
 
