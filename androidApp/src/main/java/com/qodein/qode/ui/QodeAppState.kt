@@ -1,9 +1,9 @@
 package com.qodein.qode.ui
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,36 +14,43 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
-import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
 import com.qodein.feature.promocode.navigation.SubmissionRoute
 import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
+import com.qodein.qode.navigation.TopLevelDestination.FEED
 import com.qodein.qode.navigation.TopLevelDestination.HOME
-import com.qodein.qode.navigation.TopLevelDestination.INBOX
-import com.qodein.qode.navigation.TopLevelDestination.SEARCH
 
 @Composable
-fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState {
-    val profileScrollState = rememberScrollState()
-    val authScrollState = rememberScrollState()
-    return remember(navController) {
-        QodeAppState(
-            navController = navController,
-            profileScrollState = profileScrollState,
-            authScrollState = authScrollState,
-        )
+fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
+    remember(navController) {
+        QodeAppState(navController = navController)
     }
-}
 
 @Stable
-class QodeAppState(val navController: NavHostController, val profileScrollState: ScrollState, val authScrollState: ScrollState) {
+class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
     private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
+
+    // Dynamic scroll state for auto-hiding behavior
+    private val _currentScrollableState = mutableStateOf<ScrollableState?>(null)
+    val currentScrollableState: State<ScrollableState?> get() = _currentScrollableState
+
+    // ScrollStateRegistry implementation
+    override fun registerScrollState(scrollableState: ScrollableState?) {
+        _currentScrollableState.value = scrollableState
+    }
+
+    override fun unregisterScrollState() {
+        // Don't set to null during tab switches to prevent auto-hiding state destruction
+        // The new screen registration will override this value anyway
+        // Only set to null if we're truly going to a screen without scrollable content
+    }
 
     val currentDestination: NavDestination?
         @Composable get() {
@@ -154,12 +161,8 @@ class QodeAppState(val navController: NavHostController, val profileScrollState:
                     route = HomeBaseRoute,
                     navOptions = topLevelNavOptions,
                 )
-                SEARCH -> navController.navigate(
+                FEED -> navController.navigate(
                     route = FeedRoute,
-                    navOptions = topLevelNavOptions,
-                )
-                INBOX -> navController.navigate(
-                    route = InboxRoute,
                     navOptions = topLevelNavOptions,
                 )
             }

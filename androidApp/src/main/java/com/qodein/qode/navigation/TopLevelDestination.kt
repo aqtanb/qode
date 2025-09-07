@@ -1,18 +1,10 @@
 package com.qodein.qode.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Inbox
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
-import com.qodein.feature.inbox.navigation.InboxBaseRoute
-import com.qodein.feature.inbox.navigation.InboxRoute
 import com.qodein.qode.R
 import kotlin.reflect.KClass
 import com.qodein.feature.home.R as homeR
@@ -26,26 +18,18 @@ enum class TopLevelDestination(
     val baseRoute: KClass<*> = route
 ) {
     HOME(
-        selectedIcon = Icons.Filled.Home,
-        unSelectedIcon = Icons.Outlined.Home,
+        selectedIcon = QodeNavigationIcons.Home,
+        unSelectedIcon = QodeNavigationIcons.Home,
         iconTextId = homeR.string.feature_home_title,
         titleTextId = R.string.app_name,
         route = HomeBaseRoute::class,
         baseRoute = HomeBaseRoute::class,
     ),
-    SEARCH(
-        selectedIcon = Icons.Filled.Search,
-        unSelectedIcon = Icons.Outlined.Search,
-        iconTextId = R.string.search_title,
-        titleTextId = R.string.search_title,
+    FEED(
+        selectedIcon = QodeNavigationIcons.Feed,
+        unSelectedIcon = QodeNavigationIcons.Feed,
+        iconTextId = R.string.feed_title,
+        titleTextId = R.string.feed_title,
         route = FeedRoute::class,
-    ),
-    INBOX(
-        selectedIcon = Icons.Filled.Inbox,
-        unSelectedIcon = Icons.Outlined.Inbox,
-        iconTextId = R.string.inbox_title,
-        titleTextId = R.string.inbox_title,
-        route = InboxRoute::class,
-        baseRoute = InboxBaseRoute::class,
     )
 }

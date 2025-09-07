@@ -32,6 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.scroll.RegisterScrollState
+import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.ui.component.CouponPromoCodeCard
 import com.qodein.feature.home.ui.component.DialogCoordinator
@@ -59,7 +61,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
     onNavigateToBannerDetail: (Banner) -> Unit = {},
-    onShowPromoCodeCopied: (PromoCode) -> Unit = {}
+    onShowPromoCodeCopied: (PromoCode) -> Unit = {},
+    scrollStateRegistry: ScrollStateRegistry? = null
 ) {
     TrackScreenViewEvent(screenName = HOME_SCREEN_NAME)
 
@@ -68,6 +71,9 @@ fun HomeScreen(
     val listState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
     val context = LocalContext.current
+
+    // Register scroll state for bottom navigation auto-hiding
+    scrollStateRegistry?.RegisterScrollState(listState)
 
     // Handle navigation events
     LaunchedEffect(viewModel.events) {

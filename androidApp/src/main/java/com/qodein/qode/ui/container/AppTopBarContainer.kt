@@ -1,6 +1,10 @@
 package com.qodein.qode.ui.container
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import com.qodein.core.designsystem.component.AutoHideDirection
+import com.qodein.core.designsystem.component.AutoHidingContent
+import com.qodein.core.designsystem.component.rememberAutoHidingState
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.ui.component.QodeAppTopAppBar
 import com.qodein.core.ui.component.TopAppBarScreenType
@@ -38,30 +42,58 @@ fun AppTopBarContainer(
         }
 
         TopBarConfig.ScrollAware -> {
-            QodeAppTopAppBar(
-                title = "", // ScrollAware screens have no title - purely transparent with back button
-                screenType = TopAppBarScreenType.ScrollAware,
-                user = (authState as? AuthState.Authenticated)?.user,
-                navigationIcon = QodeActionIcons.Back, // Transparent top bars show back button
-                onNavigationClick = {
-                    onEvent(AppUiEvents.Navigate(NavigationActions.NavigateBack))
-                },
-                onProfileClick = onProfileClick ?: { _ ->
-                    onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToProfile))
-                },
-                onSettingsClick = onSettingsClick ?: {
-                    onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToSettings))
-                },
-                showProfile = showProfile,
-                showSettings = showSettings,
-                scrollState = if (appState.isAuthScreen) {
-                    // Auth screens use dedicated auth scroll state for proper transparent top bar behavior
-                    appState.authScrollState
-                } else {
-                    // Profile screens use dedicated profile scroll state
-                    appState.profileScrollState
-                },
-            )
+            // Get the current scroll state from app state
+            val currentScrollableState by appState.currentScrollableState
+
+            // Create the auto-hiding state using the generic utility function
+            val autoHidingState = rememberAutoHidingState(scrollableState = currentScrollableState)
+
+            if (autoHidingState != null) {
+                // Use the generic wrapper for auto-hiding animation
+                AutoHidingContent(
+                    state = autoHidingState,
+                    direction = AutoHideDirection.DOWN,
+                ) {
+                    QodeAppTopAppBar(
+                        title = "",
+                        screenType = TopAppBarScreenType.ScrollAware,
+                        user = (authState as? AuthState.Authenticated)?.user,
+                        navigationIcon = QodeActionIcons.Back,
+                        onNavigationClick = {
+                            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateBack))
+                        },
+                        onProfileClick = onProfileClick ?: { _ ->
+                            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToProfile))
+                        },
+                        onSettingsClick = onSettingsClick ?: {
+                            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToSettings))
+                        },
+                        showProfile = showProfile,
+                        showSettings = showSettings,
+                        scrollState = null, // Scroll handling is done by the wrapper
+                    )
+                }
+            } else {
+                // Fallback: always visible transparent top bar if no scrollable content
+                QodeAppTopAppBar(
+                    title = "",
+                    screenType = TopAppBarScreenType.Nested,
+                    user = (authState as? AuthState.Authenticated)?.user,
+                    navigationIcon = QodeActionIcons.Back,
+                    onNavigationClick = {
+                        onEvent(AppUiEvents.Navigate(NavigationActions.NavigateBack))
+                    },
+                    onProfileClick = onProfileClick ?: { _ ->
+                        onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToProfile))
+                    },
+                    onSettingsClick = onSettingsClick ?: {
+                        onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToSettings))
+                    },
+                    showProfile = showProfile,
+                    showSettings = showSettings,
+                    scrollState = null,
+                )
+            }
         }
 
         is TopBarConfig.MainWithTitle -> {
@@ -111,44 +143,4 @@ fun AppTopBarContainer(
             config.content()
         }
     }
-}
-
-/**
- * Convenience composable for main screens that need profile/settings
- */
-@Composable
-fun AppTopBarWithProfile(
-    config: TopBarConfig,
-    appState: QodeAppState,
-    authState: AuthState,
-    onEvent: (AppUiEvents) -> Unit
-) {
-    AppTopBarContainer(
-        config = config,
-        appState = appState,
-        authState = authState,
-        onEvent = onEvent,
-        showProfile = true,
-        showSettings = true,
-    )
-}
-
-/**
- * Convenience composable for nested screens (no profile/settings)
- */
-@Composable
-fun AppTopBarBasic(
-    config: TopBarConfig,
-    appState: QodeAppState,
-    authState: AuthState,
-    onEvent: (AppUiEvents) -> Unit
-) {
-    AppTopBarContainer(
-        config = config,
-        appState = appState,
-        authState = authState,
-        onEvent = onEvent,
-        showProfile = false,
-        showSettings = false,
-    )
 }

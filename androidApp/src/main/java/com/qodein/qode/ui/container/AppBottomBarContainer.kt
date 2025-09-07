@@ -1,28 +1,37 @@
 package com.qodein.qode.ui.container
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.res.stringResource
-import com.qodein.core.designsystem.component.QodeBottomNavigation
-import com.qodein.core.designsystem.component.QodeNavigationItem
+import com.qodein.core.designsystem.component.AutoHideConfig
+import com.qodein.core.designsystem.component.AutoHideDirection
+import com.qodein.core.designsystem.component.AutoHidingContent
+import com.qodein.core.designsystem.component.BottomNavigation
+import com.qodein.core.designsystem.component.LazyListScrollExtractor
+import com.qodein.core.designsystem.component.TabItem
+import com.qodein.core.designsystem.component.rememberAutoHidingState
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.qode.ui.state.AppUiEvents
 
 /**
- * Container responsible for bottom navigation bar.
+ * Container responsible for floating bottom navigation bar.
  *
  * Handles:
- * - Bottom navigation rendering
+ * - Modern floating bottom navigation rendering with 2 tabs (Home and Feed)
  * - Tab selection and navigation
- * - Coming soon dialog triggers for unimplemented features
+ * - Autohiding behavior based on real scroll state from screens
  * - Visibility logic (hidden for certain screens like submission)
  *
  * Benefits:
- * - Isolates bottom navigation logic
- * - Centralized coming soon handling
- * - Easy to extend with new tabs
+ * - Modern floating design with enhanced animations
+ * - Simplified 2-tab navigation (Home and Feed only)
+ * - Smart autohiding based on actual scroll behavior from current screen
  * - Clean separation from main app logic
  */
 @Composable
@@ -31,57 +40,98 @@ fun AppBottomBarContainer(
     onEvent: (AppUiEvents) -> Unit
 ) {
     val selectedTabDestination = appState.selectedTabDestination
-    val isSubmissionScreen = appState.isSubmissionScreen
 
-    // Hide bottom navigation for fullscreen flows like submission wizard
-    if (!isSubmissionScreen) {
-        Column {
-            QodeBottomNavigation(
+    // Get the current scroll state from app state (registered by active screen)
+    val currentScrollableState by appState.currentScrollableState
+    val scrollState = currentScrollableState // Capture for smart casting
+
+    // The scrollState object is a perfect, unique key
+    val extractor = remember(scrollState) {
+        when (scrollState) {
+            is LazyListState -> LazyListScrollExtractor()
+            else -> null
+        }
+    }
+
+    // Pass the scrollState itself as the key to rememberAutoHidingState
+    val autoHidingState = if (scrollState is LazyListState && extractor != null) {
+        rememberAutoHidingState(
+            scrollInfoFlow = snapshotFlow {
+                extractor.extractScrollInfo(scrollState)
+            },
+            config = AutoHideConfig.Default,
+            key = scrollState,
+        )
+    } else {
+        null
+    }
+
+    // Only show bottom navigation for top-level destinations (Home and Feed)
+    val currentTopLevelDestination = appState.currentTopLevelDestination
+    if (currentTopLevelDestination != null) {
+        if (autoHidingState != null) {
+            // Use AutoHidingContent for smooth animations
+            AutoHidingContent(
+                state = autoHidingState,
+                direction = AutoHideDirection.UP,
+            ) {
+                BottomNavigation(
+                    items = appState.topLevelDestinations.map { destination ->
+                        TabItem(
+                            route = destination.route.simpleName ?: "",
+                            label = stringResource(destination.iconTextId),
+                            selectedIcon = destination.selectedIcon,
+                            unselectedIcon = destination.unSelectedIcon,
+                            contentDescription = "Navigate to ${stringResource(destination.iconTextId)}",
+                        )
+                    },
+                    selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
+                    onItemClick = { selectedItem ->
+                        handleTabItemClick(
+                            selectedItem = selectedItem,
+                            destinations = appState.topLevelDestinations,
+                            onEvent = onEvent,
+                        )
+                    },
+                    showLabels = true,
+                )
+            }
+        } else {
+            // No scrollable state - always show bottom navigation
+            BottomNavigation(
                 items = appState.topLevelDestinations.map { destination ->
-                    QodeNavigationItem(
+                    TabItem(
                         route = destination.route.simpleName ?: "",
                         label = stringResource(destination.iconTextId),
                         selectedIcon = destination.selectedIcon,
                         unselectedIcon = destination.unSelectedIcon,
+                        contentDescription = "Navigate to ${stringResource(destination.iconTextId)}",
                     )
                 },
                 selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
                 onItemClick = { selectedItem ->
-                    handleBottomNavClick(
+                    handleTabItemClick(
                         selectedItem = selectedItem,
                         destinations = appState.topLevelDestinations,
                         onEvent = onEvent,
                     )
                 },
+                showLabels = true,
             )
         }
     }
 }
 
 /**
- * Handle bottom navigation item clicks with coming soon logic
+ * Handle floating bottom navigation item clicks for Home and Feed tabs
  */
-private fun handleBottomNavClick(
-    selectedItem: QodeNavigationItem,
+private fun handleTabItemClick(
+    selectedItem: TabItem,
     destinations: List<TopLevelDestination>,
     onEvent: (AppUiEvents) -> Unit
 ) {
     destinations.find { it.route.simpleName == selectedItem.route }?.let { destination ->
-        when (destination) {
-            TopLevelDestination.INBOX -> {
-                // Show coming soon for inbox
-                onEvent(AppUiEvents.ShowInboxComingSoon)
-            }
-            else -> {
-                // Navigate to the destination
-                onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToTab(destination)))
-            }
-        }
+        // Direct navigation for both Home and Feed (no coming soon dialogs needed)
+        onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToTab(destination)))
     }
 }
-
-/**
- * Extension function to determine if bottom bar should be visible
- */
-@Composable
-fun QodeAppState.shouldShowBottomBar(): Boolean = !isSubmissionScreen // Hide for submission wizard

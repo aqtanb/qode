@@ -7,7 +7,6 @@ import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.feed.navigation.feedSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
-import com.qodein.feature.inbox.navigation.inboxSection
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.submissionSection
@@ -39,14 +38,12 @@ fun QodeNavHost(
             promoCodeDetail = { promoCodeId ->
                 navController.navigateToPromocodeDetail(promoCodeId)
             },
+            scrollStateRegistry = appState,
         )
 
-        feedSection()
-
-        inboxSection()
+        feedSection(scrollStateRegistry = appState)
 
         profileSection(
-            scrollState = appState.profileScrollState,
             onBackClick = {
                 // Navigate back to the last top-level destination instead of just popping
                 appState.navigateToTopLevelDestination(selectedTabDestination)

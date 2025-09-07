@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.feed.FeedScreen
 import kotlinx.serialization.Serializable
 
@@ -23,8 +24,8 @@ fun NavController.navigateToFeed(navOptions: NavOptions? = null) {
 /**
  * Navigation graph builder extension for feed feature
  */
-fun NavGraphBuilder.feedSection() {
+fun NavGraphBuilder.feedSection(scrollStateRegistry: ScrollStateRegistry? = null) {
     composable<FeedRoute> {
-        FeedScreen()
+        FeedScreen(scrollStateRegistry = scrollStateRegistry)
     }
 }

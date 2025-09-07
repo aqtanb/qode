@@ -1,6 +1,6 @@
 package com.qodein.feature.profile.navigation
 
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -18,7 +18,6 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.profileSection(
-    scrollState: ScrollState,
     onBackClick: () -> Unit = {},
     onSignOut: () -> Unit = {},
     onAchievementsClick: () -> Unit = {}, // TODO: Navigate to achievements screen
@@ -26,6 +25,8 @@ fun NavGraphBuilder.profileSection(
 ) {
     navigation<ProfileBaseRoute>(startDestination = ProfileRoute) {
         composable<ProfileRoute> {
+            val scrollState = rememberScrollState()
+
             ProfileScreen(
                 scrollState = scrollState,
                 onBackClick = onBackClick,

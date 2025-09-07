@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,9 +57,15 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.component.AutoHideDirection
+import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeHeroGradient
+import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeTopAppBarVariant
+import com.qodein.core.designsystem.component.rememberAutoHidingState
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSecurityIcons
@@ -168,6 +175,7 @@ fun ProfileScreen(
 
 // MARK: - Success Content
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProfileSuccessContent(
     user: User,
@@ -225,7 +233,20 @@ internal fun ProfileSuccessContent(
             )
         }
 
-        // Top app bar is now handled centrally in QodeApp
+        // Beautiful self-contained transparent top app bar with auto-hiding
+        val autoHidingState = rememberAutoHidingState(scrollState = scrollState)
+        AutoHidingContent(
+            state = autoHidingState,
+            direction = AutoHideDirection.DOWN,
+        ) {
+            QodeTopAppBar(
+                title = "",
+                navigationIcon = QodeActionIcons.Back,
+                onNavigationClick = onBackClick,
+                variant = QodeTopAppBarVariant.Transparent,
+                statusBarPadding = true,
+            )
+        }
     }
 }
 

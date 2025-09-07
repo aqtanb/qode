@@ -24,8 +24,7 @@ object TopBarConfigProvider {
     fun getTopBarConfig(appState: QodeAppState): TopBarConfig {
         val currentDestination = appState.currentTopLevelDestination
         val isHomeDestination = currentDestination == TopLevelDestination.HOME
-        val isSearchDestination = currentDestination == TopLevelDestination.SEARCH
-        val isInboxDestination = currentDestination == TopLevelDestination.INBOX
+        val isFeedDestination = currentDestination == TopLevelDestination.FEED
         val isProfileScreen = appState.isProfileScreen
         val isAuthScreen = appState.isAuthScreen
 
@@ -33,15 +32,18 @@ object TopBarConfigProvider {
             // Home screen - no top bar
             isHomeDestination -> TopBarConfig.None
 
-            // Profile and auth screens - transparent/scroll-aware
-            isProfileScreen || isAuthScreen -> TopBarConfig.ScrollAware
+            // Profile screen - no app-level top bar (screen handles its own beautiful transparent one)
+            isProfileScreen -> TopBarConfig.None
+
+            // Auth screens - transparent/scroll-aware
+            isAuthScreen -> TopBarConfig.ScrollAware
 
             // Top level destinations - handle ALL of them explicitly
-            isSearchDestination -> {
+            isFeedDestination -> {
                 TopBarConfig.MainWithTitle(
-                    title = stringResource(R.string.search_title),
+                    title = stringResource(R.string.feed_title),
                     actions = {
-                        // Favorites button for search screen
+                        // Favorites button for feed screen
                         IconButton(
                             onClick = { /* TODO: Handle favorites click */ },
                         ) {
@@ -52,10 +54,6 @@ object TopBarConfigProvider {
                         }
                     },
                 )
-            }
-
-            isInboxDestination -> {
-                TopBarConfig.MainWithTitle(title = stringResource(R.string.inbox_title))
             }
 
             // Nested screens - only when NOT on top-level destinations

@@ -46,6 +46,8 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.scroll.RegisterScrollState
+import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.feed.component.PostCard
 import com.qodein.feature.feed.component.SearchBar
 import com.qodein.shared.common.result.ErrorAction
@@ -57,13 +59,17 @@ import com.qodein.shared.common.result.ErrorAction
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
-    viewModel: FeedViewModel = hiltViewModel()
+    viewModel: FeedViewModel = hiltViewModel(),
+    scrollStateRegistry: ScrollStateRegistry? = null
 ) {
     TrackScreenViewEvent(screenName = "Feed")
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lazyListState = rememberLazyListState()
+
+    // Register scroll state for bottom navigation auto-hiding
+    scrollStateRegistry?.RegisterScrollState(lazyListState)
 
     // Handle events
     LaunchedEffect(viewModel.events) {
