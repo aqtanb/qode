@@ -3,14 +3,17 @@ package com.qodein.qode.ui.container
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.BottomNavigation
+import com.qodein.core.designsystem.component.NavigationAction
 import com.qodein.core.designsystem.component.TabItem
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.qode.ui.state.AppUiEvents
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Container responsible for floating bottom navigation bar.
@@ -34,6 +37,7 @@ fun AppBottomBarContainer(
 ) {
     val selectedTabDestination = appState.selectedTabDestination
     val currentScrollableState by appState.currentScrollableState
+    val coroutineScope = rememberCoroutineScope()
 
     // Update auto-hiding context based on current screen
     appState.UpdateAutoHidingContext()
@@ -70,11 +74,13 @@ fun AppBottomBarContainer(
                 )
             },
             selectedRoute = selectedTabDestination?.route?.simpleName ?: "",
-            onItemClick = { selectedItem ->
-                handleTabItemClick(
-                    selectedItem = selectedItem,
+            onNavigationAction = { action ->
+                handleNavigationAction(
+                    action = action,
                     destinations = appState.topLevelDestinations,
+                    appState = appState,
                     onEvent = onEvent,
+                    coroutineScope = coroutineScope,
                 )
             },
             showLabels = false,
@@ -83,15 +89,25 @@ fun AppBottomBarContainer(
 }
 
 /**
- * Handle floating bottom navigation item clicks for Home and Feed tabs
+ * Handle navigation actions for Home and Feed tabs with scroll-to-top support
  */
-private fun handleTabItemClick(
-    selectedItem: TabItem,
+private fun handleNavigationAction(
+    action: NavigationAction,
     destinations: List<TopLevelDestination>,
-    onEvent: (AppUiEvents) -> Unit
+    appState: QodeAppState,
+    onEvent: (AppUiEvents) -> Unit,
+    coroutineScope: CoroutineScope
 ) {
-    destinations.find { it.route.simpleName == selectedItem.route }?.let { destination ->
-        // Direct navigation for both Home and Feed (no coming soon dialogs needed)
-        onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToTab(destination)))
+    when (action) {
+        is NavigationAction.Navigate -> {
+            // Handle navigation to different tab
+            destinations.find { it.route.simpleName == action.tabItem.route }?.let { destination ->
+                onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToTab(destination)))
+            }
+        }
+        is NavigationAction.ScrollToTop -> {
+            // Handle scroll to top for current tab
+            appState.scrollToTop(coroutineScope)
+        }
     }
 }

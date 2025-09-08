@@ -38,6 +38,8 @@ import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.FEED
 import com.qodein.qode.navigation.TopLevelDestination.HOME
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
@@ -232,6 +234,35 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
                     navOptions = topLevelNavOptions,
                 )
             }
+        }
+    }
+
+    /**
+     * Scroll to top functionality for bottom navigation scroll-to-top behavior
+     */
+    fun scrollToTop(coroutineScope: CoroutineScope) {
+        val scrollState = _currentScrollableState.value
+        when (scrollState) {
+            is LazyListState -> {
+                // Use animateScrollToItem instead of scrollToItem for smooth animation
+                coroutineScope.launch {
+                    scrollState.animateScrollToItem(0)
+                }
+            }
+            is ScrollState -> {
+                // Animate scroll to top position
+                coroutineScope.launch {
+                    scrollState.animateScrollTo(0)
+                }
+            }
+            is LazyGridState -> {
+                // Animate scroll to first item
+                coroutineScope.launch {
+                    scrollState.animateScrollToItem(0)
+                }
+            }
+            // No scroll state available - ignore the scroll to top request
+            else -> { /* No scrollable content to scroll */ }
         }
     }
 }

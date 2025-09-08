@@ -61,7 +61,7 @@ import kotlin.time.Duration.Companion.seconds
 private val LOADING_STROKE_WIDTH = 3.dp
 private const val ERROR_ICON_ALPHA = 0.6f
 private const val EMPTY_ICON_ALPHA = 0.6f
-private const val BANNER_HEIGHT_PERCENTAGE = 0.7f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.5f
 private const val VIGNETTE_TOP_ALPHA = 0.3f
 private const val VIGNETTE_BOTTOM_ALPHA = 0.5f
 private const val INDICATOR_INACTIVE_ALPHA = 0.3f
