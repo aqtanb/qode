@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -59,11 +61,12 @@ import kotlin.time.Duration.Companion.seconds
 // MARK: - Constants
 
 private val LOADING_STROKE_WIDTH = 3.dp
+private val BLUR_RADIUS = 16.dp
 private const val ERROR_ICON_ALPHA = 0.6f
 private const val EMPTY_ICON_ALPHA = 0.6f
-private const val BANNER_HEIGHT_PERCENTAGE = 0.5f
-private const val VIGNETTE_TOP_ALPHA = 0.3f
-private const val VIGNETTE_BOTTOM_ALPHA = 0.5f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.6f
+private const val TEXT_BACKGROUND_TOP_ALPHA = 0.4f
+private const val TEXT_BACKGROUND_BOTTOM_ALPHA = 0.6f
 private const val INDICATOR_INACTIVE_ALPHA = 0.3f
 
 // MARK: - Main Component
@@ -219,7 +222,7 @@ private fun BannerItem(
             }
         }
 
-        // Image layer
+        // Single image layer
         if (banner.imageUrl.isNotBlank()) {
             AsyncImage(
                 model = banner.imageUrl,
@@ -229,8 +232,8 @@ private fun BannerItem(
             )
         }
 
-        // Vignette for text readability
-        VignetteOverlay()
+        // Backdrop blur overlays (transparent boxes with blur)
+        BackdropBlurOverlays()
 
         // Content overlay
         Column(
@@ -297,23 +300,73 @@ private fun BannerStructure(
 // MARK: - Shared Components
 
 @Composable
-private fun VignetteOverlay(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Black.copy(alpha = VIGNETTE_TOP_ALPHA),
-                        Color.Transparent,
-                        Color.Transparent,
-                        Color.Black.copy(alpha = VIGNETTE_BOTTOM_ALPHA),
+private fun BackdropBlurOverlays(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        // Top blurred and darkened section for CountryPicker
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.2f)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.2f),
+                            Color.Transparent,
+                        ),
                     ),
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY,
-                ),
-            ),
-    )
+                )
+                .blur(radius = BLUR_RADIUS),
+        )
+
+        // Middle area - crystal clear image
+        Spacer(modifier = Modifier.weight(0.6f))
+
+        // Bottom blurred and darkened section for BannerCallToAction
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.2f)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.2f),
+                        ),
+                    ),
+                )
+                .blur(radius = 24.dp),
+        )
+    }
+}
+
+@Composable
+private fun VignetteOverlay(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        // Top blur area for country picker
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.15f)
+                .blur(radius = BLUR_RADIUS),
+        )
+
+        // Middle transparent area - no blur
+        Spacer(modifier = modifier.weight(0.65f))
+
+        // Bottom blur area for CTA text
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .weight(0.2f)
+                .blur(radius = BLUR_RADIUS),
+        )
+    }
 }
 
 @Composable
@@ -384,6 +437,16 @@ private fun BannerCallToAction(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (totalPages > 1) {
+            PageIndicator(
+                currentPage = currentPage,
+                totalPages = totalPages,
+                modifier = modifier.padding(top = SpacingTokens.xs),
+                inactiveColor = Color.White.copy(alpha = INDICATOR_INACTIVE_ALPHA),
+                activeColor = Color.White,
+            )
+        }
+
         Text(
             text = ctaTitle,
             style = MaterialTheme.typography.headlineMedium.copy(
@@ -404,16 +467,6 @@ private fun BannerCallToAction(
             color = Color.White,
             textAlign = TextAlign.Center,
         )
-
-        if (totalPages > 1) {
-            PageIndicator(
-                currentPage = currentPage,
-                totalPages = totalPages,
-                modifier = modifier.padding(top = SpacingTokens.xs),
-                inactiveColor = Color.White.copy(alpha = INDICATOR_INACTIVE_ALPHA),
-                activeColor = Color.White,
-            )
-        }
     }
 }
 
