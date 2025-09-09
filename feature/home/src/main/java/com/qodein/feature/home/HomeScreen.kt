@@ -148,7 +148,7 @@ private fun HomeContent(
         state = listState,
         modifier = modifier.navigationBarsPadding(),
         contentPadding = PaddingValues(bottom = SpacingTokens.xl),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         // Hero Banner Section
         item(key = BANNER_SECTION_KEY) {

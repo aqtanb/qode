@@ -51,6 +51,9 @@ dependencies {
     // Coil
     implementation(libs.bundles.image.loading)
 
+    // Blur Effects
+    implementation(libs.haze)
+
     // Browser (CustomTabs)
     implementation(libs.androidx.browser)
 
