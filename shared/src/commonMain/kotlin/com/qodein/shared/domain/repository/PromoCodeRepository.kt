@@ -10,6 +10,11 @@ import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 
+enum class VoteType {
+    UPVOTE,
+    DOWNVOTE
+}
+
 /**
  * Repository interface for PromoCode operations.
  *
@@ -111,7 +116,7 @@ interface PromoCodeRepository {
     fun voteOnPromoCode(
         promoCodeId: PromoCodeId,
         userId: UserId,
-        isUpvote: Boolean
+        voteType: VoteType?
     ): Flow<PromoCodeVote?>
 
     /**

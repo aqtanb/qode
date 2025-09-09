@@ -4,7 +4,7 @@ import * as logger from 'firebase-functions/logger';
 import * as admin from 'firebase-admin';
 
 // Export vote handler
-export { handlePromoCodeVote } from './voteHandler';
+export { handleContentVote } from './voteHandler';
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -15,7 +15,7 @@ const db = admin.firestore();
  * Triggers: When any field in promocodes/{promoId} is updated
  * Purpose: Maintain computed voteScore field for efficient sorting
  */
-export const updateVoteScore = onDocumentUpdated('promocodes/{promoId}', async (event) => {
+export const updatePromoCodeVoteScore = onDocumentUpdated('promocodes/{promoId}', async (event) => {
   const change = event.data;
   const promoId = event.params.promoId;
   

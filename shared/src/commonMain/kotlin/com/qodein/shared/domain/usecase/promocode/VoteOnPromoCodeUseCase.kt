@@ -3,6 +3,7 @@ package com.qodein.shared.domain.usecase.promocode
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.VoteType
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.UserId
@@ -12,8 +13,8 @@ class VoteOnPromoCodeUseCase(private val promoCodeRepository: PromoCodeRepositor
     operator fun invoke(
         promoCodeId: PromoCodeId,
         userId: UserId,
-        isUpvote: Boolean
+        voteType: VoteType?
     ): Flow<Result<PromoCodeVote?>> =
-        promoCodeRepository.voteOnPromoCode(promoCodeId, userId, isUpvote)
+        promoCodeRepository.voteOnPromoCode(promoCodeId, userId, voteType)
             .asResult()
 }

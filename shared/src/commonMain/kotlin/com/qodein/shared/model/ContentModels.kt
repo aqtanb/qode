@@ -1,4 +1,3 @@
-
 @file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
 
 package com.qodein.shared.model

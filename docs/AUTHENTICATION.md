@@ -58,7 +58,7 @@ sealed interface AuthUiState {
 - `core/domain/usecase/auth/GetAuthStateUseCase.kt` - Auth state retrieval
 
 ### Data Layer
-- `core/data/datasource/GoogleAuthService.kt` - Google Sign-In implementation
+- `core/data/datasource/FirebaseGoogleAuthService.kt` - Google Sign-In implementation
 - `core/data/repository/AuthRepositoryImpl.kt` - Repository implementation
 - `core/model/AuthCredentials.kt` - Authentication credential models
 - `core/model/User.kt` - User model with profile information

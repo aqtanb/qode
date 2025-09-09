@@ -8,8 +8,6 @@ import com.qodein.shared.model.BookmarkType
 import com.qodein.shared.model.UserActivity
 import com.qodein.shared.model.UserBookmark
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserVote
-import com.qodein.shared.model.VoteType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -68,56 +66,6 @@ class UserInteractionRepositoryImpl @Inject constructor(private val dataSource: 
     ): Flow<Map<String, Boolean>> =
         flow {
             emit(dataSource.getBookmarkStatuses(userId, itemIds))
-        }
-
-    // ================================================================================================
-    // VOTE OPERATIONS
-    // ================================================================================================
-
-    override fun createOrUpdateVote(
-        userId: UserId,
-        itemId: String,
-        itemType: VoteType,
-        isUpvote: Boolean
-    ): Flow<UserVote> =
-        flow {
-            emit(dataSource.createOrUpdateVote(userId, itemId, itemType, isUpvote))
-        }
-
-    override fun removeVote(
-        userId: UserId,
-        itemId: String
-    ): Flow<Unit> =
-        flow {
-            dataSource.removeVote(userId, itemId)
-            emit(Unit)
-        }
-
-    override fun getUserVote(
-        userId: UserId,
-        itemId: String
-    ): Flow<UserVote?> =
-        flow {
-            emit(dataSource.getUserVote(userId, itemId))
-        }
-
-    override fun getUserVotes(
-        userId: UserId,
-        itemType: VoteType?,
-        isUpvote: Boolean?,
-        limit: Int,
-        offset: Int
-    ): Flow<List<UserVote>> =
-        flow {
-            emit(dataSource.getUserVotes(userId, itemType, isUpvote, limit, offset))
-        }
-
-    override fun getVoteStatuses(
-        userId: UserId,
-        itemIds: List<String>
-    ): Flow<Map<String, UserVote?>> =
-        flow {
-            emit(dataSource.getVoteStatuses(userId, itemIds))
         }
 
     // ================================================================================================

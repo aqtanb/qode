@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
  * Note: For sync auth checks, use AuthStateManager.isUserAuthenticated() directly.
  */
 
-class GetAuthStateUseCase constructor(private val authStateManager: AuthStateManager) {
+class GetAuthStateUseCase(private val authStateManager: AuthStateManager) {
 
     /**
      * Get authentication state as Flow<Result<AuthState>>

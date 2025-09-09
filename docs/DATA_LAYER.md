@@ -18,7 +18,7 @@ Comprehensive data layer following clean architecture principles with Firebase i
 - `core/data/repository/PromoCodeRepositoryImpl.kt` - PromoCode CRUD operations with Firestore
 
 ### Data Sources
-- `core/data/datasource/GoogleAuthService.kt` - Google Sign-In with Credential Manager API
+- `core/data/datasource/FirebaseGoogleAuthService.kt` - Google Sign-In with Credential Manager API
 - `core/data/datasource/FirestorePromoCodeDataSource.kt` - Firestore operations with complex queries
 
 ### Data Mapping
@@ -38,13 +38,13 @@ Comprehensive data layer following clean architecture principles with Firebase i
 ```kotlin
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val googleAuthService: GoogleAuthService
+    private val firebaseGoogleAuthService: GoogleAuthService
 ) : AuthRepository {
     
     // Direct Flow delegation - no unnecessary wrappers
-    override fun signInWithGoogle(): Flow<User> = googleAuthService.signIn()
+    override fun signInWithGoogle(): Flow<User> = firebaseGoogleAuthService.signIn()
     
-    override fun signOut(): Flow<Unit> = googleAuthService.signOut()
+    override fun signOut(): Flow<Unit> = firebaseGoogleAuthService.signOut()
     
     override fun getAuthStateFlow(): Flow<User?> =
         callbackFlow {
@@ -52,7 +52,7 @@ class AuthRepositoryImpl @Inject constructor(
             
             val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
                 val firebaseUser = firebaseAuth.currentUser
-                val user = firebaseUser?.let { googleAuthService.createUserFromFirebaseUser(it) }
+                val user = firebaseUser?.let { firebaseGoogleAuthService.createUserFromFirebaseUser(it) }
                 trySend(user)
             }
             
@@ -63,7 +63,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
     
-    override fun isSignedIn(): Boolean = googleAuthService.isSignedIn()
+    override fun isSignedIn(): Boolean = firebaseGoogleAuthService.isSignedIn()
 }
 ```
 
@@ -476,7 +476,7 @@ override fun getAuthStateFlow(): Flow<User?> =
         
         val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val firebaseUser = firebaseAuth.currentUser
-            val user = firebaseUser?.let { googleAuthService.createUserFromFirebaseUser(it) }
+            val user = firebaseUser?.let { firebaseGoogleAuthService.createUserFromFirebaseUser(it) }
             trySend(user)
         }
         

@@ -3,7 +3,7 @@ package com.qodein.core.data.repository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.qodein.core.data.datasource.GoogleAuthService
+import com.qodein.core.data.datasource.FirebaseGoogleAuthService
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.model.User
 import kotlinx.coroutines.channels.awaitClose
@@ -13,12 +13,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthRepositoryImpl @Inject constructor(private val googleAuthService: GoogleAuthService) : AuthRepository {
+class AuthRepositoryImpl @Inject constructor(private val firebaseGoogleAuthService: FirebaseGoogleAuthService) : AuthRepository {
 
     // Direct Flow delegation - no unnecessary wrappers
-    override fun signInWithGoogle(): Flow<User> = googleAuthService.signIn()
+    override fun signInWithGoogle(): Flow<User> = firebaseGoogleAuthService.signIn()
 
-    override fun signOut(): Flow<Unit> = googleAuthService.signOut()
+    override fun signOut(): Flow<Unit> = firebaseGoogleAuthService.signOut()
 
     override fun getAuthStateFlow(): Flow<User?> =
         callbackFlow {
@@ -26,7 +26,7 @@ class AuthRepositoryImpl @Inject constructor(private val googleAuthService: Goog
 
             val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
                 val firebaseUser = firebaseAuth.currentUser
-                val user = firebaseUser?.let { googleAuthService.createUserFromFirebaseUser(it) }
+                val user = firebaseUser?.let { firebaseGoogleAuthService.createUserFromFirebaseUser(it) }
                 trySend(user)
             }
 
@@ -39,5 +39,5 @@ class AuthRepositoryImpl @Inject constructor(private val googleAuthService: Goog
             }
         }
 
-    override fun isSignedIn(): Boolean = googleAuthService.isSignedIn()
+    override fun isSignedIn(): Boolean = firebaseGoogleAuthService.isSignedIn()
 }

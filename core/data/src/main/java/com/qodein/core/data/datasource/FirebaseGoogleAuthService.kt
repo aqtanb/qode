@@ -26,7 +26,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GoogleAuthService @Inject constructor(@ApplicationContext private val context: Context) {
+class FirebaseGoogleAuthService @Inject constructor(@ApplicationContext private val context: Context) {
     private val auth = Firebase.auth
     private val credentialManager = CredentialManager.create(context)
 

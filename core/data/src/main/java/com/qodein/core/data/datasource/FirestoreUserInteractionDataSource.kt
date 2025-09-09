@@ -6,18 +6,14 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.mapper.UserActivityMapper
 import com.qodein.core.data.mapper.UserBookmarkMapper
-import com.qodein.core.data.mapper.UserVoteMapper
 import com.qodein.core.data.model.UserActivityDto
 import com.qodein.core.data.model.UserBookmarkDto
-import com.qodein.core.data.model.UserVoteDto
 import com.qodein.shared.domain.repository.UserEngagementStats
 import com.qodein.shared.model.ActivityType
 import com.qodein.shared.model.BookmarkType
 import com.qodein.shared.model.UserActivity
 import com.qodein.shared.model.UserBookmark
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserVote
-import com.qodein.shared.model.VoteType
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.io.IOException
@@ -30,7 +26,6 @@ class FirestoreUserInteractionDataSource @Inject constructor(private val firesto
         private const val TAG = "FirestoreUserInteractionDS"
         private const val USERS_COLLECTION = "users"
         private const val BOOKMARKS_SUBCOLLECTION = "bookmarks"
-        private const val VOTES_COLLECTION = "user_votes"
         private const val ACTIVITIES_COLLECTION = "user_activities"
     }
 
@@ -190,134 +185,6 @@ class FirestoreUserInteractionDataSource @Inject constructor(private val firesto
     }
 
     // ================================================================================================
-    // VOTE OPERATIONS
-    // ================================================================================================
-
-    suspend fun createOrUpdateVote(
-        userId: UserId,
-        itemId: String,
-        itemType: VoteType,
-        isUpvote: Boolean
-    ): UserVote {
-        val vote = UserVote.create(
-            userId = userId,
-            itemId = itemId,
-            itemType = itemType,
-            isUpvote = isUpvote,
-        )
-
-        val dto = UserVoteMapper.toDto(vote)
-
-        firestore.collection(VOTES_COLLECTION)
-            .document(vote.id)
-            .set(dto)
-            .await()
-
-        return vote
-    }
-
-    suspend fun removeVote(
-        userId: UserId,
-        itemId: String
-    ) {
-        val voteId = "${userId.value}_$itemId"
-
-        firestore.collection(VOTES_COLLECTION)
-            .document(voteId)
-            .delete()
-            .await()
-    }
-
-    suspend fun getUserVote(
-        userId: UserId,
-        itemId: String
-    ): UserVote? {
-        val voteId = "${userId.value}_$itemId"
-
-        val document = firestore.collection(VOTES_COLLECTION)
-            .document(voteId)
-            .get()
-            .await()
-
-        return document.toObject<UserVoteDto>()?.let { dto ->
-            UserVoteMapper.toDomain(dto)
-        }
-    }
-
-    suspend fun getUserVotes(
-        userId: UserId,
-        itemType: VoteType?,
-        isUpvote: Boolean?,
-        limit: Int,
-        offset: Int
-    ): List<UserVote> {
-        var query: Query = firestore.collection(VOTES_COLLECTION)
-            .whereEqualTo("userId", userId.value)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-
-        itemType?.let { type ->
-            query = query.whereEqualTo("itemType", type.name)
-        }
-
-        isUpvote?.let { up ->
-            query = query.whereEqualTo("isUpvote", up)
-        }
-
-        query = query.limit(limit.toLong())
-
-        val querySnapshot = query.get().await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<UserVoteDto>()?.let { dto ->
-                    UserVoteMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to parse vote ${document.id}")
-                null
-            }
-        }
-    }
-
-    suspend fun getVoteStatuses(
-        userId: UserId,
-        itemIds: List<String>
-    ): Map<String, UserVote?> {
-        if (itemIds.isEmpty()) return emptyMap()
-
-        val voteIds = itemIds.map { "${userId.value}_$it" }
-        val results = mutableMapOf<String, UserVote?>()
-
-        // Process in chunks to avoid rate limits
-        val chunkedItems = itemIds.chunked(10)
-
-        for (chunk in chunkedItems) {
-            val tasks = chunk.map { itemId ->
-                val voteId = "${userId.value}_$itemId"
-                firestore.collection(VOTES_COLLECTION)
-                    .document(voteId)
-                    .get()
-            }
-
-            tasks.forEachIndexed { index, task ->
-                val itemId = chunk[index]
-                try {
-                    val document = task.await()
-                    val vote = document.toObject<UserVoteDto>()?.let { dto ->
-                        UserVoteMapper.toDomain(dto)
-                    }
-                    results[itemId] = vote
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e, "Failed to get vote status for $itemId")
-                    results[itemId] = null
-                }
-            }
-        }
-
-        return results
-    }
-
-    // ================================================================================================
     // ACTIVITY TRACKING
     // ================================================================================================
 
@@ -430,13 +297,6 @@ class FirestoreUserInteractionDataSource @Inject constructor(private val firesto
                 .get()
                 .await()
 
-            // Get user votes in the time window
-            val votesQuery = firestore.collection(VOTES_COLLECTION)
-                .whereEqualTo("userId", userId.value)
-                .whereGreaterThan("createdAt", Timestamp(cutoffTime / 1000, 0))
-                .get()
-                .await()
-
             // Get user bookmarks in the time window
             val bookmarksQuery = firestore.collection(USERS_COLLECTION)
                 .document(userId.value)
@@ -455,36 +315,21 @@ class FirestoreUserInteractionDataSource @Inject constructor(private val firesto
                 }
             }
 
-            val votes = votesQuery.documents.mapNotNull { doc ->
-                try {
-                    doc.toObject<UserVoteDto>()?.let { dto ->
-                        UserVoteMapper.toDomain(dto)
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-            }
-
-            val upvotes = votes.count { it.isUpvote }
-            val downvotes = votes.count { !it.isUpvote }
             val shares = activities.count { it.type == ActivityType.SHARED }
             val comments = activities.count { it.type == ActivityType.COMMENTED }
             val promoCodesCreated = activities.count { it.type == ActivityType.CREATED_PROMO_CODE }
             val postsCreated = activities.count { it.type == ActivityType.CREATED_POST }
 
-            // Calculate karma (simplified: upvotes * 2 - downvotes + created content * 5)
-            val karmaEarned = (upvotes * 2) - downvotes + ((promoCodesCreated + postsCreated) * 5)
-
             return UserEngagementStats(
                 totalActivities = activities.size,
-                totalUpvotes = upvotes,
-                totalDownvotes = downvotes,
+                totalUpvotes = 0, // TODO: Get from FirebaseVoteDataSource
+                totalDownvotes = 0, // TODO: Get from FirebaseVoteDataSource
                 totalBookmarks = bookmarksQuery.documents.size,
                 totalShares = shares,
                 totalComments = comments,
                 totalPromoCodesCreated = promoCodesCreated,
                 totalPostsCreated = postsCreated,
-                karmaEarned = karmaEarned,
+                karmaEarned = 0, // TODO: Recalculate without votes
                 mostActiveDay = findMostActiveDay(activities),
                 favoriteCategories = findFavoriteCategories(activities),
             )

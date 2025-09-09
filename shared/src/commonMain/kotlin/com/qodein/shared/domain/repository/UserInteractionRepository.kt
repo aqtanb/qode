@@ -5,8 +5,6 @@ import com.qodein.shared.model.BookmarkType
 import com.qodein.shared.model.UserActivity
 import com.qodein.shared.model.UserBookmark
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserVote
-import com.qodein.shared.model.VoteType
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -92,76 +90,6 @@ interface UserInteractionRepository {
         userId: UserId,
         itemId: String
     ): Flow<Boolean>
-
-    // ================================================================================================
-    // VOTE OPERATIONS
-    // ================================================================================================
-
-    /**
-     * Create or update a vote on content.
-     *
-     * @param userId The user ID
-     * @param itemId The content ID (PromoCodeId.value, PostId.value, or CommentId.value)
-     * @param itemType The type of content (PROMO_CODE, POST, or COMMENT)
-     * @param isUpvote true for upvote, false for downvote
-     * @return Flow that emits [UserVote] on successful vote
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun createOrUpdateVote(
-        userId: UserId,
-        itemId: String,
-        itemType: VoteType,
-        isUpvote: Boolean
-    ): Flow<UserVote>
-
-    /**
-     * Remove a user's vote from content.
-     *
-     * @param userId The user ID
-     * @param itemId The content ID
-     * @return Flow that emits [Unit] on successful removal
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun removeVote(
-        userId: UserId,
-        itemId: String
-    ): Flow<Unit>
-
-    /**
-     * Get user's vote on specific content.
-     *
-     * @param userId The user ID
-     * @param itemId The content ID
-     * @return Flow that emits [UserVote] or null if no vote
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun getUserVote(
-        userId: UserId,
-        itemId: String
-    ): Flow<UserVote?>
-
-    /**
-     * Get all votes by a user with filtering.
-     *
-     * @param userId The user ID
-     * @param itemType Filter by content type (optional)
-     * @param isUpvote Filter by vote type (optional) - true for upvotes, false for downvotes
-     * @param limit Maximum number of results
-     * @param offset Pagination offset
-     * @return Flow that emits List<[UserVote]> ordered by creation date (newest first)
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun getUserVotes(
-        userId: UserId,
-        itemType: VoteType? = null,
-        isUpvote: Boolean? = null,
-        limit: Int = 20,
-        offset: Int = 0
-    ): Flow<List<UserVote>>
 
     // ================================================================================================
     // ACTIVITY TRACKING
@@ -258,21 +186,6 @@ interface UserInteractionRepository {
         userId: UserId,
         itemIds: List<String>
     ): Flow<Map<String, Boolean>>
-
-    /**
-     * Get multiple vote statuses at once.
-     * Useful for showing vote states of multiple items in a feed.
-     *
-     * @param userId The user ID
-     * @param itemIds List of content IDs to check
-     * @return Flow that emits Map<String, UserVote?> where key is itemId and value is vote (or null)
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun getVoteStatuses(
-        userId: UserId,
-        itemIds: List<String>
-    ): Flow<Map<String, UserVote?>>
 }
 
 /**

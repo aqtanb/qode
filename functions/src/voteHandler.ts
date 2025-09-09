@@ -4,52 +4,98 @@ import * as admin from 'firebase-admin';
 
 const db = admin.firestore();
 
+/**
+ * Sanitizes a string for use in Firestore document IDs.
+ * Converts to lowercase and replaces invalid characters with underscores.
+ */
+function sanitizeDocumentId(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+/**
+ * Generates a sanitized vote document ID.
+ * Format: {itemid}_{userid}
+ */
+function generateVoteId(itemId: string, userId: string): string {
+  const sanitizedItemId = sanitizeDocumentId(itemId);
+  const sanitizedUserId = sanitizeDocumentId(userId);
+  return `${sanitizedItemId}_${sanitizedUserId}`;
+}
+
+/**
+ * Gets the collection name for the given item type
+ */
+function getCollectionName(itemType: string): string {
+  switch (itemType) {
+    case 'PROMO_CODE': return 'promocodes';
+    case 'POST': return 'posts';
+    case 'COMMENT': return 'comments';
+    case 'PROMO': return 'promos';
+    default: throw new Error(`Unsupported item type: ${itemType}`);
+  }
+}
+
 interface VoteRequest {
-  promoCodeId: string;
-  isUpvote: boolean;
+  itemId: string;
+  itemType: 'PROMO_CODE' | 'POST' | 'COMMENT' |  'PROMO';
+  voteType: 'UPVOTE' | 'DOWNVOTE' | 'REMOVE';
 }
 
 interface VoteResponse {
   success: boolean;
   voteId: string;
-  isUpvote: boolean;
+  currentVote: 'UPVOTE' | 'DOWNVOTE' | null;
   action: 'added' | 'removed' | 'switched';
   newUpvotes: number;
   newDownvotes: number;
 }
 
 /**
- * Callable Function: Handle promo code votes with proper logic.
+ * Callable Function: Handle content votes (PromoCode, Post, Comment, Promo) with proper logic.
  *
  * This function handles all possible vote actions (add, remove, switch)
  * within a single Firestore transaction for data integrity. The logic for
  * updating vote counts is consolidated for a cleaner implementation.
  */
-export const handlePromoCodeVote = onCall<VoteRequest, Promise<VoteResponse>>(
+export const handleContentVote = onCall<VoteRequest, Promise<VoteResponse>>(
   async (request) => {
     // 1. Validate authentication
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Must be authenticated to vote');
     }
 
-    const { promoCodeId, isUpvote } = request.data;
+    const { itemId, itemType, voteType } = request.data;
     const userId = request.auth.uid;
 
     // 2. Validate input
-    if (!promoCodeId || typeof promoCodeId !== 'string') {
-      throw new HttpsError('invalid-argument', 'Valid promoCodeId is required');
+    if (!itemId || typeof itemId !== 'string') {
+      throw new HttpsError('invalid-argument', 'Valid itemId is required');
     }
 
-    if (typeof isUpvote !== 'boolean') {
-      throw new HttpsError('invalid-argument', 'isUpvote must be a boolean');
+    if (!itemType || typeof itemType !== 'string') {
+      throw new HttpsError('invalid-argument', 'Valid itemType is required');
     }
 
-    const voteId = `${promoCodeId}_${userId}`;
+    if (!['PROMO_CODE', 'POST', 'COMMENT', 'PROMO'].includes(itemType)) {
+      throw new HttpsError('invalid-argument', 'Invalid itemType');
+    }
+
+    if (!voteType || !['UPVOTE', 'DOWNVOTE', 'REMOVE'].includes(voteType)) {
+      throw new HttpsError('invalid-argument', 'Valid voteType is required: UPVOTE, DOWNVOTE, or REMOVE');
+    }
+
+    const voteId = generateVoteId(itemId, userId);
+    const collectionName = getCollectionName(itemType);
 
     logger.info('Processing vote request', {
       userId,
-      promoCodeId,
-      isUpvote,
+      itemId,
+      itemType,
+      voteType,
       voteId
     });
 
@@ -57,72 +103,110 @@ export const handlePromoCodeVote = onCall<VoteRequest, Promise<VoteResponse>>(
       // 3. Use transaction for atomic operations
       const result = await db.runTransaction(async (transaction) => {
         const voteRef = db.collection('votes').doc(voteId);
-        const promoCodeRef = db.collection('promocodes').doc(promoCodeId);
+        const contentRef = db.collection(collectionName).doc(itemId);
 
         // Fetch both documents in a single round-trip for efficiency
-        const [voteDoc, promoCodeDoc] = await transaction.getAll(voteRef, promoCodeRef);
+        const [voteDoc, contentDoc] = await transaction.getAll(voteRef, contentRef);
         
-        if (!promoCodeDoc.exists) {
-          throw new HttpsError('not-found', 'Promo code not found');
+        if (!contentDoc.exists) {
+          throw new HttpsError('not-found', `${itemType} not found`);
         }
 
         const existingVote = voteDoc.exists ? voteDoc.data() : null;
-        const promoCodeData = promoCodeDoc.data()!;
-        const currentUpvotes = promoCodeData.upvotes || 0;
-        const currentDownvotes = promoCodeData.downvotes || 0;
+        const contentData = contentDoc.data()!;
+        const currentUpvotes = contentData.upvotes || 0;
+        const currentDownvotes = contentData.downvotes || 0;
 
         let action: 'added' | 'removed' | 'switched';
-
-        // First, determine the action and perform the transaction operation
-        if (!existingVote) {
-          action = 'added';
-          transaction.set(voteRef, {
-            promoCodeId,
-            userId,
-            isUpvote,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-          });
-          logger.info('Adding new vote', { voteId, isUpvote });
-        } else if (existingVote.isUpvote === isUpvote) {
-          action = 'removed';
-          transaction.delete(voteRef);
-          logger.info('Removing existing vote', { voteId, isUpvote });
+        let currentVote: 'UPVOTE' | 'DOWNVOTE' | null = null;
+        
+        // Handle 3-state voting logic
+        if (voteType === 'REMOVE') {
+          if (existingVote) {
+            action = 'removed';
+            transaction.delete(voteRef);
+            logger.info('Removing vote', { voteId });
+          } else {
+            // No vote to remove, return current state
+            return {
+              success: true,
+              voteId,
+              currentVote: null,
+              action: 'removed',
+              newUpvotes: currentUpvotes,
+              newDownvotes: currentDownvotes
+            };
+          }
         } else {
-          action = 'switched';
-          transaction.update(voteRef, {
-            isUpvote,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-          });
-          logger.info('Switching vote', { voteId, from: existingVote.isUpvote, to: isUpvote });
+          // UPVOTE or DOWNVOTE
+          const isUpvote = voteType === 'UPVOTE';
+          currentVote = voteType;
+          
+          if (!existingVote) {
+            action = 'added';
+            transaction.set(voteRef, {
+              itemId,
+              itemType,
+              userId,
+              isUpvote,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            logger.info('Adding new vote', { voteId, voteType });
+          } else if (existingVote.isUpvote === isUpvote) {
+            // Same vote clicked = remove (toggle off)
+            action = 'removed';
+            currentVote = null;
+            transaction.delete(voteRef);
+            logger.info('Toggling off vote', { voteId, voteType });
+          } else {
+            // Different vote = switch
+            action = 'switched';
+            transaction.update(voteRef, {
+              isUpvote,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            logger.info('Switching vote', { voteId, from: existingVote.isUpvote ? 'UPVOTE' : 'DOWNVOTE', to: voteType });
+          }
         }
         
-        // 4. Consolidate vote count changes based on the action
+        // 4. Calculate vote count changes based on the action and vote type
         let upvoteChange = 0;
         let downvoteChange = 0;
 
-        switch (action) {
-          case 'added':
-            upvoteChange = isUpvote ? 1 : 0;
-            downvoteChange = isUpvote ? 0 : 1;
-            break;
-          case 'removed':
-            upvoteChange = isUpvote ? -1 : 0;
-            downvoteChange = isUpvote ? 0 : -1;
-            break;
-          case 'switched':
-            upvoteChange = isUpvote ? 1 : -1;
-            downvoteChange = isUpvote ? -1 : 1;
-            break;
+        if (action === 'added') {
+          if (voteType === 'UPVOTE') {
+            upvoteChange = 1;
+          } else if (voteType === 'DOWNVOTE') {
+            downvoteChange = 1;
+          }
+        } else if (action === 'removed') {
+          if (existingVote) {
+            if (existingVote.isUpvote) {
+              upvoteChange = -1;
+            } else {
+              downvoteChange = -1;
+            }
+          }
+        } else if (action === 'switched') {
+          // Remove old vote and add new vote
+          if (existingVote?.isUpvote) {
+            upvoteChange = -1;
+            downvoteChange = 1;
+          } else {
+            upvoteChange = 1;
+            downvoteChange = -1;
+          }
         }
 
         const newUpvotes = Math.max(0, currentUpvotes + upvoteChange);
         const newDownvotes = Math.max(0, currentDownvotes + downvoteChange);
 
         // Apply vote count changes in a single operation
-        transaction.update(promoCodeRef, {
+        transaction.update(contentRef, {
           upvotes: newUpvotes,
           downvotes: newDownvotes,
+          voteScore: newUpvotes - newDownvotes,
           updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -130,7 +214,7 @@ export const handlePromoCodeVote = onCall<VoteRequest, Promise<VoteResponse>>(
         return {
           success: true,
           voteId,
-          isUpvote,
+          currentVote,
           action,
           newUpvotes,
           newDownvotes
@@ -139,7 +223,8 @@ export const handlePromoCodeVote = onCall<VoteRequest, Promise<VoteResponse>>(
 
       logger.info('Vote processed successfully', {
         userId,
-        promoCodeId,
+        itemId,
+        itemType,
         result
       });
 
@@ -148,8 +233,9 @@ export const handlePromoCodeVote = onCall<VoteRequest, Promise<VoteResponse>>(
     } catch (error) {
       logger.error('Error processing vote', {
         userId,
-        promoCodeId,
-        isUpvote,
+        itemId,
+        itemType,
+        voteType,
         error: error instanceof Error ? error.message : String(error)
       });
 
