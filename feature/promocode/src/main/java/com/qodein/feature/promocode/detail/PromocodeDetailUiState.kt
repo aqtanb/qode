@@ -1,7 +1,10 @@
 package com.qodein.feature.promocode.detail
 
+import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.PromoCode
+
+data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boolean = false)
 
 data class PromocodeDetailUiState(
     // Data State
@@ -18,6 +21,7 @@ data class PromocodeDetailUiState(
     // UI States
     val showVoteAnimation: Boolean = false,
     val lastVoteType: VoteType? = null,
+    val authBottomSheet: AuthBottomSheetState? = null,
 
     // TODO Follow states (as requested by user)
     val isFollowingService: Boolean = false,

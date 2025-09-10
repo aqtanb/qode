@@ -28,6 +28,10 @@ sealed class PromocodeDetailAction {
     data object BackClicked : PromocodeDetailAction()
     data object ServiceClicked : PromocodeDetailAction()
 
+    // Authentication Actions
+    data object SignInWithGoogleClicked : PromocodeDetailAction()
+    data object DismissAuthSheet : PromocodeDetailAction()
+
     // Error Handling Actions
     data object RetryClicked : PromocodeDetailAction()
     data object ErrorDismissed : PromocodeDetailAction()

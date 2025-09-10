@@ -14,6 +14,7 @@ import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetUserVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
@@ -40,7 +41,8 @@ class PromocodeDetailViewModel @Inject constructor(
     private val getUserVoteUseCase: GetUserVoteUseCase,
     private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
     private val analyticsHelper: AnalyticsHelper,
-    private val authStateManager: AuthStateManager
+    private val authStateManager: AuthStateManager,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PromocodeDetailUiState())
@@ -69,6 +71,8 @@ class PromocodeDetailViewModel @Inject constructor(
             is PromocodeDetailAction.FollowCategoryClicked -> handleFollowCategory()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.ServiceClicked -> handleServiceClick()
+            is PromocodeDetailAction.SignInWithGoogleClicked -> handleSignInWithGoogle()
+            is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> handleRetry()
             is PromocodeDetailAction.ErrorDismissed -> dismissError()
         }
@@ -234,13 +238,15 @@ class PromocodeDetailViewModel @Inject constructor(
                     handleAuthenticatedVote(isUpvote, authState.user.id)
                 }
                 is AuthState.Unauthenticated -> {
-                    // User not authenticated - show auth prompt
+                    // User not authenticated - show auth prompt via UI state
                     val authAction = if (isUpvote) {
                         AuthPromptAction.UpvotePromoCode
                     } else {
                         AuthPromptAction.DownvotePromoCode
                     }
-                    _events.emit(PromocodeDetailEvent.ShowAuthenticationRequired(authAction))
+                    _uiState.update {
+                        it.copy(authBottomSheet = AuthBottomSheetState(action = authAction))
+                    }
                 }
                 is AuthState.Loading -> {
                     // Auth state still loading - could show loading or wait
@@ -580,6 +586,69 @@ class PromocodeDetailViewModel @Inject constructor(
             ErrorType.UNKNOWN_ERROR -> true
             else -> false
         }
+
+    private fun handleSignInWithGoogle() {
+        val currentAuthSheet = _uiState.value.authBottomSheet ?: return
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true))
+            }
+
+            try {
+                signInWithGoogleUseCase().collect { result ->
+                    when (result) {
+                        is Result.Loading -> {
+                            // Loading handled by isLoading flag
+                        }
+                        is Result.Success -> {
+                            // Sign-in successful - dismiss auth sheet
+                            _uiState.update { it.copy(authBottomSheet = null) }
+
+                            // Refresh current promocode with user data
+                            val promoCode = _uiState.value.promoCode
+                            if (promoCode != null) {
+                                loadPromocodeWithUser(promoCode.id, result.data.id)
+                            }
+
+                            Logger.d("PromocodeDetailViewModel") { "Sign-in successful" }
+                        }
+                        is Result.Error -> {
+                            // Sign-in failed - show error but keep sheet open
+                            _uiState.update {
+                                it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = false))
+                            }
+
+                            val errorMessage = when {
+                                result.exception.message?.contains("cancelled") == true -> {
+                                    "Sign-in was cancelled"
+                                }
+                                result.exception.message?.contains("network") == true -> {
+                                    "Network error. Please check your connection"
+                                }
+                                else -> "Sign-in failed. Please try again"
+                            }
+
+                            _events.emit(PromocodeDetailEvent.ShowSnackbar(errorMessage))
+                            Logger.e("PromocodeDetailViewModel") {
+                                "Sign-in failed: ${result.exception.message}"
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = false))
+                }
+                _events.emit(PromocodeDetailEvent.ShowSnackbar("Sign-in failed. Please try again."))
+                Logger.e("PromocodeDetailViewModel") { "Sign-in error: ${e.message}" }
+            }
+        }
+    }
+
+    private fun dismissAuthSheet() {
+        _uiState.update { it.copy(authBottomSheet = null) }
+    }
 
     private fun dismissError() {
         _uiState.update { it.copy(errorType = null) }

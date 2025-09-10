@@ -39,6 +39,7 @@ import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeActionErrorCard
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
@@ -112,11 +113,7 @@ fun PromocodeDetailScreen(
                     )
                 }
                 is PromocodeDetailEvent.ShowAuthenticationRequired -> {
-                    // TODO: Handle authentication requirement - show AuthenticationGate
-                    snackbarHostState.showSnackbar(
-                        message = "Please sign in to ${event.action.name.lowercase()}",
-                        duration = SnackbarDuration.Short,
-                    )
+                    // This event is no longer used - authentication is handled via UI state
                 }
             }
         }
@@ -275,6 +272,17 @@ private fun PromocodeDetailContent(
                     Spacer(modifier = Modifier.height(SpacingTokens.md))
                 }
             }
+        }
+
+        // Authentication Bottom Sheet
+        uiState.authBottomSheet?.let { authSheetState ->
+            AuthenticationBottomSheet(
+                action = authSheetState.action,
+                isLoading = authSheetState.isLoading,
+                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
+                onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
+                isDarkTheme = isDarkTheme,
+            )
         }
     }
 }
