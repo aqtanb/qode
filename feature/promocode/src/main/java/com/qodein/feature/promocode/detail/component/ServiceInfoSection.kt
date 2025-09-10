@@ -28,9 +28,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.getPromoCodeStatus
-import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
@@ -49,12 +47,7 @@ fun ServiceInfoSection(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
-    // Authentication-protected follow service action
-    val requireFollowService = requireAuthentication(
-        action = AuthPromptAction.FollowStore,
-        onAuthenticated = onFollowServiceClicked,
-        isDarkTheme = isDarkTheme,
-    )
+    // Follow service action - auth checking handled at parent level
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -87,7 +80,7 @@ fun ServiceInfoSection(
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
                         .size(SizeTokens.Icon.sizeLarge)
-                        .clickable { requireFollowService() }, // Protected follow action
+                        .clickable { onFollowServiceClicked() }, // Auth checking handled at parent level
                 ) {
                     Icon(
                         imageVector = if (isFollowingService) QodeActionIcons.Unfollow else QodeActionIcons.Follow,

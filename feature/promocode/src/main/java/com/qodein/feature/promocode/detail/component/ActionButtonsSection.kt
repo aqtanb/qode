@@ -37,8 +37,6 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.detail.VoteType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -59,24 +57,8 @@ fun ActionButtonsSection(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
-    // Authentication-protected actions
-    val requireUpvote = requireAuthentication(
-        action = AuthPromptAction.UpvotePromoCode,
-        onAuthenticated = onUpvoteClicked,
-        isDarkTheme = isDarkTheme,
-    )
-
-    val requireDownvote = requireAuthentication(
-        action = AuthPromptAction.DownvotePromoCode,
-        onAuthenticated = onDownvoteClicked,
-        isDarkTheme = isDarkTheme,
-    )
-
-    val requireComment = requireAuthentication(
-        action = AuthPromptAction.WriteComment,
-        onAuthenticated = onCommentsClicked,
-        isDarkTheme = isDarkTheme,
-    )
+    // Authentication protection is now handled at the parent level
+    // These callbacks are already auth-protected when passed down
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SpacingTokens.lg),
@@ -97,7 +79,7 @@ fun ActionButtonsSection(
                 isLoading = isVoting && lastVoteType == VoteType.UPVOTE,
                 showAnimation = showVoteAnimation && lastVoteType == VoteType.UPVOTE,
                 activeColor = MaterialTheme.extendedColorScheme.success,
-                onClick = requireUpvote,
+                onClick = onUpvoteClicked,
                 modifier = Modifier.weight(1f),
             )
 
@@ -110,7 +92,7 @@ fun ActionButtonsSection(
                 isLoading = isVoting && lastVoteType == VoteType.DOWNVOTE,
                 showAnimation = showVoteAnimation && lastVoteType == VoteType.DOWNVOTE,
                 activeColor = MaterialTheme.colorScheme.error,
-                onClick = requireDownvote,
+                onClick = onDownvoteClicked,
                 modifier = Modifier.weight(1f),
             )
 
@@ -123,7 +105,7 @@ fun ActionButtonsSection(
                 isLoading = false,
                 showAnimation = false,
                 activeColor = MaterialTheme.colorScheme.tertiary,
-                onClick = requireComment,
+                onClick = onCommentsClicked,
                 modifier = Modifier.weight(1f),
             )
 

@@ -1,29 +1,24 @@
 package com.qodein.core.data.repository
 
-import com.qodein.core.data.datasource.FirebaseVoteDataSource
-import com.qodein.core.data.datasource.FirestorePromoCodeDataSource
+import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.shared.domain.repository.PromoCodeRepository
-import com.qodein.shared.domain.repository.VoteType
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.qodein.core.data.datasource.VoteType as DataSourceVoteType
 
 @Singleton
-class PromoCodeRepositoryImpl @Inject constructor(
-    private val promoCodeDataSource: FirestorePromoCodeDataSource,
-    private val serviceDataSource: FirestoreServiceDataSource,
-    private val voteDataSource: FirebaseVoteDataSource
+class PromocodeRepositoryImpl @Inject constructor(
+    private val promoCodeDataSource: FirestorePromocodeDataSource,
+    private val serviceDataSource: FirestoreServiceDataSource
 ) : PromoCodeRepository {
 
     override fun createPromoCode(promoCode: PromoCode): Flow<PromoCode> =
@@ -69,28 +64,6 @@ class PromoCodeRepositoryImpl @Inject constructor(
         flow {
             promoCodeDataSource.deletePromoCode(id)
             emit(Unit)
-        }
-
-    override fun voteOnPromoCode(
-        promoCodeId: PromoCodeId,
-        userId: UserId,
-        voteType: VoteType?
-    ): Flow<PromoCodeVote?> =
-        flow {
-            val dataSourceVoteType = when (voteType) {
-                VoteType.UPVOTE -> DataSourceVoteType.UPVOTE
-                VoteType.DOWNVOTE -> DataSourceVoteType.DOWNVOTE
-                null -> DataSourceVoteType.REMOVE
-            }
-            emit(voteDataSource.voteOnPromoCode(promoCodeId, userId, dataSourceVoteType))
-        }
-
-    override fun getUserVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ): Flow<PromoCodeVote?> =
-        flow {
-            emit(voteDataSource.getUserVote(promoCodeId.value, userId))
         }
 
     override fun incrementViewCount(id: PromoCodeId): Flow<Unit> =

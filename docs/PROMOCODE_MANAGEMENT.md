@@ -28,8 +28,8 @@ Comprehensive promo code management system with type-safe sealed classes, Fireba
 - `core/domain/usecase/promocode/AddCommentUseCase.kt` - Community interaction
 
 ### Data Layer
-- `core/data/repository/PromoCodeRepositoryImpl.kt` - Repository implementation with Firestore
-- `core/data/datasource/FirestorePromoCodeDataSource.kt` - Firebase data access layer
+- `core/data/repository/PromocodeRepositoryImpl.kt` - Repository implementation with Firestore
+- `core/data/datasource/FirestorePromocodeDataSource.kt` - Firebase data access layer
 - `core/data/mapper/PromoCodeMapper.kt` - DTO to domain model mapping
 - `core/data/model/PromoCodeDto.kt` - Data transfer objects for Firebase
 

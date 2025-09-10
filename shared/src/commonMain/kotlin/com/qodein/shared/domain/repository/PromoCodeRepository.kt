@@ -5,15 +5,9 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
-
-enum class VoteType {
-    UPVOTE,
-    DOWNVOTE
-}
 
 /**
  * Repository interface for PromoCode operations.
@@ -101,37 +95,6 @@ interface PromoCodeRepository {
      * @throws java.lang.SecurityException when user lacks permission to delete
      */
     fun deletePromoCode(id: PromoCodeId): Flow<Unit>
-
-    /**
-     * Vote on a promo code (upvote or downvote).
-     *
-     * @param promoCodeId The promo code ID
-     * @param userId The user ID casting the vote
-     * @param isUpvote true for upvote, false for downvote
-     * @return Flow that emits [com.qodein.shared.model.PromoCodeVote] on successful vote, or null when vote is removed
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     * @throws IllegalArgumentException when user already voted
-     */
-    fun voteOnPromoCode(
-        promoCodeId: PromoCodeId,
-        userId: UserId,
-        voteType: VoteType?
-    ): Flow<PromoCodeVote?>
-
-    /**
-     * Get user's vote on a specific promo code.
-     *
-     * @param promoCodeId The promo code ID
-     * @param userId The user ID
-     * @return Flow that emits [com.qodein.shared.model.PromoCodeVote] or null if no vote
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Firestore is unavailable
-     */
-    fun getUserVote(
-        promoCodeId: PromoCodeId,
-        userId: UserId
-    ): Flow<PromoCodeVote?>
 
     /**
      * Increment view count for a promo code.

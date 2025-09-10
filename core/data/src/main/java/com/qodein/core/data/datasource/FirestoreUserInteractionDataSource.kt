@@ -322,8 +322,8 @@ class FirestoreUserInteractionDataSource @Inject constructor(private val firesto
 
             return UserEngagementStats(
                 totalActivities = activities.size,
-                totalUpvotes = 0, // TODO: Get from FirebaseVoteDataSource
-                totalDownvotes = 0, // TODO: Get from FirebaseVoteDataSource
+                totalUpvotes = 0, // TODO: Get from FirestoreVoteDataSource
+                totalDownvotes = 0, // TODO: Get from FirestoreVoteDataSource
                 totalBookmarks = bookmarksQuery.documents.size,
                 totalShares = shares,
                 totalComments = comments,

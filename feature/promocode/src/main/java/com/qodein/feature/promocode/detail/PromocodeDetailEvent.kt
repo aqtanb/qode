@@ -1,5 +1,6 @@
 package com.qodein.feature.promocode.detail
 
+import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 
@@ -17,6 +18,9 @@ sealed class PromocodeDetailEvent {
     // UI Feedback Events
     data class ShowSnackbar(val message: String) : PromocodeDetailEvent()
     data class ShowVoteFeedback(val isUpvote: Boolean) : PromocodeDetailEvent()
+
+    // Authentication Events
+    data class ShowAuthenticationRequired(val action: AuthPromptAction) : PromocodeDetailEvent()
 
     // Follow Events (TODO implementations as requested)
     data class ShowFollowServiceTodo(val serviceName: String) : PromocodeDetailEvent()

@@ -26,7 +26,7 @@ import javax.inject.Singleton
 private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
 
 @Singleton
-class FirestorePromoCodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
+class FirestorePromocodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"

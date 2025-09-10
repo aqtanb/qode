@@ -10,9 +10,10 @@ import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.CommentRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PostRepositoryImpl
-import com.qodein.core.data.repository.PromoCodeRepositoryImpl
 import com.qodein.core.data.repository.PromoRepositoryImpl
+import com.qodein.core.data.repository.PromocodeRepositoryImpl
 import com.qodein.core.data.repository.UserInteractionRepositoryImpl
+import com.qodein.core.data.repository.VoteRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.CommentRepository
@@ -21,6 +22,7 @@ import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromoCodeRepository
 import com.qodein.shared.domain.repository.PromoRepository
 import com.qodein.shared.domain.repository.UserInteractionRepository
+import com.qodein.shared.domain.repository.VoteRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,7 +40,7 @@ abstract class DataModule {
 
     @Binds
     @Singleton
-    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromoCodeRepositoryImpl): PromoCodeRepository
+    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromocodeRepositoryImpl): PromoCodeRepository
 
     @Binds
     @Singleton
@@ -65,6 +67,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindUserInteractionRepository(userInteractionRepositoryImpl: UserInteractionRepositoryImpl): UserInteractionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVoteRepository(voteRepositoryImpl: VoteRepositoryImpl): VoteRepository
 
     companion object {
         @Provides

@@ -40,7 +40,6 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
-    implementation(projects.feature.auth)
 
     implementation(projects.core.data)
 

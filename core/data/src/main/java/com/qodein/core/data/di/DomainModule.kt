@@ -6,6 +6,7 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.CommentRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.VoteRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -94,8 +95,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideVoteOnPromoCodeUseCase(promoCodeRepository: PromoCodeRepository): VoteOnPromoCodeUseCase =
-        VoteOnPromoCodeUseCase(promoCodeRepository)
+    fun provideVoteOnPromoCodeUseCase(voteRepository: VoteRepository): VoteOnPromoCodeUseCase = VoteOnPromoCodeUseCase(voteRepository)
 
     @Provides
     @Singleton
@@ -104,7 +104,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideGetUserVoteUseCase(promoCodeRepository: PromoCodeRepository): GetUserVoteUseCase = GetUserVoteUseCase(promoCodeRepository)
+    fun provideGetUserVoteUseCase(voteRepository: VoteRepository): GetUserVoteUseCase = GetUserVoteUseCase(voteRepository)
 
     @Provides
     @Singleton

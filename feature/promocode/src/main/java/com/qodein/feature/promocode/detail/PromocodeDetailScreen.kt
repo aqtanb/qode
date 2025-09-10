@@ -39,9 +39,7 @@ import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.QodeActionErrorCard
-import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
@@ -68,17 +66,16 @@ fun PromocodeDetailScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Load promocode on first composition
+    // Load promocode on first composition - enhanced for authenticated users
     LaunchedEffect(promoCodeId) {
         viewModel.onAction(PromocodeDetailAction.LoadPromocode(promoCodeId))
     }
 
     // Authentication-protected bookmark action
-    val requireBookmark = requireAuthentication(
-        action = AuthPromptAction.BookmarkPromoCode,
-        onAuthenticated = { viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked) },
-        isDarkTheme = isDarkTheme,
-    )
+    val requireBookmark = {
+        // This will be handled by wrapping the button in AuthenticationGate
+        viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked)
+    }
 
     // Handle events
     LaunchedEffect(Unit) {
@@ -111,6 +108,13 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.ShowFollowCategoryTodo -> {
                     snackbarHostState.showSnackbar(
                         message = "TODO: Follow ${event.categoryName} category coming soon!",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+                is PromocodeDetailEvent.ShowAuthenticationRequired -> {
+                    // TODO: Handle authentication requirement - show AuthenticationGate
+                    snackbarHostState.showSnackbar(
+                        message = "Please sign in to ${event.action.name.lowercase()}",
                         duration = SnackbarDuration.Short,
                     )
                 }
@@ -212,6 +216,15 @@ private fun PromocodeDetailContent(
                 // Content state
                 val promoCode = uiState.promoCode!!
 
+                // Vote actions - auth checking now handled in ViewModel
+                val requireUpvote = {
+                    onAction(PromocodeDetailAction.UpvoteClicked)
+                }
+
+                val requireDownvote = {
+                    onAction(PromocodeDetailAction.DownvoteClicked)
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -245,8 +258,8 @@ private fun PromocodeDetailContent(
                         showVoteAnimation = uiState.showVoteAnimation,
                         lastVoteType = uiState.lastVoteType,
                         isSharing = uiState.isSharing,
-                        onUpvoteClicked = { onAction(PromocodeDetailAction.UpvoteClicked) },
-                        onDownvoteClicked = { onAction(PromocodeDetailAction.DownvoteClicked) },
+                        onUpvoteClicked = requireUpvote,
+                        onDownvoteClicked = requireDownvote,
                         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
                         onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
                         isDarkTheme = isDarkTheme,

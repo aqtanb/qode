@@ -15,11 +15,11 @@ Comprehensive data layer following clean architecture principles with Firebase i
 
 ### Repository Implementations
 - `core/data/repository/AuthRepositoryImpl.kt` - Authentication data operations with Firebase Auth
-- `core/data/repository/PromoCodeRepositoryImpl.kt` - PromoCode CRUD operations with Firestore
+- `core/data/repository/PromocodeRepositoryImpl.kt` - PromoCode CRUD operations with Firestore
 
 ### Data Sources
 - `core/data/datasource/FirebaseGoogleAuthService.kt` - Google Sign-In with Credential Manager API
-- `core/data/datasource/FirestorePromoCodeDataSource.kt` - Firestore operations with complex queries
+- `core/data/datasource/FirestorePromocodeDataSource.kt` - Firestore operations with complex queries
 
 ### Data Mapping
 - `core/data/mapper/PromoCodeMapper.kt` - Bidirectional mapping between domain and DTO models

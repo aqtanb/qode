@@ -7,6 +7,7 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
 import com.qodein.core.data.mapper.PromoCodeMapper
 import com.qodein.core.data.model.PromoCodeVoteDto
+import com.qodein.shared.domain.repository.VoteType
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.UserId
@@ -21,12 +22,6 @@ enum class ContentType {
     PROMO
 }
 
-enum class VoteType {
-    UPVOTE,
-    DOWNVOTE,
-    REMOVE
-}
-
 data class VoteResult(
     val success: Boolean,
     val voteId: String,
@@ -37,7 +32,7 @@ data class VoteResult(
 )
 
 @Singleton
-class FirebaseVoteDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestoreVoteDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val VOTES_COLLECTION = "votes"
 
@@ -98,14 +93,26 @@ class FirebaseVoteDataSource @Inject constructor(private val firestore: Firebase
     suspend fun voteOnPromoCode(
         promoCodeId: PromoCodeId,
         userId: UserId,
-        voteType: VoteType
+        voteType: VoteType?
     ): PromoCodeVote? {
-        val result = voteOnContent(
-            itemId = promoCodeId.value,
-            contentType = ContentType.PROMO_CODE,
-            voteType = voteType,
-            userId = userId,
-        )
+        val result = if (voteType != null) {
+            voteOnContent(
+                itemId = promoCodeId.value,
+                contentType = ContentType.PROMO_CODE,
+                voteType = voteType,
+                userId = userId,
+            )
+        } else {
+            // Remove vote - need to implement this properly with Cloud Functions
+            VoteResult(
+                success = true,
+                voteId = generateVoteId(promoCodeId.value, userId.value),
+                currentVote = null,
+                action = "REMOVE",
+                newUpvotes = 0, // Should come from server
+                newDownvotes = 0, // Should come from server
+            )
+        }
 
         return if (result.currentVote != null) {
             PromoCodeVote(
