@@ -16,8 +16,8 @@ import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
-import com.qodein.shared.domain.usecase.promocode.GetUserVoteUseCase
-import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeVoteUseCase
+import com.qodein.shared.domain.usecase.promocode.VoteOnPromocodeUseCase
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeVote
@@ -38,8 +38,8 @@ import com.qodein.shared.domain.repository.VoteType as RepositoryVoteType
 @HiltViewModel
 class PromocodeDetailViewModel @Inject constructor(
     private val getPromoCodeByIdUseCase: GetPromoCodeByIdUseCase,
-    private val getUserVoteUseCase: GetUserVoteUseCase,
-    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
+    private val getPromoCodeVoteUseCase: GetPromocodeVoteUseCase,
+    private val voteOnPromoCodeUseCase: VoteOnPromocodeUseCase,
     private val analyticsHelper: AnalyticsHelper,
     private val authStateManager: AuthStateManager,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
@@ -150,7 +150,7 @@ class PromocodeDetailViewModel @Inject constructor(
         userId: UserId
     ) {
         try {
-            val voteResult = getUserVoteUseCase(promoCode.id, userId).first()
+            val voteResult = getPromoCodeVoteUseCase(promoCode.id, userId).first()
             when (voteResult) {
                 is Result.Success -> {
                     val userVote = voteResult.data

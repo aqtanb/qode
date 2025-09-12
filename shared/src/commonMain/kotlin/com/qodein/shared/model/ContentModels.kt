@@ -336,35 +336,6 @@ sealed class PromoCode {
     }
 }
 
-@Serializable
-data class PromoCodeVote(
-    val id: String,
-    val promoCodeId: PromoCodeId,
-    val userId: UserId,
-    val isUpvote: Boolean,
-    val votedAt: Instant = Clock.System.now()
-) {
-    companion object {
-        fun create(
-            promoCodeId: PromoCodeId,
-            userId: UserId,
-            isUpvote: Boolean
-        ): PromoCodeVote =
-            PromoCodeVote(
-                id = generateId(promoCodeId.value, userId.value, isUpvote),
-                promoCodeId = promoCodeId,
-                userId = userId,
-                isUpvote = isUpvote,
-            )
-
-        private fun generateId(
-            promoCodeId: String,
-            userId: String,
-            isUpvote: Boolean
-        ): String = "${promoCodeId}_${userId}_${if (isUpvote) "up" else "down"}"
-    }
-}
-
 // ================================================================================================
 // COMMENT MODELS
 // ================================================================================================

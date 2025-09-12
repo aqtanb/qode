@@ -21,9 +21,9 @@ Comprehensive promo code management system with type-safe sealed classes, Fireba
 - `core/domain/usecase/promocode/CreatePromoCodeUseCase.kt` - Business logic for creating promo codes
 - `core/domain/usecase/promocode/GetPromoCodesUseCase.kt` - Retrieval with filtering and sorting
 - `core/domain/usecase/promocode/SearchPromoCodesUseCase.kt` - Full-text search capabilities
-- `core/domain/usecase/promocode/VoteOnPromoCodeUseCase.kt` - Community voting logic
+- `core/domain/usecase/promocode/VoteOnPromocodeUseCase.kt` - Community voting logic
 - `core/domain/usecase/promocode/ValidatePromoCodeUseCase.kt` - Validation business rules
-- `core/domain/usecase/promocode/GetUserVoteUseCase.kt` - User vote retrieval
+- `core/domain/usecase/promocode/GetPromocodeVoteUseCase.kt` - User vote retrieval
 - `core/domain/usecase/promocode/IncrementViewCountUseCase.kt` - Analytics tracking
 - `core/domain/usecase/promocode/AddCommentUseCase.kt` - Community interaction
 

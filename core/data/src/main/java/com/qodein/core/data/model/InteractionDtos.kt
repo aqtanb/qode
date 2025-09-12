@@ -49,8 +49,8 @@ data class UserBookmarkDto(
 }
 
 /**
- * Firestore document model for UserVote.
- * Stored in item subcollections: /promocodes/{id}/votes/{userId}, /posts/{id}/votes/{userId}, /comments/{id}/votes/{userId}
+ * Firestore document model for unified Vote.
+ * Stored in unified collection: /votes/{itemId}_{userId}
  */
 data class UserVoteDto(
     @DocumentId
@@ -63,10 +63,10 @@ data class UserVoteDto(
     val itemId: String = "",
 
     @PropertyName("itemType")
-    val itemType: String = "", // "PROMO_CODE", "POST", or "COMMENT"
+    val itemType: String = "", // "PROMO_CODE", "POST", "COMMENT", "PROMO"
 
-    @PropertyName("isUpvote")
-    val isUpvote: Boolean = false,
+    @PropertyName("voteState")
+    val voteState: String? = null, // "UPVOTE", "DOWNVOTE", "NONE"
 
     @PropertyName("createdAt")
     @ServerTimestamp
@@ -82,7 +82,7 @@ data class UserVoteDto(
         userId = "",
         itemId = "",
         itemType = "",
-        isUpvote = false,
+        voteState = null,
         createdAt = null,
         updatedAt = null,
     )

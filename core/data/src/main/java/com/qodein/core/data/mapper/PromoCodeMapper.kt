@@ -2,10 +2,8 @@ package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
 import com.qodein.core.data.model.PromoCodeDto
-import com.qodein.core.data.model.PromoCodeVoteDto
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlin.time.Clock
@@ -147,22 +145,4 @@ object PromoCodeMapper {
                 isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
             )
         }
-
-    fun voteToDomain(dto: PromoCodeVoteDto): PromoCodeVote =
-        PromoCodeVote(
-            id = dto.id,
-            promoCodeId = PromoCodeId(dto.promoCodeId),
-            userId = UserId(dto.userId),
-            isUpvote = dto.isUpvote,
-            votedAt = dto.votedAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-        )
-
-    fun voteToDto(domain: PromoCodeVote): PromoCodeVoteDto =
-        PromoCodeVoteDto(
-            id = domain.id,
-            promoCodeId = domain.promoCodeId.value,
-            userId = domain.userId.value,
-            isUpvote = domain.isUpvote,
-            votedAt = Timestamp(domain.votedAt.toJavaInstant()),
-        )
 }

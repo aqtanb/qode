@@ -4,15 +4,19 @@ import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.asResult
 import com.qodein.shared.domain.repository.VoteRepository
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.UserId
+import com.qodein.shared.model.Vote
+import com.qodein.shared.model.VoteType
 import kotlinx.coroutines.flow.Flow
 
-class GetUserVoteUseCase constructor(private val voteRepository: VoteRepository) {
+class GetPromocodeVoteUseCase(private val voteRepository: VoteRepository) {
     operator fun invoke(
         promoCodeId: PromoCodeId,
         userId: UserId
-    ): Flow<Result<PromoCodeVote?>> =
-        voteRepository.getUserVote(promoCodeId, userId)
-            .asResult()
+    ): Flow<Result<Vote?>> =
+        voteRepository.getUserVote(
+            itemId = promoCodeId.value,
+            itemType = VoteType.PROMO_CODE,
+            userId = userId,
+        ).asResult()
 }

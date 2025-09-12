@@ -28,7 +28,7 @@ Dynamic home feed with hero banners, filter carousel, and infinite scroll promo 
 
 ### Business Logic
 - `core/domain/usecase/promocode/GetPromoCodesUseCase.kt` - Feed data retrieval with sorting
-- `core/domain/usecase/promocode/VoteOnPromoCodeUseCase.kt` - Community voting logic
+- `core/domain/usecase/promocode/VoteOnPromocodeUseCase.kt` - Community voting logic
 
 ## Feed Architecture
 

@@ -58,16 +58,16 @@ enum class BookmarkType {
 }
 
 /**
- * Represents a user's vote on content (promo codes, posts, or comments).
- * Stored in item's subcollection: /promocodes/{id}/votes/{userId} or /posts/{id}/votes/{userId}
+ * Unified vote model for all content types (promo codes, posts, comments, promos).
+ * Stored in unified collection: /votes/{sanitized_itemId}_{sanitized_userId}
  */
 @Serializable
-data class UserVote(
-    val id: String, // Generated: userId_itemId
+data class Vote(
+    val id: String, // Generated: sanitized_itemId_sanitized_userId
     val userId: UserId,
-    val itemId: String, // PromoCodeId.value, PostId.value, or CommentId.value
+    val itemId: String, // ID of the content being voted on
     val itemType: VoteType,
-    val isUpvote: Boolean, // true = upvote, false = downvote
+    val voteState: VoteState,
     val createdAt: Instant = Clock.System.now(),
     val updatedAt: Instant = Clock.System.now()
 ) {
@@ -80,28 +80,63 @@ data class UserVote(
             userId: UserId,
             itemId: String,
             itemType: VoteType,
-            isUpvote: Boolean
-        ): UserVote =
-            UserVote(
-                id = generateId(userId.value, itemId),
+            voteState: VoteState
+        ): Vote =
+            Vote(
+                id = generateId(itemId, userId.value),
                 userId = userId,
                 itemId = itemId,
                 itemType = itemType,
-                isUpvote = isUpvote,
+                voteState = voteState,
             )
 
         private fun generateId(
-            userId: String,
-            itemId: String
-        ): String = "${userId}_$itemId"
+            itemId: String,
+            userId: String
+        ): String {
+            val sanitizedItemId = itemId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
+            val sanitizedUserId = userId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
+            return "${sanitizedItemId}_$sanitizedUserId"
+        }
     }
+
+    /**
+     * Toggle upvote: NONE/DOWNVOTE -> UPVOTE, UPVOTE -> NONE
+     */
+    fun toggleUpvote(): VoteState =
+        when (voteState) {
+            VoteState.UPVOTE -> VoteState.NONE
+            VoteState.DOWNVOTE, VoteState.NONE -> VoteState.UPVOTE
+        }
+
+    /**
+     * Toggle downvote: NONE/UPVOTE -> DOWNVOTE, DOWNVOTE -> NONE
+     */
+    fun toggleDownvote(): VoteState =
+        when (voteState) {
+            VoteState.DOWNVOTE -> VoteState.NONE
+            VoteState.UPVOTE, VoteState.NONE -> VoteState.DOWNVOTE
+        }
+
+    /**
+     * Remove vote: Any state -> NONE
+     */
+    fun remove(): VoteState = VoteState.NONE
+}
+
+@Serializable
+enum class VoteState {
+    UPVOTE, // User has upvoted
+    DOWNVOTE, // User has downvoted
+    NONE // User has no vote (removed or never voted)
 }
 
 @Serializable
 enum class VoteType {
     PROMO_CODE,
     POST,
-    COMMENT
+    COMMENT,
+    PROMO
 }
 
 /**

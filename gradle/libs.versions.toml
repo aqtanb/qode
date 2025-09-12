@@ -1,6 +1,6 @@
 [versions]
 # Build Tools & SDK
-agp = "8.11.1"
+agp = "8.11.2"
 kotlin = "2.2.10"
 ksp = "2.2.10-2.0.2"
 

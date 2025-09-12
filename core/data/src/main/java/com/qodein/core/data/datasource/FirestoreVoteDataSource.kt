@@ -5,43 +5,31 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
-import com.qodein.core.data.mapper.PromoCodeMapper
-import com.qodein.core.data.model.PromoCodeVoteDto
-import com.qodein.shared.domain.repository.VoteType
-import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
+import com.qodein.core.data.mapper.VoteMapper
+import com.qodein.core.data.model.UserVoteDto
 import com.qodein.shared.model.UserId
+import com.qodein.shared.model.Vote
+import com.qodein.shared.model.VoteState
+import com.qodein.shared.model.VoteType
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-enum class ContentType {
-    PROMO_CODE,
-    POST,
-    COMMENT,
-    PROMO
-}
-
-data class VoteResult(
-    val success: Boolean,
-    val voteId: String,
-    val currentVote: VoteType?,
-    val action: String,
-    val newUpvotes: Int,
-    val newDownvotes: Int
-)
+// TODO: Improve error handling
 
 @Singleton
-class FirestoreVoteDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestoreVoteDataSource @Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val functions: FirebaseFunctions = Firebase.functions
+) {
     companion object {
         private const val VOTES_COLLECTION = "votes"
 
-        private fun sanitizeDocumentId(input: String): String =
-            input
-                .lowercase()
-                .replace(Regex("[^a-z0-9_-]"), "_")
-                .replace(Regex("_{2,}"), "_")
-                .replace(Regex("^_+|_+$"), "")
+        private fun sanitizeDocumentId(input: String): String = input.replace(Regex("[^a-zA-Z0-9_-]"), "_")
 
         private fun generateVoteId(
             itemId: String,
@@ -53,95 +41,90 @@ class FirestoreVoteDataSource @Inject constructor(private val firestore: Firebas
         }
     }
 
-    private val functions: FirebaseFunctions = Firebase.functions
-
     /**
-     * Generic voting method for all content types using 3-state voting
+     * Vote on any content type with 3-state voting support.
+     * Uses Firebase Cloud Functions for atomic transactions.
      */
     suspend fun voteOnContent(
         itemId: String,
-        contentType: ContentType,
-        voteType: VoteType,
-        userId: UserId
-    ): VoteResult {
-        val data = hashMapOf(
-            "itemId" to itemId,
-            "itemType" to contentType.name,
-            "voteType" to voteType.name,
-        )
-
-        val result = functions
-            .getHttpsCallable("handleContentVote")
-            .call(data)
-            .await()
-
-        val resultData = result.data as Map<String, Any>
-
-        return VoteResult(
-            success = resultData["success"] as Boolean,
-            voteId = resultData["voteId"] as String,
-            currentVote = (resultData["currentVote"] as String?)?.let { VoteType.valueOf(it) },
-            action = resultData["action"] as String,
-            newUpvotes = (resultData["newUpvotes"] as Long).toInt(),
-            newDownvotes = (resultData["newDownvotes"] as Long).toInt(),
-        )
-    }
-
-    /**
-     * Specific method for PromoCode voting (for backwards compatibility with existing UI)
-     */
-    suspend fun voteOnPromoCode(
-        promoCodeId: PromoCodeId,
+        itemType: VoteType,
         userId: UserId,
-        voteType: VoteType?
-    ): PromoCodeVote? {
-        val result = if (voteType != null) {
-            voteOnContent(
-                itemId = promoCodeId.value,
-                contentType = ContentType.PROMO_CODE,
-                voteType = voteType,
-                userId = userId,
+        targetVoteState: VoteState
+    ): Vote? {
+        try {
+            val data = hashMapOf(
+                "itemId" to itemId,
+                "itemType" to itemType.name,
+                "userId" to userId.value,
+                "voteState" to targetVoteState.name,
             )
-        } else {
-            // Remove vote - need to implement this properly with Cloud Functions
-            VoteResult(
-                success = true,
-                voteId = generateVoteId(promoCodeId.value, userId.value),
-                currentVote = null,
-                action = "REMOVE",
-                newUpvotes = 0, // Should come from server
-                newDownvotes = 0, // Should come from server
-            )
-        }
 
-        return if (result.currentVote != null) {
-            PromoCodeVote(
-                id = result.voteId,
-                promoCodeId = promoCodeId,
-                userId = userId,
-                isUpvote = result.currentVote == VoteType.UPVOTE,
-            )
-        } else {
-            null
+            val result = functions
+                .getHttpsCallable("handleVote")
+                .call(data)
+                .await()
+
+            val resultData = result.data as? Map<String, Any>
+                ?: throw IOException("Invalid Cloud Function response")
+
+            if (resultData["success"] != true) {
+                throw IOException("Vote operation failed: ${resultData["error"]}")
+            }
+
+            // Return updated vote or null if removed
+            val voteState = resultData["voteState"] as? String
+            return if (voteState == "NONE" || voteState == null) {
+                null
+            } else {
+                Vote.create(
+                    userId = userId,
+                    itemId = itemId,
+                    itemType = itemType,
+                    voteState = VoteState.valueOf(voteState),
+                )
+            }
+        } catch (e: Exception) {
+            throw IOException("Failed to vote on content: ${e.message}", e)
         }
     }
 
     /**
-     * Get current vote for any content type
+     * Get user's current vote on any content type.
+     * Returns real-time updates via Firestore listener.
      */
-    suspend fun getUserVote(
+    fun getUserVote(
         itemId: String,
+        itemType: VoteType,
         userId: UserId
-    ): PromoCodeVote? {
-        val voteId = generateVoteId(itemId, userId.value)
+    ): Flow<Vote?> =
+        callbackFlow {
+            val voteId = generateVoteId(itemId, userId.value)
 
-        val document = firestore.collection(VOTES_COLLECTION)
-            .document(voteId)
-            .get()
-            .await()
+            val listener = firestore.collection(VOTES_COLLECTION)
+                .document(voteId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(IOException("Failed to get user vote: ${error.message}", error))
+                        return@addSnapshotListener
+                    }
 
-        return document.toObject<PromoCodeVoteDto>()?.let { dto ->
-            PromoCodeMapper.voteToDomain(dto)
+                    try {
+                        if (snapshot?.exists() == true) {
+                            val dto = snapshot.toObject<UserVoteDto>()
+                            if (dto != null) {
+                                val vote = VoteMapper.toDomain(dto)
+                                trySend(vote)
+                            } else {
+                                trySend(null)
+                            }
+                        } else {
+                            trySend(null)
+                        }
+                    } catch (e: Exception) {
+                        close(IOException("Failed to parse vote data: ${e.message}", e))
+                    }
+                }
+
+            awaitClose { listener.remove() }
         }
-    }
 }
