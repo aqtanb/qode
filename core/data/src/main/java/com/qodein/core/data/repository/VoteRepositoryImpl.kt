@@ -22,7 +22,6 @@ class VoteRepositoryImpl @Inject constructor(private val voteDataSource: Firesto
 
     override fun getUserVote(
         itemId: String,
-        itemType: VoteType,
         userId: UserId
-    ): Flow<Vote?> = voteDataSource.getUserVote(itemId, itemType, userId)
+    ): Flow<Vote?> = voteDataSource.getUserVote(itemId, userId)
 }

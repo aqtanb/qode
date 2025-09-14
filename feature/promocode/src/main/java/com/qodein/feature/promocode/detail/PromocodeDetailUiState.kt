@@ -3,6 +3,7 @@ package com.qodein.feature.promocode.detail
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.VoteState
 
 data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boolean = false)
 
@@ -20,7 +21,7 @@ data class PromocodeDetailUiState(
 
     // UI States
     val showVoteAnimation: Boolean = false,
-    val lastVoteType: VoteType? = null,
+    val lastVoteType: VoteState? = null,
     val authBottomSheet: AuthBottomSheetState? = null,
 
     // TODO Follow states (as requested by user)
@@ -30,9 +31,4 @@ data class PromocodeDetailUiState(
     val hasError: Boolean get() = errorType != null
     val hasData: Boolean get() = promoCode != null
     val isEmpty: Boolean get() = !isLoading && !hasError && !hasData
-}
-
-enum class VoteType {
-    UPVOTE,
-    DOWNVOTE
 }

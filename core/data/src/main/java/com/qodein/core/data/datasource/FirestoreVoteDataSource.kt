@@ -1,6 +1,7 @@
 package com.qodein.core.data.datasource
 
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.functions.FirebaseFunctions
@@ -52,15 +53,24 @@ class FirestoreVoteDataSource @Inject constructor(
         targetVoteState: VoteState
     ): Vote? {
         try {
+            val voteType = when (targetVoteState) {
+                VoteState.UPVOTE -> "UPVOTE"
+                VoteState.DOWNVOTE -> "DOWNVOTE"
+                VoteState.NONE -> "REMOVE"
+            }
+
             val data = hashMapOf(
                 "itemId" to itemId,
                 "itemType" to itemType.name,
-                "userId" to userId.value,
-                "voteState" to targetVoteState.name,
+                "voteType" to voteType,
             )
 
+            // Verify user is authenticated - Firebase Functions will automatically use auth context
+            val currentFirebaseUser = Firebase.auth.currentUser
+                ?: throw SecurityException("User must be authenticated to vote")
+
             val result = functions
-                .getHttpsCallable("handleVote")
+                .getHttpsCallable("handleContentVote")
                 .call(data)
                 .await()
 
@@ -68,19 +78,25 @@ class FirestoreVoteDataSource @Inject constructor(
                 ?: throw IOException("Invalid Cloud Function response")
 
             if (resultData["success"] != true) {
-                throw IOException("Vote operation failed: ${resultData["error"]}")
+                // Cloud Function returned failure - likely auth issue
+                throw SecurityException("authentication failed: permission denied")
             }
 
             // Return updated vote or null if removed
-            val voteState = resultData["voteState"] as? String
-            return if (voteState == "NONE" || voteState == null) {
+            val currentVote = resultData["currentVote"] as? String
+            return if (currentVote == null) {
                 null
             } else {
+                val voteState = when (currentVote) {
+                    "UPVOTE" -> VoteState.UPVOTE
+                    "DOWNVOTE" -> VoteState.DOWNVOTE
+                    else -> VoteState.NONE
+                }
                 Vote.create(
                     userId = userId,
                     itemId = itemId,
                     itemType = itemType,
-                    voteState = VoteState.valueOf(voteState),
+                    voteState = voteState,
                 )
             }
         } catch (e: Exception) {
@@ -94,7 +110,6 @@ class FirestoreVoteDataSource @Inject constructor(
      */
     fun getUserVote(
         itemId: String,
-        itemType: VoteType,
         userId: UserId
     ): Flow<Vote?> =
         callbackFlow {

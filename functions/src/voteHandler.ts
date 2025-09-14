@@ -2,8 +2,6 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as logger from 'firebase-functions/logger';
 import * as admin from 'firebase-admin';
 
-const db = admin.firestore();
-
 /**
  * Sanitizes a string for use in Firestore document IDs.
  * Converts to lowercase and replaces invalid characters with underscores.
@@ -70,6 +68,7 @@ export const handleContentVote = onCall<VoteRequest, Promise<VoteResponse>>(
 
     const { itemId, itemType, voteType } = request.data;
     const userId = request.auth.uid;
+    const db = admin.firestore();
 
     // 2. Validate input
     if (!itemId || typeof itemId !== 'string') {
@@ -119,7 +118,7 @@ export const handleContentVote = onCall<VoteRequest, Promise<VoteResponse>>(
 
         let action: 'added' | 'removed' | 'switched';
         let currentVote: 'UPVOTE' | 'DOWNVOTE' | null = null;
-        
+
         // Handle 3-state voting logic
         if (voteType === 'REMOVE') {
           if (existingVote) {
@@ -132,7 +131,7 @@ export const handleContentVote = onCall<VoteRequest, Promise<VoteResponse>>(
               success: true,
               voteId,
               currentVote: null,
-              action: 'removed',
+              action: 'removed' as 'removed',
               newUpvotes: currentUpvotes,
               newDownvotes: currentDownvotes
             };

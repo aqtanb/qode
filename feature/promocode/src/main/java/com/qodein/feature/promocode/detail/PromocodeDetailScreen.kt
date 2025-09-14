@@ -238,10 +238,8 @@ private fun PromocodeDetailContent(
                     ServiceInfoSection(
                         promoCode = promoCode,
                         isFollowingService = uiState.isFollowingService,
-                        isFollowingCategory = uiState.isFollowingCategory,
                         onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
                         onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
-                        onFollowCategoryClicked = { onAction(PromocodeDetailAction.FollowCategoryClicked) },
                         isDarkTheme = isDarkTheme,
                     )
 

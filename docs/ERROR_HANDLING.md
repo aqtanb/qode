@@ -210,4 +210,17 @@ core/ui/src/main/res/
 └── values-kk/strings.xml    # Kazakh translations
 ```
 
-**Status**:  Complete with 50+ files updated, ready for logging integration.
+## Future Improvements (Research Completed)
+
+### Rich Errors (Kotlin 2.4)
+Kotlin 2.4 will introduce "Rich Errors" - native union types for error handling without wrappers. This will provide type-safe error handling without Result/Either patterns.
+
+### Current Best Practices (2025)
+- **Sealed classes** for domain-specific errors
+- **Arrow Kt Raise DSL** for functional error handling
+- **Context receivers** (experimental) for composable error handling
+
+### Migration Strategy
+The current Result-based system is solid and will migrate easily to Rich Errors when available. No major refactoring needed now.
+
+**Status**: Complete with 50+ files updated, ready for Rich Errors migration when Kotlin 2.4 releases.

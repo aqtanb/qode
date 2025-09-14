@@ -22,7 +22,6 @@ sealed class PromocodeDetailAction {
 
     // Follow Actions (TODO implementations as requested)
     data object FollowServiceClicked : PromocodeDetailAction()
-    data object FollowCategoryClicked : PromocodeDetailAction()
 
     // Navigation Actions
     data object BackClicked : PromocodeDetailAction()

@@ -37,9 +37,9 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.feature.promocode.detail.VoteType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.VoteState
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -48,7 +48,7 @@ fun ActionButtonsSection(
     promoCode: PromoCode,
     isVoting: Boolean,
     showVoteAnimation: Boolean,
-    lastVoteType: VoteType?,
+    lastVoteType: VoteState?,
     isSharing: Boolean,
     onUpvoteClicked: () -> Unit,
     onDownvoteClicked: () -> Unit,
@@ -76,8 +76,8 @@ fun ActionButtonsSection(
                 icon = QodeActionIcons.Thumbs,
                 count = promoCode.upvotes,
                 isActive = promoCode.isUpvotedByCurrentUser,
-                isLoading = isVoting && lastVoteType == VoteType.UPVOTE,
-                showAnimation = showVoteAnimation && lastVoteType == VoteType.UPVOTE,
+                isLoading = isVoting && lastVoteType == VoteState.UPVOTE,
+                showAnimation = showVoteAnimation && lastVoteType == VoteState.UPVOTE,
                 activeColor = MaterialTheme.extendedColorScheme.success,
                 onClick = onUpvoteClicked,
                 modifier = Modifier.weight(1f),
@@ -89,8 +89,8 @@ fun ActionButtonsSection(
                 icon = QodeActionIcons.ThumbsDown,
                 count = promoCode.downvotes,
                 isActive = promoCode.isDownvotedByCurrentUser,
-                isLoading = isVoting && lastVoteType == VoteType.DOWNVOTE,
-                showAnimation = showVoteAnimation && lastVoteType == VoteType.DOWNVOTE,
+                isLoading = isVoting && lastVoteType == VoteState.DOWNVOTE,
+                showAnimation = showVoteAnimation && lastVoteType == VoteState.DOWNVOTE,
                 activeColor = MaterialTheme.colorScheme.error,
                 onClick = onDownvoteClicked,
                 modifier = Modifier.weight(1f),
@@ -342,7 +342,7 @@ private fun ActionButtonsPreview() {
                 ),
                 isVoting = true,
                 showVoteAnimation = false,
-                lastVoteType = VoteType.UPVOTE,
+                lastVoteType = VoteState.UPVOTE,
                 isSharing = true,
                 onUpvoteClicked = {},
                 onDownvoteClicked = {},

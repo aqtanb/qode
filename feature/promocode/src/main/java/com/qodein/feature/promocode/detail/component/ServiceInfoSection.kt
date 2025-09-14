@@ -40,10 +40,8 @@ import kotlin.time.Duration.Companion.days
 fun ServiceInfoSection(
     promoCode: PromoCode,
     isFollowingService: Boolean,
-    isFollowingCategory: Boolean,
     onServiceClicked: () -> Unit,
     onFollowServiceClicked: () -> Unit,
-    onFollowCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
@@ -272,10 +270,8 @@ private fun ServiceInfoSectionPreview() {
             ServiceInfoSection(
                 promoCode = samplePromoCode,
                 isFollowingService = false,
-                isFollowingCategory = false,
                 onServiceClicked = {},
                 onFollowServiceClicked = {},
-                onFollowCategoryClicked = {},
                 isDarkTheme = false,
             )
         }

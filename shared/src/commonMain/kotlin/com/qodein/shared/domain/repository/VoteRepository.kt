@@ -25,7 +25,6 @@ interface VoteRepository {
      */
     fun getUserVote(
         itemId: String,
-        itemType: VoteType,
         userId: UserId
     ): Flow<Vote?>
 }

@@ -13,65 +13,31 @@ package com.qodein.shared.common.result
  * UI layer maps ErrorType to localized string resources.
  */
 fun Throwable.toErrorType(): ErrorType =
-    when {
-        // Network and connectivity errors (message-based detection)
-        message?.contains("timeout", ignoreCase = true) == true -> ErrorType.NETWORK_TIMEOUT
-        message?.contains("no internet", ignoreCase = true) == true -> ErrorType.NETWORK_NO_CONNECTION
-        message?.contains("host", ignoreCase = true) == true -> ErrorType.NETWORK_HOST_UNREACHABLE
-        message?.contains("connection error", ignoreCase = true) == true -> ErrorType.NETWORK_GENERAL
-        message?.contains("network", ignoreCase = true) == true -> ErrorType.NETWORK_GENERAL
+    when (this) {
+        // Direct ErrorType mapping for custom Qode exceptions (no string parsing needed!)
+        is QodeException -> this.errorType
 
-        // Security and permission errors (message-based detection)
-        message?.contains("permission denied", ignoreCase = true) == true -> ErrorType.AUTH_PERMISSION_DENIED
-        message?.contains("authentication failed", ignoreCase = true) == true -> ErrorType.AUTH_INVALID_CREDENTIALS
-        message?.contains("unauthorized", ignoreCase = true) == true -> ErrorType.AUTH_UNAUTHORIZED
-        message?.contains("cancelled", ignoreCase = true) == true -> ErrorType.AUTH_USER_CANCELLED
-        message?.contains("user account not found", ignoreCase = true) == true -> ErrorType.AUTH_USER_NOT_FOUND
-
-        // Promo code specific errors (message-based detection)
-        message?.contains("promo code", ignoreCase = true) == true -> when {
-            message?.contains("not found", ignoreCase = true) == true -> ErrorType.PROMO_CODE_NOT_FOUND
-            message?.contains("expired", ignoreCase = true) == true -> ErrorType.PROMO_CODE_EXPIRED
-            message?.contains("inactive", ignoreCase = true) == true ||
-                message?.contains("no longer active", ignoreCase = true) == true -> ErrorType.PROMO_CODE_INACTIVE
-            message?.contains("invalid", ignoreCase = true) == true -> ErrorType.PROMO_CODE_INVALID
-            message?.contains("already exists", ignoreCase = true) == true -> ErrorType.PROMO_CODE_ALREADY_EXISTS
-            message?.contains("already used", ignoreCase = true) == true -> ErrorType.PROMO_CODE_ALREADY_USED
-            message?.contains("minimum order", ignoreCase = true) == true -> ErrorType.PROMO_CODE_MINIMUM_ORDER_NOT_MET
-            else -> ErrorType.PROMO_CODE_INVALID
+        // Standard platform exceptions - fallback with improved detection
+        is SecurityException -> when {
+            message?.contains("authentication", ignoreCase = true) == true -> ErrorType.AUTH_INVALID_CREDENTIALS
+            message?.contains("permission", ignoreCase = true) == true -> ErrorType.AUTH_PERMISSION_DENIED
+            else -> ErrorType.AUTH_UNAUTHORIZED
         }
 
-        // User specific errors (message-based detection)
-        message?.contains("user", ignoreCase = true) == true && message?.contains("not found", ignoreCase = true) == true ->
-            ErrorType.USER_NOT_FOUND
-        message?.contains("user", ignoreCase = true) == true && message?.contains("banned", ignoreCase = true) == true ->
-            ErrorType.USER_BANNED
-        message?.contains("user", ignoreCase = true) == true && message?.contains("suspended", ignoreCase = true) == true ->
-            ErrorType.USER_SUSPENDED
+        is IllegalArgumentException -> ErrorType.VALIDATION_INVALID_FORMAT
+        is IllegalStateException -> ErrorType.SERVICE_UNAVAILABLE_GENERAL
 
-        // Service specific errors (message-based detection)
-        message?.contains("service", ignoreCase = true) == true && message?.contains("not found", ignoreCase = true) == true ->
-            ErrorType.SERVICE_NOT_FOUND
-        message?.contains("service unavailable", ignoreCase = true) == true -> ErrorType.SERVICE_UNAVAILABLE_GENERAL
-        message?.contains("service", ignoreCase = true) == true && message?.contains("unavailable", ignoreCase = true) == true ->
-            ErrorType.SERVICE_UNAVAILABLE
-
-        // Generic validation errors (message-based detection)
-        message?.contains("required", ignoreCase = true) == true -> ErrorType.VALIDATION_REQUIRED_FIELD
-        message?.contains("invalid format", ignoreCase = true) == true -> ErrorType.VALIDATION_INVALID_FORMAT
-        message?.contains("too short", ignoreCase = true) == true -> ErrorType.VALIDATION_TOO_SHORT
-        message?.contains("too long", ignoreCase = true) == true -> ErrorType.VALIDATION_TOO_LONG
-
-        // Configuration and initialization errors (message-based detection)
-        message?.contains("configuration", ignoreCase = true) == true -> ErrorType.SERVICE_CONFIGURATION_ERROR
-        message?.contains("initialization", ignoreCase = true) == true -> ErrorType.SERVICE_INITIALIZATION_ERROR
-
-        // Exception type-based classification (fallback for cases without specific message patterns)
-        this is IllegalArgumentException -> ErrorType.VALIDATION_INVALID_FORMAT
-        this is IllegalStateException -> ErrorType.SERVICE_UNAVAILABLE_GENERAL
-
-        // Fallback for unknown exception types
-        else -> ErrorType.UNKNOWN_ERROR
+        // Network exceptions (usually IOException from platform)
+        else -> when {
+            message?.contains("timeout", ignoreCase = true) == true -> ErrorType.NETWORK_TIMEOUT
+            message?.contains("no internet", ignoreCase = true) == true ||
+                message?.contains("no connection", ignoreCase = true) == true -> ErrorType.NETWORK_NO_CONNECTION
+            message?.contains("host", ignoreCase = true) == true -> ErrorType.NETWORK_HOST_UNREACHABLE
+            message?.contains("network", ignoreCase = true) == true ||
+                message?.contains("connection", ignoreCase = true) == true -> ErrorType.NETWORK_GENERAL
+            message?.contains("service unavailable", ignoreCase = true) == true -> ErrorType.SERVICE_UNAVAILABLE_GENERAL
+            else -> ErrorType.UNKNOWN_ERROR
+        }
     }
 
 /**

@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.functions
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.CommentRepositoryImpl
@@ -80,5 +82,12 @@ abstract class DataModule {
         @Provides
         @Singleton
         fun provideFirebaseFirestore(): FirebaseFirestore = Firebase.firestore
+
+        @Provides
+        @Singleton
+        fun provideFirebaseFunctions(): FirebaseFunctions {
+            // Firebase Functions automatically uses Firebase Auth context when properly configured
+            return Firebase.functions
+        }
     }
 }
