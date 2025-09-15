@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -46,7 +44,6 @@ import kotlin.time.Duration.Companion.days
 @Composable
 fun ActionButtonsSection(
     promoCode: PromoCode,
-    isVoting: Boolean,
     showVoteAnimation: Boolean,
     lastVoteType: VoteState?,
     isSharing: Boolean,
@@ -54,8 +51,7 @@ fun ActionButtonsSection(
     onDownvoteClicked: () -> Unit,
     onShareClicked: () -> Unit,
     onCommentsClicked: () -> Unit,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
     // Authentication protection is now handled at the parent level
     // These callbacks are already auth-protected when passed down
@@ -70,40 +66,35 @@ fun ActionButtonsSection(
             modifier = Modifier.padding(SpacingTokens.md),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            // Upvote Button (Authentication Protected)
+            // Upvote Button - Crystal Clear States
             ActionButton(
                 type = ActionButtonType.Upvote,
                 icon = QodeActionIcons.Thumbs,
                 count = promoCode.upvotes,
-                isActive = promoCode.isUpvotedByCurrentUser,
-                isLoading = isVoting && lastVoteType == VoteState.UPVOTE,
-                showAnimation = showVoteAnimation && lastVoteType == VoteState.UPVOTE,
+                isUpvoted = promoCode.isUpvotedByCurrentUser,
+                showPositiveFeedback = showVoteAnimation && lastVoteType == VoteState.UPVOTE,
                 activeColor = MaterialTheme.extendedColorScheme.success,
                 onClick = onUpvoteClicked,
                 modifier = Modifier.weight(1f),
             )
 
-            // Downvote Button (Authentication Protected)
+            // Downvote Button - Crystal Clear States
             ActionButton(
                 type = ActionButtonType.Downvote,
                 icon = QodeActionIcons.ThumbsDown,
                 count = promoCode.downvotes,
-                isActive = promoCode.isDownvotedByCurrentUser,
-                isLoading = isVoting && lastVoteType == VoteState.DOWNVOTE,
-                showAnimation = showVoteAnimation && lastVoteType == VoteState.DOWNVOTE,
+                isDownvoted = promoCode.isDownvotedByCurrentUser,
+                showPositiveFeedback = showVoteAnimation && lastVoteType == VoteState.DOWNVOTE,
                 activeColor = MaterialTheme.colorScheme.error,
                 onClick = onDownvoteClicked,
                 modifier = Modifier.weight(1f),
             )
 
-            // Comment Button (Authentication Protected)
+            // Comment Button
             ActionButton(
                 type = ActionButtonType.Comment,
                 icon = QodeActionIcons.Comment,
                 count = null,
-                isActive = false,
-                isLoading = false,
-                showAnimation = false,
                 activeColor = MaterialTheme.colorScheme.tertiary,
                 onClick = onCommentsClicked,
                 modifier = Modifier.weight(1f),
@@ -114,9 +105,7 @@ fun ActionButtonsSection(
                 type = ActionButtonType.Share,
                 icon = QodeActionIcons.Share,
                 count = promoCode.shares,
-                isActive = false,
-                isLoading = isSharing,
-                showAnimation = isSharing,
+                showPositiveFeedback = isSharing,
                 activeColor = MaterialTheme.colorScheme.primary,
                 onClick = onShareClicked,
                 modifier = Modifier.weight(1f),
@@ -136,15 +125,24 @@ private enum class ActionButtonType {
 private fun ActionButton(
     type: ActionButtonType,
     icon: ImageVector,
-    count: Int?,
-    isActive: Boolean,
-    isLoading: Boolean,
-    showAnimation: Boolean,
+    count: Int? = null,
+    isUpvoted: Boolean = false,
+    isDownvoted: Boolean = false,
+    showPositiveFeedback: Boolean = false,
     activeColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+
+    // Clear, simple states
+    val isActive = when (type) {
+        ActionButtonType.Upvote -> isUpvoted
+        ActionButtonType.Downvote -> isDownvoted
+        else -> false
+    }
+
+    // Clear labels
     val label = when (type) {
         ActionButtonType.Upvote -> "Like"
         ActionButtonType.Downvote -> "Dislike"
@@ -152,43 +150,57 @@ private fun ActionButton(
         ActionButtonType.Share -> "Share"
     }
 
-    // Enhanced animations with spring physics
+    // Status descriptions
+    val statusText = when (type) {
+        ActionButtonType.Upvote -> if (isUpvoted) "Liked" else "Like"
+        ActionButtonType.Downvote -> if (isDownvoted) "Disliked" else "Dislike"
+        ActionButtonType.Comment -> "Comment"
+        ActionButtonType.Share -> "Share"
+    }
+
+    // Satisfying positive feedback animation
     val scale by animateFloatAsState(
-        targetValue = when {
-            showAnimation -> 1.1f
-            isLoading -> 0.95f
-            else -> 1f
-        },
+        targetValue = if (showPositiveFeedback) 1.2f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
+            stiffness = Spring.StiffnessMedium,
         ),
-        label = "button_scale",
+        label = "positive_feedback_scale",
     )
 
     val iconColor by animateColorAsState(
-        targetValue = if (isActive) activeColor else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = spring(dampingRatio = 0.8f),
+        targetValue = when {
+            showPositiveFeedback -> activeColor // Bright during positive feedback
+            isActive -> activeColor // Bright when active
+            else -> MaterialTheme.colorScheme.onSurfaceVariant // Muted when inactive
+        },
+        animationSpec = spring(dampingRatio = 0.7f),
         label = "icon_color",
     )
 
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            isActive -> activeColor.copy(alpha = 0.15f)
-            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            showPositiveFeedback -> activeColor.copy(alpha = 0.3f) // Vibrant during positive feedback
+            isActive -> activeColor.copy(alpha = 0.2f) // Colored when active
+            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) // Neutral when inactive
         },
-        animationSpec = spring(dampingRatio = 0.8f),
+        animationSpec = spring(dampingRatio = 0.7f),
         label = "background_color",
     )
 
     val textColor by animateColorAsState(
-        targetValue = if (isActive) activeColor else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = spring(dampingRatio = 0.8f),
+        targetValue = when {
+            showPositiveFeedback -> activeColor // Bright during positive feedback
+            isActive -> activeColor // Bright when active
+            else -> MaterialTheme.colorScheme.onSurfaceVariant // Muted when inactive
+        },
+        animationSpec = spring(dampingRatio = 0.7f),
         label = "text_color",
     )
 
     Surface(
         onClick = {
+            // Satisfying haptic feedback
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             onClick()
         },
@@ -196,10 +208,9 @@ private fun ActionButton(
         color = backgroundColor,
         modifier = modifier
             .scale(scale)
-            .alpha(if (isLoading) 0.7f else 1f)
             .semantics {
                 role = Role.Button
-                contentDescription = "$label${count?.let { " ($it)" } ?: ""}"
+                contentDescription = "$statusText${count?.let { ", $it" } ?: ""}"
             },
     ) {
         Column(
@@ -207,27 +218,19 @@ private fun ActionButton(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(SpacingTokens.md),
         ) {
-            // Icon with loading state
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = iconColor,
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
+            // Clear, always-visible icon
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(22.dp),
+            )
 
-            // Always show count-style text for consistent height
+            // Clear count display
             Text(
                 text = when {
                     count != null && count > 0 -> formatCount(count)
-                    else -> "0" // Show "0" instead of full labels for consistency
+                    else -> "0"
                 },
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
@@ -293,12 +296,11 @@ private fun ActionButtonsPreview() {
             )
 
             Text(
-                "Active State (Upvoted):",
+                "Upvoted State:",
                 style = MaterialTheme.typography.titleMedium,
             )
             ActionButtonsSection(
                 promoCode = samplePromoCode,
-                isVoting = false,
                 showVoteAnimation = false,
                 lastVoteType = null,
                 isSharing = false,
@@ -306,7 +308,6 @@ private fun ActionButtonsPreview() {
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
-                isDarkTheme = false,
             )
 
             Text(
@@ -320,7 +321,6 @@ private fun ActionButtonsPreview() {
                     upvotes = 42,
                     shares = 8,
                 ),
-                isVoting = false,
                 showVoteAnimation = false,
                 lastVoteType = null,
                 isSharing = false,
@@ -328,11 +328,10 @@ private fun ActionButtonsPreview() {
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
-                isDarkTheme = false,
             )
 
             Text(
-                "Loading State:",
+                "Positive Feedback:",
                 style = MaterialTheme.typography.titleMedium,
             )
             ActionButtonsSection(
@@ -340,15 +339,13 @@ private fun ActionButtonsPreview() {
                     isUpvotedByCurrentUser = false,
                     isDownvotedByCurrentUser = false,
                 ),
-                isVoting = true,
-                showVoteAnimation = false,
+                showVoteAnimation = true,
                 lastVoteType = VoteState.UPVOTE,
                 isSharing = true,
                 onUpvoteClicked = {},
                 onDownvoteClicked = {},
                 onShareClicked = {},
                 onCommentsClicked = {},
-                isDarkTheme = false,
             )
         }
     }

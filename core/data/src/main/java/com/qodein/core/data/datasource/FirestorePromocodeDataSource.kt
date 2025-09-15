@@ -16,9 +16,9 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.UserId
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import com.qodein.shared.model.VoteState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,7 +26,11 @@ import javax.inject.Singleton
 private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
 
 @Singleton
-class FirestorePromocodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
+class FirestorePromocodeDataSource @Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val queryCache: QueryCache,
+    private val voteDataSource: FirestoreVoteDataSource
+) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
@@ -113,9 +117,7 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
         // Apply cursor-based pagination
         paginationRequest.cursor?.let { cursor ->
             cursor.lastDocumentSnapshot?.let { docSnapshot ->
-                // Use DocumentSnapshot for proper Firestore cursor pagination
                 firestoreQuery = firestoreQuery.startAfter(docSnapshot as DocumentSnapshot)
-            } ?: run {
             }
         }
 
@@ -123,7 +125,6 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
         firestoreQuery = firestoreQuery.limit(paginationRequest.limit.toLong())
 
         val querySnapshot = firestoreQuery.get().await()
-
         val documents = querySnapshot.documents
 
         val results = documents.mapNotNull { document ->
@@ -133,19 +134,11 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
                     Logger.w { "Document ${document.id} failed to convert to DTO" }
                     return@mapNotNull null
                 }
-
-                val domainModel = PromoCodeMapper.toDomain(dto)
-                domainModel
+                PromoCodeMapper.toDomain(dto)
             } catch (e: Exception) {
                 Logger.e(e) { "Failed to parse document ${document.id}" }
                 null
             }
-        }
-
-        // Add back detailed logging for debugging
-        Logger.d { "Successfully loaded ${results.size} promo codes" }
-        results.forEachIndexed { index, promoCode ->
-            Logger.d { "  [${index + 1}] ${promoCode.code} for ${promoCode.serviceName} (upvotes: ${promoCode.upvotes})" }
         }
 
         val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
@@ -158,18 +151,16 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
             PaginationCursor.fromDocumentSnapshot(
                 documentId = lastDoc.id,
                 sortFieldValue = sortFieldValue,
-                lastDocumentSnapshot = lastDoc, // Store the actual DocumentSnapshot
+                lastDocumentSnapshot = lastDoc,
             )
         } else {
             null
         }
 
-        val hasMore = documents.size == paginationRequest.limit
-
         val result = PaginatedResult.of(
             data = results,
             nextCursor = nextCursor,
-            hasMore = hasMore,
+            hasMore = documents.size == paginationRequest.limit,
         )
 
         if (isFirstPage && results.isNotEmpty()) {
@@ -195,28 +186,40 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
         return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
     }
 
-    suspend fun getPromoCodeByCode(code: String): PromoCode? {
-        val querySnapshot = firestore.collection(PROMOCODES_COLLECTION)
-            .whereEqualTo("code", code.uppercase())
-            .limit(1)
-            .get()
-            .await()
-
-        return querySnapshot.documents.firstOrNull()?.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
-    }
-
-    suspend fun getPromoCodeByCodeAndService(
-        code: String,
-        serviceName: String
+    /**
+     * Get promo code by ID with user's vote status using parallel fetching.
+     * Cost: 2 document reads (executed in parallel for optimal performance)
+     */
+    suspend fun getPromoCodeByIdWithVoteStatus(
+        id: PromoCodeId,
+        userId: UserId
     ): PromoCode? {
-        // With composite IDs, we can directly get the document by constructing the ID
-        val compositeId = PromoCode.generateCompositeId(code, serviceName)
-        val document = firestore.collection(PROMOCODES_COLLECTION)
-            .document(compositeId)
-            .get()
-            .await()
+        return coroutineScope {
+            // Start fetching the promo code details in parallel
+            val promoCodeDeferred = async { getPromoCodeById(id) }
 
-        return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
+            // Start fetching the user's vote status in parallel
+            val voteStatusDeferred = async { voteDataSource.getUserVoteStatus(id.value, userId) }
+
+            // Await both results
+            val promoCode = promoCodeDeferred.await()
+            val voteStatus = voteStatusDeferred.await()
+
+            // Handle the case where the promo code wasn't found
+            if (promoCode == null) return@coroutineScope null
+
+            // Return promo code with correct vote flags
+            when (promoCode) {
+                is PromoCode.PercentagePromoCode -> promoCode.copy(
+                    isUpvotedByCurrentUser = voteStatus == VoteState.UPVOTE,
+                    isDownvotedByCurrentUser = voteStatus == VoteState.DOWNVOTE,
+                )
+                is PromoCode.FixedAmountPromoCode -> promoCode.copy(
+                    isUpvotedByCurrentUser = voteStatus == VoteState.UPVOTE,
+                    isDownvotedByCurrentUser = voteStatus == VoteState.DOWNVOTE,
+                )
+            }
+        }
     }
 
     suspend fun updatePromoCode(promoCode: PromoCode): PromoCode {
@@ -230,107 +233,10 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
         return promoCode
     }
 
-    suspend fun deletePromoCode(id: PromoCodeId) {
-        firestore.collection(PROMOCODES_COLLECTION)
-            .document(id.value)
-            .delete()
-            .await()
-    }
-
     suspend fun incrementViewCount(id: PromoCodeId) {
         firestore.collection(PROMOCODES_COLLECTION)
             .document(id.value)
             .update("views", FieldValue.increment(1))
             .await()
     }
-
-    suspend fun addComment(
-        promoCodeId: PromoCodeId,
-        userId: UserId,
-        comment: String
-    ): PromoCode {
-        // Comments are now handled through CommentRepository using subcollections
-        // This method is deprecated and should be replaced by CommentRepository.createComment()
-        throw UnsupportedOperationException(
-            "Comments are now handled through CommentRepository. " +
-                "Use CommentRepository.createComment() with parentType=PROMO_CODE instead.",
-        )
-    }
-
-    suspend fun getPromoCodesByUser(
-        userId: UserId,
-        limit: Int,
-        offset: Int
-    ): List<PromoCode> {
-        val query = firestore.collection(PROMOCODES_COLLECTION)
-            .whereEqualTo("createdBy", userId.value)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .limit(limit.toLong())
-
-        // Note: Firestore doesn't have offset(), implement cursor-based pagination if needed
-
-        val querySnapshot = query.get().await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<PromoCodeDto>()?.let { dto ->
-                    PromoCodeMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-
-    suspend fun getPromoCodesByService(serviceName: String): List<PromoCode> {
-        val querySnapshot = firestore.collection(PROMOCODES_COLLECTION)
-            .whereEqualTo("serviceName", serviceName)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            try {
-                document.toObject<PromoCodeDto>()?.let { dto ->
-                    PromoCodeMapper.toDomain(dto)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-
-    fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> =
-        callbackFlow {
-            if (ids.isEmpty()) {
-                trySend(emptyList())
-                awaitClose { }
-                return@callbackFlow
-            }
-
-            val listener = firestore.collection(PROMOCODES_COLLECTION)
-                .whereIn("__name__", ids.map { it.value })
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        close(error)
-                        return@addSnapshotListener
-                    }
-
-                    val promoCodes = snapshot?.documents?.mapNotNull { document ->
-                        try {
-                            document.toObject<PromoCodeDto>()?.let { dto ->
-                                PromoCodeMapper.toDomain(dto)
-                            }
-                        } catch (e: Exception) {
-                            null
-                        }
-                    } ?: emptyList()
-
-                    trySend(promoCodes)
-                }
-
-            awaitClose {
-                listener.remove()
-            }
-        }
 }

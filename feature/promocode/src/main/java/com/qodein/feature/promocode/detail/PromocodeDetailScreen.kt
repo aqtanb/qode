@@ -249,7 +249,6 @@ private fun PromocodeDetailContent(
                     // Action Buttons Section
                     ActionButtonsSection(
                         promoCode = promoCode,
-                        isVoting = uiState.isVoting,
                         showVoteAnimation = uiState.showVoteAnimation,
                         lastVoteType = uiState.lastVoteType,
                         isSharing = uiState.isSharing,
@@ -257,7 +256,6 @@ private fun PromocodeDetailContent(
                         onDownvoteClicked = requireDownvote,
                         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
                         onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
-                        isDarkTheme = isDarkTheme,
                     )
 
                     FooterSection(

@@ -1,25 +1,43 @@
-# Voting System Documentation
+# User Interactions System Documentation
 
 ## Overview
 
-Enterprise-level voting system for Qode application supporting 3-state voting (upvote, downvote, remove) across all content types: promo codes, posts, comments, and promos.
+**Cost-Optimized** user interaction system for Qode application supporting unified votes and bookmarks with **33% read reduction** through single-document architecture.
 
-## Architecture
+## Architecture Philosophy
 
-### Database Structure
+### **Read Efficiency First**
+- **Detail Screen**: 2 reads (content + user_interaction) vs 3 reads (content + vote + bookmark)
+- **Feed Screen**: 0 extra reads (no user-specific data loaded)
+- **Cost Savings**: 33% reduction in Firestore reads + cleaner separation of concerns
 
-**Unified Votes Collection**: `/votes/{sanitized_itemId}_{sanitized_userId}`
+### **Clean Model Separation**
+- **Content Models**: Pure content data (PromoCode, Post, Comment) with no user-specific fields
+- **User Interaction**: Separate model containing all user-specific states
+- **View Models**: Combined models for UI layer when user context needed
+
+## Database Structure
+
+### **Unified User Interactions Collection**
+
+**Collection**: `/user_interactions/{itemId}_{userId}`
 
 ```typescript
-interface VoteDocument {
-  itemId: string;           // ID of the content being voted on
+interface UserInteractionDocument {
+  itemId: string;           // ID of the content (promo code, post, etc.)
   itemType: 'PROMO_CODE' | 'POST' | 'COMMENT' | 'PROMO';
-  userId: string;           // ID of the user voting
-  isUpvote: boolean;        // true = upvote, false = downvote
-  createdAt: Timestamp;     // When vote was created
-  updatedAt: Timestamp;     // When vote was last modified
+  userId: string;           // ID of the user
+  voteState: 'UPVOTE' | 'DOWNVOTE' | null;  // Vote state or null for no vote
+  isBookmarked: boolean;    // Bookmark status
+  createdAt: Timestamp;     // When interaction was created
+  updatedAt: Timestamp;     // When interaction was last modified
 }
 ```
+
+**Key Benefits:**
+- **Single Document**: All user interactions in one place
+- **Atomic Updates**: Vote + bookmark changes in single transaction
+- **Predictable Costs**: Exactly 1 read per user-content pair
 
 ### Vote States
 
@@ -93,47 +111,125 @@ class VoteOnPromocodeUseCase {
 }
 ```
 
-## Implementation Plan
+## New Unified Architecture
 
-### Phase 1: Foundation - Unified Vote Models ✅ **COMPLETED**
+### **Core Models**
 
-**Files updated:**
-- ✅ `shared/src/commonMain/kotlin/com/qodein/shared/model/InteractionModels.kt`
-- ✅ `shared/src/commonMain/kotlin/com/qodein/shared/model/ContentModels.kt` (removed PromoCodeVote)
-
-**Changes implemented:**
-1. ✅ Replaced `UserVote.isUpvote: Boolean` with `VoteState` enum (UPVOTE, DOWNVOTE, NONE)
-2. ✅ Consolidated `UserVote` and `PromoCodeVote` into single unified `Vote` model
-3. ✅ Added `VoteType.PROMO` for complete content type support
-4. ✅ Added proper validation and business logic with init blocks
-5. ✅ Created vote state transition methods (`toggleUpvote()`, `toggleDownvote()`, `remove()`)
-6. ✅ Updated ID generation to match Firebase format: `sanitized_itemId_sanitized_userId`
-
+#### **Clean Content Models (No User Fields)**
 ```kotlin
+// Pure content data - globally cacheable
+data class PromoCode(
+    val id: PromoCodeId,
+    val code: String,
+    val serviceName: String,
+    val upvotes: Int,
+    val downvotes: Int,
+    val voteScore: Int,
+    // ❌ Removed: isUpvotedByCurrentUser, isDownvotedByCurrentUser, isBookmarkedByCurrentUser
+)
+```
+
+#### **Unified User Interaction Model**
+```kotlin
+// All user-specific interactions in one place
 @Serializable
-data class Vote(
-    val id: String,
-    val userId: UserId,
-    val itemId: String,
-    val itemType: VoteType,
-    val voteState: VoteState,
-    val createdAt: Instant = Clock.System.now(),
-    val updatedAt: Instant = Clock.System.now()
+data class UserInteraction(
+    val id: String,                    // itemId_userId
+    val itemId: String,               // Content ID
+    val itemType: InteractionType,    // PROMO_CODE, POST, COMMENT
+    val userId: UserId,               // User ID
+    val voteState: VoteState?,        // UPVOTE, DOWNVOTE, or null
+    val isBookmarked: Boolean,        // Bookmark status
+    val createdAt: Instant,
+    val updatedAt: Instant
 ) {
     companion object {
         fun create(
+            itemId: String,
+            itemType: InteractionType,
             userId: UserId,
-            itemId: String, 
-            itemType: VoteType,
-            voteState: VoteState
-        ): Vote
-        
-        private fun generateId(itemId: String, userId: String): String
+            voteState: VoteState? = null,
+            isBookmarked: Boolean = false
+        ): UserInteraction
     }
-    
-    fun toggleUpvote(): VoteState
-    fun toggleDownvote(): VoteState
-    fun remove(): VoteState
+}
+```
+
+#### **View Models for UI**
+```kotlin
+// Combined models when user context needed
+data class PromoCodeWithUserState(
+    val promoCode: PromoCode,
+    val userState: UserInteraction?
+) {
+    val isUpvotedByCurrentUser: Boolean
+        get() = userState?.voteState == VoteState.UPVOTE
+    val isDownvotedByCurrentUser: Boolean
+        get() = userState?.voteState == VoteState.DOWNVOTE
+    val isBookmarkedByCurrentUser: Boolean
+        get() = userState?.isBookmarked == true
+}
+```
+
+## Implementation Plan - Unified Architecture
+
+### Phase 6: **CURRENT** - Unified User Interactions ⏳ **IN PROGRESS**
+
+**Goal**: Combine votes + bookmarks into single document, remove user fields from content models.
+
+**Benefits**:
+- **33% Read Reduction**: 2 reads instead of 3 per detail screen
+- **Cleaner Architecture**: Pure content models + separate user state
+- **Atomic Updates**: Single transaction for vote + bookmark changes
+- **Better Caching**: Content cached globally, user state per-user
+
+**Files to Update**:
+
+1. **Models & Core Architecture** (5 files):
+   - `shared/model/InteractionModels.kt` - Add UserInteraction model
+   - `shared/model/ContentModels.kt` - Remove user fields from PromoCode/Post
+   - `core/data/model/ContentDtos.kt` - Clean Firestore DTOs
+   - `shared/model/ViewModels.kt` - Add PromoCodeWithUserState
+
+2. **Data Sources** (3 files):
+   - `core/data/datasource/FirestoreUserInteractionDataSource.kt` - New unified data source
+   - `core/data/datasource/FirestorePromocodeDataSource.kt` - Update with parallel fetching
+   - Deprecate separate VoteDataSource and BookmarkDataSource
+
+3. **Repository Layer** (2 files):
+   - `core/data/repository/UserInteractionRepositoryImpl.kt` - New repository
+   - `shared/domain/repository/UserInteractionRepository.kt` - Repository interface
+
+4. **UI Components** (8 files):
+   - Update all components using user interaction fields
+   - `feature/promocode/detail/component/ActionButtonsSection.kt`
+   - `feature/promocode/detail/PromocodeDetailViewModel.kt`
+   - All mappers and preview components
+
+5. **Cloud Functions** (2 files):
+   - `functions/src/userInteractionHandler.ts` - New unified handler
+   - Update Firestore security rules
+
+**Architecture Changes**:
+
+```kotlin
+// Before: 3 separate reads
+suspend fun getPromoCodeById(id: PromoCodeId): PromoCode?
+suspend fun getUserVote(itemId: String, userId: UserId): Vote?
+suspend fun getUserBookmark(itemId: String, userId: UserId): UserBookmark?
+
+// After: 2 parallel reads
+suspend fun getPromoCodeWithUserState(
+    id: PromoCodeId,
+    userId: UserId
+): PromoCodeWithUserState? = coroutineScope {
+    val promoCodeDeferred = async { getPromoCodeById(id) }
+    val userStateDeferred = async { getUserInteraction(id.value, userId) }
+
+    val promoCode = promoCodeDeferred.await() ?: return@coroutineScope null
+    val userState = userStateDeferred.await()
+
+    PromoCodeWithUserState(promoCode, userState)
 }
 ```
 

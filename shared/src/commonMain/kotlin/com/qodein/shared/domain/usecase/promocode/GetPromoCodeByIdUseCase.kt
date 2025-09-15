@@ -7,7 +7,7 @@ import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.coroutines.flow.Flow
 
-class GetPromoCodeByIdUseCase constructor(private val promoCodeRepository: PromoCodeRepository) {
+class GetPromoCodeByIdUseCase(private val promoCodeRepository: PromoCodeRepository) {
     operator fun invoke(id: PromoCodeId): Flow<Result<PromoCode?>> =
         promoCodeRepository.getPromoCodeById(id)
             .asResult()

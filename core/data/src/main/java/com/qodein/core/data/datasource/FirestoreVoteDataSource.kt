@@ -142,4 +142,37 @@ class FirestoreVoteDataSource @Inject constructor(
 
             awaitClose { listener.remove() }
         }
+
+    /**
+     * Get user's vote status for a single item - MOST EFFICIENT.
+     * Perfect for promo code detail screens.
+     * Cost: 1 document read
+     */
+    suspend fun getUserVoteStatus(
+        itemId: String,
+        userId: UserId
+    ): VoteState {
+        val voteId = generateVoteId(itemId, userId.value)
+
+        try {
+            val document = firestore.collection(VOTES_COLLECTION)
+                .document(voteId)
+                .get()
+                .await()
+
+            return if (document.exists()) {
+                val dto = document.toObject<UserVoteDto>()
+                if (dto != null) {
+                    VoteMapper.toDomain(dto).voteState
+                } else {
+                    VoteState.NONE
+                }
+            } else {
+                VoteState.NONE
+            }
+        } catch (e: Exception) {
+            // Return NONE on any error to prevent crashes
+            return VoteState.NONE
+        }
+    }
 }

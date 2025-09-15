@@ -7,7 +7,7 @@ import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ValidatePromoCodeUseCase constructor(private val promoCodeRepository: PromoCodeRepository) {
+class ValidatePromoCodeUseCase(private val promoCodeRepository: PromoCodeRepository) {
     operator fun invoke(
         code: String,
         orderAmount: Double
