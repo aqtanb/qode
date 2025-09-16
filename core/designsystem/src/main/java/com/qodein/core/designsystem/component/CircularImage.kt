@@ -135,7 +135,7 @@ private fun CircularImageFallback(
                 Icon(
                     imageVector = fallbackIcon,
                     contentDescription = contentDescription,
-                    modifier = Modifier.size(size * 0.6f),
+                    modifier = Modifier.size(size),
                     tint = contentColor,
                 )
             }

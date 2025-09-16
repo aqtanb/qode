@@ -87,8 +87,7 @@ data class PromoCodeDto(
     val code: String = "",
     val serviceId: String? = null, // Reference to Service document ID
     val serviceName: String = "", // Denormalized for display and filtering
-    val category: String? = null,
-    val title: String = "",
+    val category: String = "Unspecified",
     val description: String? = null,
     val type: String = "", // "percentage", "fixed"
 
@@ -101,17 +100,18 @@ data class PromoCodeDto(
     @get:PropertyName("isFirstUserOnly")
     @JvmField
     val isFirstUserOnly: Boolean = false,
+    @get:PropertyName("isOneTimeUseOnly")
+    @JvmField
+    val isOneTimeUseOnly: Boolean = false,
 
     // Engagement metrics
     val upvotes: Int = 0,
     val downvotes: Int = 0,
     val voteScore: Int = 0, // Computed by Cloud Function: upvotes - downvotes
-    val views: Int = 0,
     val shares: Int = 0,
     val comments: Int? = null,
 
     // Media and verification
-    val screenshotUrl: String? = null,
     val targetCountries: List<String> = emptyList(),
     @get:PropertyName("isVerified")
     @JvmField
@@ -123,7 +123,10 @@ data class PromoCodeDto(
     @ServerTimestamp
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
-    val createdBy: String? = null
+    val createdBy: String = "",
+    val createdByUsername: String? = null,
+    val createdByAvatarUrl: String? = null,
+    val serviceLogoUrl: String? = null
 
 ) {
     // Required no-argument constructor for Firestore
@@ -132,28 +135,29 @@ data class PromoCodeDto(
         code = "",
         serviceId = null,
         serviceName = "",
-        category = null,
-        title = "",
+        category = "Unspecified",
         description = null,
         type = "",
         discountPercentage = null,
         discountAmount = null,
         minimumOrderAmount = 0.0,
         isFirstUserOnly = false,
+        isOneTimeUseOnly = false,
         upvotes = 0,
         downvotes = 0,
         voteScore = 0,
-        views = 0,
         shares = 0,
         comments = null,
-        screenshotUrl = null,
         targetCountries = emptyList(),
         isVerified = false,
         startDate = Timestamp.now(),
         endDate = Timestamp.now(),
         createdAt = null,
         updatedAt = null,
-        createdBy = null,
+        createdBy = "",
+        createdByUsername = null,
+        createdByAvatarUrl = null,
+        serviceLogoUrl = null,
     )
 }
 // ================================================================================================

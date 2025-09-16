@@ -16,6 +16,8 @@ import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Service
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -79,6 +81,7 @@ class SubmissionWizardViewModel @Inject constructor(
             SubmissionWizardAction.ToggleManualEntry -> toggleManualEntry()
 
             // Step 1: Core Details
+            is SubmissionWizardAction.SelectService -> selectService(action.service)
             is SubmissionWizardAction.UpdateServiceName -> updateServiceName(action.serviceName)
             is SubmissionWizardAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
             is SubmissionWizardAction.SearchServices -> searchServices(action.query)
@@ -231,8 +234,18 @@ class SubmissionWizardViewModel @Inject constructor(
 
     // MARK: - Data Updates
 
+    private fun selectService(service: Service) {
+        updateWizardData { it.copy(selectedService = service) }
+    }
+
     private fun updateServiceName(serviceName: String) {
-        updateWizardData { it.copy(serviceName = serviceName) }
+        // For manual entry - create a basic Service object
+        val manualService = Service(
+            id = ServiceId("manual_${serviceName.lowercase().replace(" ", "_")}"),
+            name = serviceName,
+            category = "Unspecified",
+        )
+        updateWizardData { it.copy(selectedService = manualService) }
     }
 
     private fun updatePromoCodeType(type: PromoCodeType) {
@@ -300,44 +313,9 @@ class SubmissionWizardViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            // Get current user ID
-            var currentUserId: UserId? = null
-            getAuthStateUseCase().collect { authResult ->
-                when (authResult) {
-                    is Result.Success -> {
-                        when (val authState = authResult.data) {
-                            is AuthState.Authenticated -> {
-                                currentUserId = authState.user.id
-                                return@collect
-                            }
-                            else -> {
-                                // User not authenticated, handle error
-                                _uiState.update {
-                                    SubmissionWizardUiState.Error(
-                                        errorType = ErrorType.AUTH_UNAUTHORIZED,
-                                        isRetryable = false,
-                                        shouldShowSnackbar = true,
-                                        errorCode = "auth_required",
-                                    )
-                                }
-                                return@collect
-                            }
-                        }
-                    }
-                    else -> {
-                        // Auth state loading or error, handle it
-                        _uiState.update {
-                            SubmissionWizardUiState.Error(
-                                errorType = ErrorType.AUTH_UNAUTHORIZED,
-                                isRetryable = true,
-                                shouldShowSnackbar = true,
-                                errorCode = "auth_check_failed",
-                            )
-                        }
-                        return@collect
-                    }
-                }
-            }
+            // Get current authenticated user data
+            val currentUserData = getCurrentUserData() ?: return@launch
+            val serviceLogoUrl = wizardData.selectedService?.logoUrl
 
             val promoCodeResult = when (wizardData.promoCodeType) {
                 PromoCodeType.PERCENTAGE -> PromoCode.createPercentage(
@@ -349,7 +327,10 @@ class SubmissionWizardViewModel @Inject constructor(
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
-                    createdBy = currentUserId,
+                    createdBy = currentUserData.id,
+                    createdByUsername = currentUserData.username,
+                    createdByAvatarUrl = currentUserData.avatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
                 PromoCodeType.FIXED_AMOUNT -> PromoCode.createFixedAmount(
                     code = wizardData.promoCode,
@@ -360,7 +341,10 @@ class SubmissionWizardViewModel @Inject constructor(
                     startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
                     isFirstUserOnly = wizardData.isFirstUserOnly,
-                    createdBy = currentUserId,
+                    createdBy = currentUserData.id,
+                    createdByUsername = currentUserData.username,
+                    createdByAvatarUrl = currentUserData.avatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
                 null -> return@launch
             }
@@ -439,6 +423,124 @@ class SubmissionWizardViewModel @Inject constructor(
                 }
                 else -> currentState
             }
+        }
+    }
+
+    private suspend fun getCurrentUserId(): UserId? {
+        return try {
+            getAuthStateUseCase().let { authUseCase ->
+                var userId: UserId? = null
+                authUseCase.collect { authResult ->
+                    when (authResult) {
+                        is Result.Success -> {
+                            when (val authState = authResult.data) {
+                                is AuthState.Authenticated -> {
+                                    userId = authState.user.id
+                                    return@collect
+                                }
+                                else -> {
+                                    _uiState.update {
+                                        SubmissionWizardUiState.Error(
+                                            errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                            isRetryable = false,
+                                            shouldShowSnackbar = true,
+                                            errorCode = "auth_required",
+                                        )
+                                    }
+                                    return@collect
+                                }
+                            }
+                        }
+                        else -> {
+                            _uiState.update {
+                                SubmissionWizardUiState.Error(
+                                    errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                    isRetryable = true,
+                                    shouldShowSnackbar = true,
+                                    errorCode = "auth_check_failed",
+                                )
+                            }
+                            return@collect
+                        }
+                    }
+                }
+                userId
+            }
+        } catch (e: Exception) {
+            _uiState.update {
+                SubmissionWizardUiState.Error(
+                    errorType = ErrorType.AUTH_UNAUTHORIZED,
+                    isRetryable = true,
+                    shouldShowSnackbar = true,
+                    errorCode = "auth_exception",
+                )
+            }
+            null
+        }
+    }
+
+    /**
+     * User data needed for promo code creation
+     */
+    private data class UserData(val id: UserId, val username: String?, val avatarUrl: String?)
+
+    /**
+     * Get comprehensive user data for promo code creation
+     */
+    private suspend fun getCurrentUserData(): UserData? {
+        return try {
+            getAuthStateUseCase().let { authUseCase ->
+                var userData: UserData? = null
+                authUseCase.collect { authResult ->
+                    when (authResult) {
+                        is Result.Success -> {
+                            when (val authState = authResult.data) {
+                                is AuthState.Authenticated -> {
+                                    userData = UserData(
+                                        id = authState.user.id,
+                                        username = authState.user.profile.displayName,
+                                        avatarUrl = authState.user.profile.photoUrl,
+                                    )
+                                    return@collect
+                                }
+                                else -> {
+                                    _uiState.update {
+                                        SubmissionWizardUiState.Error(
+                                            errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                            isRetryable = false,
+                                            shouldShowSnackbar = true,
+                                            errorCode = "auth_required",
+                                        )
+                                    }
+                                    return@collect
+                                }
+                            }
+                        }
+                        else -> {
+                            _uiState.update {
+                                SubmissionWizardUiState.Error(
+                                    errorType = ErrorType.AUTH_UNAUTHORIZED,
+                                    isRetryable = true,
+                                    shouldShowSnackbar = true,
+                                    errorCode = "auth_check_failed",
+                                )
+                            }
+                            return@collect
+                        }
+                    }
+                }
+                userData
+            }
+        } catch (e: Exception) {
+            _uiState.update {
+                SubmissionWizardUiState.Error(
+                    errorType = ErrorType.AUTH_UNAUTHORIZED,
+                    isRetryable = true,
+                    shouldShowSnackbar = true,
+                    errorCode = "auth_exception",
+                )
+            }
+            null
         }
     }
 }

@@ -35,11 +35,9 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.VoteState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 @Composable
 fun ActionButtonsSection(
@@ -269,20 +267,7 @@ private fun formatCount(count: Int): String =
 @Composable
 private fun ActionButtonsPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 5000.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(7.days),
-            upvotes = 1250,
-            downvotes = 28,
-            shares = 326,
-            views = 5420,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         Column(
             modifier = Modifier.padding(SpacingTokens.lg),

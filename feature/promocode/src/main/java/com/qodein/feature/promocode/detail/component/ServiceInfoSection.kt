@@ -29,10 +29,9 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.core.ui.component.getPromoCodeStatus
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 // MARK: - Main Component
 
@@ -252,19 +251,7 @@ fun ServiceInfoSection(
 @Composable
 private fun ServiceInfoSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro Service",
-            category = "Food",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 5000.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(7.days),
-            targetCountries = listOf("KZ", "US"),
-            isVerified = true,
-            isFirstUserOnly = true,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         Surface {
             ServiceInfoSection(

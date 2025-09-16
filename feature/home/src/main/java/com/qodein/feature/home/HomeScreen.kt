@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -202,7 +203,8 @@ private fun HomeContent(
                             topStart = SHEET_CORNER_RADIUS_DP.dp,
                             topEnd = SHEET_CORNER_RADIUS_DP.dp,
                         ),
-                    ),
+                    )
+                    .background(MaterialTheme.colorScheme.surface),
             ) {
                 BottomSheetContent(
                     uiState = uiState,
@@ -214,6 +216,7 @@ private fun HomeContent(
         },
         sheetPeekHeight = peekHeight,
         sheetDragHandle = null, // We'll add custom drag handle
+        sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
     ) {
         // Main content - animated banner that responds to sheet drag

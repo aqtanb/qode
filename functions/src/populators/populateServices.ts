@@ -20,11 +20,14 @@ const translit = (s: string): string => {
   return s.split("").map(ch => m[ch] ?? ch).join("");
 };
 
-const slug = (s: string): string =>                                                                                                                                                                                                                                                                                               
-  translit(s)
+// Transliterate THEN sanitize for meaningful IDs
+const sanitizeForId = (s: string): string =>
+  translit(s)  // Convert Cyrillic to Latin first
+    .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_{2,}/g, "_")  // Clean up consecutive underscores
+    .replace(/^_+|_+$/g, ""); // Remove leading/trailing underscores
 
 const logo = (domain: string): string => (domain ? `https://logo.clearbit.com/${domain}` : "");
 
@@ -35,83 +38,63 @@ interface ServiceData {
 }
 
 const services: ServiceData[] = [
-  // Food
-  { name: "Яндекс Лавка", category: "Food", domain: "lavka.yandex.ru" },
-  { name: "Dodo", category: "Food", domain: "dodopizza.kz" },
-  { name: "chocofood", category: "Food", domain: "chocofood.kz" },
-  { name: "arbuz", category: "Food", domain: "arbuz.kz" },
-  { name: "abr", category: "Food", domain: "" },
+  // ENTERTAINMENT (STREAMING + GAMING + MUSIC + ENTERTAINMENT)
+  { name: "BeeTV", category: "Entertainment", domain: "beetv.kz" },
+  { name: "Meloman", category: "Entertainment", domain: "meloman.kz" },
+  { name: "Яндекс Плюс", category: "Entertainment", domain: "plus.yandex.kz" },
 
-  // Beauty
-  { name: "Золотое Яблоко", category: "Beauty", domain: "goldapple.ru" },
-  { name: "Letoile", category: "Beauty", domain: "letoile.ru" },
+  // FOOD
+  { name: "Dodo Pizza", category: "Food", domain: "dodopizza.kz" },
+  { name: "Saya Sushi", category: "Food", domain: "saya-sushi.kz" },
+  { name: "Vlife", category: "Food", domain: "vlife.kz" },
+  { name: "Del Papa", category: "Food", domain: "delpapa.kz" },
+  { name: "DIONA", category: "Food", domain: "diona.kz" },
+  { name: "Shaurma Food", category: "Food", domain: "shaurmafood.kz" },
+  { name: "Papa John's", category: "Food", domain: "papajohns.kz" },
+  { name: "Tanuki", category: "Food", domain: "tanuki.kz" },
+  { name: "Manga Sushi", category: "Food", domain: "mangasushi.kz" },
+  { name: "Izuimi Sushi", category: "Food", domain: "izuimi.kz" },
+  { name: "Burger King", category: "Food", domain: "burgerking.kz" },
+  { name: "Яндекс Лавка", category: "Food", domain: "lavka.yandex.kz" },
+  { name: "Яндекс Экспресс", category: "Food", domain: "express.yandex.kz" },
 
-  // Electronics
+  // TRANSPORT
+  { name: "Яндекс Go", category: "Transport", domain: "go.yandex.kz" },
+  { name: "Anytime", category: "Transport", domain: "anytime.kz" },
+  { name: "Vietjet Air", category: "Transport", domain: "vietjetair.com" },
+
+  // SHOPPING (SHOPPING + MARKETPLACE)
+  { name: "Flip", category: "Shopping", domain: "flip.kz" },
+  { name: "Halyk Market", category: "Shopping", domain: "halykmarket.kz" },
+  { name: "Clever Market", category: "Shopping", domain: "clevermarket.kz" },
+  { name: "Arbuz", category: "Shopping", domain: "arbuz.kz" },
+
+  // EDUCATION
+  { name: "Яндекс Практикум", category: "Education", domain: "praktikum.yandex.kz" },
+  { name: "Яндекс 360", category: "Other", domain: "360.yandex.kz" },
+
+  // FITNESS
+  { name: "Sportmaster", category: "Fitness", domain: "sportmaster.kz" },
+
+  // BEAUTY
+  { name: "BeautyMania", category: "Beauty", domain: "beautymania.kz" },
+  { name: "L'Etoile", category: "Beauty", domain: "letoile.kz" },
+
+  // CLOTHING
+  { name: "Mark Formelle", category: "Clothing", domain: "markformelle.kz" },
+  { name: "DeFacto", category: "Clothing", domain: "defacto.com" },
+
+  // ELECTRONICS
   { name: "Sulpak", category: "Electronics", domain: "sulpak.kz" },
   { name: "Technodom", category: "Electronics", domain: "technodom.kz" },
+  { name: "Tefal.kz", category: "Electronics", domain: "tefal.kz" },
+  { name: "Xiaomi", category: "Electronics", domain: "xiaomi.com" },
 
-  // Jewelry
-  { name: "Sokolov", category: "Jewelry", domain: "sokolov.ru" },
+  // TRAVEL
+  { name: "Freedom Travel", category: "Travel", domain: "freedom.kz" },
 
-  // Health
-  { name: "iHerb", category: "Health", domain: "iherb.com" },
-
-  // Transport
-  { name: "anytime", category: "Transport", domain: "anytime.kz" },
-
-  // Education
-  { name: "Яндекс Практикум", category: "Education", domain: "practicum.yandex.ru" },
-
-  // Entertainment / Streaming
-  { name: "Яндекс Плюс", category: "Entertainment", domain: "plus.yandex.ru" },
-  { name: "КиноПоиск", category: "Entertainment", domain: "kinopoisk.ru" },
-  { name: "YouTube Premium", category: "Streaming", domain: "youtube.com" },
-  { name: "Netflix", category: "Streaming", domain: "netflix.com" },
-  { name: "Spotify", category: "Music", domain: "spotify.com" },
-
-  // Marketplace
-  { name: "Teez", category: "Marketplace", domain: "" },
-  { name: "Halyk Market", category: "Marketplace", domain: "halykmarket.kz" },
-  { name: "clever market", category: "Marketplace", domain: "" },
-  { name: "ForteMarket", category: "Marketplace", domain: "fortemarket.kz" },
-  { name: "flowwow", category: "Marketplace", domain: "flowwow.com" },
-
-  // Shopping
-  { name: "Kaspi.kz", category: "Shopping", domain: "kaspi.kz" },
-  { name: "Wildberries", category: "Shopping", domain: "wildberries.kz" },
-
-  // Gaming
-  { name: "Steam", category: "Gaming", domain: "store.steampowered.com" },
-  { name: "Epic Games", category: "Gaming", domain: "epicgames.com" },
-
-  // Finance
-  { name: "Kaspi Bank", category: "Finance", domain: "kaspi.kz" },
-  { name: "Halyk Bank", category: "Finance", domain: "halykbank.kz" },
-
-  // Services
-  { name: "Naimi.kz", category: "Services", domain: "naimi.kz" },
-  { name: "Freedom Travel", category: "Services", domain: "" },
-
-  // Telecom
-  { name: "izi", category: "Telecom", domain: "izi.me" },
-  { name: "Beeline", category: "Telecom", domain: "beeline.kz" },
-  { name: "Tele2", category: "Telecom", domain: "tele2.kz" },
-
-  // Fitness
-  { name: "World Class", category: "Fitness", domain: "worldclass.kz" },
-
-  // Travel
-  { name: "Booking.com", category: "Travel", domain: "booking.com" },
-  { name: "Airbnb", category: "Travel", domain: "airbnb.com" },
-
-  // Pharmacy
-  { name: "Eapteka", category: "Pharmacy", domain: "eapteka.kz" },
-
-  // Clothing
-  { name: "Zara", category: "Clothing", domain: "zara.com" },
-
-  // Other
-  { name: "Google", category: "Other", domain: "google.com" }
+  // JEWELRY
+  { name: "Sokolov", category: "Jewelry", domain: "sokolov.ru" }
 ];
 
 async function populateServices(): Promise<void> {
@@ -121,19 +104,18 @@ async function populateServices(): Promise<void> {
   let count = 0;
   
   for (const s of services) {
-    const categorySlug = slug(s.category);
-    const serviceSlug = slug(s.name);
+    const categorySlug = sanitizeForId(s.category);
+    const serviceSlug = sanitizeForId(s.name);
 
-    // Composite document ID: category_service                                                                                                                                                                                                                                                                    
-    const documentId = `${categorySlug}_${serviceSlug}`;
+    // Composite document ID: service_category
+    const documentId = `${serviceSlug}_${categorySlug}`;
 
     const doc = {
       name: s.name,
       category: s.category,
       logoUrl: logo(s.domain),
       domain: s.domain,
-      isPopular: true,
-      promoCodeCount: 0, // Will be updated by Cloud Function or separate process                                                                                                                                                                                                                                                 
+      promoCodeCount: 0, // Will be updated by Cloud Function or separate process
       createdAt: admin.firestore.Timestamp.now(),
       updatedAt: admin.firestore.Timestamp.now()
     };

@@ -10,11 +10,10 @@ data class ServiceId(val value: String)
 
 @Serializable
 data class Service(
-    val id: ServiceId, // We gotta use document id consisting of category_servicename, lowercase, sanitized
+    val id: ServiceId, // Document ID format: servicename_category, lowercase, sanitized
     val name: String,
     val category: String,
     val logoUrl: String? = null,
-    val isPopular: Boolean = false,
     val promoCodeCount: Int = 0, // Denormalized counter for display
     @Contextual val createdAt: Instant = Clock.System.now()
 ) {
@@ -28,7 +27,6 @@ data class Service(
             name: String,
             category: String,
             logoUrl: String? = null,
-            isPopular: Boolean = false,
             promoCodeCount: Int = 0
         ): Service {
             val id = ServiceId(generateServiceId(name, category))
@@ -37,7 +35,6 @@ data class Service(
                 name = name.trim(),
                 category = category.trim(),
                 logoUrl = logoUrl,
-                isPopular = isPopular,
                 promoCodeCount = promoCodeCount,
             )
         }
@@ -48,40 +45,28 @@ data class Service(
         ): String {
             val sanitizedName = name.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
             val sanitizedCategory = category.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
-            return "${sanitizedCategory}_$sanitizedName"
+            return "${sanitizedName}_$sanitizedCategory"
         }
 
-        // Predefined categories for consistency - single words only
+        // Consolidated categories for Kazakhstan market
         object Categories {
-            const val STREAMING = "Streaming"
+            const val ENTERTAINMENT = "Entertainment" // STREAMING + GAMING + MUSIC + ENTERTAINMENT
             const val FOOD = "Food"
             const val TRANSPORT = "Transport"
-            const val SHOPPING = "Shopping"
-            const val GAMING = "Gaming"
-            const val MUSIC = "Music"
+            const val SHOPPING = "Shopping" // SHOPPING + MARKETPLACE
             const val EDUCATION = "Education"
             const val FITNESS = "Fitness"
-            const val FINANCE = "Finance"
             const val BEAUTY = "Beauty"
             const val CLOTHING = "Clothing"
             const val ELECTRONICS = "Electronics"
             const val TRAVEL = "Travel"
-            const val PHARMACY = "Pharmacy"
             const val JEWELRY = "Jewelry"
-            const val HEALTH = "Health"
-            const val ENTERTAINMENT = "Entertainment"
-            const val MARKETPLACE = "Marketplace"
-            const val SERVICES = "Services"
-            const val TELECOM = "Telecom"
             const val OTHER = "Other"
             const val UNSPECIFIED = "Unspecified"
 
             val ALL = listOf(
-                STREAMING, FOOD, TRANSPORT, SHOPPING, GAMING, MUSIC,
-                EDUCATION, FITNESS, FINANCE, BEAUTY, CLOTHING,
-                ELECTRONICS, TRAVEL, PHARMACY, JEWELRY, HEALTH,
-                ENTERTAINMENT, MARKETPLACE, SERVICES, TELECOM,
-                OTHER, UNSPECIFIED,
+                BEAUTY, CLOTHING, EDUCATION, ELECTRONICS, ENTERTAINMENT, FITNESS, FOOD, JEWELRY,
+                SHOPPING, TRANSPORT, TRAVEL, OTHER, UNSPECIFIED,
             )
         }
     }

@@ -32,10 +32,8 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CategoryIconHelper
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 @Composable
 fun GradientBannerSection(
@@ -155,19 +153,7 @@ fun GradientBannerSection(
 @Composable
 private fun GradientBannerSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            description = "Қазақстандағы ең жақсы бағалар",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 5000.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(7.days),
-            upvotes = 331,
-            downvotes = 28,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         GradientBannerSection(
             promoCode = samplePromoCode,

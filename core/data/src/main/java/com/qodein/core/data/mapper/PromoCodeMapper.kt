@@ -32,7 +32,11 @@ object PromoCodeMapper {
         }
 
         val promoCodeId = PromoCodeId(dto.documentId)
-        val createdBy = dto.createdBy?.let { UserId(it) }
+        val createdBy = if (dto.createdBy.isBlank()) {
+            throw IllegalArgumentException("PromoCode createdBy cannot be blank")
+        } else {
+            UserId(dto.createdBy)
+        }
 
         return when (dto.type.lowercase()) {
             "percentage" -> PromoCode.PercentagePromoCode(
@@ -48,14 +52,17 @@ object PromoCodeMapper {
                 startDate = dto.startDate.toInstant().toKotlinInstant(),
                 endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
+                isOneTimeUseOnly = dto.isOneTimeUseOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
-                views = dto.views,
                 shares = dto.shares,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
+                createdByUsername = dto.createdByUsername,
+                createdByAvatarUrl = dto.createdByAvatarUrl,
+                serviceLogoUrl = dto.serviceLogoUrl,
             )
 
             "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
@@ -71,14 +78,17 @@ object PromoCodeMapper {
                 startDate = dto.startDate.toInstant().toKotlinInstant(),
                 endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
+                isOneTimeUseOnly = dto.isOneTimeUseOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
-                views = dto.views,
                 shares = dto.shares,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
+                createdByUsername = dto.createdByUsername,
+                createdByAvatarUrl = dto.createdByAvatarUrl,
+                serviceLogoUrl = dto.serviceLogoUrl,
             )
 
             else -> throw IllegalArgumentException("Unknown promo code type: ${dto.type}")
@@ -98,16 +108,19 @@ object PromoCodeMapper {
                 discountPercentage = domain.discountPercentage,
                 minimumOrderAmount = domain.minimumOrderAmount,
                 isFirstUserOnly = domain.isFirstUserOnly,
+                isOneTimeUseOnly = domain.isOneTimeUseOnly,
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
-                views = domain.views,
                 shares = domain.shares,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy?.value,
+                createdBy = domain.createdBy.value,
+                createdByUsername = domain.createdByUsername,
+                createdByAvatarUrl = domain.createdByAvatarUrl,
+                serviceLogoUrl = domain.serviceLogoUrl,
             )
 
             is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
@@ -121,16 +134,19 @@ object PromoCodeMapper {
                 discountAmount = domain.discountAmount,
                 minimumOrderAmount = domain.minimumOrderAmount,
                 isFirstUserOnly = domain.isFirstUserOnly,
+                isOneTimeUseOnly = domain.isOneTimeUseOnly,
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
-                views = domain.views,
                 shares = domain.shares,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
                 startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy?.value,
+                createdBy = domain.createdBy.value,
+                createdByUsername = domain.createdByUsername,
+                createdByAvatarUrl = domain.createdByAvatarUrl,
+                serviceLogoUrl = domain.serviceLogoUrl,
             )
         }
 }

@@ -113,26 +113,6 @@ constructor(
     }
 }
 
-@Serializable
-data class PostInteraction
-constructor(
-    val postId: PostId,
-    val userId: UserId,
-    val type: InteractionType,
-    val createdAt: Instant = Clock.System.now()
-)
-
-@Serializable
-enum class InteractionType {
-    UPVOTE,
-    DOWNVOTE,
-    REMOVE_VOTE,
-    COMMENT,
-    SHARE,
-    BOOKMARK,
-    UNBOOKMARK
-}
-
 // ================================================================================================
 // PROMO CODE MODELS
 // ================================================================================================
@@ -153,20 +133,22 @@ sealed class PromoCode {
     abstract val code: String
     abstract val serviceId: ServiceId? // Reference to Service document
     abstract val serviceName: String // Denormalized for display and filtering
-    abstract val category: String?
+    abstract val category: String
     abstract val description: String?
     abstract val startDate: Instant
     abstract val endDate: Instant
     abstract val isFirstUserOnly: Boolean
+    abstract val isOneTimeUseOnly: Boolean
     abstract val upvotes: Int
     abstract val downvotes: Int
-    abstract val views: Int
     abstract val shares: Int
-    abstract val screenshotUrl: String?
     abstract val targetCountries: List<String>
     abstract val isVerified: Boolean
     abstract val createdAt: Instant
-    abstract val createdBy: UserId?
+    abstract val createdBy: UserId
+    abstract val createdByUsername: String? // Denormalized from User for display performance
+    abstract val createdByAvatarUrl: String? // Denormalized from User for display performance
+    abstract val serviceLogoUrl: String? // Denormalized from Service for display performance
 
     val isExpired: Boolean get() = Clock.System.now() > endDate
     val isNotStarted: Boolean get() = Clock.System.now() < startDate
@@ -181,22 +163,24 @@ sealed class PromoCode {
         override val code: String,
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
-        override val category: String? = null,
+        override val category: String = "Unspecified",
         override val description: String? = null,
         val discountPercentage: Double,
         val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
+        override val isOneTimeUseOnly: Boolean = false,
         override val upvotes: Int = 0,
         override val downvotes: Int = 0,
-        override val views: Int = 0,
         override val shares: Int = 0,
-        override val screenshotUrl: String? = null,
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null
+        override val createdBy: UserId,
+        override val createdByUsername: String? = null,
+        override val createdByAvatarUrl: String? = null,
+        override val serviceLogoUrl: String? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -205,7 +189,6 @@ sealed class PromoCode {
             require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
             require(upvotes >= 0) { "Upvotes cannot be negative" }
             require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(views >= 0) { "Views cannot be negative" }
             require(shares >= 0) { "Shares cannot be negative" }
             require(endDate > startDate) { "End date must be after start date" }
         }
@@ -219,22 +202,24 @@ sealed class PromoCode {
         override val code: String,
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
-        override val category: String? = null,
+        override val category: String = "Unspecified",
         override val description: String? = null,
         val discountAmount: Double,
         val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
+        override val isOneTimeUseOnly: Boolean = false,
         override val upvotes: Int = 0,
         override val downvotes: Int = 0,
-        override val views: Int = 0,
         override val shares: Int = 0,
-        override val screenshotUrl: String? = null,
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null
+        override val createdBy: UserId,
+        override val createdByUsername: String? = null,
+        override val createdByAvatarUrl: String? = null,
+        override val serviceLogoUrl: String? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -243,7 +228,6 @@ sealed class PromoCode {
             require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
             require(upvotes >= 0) { "Upvotes cannot be negative" }
             require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(views >= 0) { "Views cannot be negative" }
             require(shares >= 0) { "Shares cannot be negative" }
             require(endDate > startDate) { "End date must be after start date" }
         }
@@ -265,14 +249,17 @@ sealed class PromoCode {
             code: String,
             serviceName: String,
             discountPercentage: Double,
-            category: String? = null,
+            category: String = "Unspecified",
             description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
             targetCountries: List<String> = emptyList(),
-            createdBy: UserId? = null
+            createdBy: UserId,
+            createdByUsername: String? = null,
+            createdByAvatarUrl: String? = null,
+            serviceLogoUrl: String? = null
         ): Result<PercentagePromoCode> =
             runCatching {
                 val cleanCode = code.uppercase().trim()
@@ -281,7 +268,7 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
-                    category = category?.trim(),
+                    category = category.trim(),
                     description = description?.trim(),
                     discountPercentage = discountPercentage,
                     minimumOrderAmount = minimumOrderAmount,
@@ -290,6 +277,9 @@ sealed class PromoCode {
                     isFirstUserOnly = isFirstUserOnly,
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
+                    createdByUsername = createdByUsername,
+                    createdByAvatarUrl = createdByAvatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
             }
 
@@ -297,14 +287,17 @@ sealed class PromoCode {
             code: String,
             serviceName: String,
             discountAmount: Double,
-            category: String? = null,
+            category: String = "Unspecified",
             description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
             targetCountries: List<String> = emptyList(),
-            createdBy: UserId? = null
+            createdBy: UserId,
+            createdByUsername: String? = null,
+            createdByAvatarUrl: String? = null,
+            serviceLogoUrl: String? = null
         ): Result<FixedAmountPromoCode> =
             runCatching {
                 val cleanCode = code.uppercase().trim()
@@ -313,7 +306,7 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
-                    category = category?.trim(),
+                    category = category.trim(),
                     description = description?.trim(),
                     discountAmount = discountAmount,
                     minimumOrderAmount = minimumOrderAmount,
@@ -322,6 +315,9 @@ sealed class PromoCode {
                     isFirstUserOnly = isFirstUserOnly,
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
+                    createdByUsername = createdByUsername,
+                    createdByAvatarUrl = createdByAvatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
             }
     }
@@ -488,7 +484,7 @@ data class Promo(
             serviceName: String,
             createdBy: UserId,
             imageUrls: List<String> = emptyList(),
-            category: String? = null,
+            category: String = "Unspecified",
             targetCountries: List<String> = emptyList(),
             expiresAt: Instant? = null
         ): Result<Promo> =
@@ -504,7 +500,7 @@ data class Promo(
                     serviceName = serviceName.trim(),
                     createdBy = createdBy,
                     imageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() },
-                    category = category?.trim(),
+                    category = category.trim(),
                     targetCountries = targetCountries.map { it.uppercase() },
                     expiresAt = expiresAt,
                 )

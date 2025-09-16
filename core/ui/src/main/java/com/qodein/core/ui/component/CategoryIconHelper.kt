@@ -21,26 +21,17 @@ object CategoryIconHelper {
      * Category to icon mapping using existing QodeIcons
      */
     private val CATEGORY_ICONS: Map<String, ImageVector> = mapOf(
-        Service.Companion.Categories.STREAMING to QodeCategoryIcons.Streaming,
         Service.Companion.Categories.FOOD to QodeCategoryIcons.Food,
         Service.Companion.Categories.TRANSPORT to QodeCategoryIcons.Bus,
         Service.Companion.Categories.SHOPPING to QodeCategoryIcons.Grocery,
-        Service.Companion.Categories.GAMING to QodeCategoryIcons.Computers,
-        Service.Companion.Categories.MUSIC to QodeCategoryIcons.Music,
         Service.Companion.Categories.EDUCATION to QodeCategoryIcons.Education,
         Service.Companion.Categories.FITNESS to QodeCategoryIcons.Fitness,
-        Service.Companion.Categories.FINANCE to QodeCategoryIcons.Finance,
         Service.Companion.Categories.BEAUTY to QodeCategoryIcons.Cosmetics,
         Service.Companion.Categories.CLOTHING to QodeCategoryIcons.Clothing,
         Service.Companion.Categories.ELECTRONICS to QodeCategoryIcons.Electronics,
         Service.Companion.Categories.TRAVEL to QodeCategoryIcons.Travel,
-        Service.Companion.Categories.PHARMACY to QodeCategoryIcons.Supplements,
         Service.Companion.Categories.JEWELRY to QodeCategoryIcons.Accessories,
-        Service.Companion.Categories.HEALTH to QodeCategoryIcons.Medical,
         Service.Companion.Categories.ENTERTAINMENT to QodeCategoryIcons.Entertainment,
-        Service.Companion.Categories.MARKETPLACE to QodeCategoryIcons.Investment,
-        Service.Companion.Categories.SERVICES to QodeCategoryIcons.Services,
-        Service.Companion.Categories.TELECOM to QodeCategoryIcons.Phones,
         Service.Companion.Categories.OTHER to QodeCommerceIcons.Order,
         Service.Companion.Categories.UNSPECIFIED to QodeNavigationIcons.Help,
     )

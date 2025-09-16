@@ -24,6 +24,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.submission.component.BottomController
 import com.qodein.feature.promocode.submission.component.CurrentStepContent
 import com.qodein.feature.promocode.submission.component.StepWithHint
@@ -83,7 +84,7 @@ fun SubmissionScreen(
                     else -> emptyList()
                 },
                 onServiceSelected = { service ->
-                    viewModel.onAction(SubmissionWizardAction.UpdateServiceName(service.name))
+                    viewModel.onAction(SubmissionWizardAction.SelectService(service))
                     viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
                 },
                 onDismiss = {
@@ -221,7 +222,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
         SubmissionContent(
             uiState = SubmissionWizardUiState.Success(
                 wizardData = SubmissionWizardData(
-                    serviceName = "Netflix",
+                    selectedService = ServicePreviewData.netflix,
                     promoCodeType = PromoCodeType.PERCENTAGE,
                 ),
                 currentProgressiveStep = ProgressiveStep.PROMO_CODE,
@@ -257,7 +258,7 @@ private fun SubmissionContentDarkThemePreview() {
         SubmissionContent(
             uiState = SubmissionWizardUiState.Success(
                 wizardData = SubmissionWizardData(
-                    serviceName = "Netflix",
+                    selectedService = ServicePreviewData.netflix,
                     promoCodeType = PromoCodeType.PERCENTAGE,
                 ),
                 currentProgressiveStep = ProgressiveStep.DISCOUNT_VALUE,

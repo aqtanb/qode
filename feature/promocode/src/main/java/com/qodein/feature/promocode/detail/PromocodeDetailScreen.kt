@@ -41,6 +41,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
@@ -50,8 +51,6 @@ import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -263,7 +262,8 @@ private fun PromocodeDetailContent(
                     )
 
                     FooterSection(
-                        views = promoCode.views,
+                        username = promoCode.createdByUsername,
+                        avatarUrl = promoCode.createdByAvatarUrl,
                         createdAt = promoCode.createdAt,
                         modifier = Modifier.padding(horizontal = SpacingTokens.md),
                     )
@@ -331,23 +331,7 @@ private fun copyToClipboard(
 @Composable
 private fun PromocodeDetailScreenPreview() {
     QodeTheme(darkTheme = false) {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            description = "Казахстанда ең жақсы бағалар",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 76060.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(30.days),
-            upvotes = 331,
-            downvotes = 28,
-            views = 1250,
-            shares = 26,
-            isVerified = true,
-            targetCountries = listOf("KZ"),
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(

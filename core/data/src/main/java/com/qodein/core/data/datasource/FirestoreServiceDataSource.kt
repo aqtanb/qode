@@ -72,8 +72,6 @@ class FirestoreServiceDataSource @Inject constructor(private val firestore: Fire
                     else -> 0
                 }
             }.thenByDescending { service ->
-                if (service.isPopular) 1 else 0
-            }.thenByDescending { service ->
                 service.promoCodeCount
             },
         )

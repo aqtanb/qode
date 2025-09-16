@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +58,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
@@ -71,13 +74,12 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.core.ui.R
 import com.qodein.core.ui.component.getPromoCodeStatus
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 
@@ -254,7 +256,7 @@ fun CouponPromoCodeCard(
             pressedElevation = ElevationTokens.small,
         ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(ElevationTokens.small),
         ),
     ) {
         Box(
@@ -338,6 +340,16 @@ private fun CouponHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        CircularImage(
+            imageUrl = promoCode.serviceLogoUrl,
+            fallbackIcon = QodeCommerceIcons.Store,
+            contentDescription = "Service logo",
+            size = CouponTokens.iconSize,
+            modifier = Modifier.size(CouponTokens.iconSize),
+        )
+
+        Spacer(modifier = Modifier.width(SpacingTokens.sm))
+
         Text(
             text = promoCode.serviceName,
             style = MaterialTheme.typography.titleMedium,
@@ -513,31 +525,47 @@ private fun formatLastUpdated(instant: Instant): String {
     return formatter.format(date)
 }
 
-@Preview(name = "Light Theme")
+@Preview(name = "Percentage Promo - Light")
 @Preview(
-    name = "Dark Theme",
+    name = "Percentage Promo - Dark",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Composable
 fun CouponPromoCodeCardPreview() {
     QodeTheme {
         Surface {
-            val samplePercentagePromo = PromoCode.PercentagePromoCode(
-                id = PromoCodeId("SAMPLE_PERCENTAGE"),
-                code = "SAVE25",
-                serviceName = "Food Delivery",
-                category = "Marketplace",
-                discountPercentage = 25.0,
-                minimumOrderAmount = 5000.0,
-                startDate = Clock.System.now(),
-                endDate = Clock.System.now().plus(7.days),
-                upvotes = 125,
-                downvotes = 12,
-                createdAt = Clock.System.now().minus(2.days),
-            )
-
             CouponPromoCodeCard(
-                promoCode = samplePercentagePromo,
+                promoCode = PromoCodePreviewData.percentagePromoCode,
+                onCardClick = {},
+                onCopyCodeClick = {},
+                modifier = Modifier.padding(16.dp),
+            )
+        }
+    }
+}
+
+@Preview(name = "Fixed Amount Promo")
+@Composable
+fun CouponPromoCodeCardFixedAmountPreview() {
+    QodeTheme {
+        Surface {
+            CouponPromoCodeCard(
+                promoCode = PromoCodePreviewData.fixedAmountPromoCode,
+                onCardClick = {},
+                onCopyCodeClick = {},
+                modifier = Modifier.padding(16.dp),
+            )
+        }
+    }
+}
+
+@Preview(name = "Expiring Soon")
+@Composable
+fun CouponPromoCodeCardExpiringSoonPreview() {
+    QodeTheme {
+        Surface {
+            CouponPromoCodeCard(
+                promoCode = PromoCodePreviewData.expiringSoonPromoCode,
                 onCardClick = {},
                 onCopyCodeClick = {},
                 modifier = Modifier.padding(16.dp),

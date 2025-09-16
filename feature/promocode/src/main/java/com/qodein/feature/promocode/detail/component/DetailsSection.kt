@@ -24,8 +24,8 @@ import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
@@ -193,21 +193,8 @@ private fun isExpiringWithinWeek(endDate: Instant): Boolean {
 @Composable
 private fun DetailsSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 76060.0,
-            startDate = Clock.System.now().minus(1.days),
-            endDate = Clock.System.now().plus(30.days),
-            isFirstUserOnly = true,
-            createdAt = Clock.System.now().minus(5.days),
-        )
-
         Surface {
-            DetailsSection(promoCode = samplePromoCode)
+            DetailsSection(promoCode = PromoCodePreviewData.percentagePromoCode)
         }
     }
 }
