@@ -16,9 +16,6 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.VoteState
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,11 +23,7 @@ import javax.inject.Singleton
 private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
 
 @Singleton
-class FirestorePromocodeDataSource @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val queryCache: QueryCache,
-    private val voteDataSource: FirestoreVoteDataSource
-) {
+class FirestorePromocodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
@@ -194,32 +187,9 @@ class FirestorePromocodeDataSource @Inject constructor(
         id: PromoCodeId,
         userId: UserId
     ): PromoCode? {
-        return coroutineScope {
-            // Start fetching the promo code details in parallel
-            val promoCodeDeferred = async { getPromoCodeById(id) }
-
-            // Start fetching the user's vote status in parallel
-            val voteStatusDeferred = async { voteDataSource.getUserVoteStatus(id.value, userId) }
-
-            // Await both results
-            val promoCode = promoCodeDeferred.await()
-            val voteStatus = voteStatusDeferred.await()
-
-            // Handle the case where the promo code wasn't found
-            if (promoCode == null) return@coroutineScope null
-
-            // Return promo code with correct vote flags
-            when (promoCode) {
-                is PromoCode.PercentagePromoCode -> promoCode.copy(
-                    isUpvotedByCurrentUser = voteStatus == VoteState.UPVOTE,
-                    isDownvotedByCurrentUser = voteStatus == VoteState.DOWNVOTE,
-                )
-                is PromoCode.FixedAmountPromoCode -> promoCode.copy(
-                    isUpvotedByCurrentUser = voteStatus == VoteState.UPVOTE,
-                    isDownvotedByCurrentUser = voteStatus == VoteState.DOWNVOTE,
-                )
-            }
-        }
+        // User-specific state is now handled separately via UserInteraction
+        // This method just returns the promo code content
+        return getPromoCodeById(id)
     }
 
     suspend fun updatePromoCode(promoCode: PromoCode): PromoCode {

@@ -6,11 +6,15 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.CommentRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PromoCodeRepository
-import com.qodein.shared.domain.repository.VoteRepository
+import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
+import com.qodein.shared.domain.usecase.interaction.GetUserBookmarksUseCase
+import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
+import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
+import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
@@ -19,10 +23,8 @@ import com.qodein.shared.domain.usecase.promocode.AddCommentUseCase
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
-import com.qodein.shared.domain.usecase.promocode.GetPromocodeVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.IncrementViewCountUseCase
 import com.qodein.shared.domain.usecase.promocode.ValidatePromoCodeUseCase
-import com.qodein.shared.domain.usecase.promocode.VoteOnPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import dagger.Module
@@ -95,16 +97,28 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideVoteOnPromoCodeUseCase(voteRepository: VoteRepository): VoteOnPromocodeUseCase = VoteOnPromocodeUseCase(voteRepository)
-
-    @Provides
-    @Singleton
     fun provideValidatePromoCodeUseCase(promoCodeRepository: PromoCodeRepository): ValidatePromoCodeUseCase =
         ValidatePromoCodeUseCase(promoCodeRepository)
 
     @Provides
     @Singleton
-    fun provideGetUserVoteUseCase(voteRepository: VoteRepository): GetPromocodeVoteUseCase = GetPromocodeVoteUseCase(voteRepository)
+    fun provideToggleVoteUseCase(unifiedRepository: UnifiedUserInteractionRepository): ToggleVoteUseCase =
+        ToggleVoteUseCase(unifiedRepository)
+
+    @Provides
+    @Singleton
+    fun provideToggleBookmarkUseCase(unifiedRepository: UnifiedUserInteractionRepository): ToggleBookmarkUseCase =
+        ToggleBookmarkUseCase(unifiedRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetUserBookmarksUseCase(unifiedRepository: UnifiedUserInteractionRepository): GetUserBookmarksUseCase =
+        GetUserBookmarksUseCase(unifiedRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetUserInteractionUseCase(unifiedRepository: UnifiedUserInteractionRepository): GetUserInteractionUseCase =
+        GetUserInteractionUseCase(unifiedRepository)
 
     @Provides
     @Singleton

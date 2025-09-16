@@ -39,8 +39,8 @@ object CommentMapper {
             upvotes = dto.upvotes,
             downvotes = dto.downvotes,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-            isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
+            isUpvotedByCurrentUser = false, // Default - should be loaded from user interaction system
+            isDownvotedByCurrentUser = false, // Default - should be loaded from user interaction system
         )
     }
 
@@ -58,8 +58,7 @@ object CommentMapper {
             upvotes = domain.upvotes,
             downvotes = domain.downvotes,
             createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-            isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
+            // Note: User interaction fields are not stored in DTOs anymore - handled by unified system
         )
 
     fun toDomainList(dtos: List<CommentDto>): List<Comment> =

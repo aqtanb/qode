@@ -51,17 +51,7 @@ data class PostDto(
 
     @PropertyName("createdAt")
     @ServerTimestamp
-    val createdAt: Timestamp? = null,
-
-    // User interaction flags (computed at query time)
-    @PropertyName("isUpvotedByCurrentUser")
-    val isUpvotedByCurrentUser: Boolean = false,
-
-    @PropertyName("isDownvotedByCurrentUser")
-    val isDownvotedByCurrentUser: Boolean = false,
-
-    @PropertyName("isBookmarkedByCurrentUser")
-    val isBookmarkedByCurrentUser: Boolean = false
+    val createdAt: Timestamp? = null
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
@@ -78,9 +68,6 @@ data class PostDto(
         downvotes = 0,
         shares = 0,
         createdAt = null,
-        isUpvotedByCurrentUser = false,
-        isDownvotedByCurrentUser = false,
-        isBookmarkedByCurrentUser = false,
     )
 }
 
@@ -136,20 +123,8 @@ data class PromoCodeDto(
     @ServerTimestamp
     val createdAt: Timestamp? = null,
     val updatedAt: Timestamp? = null,
-    val createdBy: String? = null,
+    val createdBy: String? = null
 
-    // User interaction flags (computed at query time)
-    @get:PropertyName("isUpvotedByCurrentUser")
-    @JvmField
-    val isUpvotedByCurrentUser: Boolean = false,
-
-    @get:PropertyName("isDownvotedByCurrentUser")
-    @JvmField
-    val isDownvotedByCurrentUser: Boolean = false,
-
-    @get:PropertyName("isBookmarkedByCurrentUser")
-    @JvmField
-    val isBookmarkedByCurrentUser: Boolean = false
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
@@ -179,25 +154,8 @@ data class PromoCodeDto(
         createdAt = null,
         updatedAt = null,
         createdBy = null,
-        isUpvotedByCurrentUser = false,
-        isDownvotedByCurrentUser = false,
-        isBookmarkedByCurrentUser = false,
     )
 }
-
-/**
- * Firestore document model for PromoCodeVote.
- */
-data class PromoCodeVoteDto(
-    @DocumentId
-    val id: String = "",
-    val promoCodeId: String = "",
-    val userId: String = "",
-    val isUpvote: Boolean = false,
-    @ServerTimestamp
-    val votedAt: Timestamp? = null
-)
-
 // ================================================================================================
 // COMMENT DTOs
 // ================================================================================================
@@ -242,13 +200,7 @@ data class CommentDto(
 
     @PropertyName("createdAt")
     @ServerTimestamp
-    val createdAt: Timestamp? = null,
-
-    @PropertyName("isUpvotedByCurrentUser")
-    val isUpvotedByCurrentUser: Boolean = false,
-
-    @PropertyName("isDownvotedByCurrentUser")
-    val isDownvotedByCurrentUser: Boolean = false
+    val createdAt: Timestamp? = null
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
@@ -264,8 +216,6 @@ data class CommentDto(
         upvotes = 0,
         downvotes = 0,
         createdAt = null,
-        isUpvotedByCurrentUser = false,
-        isDownvotedByCurrentUser = false,
     )
 }
 
@@ -322,17 +272,7 @@ data class PromoDto(
     val createdAt: Timestamp? = null,
 
     @PropertyName("expiresAt")
-    val expiresAt: Timestamp? = null,
-
-    // User interaction flags (computed at query time)
-    @PropertyName("isUpvotedByCurrentUser")
-    val isUpvotedByCurrentUser: Boolean = false,
-
-    @PropertyName("isDownvotedByCurrentUser")
-    val isDownvotedByCurrentUser: Boolean = false,
-
-    @PropertyName("isBookmarkedByCurrentUser")
-    val isBookmarkedByCurrentUser: Boolean = false
+    val expiresAt: Timestamp? = null
 ) {
     // Required no-argument constructor for Firestore
     constructor() : this(
@@ -351,9 +291,6 @@ data class PromoDto(
         createdBy = "",
         createdAt = null,
         expiresAt = null,
-        isUpvotedByCurrentUser = false,
-        isDownvotedByCurrentUser = false,
-        isBookmarkedByCurrentUser = false,
     )
 }
 

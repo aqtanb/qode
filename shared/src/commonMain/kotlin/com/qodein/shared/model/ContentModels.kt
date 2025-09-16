@@ -167,9 +167,6 @@ sealed class PromoCode {
     abstract val isVerified: Boolean
     abstract val createdAt: Instant
     abstract val createdBy: UserId?
-    abstract val isUpvotedByCurrentUser: Boolean
-    abstract val isDownvotedByCurrentUser: Boolean
-    abstract val isBookmarkedByCurrentUser: Boolean
 
     val isExpired: Boolean get() = Clock.System.now() > endDate
     val isNotStarted: Boolean get() = Clock.System.now() < startDate
@@ -199,10 +196,7 @@ sealed class PromoCode {
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null,
-        override val isUpvotedByCurrentUser: Boolean = false,
-        override val isDownvotedByCurrentUser: Boolean = false,
-        override val isBookmarkedByCurrentUser: Boolean = false
+        override val createdBy: UserId? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -240,10 +234,7 @@ sealed class PromoCode {
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null,
-        override val isUpvotedByCurrentUser: Boolean = false,
-        override val isDownvotedByCurrentUser: Boolean = false,
-        override val isBookmarkedByCurrentUser: Boolean = false
+        override val createdBy: UserId? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }

@@ -37,9 +37,9 @@ object PostMapper {
             downvotes = dto.downvotes,
             shares = dto.shares,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-            isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-            isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
+            isUpvotedByCurrentUser = false, // Default - should be loaded from user interaction system
+            isDownvotedByCurrentUser = false, // Default - should be loaded from user interaction system
+            isBookmarkedByCurrentUser = false, // Default - should be loaded from user interaction system
         )
     }
 
@@ -58,9 +58,7 @@ object PostMapper {
             downvotes = domain.downvotes,
             shares = domain.shares,
             createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-            isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-            isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
+            // Note: User interaction fields are not stored in DTOs anymore - handled by unified system
         )
 
     /**

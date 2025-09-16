@@ -34,9 +34,9 @@ object PromoMapper {
             createdBy = UserId(dto.createdBy),
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
             expiresAt = dto.expiresAt?.toInstant()?.toKotlinInstant(),
-            isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-            isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
+            isUpvotedByCurrentUser = false, // Default - should be loaded from user interaction system
+            isDownvotedByCurrentUser = false, // Default - should be loaded from user interaction system
+            isBookmarkedByCurrentUser = false, // Default - should be loaded from user interaction system
         )
     }
 
@@ -57,9 +57,7 @@ object PromoMapper {
             createdBy = domain.createdBy.value,
             createdAt = Timestamp(domain.createdAt.toJavaInstant()),
             expiresAt = domain.expiresAt?.let { Timestamp(it.toJavaInstant()) },
-            isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-            isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
+            // Note: User interaction fields are not stored in DTOs anymore - handled by unified system
         )
 
     fun toDomainList(dtos: List<PromoDto>): List<Promo> =

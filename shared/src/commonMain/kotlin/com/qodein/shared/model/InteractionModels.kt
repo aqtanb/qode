@@ -8,122 +8,6 @@ import kotlinx.serialization.UseContextualSerialization
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-/**
- * Represents a user's bookmark on content (promo codes or posts).
- * Stored in user's subcollection: /users/{userId}/bookmarks/{itemId}
- */
-@Serializable
-data class UserBookmark(
-    val id: String, // Generated: userId_itemId
-    val userId: UserId,
-    val itemId: String, // PromoCodeId.value or PostId.value
-    val itemType: BookmarkType,
-    val itemTitle: String, // Denormalized for quick display
-    val itemCategory: String? = null, // Denormalized for filtering
-    val createdAt: Instant = Clock.System.now()
-) {
-    init {
-        require(itemId.isNotBlank()) { "Item ID cannot be blank" }
-        require(itemTitle.isNotBlank()) { "Item title cannot be blank" }
-    }
-
-    companion object {
-        fun create(
-            userId: UserId,
-            itemId: String,
-            itemType: BookmarkType,
-            itemTitle: String,
-            itemCategory: String? = null
-        ): UserBookmark =
-            UserBookmark(
-                id = generateId(userId.value, itemId),
-                userId = userId,
-                itemId = itemId,
-                itemType = itemType,
-                itemTitle = itemTitle.trim(),
-                itemCategory = itemCategory?.trim(),
-            )
-
-        private fun generateId(
-            userId: String,
-            itemId: String
-        ): String = "${userId}_$itemId"
-    }
-}
-
-@Serializable
-enum class BookmarkType {
-    PROMO_CODE,
-    POST
-}
-
-/**
- * Unified vote model for all content types (promo codes, posts, comments, promos).
- * Stored in unified collection: /votes/{sanitized_itemId}_{sanitized_userId}
- */
-@Serializable
-data class Vote(
-    val id: String, // Generated: sanitized_itemId_sanitized_userId
-    val userId: UserId,
-    val itemId: String, // ID of the content being voted on
-    val itemType: VoteType,
-    val voteState: VoteState,
-    val createdAt: Instant = Clock.System.now(),
-    val updatedAt: Instant = Clock.System.now()
-) {
-    init {
-        require(itemId.isNotBlank()) { "Item ID cannot be blank" }
-    }
-
-    companion object {
-        fun create(
-            userId: UserId,
-            itemId: String,
-            itemType: VoteType,
-            voteState: VoteState
-        ): Vote =
-            Vote(
-                id = generateId(itemId, userId.value),
-                userId = userId,
-                itemId = itemId,
-                itemType = itemType,
-                voteState = voteState,
-            )
-
-        private fun generateId(
-            itemId: String,
-            userId: String
-        ): String {
-            val sanitizedItemId = itemId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
-            val sanitizedUserId = userId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
-            return "${sanitizedItemId}_$sanitizedUserId"
-        }
-    }
-
-    /**
-     * Toggle upvote: NONE/DOWNVOTE -> UPVOTE, UPVOTE -> NONE
-     */
-    fun toggleUpvote(): VoteState =
-        when (voteState) {
-            VoteState.UPVOTE -> VoteState.NONE
-            VoteState.DOWNVOTE, VoteState.NONE -> VoteState.UPVOTE
-        }
-
-    /**
-     * Toggle downvote: NONE/UPVOTE -> DOWNVOTE, DOWNVOTE -> NONE
-     */
-    fun toggleDownvote(): VoteState =
-        when (voteState) {
-            VoteState.DOWNVOTE -> VoteState.NONE
-            VoteState.UPVOTE, VoteState.NONE -> VoteState.DOWNVOTE
-        }
-
-    /**
-     * Remove vote: Any state -> NONE
-     */
-    fun remove(): VoteState = VoteState.NONE
-}
-
 @Serializable
 enum class VoteState {
     UPVOTE, // User has upvoted
@@ -132,7 +16,7 @@ enum class VoteState {
 }
 
 @Serializable
-enum class VoteType {
+enum class ContentType {
     PROMO_CODE,
     POST,
     COMMENT,
@@ -140,56 +24,148 @@ enum class VoteType {
 }
 
 /**
- * Tracks user activity for feed generation and analytics.
- * Stored in global collection: /user_activities/{activityId}
+ * Unified user interaction model combining votes and bookmarks.
+ * Stored in single Firestore collection: /user_interactions/{itemId}_{userId}
+ *
+ * This replaces separate Vote and UserBookmark collections for cost efficiency:
+ * - Detail screens: 2 reads instead of 3 (33% cost reduction)
+ * - Atomic updates: Vote + bookmark changes in single transaction
+ * - Clean separation: Content models have no user-specific fields
  */
 @Serializable
-data class UserActivity(
-    val id: String,
-    val userId: UserId,
-    val type: ActivityType,
-    val targetId: String, // ID of the content affected
-    val targetType: String, // "promo_code", "post", "comment"
-    val targetTitle: String? = null, // Denormalized for display
-    val metadata: Map<String, String> = emptyMap(), // Additional context
-    val createdAt: Instant = Clock.System.now()
+data class UserInteraction(
+    val id: String, // Generated: sanitized_itemId_sanitized_userId
+    val itemId: String, // ID of the content (promo code, post, comment)
+    val itemType: ContentType, // Type of content being interacted with (reusing existing ContentType)
+    val userId: UserId, // User performing the interaction
+    val voteState: VoteState, // Vote state (UPVOTE, DOWNVOTE, or NONE for no vote)
+    val isBookmarked: Boolean, // Whether user has bookmarked this content
+    val createdAt: Instant = Clock.System.now(),
+    val updatedAt: Instant = Clock.System.now()
 ) {
     init {
-        require(targetId.isNotBlank()) { "Target ID cannot be blank" }
-        require(targetType.isNotBlank()) { "Target type cannot be blank" }
+        require(itemId.isNotBlank()) { "Item ID cannot be blank" }
+        require(id.isNotBlank()) { "Interaction ID cannot be blank" }
+        require(updatedAt >= createdAt) { "Updated time cannot be before created time" }
+        require(id == generateId(itemId, userId.value)) {
+            "ID must match format: sanitized_itemId_sanitized_userId"
+        }
     }
+
+    /**
+     * Toggle upvote state: NONE/DOWNVOTE -> UPVOTE, UPVOTE -> NONE
+     */
+    fun toggleUpvote(): UserInteraction =
+        copy(
+            voteState = when (voteState) {
+                VoteState.UPVOTE -> VoteState.NONE
+                VoteState.DOWNVOTE, VoteState.NONE -> VoteState.UPVOTE
+            },
+            updatedAt = Clock.System.now(),
+        )
+
+    /**
+     * Toggle downvote state: NONE/UPVOTE -> DOWNVOTE, DOWNVOTE -> NONE
+     */
+    fun toggleDownvote(): UserInteraction =
+        copy(
+            voteState = when (voteState) {
+                VoteState.DOWNVOTE -> VoteState.NONE
+                VoteState.UPVOTE, VoteState.NONE -> VoteState.DOWNVOTE
+            },
+            updatedAt = Clock.System.now(),
+        )
+
+    /**
+     * Toggle bookmark state
+     */
+    fun toggleBookmark(): UserInteraction =
+        copy(
+            isBookmarked = !isBookmarked,
+            updatedAt = Clock.System.now(),
+        )
+
+    /**
+     * Remove all interactions (vote and bookmark)
+     */
+    fun clear(): UserInteraction =
+        copy(
+            voteState = VoteState.NONE,
+            isBookmarked = false,
+            updatedAt = Clock.System.now(),
+        )
 
     companion object {
+        /**
+         * Create new user interaction with validation
+         */
         fun create(
+            itemId: String,
+            itemType: ContentType,
             userId: UserId,
-            type: ActivityType,
-            targetId: String,
-            targetType: String,
-            targetTitle: String? = null,
-            metadata: Map<String, String> = emptyMap()
-        ): UserActivity =
-            UserActivity(
-                id = generateId(),
+            voteState: VoteState = VoteState.NONE,
+            isBookmarked: Boolean = false
+        ): UserInteraction {
+            val sanitizedId = generateId(itemId, userId.value)
+            return UserInteraction(
+                id = sanitizedId,
+                itemId = itemId,
+                itemType = itemType,
                 userId = userId,
-                type = type,
-                targetId = targetId,
-                targetType = targetType,
-                targetTitle = targetTitle?.trim(),
-                metadata = metadata,
+                voteState = voteState,
+                isBookmarked = isBookmarked,
             )
+        }
 
-        private fun generateId(): String = "activity_${Clock.System.now().toEpochMilliseconds()}_${(0..999).random()}"
+        /**
+         * Generate consistent sanitized ID for Firestore document
+         * Format: sanitized_itemId_sanitized_userId
+         *
+         * This must match the format used in Cloud Functions for consistency.
+         * Reuses the same logic as the existing Vote.generateId() method.
+         */
+        fun generateId(
+            itemId: String,
+            userId: String
+        ): String {
+            val sanitizedItemId = itemId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
+            val sanitizedUserId = userId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
+            return "${sanitizedItemId}_$sanitizedUserId"
+        }
+
+        /**
+         * Parse document ID to extract itemId and userId
+         * Returns Pair(itemId, userId) or null if invalid format
+         */
+        fun parseId(documentId: String): Pair<String, String>? {
+            val parts = documentId.split("_")
+            if (parts.size < 2) return null
+
+            // Find the last underscore - everything before is itemId, after is userId
+            val lastUnderscoreIndex = documentId.lastIndexOf("_")
+            if (lastUnderscoreIndex == -1) return null
+
+            val itemId = documentId.substring(0, lastUnderscoreIndex)
+            val userId = documentId.substring(lastUnderscoreIndex + 1)
+
+            return if (itemId.isNotBlank() && userId.isNotBlank()) {
+                Pair(itemId, userId)
+            } else {
+                null
+            }
+        }
     }
 }
 
+/**
+ * Statistics for user interactions on a specific item.
+ * Used for displaying vote/bookmark counts.
+ */
 @Serializable
-enum class ActivityType {
-    CREATED_PROMO_CODE,
-    CREATED_POST,
-    COMMENTED,
-    UPVOTED,
-    DOWNVOTED,
-    BOOKMARKED,
-    SHARED,
-    VIEWED_PROMO_CODE
-}
+data class InteractionStats(
+    val itemId: String,
+    val upvoteCount: Int = 0,
+    val downvoteCount: Int = 0,
+    val bookmarkCount: Int = 0,
+    val totalInteractions: Int = 0
+)

@@ -56,9 +56,6 @@ object PromoCodeMapper {
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
-                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
             )
 
             "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
@@ -82,9 +79,6 @@ object PromoCodeMapper {
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
-                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
             )
 
             else -> throw IllegalArgumentException("Unknown promo code type: ${dto.type}")
@@ -114,9 +108,6 @@ object PromoCodeMapper {
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
-                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
             )
 
             is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
@@ -140,9 +131,6 @@ object PromoCodeMapper {
                 endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
                 createdBy = domain.createdBy?.value,
-                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
             )
         }
 }

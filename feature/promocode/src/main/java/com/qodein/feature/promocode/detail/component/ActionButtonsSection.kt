@@ -44,6 +44,8 @@ import kotlin.time.Duration.Companion.days
 @Composable
 fun ActionButtonsSection(
     promoCode: PromoCode,
+    isUpvotedByCurrentUser: Boolean,
+    isDownvotedByCurrentUser: Boolean,
     showVoteAnimation: Boolean,
     lastVoteType: VoteState?,
     isSharing: Boolean,
@@ -71,7 +73,7 @@ fun ActionButtonsSection(
                 type = ActionButtonType.Upvote,
                 icon = QodeActionIcons.Thumbs,
                 count = promoCode.upvotes,
-                isUpvoted = promoCode.isUpvotedByCurrentUser,
+                isUpvoted = isUpvotedByCurrentUser,
                 showPositiveFeedback = showVoteAnimation && lastVoteType == VoteState.UPVOTE,
                 activeColor = MaterialTheme.extendedColorScheme.success,
                 onClick = onUpvoteClicked,
@@ -83,7 +85,7 @@ fun ActionButtonsSection(
                 type = ActionButtonType.Downvote,
                 icon = QodeActionIcons.ThumbsDown,
                 count = promoCode.downvotes,
-                isDownvoted = promoCode.isDownvotedByCurrentUser,
+                isDownvoted = isDownvotedByCurrentUser,
                 showPositiveFeedback = showVoteAnimation && lastVoteType == VoteState.DOWNVOTE,
                 activeColor = MaterialTheme.colorScheme.error,
                 onClick = onDownvoteClicked,
@@ -280,9 +282,6 @@ private fun ActionButtonsPreview() {
             downvotes = 28,
             shares = 326,
             views = 5420,
-            isUpvotedByCurrentUser = true,
-            isDownvotedByCurrentUser = false,
-            isBookmarkedByCurrentUser = false,
         )
 
         Column(
@@ -301,6 +300,8 @@ private fun ActionButtonsPreview() {
             )
             ActionButtonsSection(
                 promoCode = samplePromoCode,
+                isUpvotedByCurrentUser = true,
+                isDownvotedByCurrentUser = false,
                 showVoteAnimation = false,
                 lastVoteType = null,
                 isSharing = false,
@@ -316,11 +317,11 @@ private fun ActionButtonsPreview() {
             )
             ActionButtonsSection(
                 promoCode = samplePromoCode.copy(
-                    isUpvotedByCurrentUser = false,
-                    isDownvotedByCurrentUser = false,
                     upvotes = 42,
                     shares = 8,
                 ),
+                isUpvotedByCurrentUser = false,
+                isDownvotedByCurrentUser = false,
                 showVoteAnimation = false,
                 lastVoteType = null,
                 isSharing = false,
@@ -335,10 +336,9 @@ private fun ActionButtonsPreview() {
                 style = MaterialTheme.typography.titleMedium,
             )
             ActionButtonsSection(
-                promoCode = samplePromoCode.copy(
-                    isUpvotedByCurrentUser = false,
-                    isDownvotedByCurrentUser = false,
-                ),
+                promoCode = samplePromoCode,
+                isUpvotedByCurrentUser = false,
+                isDownvotedByCurrentUser = false,
                 showVoteAnimation = true,
                 lastVoteType = VoteState.UPVOTE,
                 isSharing = true,

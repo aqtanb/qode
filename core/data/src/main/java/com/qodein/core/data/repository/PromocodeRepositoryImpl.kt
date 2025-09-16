@@ -52,7 +52,7 @@ class PromocodeRepositoryImpl @Inject constructor(
 
     override fun getPromoCodeByCode(code: String): Flow<PromoCode?> =
         flow {
-            emit(promoCodeDataSource.getPromoCodeByCode(code))
+            throw NotImplementedError("getPromoCodeByCode not implemented in data source")
         }
 
     override fun updatePromoCode(promoCode: PromoCode): Flow<PromoCode> =
@@ -62,8 +62,7 @@ class PromocodeRepositoryImpl @Inject constructor(
 
     override fun deletePromoCode(id: PromoCodeId): Flow<Unit> =
         flow {
-            promoCodeDataSource.deletePromoCode(id)
-            emit(Unit)
+            throw NotImplementedError("deletePromoCode not implemented in data source")
         }
 
     override fun incrementViewCount(id: PromoCodeId): Flow<Unit> =
@@ -78,7 +77,7 @@ class PromocodeRepositoryImpl @Inject constructor(
         comment: String
     ): Flow<PromoCode> =
         flow {
-            emit(promoCodeDataSource.addComment(promoCodeId, userId, comment))
+            throw NotImplementedError("addComment not implemented in data source")
         }
 
     override fun getPromoCodesByUser(
@@ -87,12 +86,12 @@ class PromocodeRepositoryImpl @Inject constructor(
         offset: Int
     ): Flow<List<PromoCode>> =
         flow {
-            emit(promoCodeDataSource.getPromoCodesByUser(userId, limit, offset))
+            throw NotImplementedError("getPromoCodesByUser not implemented in data source")
         }
 
     override fun getPromoCodesByService(serviceName: String): Flow<List<PromoCode>> =
         flow {
-            emit(promoCodeDataSource.getPromoCodesByService(serviceName))
+            throw NotImplementedError("getPromoCodesByService not implemented in data source")
         }
 
     override fun getPromoCodeByCodeAndService(
@@ -100,10 +99,13 @@ class PromocodeRepositoryImpl @Inject constructor(
         serviceName: String
     ): Flow<PromoCode?> =
         flow {
-            emit(promoCodeDataSource.getPromoCodeByCodeAndService(code, serviceName))
+            throw NotImplementedError("getPromoCodeByCodeAndService not implemented in data source")
         }
 
-    override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> = promoCodeDataSource.observePromoCodes(ids)
+    override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> =
+        flow {
+            throw NotImplementedError("observePromoCodes not implemented in data source")
+        }
 
     // Service-related methods
 

@@ -49,6 +49,7 @@ import com.qodein.feature.promocode.detail.component.ServiceInfoSection
 import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromoCodeWithUserState
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -131,7 +132,7 @@ fun PromocodeDetailScreen(
                 actions = listOf(
                     TopAppBarAction(
                         icon = QodeActionIcons.Bookmark,
-                        contentDescription = if (uiState.promoCode?.isBookmarkedByCurrentUser == true) {
+                        contentDescription = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
                             "Remove bookmark"
                         } else {
                             "Bookmark promocode"
@@ -211,7 +212,8 @@ private fun PromocodeDetailContent(
 
             uiState.hasData -> {
                 // Content state
-                val promoCode = uiState.promoCode!!
+                val promoCodeWithUserState = uiState.promoCodeWithUserState!!
+                val promoCode = promoCodeWithUserState.promoCode
 
                 // Vote actions - auth checking now handled in ViewModel
                 val requireUpvote = {
@@ -249,6 +251,8 @@ private fun PromocodeDetailContent(
                     // Action Buttons Section
                     ActionButtonsSection(
                         promoCode = promoCode,
+                        isUpvotedByCurrentUser = promoCodeWithUserState.isUpvotedByCurrentUser,
+                        isDownvotedByCurrentUser = promoCodeWithUserState.isDownvotedByCurrentUser,
                         showVoteAnimation = uiState.showVoteAnimation,
                         lastVoteType = uiState.lastVoteType,
                         isSharing = uiState.isSharing,
@@ -343,14 +347,14 @@ private fun PromocodeDetailScreenPreview() {
             shares = 26,
             isVerified = true,
             targetCountries = listOf("KZ"),
-            isUpvotedByCurrentUser = false,
-            isDownvotedByCurrentUser = false,
-            isBookmarkedByCurrentUser = false,
         )
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(
-                promoCode = samplePromoCode,
+                promoCodeWithUserState = PromoCodeWithUserState(
+                    promoCode = samplePromoCode,
+                    userInteraction = null,
+                ),
                 isLoading = false,
                 isBookmarked = true,
             ),
