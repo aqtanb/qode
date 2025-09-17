@@ -345,7 +345,9 @@ private fun CouponHeader(
             fallbackIcon = QodeCommerceIcons.Store,
             contentDescription = "Service logo",
             size = CouponTokens.iconSize,
-            modifier = Modifier.size(CouponTokens.iconSize),
+            modifier = Modifier
+                .size(CouponTokens.iconSize)
+                .alignByBaseline(),
         )
 
         Spacer(modifier = Modifier.width(SpacingTokens.sm))
@@ -357,7 +359,9 @@ private fun CouponHeader(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .alignByBaseline(),
         )
 
         Spacer(modifier = Modifier.width(SpacingTokens.sm))
@@ -372,7 +376,7 @@ private fun CouponHeader(
                     imageVector = QodeNavigationIcons.Popular,
                     contentDescription = "First user only",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             }
 
@@ -383,7 +387,7 @@ private fun CouponHeader(
                         imageVector = QodeNavigationIcons.Warning,
                         contentDescription = "Expiring soon",
                         tint = Color(0xFFFF8A00),
-                        modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                        modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                     )
                 }
                 "Not Active" -> {
@@ -391,7 +395,7 @@ private fun CouponHeader(
                         imageVector = QodeNavigationIcons.Calendar,
                         contentDescription = "Not active yet",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = modifier.size(SizeTokens.Icon.sizeSmall),
+                        modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                     )
                 }
                 // No icon for "Active" (default) or "Expired" (never loads in list)
@@ -425,7 +429,7 @@ private fun PromoCodeRow(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = "PROMO CODE",
+                text = "PROMOCODE",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 1.sp,

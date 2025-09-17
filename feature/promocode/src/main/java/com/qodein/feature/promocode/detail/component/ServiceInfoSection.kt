@@ -1,6 +1,6 @@
 package com.qodein.feature.promocode.detail.component
 
-import androidx.compose.foundation.clickable
+import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeLocationIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSecurityIcons
@@ -63,6 +64,14 @@ fun ServiceInfoSection(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 modifier = Modifier.weight(1f, fill = false),
             ) {
+                CircularImage(
+                    imageUrl = promoCode.serviceLogoUrl,
+                    fallbackText = promoCode.serviceName,
+                    fallbackIcon = QodeCommerceIcons.Store,
+                    size = SizeTokens.Icon.sizeLarge,
+                    contentDescription = "Logo of ${promoCode.serviceName}",
+                )
+
                 Text(
                     text = promoCode.serviceName,
                     style = MaterialTheme.typography.titleLarge,
@@ -72,7 +81,7 @@ fun ServiceInfoSection(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                Surface(
+                /*Surface(
                     color = if (isFollowingService) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -87,7 +96,7 @@ fun ServiceInfoSection(
                             .padding(4.dp),
                         tint = if (isFollowingService) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
+                }*/
             }
 
             // Right: Target countries

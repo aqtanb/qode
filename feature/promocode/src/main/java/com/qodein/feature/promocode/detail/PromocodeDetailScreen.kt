@@ -120,6 +120,7 @@ fun PromocodeDetailScreen(
     }
 
     // Screen-level scaffold with own top bar to avoid app-level coupling
+    // TODO: Make it have positive UI
     Scaffold(
         topBar = {
             QodeTopAppBar(
@@ -130,7 +131,11 @@ fun PromocodeDetailScreen(
                 statusBarPadding = true, // Add status bar padding manually
                 actions = listOf(
                     TopAppBarAction(
-                        icon = QodeActionIcons.Bookmark,
+                        icon = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
+                            QodeActionIcons.BookmarkFilled
+                        } else {
+                            QodeActionIcons.Bookmark
+                        },
                         contentDescription = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
                             "Remove bookmark"
                         } else {

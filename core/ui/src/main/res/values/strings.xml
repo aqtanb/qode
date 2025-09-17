@@ -48,6 +48,13 @@
     <string name="field_invalid">Invalid input</string>
     <string name="field_success">Valid input</string>
 
+    <!-- Service Selection -->
+    <string name="service_name_label">Service name</string>
+    <string name="service_name_placeholder">Enter service name…</string>
+    <string name="cant_find_service_hint">Can\'t find it? </string>
+    <string name="type_manually_action">Type manually</string>
+    <string name="browse_services_action">Browse services instead</string>
+
     <!-- Promo Code Card Strings -->
     <string name="promo_code_label">PROMO CODE</string>
     <string name="copy_code">Copy code</string>

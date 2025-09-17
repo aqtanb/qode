@@ -1,5 +1,6 @@
 package com.qodein.core.data.repository
 
+import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.shared.domain.repository.PromoCodeRepository
@@ -12,6 +13,7 @@ import com.qodein.shared.model.Service
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,9 +23,25 @@ class PromocodeRepositoryImpl @Inject constructor(
     private val serviceDataSource: FirestoreServiceDataSource
 ) : PromoCodeRepository {
 
+    companion object {
+        private const val TAG = "PromoCodeRepository"
+    }
+
     override fun createPromoCode(promoCode: PromoCode): Flow<PromoCode> =
         flow {
-            emit(promoCodeDataSource.createPromoCode(promoCode))
+            Logger.i(TAG) { "Repository creating promo code: ${promoCode.code}" }
+            try {
+                val result = promoCodeDataSource.createPromoCode(promoCode)
+                Logger.i(TAG) { "Repository successfully created promo code: ${result.id.value}" }
+                emit(result)
+            } catch (e: Exception) {
+                Logger.e(TAG, e) { "Repository failed to create promo code: ${promoCode.code}" }
+                when (e) {
+                    is IOException -> throw e // Re-throw IOException as-is
+                    is SecurityException -> throw e // Re-throw security exceptions
+                    else -> throw IOException("Failed to create promo code in Firestore: ${e.message}", e)
+                }
+            }
         }
 
     override fun getPromoCodes(

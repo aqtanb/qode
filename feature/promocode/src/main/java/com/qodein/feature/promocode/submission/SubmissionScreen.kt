@@ -12,8 +12,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,6 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
@@ -29,6 +36,25 @@ import com.qodein.feature.promocode.submission.component.BottomController
 import com.qodein.feature.promocode.submission.component.CurrentStepContent
 import com.qodein.feature.promocode.submission.component.StepWithHint
 import com.qodein.feature.promocode.submission.component.StepsStack
+import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface SubmissionEntryPoint {
+    fun authStateManager(): AuthStateManager
+    fun signInWithGoogleUseCase(): SignInWithGoogleUseCase
+}
 
 // MARK: - Main Screen
 
@@ -40,6 +66,70 @@ fun SubmissionScreen(
 ) {
     TrackScreenViewEvent(screenName = "ProgressiveSubmission")
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Get auth dependencies via EntryPoint
+    val entryPoint = remember {
+        EntryPointAccessors.fromApplication(context, SubmissionEntryPoint::class.java)
+    }
+    val authStateManager = remember { entryPoint.authStateManager() }
+    val signInWithGoogleUseCase = remember { entryPoint.signInWithGoogleUseCase() }
+
+    // Track auth state
+    val authState by authStateManager.getAuthState().collectAsStateWithLifecycle(initialValue = AuthState.Loading)
+
+    // Track authentication bottom sheet state
+    var showAuthSheet by remember { mutableStateOf(false) }
+    var isSigningIn by remember { mutableStateOf(false) }
+    var authError by remember { mutableStateOf<String?>(null) }
+
+    // Check if user is authenticated
+    val isAuthenticated = authState is AuthState.Authenticated
+    val isAuthLoading = authState is AuthState.Loading
+
+    // Show auth sheet if user is not authenticated and auth is not loading
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Unauthenticated -> {
+                showAuthSheet = true
+            }
+            is AuthState.Authenticated -> {
+                showAuthSheet = false
+            }
+            is AuthState.Loading -> {
+                // Keep loading, don't show auth sheet yet
+            }
+        }
+    }
+
+    // Handle sign-in
+    val handleSignIn = {
+        scope.launch {
+            isSigningIn = true
+            authError = null
+
+            signInWithGoogleUseCase()
+                .onEach { result ->
+                    when (result) {
+                        is Result.Loading -> {
+                            isSigningIn = true
+                        }
+                        is Result.Success -> {
+                            isSigningIn = false
+                            showAuthSheet = false
+                        }
+                        is Result.Error -> {
+                            isSigningIn = false
+                            authError = result.exception.message ?: "Sign-in failed"
+                        }
+                    }
+                }
+                .launchIn(scope)
+        }
+        Unit
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
 
@@ -49,6 +139,37 @@ fun SubmissionScreen(
             SubmissionWizardEvent.PromoCodeSubmitted -> onNavigateBack()
             null -> { /* No event */ }
         }
+    }
+
+    // Show loading state while auth is being checked
+    if (isAuthLoading) {
+        LoadingState()
+        return
+    }
+
+    // Show authentication bottom sheet when needed
+    if (showAuthSheet) {
+        AuthenticationBottomSheet(
+            action = AuthPromptAction.SubmitPromoCode,
+            onSignInClick = handleSignIn,
+            onDismiss = {
+                // Don't allow dismissing - user must authenticate to access submission
+                // showAuthSheet = false
+                onNavigateBack()
+            },
+            isLoading = isSigningIn,
+            errorType = authError?.let { RuntimeException(it).toErrorType() },
+            onErrorDismissed = {
+                authError = null
+            },
+            isDarkTheme = false, // TODO: Get from theme state
+        )
+        return
+    }
+
+    // Only show the submission content if user is authenticated
+    if (!isAuthenticated) {
+        return
     }
 
     when (val currentState = uiState) {
@@ -69,6 +190,7 @@ fun SubmissionScreen(
 
             SubmissionContent(
                 uiState = currentState,
+                authState = authState,
                 onAction = viewModel::onAction,
             )
 
@@ -120,9 +242,13 @@ fun SubmissionScreen(
 @Composable
 private fun SubmissionContent(
     uiState: SubmissionWizardUiState.Success,
+    authState: AuthState,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Since authentication is now handled at the screen level,
+    // we can directly proceed with submission without additional auth checks
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
@@ -131,7 +257,16 @@ private fun SubmissionContent(
                 canProceed = uiState.canGoNextProgressive,
                 onNext = {
                     if (uiState.currentProgressiveStep.isLast) {
-                        onAction(SubmissionWizardAction.SubmitPromoCode)
+                        // Submit with authenticated user data
+                        val authenticatedState = authState as? AuthState.Authenticated
+                        if (authenticatedState != null) {
+                            val userData = SubmissionWizardViewModel.UserData(
+                                id = authenticatedState.user.id,
+                                username = authenticatedState.user.profile.displayName,
+                                avatarUrl = authenticatedState.user.profile.photoUrl,
+                            )
+                            onAction(SubmissionWizardAction.SubmitPromoCodeWithUser(userData))
+                        }
                     } else {
                         onAction(SubmissionWizardAction.NextProgressiveStep)
                     }
@@ -210,6 +345,7 @@ private fun ProgressiveSubmissionContentServicePreview() {
                 wizardData = SubmissionWizardData(),
                 currentProgressiveStep = ProgressiveStep.SERVICE,
             ),
+            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }
@@ -227,6 +363,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                 ),
                 currentProgressiveStep = ProgressiveStep.PROMO_CODE,
             ),
+            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }
@@ -263,6 +400,7 @@ private fun SubmissionContentDarkThemePreview() {
                 ),
                 currentProgressiveStep = ProgressiveStep.DISCOUNT_VALUE,
             ),
+            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }

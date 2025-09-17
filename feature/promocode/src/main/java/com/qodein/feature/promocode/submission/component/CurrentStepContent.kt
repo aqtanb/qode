@@ -33,8 +33,9 @@ fun CurrentStepContent(
 ) {
     when (currentStep) {
         ProgressiveStep.SERVICE -> {
-            ServiceSelectionCard(
+            ServiceSelectionStep(
                 serviceName = wizardData.serviceName,
+                serviceLogoUrl = wizardData.selectedService?.logoUrl,
                 showManualEntry = serviceSelectionUiState is ServiceSelectionUiState.ManualEntry,
                 onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
                 onSelectService = { onAction(SubmissionWizardAction.ShowServiceSelector) },

@@ -23,7 +23,8 @@ object PromoCodePreviewData {
         serviceId = ServiceId("glovo_kz"),
         serviceName = "Glovo",
         category = "Food Delivery",
-        description = "Get 25% off your next order with minimum 5000 KZT purchase",
+        description = "Get 25% off your next order with minimum 5000 KZT purchaseGet 25% off your next order with mini" +
+            "mum 5000 KZT purchaseGet 25% off your next order with minimum 5000 KZT purchase",
         discountPercentage = 25.0,
         minimumOrderAmount = 5000.0,
         startDate = Clock.System.now().minus(1.days),

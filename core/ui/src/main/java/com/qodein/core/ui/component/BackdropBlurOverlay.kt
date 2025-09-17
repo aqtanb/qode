@@ -45,9 +45,9 @@ fun BackdropBlurOverlay(
     topAlpha: Float = 0.4f,
     bottomAlpha: Float = 0.8f,
     blurRadius: Dp = 8.dp,
-    topAreaWeight: Float = 0.2f,
-    middleAreaWeight: Float = 0.6f,
-    bottomAreaWeight: Float = 0.2f,
+    topAreaWeight: Float = 0.1f,
+    middleAreaWeight: Float = 0.75f,
+    bottomAreaWeight: Float = 0.15f,
     overlayAlpha: Float = 0.7f,
     modifier: Modifier = Modifier
 ) {

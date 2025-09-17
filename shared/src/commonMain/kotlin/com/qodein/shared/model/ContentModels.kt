@@ -135,6 +135,7 @@ sealed class PromoCode {
     abstract val serviceName: String // Denormalized for display and filtering
     abstract val category: String
     abstract val description: String?
+    abstract val minimumOrderAmount: Double
     abstract val startDate: Instant
     abstract val endDate: Instant
     abstract val isFirstUserOnly: Boolean
@@ -166,7 +167,7 @@ sealed class PromoCode {
         override val category: String = "Unspecified",
         override val description: String? = null,
         val discountPercentage: Double,
-        val minimumOrderAmount: Double,
+        override val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
@@ -205,7 +206,7 @@ sealed class PromoCode {
         override val category: String = "Unspecified",
         override val description: String? = null,
         val discountAmount: Double,
-        val minimumOrderAmount: Double,
+        override val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
@@ -248,6 +249,7 @@ sealed class PromoCode {
         fun createPercentage(
             code: String,
             serviceName: String,
+            serviceId: ServiceId? = null,
             discountPercentage: Double,
             category: String = "Unspecified",
             description: String? = null,
@@ -268,6 +270,7 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
+                    serviceId = serviceId,
                     category = category.trim(),
                     description = description?.trim(),
                     discountPercentage = discountPercentage,
@@ -289,6 +292,7 @@ sealed class PromoCode {
             discountAmount: Double,
             category: String = "Unspecified",
             description: String? = null,
+            serviceId: ServiceId? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
@@ -306,6 +310,7 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
+                    serviceId = serviceId,
                     category = category.trim(),
                     description = description?.trim(),
                     discountAmount = discountAmount,

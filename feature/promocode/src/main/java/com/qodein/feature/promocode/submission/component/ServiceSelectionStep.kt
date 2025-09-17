@@ -4,7 +4,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,20 +21,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeTextField
+import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.R
+import com.qodein.core.ui.preview.ServicePreviewData
 
 @Composable
-fun ServiceSelectionCard(
+fun ServiceSelectionStep(
     serviceName: String,
+    serviceLogoUrl: String? = null,
     showManualEntry: Boolean,
     onServiceNameChange: (String) -> Unit,
     onSelectService: () -> Unit,
@@ -54,7 +60,7 @@ fun ServiceSelectionCard(
                 targetValue = if (isSelected) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
-                    MaterialTheme.colorScheme.surfaceContainer
+                    MaterialTheme.colorScheme.surfaceVariant
                 },
                 label = "backgroundColor",
             )
@@ -62,7 +68,7 @@ fun ServiceSelectionCard(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(ShapeTokens.Corner.full))
+                    .clip(RoundedCornerShape(ShapeTokens.Corner.large))
                     .clickable(
                         interactionSource = interactionSource,
                         indication = ripple(),
@@ -78,36 +84,37 @@ fun ServiceSelectionCard(
                     horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        imageVector = QodeNavigationIcons.Search,
-                        contentDescription = null,
-                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                        tint = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                    )
+                    if (isSelected && serviceLogoUrl != null) {
+                        CircularImage(
+                            imageUrl = serviceLogoUrl,
+                            fallbackIcon = QodeCommerceIcons.Store,
+                            contentDescription = "Service logo",
+                            size = SizeTokens.Icon.sizeMedium,
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                        )
+                    } else if (isSelected) {
+                        Icon(
+                            imageVector = QodeCommerceIcons.Store,
+                            contentDescription = "Service",
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = QodeNavigationIcons.Search,
+                            contentDescription = "Search service",
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = serviceName.ifBlank { "Select Service" },
+                            text = serviceName.ifBlank { stringResource(R.string.select_service_title) },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-
-                        Text(
-                            text = if (isSelected) "Selected" else "Browse or search",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (isSelected) {
-                                MaterialTheme.colorScheme.onSecondaryContainer
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             },
@@ -122,27 +129,22 @@ fun ServiceSelectionCard(
                         tint = if (isSelected) {
                             MaterialTheme.colorScheme.onPrimaryContainer
                         } else {
-                            MaterialTheme.colorScheme.onSurface
+                            MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                     )
                 }
             }
         } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SpacingTokens.lg),
-            ) {
-                QodeTextField(
-                    value = serviceName,
-                    onValueChange = onServiceNameChange,
-                    label = "Service name",
-                    placeholder = "Enter service name...",
-                    modifier = Modifier.fillMaxWidth(),
-                    required = true,
-                )
-            }
+            QodeTextField(
+                value = serviceName,
+                onValueChange = onServiceNameChange,
+                label = stringResource(R.string.service_name_label),
+                placeholder = stringResource(R.string.service_name_placeholder),
+                modifier = Modifier.fillMaxWidth(),
+                required = true,
+                leadingIcon = QodeActionIcons.Edit,
+            )
         }
 
         Row(
@@ -153,14 +155,14 @@ fun ServiceSelectionCard(
         ) {
             if (!showManualEntry) {
                 Text(
-                    text = "Can't find it? ",
+                    text = stringResource(R.string.cant_find_service_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = "Type manually",
+                    text = stringResource(R.string.type_manually_action),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -170,7 +172,7 @@ fun ServiceSelectionCard(
                 )
             } else {
                 Text(
-                    text = "Browse services instead",
+                    text = stringResource(R.string.browse_services_action),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -187,8 +189,8 @@ fun ServiceSelectionCard(
 @Composable
 private fun ServiceSelectionCardEmptyPreview() {
     QodeTheme {
-        ServiceSelectionCard(
-            serviceName = "",
+        ServiceSelectionStep(
+            serviceName = ServicePreviewData.localCoffeeShop.name,
             showManualEntry = false,
             onServiceNameChange = {},
             onSelectService = {},
@@ -202,8 +204,25 @@ private fun ServiceSelectionCardEmptyPreview() {
 @Composable
 private fun ServiceSelectionCardSelectedPreview() {
     QodeTheme {
-        ServiceSelectionCard(
-            serviceName = "Netflix",
+        ServiceSelectionStep(
+            serviceName = ServicePreviewData.netflix.name,
+            serviceLogoUrl = ServicePreviewData.netflix.logoUrl,
+            showManualEntry = false,
+            onServiceNameChange = {},
+            onSelectService = {},
+            onToggleManualEntry = {},
+            modifier = Modifier.padding(SpacingTokens.lg),
+        )
+    }
+}
+
+@Preview(name = "Service Selection Card - No Logo", showBackground = true)
+@Composable
+private fun ServiceSelectionCardNoLogoPreview() {
+    QodeTheme {
+        ServiceSelectionStep(
+            serviceName = ServicePreviewData.localCoffeeShop.name,
+            serviceLogoUrl = ServicePreviewData.localCoffeeShop.logoUrl, // null
             showManualEntry = false,
             onServiceNameChange = {},
             onSelectService = {},
@@ -217,8 +236,8 @@ private fun ServiceSelectionCardSelectedPreview() {
 @Composable
 private fun ServiceSelectionCardManualPreview() {
     QodeTheme {
-        ServiceSelectionCard(
-            serviceName = "Custom Service",
+        ServiceSelectionStep(
+            serviceName = ServicePreviewData.localCoffeeShop.name,
             showManualEntry = true,
             onServiceNameChange = {},
             onSelectService = {},

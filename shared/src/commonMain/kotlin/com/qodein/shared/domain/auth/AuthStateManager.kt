@@ -2,7 +2,6 @@ package com.qodein.shared.domain.auth
 
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.repository.AuthRepository
-import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -27,10 +26,6 @@ import kotlinx.coroutines.flow.map
  * Note: DI configuration is handled in platform-specific modules
  */
 class AuthStateManager(private val authRepository: AuthRepository) {
-
-    // Cache current state for sync access
-    private var currentState: AuthState = AuthState.Loading
-
     /**
      * Observe authentication state changes
      *
@@ -39,36 +34,9 @@ class AuthStateManager(private val authRepository: AuthRepository) {
     fun getAuthState(): Flow<AuthState> =
         authRepository.getAuthStateFlow()
             .map { user ->
-                val newState = when (user) {
+                when (user) {
                     null -> AuthState.Unauthenticated
                     else -> AuthState.Authenticated(user)
                 }
-                currentState = newState
-                newState
             }
-
-    /**
-     * Check if user is currently authenticated (synchronous)
-     *
-     * @return true if user is signed in, false otherwise
-     */
-    fun isUserAuthenticated(): Boolean = authRepository.isSignedIn()
-
-    /**
-     * Get current authenticated user (synchronous)
-     *
-     * @return current User if authenticated, null otherwise
-     */
-    fun getCurrentUser(): User? =
-        when (val state = currentState) {
-            is AuthState.Authenticated -> state.user
-            else -> null
-        }
-
-    /**
-     * Get current auth state (synchronous)
-     *
-     * @return current AuthState
-     */
-    fun getCurrentAuthState(): AuthState = currentState
 }

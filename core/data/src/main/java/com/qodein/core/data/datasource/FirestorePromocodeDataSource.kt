@@ -15,7 +15,6 @@ import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.UserId
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,14 +29,24 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
     }
 
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
-        val dto = PromoCodeMapper.toDto(promoCode)
+        Logger.d(TAG) { "Creating promo code: ${promoCode.code} for service: ${promoCode.serviceName}" }
 
-        firestore.collection(PROMOCODES_COLLECTION)
-            .document(dto.documentId)
-            .set(dto)
-            .await()
+        try {
+            val dto = PromoCodeMapper.toDto(promoCode)
+            Logger.d(TAG) { "Mapped to DTO with documentId: ${dto.documentId}" }
+            Logger.d(TAG) { "DTO data: serviceId=${dto.serviceId}, serviceName=${dto.serviceName}, type=${dto.type}" }
 
-        return promoCode
+            firestore.collection(PROMOCODES_COLLECTION)
+                .document(dto.documentId)
+                .set(dto)
+                .await()
+
+            Logger.i(TAG) { "Successfully created promo code document: ${dto.documentId}" }
+            return promoCode
+        } catch (e: Exception) {
+            Logger.e(TAG, e) { "Failed to create promo code: ${promoCode.code}" }
+            throw java.io.IOException("Failed to create promo code: ${e.message}", e)
+        }
     }
 
     suspend fun getPromoCodes(
@@ -177,19 +186,6 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
             .await()
 
         return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
-    }
-
-    /**
-     * Get promo code by ID with user's vote status using parallel fetching.
-     * Cost: 2 document reads (executed in parallel for optimal performance)
-     */
-    suspend fun getPromoCodeByIdWithVoteStatus(
-        id: PromoCodeId,
-        userId: UserId
-    ): PromoCode? {
-        // User-specific state is now handled separately via UserInteraction
-        // This method just returns the promo code content
-        return getPromoCodeById(id)
     }
 
     suspend fun updatePromoCode(promoCode: PromoCode): PromoCode {
