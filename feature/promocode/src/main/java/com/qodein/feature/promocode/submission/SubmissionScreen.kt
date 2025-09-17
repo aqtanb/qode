@@ -12,13 +12,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,25 +31,7 @@ import com.qodein.feature.promocode.submission.component.BottomController
 import com.qodein.feature.promocode.submission.component.CurrentStepContent
 import com.qodein.feature.promocode.submission.component.StepWithHint
 import com.qodein.feature.promocode.submission.component.StepsStack
-import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.auth.AuthStateManager
-import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface SubmissionEntryPoint {
-    fun authStateManager(): AuthStateManager
-    fun signInWithGoogleUseCase(): SignInWithGoogleUseCase
-}
 
 // MARK: - Main Screen
 
@@ -65,70 +42,6 @@ fun SubmissionScreen(
     viewModel: SubmissionWizardViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "ProgressiveSubmission")
-
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    // Get auth dependencies via EntryPoint
-    val entryPoint = remember {
-        EntryPointAccessors.fromApplication(context, SubmissionEntryPoint::class.java)
-    }
-    val authStateManager = remember { entryPoint.authStateManager() }
-    val signInWithGoogleUseCase = remember { entryPoint.signInWithGoogleUseCase() }
-
-    // Track auth state
-    val authState by authStateManager.getAuthState().collectAsStateWithLifecycle(initialValue = AuthState.Loading)
-
-    // Track authentication bottom sheet state
-    var showAuthSheet by remember { mutableStateOf(false) }
-    var isSigningIn by remember { mutableStateOf(false) }
-    var authError by remember { mutableStateOf<String?>(null) }
-
-    // Check if user is authenticated
-    val isAuthenticated = authState is AuthState.Authenticated
-    val isAuthLoading = authState is AuthState.Loading
-
-    // Show auth sheet if user is not authenticated and auth is not loading
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Unauthenticated -> {
-                showAuthSheet = true
-            }
-            is AuthState.Authenticated -> {
-                showAuthSheet = false
-            }
-            is AuthState.Loading -> {
-                // Keep loading, don't show auth sheet yet
-            }
-        }
-    }
-
-    // Handle sign-in
-    val handleSignIn = {
-        scope.launch {
-            isSigningIn = true
-            authError = null
-
-            signInWithGoogleUseCase()
-                .onEach { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            isSigningIn = true
-                        }
-                        is Result.Success -> {
-                            isSigningIn = false
-                            showAuthSheet = false
-                        }
-                        is Result.Error -> {
-                            isSigningIn = false
-                            authError = result.exception.message ?: "Sign-in failed"
-                        }
-                    }
-                }
-                .launchIn(scope)
-        }
-        Unit
-    }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
@@ -141,42 +54,35 @@ fun SubmissionScreen(
         }
     }
 
-    // Show loading state while auth is being checked
-    if (isAuthLoading) {
-        LoadingState()
-        return
-    }
-
-    // Show authentication bottom sheet when needed
-    if (showAuthSheet) {
-        AuthenticationBottomSheet(
-            action = AuthPromptAction.SubmitPromoCode,
-            onSignInClick = handleSignIn,
-            onDismiss = {
-                // Don't allow dismissing - user must authenticate to access submission
-                // showAuthSheet = false
-                onNavigateBack()
-            },
-            isLoading = isSigningIn,
-            errorType = authError?.let { RuntimeException(it).toErrorType() },
-            onErrorDismissed = {
-                authError = null
-            },
-            isDarkTheme = false, // TODO: Get from theme state
-        )
-        return
-    }
-
-    // Only show the submission content if user is authenticated
-    if (!isAuthenticated) {
-        return
-    }
-
     when (val currentState = uiState) {
         is SubmissionWizardUiState.Loading -> {
             LoadingState()
         }
         is SubmissionWizardUiState.Success -> {
+            // Show authentication bottom sheet when needed
+            val showAuthSheet = currentState.authentication !is AuthenticationState.Authenticated
+            if (showAuthSheet) {
+                val isSigningIn = currentState.authentication is AuthenticationState.Loading
+                val authError = (currentState.authentication as? AuthenticationState.Error)?.throwable
+
+                AuthenticationBottomSheet(
+                    action = AuthPromptAction.SubmitPromoCode,
+                    onSignInClick = { viewModel.onAction(SubmissionWizardAction.SignInWithGoogle) },
+                    onDismiss = { viewModel.onAction(SubmissionWizardAction.DismissAuthSheet) },
+                    isLoading = isSigningIn,
+                    errorType = authError?.toErrorType(),
+                    onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
+                    isDarkTheme = false, // TODO: Get from theme state
+                )
+                return
+            }
+
+            // Only show submission content if user is authenticated
+            val isAuthenticated = currentState.authentication is AuthenticationState.Authenticated
+            if (!isAuthenticated) {
+                return
+            }
+
             val serviceSelectorSheetState = rememberModalBottomSheetState()
 
             // Effect to control bottom sheet visibility based on state
@@ -190,7 +96,6 @@ fun SubmissionScreen(
 
             SubmissionContent(
                 uiState = currentState,
-                authState = authState,
                 onAction = viewModel::onAction,
             )
 
@@ -242,31 +147,19 @@ fun SubmissionScreen(
 @Composable
 private fun SubmissionContent(
     uiState: SubmissionWizardUiState.Success,
-    authState: AuthState,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Since authentication is now handled at the screen level,
-    // we can directly proceed with submission without additional auth checks
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             BottomController(
-                currentStep = uiState.currentProgressiveStep,
+                currentStep = uiState.wizardFlow.currentStep,
                 canProceed = uiState.canGoNextProgressive,
                 onNext = {
-                    if (uiState.currentProgressiveStep.isLast) {
-                        // Submit with authenticated user data
-                        val authenticatedState = authState as? AuthState.Authenticated
-                        if (authenticatedState != null) {
-                            val userData = SubmissionWizardViewModel.UserData(
-                                id = authenticatedState.user.id,
-                                username = authenticatedState.user.profile.displayName,
-                                avatarUrl = authenticatedState.user.profile.photoUrl,
-                            )
-                            onAction(SubmissionWizardAction.SubmitPromoCodeWithUser(userData))
-                        }
+                    if (uiState.wizardFlow.currentStep.isLast) {
+                        // Submit using ViewModel's authenticated user data
+                        onAction(SubmissionWizardAction.SubmitPromoCode)
                     } else {
                         onAction(SubmissionWizardAction.NextProgressiveStep)
                     }
@@ -283,19 +176,19 @@ private fun SubmissionContent(
                 .padding(paddingValues),
         ) {
             StepsStack(
-                currentStep = uiState.currentProgressiveStep,
-                wizardData = uiState.wizardData,
+                currentStep = uiState.wizardFlow.currentStep,
+                wizardData = uiState.wizardFlow.wizardData,
             )
 
             StepWithHint(
-                currentStep = uiState.currentProgressiveStep,
+                currentStep = uiState.wizardFlow.currentStep,
                 modifier = modifier
                     .weight(1f)
                     .padding(horizontal = SpacingTokens.lg),
             ) {
                 CurrentStepContent(
-                    currentStep = uiState.currentProgressiveStep,
-                    wizardData = uiState.wizardData,
+                    currentStep = uiState.wizardFlow.currentStep,
+                    wizardData = uiState.wizardFlow.wizardData,
                     serviceSelectionUiState = uiState.serviceSelectionUiState,
                     onAction = onAction,
                 )
@@ -341,11 +234,13 @@ private fun ErrorState(
 private fun ProgressiveSubmissionContentServicePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success(
-                wizardData = SubmissionWizardData(),
-                currentProgressiveStep = ProgressiveStep.SERVICE,
+            uiState = SubmissionWizardUiState.Success.initial().copy(
+                wizardFlow = WizardFlowState(
+                    wizardData = SubmissionWizardData(),
+                    currentStep = ProgressiveStep.SERVICE,
+                ),
+                authentication = AuthenticationState.Unauthenticated,
             ),
-            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }
@@ -356,14 +251,16 @@ private fun ProgressiveSubmissionContentServicePreview() {
 private fun ProgressiveSubmissionContentPromoCodePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success(
-                wizardData = SubmissionWizardData(
-                    selectedService = ServicePreviewData.netflix,
-                    promoCodeType = PromoCodeType.PERCENTAGE,
+            uiState = SubmissionWizardUiState.Success.initial().copy(
+                wizardFlow = WizardFlowState(
+                    wizardData = SubmissionWizardData(
+                        selectedService = ServicePreviewData.netflix,
+                        promoCodeType = PromoCodeType.PERCENTAGE,
+                    ),
+                    currentStep = ProgressiveStep.PROMO_CODE,
                 ),
-                currentProgressiveStep = ProgressiveStep.PROMO_CODE,
+                authentication = AuthenticationState.Unauthenticated,
             ),
-            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }
@@ -393,14 +290,16 @@ private fun SubmissionScreenErrorPreview() {
 private fun SubmissionContentDarkThemePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success(
-                wizardData = SubmissionWizardData(
-                    selectedService = ServicePreviewData.netflix,
-                    promoCodeType = PromoCodeType.PERCENTAGE,
+            uiState = SubmissionWizardUiState.Success.initial().copy(
+                wizardFlow = WizardFlowState(
+                    wizardData = SubmissionWizardData(
+                        selectedService = ServicePreviewData.netflix,
+                        promoCodeType = PromoCodeType.PERCENTAGE,
+                    ),
+                    currentStep = ProgressiveStep.DISCOUNT_VALUE,
                 ),
-                currentProgressiveStep = ProgressiveStep.DISCOUNT_VALUE,
+                authentication = AuthenticationState.Unauthenticated,
             ),
-            authState = AuthState.Unauthenticated,
             onAction = {},
         )
     }

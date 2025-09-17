@@ -54,21 +54,29 @@ sealed interface SubmissionWizardUiState {
     data object Loading : SubmissionWizardUiState
 
     data class Success(
-        val wizardData: SubmissionWizardData,
-        val isSubmitting: Boolean = false,
-        val validationErrors: Map<String, String> = emptyMap(),
-        // Progressive step state
-        val currentProgressiveStep: ProgressiveStep = ProgressiveStep.SERVICE,
-        // UI state
+        val wizardFlow: WizardFlowState,
+        val authentication: AuthenticationState,
+        val validation: ValidationState,
+        val submission: SubmissionState,
+        // Temporary UI concerns (TODO: extract service selection as separate feature)
         val serviceSelectionUiState: ServiceSelectionUiState = ServiceSelectionUiState.Default,
         val showServiceSelector: Boolean = false
     ) : SubmissionWizardUiState {
-        // Progressive step methods
-        val canGoNextProgressive: Boolean get() = wizardData.canProceedFromProgressiveStep(currentProgressiveStep) && !isSubmitting
-        val canGoPreviousProgressive: Boolean get() = !currentProgressiveStep.isFirst && !isSubmitting
-        val canSubmitProgressive: Boolean get() = currentProgressiveStep.isLast &&
-            wizardData.canProceedFromProgressiveStep(currentProgressiveStep) &&
-            !isSubmitting
+
+        // Navigation capabilities using new state composition
+        val canGoNextProgressive: Boolean get() = wizardFlow.canGoNext && submission !is SubmissionState.Submitting
+        val canGoPreviousProgressive: Boolean get() = wizardFlow.canGoPrevious && submission !is SubmissionState.Submitting
+        val canSubmitProgressive: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is SubmissionState.Submitting
+
+        companion object {
+            fun initial(): Success =
+                Success(
+                    wizardFlow = WizardFlowState.initial(),
+                    authentication = AuthenticationState.Loading,
+                    validation = ValidationState.valid(),
+                    submission = SubmissionState.Idle,
+                )
+        }
     }
 
     data class Error(

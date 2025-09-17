@@ -30,6 +30,12 @@ sealed interface SubmissionWizardAction {
     data class UpdateEndDate(val date: LocalDate) : SubmissionWizardAction
 
     data class SubmitPromoCodeWithUser(val userData: SubmissionWizardViewModel.UserData) : SubmissionWizardAction
+    data object SubmitPromoCode : SubmissionWizardAction
+
+    // Authentication actions
+    data object SignInWithGoogle : SubmissionWizardAction
+    data object DismissAuthSheet : SubmissionWizardAction
+    data object ClearAuthError : SubmissionWizardAction
 
     // Error handling
     data object RetryClicked : SubmissionWizardAction

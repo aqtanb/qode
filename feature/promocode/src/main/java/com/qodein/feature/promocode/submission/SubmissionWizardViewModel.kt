@@ -11,7 +11,10 @@ import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.Service
@@ -36,7 +39,9 @@ import kotlin.time.toKotlinInstant
 class SubmissionWizardViewModel @Inject constructor(
     private val createPromoCodeUseCase: CreatePromoCodeUseCase,
     private val serviceSearchManager: ServiceSearchManager,
-    private val analyticsHelper: AnalyticsHelper
+    private val analyticsHelper: AnalyticsHelper,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     /**
@@ -68,6 +73,7 @@ class SubmissionWizardViewModel @Inject constructor(
     init {
         initialize()
         setupServiceSearch()
+        setupAuthStateMonitoring()
     }
 
     // MARK: - Public API
@@ -101,6 +107,12 @@ class SubmissionWizardViewModel @Inject constructor(
 
             // Submission
             is SubmissionWizardAction.SubmitPromoCodeWithUser -> submitPromoCode(action.userData)
+            SubmissionWizardAction.SubmitPromoCode -> submitPromoCodeFromViewModel()
+
+            // Authentication
+            SubmissionWizardAction.SignInWithGoogle -> signInWithGoogle()
+            SubmissionWizardAction.DismissAuthSheet -> dismissAuthSheet()
+            SubmissionWizardAction.ClearAuthError -> clearAuthError()
 
             // Error handling
             SubmissionWizardAction.RetryClicked -> initialize()
@@ -111,12 +123,7 @@ class SubmissionWizardViewModel @Inject constructor(
     // MARK: - Initialization
 
     private fun initialize() {
-        _uiState.update {
-            SubmissionWizardUiState.Success(
-                wizardData = SubmissionWizardData(),
-                currentProgressiveStep = ProgressiveStep.SERVICE,
-            )
-        }
+        _uiState.update { SubmissionWizardUiState.Success.initial() }
     }
 
     private fun setupServiceSearch() {
@@ -133,7 +140,7 @@ class SubmissionWizardViewModel @Inject constructor(
             }.collect { newSelectionUiState ->
                 _uiState.update { currentState ->
                     when (currentState) {
-                        is SubmissionWizardUiState.Success -> currentState.copy(serviceSelectionUiState = newSelectionUiState)
+                        is SubmissionWizardUiState.Success -> currentState.updateServiceSelection(uiState = newSelectionUiState)
                         else -> currentState
                     }
                 }
@@ -146,7 +153,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun showServiceSelector() {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(showServiceSelector = true)
+                is SubmissionWizardUiState.Success -> currentState.showServiceSelector()
                 else -> currentState
             }
         }
@@ -156,9 +163,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun hideServiceSelector() {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(
-                    showServiceSelector = false,
-                )
+                is SubmissionWizardUiState.Success -> currentState.hideServiceSelector()
                 else -> currentState
             }
         }
@@ -168,11 +173,11 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    val newState = when (currentState.serviceSelectionUiState) {
+                    val newUiState = when (currentState.serviceSelectionUiState) {
                         ServiceSelectionUiState.ManualEntry -> ServiceSelectionUiState.Default
                         else -> ServiceSelectionUiState.ManualEntry
                     }
-                    currentState.copy(serviceSelectionUiState = newState)
+                    currentState.updateServiceSelection(uiState = newUiState)
                 }
                 else -> currentState
             }
@@ -185,20 +190,25 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    val nextStep = currentState.currentProgressiveStep.next()
-                    if (nextStep != null && currentState.canGoNextProgressive) {
-                        // Track progressive step navigation
-                        analyticsHelper.logEvent(
-                            AnalyticsEvent(
-                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                                extras = listOf(
-                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
-                                    AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
-                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
+                    if (currentState.canGoNextProgressive) {
+                        val currentStep = currentState.wizardFlow.currentStep
+                        val nextStep = currentStep.next()
+                        if (nextStep != null) {
+                            // Track progressive step navigation
+                            analyticsHelper.logEvent(
+                                AnalyticsEvent(
+                                    type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                    extras = listOf(
+                                        AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
+                                        AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
+                                        AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
+                                    ),
                                 ),
-                            ),
-                        )
-                        currentState.copy(currentProgressiveStep = nextStep)
+                            )
+                            currentState.moveToNextStep()
+                        } else {
+                            currentState
+                        }
                     } else {
                         currentState
                     }
@@ -212,22 +222,115 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    val previousStep = currentState.currentProgressiveStep.previous()
-                    if (previousStep != null && currentState.canGoPreviousProgressive) {
-                        // Track progressive step navigation
-                        analyticsHelper.logEvent(
-                            AnalyticsEvent(
-                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                                extras = listOf(
-                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
-                                    AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
-                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
+                    if (currentState.canGoPreviousProgressive) {
+                        val currentStep = currentState.wizardFlow.currentStep
+                        val previousStep = currentStep.previous()
+                        if (previousStep != null) {
+                            // Track progressive step navigation
+                            analyticsHelper.logEvent(
+                                AnalyticsEvent(
+                                    type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                    extras = listOf(
+                                        AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
+                                        AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
+                                        AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
+                                    ),
                                 ),
-                            ),
-                        )
-                        currentState.copy(currentProgressiveStep = previousStep)
+                            )
+                            currentState.moveToPreviousStep()
+                        } else {
+                            currentState
+                        }
                     } else {
                         currentState
+                    }
+                }
+                else -> currentState
+            }
+        }
+    }
+
+    // MARK: - Authentication
+
+    private fun setupAuthStateMonitoring() {
+        viewModelScope.launch {
+            getAuthStateUseCase()
+                .collect { authResult ->
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is SubmissionWizardUiState.Success -> {
+                                val newAuthState = when (authResult) {
+                                    is Result.Loading -> AuthenticationState.Loading
+                                    is Result.Success -> {
+                                        when (val authState = authResult.data) {
+                                            is AuthState.Loading -> AuthenticationState.Loading
+                                            is AuthState.Authenticated -> AuthenticationState.Authenticated(authState.user)
+                                            is AuthState.Unauthenticated -> AuthenticationState.Unauthenticated
+                                        }
+                                    }
+                                    is Result.Error -> AuthenticationState.Error(authResult.exception)
+                                }
+                                currentState.updateAuthentication(newAuthState)
+                            }
+                            is SubmissionWizardUiState.Loading,
+                            is SubmissionWizardUiState.Error -> currentState
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun signInWithGoogle() {
+        Logger.i(TAG) { "signInWithGoogle() called" }
+
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> currentState.updateAuthentication(AuthenticationState.Loading)
+                else -> currentState
+            }
+        }
+
+        viewModelScope.launch {
+            signInWithGoogleUseCase()
+                .collect { result ->
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is SubmissionWizardUiState.Success -> {
+                                val newAuthState = when (result) {
+                                    is Result.Loading -> AuthenticationState.Loading
+                                    is Result.Success -> {
+                                        Logger.i(TAG) { "Sign-in successful" }
+                                        // Auth state will be updated via setupAuthStateMonitoring
+                                        return@update currentState
+                                    }
+                                    is Result.Error -> {
+                                        Logger.w(TAG) { "Sign-in failed: ${result.exception.message}" }
+                                        AuthenticationState.Error(result.exception)
+                                    }
+                                }
+                                currentState.updateAuthentication(newAuthState)
+                            }
+                            else -> currentState
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun dismissAuthSheet() {
+        Logger.i(TAG) { "dismissAuthSheet() called" }
+        // TODO: Add proper dismiss logic when authentication becomes optional
+        // For now, user must authenticate to proceed
+    }
+
+    private fun clearAuthError() {
+        Logger.i(TAG) { "clearAuthError() called" }
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    when (currentState.authentication) {
+                        is AuthenticationState.Error -> currentState.updateAuthentication(AuthenticationState.Unauthenticated)
+                        else -> currentState
                     }
                 }
                 else -> currentState
@@ -296,7 +399,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun clearValidationErrors() {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(validationErrors = emptyMap())
+                is SubmissionWizardUiState.Success -> currentState.clearValidationErrors()
                 else -> currentState
             }
         }
@@ -315,12 +418,12 @@ class SubmissionWizardViewModel @Inject constructor(
             return
         }
 
-        val wizardData = currentState.wizardData
+        val wizardData = currentState.wizardFlow.wizardData
         Logger.d(TAG) { "Submitting: service='${wizardData.serviceName}', code='${wizardData.promoCode}'" }
 
         _uiState.update { state ->
             when (state) {
-                is SubmissionWizardUiState.Success -> state.copy(isSubmitting = true)
+                is SubmissionWizardUiState.Success -> state.startSubmission()
                 else -> state
             }
         }
@@ -385,7 +488,7 @@ class SubmissionWizardViewModel @Inject constructor(
                         }
                         .collect { result ->
                             when (result) {
-                                is Result.Loading -> { /* Loading state if needed */ }
+                                is Result.Loading -> { /* Already in submitting state */ }
                                 is Result.Success -> {
                                     // Track successful promo code submission
                                     analyticsHelper.logPromoCodeSubmission(
@@ -396,6 +499,12 @@ class SubmissionWizardViewModel @Inject constructor(
                                         },
                                         success = true,
                                     )
+                                    _uiState.update { state ->
+                                        when (state) {
+                                            is SubmissionWizardUiState.Success -> state.submitSuccess(result.data.id.value)
+                                            else -> state
+                                        }
+                                    }
                                     _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
                                     _events.emit(SubmissionWizardEvent.NavigateBack)
                                 }
@@ -409,39 +518,65 @@ class SubmissionWizardViewModel @Inject constructor(
                                         },
                                         success = false,
                                     )
-                                    _uiState.update {
-                                        SubmissionWizardUiState.Error(
-                                            errorType = result.exception.toErrorType(),
-                                            isRetryable = result.exception.isRetryable(),
-                                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                            errorCode = result.exception.getErrorCode(),
-                                        )
+                                    _uiState.update { state ->
+                                        when (state) {
+                                            is SubmissionWizardUiState.Success -> state.submitError(result.exception)
+                                            else -> SubmissionWizardUiState.Error(
+                                                errorType = result.exception.toErrorType(),
+                                                isRetryable = result.exception.isRetryable(),
+                                                shouldShowSnackbar = result.exception.shouldShowSnackbar(),
+                                                errorCode = result.exception.getErrorCode(),
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                 },
                 onFailure = { exception ->
-                    _uiState.update {
-                        SubmissionWizardUiState.Error(
-                            errorType = exception.toErrorType(),
-                            isRetryable = exception.isRetryable(),
-                            shouldShowSnackbar = exception.shouldShowSnackbar(),
-                            errorCode = exception.getErrorCode(),
-                        )
+                    _uiState.update { state ->
+                        when (state) {
+                            is SubmissionWizardUiState.Success -> state.submitError(exception)
+                            else -> SubmissionWizardUiState.Error(
+                                errorType = exception.toErrorType(),
+                                isRetryable = exception.isRetryable(),
+                                shouldShowSnackbar = exception.shouldShowSnackbar(),
+                                errorCode = exception.getErrorCode(),
+                            )
+                        }
                     }
                 },
             )
         }
     }
 
+    private fun submitPromoCodeFromViewModel() {
+        Logger.i(TAG) { "submitPromoCodeFromViewModel() called" }
+
+        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: run {
+            Logger.w(TAG) { "Cannot submit: currentState is not Success, actual state: ${_uiState.value}" }
+            return
+        }
+
+        val authenticatedUser = (currentState.authentication as? AuthenticationState.Authenticated)?.user
+        if (authenticatedUser == null) {
+            Logger.w(TAG) { "Cannot submit: user is not authenticated" }
+            return
+        }
+
+        val userData = UserData(
+            id = authenticatedUser.id,
+            username = authenticatedUser.profile.displayName,
+            avatarUrl = authenticatedUser.profile.photoUrl,
+        )
+
+        submitPromoCode(userData)
+    }
+
     private fun updateWizardData(update: (SubmissionWizardData) -> SubmissionWizardData) {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> {
-                    val newData = update(currentState.wizardData)
-                    currentState.copy(wizardData = newData)
-                }
+                is SubmissionWizardUiState.Success -> currentState.updateWizardData(update)
                 else -> currentState
             }
         }
