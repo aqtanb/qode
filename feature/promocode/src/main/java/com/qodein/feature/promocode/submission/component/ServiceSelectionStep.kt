@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -161,6 +162,9 @@ fun ServiceSelectionStep(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+
+                Spacer(modifier = Modifier.padding(SpacingTokens.xxxs))
+
                 Text(
                     text = stringResource(R.string.type_manually_action),
                     style = MaterialTheme.typography.bodyMedium,

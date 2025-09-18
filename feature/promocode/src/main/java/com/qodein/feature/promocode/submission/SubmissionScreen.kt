@@ -1,12 +1,20 @@
 package com.qodein.feature.promocode.submission
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -14,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,10 +36,11 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.feature.promocode.submission.component.BottomController
-import com.qodein.feature.promocode.submission.component.CurrentStepContent
-import com.qodein.feature.promocode.submission.component.StepWithHint
-import com.qodein.feature.promocode.submission.component.StepsStack
+import com.qodein.feature.promocode.submission.SubmissionState
+import com.qodein.feature.promocode.submission.component.EnhancedProgressIndicator
+import com.qodein.feature.promocode.submission.component.FloatingStepCard
+import com.qodein.feature.promocode.submission.component.ModernFloatingController
+import com.qodein.feature.promocode.submission.component.SmartProgressSummary
 import com.qodein.shared.common.result.toErrorType
 
 // MARK: - Main Screen
@@ -150,47 +160,86 @@ private fun SubmissionContent(
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
+    val scrollState = rememberScrollState()
+
+    // Create dynamic background alpha based on scroll
+    val backgroundAlpha by animateFloatAsState(
+        targetValue = if (scrollState.value > 100) 0.95f else 0.8f,
+        animationSpec = spring(dampingRatio = 0.8f),
+        label = "backgroundAlpha",
+    )
+
+    Box(
         modifier = modifier.fillMaxSize(),
-        bottomBar = {
-            BottomController(
-                currentStep = uiState.wizardFlow.currentStep,
-                canProceed = uiState.canGoNextProgressive,
-                onNext = {
-                    if (uiState.wizardFlow.currentStep.isLast) {
-                        // Submit using ViewModel's authenticated user data
-                        onAction(SubmissionWizardAction.SubmitPromoCode)
-                    } else {
-                        onAction(SubmissionWizardAction.NextProgressiveStep)
-                    }
-                },
-                onPrevious = {
-                    onAction(SubmissionWizardAction.PreviousProgressiveStep)
-                },
-            )
-        },
-    ) { paddingValues ->
-        Column(
+    ) {
+        // Dynamic gradient background
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            StepsStack(
-                currentStep = uiState.wizardFlow.currentStep,
-                wizardData = uiState.wizardFlow.wizardData,
-            )
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                ),
+        )
 
-            StepWithHint(
-                currentStep = uiState.wizardFlow.currentStep,
-                modifier = modifier
-                    .weight(1f)
-                    .padding(horizontal = SpacingTokens.lg),
+        // Main content
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            bottomBar = {
+                ModernFloatingController(
+                    currentStep = uiState.wizardFlow.currentStep,
+                    canProceed = uiState.canGoNextProgressive,
+                    isLoading = uiState.submission is SubmissionState.Submitting,
+                    onNext = {
+                        if (uiState.wizardFlow.currentStep.isLast) {
+                            onAction(SubmissionWizardAction.SubmitPromoCode)
+                        } else {
+                            onAction(SubmissionWizardAction.NextProgressiveStep)
+                        }
+                    },
+                    onPrevious = {
+                        onAction(SubmissionWizardAction.PreviousProgressiveStep)
+                    },
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(paddingValues)
+                    .padding(horizontal = SpacingTokens.md),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
             ) {
-                CurrentStepContent(
+                // Enhanced Progress Indicator
+                EnhancedProgressIndicator(
+                    currentStep = uiState.wizardFlow.currentStep,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                // Smart Progress Summary
+                SmartProgressSummary(
+                    currentStep = uiState.wizardFlow.currentStep,
+                    wizardData = uiState.wizardFlow.wizardData,
+                    onEditStep = { step ->
+                        // TODO: Implement step navigation when available
+                        // For now, this will be a placeholder
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                // Main Step Content Card
+                FloatingStepCard(
                     currentStep = uiState.wizardFlow.currentStep,
                     wizardData = uiState.wizardFlow.wizardData,
                     serviceSelectionUiState = uiState.serviceSelectionUiState,
                     onAction = onAction,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                // Add spacing for bottom navigation
+                androidx.compose.foundation.layout.Spacer(
+                    modifier = Modifier.height(SpacingTokens.xl),
                 )
             }
         }

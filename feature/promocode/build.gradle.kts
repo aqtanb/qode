@@ -55,6 +55,9 @@ dependencies {
 
     implementation(libs.bundles.image.loading)
 
+    // Haze blur library
+    implementation(libs.haze)
+
     // Dependency Injection
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
