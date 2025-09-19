@@ -1,5 +1,6 @@
 package com.qodein.feature.promocode.submission.component
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -7,7 +8,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,14 +26,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,11 +48,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -54,7 +71,9 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.submission.ProgressiveStep
 import com.qodein.feature.promocode.submission.PromoCodeType
+import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import kotlinx.coroutines.delay
 import java.time.format.DateTimeFormatter
 
 data class CompletedStepData(
@@ -64,14 +83,27 @@ data class CompletedStepData(
     val subtitle: String? = null,
     val icon: ImageVector,
     val containerColor: Color,
-    val contentColor: Color
+    val contentColor: Color,
+    val isEditable: Boolean = true,
+    val fieldType: EditableFieldType = EditableFieldType.TEXT,
+    val options: List<String> = emptyList()
 )
+
+enum class EditableFieldType {
+    TEXT,
+    DROPDOWN,
+    NUMBER,
+    PERCENTAGE,
+    CURRENCY,
+    DATE
+}
 
 @Composable
 fun SmartProgressSummary(
     currentStep: ProgressiveStep,
     wizardData: SubmissionWizardData,
     onEditStep: (ProgressiveStep) -> Unit,
+    onUpdateField: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -215,89 +247,293 @@ private fun CompletedStepItem(
     isLast: Boolean,
     modifier: Modifier = Modifier
 ) {
+    var isEditing by remember { mutableStateOf(false) }
+    var editValue by remember { mutableStateOf(stepData.value) }
+    var showDropdown by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
+    val focusRequester = remember { FocusRequester() }
+
+    // Auto-focus when entering edit mode
+    LaunchedEffect(isEditing) {
+        if (isEditing && stepData.fieldType != EditableFieldType.DROPDOWN) {
+            delay(100)
+            focusRequester.requestFocus()
+        }
+    }
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                onEdit()
-            },
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ShapeTokens.Corner.large),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = if (isEditing) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            },
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = ElevationTokens.small,
+            defaultElevation = if (isEditing) ElevationTokens.medium else ElevationTokens.small,
         ),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(SpacingTokens.md),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            // Step icon with gradient background
-            Box(
-                modifier = Modifier
-                    .size(SizeTokens.Icon.sizeXLarge)
-                    .background(
-                        color = stepData.containerColor,
-                        shape = CircleShape,
-                    ),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             ) {
-                Icon(
-                    imageVector = stepData.icon,
-                    contentDescription = null,
-                    tint = stepData.contentColor,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                )
-            }
+                // Step icon
+                Box(
+                    modifier = Modifier
+                        .size(SizeTokens.Icon.sizeXLarge)
+                        .background(
+                            color = if (isEditing) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                stepData.containerColor
+                            },
+                            shape = CircleShape,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AnimatedContent(
+                        targetState = isEditing,
+                        transitionSpec = {
+                            scaleIn() + fadeIn() togetherWith scaleOut() + fadeOut()
+                        },
+                        label = "iconAnimation",
+                    ) { editing ->
+                        Icon(
+                            imageVector = if (editing) QodeActionIcons.Edit else stepData.icon,
+                            contentDescription = null,
+                            tint = if (editing) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                stepData.contentColor
+                            },
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                        )
+                    }
+                }
 
-            // Step content
-            Column(
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = stepData.title,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium,
-                )
-                Text(
-                    text = stepData.value,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                stepData.subtitle?.let { subtitle ->
+                // Step content - display or edit mode
+                Column(
+                    modifier = Modifier.weight(1f),
+                ) {
                     Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        text = stepData.title,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (isEditing) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        fontWeight = FontWeight.Medium,
                     )
+
+                    AnimatedContent(
+                        targetState = isEditing,
+                        transitionSpec = {
+                            slideInHorizontally { it } + fadeIn() togetherWith
+                                slideOutHorizontally { -it } + fadeOut()
+                        },
+                        label = "contentAnimation",
+                    ) { editing ->
+                        if (editing && stepData.isEditable) {
+                            // Edit mode
+                            when (stepData.fieldType) {
+                                EditableFieldType.DROPDOWN -> {
+                                    Box {
+                                        OutlinedTextField(
+                                            value = editValue,
+                                            onValueChange = { },
+                                            readOnly = true,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { showDropdown = !showDropdown },
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                            ),
+                                            trailingIcon = {
+                                                Icon(
+                                                    imageVector = if (showDropdown) QodeActionIcons.Up else QodeActionIcons.Down,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.clickable { showDropdown = !showDropdown },
+                                                )
+                                            },
+                                        )
+
+                                        DropdownMenu(
+                                            expanded = showDropdown,
+                                            onDismissRequest = { showDropdown = false },
+                                        ) {
+                                            stepData.options.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        editValue = option
+                                                        showDropdown = false
+                                                    },
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    OutlinedTextField(
+                                        value = editValue,
+                                        onValueChange = { editValue = it },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .focusRequester(focusRequester),
+                                        singleLine = true,
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                        ),
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = when (stepData.fieldType) {
+                                                EditableFieldType.NUMBER,
+                                                EditableFieldType.PERCENTAGE,
+                                                EditableFieldType.CURRENCY -> KeyboardType.Number
+                                                else -> KeyboardType.Text
+                                            },
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                // TODO: Save changes
+                                                isEditing = false
+                                            },
+                                        ),
+                                    )
+                                }
+                            }
+                        } else {
+                            // Display mode
+                            Column {
+                                Text(
+                                    text = stepData.value,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = if (isEditing) Int.MAX_VALUE else 1,
+                                    overflow = if (isEditing) TextOverflow.Visible else TextOverflow.Ellipsis,
+                                )
+                                stepData.subtitle?.let { subtitle ->
+                                    Text(
+                                        text = subtitle,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = if (isEditing) Int.MAX_VALUE else 1,
+                                        overflow = if (isEditing) TextOverflow.Visible else TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Action buttons
+                AnimatedContent(
+                    targetState = isEditing,
+                    transitionSpec = {
+                        scaleIn() + fadeIn() togetherWith scaleOut() + fadeOut()
+                    },
+                    label = "actionsAnimation",
+                ) { editing ->
+                    if (editing) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                        ) {
+                            // Cancel button
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    editValue = stepData.value
+                                    isEditing = false
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = QodeActionIcons.Close,
+                                    contentDescription = "Cancel",
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                )
+                            }
+
+                            // Save button
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    // TODO: Trigger save action based on step type
+                                    isEditing = false
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = QodeActionIcons.Check,
+                                    contentDescription = "Save",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                )
+                            }
+                        }
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                        ) {
+                            if (stepData.isEditable) {
+                                // Inline edit button
+                                IconButton(
+                                    onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        editValue = stepData.value
+                                        isEditing = true
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = QodeActionIcons.Edit,
+                                        contentDescription = "Edit inline",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                    )
+                                }
+                            }
+
+                            // Navigate to step button
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onEdit()
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = QodeActionIcons.Forward,
+                                    contentDescription = "Go to ${stepData.title}",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            // Edit button
-            IconButton(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onEdit()
-                },
+            // Edit mode helper text
+            AnimatedVisibility(
+                visible = isEditing,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
             ) {
-                Icon(
-                    imageVector = QodeActionIcons.Edit,
-                    contentDescription = "Edit ${stepData.title}",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                Text(
+                    text = "Edit and press Done to save, or tap Cancel to discard changes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = SpacingTokens.xs),
                 )
             }
         }
@@ -387,6 +623,7 @@ private fun buildCompletedStepsList(
                 icon = QodeCommerceIcons.Store,
                 containerColor = primaryColor,
                 contentColor = onPrimaryColor,
+                fieldType = EditableFieldType.TEXT,
             ),
         )
     }
@@ -406,6 +643,8 @@ private fun buildCompletedStepsList(
                 icon = QodeCommerceIcons.Sale,
                 containerColor = secondaryContainerColor,
                 contentColor = onSecondaryContainerColor,
+                fieldType = EditableFieldType.DROPDOWN,
+                options = listOf("Percentage Discount", "Fixed Amount Discount"),
             ),
         )
     }
@@ -420,6 +659,7 @@ private fun buildCompletedStepsList(
                 icon = QodeCommerceIcons.PromoCode,
                 containerColor = tertiaryContainerColor,
                 contentColor = onTertiaryContainerColor,
+                fieldType = EditableFieldType.TEXT,
             ),
         )
     }
@@ -441,6 +681,11 @@ private fun buildCompletedStepsList(
                     icon = QodeCommerceIcons.Dollar,
                     containerColor = secondaryContainerColor,
                     contentColor = onSecondaryContainerColor,
+                    fieldType = when (wizardData.promoCodeType) {
+                        PromoCodeType.PERCENTAGE -> EditableFieldType.PERCENTAGE
+                        PromoCodeType.FIXED_AMOUNT -> EditableFieldType.CURRENCY
+                        null -> EditableFieldType.NUMBER
+                    },
                 ),
             )
         }
@@ -451,12 +696,14 @@ private fun buildCompletedStepsList(
         steps.add(
             CompletedStepData(
                 step = ProgressiveStep.OPTIONS,
-                title = "Options",
+                title = "Customer Eligibility",
                 value = if (wizardData.isFirstUserOnly) "First-time customers only" else "All customers",
                 subtitle = if (wizardData.description.isNotBlank()) wizardData.description else null,
                 icon = QodeNavigationIcons.Settings,
                 containerColor = primaryContainerColor,
                 contentColor = onPrimaryContainerColor,
+                fieldType = EditableFieldType.DROPDOWN,
+                options = listOf("All customers", "First-time customers only"),
             ),
         )
     }
@@ -471,6 +718,7 @@ private fun buildCompletedStepsList(
                 icon = QodeUIIcons.Datepicker,
                 containerColor = primaryContainerColor,
                 contentColor = onPrimaryContainerColor,
+                fieldType = EditableFieldType.DATE,
             ),
         )
     }
@@ -485,6 +733,7 @@ private fun buildCompletedStepsList(
                 icon = QodeUIIcons.Datepicker,
                 containerColor = primaryContainerColor,
                 contentColor = onPrimaryContainerColor,
+                fieldType = EditableFieldType.DATE,
             ),
         )
     }
@@ -506,6 +755,7 @@ private fun SmartProgressSummaryExpandedPreview() {
                 minimumOrderAmount = "500",
             ),
             onEditStep = {},
+            onUpdateField = {},
             modifier = Modifier.padding(SpacingTokens.md),
         )
     }

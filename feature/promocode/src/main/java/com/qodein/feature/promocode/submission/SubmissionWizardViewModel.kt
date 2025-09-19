@@ -83,6 +83,7 @@ class SubmissionWizardViewModel @Inject constructor(
             // Progressive step navigation
             SubmissionWizardAction.NextProgressiveStep -> goToNextProgressiveStep()
             SubmissionWizardAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
+            is SubmissionWizardAction.NavigateToStep -> navigateToStep(action.step)
 
             // Service selection UI actions
             SubmissionWizardAction.ShowServiceSelector -> showServiceSelector()
@@ -244,6 +245,32 @@ class SubmissionWizardViewModel @Inject constructor(
                     } else {
                         currentState
                     }
+                }
+                else -> currentState
+            }
+        }
+    }
+
+    private fun navigateToStep(targetStep: ProgressiveStep) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    // Track step navigation
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                            extras = listOf(
+                                AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.wizardFlow.currentStep.name),
+                                AnalyticsEvent.Param(PARAM_STEP_TO, targetStep.name),
+                                AnalyticsEvent.Param(PARAM_DIRECTION, "DIRECT"),
+                            ),
+                        ),
+                    )
+                    currentState.copy(
+                        wizardFlow = currentState.wizardFlow.copy(
+                            currentStep = targetStep,
+                        ),
+                    )
                 }
                 else -> currentState
             }

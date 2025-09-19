@@ -7,6 +7,7 @@ sealed interface SubmissionWizardAction {
     // Progressive step navigation
     data object NextProgressiveStep : SubmissionWizardAction
     data object PreviousProgressiveStep : SubmissionWizardAction
+    data class NavigateToStep(val step: ProgressiveStep) : SubmissionWizardAction
 
     // Service selection UI actions
     data object ShowServiceSelector : SubmissionWizardAction

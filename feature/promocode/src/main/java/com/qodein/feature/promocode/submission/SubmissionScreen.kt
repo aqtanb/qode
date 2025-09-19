@@ -188,7 +188,7 @@ private fun SubmissionContent(
             bottomBar = {
                 ModernFloatingController(
                     currentStep = uiState.wizardFlow.currentStep,
-                    canProceed = uiState.canGoNextProgressive,
+                    wizardData = uiState.wizardFlow.wizardData,
                     isLoading = uiState.submission is SubmissionState.Submitting,
                     onNext = {
                         if (uiState.wizardFlow.currentStep.isLast) {
@@ -214,6 +214,11 @@ private fun SubmissionContent(
                 // Enhanced Progress Indicator
                 EnhancedProgressIndicator(
                     currentStep = uiState.wizardFlow.currentStep,
+                    wizardData = uiState.wizardFlow.wizardData,
+                    onStepClick = { step ->
+                        onAction(SubmissionWizardAction.NavigateToStep(step))
+                    },
+                    showValidationStatus = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -222,9 +227,9 @@ private fun SubmissionContent(
                     currentStep = uiState.wizardFlow.currentStep,
                     wizardData = uiState.wizardFlow.wizardData,
                     onEditStep = { step ->
-                        // TODO: Implement step navigation when available
-                        // For now, this will be a placeholder
+                        onAction(SubmissionWizardAction.NavigateToStep(step))
                     },
+                    onUpdateField = onAction,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
