@@ -195,24 +195,27 @@ object OpacityTokens {
 object AnimationTokens {
     @Immutable
     object Spec {
-        val fast: AnimationSpec<Float> = tween(
-            durationMillis = MotionTokens.Duration.FAST,
-            easing = FastOutSlowInEasing,
-        )
+        fun <T> fast(): AnimationSpec<T> =
+            tween(
+                durationMillis = MotionTokens.Duration.FAST,
+                easing = FastOutSlowInEasing,
+            )
 
-        val medium: AnimationSpec<Float> = tween(
-            durationMillis = MotionTokens.Duration.MEDIUM,
-            easing = FastOutSlowInEasing,
-        )
+        fun <T> medium(): AnimationSpec<T> =
+            tween(
+                durationMillis = MotionTokens.Duration.MEDIUM,
+                easing = FastOutSlowInEasing,
+            )
 
-        val slow: AnimationSpec<Float> = tween(
-            durationMillis = MotionTokens.Duration.SLOW,
-            easing = FastOutSlowInEasing,
-        )
+        fun <T> slow(): AnimationSpec<T> =
+            tween(
+                durationMillis = MotionTokens.Duration.SLOW,
+                easing = FastOutSlowInEasing,
+            )
 
         // Spring animations for more natural feel
-        val spring: AnimationSpec<Float> = MotionTokens.Easing.standard
-        val emphasized: AnimationSpec<Float> = MotionTokens.Easing.emphasized
+        fun <T> spring(): AnimationSpec<T> = spring()
+        fun <T> emphasized(): AnimationSpec<T> = spring(dampingRatio = 0.8f, stiffness = 380f)
     }
 }
 

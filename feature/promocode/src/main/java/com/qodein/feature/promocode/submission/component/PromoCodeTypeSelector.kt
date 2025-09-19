@@ -83,7 +83,7 @@ private fun TypeToggleButton(
 
     val animatedScale by animateFloatAsState(
         targetValue = if (isSelected) 1.02f else 1f,
-        animationSpec = AnimationTokens.Spec.emphasized,
+        animationSpec = AnimationTokens.Spec.emphasized(),
         label = "scale",
     )
 

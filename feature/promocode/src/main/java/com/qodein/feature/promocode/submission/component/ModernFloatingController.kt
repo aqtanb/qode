@@ -42,7 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -52,7 +51,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
-import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -67,7 +65,6 @@ data class StepValidationResult(
     val canProceed: Boolean,
     val errors: List<String> = emptyList(),
     val warnings: List<String> = emptyList(),
-    val completionPercentage: Float = 0f,
     val nextAction: String = "",
     val helpText: String? = null
 )
@@ -138,16 +135,6 @@ fun ModernFloatingController(
                 onQuickAction = onQuickAction,
                 modifier = Modifier.fillMaxWidth(),
             )
-
-            // Enhanced progress indicator with validation status
-            if (!isLastStep) {
-                Spacer(modifier = Modifier.height(SpacingTokens.md))
-                EnhancedStepProgressBar(
-                    controllerState = controllerState,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(modifier = Modifier.height(SpacingTokens.md))
-            }
 
             // Smart navigation with context-aware actions
             SmartNavigationRow(
@@ -294,98 +281,6 @@ enum class ValidationMessageType {
     ERROR,
     WARNING,
     INFO
-}
-
-@Composable
-private fun EnhancedStepProgressBar(
-    controllerState: ControllerState,
-    modifier: Modifier = Modifier
-) {
-    val currentStep = controllerState.currentStep
-    val validationResult = controllerState.validationResult
-    val totalSteps = ProgressiveStep.entries.size
-    val baseProgress = currentStep.stepNumber.toFloat() / totalSteps
-    val adjustedProgress = baseProgress + (validationResult.completionPercentage / totalSteps)
-
-    val animatedProgress by animateFloatAsState(
-        targetValue = adjustedProgress.coerceIn(0f, 1f),
-        animationSpec = AnimationTokens.Spec.emphasized,
-        label = "stepProgress",
-    )
-
-    val progressColor by animateColorAsState(
-        targetValue = when {
-            validationResult.errors.isNotEmpty() -> MaterialTheme.colorScheme.error
-            validationResult.warnings.isNotEmpty() -> MaterialTheme.colorScheme.tertiary
-            validationResult.isValid -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.surfaceVariant
-        },
-        animationSpec = spring(),
-        label = "progressColor",
-    )
-
-    Column(
-        modifier = modifier,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column {
-                Text(
-                    text = "Step ${currentStep.stepNumber} of $totalSteps",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium,
-                )
-
-                // Step completion status
-                Text(
-                    text = when {
-                        validationResult.isValid -> "Complete"
-                        validationResult.completionPercentage > 0f -> "In Progress"
-                        else -> "Pending"
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = when {
-                        validationResult.isValid -> MaterialTheme.colorScheme.primary
-                        validationResult.completionPercentage > 0f -> MaterialTheme.colorScheme.tertiary
-                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-
-            Text(
-                text = "${(animatedProgress * 100).toInt()}%",
-                style = MaterialTheme.typography.labelLarge,
-                color = progressColor,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-        // Enhanced progress bar with validation indication
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(animatedProgress)
-                    .height(6.dp)
-                    .background(
-                        color = progressColor,
-                        shape = RoundedCornerShape(3.dp),
-                    ),
-            )
-        }
-    }
 }
 
 @Composable
@@ -577,21 +472,18 @@ private fun validateServiceStep(wizardData: SubmissionWizardData): StepValidatio
         hasService && hasServiceName -> StepValidationResult(
             isValid = true,
             canProceed = true,
-            completionPercentage = 1.0f,
             nextAction = "Set Discount Type",
             helpText = "Perfect! You've selected a service.",
         )
         hasService || hasServiceName -> StepValidationResult(
             isValid = false,
             canProceed = true,
-            completionPercentage = 0.6f,
             nextAction = "Continue Anyway",
             warnings = listOf("You can add more service details or continue with what you have."),
         )
         else -> StepValidationResult(
             isValid = false,
             canProceed = false,
-            completionPercentage = 0.0f,
             errors = listOf("Please select a service or enter a service name."),
             helpText = "Choose from popular services or enter a custom service name.",
         )
@@ -603,7 +495,6 @@ private fun validateDiscountTypeStep(wizardData: SubmissionWizardData): StepVali
         StepValidationResult(
             isValid = true,
             canProceed = true,
-            completionPercentage = 1.0f,
             nextAction = "Create Promo Code",
             helpText = "Great choice! Now let's create your promo code.",
         )
@@ -611,7 +502,6 @@ private fun validateDiscountTypeStep(wizardData: SubmissionWizardData): StepVali
         StepValidationResult(
             isValid = false,
             canProceed = false,
-            completionPercentage = 0.0f,
             errors = listOf("Please select a discount type."),
             helpText = "Choose between percentage discount or fixed amount.",
         )
@@ -624,28 +514,24 @@ private fun validatePromoCodeStep(wizardData: SubmissionWizardData): StepValidat
         promoCode.isEmpty() -> StepValidationResult(
             isValid = false,
             canProceed = false,
-            completionPercentage = 0.0f,
             errors = listOf("Please enter a promo code."),
             helpText = "Create a memorable and unique promo code (3-20 characters).",
         )
         promoCode.length < 3 -> StepValidationResult(
             isValid = false,
             canProceed = false,
-            completionPercentage = 0.3f,
             errors = listOf("Promo code must be at least 3 characters long."),
             helpText = "Make it longer for better uniqueness. Quick: ${promoCode}SAVE",
         )
         promoCode.length < 6 -> StepValidationResult(
             isValid = true,
             canProceed = true,
-            completionPercentage = 0.7f,
             nextAction = "Set Discount Value",
             warnings = listOf("Consider making it longer for better memorability. Quick: ${promoCode}20"),
         )
         else -> StepValidationResult(
             isValid = true,
             canProceed = true,
-            completionPercentage = 1.0f,
             nextAction = "Set Discount Value",
             helpText = "Perfect code! Clear and memorable.",
         )
@@ -660,28 +546,24 @@ private fun validateDiscountValueStep(wizardData: SubmissionWizardData): StepVal
                 percentage <= 0 -> StepValidationResult(
                     isValid = false,
                     canProceed = false,
-                    completionPercentage = 0.0f,
                     errors = listOf("Please enter a discount percentage."),
                     helpText = "Enter a percentage between 1% and 99%.",
                 )
                 percentage > 99 -> StepValidationResult(
                     isValid = false,
                     canProceed = false,
-                    completionPercentage = 0.3f,
                     errors = listOf("Percentage cannot exceed 99%."),
                     helpText = "Keep it reasonable for your business. Quick: 20",
                 )
                 percentage > 75 -> StepValidationResult(
                     isValid = true,
                     canProceed = true,
-                    completionPercentage = 0.8f,
                     nextAction = "Add Options",
                     warnings = listOf("High discount - make sure this works for your margins."),
                 )
                 else -> StepValidationResult(
                     isValid = true,
                     canProceed = true,
-                    completionPercentage = 1.0f,
                     nextAction = "Add Options",
                     helpText = "Great discount value!",
                 )
@@ -693,21 +575,18 @@ private fun validateDiscountValueStep(wizardData: SubmissionWizardData): StepVal
                 amount <= 0 -> StepValidationResult(
                     isValid = false,
                     canProceed = false,
-                    completionPercentage = 0.0f,
                     errors = listOf("Please enter a discount amount."),
                     helpText = "Enter the fixed amount customers will save.",
                 )
                 amount > 10000 -> StepValidationResult(
                     isValid = true,
                     canProceed = true,
-                    completionPercentage = 0.8f,
                     nextAction = "Add Options",
                     warnings = listOf("Large discount - ensure this aligns with your pricing strategy."),
                 )
                 else -> StepValidationResult(
                     isValid = true,
                     canProceed = true,
-                    completionPercentage = 1.0f,
                     nextAction = "Add Options",
                     helpText = "Perfect discount amount!",
                 )
@@ -716,7 +595,6 @@ private fun validateDiscountValueStep(wizardData: SubmissionWizardData): StepVal
         null -> StepValidationResult(
             isValid = false,
             canProceed = false,
-            completionPercentage = 0.0f,
             errors = listOf("Please select a discount type first."),
             helpText = "Go back and choose percentage or fixed amount.",
         )
@@ -726,7 +604,6 @@ private fun validateOptionsStep(wizardData: SubmissionWizardData): StepValidatio
     StepValidationResult(
         isValid = true,
         canProceed = true,
-        completionPercentage = 1.0f,
         nextAction = "Set Start Date",
         helpText = "Options configured! Set when your promo becomes active.",
     )
@@ -735,7 +612,6 @@ private fun validateStartDateStep(wizardData: SubmissionWizardData): StepValidat
     StepValidationResult(
         isValid = true,
         canProceed = true,
-        completionPercentage = 1.0f,
         nextAction = "Set End Date",
         helpText = "Start date set! Now choose when it expires (optional).",
     )
@@ -744,7 +620,6 @@ private fun validateEndDateStep(wizardData: SubmissionWizardData): StepValidatio
     StepValidationResult(
         isValid = true,
         canProceed = true,
-        completionPercentage = 1.0f,
         nextAction = "Submit Promo Code",
         helpText = "Ready to submit! Your promo code is complete.",
     )

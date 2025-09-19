@@ -22,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,10 +35,9 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.feature.promocode.submission.SubmissionState
-import com.qodein.feature.promocode.submission.component.EnhancedProgressIndicator
 import com.qodein.feature.promocode.submission.component.FloatingStepCard
 import com.qodein.feature.promocode.submission.component.ModernFloatingController
+import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SmartProgressSummary
 import com.qodein.shared.common.result.toErrorType
 
@@ -211,14 +209,12 @@ private fun SubmissionContent(
                     .padding(horizontal = SpacingTokens.md),
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
             ) {
-                // Enhanced Progress Indicator
-                EnhancedProgressIndicator(
+                // Progress Indicator
+                ProgressIndicator(
                     currentStep = uiState.wizardFlow.currentStep,
-                    wizardData = uiState.wizardFlow.wizardData,
                     onStepClick = { step ->
                         onAction(SubmissionWizardAction.NavigateToStep(step))
                     },
-                    showValidationStatus = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
