@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,10 +37,11 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.FloatingStepCard
-import com.qodein.feature.promocode.submission.component.ModernFloatingController
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SmartProgressSummary
+import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
 
 // MARK: - Main Screen
@@ -184,10 +187,15 @@ private fun SubmissionContent(
             modifier = Modifier.fillMaxSize(),
             containerColor = androidx.compose.ui.graphics.Color.Transparent,
             bottomBar = {
-                ModernFloatingController(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    wizardData = uiState.wizardFlow.wizardData,
+                WizardController(
+                    canGoNext = uiState.wizardFlow.canGoNext || uiState.wizardFlow.canSubmit,
+                    canGoBack = uiState.wizardFlow.canGoPrevious,
                     isLoading = uiState.submission is SubmissionState.Submitting,
+                    nextButtonText = if (uiState.wizardFlow.currentStep.isLast) {
+                        stringResource(R.string.action_submit)
+                    } else {
+                        stringResource(R.string.action_continue)
+                    },
                     onNext = {
                         if (uiState.wizardFlow.currentStep.isLast) {
                             onAction(SubmissionWizardAction.SubmitPromoCode)
@@ -239,8 +247,8 @@ private fun SubmissionContent(
                 )
 
                 // Add spacing for bottom navigation
-                androidx.compose.foundation.layout.Spacer(
-                    modifier = Modifier.height(SpacingTokens.xl),
+                Spacer(
+                    modifier = Modifier.height(SpacingTokens.md),
                 )
             }
         }
