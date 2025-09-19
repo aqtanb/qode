@@ -26,19 +26,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromoCodeType
 
+val PromoCodeType.titleRes: Int
+    get() = when (this) {
+        PromoCodeType.PERCENTAGE -> R.string.promo_type_percentage_title
+        PromoCodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
+    }
+
+val PromoCodeType.icon: ImageVector
+    get() = when (this) {
+        PromoCodeType.PERCENTAGE -> QodeCommerceIcons.Sale
+        PromoCodeType.FIXED_AMOUNT -> QodeCommerceIcons.Dollar
+    }
+
 @Composable
-fun PromoCodeTypeSelector(
+fun PromocodeTypeSelector(
     selectedType: PromoCodeType?,
     onTypeSelected: (PromoCodeType) -> Unit,
     modifier: Modifier = Modifier
@@ -47,33 +60,21 @@ fun PromoCodeTypeSelector(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        TypeToggleButton(
-            type = PromoCodeType.PERCENTAGE,
-            title = "Percentage",
-            subtitle = "Discount %",
-            icon = QodeCommerceIcons.Sale,
-            isSelected = selectedType == PromoCodeType.PERCENTAGE,
-            onClick = { onTypeSelected(PromoCodeType.PERCENTAGE) },
-            modifier = Modifier.weight(1f),
-        )
-
-        TypeToggleButton(
-            type = PromoCodeType.FIXED_AMOUNT,
-            title = "Fixed Amount",
-            subtitle = "Exact ₸",
-            icon = QodeCommerceIcons.Dollar,
-            isSelected = selectedType == PromoCodeType.FIXED_AMOUNT,
-            onClick = { onTypeSelected(PromoCodeType.FIXED_AMOUNT) },
-            modifier = Modifier.weight(1f),
-        )
+        PromoCodeType.entries.forEach { type ->
+            TypeToggleButton(
+                title = stringResource(type.titleRes),
+                icon = type.icon,
+                isSelected = selectedType == type,
+                onClick = { onTypeSelected(type) },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
 @Composable
 private fun TypeToggleButton(
-    type: PromoCodeType,
     title: String,
-    subtitle: String,
     icon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -98,22 +99,22 @@ private fun TypeToggleButton(
 
     Surface(
         modifier = modifier
+            .height(SizeTokens.Selector.height)
             .scale(animatedScale)
-            .height(SizeTokens.Button.heightLarge + SpacingTokens.md)
-            .clip(RoundedCornerShape(ShapeTokens.Corner.full))
+            .clip(RoundedCornerShape(SizeTokens.Selector.shape))
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(),
                 onClick = onClick,
             ),
         color = animatedBackgroundColor,
-        shape = RoundedCornerShape(ShapeTokens.Corner.full),
+        shape = RoundedCornerShape(SizeTokens.Selector.shape),
         tonalElevation = if (isSelected) ElevationTokens.small else ElevationTokens.none,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingTokens.md),
+                .padding(SizeTokens.Selector.padding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -144,16 +145,6 @@ private fun TypeToggleButton(
                     MaterialTheme.colorScheme.onSurface
                 },
             )
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
         }
     }
 }
@@ -162,7 +153,7 @@ private fun TypeToggleButton(
 @Composable
 private fun PromoTypeCardNonePreview() {
     QodeTheme {
-        PromoCodeTypeSelector(
+        PromocodeTypeSelector(
             selectedType = null,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
@@ -174,7 +165,7 @@ private fun PromoTypeCardNonePreview() {
 @Composable
 private fun PromoTypeCardPercentagePreview() {
     QodeTheme {
-        PromoCodeTypeSelector(
+        PromocodeTypeSelector(
             selectedType = PromoCodeType.PERCENTAGE,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
@@ -186,7 +177,7 @@ private fun PromoTypeCardPercentagePreview() {
 @Composable
 private fun PromoTypeCardFixedAmountPreview() {
     QodeTheme {
-        PromoCodeTypeSelector(
+        PromocodeTypeSelector(
             selectedType = PromoCodeType.FIXED_AMOUNT,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),

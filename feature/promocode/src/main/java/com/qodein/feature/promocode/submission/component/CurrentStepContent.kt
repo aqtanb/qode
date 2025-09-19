@@ -1,11 +1,15 @@
 package com.qodein.feature.promocode.submission.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,8 +58,10 @@ fun CurrentStepContent(
             ProgressiveStep.SERVICE -> ServiceStepContent(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
+                serviceSelectionUiState = serviceSelectionUiState,
                 onShowServiceSelector = { onAction(SubmissionWizardAction.ShowServiceSelector) },
                 onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
+                onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
                 focusRequester = focusRequester,
             )
 
@@ -82,7 +88,7 @@ fun CurrentStepContent(
                 focusRequester = focusRequester,
             )
 
-            ProgressiveStep.OPTIONS -> OptionsStepContent(
+            ProgressiveStep.OPTIONAL -> OptionsStepContent(
                 isFirstUserOnly = wizardData.isFirstUserOnly,
                 description = wizardData.description,
                 onFirstUserOnlyChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
@@ -111,51 +117,77 @@ fun CurrentStepContent(
 private fun ServiceStepContent(
     selectedService: Service?,
     serviceName: String,
+    serviceSelectionUiState: ServiceSelectionUiState,
     onShowServiceSelector: () -> Unit,
     onServiceNameChange: (String) -> Unit,
+    onToggleManualEntry: () -> Unit,
     focusRequester: FocusRequester
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        // Service selector button or current service display
-        if (selectedService != null) {
-            SubmissionTextField(
-                value = selectedService.name,
-                onValueChange = { },
-                label = "Selected Service",
-                fieldType = SubmissionFieldType.DROPDOWN,
-                leadingIcon = QodeCommerceIcons.Store,
-                onTrailingIconClick = onShowServiceSelector,
-                helperText = "Tap to change service selection",
-            )
-        } else {
-            SubmissionTextField(
-                value = "",
-                onValueChange = { },
-                label = "Choose Service",
-                placeholder = "Browse popular services",
-                fieldType = SubmissionFieldType.DROPDOWN,
-                onTrailingIconClick = onShowServiceSelector,
-                helperText = "Select from popular services or enter manually",
-                isRequired = true,
-            )
-        }
+        when (serviceSelectionUiState) {
+            ServiceSelectionUiState.ManualEntry -> {
+                // Manual entry mode - show text field with option to browse
+                SubmissionTextField(
+                    value = serviceName,
+                    onValueChange = onServiceNameChange,
+                    label = "Service Name",
+                    placeholder = "Enter service name manually",
+                    leadingIcon = QodeCommerceIcons.Store,
+                    helperText = "Type the exact service name",
+                    focusRequester = focusRequester,
+                    isRequired = true,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Text,
+                    ),
+                )
 
-        // Manual service name input
-        SubmissionTextField(
-            value = serviceName,
-            onValueChange = onServiceNameChange,
-            label = "Service Name",
-            placeholder = "Enter service name manually",
-            leadingIcon = QodeCommerceIcons.Store,
-            helperText = "Or type a custom service name",
-            focusRequester = focusRequester,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Text,
-            ),
-        )
+                // Secondary action to browse services
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SpacingTokens.sm),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "Browse services instead",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { onToggleManualEntry() },
+                    )
+                }
+            }
+            else -> {
+                // Default mode - show service selector with manual as secondary
+                ServiceSelector(
+                    selectedService = selectedService,
+                    placeholder = "Choose Service",
+                    onServiceSelectorClick = onShowServiceSelector,
+                )
+
+                // Secondary action for manual entry
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SpacingTokens.sm),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "Can't find the service? ",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "Type manually",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { onToggleManualEntry() },
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -164,36 +196,9 @@ private fun DiscountTypeStepContent(
     selectedType: PromoCodeType?,
     onTypeSelected: (PromoCodeType) -> Unit
 ) {
-    val options = listOf(
-        SubmissionFieldOption(
-            value = PromoCodeType.PERCENTAGE.name,
-            label = "Percentage Discount",
-            description = "Discount as a percentage (e.g., 20% off)",
-            icon = QodeCommerceIcons.Sale,
-        ),
-        SubmissionFieldOption(
-            value = PromoCodeType.FIXED_AMOUNT.name,
-            label = "Fixed Amount",
-            description = "Fixed amount discount (e.g., ₸500 off)",
-            icon = QodeCommerceIcons.Dollar,
-        ),
-    )
-
-    SubmissionTextField(
-        value = selectedType?.let { type ->
-            options.find { it.value == type.name }?.label
-        } ?: "",
-        onValueChange = { value ->
-            options.find { it.value == value }?.let {
-                onTypeSelected(PromoCodeType.valueOf(value))
-            }
-        },
-        label = "Discount Type",
-        placeholder = "Select discount type",
-        fieldType = SubmissionFieldType.DROPDOWN,
-        options = options,
-        helperText = "Choose how you want to offer the discount",
-        isRequired = true,
+    PromocodeTypeSelector(
+        selectedType = selectedType,
+        onTypeSelected = onTypeSelected,
     )
 }
 

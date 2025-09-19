@@ -103,10 +103,16 @@
     <string name="step_promo_code_short">Code</string>
     <string name="step_discount_value_title">Discount Value</string>
     <string name="step_discount_value_short">Value</string>
-    <string name="step_options_title">Options</string>
-    <string name="step_options_short">Options</string>
+    <string name="step_optional_title">Optional</string>
+    <string name="step_optional_short">Optional</string>
     <string name="step_start_date_title">Start Date</string>
     <string name="step_start_date_short">Start</string>
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
+
+    <!-- Promo Code Types -->
+    <string name="promo_type_percentage_title">Percentage</string>
+    <string name="promo_type_percentage_subtitle">Discount %</string>
+    <string name="promo_type_fixed_amount_title">Fixed Amount</string>
+    <string name="promo_type_fixed_amount_subtitle">Exact ₸</string>
 </resources>

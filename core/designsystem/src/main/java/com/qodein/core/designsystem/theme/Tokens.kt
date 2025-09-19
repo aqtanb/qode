@@ -112,6 +112,13 @@ object SizeTokens {
         val sizeSmall = 48.dp
         val iconSize = 24.dp
     }
+
+    @Immutable
+    object Selector {
+        val height = 80.dp
+        val padding = SpacingTokens.lg
+        val shape = ShapeTokens.Corner.full
+    }
 }
 
 /**

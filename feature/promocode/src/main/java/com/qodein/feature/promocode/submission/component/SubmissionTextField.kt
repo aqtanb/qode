@@ -130,6 +130,7 @@ fun SubmissionTextField(
     trailingIcon: ImageVector? = null,
     onTrailingIconClick: (() -> Unit)? = null,
     onDateClick: (() -> Unit)? = null,
+    onDropdownClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -250,10 +251,10 @@ fun SubmissionTextField(
 
     val containerColor by animateColorAsState(
         targetValue = when {
-            effectiveErrorText != null -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
-            effectiveValidationState == ValidationState.VALID -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
-            effectiveValidationState == ValidationState.WARNING -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f)
-            isFocused -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f)
+            effectiveErrorText != null -> MaterialTheme.colorScheme.surface
+            effectiveValidationState == ValidationState.VALID -> MaterialTheme.colorScheme.surface
+            effectiveValidationState == ValidationState.WARNING -> MaterialTheme.colorScheme.surface
+            isFocused -> MaterialTheme.colorScheme.surface
             else -> MaterialTheme.colorScheme.surface
         },
         animationSpec = spring(dampingRatio = 0.8f),
@@ -310,15 +311,16 @@ fun SubmissionTextField(
                         placeholder = placeholder,
                         options = options,
                         isExpanded = isDropdownExpanded,
-                        onExpandedChange = {
-                            isDropdownExpanded = it
-                            if (it) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onExpandedChange = { shouldExpand ->
+                            isDropdownExpanded = shouldExpand
+                            if (shouldExpand) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         borderColor = borderColor,
                         containerColor = containerColor,
                         chevronRotation = chevronRotation,
                         enabled = enabled,
                         onFocusChanged = { isFocused = it },
+                        onExternalClick = onDropdownClick,
                     )
                 }
 
@@ -507,6 +509,7 @@ private fun RegularTextField(
         },
         modifier = Modifier
             .fillMaxWidth()
+            .height(SizeTokens.Selector.height)
             .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
             .onFocusChanged { onFocusChanged(it.isFocused) },
         placeholder = placeholder?.let {
@@ -547,15 +550,29 @@ private fun RegularTextField(
         keyboardActions = keyboardActions,
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
-        shape = RoundedCornerShape(ShapeTokens.Corner.large),
+        shape = RoundedCornerShape(SizeTokens.Selector.shape),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = borderColor,
-            unfocusedBorderColor = borderColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
+            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            unfocusedBorderColor = if (value.isNotEmpty()) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            },
+            focusedContainerColor = if (value.isNotEmpty()) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
+            unfocusedContainerColor = if (value.isNotEmpty()) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            errorBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+            errorContainerColor = MaterialTheme.colorScheme.surface,
         ),
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontWeight = FontWeight.Medium,
@@ -575,7 +592,8 @@ private fun DropdownField(
     containerColor: Color,
     chevronRotation: Float,
     enabled: Boolean,
-    onFocusChanged: (Boolean) -> Unit
+    onFocusChanged: (Boolean) -> Unit,
+    onExternalClick: (() -> Unit)? = null
 ) {
     Box {
         OutlinedTextField(
@@ -584,8 +602,13 @@ private fun DropdownField(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(enabled = enabled) {
-                    onExpandedChange(!isExpanded)
-                    onFocusChanged(true)
+                    if (onExternalClick != null) {
+                        onExternalClick()
+                        onFocusChanged(true)
+                    } else {
+                        onExpandedChange(!isExpanded)
+                        onFocusChanged(true)
+                    }
                 },
             placeholder = placeholder?.let {
                 {

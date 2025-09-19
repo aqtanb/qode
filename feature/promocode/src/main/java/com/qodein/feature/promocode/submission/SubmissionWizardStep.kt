@@ -32,14 +32,14 @@ enum class ProgressiveStep(val stepNumber: Int, val hint: String) {
     END_DATE(6, "Choose when your promo code expires. This is required.") {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.endDate != null && data.endDate.isAfter(data.startDate)
     },
-    OPTIONS(7, "Configure additional options for your promo code.") {
+    OPTIONAL(7, "Configure additional options for your promo code.") {
         override fun canProceed(data: SubmissionWizardData): Boolean = true // Optional step, always valid
     };
 
     abstract fun canProceed(data: SubmissionWizardData): Boolean
 
     val isFirst: Boolean get() = this == SERVICE
-    val isLast: Boolean get() = this == OPTIONS
+    val isLast: Boolean get() = this == OPTIONAL
 
     fun next(): ProgressiveStep? =
         when (this) {
@@ -48,8 +48,8 @@ enum class ProgressiveStep(val stepNumber: Int, val hint: String) {
             PROMO_CODE -> DISCOUNT_VALUE
             DISCOUNT_VALUE -> START_DATE
             START_DATE -> END_DATE
-            END_DATE -> OPTIONS
-            OPTIONS -> null
+            END_DATE -> OPTIONAL
+            OPTIONAL -> null
         }
 
     fun previous(): ProgressiveStep? =
@@ -60,7 +60,7 @@ enum class ProgressiveStep(val stepNumber: Int, val hint: String) {
             DISCOUNT_VALUE -> PROMO_CODE
             START_DATE -> DISCOUNT_VALUE
             END_DATE -> START_DATE
-            OPTIONS -> END_DATE
+            OPTIONAL -> END_DATE
         }
 }
 
@@ -73,7 +73,7 @@ fun ProgressiveStep.stepIcon(isCompleted: Boolean = false): ImageVector =
             ProgressiveStep.DISCOUNT_TYPE -> QodeCommerceIcons.Sale
             ProgressiveStep.PROMO_CODE -> QodeCommerceIcons.PromoCode
             ProgressiveStep.DISCOUNT_VALUE -> QodeCommerceIcons.Dollar
-            ProgressiveStep.OPTIONS -> QodeNavigationIcons.Settings
+            ProgressiveStep.OPTIONAL -> QodeNavigationIcons.Settings
             ProgressiveStep.START_DATE, ProgressiveStep.END_DATE -> QodeUIIcons.Datepicker
         }
     }
@@ -85,7 +85,7 @@ val ProgressiveStep.titleRes: Int
         ProgressiveStep.DISCOUNT_TYPE -> R.string.step_discount_type_title
         ProgressiveStep.PROMO_CODE -> R.string.step_promo_code_title
         ProgressiveStep.DISCOUNT_VALUE -> R.string.step_discount_value_title
-        ProgressiveStep.OPTIONS -> R.string.step_options_title
+        ProgressiveStep.OPTIONAL -> R.string.step_optional_title
         ProgressiveStep.START_DATE -> R.string.step_start_date_title
         ProgressiveStep.END_DATE -> R.string.step_end_date_title
     }
@@ -96,7 +96,7 @@ val ProgressiveStep.shortNameRes: Int
         ProgressiveStep.DISCOUNT_TYPE -> R.string.step_discount_type_short
         ProgressiveStep.PROMO_CODE -> R.string.step_promo_code_short
         ProgressiveStep.DISCOUNT_VALUE -> R.string.step_discount_value_short
-        ProgressiveStep.OPTIONS -> R.string.step_options_short
+        ProgressiveStep.OPTIONAL -> R.string.step_optional_short
         ProgressiveStep.START_DATE -> R.string.step_start_date_short
         ProgressiveStep.END_DATE -> R.string.step_end_date_short
     }

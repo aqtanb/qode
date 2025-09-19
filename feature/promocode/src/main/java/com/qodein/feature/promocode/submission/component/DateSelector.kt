@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerStep(
+fun DateSelector(
     label: String,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
@@ -126,14 +126,14 @@ private fun DatePickerStepPreview() {
             modifier = Modifier.padding(SpacingTokens.lg),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            DatePickerStep(
+            DateSelector(
                 label = "Start Date",
                 selectedDate = LocalDate.now(),
                 onDateSelected = {},
                 placeholder = "Select start date",
             )
 
-            DatePickerStep(
+            DateSelector(
                 label = "End Date",
                 selectedDate = null,
                 onDateSelected = {},

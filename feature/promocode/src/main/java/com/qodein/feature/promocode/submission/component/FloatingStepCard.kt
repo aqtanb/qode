@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -245,7 +243,7 @@ private fun getStepIcon(step: ProgressiveStep): ImageVector =
         ProgressiveStep.DISCOUNT_TYPE -> QodeCommerceIcons.Sale
         ProgressiveStep.PROMO_CODE -> QodeCommerceIcons.PromoCode
         ProgressiveStep.DISCOUNT_VALUE -> QodeCommerceIcons.Dollar
-        ProgressiveStep.OPTIONS -> QodeNavigationIcons.Settings
+        ProgressiveStep.OPTIONAL -> QodeNavigationIcons.Settings
         ProgressiveStep.START_DATE, ProgressiveStep.END_DATE -> QodeUIIcons.Datepicker
     }
 
@@ -255,7 +253,7 @@ private val ProgressiveStep.title: String
         ProgressiveStep.DISCOUNT_TYPE -> "Discount Type"
         ProgressiveStep.PROMO_CODE -> "Promo Code"
         ProgressiveStep.DISCOUNT_VALUE -> "Set Value"
-        ProgressiveStep.OPTIONS -> "Additional Options"
+        ProgressiveStep.OPTIONAL -> "Additional Options"
         ProgressiveStep.START_DATE -> "Start Date"
         ProgressiveStep.END_DATE -> "End Date"
     }
@@ -266,7 +264,7 @@ private val ProgressiveStep.subtitle: String
         ProgressiveStep.DISCOUNT_TYPE -> "Choose percentage or fixed amount"
         ProgressiveStep.PROMO_CODE -> "Enter your promotional code"
         ProgressiveStep.DISCOUNT_VALUE -> "Set discount amount and minimum order"
-        ProgressiveStep.OPTIONS -> "Configure who can use this code"
+        ProgressiveStep.OPTIONAL -> "Configure who can use this code"
         ProgressiveStep.START_DATE -> "When should this promo code start?"
         ProgressiveStep.END_DATE -> "When should this promo code expire?"
     }
@@ -321,7 +319,7 @@ private fun getStepInstruction(step: ProgressiveStep): String =
         ProgressiveStep.DISCOUNT_TYPE -> "Choose how you want to discount"
         ProgressiveStep.PROMO_CODE -> "Make it memorable and unique"
         ProgressiveStep.DISCOUNT_VALUE -> "Set attractive but sustainable values"
-        ProgressiveStep.OPTIONS -> "Decide who can use this code"
+        ProgressiveStep.OPTIONAL -> "Decide who can use this code"
         ProgressiveStep.START_DATE -> "Choose when customers can start using it"
         ProgressiveStep.END_DATE -> "Set when the code should expire"
     }
@@ -425,7 +423,7 @@ private fun isStepCompleted(
             PromoCodeType.FIXED_AMOUNT -> wizardData.discountAmount.isNotEmpty()
             null -> false
         }
-        ProgressiveStep.OPTIONS -> true // Always considered complete as it has defaults
+        ProgressiveStep.OPTIONAL -> true // Always considered complete as it has defaults
         ProgressiveStep.START_DATE -> true // Has default value
         ProgressiveStep.END_DATE -> true // Optional field
     }
@@ -474,7 +472,7 @@ private fun getStepProgress(
             }
             null -> 0.0f
         }
-        ProgressiveStep.OPTIONS -> {
+        ProgressiveStep.OPTIONAL -> {
             val hasDescription = wizardData.description.isNotEmpty()
             if (hasDescription) 1.0f else 0.7f
         }

@@ -692,10 +692,10 @@ private fun buildCompletedStepsList(
     }
 
     // Options
-    if (currentStep.stepNumber > ProgressiveStep.OPTIONS.stepNumber) {
+    if (currentStep.stepNumber > ProgressiveStep.OPTIONAL.stepNumber) {
         steps.add(
             CompletedStepData(
-                step = ProgressiveStep.OPTIONS,
+                step = ProgressiveStep.OPTIONAL,
                 title = "Customer Eligibility",
                 value = if (wizardData.isFirstUserOnly) "First-time customers only" else "All customers",
                 subtitle = if (wizardData.description.isNotBlank()) wizardData.description else null,
@@ -746,7 +746,7 @@ private fun buildCompletedStepsList(
 private fun SmartProgressSummaryExpandedPreview() {
     QodeTheme {
         SmartProgressSummary(
-            currentStep = ProgressiveStep.OPTIONS,
+            currentStep = ProgressiveStep.OPTIONAL,
             wizardData = SubmissionWizardData(
                 selectedService = ServicePreviewData.netflix,
                 promoCodeType = PromoCodeType.PERCENTAGE,
