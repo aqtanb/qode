@@ -251,11 +251,12 @@ fun SubmissionTextField(
 
     val containerColor by animateColorAsState(
         targetValue = when {
-            effectiveErrorText != null -> MaterialTheme.colorScheme.surface
-            effectiveValidationState == ValidationState.VALID -> MaterialTheme.colorScheme.surface
-            effectiveValidationState == ValidationState.WARNING -> MaterialTheme.colorScheme.surface
-            isFocused -> MaterialTheme.colorScheme.surface
-            else -> MaterialTheme.colorScheme.surface
+            effectiveErrorText != null -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+            effectiveValidationState == ValidationState.VALID -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+            effectiveValidationState == ValidationState.WARNING -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+            isFocused -> MaterialTheme.colorScheme.surfaceVariant
+            value.isNotEmpty() -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+            else -> MaterialTheme.colorScheme.surfaceVariant
         },
         animationSpec = spring(dampingRatio = 0.8f),
         label = "containerColor",
@@ -634,9 +635,17 @@ private fun DropdownField(
             shape = RoundedCornerShape(ShapeTokens.Corner.large),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = borderColor,
-                unfocusedBorderColor = borderColor,
-                focusedContainerColor = containerColor,
-                unfocusedContainerColor = containerColor,
+                unfocusedBorderColor = borderColor.copy(alpha = 0.7f),
+                focusedContainerColor = if (value.isNotEmpty()) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                unfocusedContainerColor = if (value.isNotEmpty()) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             ),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
@@ -739,9 +748,17 @@ private fun DateField(
         shape = RoundedCornerShape(ShapeTokens.Corner.large),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = borderColor,
-            unfocusedBorderColor = borderColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
+            unfocusedBorderColor = borderColor.copy(alpha = 0.7f),
+            focusedContainerColor = if (value.isNotEmpty()) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
+            unfocusedContainerColor = if (value.isNotEmpty()) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
         ),
         textStyle = MaterialTheme.typography.bodyLarge.copy(

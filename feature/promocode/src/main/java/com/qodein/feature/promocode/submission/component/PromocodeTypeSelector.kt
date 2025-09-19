@@ -92,7 +92,7 @@ private fun TypeToggleButton(
         targetValue = if (isSelected) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surfaceContainer
+            MaterialTheme.colorScheme.surfaceVariant
         },
         label = "backgroundColor",
     )
