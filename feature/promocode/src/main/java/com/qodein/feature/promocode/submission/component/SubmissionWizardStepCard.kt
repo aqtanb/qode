@@ -40,15 +40,16 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ProgressiveStep
 import com.qodein.feature.promocode.submission.ServiceSelectionUiState
+import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.hintRes
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
-fun FloatingStepCard(
-    currentStep: ProgressiveStep,
+fun SubmissionWizardStepCard(
+    currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
     serviceSelectionUiState: ServiceSelectionUiState,
     onAction: (SubmissionWizardAction) -> Unit,
@@ -110,7 +111,7 @@ fun FloatingStepCard(
                 },
                 label = "stepContent",
             ) { step ->
-                CurrentStepContent(
+                SubmissionWizardStepContent(
                     currentStep = step,
                     wizardData = wizardData,
                     serviceSelectionUiState = serviceSelectionUiState,
@@ -124,7 +125,7 @@ fun FloatingStepCard(
 
 @Composable
 private fun StepHeader(
-    step: ProgressiveStep,
+    step: SubmissionStep,
     isHintExpanded: Boolean,
     onHintToggle: () -> Unit,
     modifier: Modifier = Modifier
@@ -164,7 +165,7 @@ private fun StepHeader(
 
 @Composable
 private fun HintCard(
-    step: ProgressiveStep,
+    step: SubmissionStep,
     modifier: Modifier = Modifier
 ) {
     // Using your beautiful StepWithInstructions pattern
@@ -190,7 +191,7 @@ private fun HintCard(
             )
 
             Text(
-                text = step.hint,
+                text = stringResource(step.hintRes),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -202,8 +203,8 @@ private fun HintCard(
 @Composable
 private fun FloatingStepCardServicePreview() {
     QodeTheme {
-        FloatingStepCard(
-            currentStep = ProgressiveStep.SERVICE,
+        SubmissionWizardStepCard(
+            currentStep = SubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             serviceSelectionUiState = ServiceSelectionUiState.Default,
             onAction = {},
@@ -216,8 +217,8 @@ private fun FloatingStepCardServicePreview() {
 @Composable
 private fun FloatingStepCardPromoCodePreview() {
     QodeTheme {
-        FloatingStepCard(
-            currentStep = ProgressiveStep.PROMO_CODE,
+        SubmissionWizardStepCard(
+            currentStep = SubmissionStep.PROMO_CODE,
             wizardData = SubmissionWizardData(),
             serviceSelectionUiState = ServiceSelectionUiState.Default,
             onAction = {},

@@ -7,7 +7,7 @@ sealed interface SubmissionWizardAction {
     // Progressive step navigation
     data object NextProgressiveStep : SubmissionWizardAction
     data object PreviousProgressiveStep : SubmissionWizardAction
-    data class NavigateToStep(val step: ProgressiveStep) : SubmissionWizardAction
+    data class NavigateToStep(val step: SubmissionStep) : SubmissionWizardAction
 
     // Service selection UI actions
     data object ShowServiceSelector : SubmissionWizardAction
@@ -24,6 +24,7 @@ sealed interface SubmissionWizardAction {
     data class UpdateDiscountAmount(val amount: String) : SubmissionWizardAction
     data class UpdateMinimumOrderAmount(val amount: String) : SubmissionWizardAction
     data class UpdateFirstUserOnly(val isFirstUserOnly: Boolean) : SubmissionWizardAction
+    data class UpdateOneTimeUseOnly(val isOneTimeUseOnly: Boolean) : SubmissionWizardAction
     data class UpdateDescription(val description: String) : SubmissionWizardAction
 
     // Step 2: Date Settings actions

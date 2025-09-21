@@ -38,8 +38,8 @@ import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.submission.component.FloatingStepCard
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
+import com.qodein.feature.promocode.submission.component.SubmissionWizardStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
 
@@ -92,12 +92,6 @@ fun SubmissionScreen(
                     onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
                     isDarkTheme = false, // TODO: Get from theme state
                 )
-                return
-            }
-
-            // Only show submission content if user is authenticated
-            val isAuthenticated = currentState.authentication is AuthenticationState.Authenticated
-            if (!isAuthenticated) {
                 return
             }
 
@@ -195,24 +189,21 @@ private fun SubmissionContent(
         containerColor = Color.Transparent,
         bottomBar = {
             WizardController(
-                canGoNext = uiState.wizardFlow.canGoNext || uiState.wizardFlow.canSubmit,
-                canGoBack = uiState.wizardFlow.canGoPrevious,
+                canGoNext = uiState.canGoNext,
+                canGoBack = uiState.canGoPrevious,
                 isLoading = uiState.submission is SubmissionState.Submitting,
-                nextButtonText = if (uiState.wizardFlow.currentStep.isLast) {
-                    stringResource(R.string.action_submit)
-                } else {
-                    stringResource(R.string.action_continue)
-                },
+                nextButtonText = stringResource(R.string.action_continue),
                 onNext = {
-                    if (uiState.wizardFlow.currentStep.isLast) {
-                        onAction(SubmissionWizardAction.SubmitPromoCode)
-                    } else {
-                        onAction(SubmissionWizardAction.NextProgressiveStep)
-                    }
+                    onAction(SubmissionWizardAction.NextProgressiveStep)
                 },
                 onPrevious = {
                     onAction(SubmissionWizardAction.PreviousProgressiveStep)
                 },
+                canSubmit = uiState.canSubmit,
+                onSubmit = {
+                    onAction(SubmissionWizardAction.SubmitPromoCode)
+                },
+                showSubmitAlongside = uiState.wizardFlow.currentStep.isLastRequired && !uiState.wizardFlow.currentStep.isLast,
             )
         },
     ) { paddingValues ->
@@ -227,7 +218,6 @@ private fun SubmissionContent(
             verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Compact Progress Indicator
             ProgressIndicator(
                 currentStep = uiState.wizardFlow.currentStep,
                 onStepClick = { step ->
@@ -236,8 +226,7 @@ private fun SubmissionContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            // FloatingStepCard - Natural sizing without compression
-            FloatingStepCard(
+            SubmissionWizardStepCard(
                 currentStep = uiState.wizardFlow.currentStep,
                 wizardData = uiState.wizardFlow.wizardData,
                 serviceSelectionUiState = uiState.serviceSelectionUiState,
@@ -288,7 +277,7 @@ private fun ProgressiveSubmissionContentServicePreview() {
             uiState = SubmissionWizardUiState.Success.initial().copy(
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(),
-                    currentStep = ProgressiveStep.SERVICE,
+                    currentStep = SubmissionStep.SERVICE,
                 ),
                 authentication = AuthenticationState.Unauthenticated,
             ),
@@ -308,7 +297,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                         selectedService = ServicePreviewData.netflix,
                         promoCodeType = PromoCodeType.PERCENTAGE,
                     ),
-                    currentStep = ProgressiveStep.PROMO_CODE,
+                    currentStep = SubmissionStep.PROMO_CODE,
                 ),
                 authentication = AuthenticationState.Unauthenticated,
             ),
@@ -347,7 +336,7 @@ private fun SubmissionContentDarkThemePreview() {
                         selectedService = ServicePreviewData.netflix,
                         promoCodeType = PromoCodeType.PERCENTAGE,
                     ),
-                    currentStep = ProgressiveStep.DISCOUNT_VALUE,
+                    currentStep = SubmissionStep.DISCOUNT_VALUE,
                 ),
                 authentication = AuthenticationState.Unauthenticated,
             ),

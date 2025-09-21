@@ -29,6 +29,7 @@ data class SubmissionWizardData(
 
     // Options
     val isFirstUserOnly: Boolean = false,
+    val isOneTimeUseOnly: Boolean = false,
     val description: String = "",
 
     // Date Settings
@@ -48,7 +49,7 @@ data class SubmissionWizardData(
 
     val hasValidMinimumOrder: Boolean get() = minimumOrderAmount.isNotBlank()
 
-    fun canProceedFromProgressiveStep(step: ProgressiveStep): Boolean = step.canProceed(this)
+    fun canProceedFromProgressiveStep(step: SubmissionStep): Boolean = step.canProceed(this)
 }
 
 sealed interface SubmissionWizardUiState {
@@ -64,10 +65,10 @@ sealed interface SubmissionWizardUiState {
         val showServiceSelector: Boolean = false
     ) : SubmissionWizardUiState {
 
-        // Navigation capabilities using new state composition
-        val canGoNextProgressive: Boolean get() = wizardFlow.canGoNext && submission !is SubmissionState.Submitting
-        val canGoPreviousProgressive: Boolean get() = wizardFlow.canGoPrevious && submission !is SubmissionState.Submitting
-        val canSubmitProgressive: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is SubmissionState.Submitting
+        // Navigation capabilities
+        val canGoNext: Boolean get() = wizardFlow.canGoNext && submission !is SubmissionState.Submitting
+        val canGoPrevious: Boolean get() = wizardFlow.canGoPrevious && submission !is SubmissionState.Submitting
+        val canSubmit: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is SubmissionState.Submitting
 
         companion object {
             fun initial(): Success =

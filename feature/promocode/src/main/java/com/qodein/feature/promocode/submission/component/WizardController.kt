@@ -42,7 +42,10 @@ fun WizardController(
     onPrevious: () -> Unit,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
-    nextButtonText: String = stringResource(R.string.action_continue)
+    nextButtonText: String = stringResource(R.string.action_continue),
+    canSubmit: Boolean = false,
+    onSubmit: (() -> Unit)? = null,
+    showSubmitAlongside: Boolean = false
 ) {
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     val imePadding = WindowInsets.ime.asPaddingValues()
@@ -54,6 +57,10 @@ fun WizardController(
         SpacingTokens.xl + navigationBarsPadding.calculateBottomPadding() // Normal floating when keyboard is closed
     }
 
+    // Calculate if we need a wider surface for 3 buttons
+    val show3Buttons = showSubmitAlongside && canSubmit && onSubmit != null
+    val surfaceWidth = if (show3Buttons) SizeTokens.Controller.pillWidth * 1.5f else SizeTokens.Controller.pillWidth
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -63,7 +70,7 @@ fun WizardController(
     ) {
         Surface(
             modifier = Modifier
-                .width(SizeTokens.Controller.pillWidth)
+                .width(surfaceWidth)
                 .height(SizeTokens.Controller.pillHeight)
                 .clip(RoundedCornerShape(ShapeTokens.Corner.full)),
             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -80,6 +87,7 @@ fun WizardController(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Back button
                 IconButton(
                     onClick = onPrevious,
                     enabled = canGoBack,
@@ -98,30 +106,99 @@ fun WizardController(
                     )
                 }
 
-                // Next button - icon button with primary styling
-                IconButton(
-                    onClick = onNext,
-                    enabled = canGoNext && !isLoading,
-                    modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(2f),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    } else {
+                // Determine layout: 3 buttons when all conditions met, otherwise 2 buttons
+                val show3Buttons = showSubmitAlongside && canSubmit && onSubmit != null
+
+                if (!show3Buttons) {
+                    // 2-button layout: Back + Next/Submit
+                    IconButton(
+                        onClick = if (canGoNext) {
+                            onNext
+                        } else if (canSubmit && onSubmit != null) {
+                            onSubmit
+                        } else {
+                            onNext
+                        },
+                        enabled = (canGoNext || (canSubmit && onSubmit != null)) && !isLoading,
+                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(2f),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = if (canGoNext) {
+                                    QodeActionIcons.Next
+                                } else if (canSubmit && onSubmit != null) {
+                                    QodeActionIcons.Check
+                                } else {
+                                    QodeActionIcons.Next
+                                },
+                                contentDescription = if (canGoNext) {
+                                    nextButtonText
+                                } else if (canSubmit && onSubmit != null) {
+                                    stringResource(R.string.action_submit)
+                                } else {
+                                    nextButtonText
+                                },
+                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                            )
+                        }
+                    }
+                } else {
+                    // 3-button layout: Next + Submit
+                    IconButton(
+                        onClick = onNext,
+                        enabled = canGoNext && !isLoading,
+                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(1f),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    ) {
                         Icon(
                             imageVector = QodeActionIcons.Next,
                             contentDescription = nextButtonText,
                             modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         )
+                    }
+
+                    // Submit button
+                    IconButton(
+                        onClick = onSubmit,
+                        enabled = canSubmit && !isLoading,
+                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(1f),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = QodeActionIcons.Check,
+                                contentDescription = stringResource(R.string.action_submit),
+                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                            )
+                        }
                     }
                 }
             }
@@ -182,6 +259,23 @@ private fun WizardControllerDisabledPreview() {
             nextButtonText = "Continue",
             onNext = {},
             onPrevious = {},
+        )
+    }
+}
+
+@Preview(name = "Wizard Controller - 3 Buttons", showBackground = true)
+@Composable
+private fun WizardController3ButtonsPreview() {
+    QodeTheme {
+        WizardController(
+            canGoNext = true,
+            canGoBack = true,
+            nextButtonText = "Continue",
+            onNext = {},
+            onPrevious = {},
+            canSubmit = true,
+            onSubmit = {},
+            showSubmitAlongside = true,
         )
     }
 }

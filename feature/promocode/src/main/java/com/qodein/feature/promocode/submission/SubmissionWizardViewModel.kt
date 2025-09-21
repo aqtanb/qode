@@ -99,6 +99,7 @@ class SubmissionWizardViewModel @Inject constructor(
             is SubmissionWizardAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
             is SubmissionWizardAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
             is SubmissionWizardAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
+            is SubmissionWizardAction.UpdateOneTimeUseOnly -> updateOneTimeUseOnly(action.isOneTimeUseOnly)
             is SubmissionWizardAction.UpdateDescription -> updateDescription(action.description)
 
             // Step 2: Date Settings
@@ -190,7 +191,7 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    if (currentState.canGoNextProgressive) {
+                    if (currentState.canGoNext) {
                         val currentStep = currentState.wizardFlow.currentStep
                         val nextStep = currentStep.next()
                         if (nextStep != null) {
@@ -222,7 +223,7 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    if (currentState.canGoPreviousProgressive) {
+                    if (currentState.canGoPrevious) {
                         val currentStep = currentState.wizardFlow.currentStep
                         val previousStep = currentStep.previous()
                         if (previousStep != null) {
@@ -250,7 +251,7 @@ class SubmissionWizardViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToStep(targetStep: ProgressiveStep) {
+    private fun navigateToStep(targetStep: SubmissionStep) {
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
@@ -404,6 +405,10 @@ class SubmissionWizardViewModel @Inject constructor(
         updateWizardData { it.copy(isFirstUserOnly = isFirstUserOnly) }
     }
 
+    private fun updateOneTimeUseOnly(isOneTimeUseOnly: Boolean) {
+        updateWizardData { it.copy(isOneTimeUseOnly = isOneTimeUseOnly) }
+    }
+
     // Step 3 Updates
     private fun updateStartDate(date: LocalDate) {
         updateWizardData { it.copy(startDate = date) }
@@ -434,8 +439,8 @@ class SubmissionWizardViewModel @Inject constructor(
             return
         }
 
-        if (!currentState.canSubmitProgressive) {
-            Logger.w(TAG) { "Cannot submit: canSubmitProgressive is false" }
+        if (!currentState.canSubmit) {
+            Logger.w(TAG) { "Cannot submit: canSubmit is false" }
             return
         }
 

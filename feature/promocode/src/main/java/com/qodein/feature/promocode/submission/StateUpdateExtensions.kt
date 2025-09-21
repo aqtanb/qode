@@ -18,7 +18,7 @@ fun SubmissionWizardUiState.Success.updateWizardData(
     return copy(wizardFlow = wizardFlow.updateData(newData))
 }
 
-fun SubmissionWizardUiState.Success.updateStep(newStep: ProgressiveStep): SubmissionWizardUiState.Success =
+fun SubmissionWizardUiState.Success.updateStep(newStep: SubmissionStep): SubmissionWizardUiState.Success =
     copy(
         wizardFlow = wizardFlow.moveToStep(newStep),
     )

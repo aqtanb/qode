@@ -3,11 +3,15 @@ package com.qodein.feature.promocode.submission.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -25,17 +30,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ProgressiveStep
 import com.qodein.feature.promocode.submission.PromoCodeType
 import com.qodein.feature.promocode.submission.ServiceSelectionUiState
+import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
 
+// Simple UI validation states for field feedback
+private enum class FieldValidationState {
+    IDLE,
+    VALIDATING,
+    VALID,
+    ERROR
+}
+
 @Composable
-fun CurrentStepContent(
-    currentStep: ProgressiveStep,
+fun SubmissionWizardStepContent(
+    currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
     serviceSelectionUiState: ServiceSelectionUiState,
     onAction: (SubmissionWizardAction) -> Unit,
@@ -55,7 +68,7 @@ fun CurrentStepContent(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         when (currentStep) {
-            ProgressiveStep.SERVICE -> ServiceStepContent(
+            SubmissionStep.SERVICE -> ServiceStepContent(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
                 serviceSelectionUiState = serviceSelectionUiState,
@@ -65,43 +78,53 @@ fun CurrentStepContent(
                 focusRequester = focusRequester,
             )
 
-            ProgressiveStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
+            SubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
                 selectedType = wizardData.promoCodeType,
                 onTypeSelected = { onAction(SubmissionWizardAction.UpdatePromoCodeType(it)) },
             )
 
-            ProgressiveStep.PROMO_CODE -> PromoCodeStepContent(
+            SubmissionStep.PROMO_CODE -> PromoCodeStepContent(
                 promoCode = wizardData.promoCode,
                 onPromoCodeChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
                 focusRequester = focusRequester,
                 keyboardController = keyboardController,
             )
 
-            ProgressiveStep.DISCOUNT_VALUE -> DiscountValueStepContent(
+            SubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
                 promoCodeType = wizardData.promoCodeType,
                 discountPercentage = wizardData.discountPercentage,
                 discountAmount = wizardData.discountAmount,
-                minimumOrderAmount = wizardData.minimumOrderAmount,
                 onDiscountPercentageChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
                 onDiscountAmountChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
+                focusRequester = focusRequester,
+            )
+
+            SubmissionStep.MINIMUM_ORDER -> MinimumOrderStepContent(
+                minimumOrderAmount = wizardData.minimumOrderAmount,
                 onMinimumOrderAmountChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
                 focusRequester = focusRequester,
             )
 
-            ProgressiveStep.OPTIONAL -> OptionsStepContent(
+            SubmissionStep.ELIGIBILITY -> EligibilityStepContent(
                 isFirstUserOnly = wizardData.isFirstUserOnly,
-                description = wizardData.description,
+                isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
                 onFirstUserOnlyChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
+                onOneTimeUseOnlyChange = { onAction(SubmissionWizardAction.UpdateOneTimeUseOnly(it)) },
+                focusRequester = focusRequester,
+            )
+
+            SubmissionStep.DESCRIPTION -> DescriptionStepContent(
+                description = wizardData.description,
                 onDescriptionChange = { onAction(SubmissionWizardAction.UpdateDescription(it)) },
                 focusRequester = focusRequester,
             )
 
-            ProgressiveStep.START_DATE -> StartDateStepContent(
+            SubmissionStep.START_DATE -> StartDateStepContent(
                 startDate = wizardData.startDate,
                 onDateSelected = { onAction(SubmissionWizardAction.UpdateStartDate(it)) },
             )
 
-            ProgressiveStep.END_DATE -> EndDateStepContent(
+            SubmissionStep.END_DATE -> EndDateStepContent(
                 endDate = wizardData.endDate,
                 onDateSelected = { date ->
                     if (date != null) {
@@ -208,40 +231,52 @@ private fun PromoCodeStepContent(
     focusRequester: FocusRequester,
     keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?
 ) {
-    var validationState by remember { mutableStateOf(ValidationState.IDLE) }
+    var validationState by remember { mutableStateOf(FieldValidationState.IDLE) }
 
-    // Simple validation logic
+    // Realistic validation for existing promo codes
     LaunchedEffect(promoCode) {
         if (promoCode.isNotEmpty()) {
-            validationState = ValidationState.VALIDATING
-            delay(500) // Simulate validation
-            validationState = if (promoCode.length >= 3) {
-                ValidationState.VALID
-            } else {
-                ValidationState.ERROR
+            validationState = FieldValidationState.VALIDATING
+            delay(300) // Simulate validation
+
+            // Clean promo code (remove spaces, hyphens for validation)
+            val cleanCode = promoCode.replace("[\\s-]".toRegex(), "")
+
+            validationState = when {
+                cleanCode.length < 2 -> FieldValidationState.ERROR
+                cleanCode.length > 50 -> FieldValidationState.ERROR
+                !cleanCode.matches("[A-Za-z0-9]+".toRegex()) -> FieldValidationState.ERROR
+                else -> FieldValidationState.VALID
             }
         } else {
-            validationState = ValidationState.IDLE
+            validationState = FieldValidationState.IDLE
         }
     }
 
     SubmissionTextField(
         value = promoCode,
         onValueChange = { newValue ->
-            // Format promo code: uppercase, no spaces, alphanumeric only
-            val formatted = newValue.uppercase().filter { it.isLetterOrDigit() }.take(20)
+            // Format promo code: allow realistic formats, limit length
+            val formatted = newValue.uppercase()
+                .filter { it.isLetterOrDigit() || it == '-' || it == ' ' }
+                .take(50) // Allow up to 50 chars to handle most real promo codes
             onPromoCodeChange(formatted)
         },
         label = "Promo Code",
         placeholder = "Enter promo code (e.g., SAVE20)",
         leadingIcon = QodeCommerceIcons.PromoCode,
-        validationState = validationState,
-        errorText = if (validationState == ValidationState.ERROR && promoCode.isNotEmpty()) {
-            "Promo code must be at least 3 characters"
+        errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
+            val cleanCode = promoCode.replace("[\\s-]".toRegex(), "")
+            when {
+                cleanCode.length < 2 -> "Promo code is too short"
+                cleanCode.length > 50 -> "Promo code is too long"
+                !cleanCode.matches("[A-Za-z0-9]+".toRegex()) -> "Use only letters and numbers"
+                else -> "Invalid promo code format"
+            }
         } else {
             null
         },
-        helperText = "Make it memorable and unique (3-20 characters)",
+        helperText = "Enter the promo code exactly as shown (2-50 characters)",
         isRequired = true,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
@@ -259,10 +294,8 @@ private fun DiscountValueStepContent(
     promoCodeType: PromoCodeType?,
     discountPercentage: String,
     discountAmount: String,
-    minimumOrderAmount: String,
     onDiscountPercentageChange: (String) -> Unit,
     onDiscountAmountChange: (String) -> Unit,
-    onMinimumOrderAmountChange: (String) -> Unit,
     focusRequester: FocusRequester
 ) {
     Column(
@@ -289,10 +322,12 @@ private fun DiscountValueStepContent(
                         if (discountPercentage.isNotEmpty()) {
                             val percentage = discountPercentage.toIntOrNull() ?: 0
                             if (percentage > 0) {
-                                androidx.compose.material3.Text(
+                                Text(
                                     text = "Customer saves $percentage% on their order",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
                                 )
                             }
                         }
@@ -339,8 +374,18 @@ private fun DiscountValueStepContent(
                 )
             }
         }
+    }
+}
 
-        // Minimum order amount
+@Composable
+private fun MinimumOrderStepContent(
+    minimumOrderAmount: String,
+    onMinimumOrderAmountChange: (String) -> Unit,
+    focusRequester: FocusRequester
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
         SubmissionTextField(
             value = minimumOrderAmount,
             onValueChange = onMinimumOrderAmountChange,
@@ -348,9 +393,11 @@ private fun DiscountValueStepContent(
             placeholder = "1000",
             fieldType = SubmissionFieldType.CURRENCY,
             leadingIcon = QodeCommerceIcons.Dollar,
-            helperText = "Minimum order value to apply this discount",
+            helperText = "Minimum order value required to apply this discount",
+            isRequired = true,
+            focusRequester = focusRequester,
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
+                imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Number,
             ),
         )
@@ -358,11 +405,11 @@ private fun DiscountValueStepContent(
 }
 
 @Composable
-private fun OptionsStepContent(
+private fun EligibilityStepContent(
     isFirstUserOnly: Boolean,
-    description: String,
+    isOneTimeUseOnly: Boolean,
     onFirstUserOnlyChange: (Boolean) -> Unit,
-    onDescriptionChange: (String) -> Unit,
+    onOneTimeUseOnlyChange: (Boolean) -> Unit,
     focusRequester: FocusRequester
 ) {
     Column(
@@ -382,24 +429,120 @@ private fun OptionsStepContent(
             ),
         )
 
-        SubmissionTextField(
-            value = if (isFirstUserOnly) "first" else "all",
-            onValueChange = { value ->
-                onFirstUserOnlyChange(value == "first")
-            },
-            label = "Customer Eligibility",
-            fieldType = SubmissionFieldType.DROPDOWN,
-            options = options,
-            helperText = "Choose who can use this promo code",
-        )
+        // Simple toggle for customer eligibility
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        ) {
+            Text(
+                text = "Customer Eligibility",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
 
-        // Description
+            options.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onFirstUserOnlyChange(option.value == "first")
+                        }
+                        .padding(SpacingTokens.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = (isFirstUserOnly && option.value == "first") || (!isFirstUserOnly && option.value == "all"),
+                        onClick = { onFirstUserOnlyChange(option.value == "first") },
+                    )
+                    Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                    Column {
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        option.description?.let { desc ->
+                            Text(
+                                text = desc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Usage Limitation Group
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        ) {
+            Text(
+                text = "Usage Limitation",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            val usageOptions = listOf(
+                SubmissionFieldOption(
+                    value = "multiple",
+                    label = "Multiple uses",
+                    description = "Can be used multiple times",
+                ),
+                SubmissionFieldOption(
+                    value = "oneTime",
+                    label = "One-time use only",
+                    description = "Code gets deleted after first use",
+                ),
+            )
+
+            usageOptions.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onOneTimeUseOnlyChange(option.value == "oneTime")
+                        }
+                        .padding(SpacingTokens.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = (isOneTimeUseOnly && option.value == "oneTime") || (!isOneTimeUseOnly && option.value == "multiple"),
+                        onClick = { onOneTimeUseOnlyChange(option.value == "oneTime") },
+                    )
+                    Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                    Column {
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        option.description?.let { desc ->
+                            Text(
+                                text = desc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DescriptionStepContent(
+    description: String,
+    onDescriptionChange: (String) -> Unit,
+    focusRequester: FocusRequester
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
         SubmissionTextField(
             value = description,
             onValueChange = onDescriptionChange,
             label = "Description",
             placeholder = "Brief description of the offer (optional)",
-            helperText = "Add a description to help customers understand the offer",
+            helperText = "Add a description to help customers understand the offer better",
             focusRequester = focusRequester,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
@@ -414,18 +557,11 @@ private fun StartDateStepContent(
     startDate: java.time.LocalDate,
     onDateSelected: (java.time.LocalDate) -> Unit
 ) {
-    SubmissionTextField(
-        value = startDate.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-        onValueChange = { },
+    DateSelector(
         label = "Start Date",
+        selectedDate = startDate,
+        onDateSelected = onDateSelected,
         placeholder = "Select start date",
-        fieldType = SubmissionFieldType.DATE,
-        onDateClick = {
-            // TODO: Show date picker
-            // For now, we'll use today's date
-            onDateSelected(java.time.LocalDate.now())
-        },
-        helperText = "When should customers be able to start using this code?",
         isRequired = true,
     )
 }
@@ -435,18 +571,12 @@ private fun EndDateStepContent(
     endDate: java.time.LocalDate?,
     onDateSelected: (java.time.LocalDate?) -> Unit
 ) {
-    SubmissionTextField(
-        value = endDate?.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: "",
-        onValueChange = { },
+    DateSelector(
         label = "End Date",
-        placeholder = "Select end date (optional)",
-        fieldType = SubmissionFieldType.DATE,
-        onDateClick = {
-            // TODO: Show date picker
-            // For now, we'll use a date 30 days from now
-            onDateSelected(java.time.LocalDate.now().plusDays(30))
-        },
-        helperText = "When should this promo code expire? Leave empty for no expiration",
+        selectedDate = endDate,
+        onDateSelected = { date -> onDateSelected(date) },
+        placeholder = "Select end date",
+        isRequired = true,
     )
 }
 
@@ -455,8 +585,8 @@ private fun EndDateStepContent(
 private fun ServiceStepContentPreview() {
     QodeTheme {
         Column(modifier = Modifier.padding(SpacingTokens.md)) {
-            CurrentStepContent(
-                currentStep = ProgressiveStep.SERVICE,
+            SubmissionWizardStepContent(
+                currentStep = SubmissionStep.SERVICE,
                 wizardData = SubmissionWizardData(),
                 serviceSelectionUiState = ServiceSelectionUiState.Default,
                 onAction = {},
@@ -470,8 +600,8 @@ private fun ServiceStepContentPreview() {
 private fun PromoCodeStepContentPreview() {
     QodeTheme {
         Column(modifier = Modifier.padding(SpacingTokens.md)) {
-            CurrentStepContent(
-                currentStep = ProgressiveStep.PROMO_CODE,
+            SubmissionWizardStepContent(
+                currentStep = SubmissionStep.PROMO_CODE,
                 wizardData = SubmissionWizardData(promoCode = "SAVE20"),
                 serviceSelectionUiState = ServiceSelectionUiState.Default,
                 onAction = {},

@@ -40,17 +40,17 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ProgressiveStep
+import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.shortNameRes
 import com.qodein.feature.promocode.submission.stepIcon
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
 fun ProgressIndicator(
-    currentStep: ProgressiveStep,
+    currentStep: SubmissionStep,
     modifier: Modifier = Modifier,
-    totalSteps: Int = ProgressiveStep.entries.size,
-    onStepClick: ((ProgressiveStep) -> Unit)? = null
+    totalSteps: Int = SubmissionStep.entries.size,
+    onStepClick: ((SubmissionStep) -> Unit)? = null
 ) {
     val progress = (currentStep.stepNumber + 1f) / totalSteps
 
@@ -97,8 +97,8 @@ fun ProgressIndicator(
 
 @Composable
 private fun StepIndicatorRow(
-    currentStep: ProgressiveStep,
-    onStepClick: ((ProgressiveStep) -> Unit)?,
+    currentStep: SubmissionStep,
+    onStepClick: ((SubmissionStep) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -107,7 +107,7 @@ private fun StepIndicatorRow(
         contentPadding = PaddingValues(horizontal = SpacingTokens.md),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        itemsIndexed(ProgressiveStep.entries) { index, step ->
+        itemsIndexed(SubmissionStep.entries) { index, step ->
             val isCompleted = step.stepNumber < currentStep.stepNumber
             val isCurrent = step.stepNumber == currentStep.stepNumber
             val isClickable = onStepClick != null && (isCompleted || isCurrent)
@@ -142,23 +142,42 @@ private fun StepIndicatorRow(
 
 @Composable
 private fun StepIcon(
-    step: ProgressiveStep,
+    step: SubmissionStep,
     isCompleted: Boolean,
     isCurrent: Boolean,
     isClickable: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
+    // Visual distinction between required and optional steps
+    val isOptional = !step.isRequired
+
     val containerColor = when {
         isCompleted -> MaterialTheme.colorScheme.primary
-        isCurrent -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        isCurrent -> if (isOptional) {
+            MaterialTheme.colorScheme.tertiaryContainer
+        } else {
+            MaterialTheme.colorScheme.primaryContainer
+        }
+        else -> if (isOptional) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        }
     }
 
     val contentColor = when {
         isCompleted -> MaterialTheme.colorScheme.onPrimary
-        isCurrent -> MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        isCurrent -> if (isOptional) {
+            MaterialTheme.colorScheme.onTertiaryContainer
+        } else {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        }
+        else -> if (isOptional) {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        }
     }
 
     val iconSize by animateFloatAsState(
@@ -192,20 +211,36 @@ private fun StepIcon(
 
 @Composable
 private fun StepLabel(
-    step: ProgressiveStep,
+    step: SubmissionStep,
     isCurrent: Boolean,
     isCompleted: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val isOptional = !step.isRequired
+
     Text(
         text = stringResource(step.shortNameRes),
         style = MaterialTheme.typography.labelSmall,
         color = when {
-            isCurrent || isCompleted -> MaterialTheme.colorScheme.onSurface
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
+            isCurrent || isCompleted -> if (isOptional && isCurrent) {
+                MaterialTheme.colorScheme.onTertiaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
+            else -> if (isOptional) {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
         },
         textAlign = TextAlign.Center,
-        fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+        fontWeight = if (isCurrent) {
+            FontWeight.SemiBold
+        } else if (isOptional) {
+            FontWeight.Light
+        } else {
+            FontWeight.Normal
+        },
         modifier = modifier.padding(top = SpacingTokens.xs),
     )
 }
@@ -215,7 +250,7 @@ private fun StepLabel(
 private fun ProgressIndicatorPreview() {
     QodeTheme {
         ProgressIndicator(
-            currentStep = ProgressiveStep.DISCOUNT_VALUE,
+            currentStep = SubmissionStep.DISCOUNT_VALUE,
             modifier = Modifier.padding(SpacingTokens.md),
         )
     }
@@ -226,7 +261,7 @@ private fun ProgressIndicatorPreview() {
 private fun ProgressIndicatorInteractivePreview() {
     QodeTheme {
         ProgressIndicator(
-            currentStep = ProgressiveStep.DISCOUNT_VALUE,
+            currentStep = SubmissionStep.DISCOUNT_VALUE,
             onStepClick = { /* Handle step click */ },
             modifier = Modifier.padding(SpacingTokens.md),
         )
