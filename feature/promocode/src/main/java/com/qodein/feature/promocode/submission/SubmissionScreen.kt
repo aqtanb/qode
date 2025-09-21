@@ -1,15 +1,12 @@
 package com.qodein.feature.promocode.submission
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,9 +20,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -40,9 +40,16 @@ import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.FloatingStepCard
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
-import com.qodein.feature.promocode.submission.component.SmartProgressSummary
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
+
+// MARK: - Constants
+
+private object ScreenConstants {
+    val LARGE_SCREEN_THRESHOLD = 800.dp
+    val MEDIUM_SCREEN_THRESHOLD = 600.dp
+    const val BACKGROUND_ALPHA = 0.3f
+}
 
 // MARK: - Main Screen
 
@@ -162,95 +169,81 @@ private fun SubmissionContent(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val configuration = LocalConfiguration.current
 
-    // Create dynamic background alpha based on scroll
-    val backgroundAlpha by animateFloatAsState(
-        targetValue = if (scrollState.value > 100) 0.95f else 0.8f,
-        animationSpec = spring(dampingRatio = 0.8f),
-        label = "backgroundAlpha",
-    )
+    // Responsive spacing based on screen height
+    val screenHeightDp = configuration.screenHeightDp.dp
+    val adaptiveSpacing = when {
+        screenHeightDp > ScreenConstants.LARGE_SCREEN_THRESHOLD -> SpacingTokens.xl // Large screens: generous spacing
+        screenHeightDp > ScreenConstants.MEDIUM_SCREEN_THRESHOLD -> SpacingTokens.lg // Medium screens: standard spacing
+        else -> SpacingTokens.md // Small screens: compact spacing
+    }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        // Dynamic gradient background
-        Box(
+    val verticalSpacing = when {
+        screenHeightDp > ScreenConstants.LARGE_SCREEN_THRESHOLD -> SpacingTokens.lg // More space between components on large screens
+        else -> SpacingTokens.md // Compact spacing on smaller screens
+    }
+
+    // Clean, single-layer design with background applied directly to Scaffold
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = ScreenConstants.BACKGROUND_ALPHA),
+            )
+            .imePadding(),
+        containerColor = Color.Transparent,
+        bottomBar = {
+            WizardController(
+                canGoNext = uiState.wizardFlow.canGoNext || uiState.wizardFlow.canSubmit,
+                canGoBack = uiState.wizardFlow.canGoPrevious,
+                isLoading = uiState.submission is SubmissionState.Submitting,
+                nextButtonText = if (uiState.wizardFlow.currentStep.isLast) {
+                    stringResource(R.string.action_submit)
+                } else {
+                    stringResource(R.string.action_continue)
+                },
+                onNext = {
+                    if (uiState.wizardFlow.currentStep.isLast) {
+                        onAction(SubmissionWizardAction.SubmitPromoCode)
+                    } else {
+                        onAction(SubmissionWizardAction.NextProgressiveStep)
+                    }
+                },
+                onPrevious = {
+                    onAction(SubmissionWizardAction.PreviousProgressiveStep)
+                },
+            )
+        },
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                ),
-        )
+                .padding(paddingValues)
+                .verticalScroll(scrollState)
+                .padding(horizontal = adaptiveSpacing)
+                .padding(vertical = verticalSpacing)
+                .padding(bottom = SpacingTokens.xxl), // Extra breathing room below content when scrolling
+            verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Compact Progress Indicator
+            ProgressIndicator(
+                currentStep = uiState.wizardFlow.currentStep,
+                onStepClick = { step ->
+                    onAction(SubmissionWizardAction.NavigateToStep(step))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        // Main content
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = androidx.compose.ui.graphics.Color.Transparent,
-            bottomBar = {
-                WizardController(
-                    canGoNext = uiState.wizardFlow.canGoNext || uiState.wizardFlow.canSubmit,
-                    canGoBack = uiState.wizardFlow.canGoPrevious,
-                    isLoading = uiState.submission is SubmissionState.Submitting,
-                    nextButtonText = if (uiState.wizardFlow.currentStep.isLast) {
-                        stringResource(R.string.action_submit)
-                    } else {
-                        stringResource(R.string.action_continue)
-                    },
-                    onNext = {
-                        if (uiState.wizardFlow.currentStep.isLast) {
-                            onAction(SubmissionWizardAction.SubmitPromoCode)
-                        } else {
-                            onAction(SubmissionWizardAction.NextProgressiveStep)
-                        }
-                    },
-                    onPrevious = {
-                        onAction(SubmissionWizardAction.PreviousProgressiveStep)
-                    },
-                )
-            },
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(paddingValues)
-                    .padding(horizontal = SpacingTokens.md),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                // Progress Indicator
-                ProgressIndicator(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    onStepClick = { step ->
-                        onAction(SubmissionWizardAction.NavigateToStep(step))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Smart Progress Summary
-                SmartProgressSummary(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    wizardData = uiState.wizardFlow.wizardData,
-                    onEditStep = { step ->
-                        onAction(SubmissionWizardAction.NavigateToStep(step))
-                    },
-                    onUpdateField = onAction,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Main Step Content Card
-                FloatingStepCard(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    wizardData = uiState.wizardFlow.wizardData,
-                    serviceSelectionUiState = uiState.serviceSelectionUiState,
-                    onAction = onAction,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Add spacing for bottom navigation
-                Spacer(
-                    modifier = Modifier.height(SpacingTokens.md),
-                )
-            }
+            // FloatingStepCard - Natural sizing without compression
+            FloatingStepCard(
+                currentStep = uiState.wizardFlow.currentStep,
+                wizardData = uiState.wizardFlow.wizardData,
+                serviceSelectionUiState = uiState.serviceSelectionUiState,
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

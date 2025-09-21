@@ -27,7 +27,7 @@ import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 
 @Composable
-fun PromoCodeDetailsCard(
+fun PromocodeDetailsCard(
     wizardData: SubmissionWizardData,
     onAction: (SubmissionWizardAction) -> Unit,
     focusManager: FocusManager,
@@ -128,7 +128,7 @@ fun PromoCodeDetailsCard(
 @Composable
 private fun PromoCodeDetailsCardPercentagePreview() {
     QodeTheme {
-        PromoCodeDetailsCard(
+        PromocodeDetailsCard(
             wizardData = SubmissionWizardData(
                 promoCode = "SAVE20",
                 promoCodeType = PromoCodeType.PERCENTAGE,
@@ -146,7 +146,7 @@ private fun PromoCodeDetailsCardPercentagePreview() {
 @Composable
 private fun PromoCodeDetailsCardFixedAmountPreview() {
     QodeTheme {
-        PromoCodeDetailsCard(
+        PromocodeDetailsCard(
             wizardData = SubmissionWizardData(
                 promoCode = "FOOD100",
                 promoCodeType = PromoCodeType.FIXED_AMOUNT,

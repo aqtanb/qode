@@ -3,7 +3,6 @@ package com.qodein.feature.promocode.submission.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,6 +20,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -133,9 +133,9 @@ private fun ServiceStepContent(
                     value = serviceName,
                     onValueChange = onServiceNameChange,
                     label = "Service Name",
-                    placeholder = "Enter service name manually",
+                    placeholder = "Type the service name",
                     leadingIcon = QodeCommerceIcons.Store,
-                    helperText = "Type the exact service name",
+                    helperText = "Exact service name",
                     focusRequester = focusRequester,
                     isRequired = true,
                     keyboardOptions = KeyboardOptions(
@@ -144,38 +144,35 @@ private fun ServiceStepContent(
                     ),
                 )
 
-                // Secondary action to browse services
-                Row(
+                // Secondary action to browse services - center aligned for better UX
+                Text(
+                    text = "Browse services instead",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = SpacingTokens.sm),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = "Browse services instead",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onToggleManualEntry() },
-                    )
-                }
+                        .padding(top = SpacingTokens.sm)
+                        .clickable { onToggleManualEntry() },
+                )
             }
             else -> {
                 // Default mode - show service selector with manual as secondary
                 ServiceSelector(
                     selectedService = selectedService,
-                    placeholder = "Choose Service",
+                    placeholder = "Search for the service",
                     onServiceSelectorClick = onShowServiceSelector,
                 )
 
-                // Secondary action for manual entry
-                Row(
+                // Secondary action for manual entry - using Column for better text flow
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = SpacingTokens.sm),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "Can't find the service? ",
+                        text = "Can't find the service?",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -183,7 +180,9 @@ private fun ServiceStepContent(
                         text = "Type manually",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onToggleManualEntry() },
+                        modifier = Modifier
+                            .padding(top = SpacingTokens.xs)
+                            .clickable { onToggleManualEntry() },
                     )
                 }
             }

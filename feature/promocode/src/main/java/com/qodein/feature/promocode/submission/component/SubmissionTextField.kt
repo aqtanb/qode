@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -277,27 +278,6 @@ fun SubmissionTextField(
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
-        // Label with required indicator
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = SpacingTokens.xs),
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = labelColor,
-                fontWeight = FontWeight.Medium,
-            )
-            if (isRequired) {
-                Text(
-                    text = " *",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-        }
-
         // Main input field
         Box(
             modifier = Modifier
@@ -462,20 +442,6 @@ fun SubmissionTextField(
                         )
                     }
                 }
-
-                // Helper text (only show if no error or warning)
-                if (effectiveErrorText == null &&
-                    currentValidationResult?.state != ValidationState.WARNING &&
-                    helperText != null
-                ) {
-                    Text(
-                        text = helperText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
                 // Custom supporting content
                 supportingContent?.invoke()
             }
@@ -519,6 +485,9 @@ private fun RegularTextField(
                     text = it,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         },
@@ -577,7 +546,9 @@ private fun RegularTextField(
         ),
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Start,
         ),
+        singleLine = true,
     )
 }
 

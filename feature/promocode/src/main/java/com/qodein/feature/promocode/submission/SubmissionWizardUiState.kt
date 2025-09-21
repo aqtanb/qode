@@ -18,6 +18,7 @@ enum class PromoCodeType {
 data class SubmissionWizardData(
     // Service Details
     val selectedService: Service? = null,
+    val serviceName: String = "", // Manual service name entry
 
     // Promo Code Details
     val promoCode: String = "",
@@ -34,8 +35,8 @@ data class SubmissionWizardData(
     val startDate: LocalDate = LocalDate.now(),
     val endDate: LocalDate? = null
 ) {
-    val hasValidService: Boolean get() = selectedService != null
-    val serviceName: String get() = selectedService?.name ?: ""
+    val hasValidService: Boolean get() = selectedService != null || serviceName.isNotBlank()
+    val effectiveServiceName: String get() = selectedService?.name ?: serviceName
 
     val hasValidPromoCode: Boolean get() = promoCode.isNotBlank()
 

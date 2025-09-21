@@ -18,7 +18,6 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.Service
-import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -372,13 +371,8 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun updateServiceName(serviceName: String) {
-        // For manual entry - create a basic Service object
-        val manualService = Service(
-            id = ServiceId("manual_${serviceName.lowercase().replace(" ", "_")}"),
-            name = serviceName,
-            category = "Unspecified",
-        )
-        updateWizardData { it.copy(selectedService = manualService) }
+        // Update the manual service name field
+        updateWizardData { it.copy(serviceName = serviceName) }
     }
 
     private fun updatePromoCodeType(type: PromoCodeType) {
@@ -446,7 +440,7 @@ class SubmissionWizardViewModel @Inject constructor(
         }
 
         val wizardData = currentState.wizardFlow.wizardData
-        Logger.d(TAG) { "Submitting: service='${wizardData.serviceName}', code='${wizardData.promoCode}'" }
+        Logger.d(TAG) { "Submitting: service='${wizardData.effectiveServiceName}', code='${wizardData.promoCode}'" }
 
         _uiState.update { state ->
             when (state) {
@@ -461,7 +455,7 @@ class SubmissionWizardViewModel @Inject constructor(
             val promoCodeResult = when (wizardData.promoCodeType) {
                 PromoCodeType.PERCENTAGE -> PromoCode.createPercentage(
                     code = wizardData.promoCode,
-                    serviceName = wizardData.serviceName,
+                    serviceName = wizardData.effectiveServiceName,
                     serviceId = wizardData.selectedService?.id,
                     discountPercentage = wizardData.discountPercentage.toDoubleOrNull() ?: 0.0,
                     description = wizardData.description.takeIf { it.isNotBlank() },
@@ -480,7 +474,7 @@ class SubmissionWizardViewModel @Inject constructor(
                 )
                 PromoCodeType.FIXED_AMOUNT -> PromoCode.createFixedAmount(
                     code = wizardData.promoCode,
-                    serviceName = wizardData.serviceName,
+                    serviceName = wizardData.effectiveServiceName,
                     serviceId = wizardData.selectedService?.id,
                     discountAmount = wizardData.discountAmount.toDoubleOrNull() ?: 0.0,
                     description = wizardData.description.takeIf { it.isNotBlank() },

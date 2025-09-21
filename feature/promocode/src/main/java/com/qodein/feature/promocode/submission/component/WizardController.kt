@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,12 +45,20 @@ fun WizardController(
     nextButtonText: String = stringResource(R.string.action_continue)
 ) {
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
+    val imePadding = WindowInsets.ime.asPaddingValues()
+
+    // Use less padding when keyboard is visible to save space
+    val bottomPadding = if (imePadding.calculateBottomPadding() > 0.dp) {
+        SpacingTokens.sm + navigationBarsPadding.calculateBottomPadding() // Compact spacing when keyboard is open
+    } else {
+        SpacingTokens.xl + navigationBarsPadding.calculateBottomPadding() // Normal floating when keyboard is closed
+    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(SizeTokens.Controller.containerHeight)
-            .padding(bottom = SpacingTokens.xl + navigationBarsPadding.calculateBottomPadding()),
+            .padding(bottom = bottomPadding),
         contentAlignment = Alignment.BottomCenter,
     ) {
         Surface(

@@ -12,6 +12,7 @@
     <string name="action_try_again">Try Again</string>
     <string name="action_submit">Submit</string>
     <string name="action_continue">Continue</string>
+    <string name="action_complete">Complete</string>
 
     <!-- Wizard Steps -->
     <string name="wizard_step_service_type">Service &amp; Type</string>

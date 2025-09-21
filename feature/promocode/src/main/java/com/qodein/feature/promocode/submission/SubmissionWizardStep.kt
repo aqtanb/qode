@@ -8,10 +8,14 @@ import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.feature.promocode.R
 
 enum class ProgressiveStep(val stepNumber: Int, val hint: String) {
-    SERVICE(1, "Select the service for your promo code. Can't find it? Type it manually.") {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.serviceName.isNotBlank()
+    SERVICE(1, "Where can the user apply this promo code?") {
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.effectiveServiceName.isNotBlank()
     },
-    DISCOUNT_TYPE(2, "Percentage takes % off the total. " + "\nFixed amount takes exact $ off.") {
+    DISCOUNT_TYPE(
+        2,
+        "% off → discount grows with your order amount\n" +
+            "\n$ off → discount stays the same, no matter how much you order",
+    ) {
 
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCodeType != null
     },
