@@ -43,7 +43,6 @@ object TopBarConfigProvider {
                 TopBarConfig.MainWithTitle(
                     title = stringResource(R.string.feed_title),
                     actions = {
-                        // Favorites button for feed screen
                         IconButton(
                             onClick = { /* TODO: Handle favorites click */ },
                         ) {
@@ -56,33 +55,20 @@ object TopBarConfigProvider {
                 )
             }
 
-            // Nested screens - only when NOT on top-level destinations
             currentDestination == null -> {
                 when {
                     appState.isSubmissionScreen -> {
-                        // TODO: Implement proper dynamic titles per wizard step
-                        // The wizard has 2 steps that should show different titles:
-                        // Step 1: "Core Details" (CORE_DETAILS)
-                        // Step 2: "Set Dates" (DATE_SETTINGS)
-                        // Currently using generic title since wizard step state is not accessible here
-                        TopBarConfig.Basic(title = "Create Promo Code")
+                        TopBarConfig.Basic(title = "Submit Promo Code")
                     }
                     appState.isSettingsScreen -> {
                         TopBarConfig.Basic(title = stringResource(R.string.settings))
                     }
-                    appState.isPromocodeDetailScreen -> {
-                        // Screen handles its own top bar to avoid architecture coupling
-                        TopBarConfig.None
-                    }
                     else -> {
-                        // During startup, navigation isn't fully initialized yet
-                        // App starts on Home screen, so return None during this phase
                         TopBarConfig.None
                     }
                 }
             }
 
-            // Fallback
             else -> TopBarConfig.Basic(title = "")
         }
     }
@@ -93,9 +79,7 @@ object TopBarConfigProvider {
     @Composable
     fun shouldShowProfile(appState: QodeAppState): Boolean =
         when {
-            appState.isProfileScreen -> false // Don't show profile on profile screen
-            appState.isAuthScreen -> false // Don't show profile on auth screen
-            appState.isNestedScreen -> false // Don't show on nested screens (like settings)
+            appState.isNestedScreen -> false
             else -> true // Show on main screens
         }
 

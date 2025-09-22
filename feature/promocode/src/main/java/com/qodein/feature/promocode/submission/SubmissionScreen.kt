@@ -57,6 +57,7 @@ private object ScreenConstants {
 @Composable
 fun SubmissionScreen(
     onNavigateBack: () -> Unit,
+    isDarkTheme: Boolean,
     viewModel: SubmissionWizardViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "ProgressiveSubmission")
@@ -90,7 +91,7 @@ fun SubmissionScreen(
                     isLoading = isSigningIn,
                     errorType = authError?.toErrorType(),
                     onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
-                    isDarkTheme = false, // TODO: Get from theme state
+                    isDarkTheme = isDarkTheme,
                 )
                 return
             }

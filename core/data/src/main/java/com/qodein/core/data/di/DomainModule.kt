@@ -20,7 +20,7 @@ import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.AddCommentUseCase
-import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
+import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
 import com.qodein.shared.domain.usecase.promocode.IncrementViewCountUseCase
@@ -92,8 +92,8 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideCreatePromoCodeUseCase(promoCodeRepository: PromoCodeRepository): CreatePromoCodeUseCase =
-        CreatePromoCodeUseCase(promoCodeRepository)
+    fun provideCreatePromoCodeUseCase(promoCodeRepository: PromoCodeRepository): SubmitPromocodeUseCase =
+        SubmitPromocodeUseCase(promoCodeRepository)
 
     @Provides
     @Singleton

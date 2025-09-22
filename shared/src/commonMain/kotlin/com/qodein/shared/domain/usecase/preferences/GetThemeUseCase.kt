@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
  * Wraps DevicePreferencesRepository with Result pattern for proper error handling.
  */
 
-class GetThemeUseCase constructor(private val devicePreferencesRepository: DevicePreferencesRepository) {
+class GetThemeUseCase(private val devicePreferencesRepository: DevicePreferencesRepository) {
 
     /**
      * Get theme preference as Flow<Result<Theme>>

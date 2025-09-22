@@ -28,6 +28,7 @@ fun NavGraphBuilder.submissionSection(
     composable<SubmissionRoute> {
         SubmissionScreen(
             onNavigateBack = onNavigateBack,
+            isDarkTheme = isDarkTheme,
         )
     }
 

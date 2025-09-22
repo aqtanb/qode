@@ -1,6 +1,7 @@
 package com.qodein.feature.promocode.submission
 
 import com.qodein.shared.model.Service
+import com.qodein.shared.model.User
 import java.time.LocalDate
 
 sealed interface SubmissionWizardAction {
@@ -31,7 +32,7 @@ sealed interface SubmissionWizardAction {
     data class UpdateStartDate(val date: LocalDate) : SubmissionWizardAction
     data class UpdateEndDate(val date: LocalDate) : SubmissionWizardAction
 
-    data class SubmitPromoCodeWithUser(val userData: SubmissionWizardViewModel.UserData) : SubmissionWizardAction
+    data class SubmitPromoCodeWithUser(val user: User) : SubmissionWizardAction
     data object SubmitPromoCode : SubmissionWizardAction
 
     // Authentication actions
