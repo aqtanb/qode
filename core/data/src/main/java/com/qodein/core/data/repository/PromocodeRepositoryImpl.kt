@@ -3,7 +3,7 @@ package com.qodein.core.data.repository
 import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
-import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
@@ -21,10 +21,10 @@ import javax.inject.Singleton
 class PromocodeRepositoryImpl @Inject constructor(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
     private val serviceDataSource: FirestoreServiceDataSource
-) : PromoCodeRepository {
+) : PromocodeRepository {
 
     companion object {
-        private const val TAG = "PromoCodeRepository"
+        private const val TAG = "PromocodeRepository"
     }
 
     override fun createPromoCode(promoCode: PromoCode): Flow<PromoCode> =

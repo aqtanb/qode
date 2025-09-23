@@ -16,9 +16,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,9 +32,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +57,7 @@ import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import kotlinx.coroutines.launch
 
 enum class SubmissionFieldType {
     TEXT,
@@ -89,6 +95,17 @@ fun SubmissionTextField(
     var isFocused by remember { mutableStateOf(false) }
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Auto-scroll to bring text field into view when focused
+    LaunchedEffect(isFocused) {
+        if (isFocused) {
+            coroutineScope.launch {
+                bringIntoViewRequester.bringIntoView()
+            }
+        }
+    }
 
     // Simple error text handling
     val effectiveErrorText = errorText
@@ -138,7 +155,9 @@ fun SubmissionTextField(
     )
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .imePadding(),
     ) {
         // Main input field
         Box(
@@ -165,58 +184,59 @@ fun SubmissionTextField(
                         focusRequester = focusRequester,
                         interactionSource = interactionSource,
                         onFocusChanged = { isFocused = it },
+                        bringIntoViewRequester = bringIntoViewRequester,
                     )
                 }
             }
         }
 
-        // Simple supporting content with IME padding fix
+        // Supporting content - only show one at a time
         AnimatedVisibility(
             visible = effectiveErrorText != null || helperText != null || supportingContent != null,
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut(),
         ) {
             Column(
-                modifier = Modifier.padding(top = SpacingTokens.xs, bottom = SpacingTokens.md),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                modifier = Modifier.padding(top = SpacingTokens.sm),
             ) {
-                // Error text
-                effectiveErrorText?.let { error ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(
-                            imageVector = QodeUIIcons.Error,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                        )
-                        Spacer(modifier = Modifier.width(SpacingTokens.xs))
-                        Text(
-                            text = error,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.weight(1f),
-                        )
+                when {
+                    // Error has highest priority
+                    effectiveErrorText != null -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Icon(
+                                imageVector = QodeUIIcons.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                            )
+                            Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                            Text(
+                                text = effectiveErrorText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
-                }
-
-                // Helper text
-                if (effectiveErrorText == null) {
-                    helperText?.let { helper ->
+                    // Helper text has medium priority
+                    helperText != null -> {
                         Text(
-                            text = helper,
+                            text = helperText,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                    // Custom content has lowest priority
+                    supportingContent != null -> {
+                        supportingContent()
+                    }
                 }
-
-                // Custom supporting content
-                supportingContent?.invoke()
             }
         }
     }
@@ -239,7 +259,8 @@ private fun RegularTextField(
     visualTransformation: VisualTransformation,
     focusRequester: FocusRequester?,
     interactionSource: MutableInteractionSource,
-    onFocusChanged: (Boolean) -> Unit
+    onFocusChanged: (Boolean) -> Unit,
+    bringIntoViewRequester: BringIntoViewRequester
 ) {
     OutlinedTextField(
         value = value,
@@ -250,6 +271,7 @@ private fun RegularTextField(
         modifier = Modifier
             .fillMaxWidth()
             .height(SizeTokens.Selector.height)
+            .bringIntoViewRequester(bringIntoViewRequester)
             .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
             .onFocusChanged { onFocusChanged(it.isFocused) },
         placeholder = placeholder?.let {

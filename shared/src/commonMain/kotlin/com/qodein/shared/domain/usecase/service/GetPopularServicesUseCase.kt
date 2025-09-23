@@ -1,7 +1,7 @@
 package com.qodein.shared.domain.usecase.service
 
 import com.qodein.shared.common.result.Result
-import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
  * This implementation uses standard Flow operators to correctly handle the
  * data stream, caching, and error recovery, using Kermit for logging.
  */
-class GetPopularServicesUseCase(private val repository: PromoCodeRepository) {
+class GetPopularServicesUseCase(private val repository: PromocodeRepository) {
     // TODO: Simple in-memory cache for fallback, add stale-while-revalidate logic
     private var cachedServices: List<Service> = emptyList()
 

@@ -1,4 +1,4 @@
-package com.qodein.feature.promocode.submission.component
+package com.qodein.feature.promocode.submission.component.steps
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border

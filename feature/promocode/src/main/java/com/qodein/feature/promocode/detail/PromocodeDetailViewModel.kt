@@ -17,7 +17,7 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
-import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -40,7 +40,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PromocodeDetailViewModel @Inject constructor(
-    private val getPromoCodeByIdUseCase: GetPromoCodeByIdUseCase,
+    private val getPromoCodeByIdUseCase: GetPromocodeByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
     private val toggleBookmarkUseCase: ToggleBookmarkUseCase,

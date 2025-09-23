@@ -1,4 +1,4 @@
-package com.qodein.feature.promocode.submission.component
+package com.qodein.feature.promocode.submission.component.steps
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,21 +14,30 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -39,8 +48,95 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.ServicePreviewData
+import com.qodein.feature.promocode.submission.ServiceSelectionUiState
+import com.qodein.feature.promocode.submission.SubmissionStep
+import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.component.SubmissionStepCard
+import com.qodein.feature.promocode.submission.component.SubmissionTextField
 import com.qodein.shared.model.Service
+
+@Composable
+fun ServiceStepContent(
+    selectedService: Service?,
+    serviceName: String,
+    serviceSelectionUiState: ServiceSelectionUiState,
+    onShowServiceSelector: () -> Unit,
+    onServiceNameChange: (String) -> Unit,
+    onToggleManualEntry: () -> Unit,
+    focusRequester: FocusRequester,
+    onNextStep: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        when (serviceSelectionUiState) {
+            ServiceSelectionUiState.ManualEntry -> {
+                LaunchedEffect(serviceSelectionUiState) {
+                    focusRequester.requestFocus()
+                }
+
+                SubmissionTextField(
+                    value = serviceName,
+                    onValueChange = onServiceNameChange,
+                    label = "Service Name",
+                    placeholder = "Type the service name",
+                    leadingIcon = QodeCommerceIcons.Store,
+                    helperText = "Exact service name",
+                    focusRequester = focusRequester,
+                    isRequired = true,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Words,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { onNextStep() },
+                    ),
+                )
+
+                Text(
+                    text = "Browse services instead",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onToggleManualEntry() }
+                        .padding(top = SpacingTokens.md),
+                )
+            }
+            else -> {
+                // Default mode - show service selector with manual as secondary
+                ServiceSelector(
+                    selectedService = selectedService,
+                    placeholder = "Search for the service",
+                    onServiceSelectorClick = onShowServiceSelector,
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SpacingTokens.lg),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "Can't find the service?",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "Type manually",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(top = SpacingTokens.xs)
+                            .clickable { onToggleManualEntry() },
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun ServiceSelector(
@@ -152,9 +248,9 @@ fun ServiceSelector(
                 imageVector = QodeActionIcons.Next,
                 contentDescription = null,
                 tint = if (hasSelection) {
-                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                    MaterialTheme.colorScheme.onPrimaryContainer
                 } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    MaterialTheme.colorScheme.onSurface
                 },
                 modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
             )
@@ -162,41 +258,28 @@ fun ServiceSelector(
     }
 }
 
-@Preview(name = "Service Selector - Empty", showBackground = true)
+@PreviewLightDark
 @Composable
-private fun ServiceSelectorEmptyPreview() {
+private fun ServiceSelectorPreview() {
     QodeTheme {
-        ServiceSelector(
-            selectedService = null,
-            placeholder = "Choose Service",
-            onServiceSelectorClick = {},
-            modifier = Modifier.padding(SpacingTokens.md),
+        SubmissionStepCard(
+            currentStep = SubmissionStep.SERVICE,
+            wizardData = SubmissionWizardData(),
+            serviceSelectionUiState = ServiceSelectionUiState.Default,
+            onAction = {},
         )
     }
 }
 
-@Preview(name = "Service Selector - Selected", showBackground = true)
+@PreviewLightDark
 @Composable
-private fun ServiceSelectorSelectedPreview() {
+private fun ServiceManualPreview() {
     QodeTheme {
-        ServiceSelector(
-            selectedService = ServicePreviewData.netflix,
-            placeholder = "Choose Service",
-            onServiceSelectorClick = {},
-            modifier = Modifier.padding(SpacingTokens.md),
-        )
-    }
-}
-
-@Preview(name = "Service Selector - No Logo", showBackground = true)
-@Composable
-private fun ServiceSelectorNoLogoPreview() {
-    QodeTheme {
-        ServiceSelector(
-            selectedService = ServicePreviewData.localCoffeeShop,
-            placeholder = "Choose Service",
-            onServiceSelectorClick = {},
-            modifier = Modifier.padding(SpacingTokens.md),
+        SubmissionStepCard(
+            currentStep = SubmissionStep.SERVICE,
+            wizardData = SubmissionWizardData(),
+            serviceSelectionUiState = ServiceSelectionUiState.ManualEntry,
+            onAction = {},
         )
     }
 }

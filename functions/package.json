@@ -11,6 +11,7 @@
     "logs": "firebase functions:log",
     "populate": "node lib/populators/populateServices.js",
     "populate:codes": "node lib/populators/populatePromoCodes.js",
+    "add-service": "npm run build && node addService.js",
     "init:votescores": "node lib/populators/initializeVoteScores.js",
     "fix:votescores": "npm run build && node lib/initVoteScores.js",
     "update:counts": "node lib/scheduledTasks/updateServiceCounts.js",

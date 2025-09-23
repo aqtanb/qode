@@ -117,7 +117,7 @@
 
     <!-- Step Hints -->
     <string name="step_service_hint">Which service does this promo code work with?</string>
-    <string name="step_discount_type_hint">What type of discount does this code offer?\nPercentage (%) or fixed amount ($)?</string>
+    <string name="step_discount_type_hint">Percentage (%) – the higher the order, the bigger the discount.\nFixed amount ($) – same discount no matter how much you spend.</string>
     <string name="step_promo_code_hint">Enter the exact promo code as it appears.</string>
     <string name="step_discount_value_hint">How much discount does this code give?</string>
     <string name="step_minimum_order_hint">What\'s the minimum order required to use this code?</string>

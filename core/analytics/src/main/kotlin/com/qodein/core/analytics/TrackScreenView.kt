@@ -10,6 +10,8 @@ import androidx.compose.runtime.DisposableEffect
  * @param screenName The name of the screen being viewed
  * @param screenClass Optional screen class for additional context
  */
+
+// TODO: Add onDispose
 @Composable
 fun TrackScreenViewEvent(
     screenName: String,

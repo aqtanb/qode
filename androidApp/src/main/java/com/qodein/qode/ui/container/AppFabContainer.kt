@@ -3,6 +3,7 @@ package com.qodein.qode.ui.container
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -86,7 +87,7 @@ fun AppFabContainer(
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    elevation = androidx.compose.material3.FloatingActionButtonDefaults.elevation(
+                    elevation = FloatingActionButtonDefaults.elevation(
                         defaultElevation = ElevationTokens.large,
                         pressedElevation = ElevationTokens.extraLarge,
                         focusedElevation = ElevationTokens.large,
@@ -113,7 +114,7 @@ fun AppFabContainer(
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                elevation = androidx.compose.material3.FloatingActionButtonDefaults.elevation(
+                elevation = FloatingActionButtonDefaults.elevation(
                     defaultElevation = ElevationTokens.large,
                     pressedElevation = ElevationTokens.extraLarge,
                     focusedElevation = ElevationTokens.large,

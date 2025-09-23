@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +37,11 @@ import com.qodein.feature.promocode.submission.ServiceSelectionUiState
 import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.shared.model.Service
+import com.qodein.feature.promocode.submission.component.steps.DateSelector
+import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeSelector
+import com.qodein.feature.promocode.submission.component.steps.ServiceStepContent
+import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
+import com.qodein.feature.promocode.submission.validation.getPromoCodeValidationError
 import kotlinx.coroutines.delay
 
 // Simple UI validation states for field feedback
@@ -76,6 +82,7 @@ fun SubmissionWizardStepContent(
                 onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
                 onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
                 focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
             )
 
             SubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
@@ -88,6 +95,7 @@ fun SubmissionWizardStepContent(
                 onPromoCodeChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
                 focusRequester = focusRequester,
                 keyboardController = keyboardController,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
             )
 
             SubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
@@ -97,12 +105,15 @@ fun SubmissionWizardStepContent(
                 onDiscountPercentageChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
                 onDiscountAmountChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
                 focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
             )
 
             SubmissionStep.MINIMUM_ORDER -> MinimumOrderStepContent(
                 minimumOrderAmount = wizardData.minimumOrderAmount,
                 onMinimumOrderAmountChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
                 focusRequester = focusRequester,
+                wizardData = wizardData,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
             )
 
             SubmissionStep.ELIGIBILITY -> EligibilityStepContent(
@@ -117,6 +128,7 @@ fun SubmissionWizardStepContent(
                 description = wizardData.description,
                 onDescriptionChange = { onAction(SubmissionWizardAction.UpdateDescription(it)) },
                 focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.SubmitPromoCode) },
             )
 
             SubmissionStep.START_DATE -> StartDateStepContent(
@@ -137,83 +149,6 @@ fun SubmissionWizardStepContent(
 }
 
 @Composable
-private fun ServiceStepContent(
-    selectedService: Service?,
-    serviceName: String,
-    serviceSelectionUiState: ServiceSelectionUiState,
-    onShowServiceSelector: () -> Unit,
-    onServiceNameChange: (String) -> Unit,
-    onToggleManualEntry: () -> Unit,
-    focusRequester: FocusRequester
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        when (serviceSelectionUiState) {
-            ServiceSelectionUiState.ManualEntry -> {
-                // Manual entry mode - show text field with option to browse
-                SubmissionTextField(
-                    value = serviceName,
-                    onValueChange = onServiceNameChange,
-                    label = "Service Name",
-                    placeholder = "Type the service name",
-                    leadingIcon = QodeCommerceIcons.Store,
-                    helperText = "Exact service name",
-                    focusRequester = focusRequester,
-                    isRequired = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Text,
-                    ),
-                )
-
-                // Secondary action to browse services - center aligned for better UX
-                Text(
-                    text = "Browse services instead",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = SpacingTokens.sm)
-                        .clickable { onToggleManualEntry() },
-                )
-            }
-            else -> {
-                // Default mode - show service selector with manual as secondary
-                ServiceSelector(
-                    selectedService = selectedService,
-                    placeholder = "Search for the service",
-                    onServiceSelectorClick = onShowServiceSelector,
-                )
-
-                // Secondary action for manual entry - using Column for better text flow
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = SpacingTokens.sm),
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Can't find the service?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "Type manually",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(top = SpacingTokens.xs)
-                            .clickable { onToggleManualEntry() },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun DiscountTypeStepContent(
     selectedType: PromoCodeType?,
     onTypeSelected: (PromoCodeType) -> Unit
@@ -224,29 +159,27 @@ private fun DiscountTypeStepContent(
     )
 }
 
+// TODO: Add paste button
 @Composable
 private fun PromoCodeStepContent(
     promoCode: String,
     onPromoCodeChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?,
+    onNextStep: () -> Unit
 ) {
     var validationState by remember { mutableStateOf(FieldValidationState.IDLE) }
 
-    // Realistic validation for existing promo codes
+    // Centralized validation for promo codes
     LaunchedEffect(promoCode) {
         if (promoCode.isNotEmpty()) {
             validationState = FieldValidationState.VALIDATING
             delay(300) // Simulate validation
 
-            // Clean promo code (remove spaces, hyphens for validation)
-            val cleanCode = promoCode.replace("[\\s-]".toRegex(), "")
-
-            validationState = when {
-                cleanCode.length < 2 -> FieldValidationState.ERROR
-                cleanCode.length > 50 -> FieldValidationState.ERROR
-                !cleanCode.matches("[A-Za-z0-9]+".toRegex()) -> FieldValidationState.ERROR
-                else -> FieldValidationState.VALID
+            validationState = if (getPromoCodeValidationError(promoCode) == null) {
+                FieldValidationState.VALID
+            } else {
+                FieldValidationState.ERROR
             }
         } else {
             validationState = FieldValidationState.IDLE
@@ -256,8 +189,8 @@ private fun PromoCodeStepContent(
     SubmissionTextField(
         value = promoCode,
         onValueChange = { newValue ->
-            // Format promo code: allow realistic formats, limit length
-            val formatted = newValue.uppercase()
+            // Smart formatting: default uppercase but allow user control
+            val formatted = newValue
                 .filter { it.isLetterOrDigit() || it == '-' || it == ' ' }
                 .take(50) // Allow up to 50 chars to handle most real promo codes
             onPromoCodeChange(formatted)
@@ -266,13 +199,7 @@ private fun PromoCodeStepContent(
         placeholder = "Enter promo code (e.g., SAVE20)",
         leadingIcon = QodeCommerceIcons.PromoCode,
         errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
-            val cleanCode = promoCode.replace("[\\s-]".toRegex(), "")
-            when {
-                cleanCode.length < 2 -> "Promo code is too short"
-                cleanCode.length > 50 -> "Promo code is too long"
-                !cleanCode.matches("[A-Za-z0-9]+".toRegex()) -> "Use only letters and numbers"
-                else -> "Invalid promo code format"
-            }
+            getPromoCodeValidationError(promoCode)
         } else {
             null
         },
@@ -280,11 +207,12 @@ private fun PromoCodeStepContent(
         isRequired = true,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Companion.Characters,
+            imeAction = ImeAction.Companion.Next,
+            keyboardType = KeyboardType.Companion.Text,
         ),
         keyboardActions = KeyboardActions(
-            onNext = { keyboardController?.hide() },
+            onNext = { onNextStep() },
         ),
     )
 }
@@ -296,7 +224,8 @@ private fun DiscountValueStepContent(
     discountAmount: String,
     onDiscountPercentageChange: (String) -> Unit,
     onDiscountAmountChange: (String) -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    onNextStep: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -317,6 +246,9 @@ private fun DiscountValueStepContent(
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { onNextStep() },
                     ),
                     supportingContent = {
                         if (discountPercentage.isNotEmpty()) {
@@ -349,14 +281,17 @@ private fun DiscountValueStepContent(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number,
                     ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { onNextStep() },
+                    ),
                     supportingContent = {
                         if (discountAmount.isNotEmpty()) {
                             val amount = discountAmount.toIntOrNull() ?: 0
                             if (amount > 0) {
-                                androidx.compose.material3.Text(
+                                Text(
                                     text = "Customer saves ₸$amount on their order",
-                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
                                 )
                             }
                         }
@@ -381,7 +316,9 @@ private fun DiscountValueStepContent(
 private fun MinimumOrderStepContent(
     minimumOrderAmount: String,
     onMinimumOrderAmountChange: (String) -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    wizardData: SubmissionWizardData,
+    onNextStep: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -394,11 +331,15 @@ private fun MinimumOrderStepContent(
             fieldType = SubmissionFieldType.CURRENCY,
             leadingIcon = QodeCommerceIcons.Dollar,
             helperText = "Minimum order value required to apply this discount",
+            errorText = getBusinessLogicValidationError(wizardData),
             isRequired = true,
             focusRequester = focusRequester,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Number,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { onNextStep() },
             ),
         )
     }
@@ -532,7 +473,8 @@ private fun EligibilityStepContent(
 private fun DescriptionStepContent(
     description: String,
     onDescriptionChange: (String) -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    onNextStep: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
@@ -547,6 +489,9 @@ private fun DescriptionStepContent(
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Text,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onNextStep() },
             ),
         )
     }

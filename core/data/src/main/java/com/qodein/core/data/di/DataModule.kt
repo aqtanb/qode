@@ -9,19 +9,13 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
-import com.qodein.core.data.repository.CommentRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
-import com.qodein.core.data.repository.PostRepositoryImpl
-import com.qodein.core.data.repository.PromoRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
-import com.qodein.shared.domain.repository.CommentRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
-import com.qodein.shared.domain.repository.PostRepository
-import com.qodein.shared.domain.repository.PromoCodeRepository
-import com.qodein.shared.domain.repository.PromoRepository
+import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import dagger.Binds
 import dagger.Module
@@ -40,7 +34,7 @@ abstract class DataModule {
 
     @Binds
     @Singleton
-    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromocodeRepositoryImpl): PromoCodeRepository
+    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromocodeRepositoryImpl): PromocodeRepository
 
     @Binds
     @Singleton
@@ -51,18 +45,6 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindBannerRepository(bannerRepositoryImpl: BannerRepositoryImpl): BannerRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindPostRepository(postRepositoryImpl: PostRepositoryImpl): PostRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindPromoRepository(promoRepositoryImpl: PromoRepositoryImpl): PromoRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindCommentRepository(commentRepositoryImpl: CommentRepositoryImpl): CommentRepository
 
     @Binds
     @Singleton

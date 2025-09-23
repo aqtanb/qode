@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,11 +37,19 @@ class ServiceSearchManagerImpl @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     override val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    override val searchResult: Flow<Result<List<Service>>> = _searchQuery
+    private val isActive = MutableStateFlow(false)
+
+    override val searchResult: Flow<Result<List<Service>>> = combine(
+        _searchQuery,
+        isActive,
+    ) { query, isActive ->
+        query to isActive
+    }
         .debounce(300) // 300ms debounce as per existing codebase standards
         .distinctUntilChanged()
-        .flatMapLatest { query ->
+        .flatMapLatest { (query, isActive) ->
             when {
+                !isActive -> flowOf(Result.Success(emptyList()))
                 query.isBlank() -> getPopularServicesUseCase(limit = 20)
                 else -> searchServicesUseCase(query = query, limit = 5)
             }
@@ -51,5 +61,13 @@ class ServiceSearchManagerImpl @Inject constructor(
 
     override fun clearQuery() {
         _searchQuery.value = ""
+    }
+
+    override fun activate() {
+        isActive.value = true
+    }
+
+    override fun deactivate() {
+        isActive.value = false
     }
 }

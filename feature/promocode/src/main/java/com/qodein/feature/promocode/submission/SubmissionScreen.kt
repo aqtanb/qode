@@ -18,6 +18,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +42,7 @@ import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
-import com.qodein.feature.promocode.submission.component.SubmissionWizardStepCard
+import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
 
@@ -60,7 +63,7 @@ fun SubmissionScreen(
     isDarkTheme: Boolean,
     viewModel: SubmissionWizardViewModel = hiltViewModel()
 ) {
-    TrackScreenViewEvent(screenName = "ProgressiveSubmission")
+    TrackScreenViewEvent(screenName = "SubmissionScreen")
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
@@ -78,7 +81,7 @@ fun SubmissionScreen(
             LoadingState()
         }
         is SubmissionWizardUiState.Success -> {
-            // Show authentication bottom sheet when needed
+            // MARK: Authentication check
             val showAuthSheet = currentState.authentication !is AuthenticationState.Authenticated
             if (showAuthSheet) {
                 val isSigningIn = currentState.authentication is AuthenticationState.Loading
@@ -166,6 +169,9 @@ private fun SubmissionContent(
     val scrollState = rememberScrollState()
     val configuration = LocalConfiguration.current
 
+    // Track keyboard visibility by detecting IME padding changes
+    var isKeyboardVisible by remember { mutableStateOf(false) }
+
     // Responsive spacing based on screen height
     val screenHeightDp = configuration.screenHeightDp.dp
     val adaptiveSpacing = when {
@@ -179,62 +185,67 @@ private fun SubmissionContent(
         else -> SpacingTokens.md // Compact spacing on smaller screens
     }
 
-    // Clean, single-layer design with background applied directly to Scaffold
-    Scaffold(
+    // Clean, single-layer design with floating controller overlay
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = ScreenConstants.BACKGROUND_ALPHA),
-            )
-            .imePadding(),
-        containerColor = Color.Transparent,
-        bottomBar = {
-            WizardController(
-                canGoNext = uiState.canGoNext,
-                canGoBack = uiState.canGoPrevious,
-                isLoading = uiState.submission is SubmissionState.Submitting,
-                nextButtonText = stringResource(R.string.action_continue),
-                onNext = {
-                    onAction(SubmissionWizardAction.NextProgressiveStep)
-                },
-                onPrevious = {
-                    onAction(SubmissionWizardAction.PreviousProgressiveStep)
-                },
-                canSubmit = uiState.canSubmit,
-                onSubmit = {
-                    onAction(SubmissionWizardAction.SubmitPromoCode)
-                },
-                showSubmitAlongside = uiState.wizardFlow.currentStep.isLastRequired && !uiState.wizardFlow.currentStep.isLast,
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-                .padding(horizontal = adaptiveSpacing)
-                .padding(vertical = verticalSpacing)
-                .padding(bottom = SpacingTokens.xxl), // Extra breathing room below content when scrolling
-            verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            ProgressIndicator(
-                currentStep = uiState.wizardFlow.currentStep,
-                onStepClick = { step ->
-                    onAction(SubmissionWizardAction.NavigateToStep(step))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            )
+            ),
+    ) {
+        // Main content - no bottom padding reserved for controller
+        Scaffold(
+            containerColor = Color.Transparent,
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = adaptiveSpacing)
+                    .padding(vertical = verticalSpacing)
+                    .padding(bottom = 100.dp) // Account for floating controller height + extra breathing room
+                    .imePadding(), // Apply IME padding to the content area
+                verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                ProgressIndicator(
+                    currentStep = uiState.wizardFlow.currentStep,
+                    onStepClick = { step ->
+                        onAction(SubmissionWizardAction.NavigateToStep(step))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
-            SubmissionWizardStepCard(
-                currentStep = uiState.wizardFlow.currentStep,
-                wizardData = uiState.wizardFlow.wizardData,
-                serviceSelectionUiState = uiState.serviceSelectionUiState,
-                onAction = onAction,
-                modifier = Modifier.fillMaxWidth(),
-            )
+                SubmissionStepCard(
+                    currentStep = uiState.wizardFlow.currentStep,
+                    wizardData = uiState.wizardFlow.wizardData,
+                    serviceSelectionUiState = uiState.serviceSelectionUiState,
+                    onAction = onAction,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
+
+        // Floating controller at bottom - hidden when keyboard is active
+        WizardController(
+            canGoNext = uiState.canGoNext,
+            canGoBack = uiState.canGoPrevious,
+            isLoading = uiState.submission is SubmissionState.Submitting,
+            nextButtonText = stringResource(R.string.action_continue),
+            onNext = {
+                onAction(SubmissionWizardAction.NextProgressiveStep)
+            },
+            onPrevious = {
+                onAction(SubmissionWizardAction.PreviousProgressiveStep)
+            },
+            canSubmit = uiState.canSubmit,
+            onSubmit = {
+                onAction(SubmissionWizardAction.SubmitPromoCode)
+            },
+            showSubmitAlongside = uiState.wizardFlow.currentStep.isLastRequired && !uiState.wizardFlow.currentStep.isLast,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 }
 

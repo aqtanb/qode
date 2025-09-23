@@ -48,7 +48,7 @@ import com.qodein.feature.promocode.submission.hintRes
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
-fun SubmissionWizardStepCard(
+fun SubmissionStepCard(
     currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
     serviceSelectionUiState: ServiceSelectionUiState,
@@ -137,7 +137,7 @@ private fun StepHeader(
     ) {
         Text(
             text = stringResource(step.titleRes),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -152,7 +152,6 @@ private fun StepHeader(
             Icon(
                 imageVector = QodeUIIcons.Info,
                 contentDescription = "Toggle helpful tips",
-                modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                 tint = if (isHintExpanded) {
                     MaterialTheme.colorScheme.primary
                 } else {
@@ -203,7 +202,7 @@ private fun HintCard(
 @Composable
 private fun FloatingStepCardServicePreview() {
     QodeTheme {
-        SubmissionWizardStepCard(
+        SubmissionStepCard(
             currentStep = SubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             serviceSelectionUiState = ServiceSelectionUiState.Default,
@@ -217,7 +216,7 @@ private fun FloatingStepCardServicePreview() {
 @Composable
 private fun FloatingStepCardPromoCodePreview() {
     QodeTheme {
-        SubmissionWizardStepCard(
+        SubmissionStepCard(
             currentStep = SubmissionStep.PROMO_CODE,
             wizardData = SubmissionWizardData(),
             serviceSelectionUiState = ServiceSelectionUiState.Default,

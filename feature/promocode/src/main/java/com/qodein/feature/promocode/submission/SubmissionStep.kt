@@ -6,27 +6,28 @@ import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.feature.promocode.R
+import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
+import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
+import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmount
+import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
+import com.qodein.feature.promocode.submission.validation.isValidServiceName
 
 enum class SubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
     SERVICE(1) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.effectiveServiceName.isNotBlank()
+        override fun canProceed(data: SubmissionWizardData): Boolean = isValidServiceName(data.effectiveServiceName)
     },
     DISCOUNT_TYPE(2) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCodeType != null
     },
     PROMO_CODE(3) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCode.isNotBlank()
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCode.isNotBlank() && isValidPromoCodeFormat(data.promoCode)
     },
     DISCOUNT_VALUE(4) {
-        override fun canProceed(data: SubmissionWizardData): Boolean =
-            when (data.promoCodeType) {
-                PromoCodeType.PERCENTAGE -> data.discountPercentage.isNotBlank()
-                PromoCodeType.FIXED_AMOUNT -> data.discountAmount.isNotBlank()
-                null -> false
-            }
+        override fun canProceed(data: SubmissionWizardData): Boolean = isValidDiscountValue(data)
     },
     MINIMUM_ORDER(5) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.minimumOrderAmount.isNotBlank()
+        override fun canProceed(data: SubmissionWizardData): Boolean =
+            isValidMinimumOrderAmount(data.minimumOrderAmount) && isValidBusinessLogic(data)
     },
     START_DATE(6) {
         override fun canProceed(data: SubmissionWizardData): Boolean = true // Always valid (defaults to today)

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * Follows NIA pattern - uses standard exceptions, no custom exception hierarchies.
  */
-interface PromoCodeRepository {
+interface PromocodeRepository {
 
     /**
      * Create a new promo code.

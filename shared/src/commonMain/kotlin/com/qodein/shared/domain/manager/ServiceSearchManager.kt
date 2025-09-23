@@ -35,4 +35,15 @@ interface ServiceSearchManager {
      * Clear the search query and reset to popular services.
      */
     fun clearQuery()
+
+    /**
+     * Activate service search. Must be called before any search operations.
+     * This prevents expensive service loading on app start.
+     */
+    fun activate()
+
+    /**
+     * Deactivate service search to stop all operations.
+     */
+    fun deactivate()
 }

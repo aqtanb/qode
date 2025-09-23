@@ -17,7 +17,7 @@ import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
-import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
@@ -43,7 +43,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
-    private val getPromoCodesUseCase: GetPromoCodesUseCase,
+    private val getPromoCodesUseCase: GetPromocodesUseCase,
     // Service search manager
     private val serviceSearchManager: ServiceSearchManager,
     // Analytics
@@ -69,7 +69,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadHomeData()
-        setupServiceSearch()
     }
 
     fun onAction(action: HomeAction) {
@@ -316,8 +315,10 @@ class HomeViewModel @Inject constructor(
             state.copy(activeFilterDialog = type)
         }
 
-        // Load popular services when service dialog is opened
+        // Activate and load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
+            serviceSearchManager.activate()
+            setupServiceSearch()
             serviceSearchManager.clearQuery()
         }
     }

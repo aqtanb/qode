@@ -362,7 +362,7 @@ private fun DragHandle(modifier: Modifier = Modifier) {
                 .width(DRAG_HANDLE_WIDTH_DP.dp)
                 .height(DRAG_HANDLE_HEIGHT_DP.dp)
                 .background(
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = DRAG_HANDLE_ALPHA),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = DRAG_HANDLE_ALPHA),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(DRAG_HANDLE_CORNER_RADIUS_DP.dp),
                 ),
         )
