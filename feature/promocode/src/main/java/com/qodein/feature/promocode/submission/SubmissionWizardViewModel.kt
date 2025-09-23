@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -127,40 +128,49 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { SubmissionWizardUiState.Success.initial() }
     }
 
+    private val _searchQuery = MutableStateFlow("")
+    private val _searchResults = MutableStateFlow<List<Service>>(emptyList())
+    private val _isSearching = MutableStateFlow(false)
+
+    val searchQuery = _searchQuery.asStateFlow()
+    val searchResults = _searchResults.asStateFlow()
+    val isSearching = _isSearching.asStateFlow()
+
+    // MARK: - Service Selection
+
+    private fun showServiceSelector() {
+        updateSuccessState { it.showServiceSelector() }
+        // Activate service search and set up the search flow
+        serviceSearchManager.activate()
+        serviceSearchManager.clearQuery()
+        // Trigger empty query to load popular services immediately
+        serviceSearchManager.updateQuery("")
+        setupServiceSearch()
+    }
+
     private fun setupServiceSearch() {
         viewModelScope.launch {
             combine(
                 serviceSearchManager.searchQuery,
                 serviceSearchManager.searchResult,
             ) { query, result ->
+                _searchQuery.value = query
                 when (result) {
-                    is Result.Loading -> ServiceSelectionUiState.Searching(query, emptyList())
-                    is Result.Success -> ServiceSelectionUiState.Searching(query, result.data)
-                    is Result.Error -> ServiceSelectionUiState.Searching(query, emptyList())
-                }
-            }.collect { newSelectionUiState ->
-                _uiState.update { currentState ->
-                    when (currentState) {
-                        is SubmissionWizardUiState.Success -> currentState.updateServiceSelection(uiState = newSelectionUiState)
-                        else -> currentState
+                    is Result.Loading -> {
+                        _isSearching.value = true
+                        _searchResults.value = emptyList()
+                    }
+                    is Result.Success -> {
+                        _isSearching.value = false
+                        _searchResults.value = result.data
+                    }
+                    is Result.Error -> {
+                        _isSearching.value = false
+                        _searchResults.value = emptyList()
                     }
                 }
-            }
+            }.collect()
         }
-    }
-
-    // MARK: - Service Selection
-
-    private fun showServiceSelector() {
-        updateSuccessState {
-            it.showServiceSelector(uiState = ServiceSelectionUiState.Searching("", emptyList()))
-        }
-        // Activate service search and set up the search flow
-        serviceSearchManager.activate()
-        setupServiceSearch()
-        serviceSearchManager.clearQuery()
-        // Trigger empty query to load popular services immediately
-        serviceSearchManager.updateQuery("")
     }
 
     private fun hideServiceSelector() {
@@ -168,13 +178,7 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun toggleManualEntry() {
-        updateSuccessState { currentState ->
-            val newUiState = when (currentState.serviceSelectionUiState) {
-                ServiceSelectionUiState.ManualEntry -> ServiceSelectionUiState.Default
-                else -> ServiceSelectionUiState.ManualEntry
-            }
-            currentState.updateServiceSelection(uiState = newUiState)
-        }
+        // TODO: Implement manual entry toggle with new architecture
     }
 
     // MARK: - Navigation

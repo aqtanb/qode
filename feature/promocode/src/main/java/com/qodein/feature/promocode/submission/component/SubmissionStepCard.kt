@@ -40,7 +40,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ServiceSelectionUiState
 import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
@@ -51,7 +50,6 @@ import com.qodein.feature.promocode.submission.titleRes
 fun SubmissionStepCard(
     currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
-    serviceSelectionUiState: ServiceSelectionUiState,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -114,7 +112,6 @@ fun SubmissionStepCard(
                 SubmissionWizardStepContent(
                     currentStep = step,
                     wizardData = wizardData,
-                    serviceSelectionUiState = serviceSelectionUiState,
                     onAction = onAction,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -205,7 +202,6 @@ private fun FloatingStepCardServicePreview() {
         SubmissionStepCard(
             currentStep = SubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.Default,
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
         )
@@ -219,7 +215,6 @@ private fun FloatingStepCardPromoCodePreview() {
         SubmissionStepCard(
             currentStep = SubmissionStep.PROMO_CODE,
             wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.Default,
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
         )

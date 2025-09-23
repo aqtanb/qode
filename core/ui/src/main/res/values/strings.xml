@@ -175,6 +175,8 @@
     <string name="action_back">Back</string>
     <string name="action_clear">Clear</string>
     <string name="search_icon_description">Search</string>
+    <string name="loading_popular_services">Loading popular services...</string>
+    <string name="search_error_message">Failed to search services. Please try again.</string>
     
     <!-- Sort Options -->
     <string name="sort_popularity">Most Popular</string>

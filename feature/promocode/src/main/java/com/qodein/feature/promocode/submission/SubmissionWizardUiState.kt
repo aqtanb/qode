@@ -4,12 +4,6 @@ import com.qodein.shared.common.result.ErrorType
 import com.qodein.shared.model.Service
 import java.time.LocalDate
 
-sealed interface ServiceSelectionUiState {
-    data object Default : ServiceSelectionUiState
-    data object ManualEntry : ServiceSelectionUiState
-    data class Searching(val query: String, val results: List<Service>) : ServiceSelectionUiState
-}
-
 enum class PromoCodeType {
     PERCENTAGE,
     FIXED_AMOUNT
@@ -60,8 +54,6 @@ sealed interface SubmissionWizardUiState {
         val authentication: AuthenticationState,
         val validation: ValidationState,
         val submission: SubmissionState,
-        // Temporary UI concerns (TODO: extract service selection as separate feature)
-        val serviceSelectionUiState: ServiceSelectionUiState = ServiceSelectionUiState.Default,
         val showServiceSelector: Boolean = false
     ) : SubmissionWizardUiState {
 

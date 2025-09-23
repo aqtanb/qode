@@ -48,7 +48,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ServiceSelectionUiState
 import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
@@ -59,7 +58,6 @@ import com.qodein.shared.model.Service
 fun ServiceStepContent(
     selectedService: Service?,
     serviceName: String,
-    serviceSelectionUiState: ServiceSelectionUiState,
     onShowServiceSelector: () -> Unit,
     onServiceNameChange: (String) -> Unit,
     onToggleManualEntry: () -> Unit,
@@ -69,9 +67,11 @@ fun ServiceStepContent(
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        when (serviceSelectionUiState) {
-            ServiceSelectionUiState.ManualEntry -> {
-                LaunchedEffect(serviceSelectionUiState) {
+        // TODO: Simplify service selection UI
+        when (false) { // serviceSelectionUiState) {
+            true -> { // ServiceSelectionUiState.ManualEntry -> {
+                LaunchedEffect(Unit) {
+                    // serviceSelectionUiState) {
                     focusRequester.requestFocus()
                 }
 
@@ -265,7 +265,6 @@ private fun ServiceSelectorPreview() {
         SubmissionStepCard(
             currentStep = SubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.Default,
             onAction = {},
         )
     }
@@ -278,7 +277,6 @@ private fun ServiceManualPreview() {
         SubmissionStepCard(
             currentStep = SubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.ManualEntry,
             onAction = {},
         )
     }

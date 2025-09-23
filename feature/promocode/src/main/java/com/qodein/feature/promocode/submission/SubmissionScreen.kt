@@ -40,11 +40,19 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.toLocalizedMessage
 import com.qodein.core.ui.preview.ServicePreviewData
+import com.qodein.core.ui.state.ServiceSelectionUiAction
+import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.service.selection.PopularServices
+import com.qodein.shared.domain.service.selection.PopularStatus
+import com.qodein.shared.domain.service.selection.SearchState
+import com.qodein.shared.domain.service.selection.SearchStatus
+import com.qodein.shared.domain.service.selection.SelectionState
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 
 // MARK: - Constants
 
@@ -116,39 +124,71 @@ fun SubmissionScreen(
             )
 
             // Always render the bottom sheet, visibility controlled by sheetState
-            ServiceSelectorBottomSheet(
-                isVisible = currentState.showServiceSelector,
-                services = when (val state = currentState.serviceSelectionUiState) {
-                    is ServiceSelectionUiState.Searching -> state.results
-                    else -> emptyList()
-                },
-                popularServices = when (val state = currentState.serviceSelectionUiState) {
-                    is ServiceSelectionUiState.Searching -> if (state.query.isEmpty()) state.results else emptyList()
-                    else -> emptyList()
-                },
-                onServiceSelected = { service ->
-                    viewModel.onAction(SubmissionWizardAction.SelectService(service))
-                    viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
-                },
-                onDismiss = {
-                    viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
-                },
-                onSearch = { query ->
-                    viewModel.onAction(SubmissionWizardAction.SearchServices(query))
-                },
-                isLoading = when (val state = currentState.serviceSelectionUiState) {
-                    is ServiceSelectionUiState.Searching -> state.results.isEmpty() && state.query.isNotEmpty()
-                    else -> false
-                },
-                sheetState = serviceSelectorSheetState,
-                searchQuery = when (val state = currentState.serviceSelectionUiState) {
-                    is ServiceSelectionUiState.Searching -> state.query
-                    else -> ""
-                },
-                onSearchQueryChange = { query ->
-                    viewModel.onAction(SubmissionWizardAction.SearchServices(query))
-                },
-            )
+            if (currentState.showServiceSelector) {
+                var isSearchFocused by remember { mutableStateOf(false) }
+
+                // Get real search data from ViewModel
+                val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+                val services by viewModel.searchResults.collectAsStateWithLifecycle()
+                val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
+
+                // Use different sheet state based on focus/search mode
+                val adjustedSheetState = rememberModalBottomSheetState(
+                    skipPartiallyExpanded = isSearchFocused || searchQuery.isNotEmpty(),
+                )
+
+                // Create unified domain state for single selection mode (submission uses single service)
+                val searchStatus = when {
+                    isSearching -> SearchStatus.Loading
+                    services.isNotEmpty() -> SearchStatus.Success(services.map { it.id })
+                    searchQuery.length >= 2 -> SearchStatus.Success(emptyList())
+                    else -> SearchStatus.Idle
+                }
+
+                val domainState = ServiceSelectionState(
+                    search = SearchState(query = searchQuery, status = searchStatus),
+                    popular = PopularServices(
+                        ids = services.map { it.id },
+                        status = if (isSearching) PopularStatus.Loading else PopularStatus.Idle,
+                    ),
+                    selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
+                )
+
+                val uiState = ServiceSelectionUiState(
+                    domainState = domainState,
+                    allServices = services.associateBy { it.id.value },
+                    isVisible = true,
+                    isSearchFocused = isSearchFocused,
+                )
+
+                ServiceSelectorBottomSheet(
+                    state = uiState,
+                    sheetState = adjustedSheetState,
+                    onAction = { uiAction ->
+                        when (uiAction) {
+                            is ServiceSelectionUiAction.UpdateQuery -> {
+                                viewModel.onAction(SubmissionWizardAction.SearchServices(uiAction.query))
+                            }
+                            ServiceSelectionUiAction.ClearQuery -> {
+                                viewModel.onAction(SubmissionWizardAction.SearchServices(""))
+                            }
+                            is ServiceSelectionUiAction.SelectService -> {
+                                viewModel.onAction(SubmissionWizardAction.SelectService(uiAction.service))
+                                viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
+                            }
+                            is ServiceSelectionUiAction.SetSearchFocus -> {
+                                isSearchFocused = uiAction.focused
+                            }
+                            ServiceSelectionUiAction.Dismiss -> {
+                                viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
+                            }
+                            else -> {
+                                // Handle other UI actions if needed
+                            }
+                        }
+                    },
+                )
+            }
         }
         is SubmissionWizardUiState.Error -> {
             ErrorState(
@@ -220,7 +260,6 @@ private fun SubmissionContent(
                 SubmissionStepCard(
                     currentStep = uiState.wizardFlow.currentStep,
                     wizardData = uiState.wizardFlow.wizardData,
-                    serviceSelectionUiState = uiState.serviceSelectionUiState,
                     onAction = onAction,
                     modifier = Modifier.fillMaxWidth(),
                 )

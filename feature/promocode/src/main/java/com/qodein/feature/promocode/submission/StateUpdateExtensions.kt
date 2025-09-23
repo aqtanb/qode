@@ -76,25 +76,6 @@ fun SubmissionWizardUiState.Success.resetSubmission(): SubmissionWizardUiState.S
     )
 
 // Service selection updates (temporary - until extraction)
-fun SubmissionWizardUiState.Success.updateServiceSelection(
-    uiState: ServiceSelectionUiState? = null,
-    visible: Boolean? = null
-): SubmissionWizardUiState.Success =
-    copy(
-        serviceSelectionUiState = uiState ?: serviceSelectionUiState,
-        showServiceSelector = visible ?: showServiceSelector,
-    )
+fun SubmissionWizardUiState.Success.showServiceSelector(): SubmissionWizardUiState.Success = copy(showServiceSelector = true)
 
-fun SubmissionWizardUiState.Success.showServiceSelector(
-    uiState: ServiceSelectionUiState = ServiceSelectionUiState.Default
-): SubmissionWizardUiState.Success =
-    copy(
-        serviceSelectionUiState = uiState,
-        showServiceSelector = true,
-    )
-
-fun SubmissionWizardUiState.Success.hideServiceSelector(): SubmissionWizardUiState.Success =
-    copy(
-        serviceSelectionUiState = ServiceSelectionUiState.Default,
-        showServiceSelector = false,
-    )
+fun SubmissionWizardUiState.Success.hideServiceSelector(): SubmissionWizardUiState.Success = copy(showServiceSelector = false)

@@ -33,7 +33,6 @@ import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromoCodeType
-import com.qodein.feature.promocode.submission.ServiceSelectionUiState
 import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
@@ -56,7 +55,6 @@ private enum class FieldValidationState {
 fun SubmissionWizardStepContent(
     currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
-    serviceSelectionUiState: ServiceSelectionUiState,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,7 +75,6 @@ fun SubmissionWizardStepContent(
             SubmissionStep.SERVICE -> ServiceStepContent(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
-                serviceSelectionUiState = serviceSelectionUiState,
                 onShowServiceSelector = { onAction(SubmissionWizardAction.ShowServiceSelector) },
                 onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
                 onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
@@ -533,7 +530,6 @@ private fun ServiceStepContentPreview() {
             SubmissionWizardStepContent(
                 currentStep = SubmissionStep.SERVICE,
                 wizardData = SubmissionWizardData(),
-                serviceSelectionUiState = ServiceSelectionUiState.Default,
                 onAction = {},
             )
         }
@@ -548,7 +544,6 @@ private fun PromoCodeStepContentPreview() {
             SubmissionWizardStepContent(
                 currentStep = SubmissionStep.PROMO_CODE,
                 wizardData = SubmissionWizardData(promoCode = "SAVE20"),
-                serviceSelectionUiState = ServiceSelectionUiState.Default,
                 onAction = {},
             )
         }
