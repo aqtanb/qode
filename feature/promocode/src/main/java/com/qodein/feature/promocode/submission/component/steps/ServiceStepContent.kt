@@ -58,6 +58,7 @@ import com.qodein.shared.model.Service
 fun ServiceStepContent(
     selectedService: Service?,
     serviceName: String,
+    isManualEntry: Boolean,
     onShowServiceSelector: () -> Unit,
     onServiceNameChange: (String) -> Unit,
     onToggleManualEntry: () -> Unit,
@@ -67,9 +68,8 @@ fun ServiceStepContent(
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        // TODO: Simplify service selection UI
-        when (false) { // serviceSelectionUiState) {
-            true -> { // ServiceSelectionUiState.ManualEntry -> {
+        when (isManualEntry) {
+            true -> {
                 LaunchedEffect(Unit) {
                     // serviceSelectionUiState) {
                     focusRequester.requestFocus()

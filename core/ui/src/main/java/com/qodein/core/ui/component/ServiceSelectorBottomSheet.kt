@@ -94,7 +94,7 @@ private fun ServiceSelectorContent(
     LaunchedEffect(searchQuery) {
         if (searchQuery.length >= 2) {
             delay(300)
-            // Search is handled by the domain manager through ServiceSearchManager
+            // Search is handled by the domain manager automatically
         }
     }
 

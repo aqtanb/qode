@@ -47,12 +47,7 @@ import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.service.selection.PopularServices
-import com.qodein.shared.domain.service.selection.PopularStatus
-import com.qodein.shared.domain.service.selection.SearchState
-import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
-import com.qodein.shared.domain.service.selection.ServiceSelectionState
 
 // MARK: - Constants
 
@@ -127,36 +122,24 @@ fun SubmissionScreen(
             if (currentState.showServiceSelector) {
                 var isSearchFocused by remember { mutableStateOf(false) }
 
-                // Get real search data from ViewModel
-                val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-                val services by viewModel.searchResults.collectAsStateWithLifecycle()
-                val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
+                // Get unified service selection state from ViewModel
+                val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
+                // Get cached services from coordinator
+                val cachedServices by viewModel.cachedServices.collectAsStateWithLifecycle()
 
                 // Use different sheet state based on focus/search mode
                 val adjustedSheetState = rememberModalBottomSheetState(
-                    skipPartiallyExpanded = isSearchFocused || searchQuery.isNotEmpty(),
+                    skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.isSearching,
                 )
 
-                // Create unified domain state for single selection mode (submission uses single service)
-                val searchStatus = when {
-                    isSearching -> SearchStatus.Loading
-                    services.isNotEmpty() -> SearchStatus.Success(services.map { it.id })
-                    searchQuery.length >= 2 -> SearchStatus.Success(emptyList())
-                    else -> SearchStatus.Idle
-                }
-
-                val domainState = ServiceSelectionState(
-                    search = SearchState(query = searchQuery, status = searchStatus),
-                    popular = PopularServices(
-                        ids = services.map { it.id },
-                        status = if (isSearching) PopularStatus.Loading else PopularStatus.Idle,
-                    ),
+                // Update selection state with current wizard selection
+                val updatedSelectionState = serviceSelectionState.copy(
                     selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
                 )
 
                 val uiState = ServiceSelectionUiState(
-                    domainState = domainState,
-                    allServices = services.associateBy { it.id.value },
+                    domainState = updatedSelectionState,
+                    allServices = cachedServices,
                     isVisible = true,
                     isSearchFocused = isSearchFocused,
                 )

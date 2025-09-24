@@ -7,6 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
+import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
@@ -17,6 +19,8 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.service.ServiceCache
+import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -52,6 +56,9 @@ abstract class DataModule {
         unifiedUserInteractionRepositoryImpl: UnifiedUserInteractionRepositoryImpl
     ): UnifiedUserInteractionRepository
 
+    @Binds
+    abstract fun bindServiceSelectionManager(serviceSelectionManagerImpl: ServiceSelectionManagerImpl): ServiceSelectionManager
+
     companion object {
         @Provides
         @Singleton
@@ -67,5 +74,22 @@ abstract class DataModule {
             // Firebase Functions automatically uses Firebase Auth context when properly configured
             return Firebase.functions
         }
+
+        @Provides
+        @Singleton
+        fun provideServiceCache(): ServiceCache = ServiceCache.getInstance()
+
+        @Provides
+        @Singleton
+        fun provideServiceSelectionCoordinator(
+            serviceSearchManager: com.qodein.shared.domain.manager.ServiceSearchManager,
+            serviceSelectionManager: ServiceSelectionManager,
+            serviceCache: ServiceCache
+        ): ServiceSelectionCoordinator =
+            ServiceSelectionCoordinator(
+                serviceSearchManager,
+                serviceSelectionManager,
+                serviceCache,
+            )
     }
 }

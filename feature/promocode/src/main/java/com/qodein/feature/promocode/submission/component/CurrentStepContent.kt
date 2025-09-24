@@ -75,6 +75,7 @@ fun SubmissionWizardStepContent(
             SubmissionStep.SERVICE -> ServiceStepContent(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
+                isManualEntry = wizardData.isManualServiceEntry,
                 onShowServiceSelector = { onAction(SubmissionWizardAction.ShowServiceSelector) },
                 onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
                 onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },

@@ -6,16 +6,15 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.feature.home.ui.state.SearchResultState
-import com.qodein.feature.home.ui.state.ServiceSearchState
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
 import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
@@ -34,7 +33,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,8 +42,8 @@ class HomeViewModel @Inject constructor(
     // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromoCodesUseCase: GetPromocodesUseCase,
-    // Service search manager
-    private val serviceSearchManager: ServiceSearchManager,
+    // Service selection coordinator
+    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -305,7 +303,7 @@ class HomeViewModel @Inject constructor(
 
     private fun retryServices() {
         Logger.d("HomeViewModel: Retrying services load")
-        serviceSearchManager.clearQuery()
+        handleServiceSelectionAction(ServiceSelectionAction.RetryPopularServices)
     }
 
     // MARK: - Filter Actions
@@ -317,9 +315,8 @@ class HomeViewModel @Inject constructor(
 
         // Activate and load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
-            serviceSearchManager.activate()
-            setupServiceSearch()
-            serviceSearchManager.clearQuery()
+            setupServiceSelection()
+            handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
         }
     }
 
@@ -370,47 +367,41 @@ class HomeViewModel @Inject constructor(
         loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
-    // MARK: - Service Search
+    // MARK: - Service Selection
 
-    private fun setupServiceSearch() {
-        viewModelScope.launch {
-            combine(
-                serviceSearchManager.searchQuery,
-                serviceSearchManager.searchResult,
-            ) { query, result ->
-                ServiceSearchState(
-                    query = query,
-                    state = when (result) {
-                        is Result.Loading -> SearchResultState.Loading
-                        is Result.Success -> {
-                            if (result.data.isEmpty()) {
-                                SearchResultState.Empty
-                            } else {
-                                SearchResultState.Success(result.data)
-                            }
-                        }
-                        is Result.Error -> SearchResultState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
-                        )
-                    },
-                )
-            }.collect { searchState ->
+    private fun setupServiceSelection() {
+        serviceSelectionCoordinator.setupServiceSelection(
+            scope = viewModelScope,
+            getCurrentState = { _uiState.value.serviceSelectionState },
+            onStateUpdate = { newState ->
                 _uiState.update { state ->
-                    state.copy(serviceSearchState = searchState)
+                    state.copy(serviceSelectionState = newState)
                 }
-            }
+            },
+            onCachedServicesUpdate = { cachedServices ->
+                _uiState.update { state ->
+                    state.copy(cachedServices = cachedServices)
+                }
+            },
+        )
+    }
+
+    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+        val currentState = _uiState.value.serviceSelectionState
+        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
+
+        _uiState.update { state ->
+            state.copy(serviceSelectionState = newState)
         }
     }
 
     private fun searchServices(query: String) {
-        serviceSearchManager.updateQuery(query)
+        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     override fun onCleared() {
         super.onCleared()
+        serviceSelectionCoordinator.deactivate()
         Logger.d("HomeViewModel: Clearing resources")
     }
 }

@@ -15,15 +15,10 @@ import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.core.ui.state.ServiceSelectionUiAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.HomeAction
-import com.qodein.feature.home.ui.state.SearchResultState
-import com.qodein.feature.home.ui.state.ServiceSearchState
-import com.qodein.shared.domain.service.selection.PopularServices
-import com.qodein.shared.domain.service.selection.PopularStatus
-import com.qodein.shared.domain.service.selection.SearchState
-import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -37,7 +32,8 @@ import com.qodein.shared.ui.FilterDialogType
 fun DialogCoordinator(
     activeDialog: FilterDialogType?,
     currentFilters: CompleteFilterState,
-    serviceSearchState: ServiceSearchState,
+    serviceSelectionState: ServiceSelectionState,
+    cachedServices: Map<String, Service>,
     onAction: (HomeAction) -> Unit
 ) {
     activeDialog?.let { dialogType ->
@@ -58,44 +54,28 @@ fun DialogCoordinator(
 
             FilterDialogType.Service -> {
                 var isSearchFocused by remember { mutableStateOf(false) }
-                val searchQuery = serviceSearchState.query
-                val isSearching = serviceSearchState.isSearching
+                val isSearching = serviceSelectionState.search.isSearching
 
                 // Use different sheet state based on focus/search mode
                 val sheetState = rememberModalBottomSheetState(
                     skipPartiallyExpanded = isSearchFocused || isSearching,
                 )
 
-                val services = when (serviceSearchState.state) {
-                    is SearchResultState.Success -> serviceSearchState.state.services
-                    else -> emptyList()
-                }
-
-                // Map current home state to unified domain state
-                val searchStatus = when {
-                    serviceSearchState.isLoading -> SearchStatus.Loading
-                    services.isNotEmpty() -> SearchStatus.Success(services.map { it.id })
-                    searchQuery.length >= 2 -> SearchStatus.Success(emptyList())
-                    else -> SearchStatus.Idle
-                }
+                // Use cached services from ViewModel
 
                 val selectedServiceIds = when (val filter = currentFilters.serviceFilter) {
                     ServiceFilter.All -> emptySet()
                     is ServiceFilter.Selected -> filter.services.map { it.id }.toSet()
                 }
 
-                val domainState = ServiceSelectionState(
-                    search = SearchState(query = searchQuery, status = searchStatus),
-                    popular = PopularServices(
-                        ids = services.map { it.id },
-                        status = if (serviceSearchState.isLoading) PopularStatus.Loading else PopularStatus.Idle,
-                    ),
+                // Update selection state with current filter
+                val updatedSelectionState = serviceSelectionState.copy(
                     selection = SelectionState.Multi(selectedIds = selectedServiceIds),
                 )
 
                 val uiState = ServiceSelectionUiState(
-                    domainState = domainState,
-                    allServices = services.associateBy { it.id.value },
+                    domainState = updatedSelectionState,
+                    allServices = cachedServices,
                     isVisible = true,
                     isSearchFocused = isSearchFocused,
                 )

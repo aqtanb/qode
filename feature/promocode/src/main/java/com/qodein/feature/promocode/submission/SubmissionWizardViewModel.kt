@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.shared.domain.service.selection.SelectionState
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
@@ -22,7 +25,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -47,7 +49,7 @@ import kotlin.time.toKotlinInstant
 @HiltViewModel
 class SubmissionWizardViewModel @Inject constructor(
     private val submitPromocodeUseCase: SubmitPromocodeUseCase,
-    private val serviceSearchManager: ServiceSearchManager,
+    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
@@ -128,49 +130,22 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { SubmissionWizardUiState.Success.initial() }
     }
 
-    private val _searchQuery = MutableStateFlow("")
-    private val _searchResults = MutableStateFlow<List<Service>>(emptyList())
-    private val _isSearching = MutableStateFlow(false)
+    // Service selection state managed through ServiceSelectionManager - configured for single-selection
+    private val _serviceSelectionState = MutableStateFlow(
+        ServiceSelectionState(selection = SelectionState.Single()), // Submission allows only single service selection
+    )
+    val serviceSelectionState = _serviceSelectionState.asStateFlow()
 
-    val searchQuery = _searchQuery.asStateFlow()
-    val searchResults = _searchResults.asStateFlow()
-    val isSearching = _isSearching.asStateFlow()
+    // Expose ServiceCache for UI components that need service lookup
+    val cachedServices: StateFlow<Map<String, Service>> get() = serviceSelectionCoordinator.cachedServices
 
     // MARK: - Service Selection
 
     private fun showServiceSelector() {
         updateSuccessState { it.showServiceSelector() }
-        // Activate service search and set up the search flow
-        serviceSearchManager.activate()
-        serviceSearchManager.clearQuery()
-        // Trigger empty query to load popular services immediately
-        serviceSearchManager.updateQuery("")
-        setupServiceSearch()
-    }
-
-    private fun setupServiceSearch() {
-        viewModelScope.launch {
-            combine(
-                serviceSearchManager.searchQuery,
-                serviceSearchManager.searchResult,
-            ) { query, result ->
-                _searchQuery.value = query
-                when (result) {
-                    is Result.Loading -> {
-                        _isSearching.value = true
-                        _searchResults.value = emptyList()
-                    }
-                    is Result.Success -> {
-                        _isSearching.value = false
-                        _searchResults.value = result.data
-                    }
-                    is Result.Error -> {
-                        _isSearching.value = false
-                        _searchResults.value = emptyList()
-                    }
-                }
-            }.collect()
-        }
+        // Setup service selection and load popular services when showing the selector
+        setupServiceSelection()
+        handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
     }
 
     private fun hideServiceSelector() {
@@ -178,7 +153,14 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun toggleManualEntry() {
-        // TODO: Implement manual entry toggle with new architecture
+        updateWizardData { data ->
+            data.copy(
+                isManualServiceEntry = !data.isManualServiceEntry,
+                // Clear the other service selection method when toggling
+                selectedService = if (!data.isManualServiceEntry) null else data.selectedService,
+                serviceName = if (data.isManualServiceEntry) "" else data.serviceName,
+            )
+        }
     }
 
     // MARK: - Navigation
@@ -366,7 +348,7 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun searchServices(query: String) {
-        serviceSearchManager.updateQuery(query)
+        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     private fun updatePromoCode(promoCode: String) {
@@ -408,6 +390,25 @@ class SubmissionWizardViewModel @Inject constructor(
 
     private fun clearValidationErrors() {
         updateSuccessState { it.clearValidationErrors() }
+    }
+
+    // MARK: - Service Selection Management
+
+    private fun setupServiceSelection() {
+        serviceSelectionCoordinator.setupServiceSelection(
+            scope = viewModelScope,
+            getCurrentState = { _serviceSelectionState.value },
+            onStateUpdate = { newState ->
+                _serviceSelectionState.update { newState }
+            },
+        )
+    }
+
+    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+        val currentState = _serviceSelectionState.value
+        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
+
+        _serviceSelectionState.update { newState }
     }
 
     private fun handleBack() {

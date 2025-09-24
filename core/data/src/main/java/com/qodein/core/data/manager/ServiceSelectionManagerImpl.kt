@@ -1,5 +1,8 @@
 package com.qodein.core.data.manager
 
+import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.domain.service.selection.PopularServices
+import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchState
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
@@ -33,9 +36,11 @@ class ServiceSelectionManagerImpl @Inject constructor() : ServiceSelectionManage
             is ServiceSelectionAction.UnselectService -> applyUnselectService(state, action.id)
             ServiceSelectionAction.ClearSelection -> applyClearSelection(state)
 
-            // Popular services actions - these trigger effects, no state change
-            ServiceSelectionAction.LoadPopularServices,
-            ServiceSelectionAction.RetryPopularServices -> state
+            // Popular services actions
+            ServiceSelectionAction.LoadPopularServices -> applyLoadPopularServices(state)
+            ServiceSelectionAction.RetryPopularServices -> applyRetryPopularServices(state)
+            is ServiceSelectionAction.SetPopularServices -> applySetPopularServices(state, action.ids)
+            is ServiceSelectionAction.SetPopularServicesError -> applySetPopularServicesError(state, action.error)
 
             // Focus actions - pure UI concern, no domain state change
             is ServiceSelectionAction.SetSearchFocus -> state
@@ -135,4 +140,33 @@ class ServiceSelectionManagerImpl @Inject constructor() : ServiceSelectionManage
         }
         return state.copy(selection = newSelection)
     }
+
+    private fun applyLoadPopularServices(state: ServiceSelectionState): ServiceSelectionState =
+        state.copy(
+            popular = state.popular.copy(status = PopularStatus.Loading),
+        )
+
+    private fun applyRetryPopularServices(state: ServiceSelectionState): ServiceSelectionState =
+        state.copy(
+            popular = state.popular.copy(status = PopularStatus.Loading),
+        )
+
+    private fun applySetPopularServices(
+        state: ServiceSelectionState,
+        ids: List<ServiceId>
+    ): ServiceSelectionState =
+        state.copy(
+            popular = PopularServices(
+                ids = ids,
+                status = PopularStatus.Idle,
+            ),
+        )
+
+    private fun applySetPopularServicesError(
+        state: ServiceSelectionState,
+        error: Throwable
+    ): ServiceSelectionState =
+        state.copy(
+            popular = state.popular.copy(status = PopularStatus.Error(error.toErrorType())),
+        )
 }

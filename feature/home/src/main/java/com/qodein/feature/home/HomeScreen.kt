@@ -242,7 +242,8 @@ private fun HomeContent(
     DialogCoordinator(
         activeDialog = uiState.activeFilterDialog,
         currentFilters = uiState.currentFilters,
-        serviceSearchState = uiState.serviceSearchState,
+        serviceSelectionState = uiState.serviceSelectionState,
+        cachedServices = uiState.cachedServices,
         onAction = onAction,
     )
 }

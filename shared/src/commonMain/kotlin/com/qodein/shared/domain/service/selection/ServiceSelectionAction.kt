@@ -16,6 +16,8 @@ sealed interface ServiceSelectionAction {
     // Popular services
     data object LoadPopularServices : ServiceSelectionAction
     data object RetryPopularServices : ServiceSelectionAction
+    data class SetPopularServices(val ids: List<ServiceId>) : ServiceSelectionAction
+    data class SetPopularServicesError(val error: Throwable) : ServiceSelectionAction
 
     // Focus actions (handled at UI level)
     data class SetSearchFocus(val focused: Boolean) : ServiceSelectionAction

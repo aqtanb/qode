@@ -13,6 +13,7 @@ data class SubmissionWizardData(
     // Service Details
     val selectedService: Service? = null,
     val serviceName: String = "", // Manual service name entry
+    val isManualServiceEntry: Boolean = false, // Toggle between service selector and manual entry
 
     // Promo Code Details
     val promoCode: String = "",
