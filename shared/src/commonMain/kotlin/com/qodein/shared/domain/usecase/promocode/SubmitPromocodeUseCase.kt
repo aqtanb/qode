@@ -1,8 +1,8 @@
 package com.qodein.shared.domain.usecase.promocode
 
 import co.touchlab.kermit.Logger
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.asResult
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +18,7 @@ class SubmitPromocodeUseCase(private val promoCodeRepository: PromocodeRepositor
         private const val TAG = "SubmitPromocodeUseCase"
     }
 
-    operator fun invoke(promoCode: PromoCode): Flow<Result<PromoCode>> {
+    operator fun invoke(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>> {
         Logger.i(TAG) { "Creating promo code: ${promoCode.code} for service: ${promoCode.serviceName}" }
         Logger.d(TAG) { "PromoCode details: id=${promoCode.id.value}, type=${promoCode::class.simpleName}" }
 
@@ -32,7 +32,6 @@ class SubmitPromocodeUseCase(private val promoCodeRepository: PromocodeRepositor
         }
 
         return promoCodeRepository.createPromoCode(promoCode)
-            .asResult()
     }
 
     private fun validatePromoCode(promoCode: PromoCode) {

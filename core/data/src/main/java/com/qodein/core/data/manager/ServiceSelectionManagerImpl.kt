@@ -1,6 +1,6 @@
 package com.qodein.core.data.manager
 
-import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.PopularServices
 import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchState
@@ -164,9 +164,9 @@ class ServiceSelectionManagerImpl @Inject constructor() : ServiceSelectionManage
 
     private fun applySetPopularServicesError(
         state: ServiceSelectionState,
-        error: Throwable
+        error: OperationError
     ): ServiceSelectionState =
         state.copy(
-            popular = state.popular.copy(status = PopularStatus.Error(error.toErrorType())),
+            popular = state.popular.copy(status = PopularStatus.Error(error)),
         )
 }

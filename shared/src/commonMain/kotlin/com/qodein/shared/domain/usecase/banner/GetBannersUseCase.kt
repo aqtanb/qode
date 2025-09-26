@@ -1,8 +1,9 @@
 package com.qodein.shared.domain.usecase.banner
 
 import co.touchlab.kermit.Logger
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.asResult
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.map
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
@@ -37,43 +38,44 @@ class GetBannersUseCase(private val bannerRepository: BannerRepository) {
         countryCode: String = DEFAULT_COUNTRY_CODE,
         userLanguage: Language? = null,
         limit: Int = 5
-    ): Flow<Result<List<Banner>>> {
+    ): Flow<Result<List<Banner>, OperationError>> {
         logger.d { "getBanners called with countryCode=$countryCode, language=$userLanguage, limit=$limit" }
         return bannerRepository.getAllActiveBanners(limit)
-            .map { banners ->
-                logger.d { "Received ${banners.size} banners from repository" }
+            .map { result ->
+                result.map { banners ->
+                    logger.d { "Received ${banners.size} banners from repository" }
 
-                // Step 1: Filter expired banners
-                val validBanners = filterExpiredBanners(banners)
+                    // Step 1: Filter expired banners
+                    val validBanners = filterExpiredBanners(banners)
 
-                // Step 2: Filter by country (global + country-specific)
-                val countryBanners = filterBannersByCountry(validBanners, countryCode)
+                    // Step 2: Filter by country (global + country-specific)
+                    val countryBanners = filterBannersByCountry(validBanners, countryCode)
 
-                // Step 3: Apply language prioritization if specified
-                val finalResult = if (userLanguage != null) {
-                    prioritizeBannersByLanguage(countryBanners, userLanguage)
-                } else {
-                    countryBanners
+                    // Step 3: Apply language prioritization if specified
+                    val finalResult = if (userLanguage != null) {
+                        prioritizeBannersByLanguage(countryBanners, userLanguage)
+                    } else {
+                        countryBanners
+                    }
+
+                    // Step 4: Apply fallback logic
+                    val finalResult2 = when {
+                        finalResult.isNotEmpty() -> finalResult
+                        countryBanners.isNotEmpty() -> countryBanners
+                        validBanners.isNotEmpty() -> validBanners
+                        else -> getDefaultFallbackBanners()
+                    }
+
+                    logger.d { "Returning ${finalResult2.size} banners after filtering and prioritization" }
+                    finalResult2
                 }
-
-                // Step 4: Apply fallback logic
-                val result = when {
-                    finalResult.isNotEmpty() -> finalResult
-                    countryBanners.isNotEmpty() -> countryBanners
-                    validBanners.isNotEmpty() -> validBanners
-                    else -> getDefaultFallbackBanners()
-                }
-
-                logger.d { "Returning ${result.size} banners after filtering and prioritization" }
-                result
             }
-            .asResult()
     }
 
     /**
      * Convenience operator function for default Kazakhstan market.
      */
-    operator fun invoke(limit: Int = 5): Flow<Result<List<Banner>>> = getBanners(limit = limit)
+    operator fun invoke(limit: Int = 5): Flow<Result<List<Banner>, OperationError>> = getBanners(limit = limit)
 
     /**
      * Filters banners that have expired based on current server time.

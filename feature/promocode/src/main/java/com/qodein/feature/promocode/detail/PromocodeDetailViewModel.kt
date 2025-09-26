@@ -8,8 +8,8 @@ import com.qodein.core.analytics.logCopyPromoCode
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
 import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.Result
 import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager

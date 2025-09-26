@@ -1,11 +1,13 @@
 package com.qodein.shared.domain.usecase.interaction
 
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
+
 /**
  * Use case to toggle user's vote on content.
  * Handles the business logic for vote state transitions.
@@ -19,13 +21,7 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
         itemId: String,
         itemType: ContentType,
         userId: UserId
-    ): Result<UserInteraction> =
-        try {
-            val result = repository.toggleVote(itemId, itemType, userId, VoteState.UPVOTE)
-            Result.Success(result)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.UPVOTE)
 
     /**
      * Toggle downvote on content.
@@ -35,13 +31,7 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
         itemId: String,
         itemType: ContentType,
         userId: UserId
-    ): Result<UserInteraction> =
-        try {
-            val result = repository.toggleVote(itemId, itemType, userId, VoteState.DOWNVOTE)
-            Result.Success(result)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.DOWNVOTE)
 
     /**
      * Remove vote on content.
@@ -50,11 +40,5 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
         itemId: String,
         itemType: ContentType,
         userId: UserId
-    ): Result<UserInteraction> =
-        try {
-            val result = repository.toggleVote(itemId, itemType, userId, VoteState.NONE)
-            Result.Success(result)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.NONE)
 }

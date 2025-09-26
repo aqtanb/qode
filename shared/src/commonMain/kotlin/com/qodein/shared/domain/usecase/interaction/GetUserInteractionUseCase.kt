@@ -1,11 +1,12 @@
 package com.qodein.shared.domain.usecase.interaction
 
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.asResult
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import kotlinx.coroutines.flow.Flow
+
 /**
  * Use case to get user interaction for specific content and user.
  * Returns null if no interaction exists.
@@ -14,12 +15,7 @@ class GetUserInteractionUseCase(private val repository: UnifiedUserInteractionRe
     suspend operator fun invoke(
         itemId: String,
         userId: UserId
-    ): Result<UserInteraction?> =
-        try {
-            Result.Success(repository.getUserInteraction(itemId, userId))
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    ): Result<UserInteraction?, OperationError> = repository.getUserInteraction(itemId, userId)
 }
 
 /**
@@ -29,5 +25,5 @@ class ObserveUserInteractionUseCase(private val repository: UnifiedUserInteracti
     operator fun invoke(
         itemId: String,
         userId: UserId
-    ): Flow<Result<UserInteraction?>> = repository.observeUserInteraction(itemId, userId).asResult()
+    ): Flow<Result<UserInteraction?, OperationError>> = repository.observeUserInteraction(itemId, userId)
 }

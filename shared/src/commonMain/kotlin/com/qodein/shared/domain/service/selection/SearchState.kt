@@ -1,6 +1,6 @@
 package com.qodein.shared.domain.service.selection
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ServiceId
 
 /**
@@ -17,6 +17,6 @@ data class SearchState(val query: String = "", val status: SearchStatus = Search
 sealed class SearchStatus {
     data object Idle : SearchStatus()
     data object Loading : SearchStatus()
-    data class Error(val type: ErrorType) : SearchStatus()
+    data class Error(val error: OperationError) : SearchStatus()
     data class Success(val ids: List<ServiceId>) : SearchStatus()
 }

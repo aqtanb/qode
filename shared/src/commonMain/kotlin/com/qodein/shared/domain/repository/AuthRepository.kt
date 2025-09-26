@@ -1,52 +1,32 @@
 package com.qodein.shared.domain.repository
 
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for authentication operations.
- *
- * All methods may throw standard exceptions which will be handled by use cases
- * or ViewModels using the .asResult() extension.
- *
- * Follows NIA pattern - uses standard exceptions, no custom exception hierarchies.
+ * Returns Result<D, OperationError> for type-safe error handling.
+ * Repository implementations handle exception translation to domain errors.
  */
 interface AuthRepository {
 
     /**
      * Sign in with Google authentication.
-     *
-     * @return Flow that emits [com.qodein.shared.model.User] on successful authentication
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when Google Play Services unavailable
-     * @throws java.lang.SecurityException when authentication is rejected or cancelled
-     * @throws RuntimeException for unexpected authentication errors
      */
-    fun signInWithGoogle(): Flow<User>
+    fun signInWithGoogle(): Flow<Result<User, OperationError>>
 
     /**
      * Sign out the current user.
-     *
-     * @return Flow that emits [Unit] on successful sign out
-     * @throws java.io.IOException when network request fails
-     * @throws IllegalStateException when no user is signed in
      */
-    fun signOut(): Flow<Unit>
+    fun signOut(): Flow<Result<Unit, OperationError>>
 
     /**
      * Observe authentication state changes.
-     *
-     * @return Flow that emits [com.qodein.shared.model.User] when signed in, null when signed out
-     * This method doesn't throw exceptions - authentication state changes
+     * Emits User when signed in, null when signed out.
+     * This method doesn't return errors - authentication state changes
      * are delivered as Flow emissions.
      */
     fun getAuthStateFlow(): Flow<User?>
-
-    /**
-     * Check if user is currently signed in.
-     *
-     * @return true if user is authenticated, false otherwise
-     * Note: This is synchronous and doesn't throw exceptions
-     */
-    fun isSignedIn(): Boolean
 }

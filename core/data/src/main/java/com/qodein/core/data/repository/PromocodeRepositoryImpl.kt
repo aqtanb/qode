@@ -3,6 +3,11 @@ package com.qodein.core.data.repository
 import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.common.error.ServiceError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
@@ -10,7 +15,6 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.Service
-import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
@@ -27,20 +31,28 @@ class PromocodeRepositoryImpl @Inject constructor(
         private const val TAG = "PromocodeRepository"
     }
 
-    override fun createPromoCode(promoCode: PromoCode): Flow<PromoCode> =
+    override fun createPromoCode(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>> =
         flow {
             Logger.i(TAG) { "Repository creating promo code: ${promoCode.code}" }
             try {
                 val result = promoCodeDataSource.createPromoCode(promoCode)
                 Logger.i(TAG) { "Repository successfully created promo code: ${result.id.value}" }
-                emit(result)
+                emit(Result.Success(result))
+            } catch (e: SecurityException) {
+                Logger.e(TAG, e) { "Repository failed to create promo code - unauthorized: ${promoCode.code}" }
+                emit(Result.Error(PromoCodeError.SubmissionFailure.NotAuthorized))
+            } catch (e: IllegalArgumentException) {
+                Logger.e(TAG, e) { "Repository failed to create promo code - invalid data: ${promoCode.code}" }
+                emit(Result.Error(PromoCodeError.SubmissionFailure.InvalidData))
+            } catch (e: IOException) {
+                Logger.e(TAG, e) { "Repository failed to create promo code - network: ${promoCode.code}" }
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                Logger.e(TAG, e) { "Repository failed to create promo code - service down: ${promoCode.code}" }
+                emit(Result.Error(SystemError.ServiceDown))
             } catch (e: Exception) {
-                Logger.e(TAG, e) { "Repository failed to create promo code: ${promoCode.code}" }
-                when (e) {
-                    is IOException -> throw e // Re-throw IOException as-is
-                    is SecurityException -> throw e // Re-throw security exceptions
-                    else -> throw IOException("Failed to create promo code in Firestore: ${e.message}", e)
-                }
+                Logger.e(TAG, e) { "Repository failed to create promo code - unknown: ${promoCode.code}" }
+                emit(Result.Error(SystemError.Unknown))
             }
         }
 
@@ -50,79 +62,38 @@ class PromocodeRepositoryImpl @Inject constructor(
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
         paginationRequest: PaginationRequest
-    ): Flow<PaginatedResult<PromoCode>> =
+    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>> =
         flow {
-            emit(
-                promoCodeDataSource.getPromoCodes(
+            try {
+                val result = promoCodeDataSource.getPromoCodes(
                     query = query,
                     sortBy = sortBy,
                     filterByServices = filterByServices,
                     filterByCategories = filterByCategories,
                     paginationRequest = paginationRequest,
-                ),
-            )
+                )
+                emit(Result.Success(result))
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                emit(Result.Error(SystemError.ServiceDown))
+            } catch (e: Exception) {
+                emit(Result.Error(PromoCodeError.RetrievalFailure.NotFound))
+            }
         }
 
-    override fun getPromoCodeById(id: PromoCodeId): Flow<PromoCode?> =
+    override fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>> =
         flow {
-            emit(promoCodeDataSource.getPromoCodeById(id))
-        }
-
-    override fun getPromoCodeByCode(code: String): Flow<PromoCode?> =
-        flow {
-            throw NotImplementedError("getPromoCodeByCode not implemented in data source")
-        }
-
-    override fun updatePromoCode(promoCode: PromoCode): Flow<PromoCode> =
-        flow {
-            emit(promoCodeDataSource.updatePromoCode(promoCode))
-        }
-
-    override fun deletePromoCode(id: PromoCodeId): Flow<Unit> =
-        flow {
-            throw NotImplementedError("deletePromoCode not implemented in data source")
-        }
-
-    override fun incrementViewCount(id: PromoCodeId): Flow<Unit> =
-        flow {
-            promoCodeDataSource.incrementViewCount(id)
-            emit(Unit)
-        }
-
-    override fun addComment(
-        promoCodeId: PromoCodeId,
-        userId: UserId,
-        comment: String
-    ): Flow<PromoCode> =
-        flow {
-            throw NotImplementedError("addComment not implemented in data source")
-        }
-
-    override fun getPromoCodesByUser(
-        userId: UserId,
-        limit: Int,
-        offset: Int
-    ): Flow<List<PromoCode>> =
-        flow {
-            throw NotImplementedError("getPromoCodesByUser not implemented in data source")
-        }
-
-    override fun getPromoCodesByService(serviceName: String): Flow<List<PromoCode>> =
-        flow {
-            throw NotImplementedError("getPromoCodesByService not implemented in data source")
-        }
-
-    override fun getPromoCodeByCodeAndService(
-        code: String,
-        serviceName: String
-    ): Flow<PromoCode?> =
-        flow {
-            throw NotImplementedError("getPromoCodeByCodeAndService not implemented in data source")
-        }
-
-    override fun observePromoCodes(ids: List<PromoCodeId>): Flow<List<PromoCode>> =
-        flow {
-            throw NotImplementedError("observePromoCodes not implemented in data source")
+            try {
+                val result = promoCodeDataSource.getPromoCodeById(id)
+                emit(Result.Success(result))
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                emit(Result.Error(SystemError.ServiceDown))
+            } catch (e: Exception) {
+                emit(Result.Error(PromoCodeError.RetrievalFailure.NotFound))
+            }
         }
 
     // Service-related methods
@@ -130,21 +101,27 @@ class PromocodeRepositoryImpl @Inject constructor(
     override fun searchServices(
         query: String,
         limit: Int
-    ): Flow<List<Service>> =
+    ): Flow<Result<List<Service>, OperationError>> =
         flow {
-            emit(serviceDataSource.searchServices(query, limit))
+            try {
+                val result = serviceDataSource.searchServices(query, limit)
+                emit(Result.Success(result))
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: Exception) {
+                emit(Result.Error(ServiceError.SearchFailure.NoResults))
+            }
         }
 
-    override fun getPopularServices(limit: Int): Flow<List<Service>> =
+    override fun getPopularServices(limit: Int): Flow<Result<List<Service>, OperationError>> =
         flow {
-            emit(serviceDataSource.getPopularServices(limit))
-        }
-
-    override fun getServicesByCategory(
-        category: String,
-        limit: Int
-    ): Flow<List<Service>> =
-        flow {
-            emit(serviceDataSource.getServicesByCategory(category, limit))
+            try {
+                val result = serviceDataSource.getPopularServices(limit)
+                emit(Result.Success(result))
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: Exception) {
+                emit(Result.Error(ServiceError.RetrievalFailure.NotFound))
+            }
         }
 }

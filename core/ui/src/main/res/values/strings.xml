@@ -115,6 +115,12 @@
     <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
     <string name="error_auth_user_not_found">User account not found.</string>
     <string name="error_auth_unauthorized">Access denied. Please sign in and try again.</string>
+    <string name="error_auth_service_unavailable">Authentication service is temporarily unavailable.</string>
+    <string name="error_auth_too_many_attempts">Too many sign-in attempts. Please try again later.</string>
+
+    <!-- User Profile Errors -->
+    <string name="error_user_data_corrupted">User profile data is corrupted. Please try again.</string>
+    <string name="error_user_update_failed">Failed to update user profile. Please try again.</string>
 
     <!-- Promo Code Errors -->
     <string name="error_promo_code_not_found">Promo code not found. Please check the code and try again.</string>
@@ -133,6 +139,12 @@
     <!-- Service Errors -->
     <string name="error_service_not_found">Service not found. Please try again.</string>
     <string name="error_service_unavailable">Service is temporarily unavailable.</string>
+    <string name="error_service_no_results">No services found for your search.</string>
+    <string name="error_service_query_too_short">Search query is too short. Please enter at least 2 characters.</string>
+    <string name="error_service_too_many_results">Too many results found. Please refine your search.</string>
+    <string name="error_service_invalid_query">Invalid search query. Please try different keywords.</string>
+    <string name="error_service_data_corrupted">Service data is corrupted. Please try refreshing.</string>
+    <string name="error_service_cache_expired">Service data is outdated. Please refresh and try again.</string>
 
     <!-- Validation Errors -->
     <string name="error_validation_required_field">Please fill in all required fields.</string>
@@ -144,6 +156,16 @@
     <string name="error_service_unavailable_general">Service temporarily unavailable. Please try again.</string>
     <string name="error_service_configuration_error">System configuration error. Please try again.</string>
     <string name="error_service_initialization_error">System is starting up. Please wait a moment and try again.</string>
+
+    <!-- Interaction Errors -->
+    <string name="error_interaction_already_voted">You have already voted on this content.</string>
+    <string name="error_interaction_content_not_found">Content not found. It may have been deleted.</string>
+    <string name="error_interaction_save_failed">Failed to save your action. Please try again.</string>
+    <string name="error_interaction_remove_failed">Failed to remove. Please try again.</string>
+
+    <!-- General Errors -->
+    <string name="error_no_results">No results found.</string>
+    <string name="error_too_many_results">Too many results found.</string>
 
     <!-- General Error -->
     <string name="error_unknown">Something went wrong. Please try again.</string>

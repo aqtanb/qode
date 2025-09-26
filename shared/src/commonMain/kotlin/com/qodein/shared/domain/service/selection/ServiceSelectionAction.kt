@@ -1,5 +1,6 @@
 package com.qodein.shared.domain.service.selection
 
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ServiceId
 
 sealed interface ServiceSelectionAction {
@@ -17,7 +18,7 @@ sealed interface ServiceSelectionAction {
     data object LoadPopularServices : ServiceSelectionAction
     data object RetryPopularServices : ServiceSelectionAction
     data class SetPopularServices(val ids: List<ServiceId>) : ServiceSelectionAction
-    data class SetPopularServicesError(val error: Throwable) : ServiceSelectionAction
+    data class SetPopularServicesError(val error: OperationError) : ServiceSelectionAction
 
     // Focus actions (handled at UI level)
     data class SetSearchFocus(val focused: Boolean) : ServiceSelectionAction

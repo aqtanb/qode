@@ -41,8 +41,9 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
-import com.qodein.core.ui.error.toLocalizedMessage
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.core.ui.error.asUiText
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.UserError
 
 /**
  * Authentication prompt actions that trigger contextual auth prompts
@@ -105,7 +106,7 @@ fun AuthenticationBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     isLoading: Boolean = false,
-    errorType: ErrorType? = null,
+    error: OperationError? = null,
     onErrorDismissed: () -> Unit = {},
     isDarkTheme: Boolean
 ) {
@@ -137,10 +138,10 @@ fun AuthenticationBottomSheet(
         val snackbarHostState = remember { SnackbarHostState() }
 
         // Get localized error message in composable context
-        val errorMessage = errorType?.toLocalizedMessage()
+        val errorMessage = error?.asUiText()
 
         // Show error snackbar when there's an error
-        LaunchedEffect(errorType) {
+        LaunchedEffect(error) {
             errorMessage?.let { message ->
                 snackbarHostState.showSnackbar(
                     message = message,
@@ -355,7 +356,7 @@ private fun AuthenticationBottomSheetErrorPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            errorType = ErrorType.AUTH_USER_CANCELLED,
+            error = UserError.AuthenticationFailure.Cancelled,
             onErrorDismissed = {},
             isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),

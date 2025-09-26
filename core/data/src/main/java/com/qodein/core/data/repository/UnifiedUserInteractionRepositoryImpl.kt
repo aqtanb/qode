@@ -2,20 +2,24 @@ package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.mapper.UserInteractionMapper
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.InteractionError
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.model.ContentType
-import com.qodein.shared.model.InteractionStats
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Repository implementation for unified user interactions.
- * Handles conversion between DTOs and domain models, error handling, and business logic.
+ * Returns Result<D, OperationError> for type-safe error handling.
  */
 @Singleton
 class UnifiedUserInteractionRepositoryImpl @Inject constructor(
@@ -23,151 +27,192 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
     private val mapper: UserInteractionMapper
 ) : UnifiedUserInteractionRepository {
 
-    // ================================================================================================
-    // SINGLE INTERACTION OPERATIONS
-    // ================================================================================================
+    // Single interaction operations
 
     override suspend fun getUserInteraction(
         itemId: String,
         userId: UserId
-    ): UserInteraction? {
-        val dto = dataSource.getUserInteraction(itemId, userId.value)
-        return dto?.let { mapper.fromDto(it) }
-    }
+    ): Result<UserInteraction?, OperationError> =
+        try {
+            val dto = dataSource.getUserInteraction(itemId, userId.value)
+            val interaction = dto?.let { mapper.fromDto(it) }
+            Result.Success(interaction)
+        } catch (e: SecurityException) {
+            Result.Error(InteractionError.VotingFailure.NotAuthorized)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: IllegalStateException) {
+            Result.Error(SystemError.ServiceDown)
+        } catch (e: Exception) {
+            Result.Error(SystemError.Unknown)
+        }
 
-    override suspend fun upsertUserInteraction(interaction: UserInteraction): UserInteraction {
-        val dto = mapper.toDto(interaction)
-        val savedDto = dataSource.upsertUserInteraction(dto)
-        return mapper.fromDto(savedDto) ?: interaction
-    }
+    override suspend fun upsertUserInteraction(interaction: UserInteraction): Result<UserInteraction, OperationError> =
+        try {
+            val dto = mapper.toDto(interaction)
+            val savedDto = dataSource.upsertUserInteraction(dto)
+            val savedInteraction = mapper.fromDto(savedDto) ?: interaction
+            Result.Success(savedInteraction)
+        } catch (e: SecurityException) {
+            Result.Error(InteractionError.VotingFailure.NotAuthorized)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: IllegalStateException) {
+            Result.Error(SystemError.ServiceDown)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.VotingFailure.SaveFailed)
+        }
 
     override suspend fun deleteUserInteraction(
         itemId: String,
         userId: UserId
-    ) {
-        dataSource.deleteUserInteraction(itemId, userId.value)
-    }
+    ): Result<Unit, OperationError> =
+        try {
+            dataSource.deleteUserInteraction(itemId, userId.value)
+            Result.Success(Unit)
+        } catch (e: SecurityException) {
+            Result.Error(InteractionError.BookmarkFailure.NotAuthorized)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.BookmarkFailure.RemoveFailed)
+        }
 
     override fun observeUserInteraction(
         itemId: String,
         userId: UserId
-    ): Flow<UserInteraction?> =
-        dataSource.observeUserInteraction(itemId, userId.value)
-            .map { dto -> dto?.let { mapper.fromDto(it) } }
+    ): Flow<Result<UserInteraction?, OperationError>> =
+        flow {
+            try {
+                dataSource.observeUserInteraction(itemId, userId.value).collect { dto ->
+                    val interaction = dto?.let { mapper.fromDto(it) }
+                    emit(Result.Success(interaction))
+                }
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: Exception) {
+                emit(Result.Error(SystemError.Unknown))
+            }
+        }
 
-    // ================================================================================================
-    // BATCH OPERATIONS
-    // ================================================================================================
+    // Batch operations
 
-    override suspend fun getUserBookmarks(userId: UserId): List<UserInteraction> {
-        val dtos = dataSource.getUserBookmarks(userId.value)
-        return mapper.fromDtos(dtos)
-    }
+    override suspend fun getUserBookmarks(userId: UserId): Result<List<UserInteraction>, OperationError> =
+        try {
+            val dtos = dataSource.getUserBookmarks(userId.value)
+            val interactions = dtos.mapNotNull { mapper.fromDto(it) }
+            Result.Success(interactions)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.BookmarkFailure.ContentNotFound)
+        }
 
-    override suspend fun getAllUserInteractions(userId: UserId): List<UserInteraction> {
-        val dtos = dataSource.getAllUserInteractions(userId.value)
-        return mapper.fromDtos(dtos)
-    }
+    override suspend fun getAllUserInteractions(userId: UserId): Result<List<UserInteraction>, OperationError> =
+        try {
+            val dtos = dataSource.getAllUserInteractions(userId.value)
+            val interactions = dtos.mapNotNull { mapper.fromDto(it) }
+            Result.Success(interactions)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(SystemError.Unknown)
+        }
 
     override suspend fun getUserInteractionsForItems(
         itemIds: List<String>,
         userId: UserId
-    ): Map<String, UserInteraction> {
-        val dtoMap = dataSource.getUserInteractionsForItems(itemIds, userId.value)
-        return dtoMap.mapNotNull { (itemId, dto) ->
-            mapper.fromDto(dto)?.let { interaction ->
-                itemId to interaction
-            }
-        }.toMap()
-    }
+    ): Result<Map<String, UserInteraction>, OperationError> =
+        try {
+            val dtosMap = dataSource.getUserInteractionsForItems(itemIds, userId.value)
+            val interactionsMap = dtosMap.mapNotNull { (itemId, dto) ->
+                mapper.fromDto(dto)?.let { itemId to it }
+            }.toMap()
+            Result.Success(interactionsMap)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(SystemError.Unknown)
+        }
 
-    // ================================================================================================
-    // CONTENT-CENTRIC OPERATIONS
-    // ================================================================================================
+    // Content-centric operations
 
-    override suspend fun getInteractionsForContent(itemId: String): List<UserInteraction> {
-        val dtos = dataSource.getInteractionsForContent(itemId)
-        return mapper.fromDtos(dtos)
-    }
+    override suspend fun getInteractionsForContent(itemId: String): Result<List<UserInteraction>, OperationError> =
+        try {
+            val dtos = dataSource.getInteractionsForContent(itemId)
+            val interactions = dtos.mapNotNull { mapper.fromDto(it) }
+            Result.Success(interactions)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.VotingFailure.ContentNotFound)
+        }
 
-    override suspend fun getInteractionStats(itemId: String): InteractionStats {
-        // TODO: Implement when InteractionStats models are created
-        throw NotImplementedError("InteractionStats functionality not yet implemented")
-    }
-
-    // ================================================================================================
-    // CONVENIENCE METHODS
-    // ================================================================================================
+    // Convenience methods
 
     override suspend fun toggleVote(
         itemId: String,
         itemType: ContentType,
         userId: UserId,
         newVoteState: VoteState
-    ): UserInteraction {
-        // Get existing interaction or create new one
-        val existingInteraction = getUserInteraction(itemId, userId)
+    ): Result<UserInteraction, OperationError> =
+        try {
+            // Get existing interaction or create new one
+            val existingDto = dataSource.getUserInteraction(itemId, userId.value)
+            val existingInteraction = existingDto?.let { mapper.fromDto(it) }
 
-        val updatedInteraction = if (existingInteraction != null) {
-            // Toggle existing interaction
-            when (newVoteState) {
-                VoteState.UPVOTE -> existingInteraction.toggleUpvote()
-                VoteState.DOWNVOTE -> existingInteraction.toggleDownvote()
-                VoteState.NONE -> existingInteraction.copy(voteState = VoteState.NONE)
+            // Toggle vote state
+            val updatedInteraction = if (existingInteraction != null) {
+                // If same vote, remove it; if different vote, update it
+                val newVote = if (existingInteraction.voteState == newVoteState) VoteState.NONE else newVoteState
+                existingInteraction.copy(voteState = newVote)
+            } else {
+                UserInteraction.create(itemId, itemType, userId, newVoteState, false)
             }
-        } else {
-            // Create new interaction with vote
-            UserInteraction.create(
-                itemId = itemId,
-                itemType = itemType,
-                userId = userId,
-                voteState = newVoteState,
-                isBookmarked = false,
-            )
-        }
 
-        return upsertUserInteraction(updatedInteraction)
-    }
+            // Save updated interaction
+            val updatedDto = mapper.toDto(updatedInteraction)
+            val savedDto = dataSource.upsertUserInteraction(updatedDto)
+            val savedInteraction = mapper.fromDto(savedDto) ?: updatedInteraction
+
+            Result.Success(savedInteraction)
+        } catch (e: SecurityException) {
+            Result.Error(InteractionError.VotingFailure.NotAuthorized)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.VotingFailure.SaveFailed)
+        }
 
     override suspend fun toggleBookmark(
         itemId: String,
         itemType: ContentType,
         userId: UserId
-    ): UserInteraction {
-        // Get existing interaction or create new one
-        val existingInteraction = getUserInteraction(itemId, userId)
+    ): Result<UserInteraction, OperationError> =
+        try {
+            // Get existing interaction or create new one
+            val existingDto = dataSource.getUserInteraction(itemId, userId.value)
+            val existingInteraction = existingDto?.let { mapper.fromDto(it) }
 
-        val updatedInteraction = if (existingInteraction != null) {
-            // Toggle existing bookmark
-            existingInteraction.toggleBookmark()
-        } else {
-            // Create new interaction with bookmark
-            UserInteraction.create(
-                itemId = itemId,
-                itemType = itemType,
-                userId = userId,
-                voteState = VoteState.NONE,
-                isBookmarked = true,
-            )
+            // Toggle bookmark state
+            val updatedInteraction = if (existingInteraction != null) {
+                existingInteraction.copy(isBookmarked = !existingInteraction.isBookmarked)
+            } else {
+                // Create new interaction with bookmark
+                UserInteraction.create(itemId, itemType, userId, VoteState.NONE, true)
+            }
+
+            // Save updated interaction
+            val updatedDto = mapper.toDto(updatedInteraction)
+            val savedDto = dataSource.upsertUserInteraction(updatedDto)
+            val savedInteraction = mapper.fromDto(savedDto) ?: updatedInteraction
+
+            Result.Success(savedInteraction)
+        } catch (e: SecurityException) {
+            Result.Error(InteractionError.BookmarkFailure.NotAuthorized)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Result.Error(InteractionError.BookmarkFailure.SaveFailed)
         }
-
-        return upsertUserInteraction(updatedInteraction)
-    }
-
-    // ================================================================================================
-    // HELPER METHODS
-    // ================================================================================================
-
-    // TODO: Implement when InteractionStats models are created
-    // /**
-    //  * Map InteractionStatsDto to domain InteractionStats
-    //  */
-    // private fun mapStatsFromDto(dto: InteractionStatsDto): InteractionStats =
-    //     InteractionStats(
-    //         itemId = dto.itemId,
-    //         upvoteCount = dto.upvoteCount,
-    //         downvoteCount = dto.downvoteCount,
-    //         bookmarkCount = dto.bookmarkCount,
-    //         totalInteractions = dto.totalInteractions,
-    //     )
 }

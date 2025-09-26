@@ -1,7 +1,7 @@
 package com.qodein.core.data.coordinator
 
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.service.ServiceCache
 import com.qodein.shared.domain.service.selection.SearchStatus
@@ -106,7 +106,7 @@ class ServiceSelectionCoordinator @Inject constructor(
     private fun processServiceSelectionUpdate(
         currentState: ServiceSelectionState,
         query: String,
-        searchResult: Result<List<Service>>
+        searchResult: Result<List<Service>, OperationError>
     ): ServiceSelectionState {
         // Apply query update if changed
         val updatedState = if (query != currentState.search.query) {
@@ -120,19 +120,6 @@ class ServiceSelectionCoordinator @Inject constructor(
 
         // Process search results
         return when (searchResult) {
-            is Result.Loading -> {
-                if (query.isBlank()) {
-                    // Loading popular services
-                    serviceSelectionManager.applyAction(updatedState, ServiceSelectionAction.LoadPopularServices)
-                } else {
-                    // Loading search results
-                    updatedState.copy(
-                        search = updatedState.search.copy(
-                            status = SearchStatus.Loading,
-                        ),
-                    )
-                }
-            }
             is Result.Success -> {
                 // Cache the services for lookup
                 serviceCache.addServices(searchResult.data)
@@ -157,13 +144,13 @@ class ServiceSelectionCoordinator @Inject constructor(
                     // Popular services error
                     serviceSelectionManager.applyAction(
                         updatedState,
-                        ServiceSelectionAction.SetPopularServicesError(searchResult.exception),
+                        ServiceSelectionAction.SetPopularServicesError(searchResult.error),
                     )
                 } else {
                     // Search error
                     updatedState.copy(
                         search = updatedState.search.copy(
-                            status = SearchStatus.Error(searchResult.exception.toErrorType()),
+                            status = SearchStatus.Error(searchResult.error),
                         ),
                     )
                 }

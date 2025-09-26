@@ -3,77 +3,80 @@ package com.qodein.core.ui.error
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.ui.R
-import com.qodein.shared.common.result.ErrorAction
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.InteractionError
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.common.error.ServiceError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.UserError
 
 /**
- * Maps ErrorType enums to localized string resources.
+ * Maps OperationError types to localized string resources.
  *
  * This is the ONLY place where error types are converted to user-facing strings.
  * Supports proper localization through Android string resources.
  */
 
 /**
- * Converts an ErrorType to a localized error message string.
+ * Converts an OperationError to a localized error message string.
  */
 @Composable
-fun ErrorType.toLocalizedMessage(): String =
+fun OperationError.asUiText(): String =
     when (this) {
-        // Network errors
-        ErrorType.NETWORK_TIMEOUT -> stringResource(R.string.error_network_timeout)
-        ErrorType.NETWORK_NO_CONNECTION -> stringResource(R.string.error_network_no_connection)
-        ErrorType.NETWORK_HOST_UNREACHABLE -> stringResource(R.string.error_network_host_unreachable)
-        ErrorType.NETWORK_GENERAL -> stringResource(R.string.error_network_general)
+        // User/Auth errors
+        is UserError.AuthenticationFailure.Cancelled -> stringResource(R.string.error_auth_user_cancelled)
+        is UserError.AuthenticationFailure.InvalidCredentials -> stringResource(R.string.error_auth_invalid_credentials)
+        is UserError.AuthenticationFailure.ServiceUnavailable -> stringResource(R.string.error_auth_service_unavailable)
+        is UserError.AuthenticationFailure.TooManyAttempts -> stringResource(R.string.error_auth_too_many_attempts)
 
-        // Authentication errors
-        ErrorType.AUTH_PERMISSION_DENIED -> stringResource(R.string.error_auth_permission_denied)
-        ErrorType.AUTH_USER_CANCELLED -> stringResource(R.string.error_auth_user_cancelled)
-        ErrorType.AUTH_INVALID_CREDENTIALS -> stringResource(R.string.error_auth_invalid_credentials)
-        ErrorType.AUTH_USER_NOT_FOUND -> stringResource(R.string.error_auth_user_not_found)
-        ErrorType.AUTH_UNAUTHORIZED -> stringResource(R.string.error_auth_unauthorized)
+        is UserError.ProfileFailure.NotFound -> stringResource(R.string.error_user_not_found)
+        is UserError.ProfileFailure.AccessDenied -> stringResource(R.string.error_auth_permission_denied)
+        is UserError.ProfileFailure.DataCorrupted -> stringResource(R.string.error_user_data_corrupted)
+        is UserError.ProfileFailure.UpdateFailed -> stringResource(R.string.error_user_update_failed)
 
-        // Promo code errors
-        ErrorType.PROMO_CODE_NOT_FOUND -> stringResource(R.string.error_promo_code_not_found)
-        ErrorType.PROMO_CODE_EXPIRED -> stringResource(R.string.error_promo_code_expired)
-        ErrorType.PROMO_CODE_INACTIVE -> stringResource(R.string.error_promo_code_inactive)
-        ErrorType.PROMO_CODE_INVALID -> stringResource(R.string.error_promo_code_invalid)
-        ErrorType.PROMO_CODE_ALREADY_EXISTS -> stringResource(R.string.error_promo_code_already_exists)
-        ErrorType.PROMO_CODE_ALREADY_USED -> stringResource(R.string.error_promo_code_already_used)
-        ErrorType.PROMO_CODE_MINIMUM_ORDER_NOT_MET -> stringResource(R.string.error_promo_code_minimum_order_not_met)
+        // PromoCode errors
+        is PromoCodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
+        is PromoCodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_auth_permission_denied)
+        is PromoCodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
 
-        // User errors
-        ErrorType.USER_NOT_FOUND -> stringResource(R.string.error_user_not_found)
-        ErrorType.USER_BANNED -> stringResource(R.string.error_user_banned)
-        ErrorType.USER_SUSPENDED -> stringResource(R.string.error_user_suspended)
+        is PromoCodeError.RetrievalFailure.NotFound -> stringResource(R.string.error_promo_code_not_found)
+        is PromoCodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
+        is PromoCodeError.RetrievalFailure.TooManyResults -> stringResource(R.string.error_too_many_results)
 
         // Service errors
-        ErrorType.SERVICE_NOT_FOUND -> stringResource(R.string.error_service_not_found)
-        ErrorType.SERVICE_UNAVAILABLE -> stringResource(R.string.error_service_unavailable)
+        is ServiceError.SearchFailure.NoResults -> stringResource(R.string.error_service_no_results)
+        is ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)
+        is ServiceError.SearchFailure.TooManyResults -> stringResource(R.string.error_service_too_many_results)
+        is ServiceError.SearchFailure.InvalidQuery -> stringResource(R.string.error_service_invalid_query)
 
-        // Validation errors
-        ErrorType.VALIDATION_REQUIRED_FIELD -> stringResource(R.string.error_validation_required_field)
-        ErrorType.VALIDATION_INVALID_FORMAT -> stringResource(R.string.error_validation_invalid_format)
-        ErrorType.VALIDATION_TOO_SHORT -> stringResource(R.string.error_validation_too_short)
-        ErrorType.VALIDATION_TOO_LONG -> stringResource(R.string.error_validation_too_long)
+        is ServiceError.RetrievalFailure.NotFound -> stringResource(R.string.error_service_not_found)
+        is ServiceError.RetrievalFailure.DataCorrupted -> stringResource(R.string.error_service_data_corrupted)
+        is ServiceError.RetrievalFailure.CacheExpired -> stringResource(R.string.error_service_cache_expired)
+
+        // Interaction errors
+        is InteractionError.VotingFailure.NotAuthorized -> stringResource(R.string.error_auth_permission_denied)
+        is InteractionError.VotingFailure.AlreadyVoted -> stringResource(R.string.error_interaction_already_voted)
+        is InteractionError.VotingFailure.ContentNotFound -> stringResource(R.string.error_interaction_content_not_found)
+        is InteractionError.VotingFailure.SaveFailed -> stringResource(R.string.error_interaction_save_failed)
+
+        is InteractionError.BookmarkFailure.NotAuthorized -> stringResource(R.string.error_auth_permission_denied)
+        is InteractionError.BookmarkFailure.ContentNotFound -> stringResource(R.string.error_interaction_content_not_found)
+        is InteractionError.BookmarkFailure.SaveFailed -> stringResource(R.string.error_interaction_save_failed)
+        is InteractionError.BookmarkFailure.RemoveFailed -> stringResource(R.string.error_interaction_remove_failed)
+
+        is InteractionError.SystemFailure.Offline -> stringResource(R.string.error_network_no_connection)
+        is InteractionError.SystemFailure.ServiceDown -> stringResource(R.string.error_service_unavailable)
+        is InteractionError.SystemFailure.Unknown -> stringResource(R.string.error_unknown)
 
         // System errors
-        ErrorType.SERVICE_UNAVAILABLE_GENERAL -> stringResource(R.string.error_service_unavailable_general)
-        ErrorType.SERVICE_CONFIGURATION_ERROR -> stringResource(R.string.error_service_configuration_error)
-        ErrorType.SERVICE_INITIALIZATION_ERROR -> stringResource(R.string.error_service_initialization_error)
-
-        // Unknown error
-        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.error_unknown)
+        is SystemError.Offline -> stringResource(R.string.error_network_no_connection)
+        is SystemError.ServiceDown -> stringResource(R.string.error_service_unavailable)
+        is SystemError.Unknown -> stringResource(R.string.error_unknown)
     }
 
 /**
- * Converts an ErrorAction to a localized action button text.
+ * Convenience extension for Result.Error to get UI text directly.
  */
 @Composable
-fun ErrorAction.toLocalizedActionText(): String =
-    when (this) {
-        ErrorAction.RETRY -> stringResource(R.string.action_retry)
-        ErrorAction.SIGN_IN -> stringResource(R.string.action_sign_in)
-        ErrorAction.CHECK_NETWORK -> stringResource(R.string.action_check_network)
-        ErrorAction.CONTACT_SUPPORT -> stringResource(R.string.action_contact_support)
-        ErrorAction.DISMISS_ONLY -> stringResource(R.string.action_dismiss)
-    }
+fun <T> Result.Error<OperationError>.asErrorUiText(): String = error.asUiText()

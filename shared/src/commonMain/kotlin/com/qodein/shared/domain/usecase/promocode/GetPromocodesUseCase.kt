@@ -1,7 +1,7 @@
 package com.qodein.shared.domain.usecase.promocode
 
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.asResult
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
@@ -16,7 +16,7 @@ class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository)
         filterByServices: List<String>? = null,
         filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode>>> =
+    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>> =
         promoCodeRepository.getPromoCodes(
             query = query,
             sortBy = sortBy,
@@ -24,5 +24,4 @@ class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository)
             filterByCategories = filterByCategories,
             paginationRequest = paginationRequest,
         )
-            .asResult()
 }

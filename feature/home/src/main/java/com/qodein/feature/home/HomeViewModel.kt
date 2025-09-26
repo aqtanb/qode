@@ -9,7 +9,7 @@ import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar

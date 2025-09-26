@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar

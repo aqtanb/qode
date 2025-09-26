@@ -1,6 +1,6 @@
 package com.qodein.shared.domain.service.selection
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ServiceId
 
 data class PopularServices(val ids: List<ServiceId> = emptyList(), val status: PopularStatus = PopularStatus.Idle)
@@ -8,7 +8,7 @@ data class PopularServices(val ids: List<ServiceId> = emptyList(), val status: P
 sealed class PopularStatus {
     data object Idle : PopularStatus()
     data object Loading : PopularStatus()
-    data class Error(val type: ErrorType) : PopularStatus()
+    data class Error(val error: OperationError) : PopularStatus()
 }
 
 data class ServiceSelectionState(

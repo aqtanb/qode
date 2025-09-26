@@ -41,7 +41,7 @@ object DomainModule {
     // Auth Use Cases
     @Provides
     @Singleton
-    fun provideGetAuthStateUseCase(authStateManager: AuthStateManager): GetAuthStateUseCase = GetAuthStateUseCase(authStateManager)
+    fun provideGetAuthStateUseCase(authRepository: AuthRepository): GetAuthStateUseCase = GetAuthStateUseCase(authRepository)
 
     @Provides
     @Singleton

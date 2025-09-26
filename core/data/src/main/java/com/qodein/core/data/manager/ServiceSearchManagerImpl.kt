@@ -1,6 +1,7 @@
 package com.qodein.core.data.manager
 
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.service.ServiceCache
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
@@ -41,7 +42,7 @@ class ServiceSearchManagerImpl @Inject constructor(
 
     private val isActive = MutableStateFlow(false)
 
-    override val searchResult: Flow<Result<List<Service>>> = combine(
+    override val searchResult: Flow<Result<List<Service>, OperationError>> = combine(
         _searchQuery,
         isActive,
         serviceCache.services,

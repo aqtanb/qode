@@ -3,8 +3,8 @@ package com.qodein.feature.profile
 import app.cash.turbine.test
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.testing.data.TestUsers
+import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase

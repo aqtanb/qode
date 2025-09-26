@@ -1,6 +1,7 @@
 package com.qodein.shared.domain.manager
 
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +24,7 @@ interface ServiceSearchManager {
      * - Result.Success with services list (popular services for empty query, search results otherwise)
      * - Result.Error when search fails
      */
-    val searchResult: Flow<Result<List<Service>>>
+    val searchResult: Flow<Result<List<Service>, OperationError>>
 
     /**
      * Update the search query. Triggers debounced search.
