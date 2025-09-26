@@ -13,7 +13,6 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
@@ -107,10 +106,10 @@ class HomeViewModel @Inject constructor(
                             is Result.Loading -> BannerState.Loading
                             is Result.Success -> BannerState.Success(result.data)
                             is Result.Error -> BannerState.Error(
-                                errorType = result.exception.toErrorType(),
-                                isRetryable = result.exception.isRetryable(),
-                                shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                errorCode = result.exception.getErrorCode(),
+                                errorType = result.error,
+                                isRetryable = result.error.isRetryable(),
+                                shouldShowSnackbar = result.error.shouldShowSnackbar(),
+                                errorCode = result.error.getErrorCode(),
                             )
                         },
                     )
@@ -212,10 +211,10 @@ class HomeViewModel @Inject constructor(
         } else {
             currentState.copy(
                 promoCodeState = PromoCodeState.Error(
-                    errorType = result.exception.toErrorType(),
-                    isRetryable = result.exception.isRetryable(),
-                    shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                    errorCode = result.exception.getErrorCode(),
+                    errorType = result.error,
+                    isRetryable = result.error.isRetryable(),
+                    shouldShowSnackbar = result.error.shouldShowSnackbar(),
+                    errorCode = result.error.getErrorCode(),
                 ),
             )
         }

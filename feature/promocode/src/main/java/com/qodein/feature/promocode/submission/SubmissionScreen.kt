@@ -46,7 +46,6 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
-import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.service.selection.SelectionState
 
 // MARK: - Constants
@@ -95,7 +94,7 @@ fun SubmissionScreen(
                     onSignInClick = { viewModel.onAction(SubmissionWizardAction.SignInWithGoogle) },
                     onDismiss = { viewModel.onAction(SubmissionWizardAction.DismissAuthSheet) },
                     isLoading = isSigningIn,
-                    errorType = authError?.toErrorType(),
+                    errorType = authError,
                     onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
                     isDarkTheme = isDarkTheme,
                 )

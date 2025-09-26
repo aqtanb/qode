@@ -1,6 +1,6 @@
 package com.qodein.feature.auth
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.User
 
 /**
@@ -29,7 +29,7 @@ sealed interface SignInUiState {
      * Sign-in failed with error
      */
     data class Error(
-        val errorType: ErrorType,
+        val errorType: OperationError,
         val isRetryable: Boolean,
         val shouldShowSnackbar: Boolean = true,
         val errorCode: String? = null

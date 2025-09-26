@@ -9,7 +9,6 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -112,7 +111,7 @@ class ProfileViewModel @Inject constructor(
                                 // If user is unauthenticated, navigation should have redirected to auth
                                 val exception = IllegalStateException("User not authenticated - navigation should have redirected to auth")
                                 ProfileUiState.Error(
-                                    errorType = exception.toErrorType(),
+                                    errorType = exception,
                                     isRetryable = exception.isRetryable(),
                                     shouldShowSnackbar = exception.shouldShowSnackbar(),
                                     errorCode = exception.getErrorCode(),
@@ -122,10 +121,10 @@ class ProfileViewModel @Inject constructor(
                     }
                     is Result.Error -> {
                         ProfileUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
+                            errorType = result.error,
+                            isRetryable = result.error.isRetryable(),
+                            shouldShowSnackbar = result.error.shouldShowSnackbar(),
+                            errorCode = result.error.getErrorCode(),
                         )
                     }
                 }
@@ -155,10 +154,10 @@ class ProfileViewModel @Inject constructor(
                         // Restart auth monitoring if sign out fails
                         checkAuthState()
                         _state.value = ProfileUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
+                            errorType = result.error,
+                            isRetryable = result.error.isRetryable(),
+                            shouldShowSnackbar = result.error.shouldShowSnackbar(),
+                            errorCode = result.error.getErrorCode(),
                         )
                     }
                 }

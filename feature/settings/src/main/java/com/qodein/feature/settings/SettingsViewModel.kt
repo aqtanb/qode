@@ -53,20 +53,18 @@ class SettingsViewModel @Inject constructor(
             getLanguageUseCase(),
         ) { themeResult, languageResult ->
             val theme = when (themeResult) {
-                is Result.Loading -> _state.value.theme // Keep current theme while loading
                 is Result.Success -> themeResult.data
                 is Result.Error -> Theme.SYSTEM // Fallback to system theme
             }
 
             val language = when (languageResult) {
-                is Result.Loading -> _state.value.language // Keep current language while loading
                 is Result.Success -> languageResult.data
                 is Result.Error -> Language.ENGLISH // Fallback to English
             }
 
             val error = when {
-                themeResult is Result.Error -> themeResult.exception
-                languageResult is Result.Error -> languageResult.exception
+                themeResult is Result.Error -> themeResult.error
+                languageResult is Result.Error -> languageResult.error
                 else -> null
             }
 
@@ -86,9 +84,6 @@ class SettingsViewModel @Inject constructor(
 
             setThemeUseCase(theme).collect { result ->
                 when (result) {
-                    is Result.Loading -> {
-                        _state.value = _state.value.copy(isLoading = true)
-                    }
                     is Result.Success -> {
                         // Track theme change
                         analyticsHelper.logEvent(
@@ -104,7 +99,7 @@ class SettingsViewModel @Inject constructor(
                         emitEvent(SettingsEvent.ThemeChanged)
                     }
                     is Result.Error -> {
-                        _state.value = _state.value.copy(isLoading = false, error = result.exception)
+                        _state.value = _state.value.copy(isLoading = false, error = result.error)
                     }
                 }
             }
@@ -119,9 +114,6 @@ class SettingsViewModel @Inject constructor(
 
             setLanguageUseCase(language).collect { result ->
                 when (result) {
-                    is Result.Loading -> {
-                        _state.value = _state.value.copy(isLoading = true)
-                    }
                     is Result.Success -> {
                         // Track language change
                         analyticsHelper.logEvent(
@@ -137,7 +129,7 @@ class SettingsViewModel @Inject constructor(
                         emitEvent(SettingsEvent.LanguageChanged)
                     }
                     is Result.Error -> {
-                        _state.value = _state.value.copy(isLoading = false, error = result.exception)
+                        _state.value = _state.value.copy(isLoading = false, error = result.error)
                     }
                 }
             }

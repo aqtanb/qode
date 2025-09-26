@@ -1,6 +1,6 @@
 package com.qodein.feature.feed.preview
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
@@ -133,7 +133,7 @@ object MockFeedData {
         searchQuery: String = "streaming deals",
         selectedTags: List<Tag> = emptyList(),
         suggestedTags: List<Tag> = MockFeedData.suggestedTags,
-        errorType: ErrorType = ErrorType.NETWORK_GENERAL,
+        errorType: OperationError = OperationError.NETWORK_GENERAL,
         isRetryable: Boolean = true
     ) = com.qodein.feature.feed.FeedUiState.Error(
         searchQuery = searchQuery,

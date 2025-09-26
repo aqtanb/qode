@@ -1,7 +1,7 @@
 package com.qodein.feature.promocode.detail
 
 import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.VoteState
 
@@ -11,7 +11,7 @@ data class PromocodeDetailUiState(
     // Data State
     val promoCodeWithUserState: PromoCodeWithUserState? = null,
     val isLoading: Boolean = false,
-    val errorType: ErrorType? = null,
+    val errorType: OperationError? = null,
 
     // Interaction States
     val isVoting: Boolean = false,

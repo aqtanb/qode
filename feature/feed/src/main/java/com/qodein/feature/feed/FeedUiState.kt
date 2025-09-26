@@ -1,6 +1,6 @@
 package com.qodein.feature.feed
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.Tag
 
@@ -41,7 +41,7 @@ sealed interface FeedUiState {
         override val selectedTags: List<Tag> = emptyList(),
         override val suggestedTags: List<Tag> = emptyList(),
         override val isSearchFocused: Boolean = false,
-        val errorType: ErrorType,
+        val errorType: OperationError,
         val isRetryable: Boolean = false,
         val shouldShowSnackbar: Boolean = false,
         val errorCode: String? = null

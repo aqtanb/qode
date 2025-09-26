@@ -1,6 +1,6 @@
 package com.qodein.feature.profile
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.User
 
 sealed interface ProfileUiState {
@@ -9,7 +9,7 @@ sealed interface ProfileUiState {
     data object Loading : ProfileUiState
 
     data class Error(
-        val errorType: ErrorType,
+        val errorType: OperationError,
         val isRetryable: Boolean,
         val shouldShowSnackbar: Boolean = true,
         val errorCode: String? = null

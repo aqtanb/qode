@@ -9,7 +9,6 @@ import com.qodein.core.analytics.logSearch
 import com.qodein.shared.common.result.getErrorCode
 import com.qodein.shared.common.result.isRetryable
 import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
@@ -123,7 +122,7 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e.toErrorType(),
+                    errorType = e,
                     isRetryable = e.isRetryable(),
                     shouldShowSnackbar = e.shouldShowSnackbar(),
                     errorCode = e.getErrorCode(),
@@ -326,7 +325,7 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e.toErrorType(),
+                    errorType = e,
                     isRetryable = e.isRetryable(),
                     shouldShowSnackbar = e.shouldShowSnackbar(),
                     errorCode = e.getErrorCode(),
@@ -358,7 +357,7 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e.toErrorType(),
+                    errorType = e,
                     isRetryable = e.isRetryable(),
                     shouldShowSnackbar = e.shouldShowSnackbar(),
                     errorCode = e.getErrorCode(),
@@ -413,7 +412,7 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e.toErrorType(),
+                    errorType = e,
                     isRetryable = e.isRetryable(),
                     shouldShowSnackbar = e.shouldShowSnackbar(),
                     errorCode = e.getErrorCode(),

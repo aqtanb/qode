@@ -73,7 +73,7 @@ class ProfileScreenTest {
                         }
                         is ProfileUiState.Error -> {
                             QodeRetryableErrorCard(
-                                message = state.exception.message ?: context.getString(FeatureR.string.profile_error_unknown),
+                                message = state.error.message ?: context.getString(FeatureR.string.profile_error_unknown),
                                 onRetry = { onAction(ProfileAction.RetryClicked) },
                                 modifier = Modifier
                                     .padding(SpacingTokens.lg),

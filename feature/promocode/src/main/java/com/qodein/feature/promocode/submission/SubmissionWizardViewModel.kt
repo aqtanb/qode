@@ -272,7 +272,7 @@ class SubmissionWizardViewModel @Inject constructor(
                                             is AuthState.Unauthenticated -> AuthenticationState.Unauthenticated
                                         }
                                     }
-                                    is Result.Error -> AuthenticationState.Error(authResult.exception)
+                                    is Result.Error -> AuthenticationState.Error(authResult.error)
                                 }
                                 currentState.updateAuthentication(newAuthState)
                             }
@@ -308,8 +308,8 @@ class SubmissionWizardViewModel @Inject constructor(
                                         return@update currentState
                                     }
                                     is Result.Error -> {
-                                        Logger.w(TAG) { "Sign-in failed: ${result.exception.message}" }
-                                        AuthenticationState.Error(result.exception)
+                                        Logger.w(TAG) { "Sign-in failed: ${result.error.message}" }
+                                        AuthenticationState.Error(result.error)
                                     }
                                 }
                                 currentState.updateAuthentication(newAuthState)
@@ -483,13 +483,13 @@ class SubmissionWizardViewModel @Inject constructor(
                                         }
                                         state.submitSuccess(result.data.id.value)
                                     }
-                                    is Result.Error -> state.submitError(result.exception)
+                                    is Result.Error -> state.submitError(result.error)
                                 }
                             }
                         }
                 }
                 is Result.Error -> {
-                    updateSuccessState { it.submitError(promoCodeResult.exception) }
+                    updateSuccessState { it.submitError(promoCodeResult.error) }
                 }
                 is Result.Loading -> {
                     // Should not happen for synchronous validation

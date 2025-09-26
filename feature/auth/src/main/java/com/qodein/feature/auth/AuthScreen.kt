@@ -40,11 +40,10 @@ import com.qodein.core.ui.FontScalePreviews
 import com.qodein.core.ui.MobilePreviews
 import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
-import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
-import com.qodein.core.ui.error.toLocalizedMessage
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.suggestedAction
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.UserError
 
 @Composable
 fun AuthScreen(
@@ -101,11 +100,10 @@ fun AuthContent(
         ) {
             when (state) {
                 is SignInUiState.Error -> {
-                    // Show action-based error card with intelligent action mapping
-                    QodeActionErrorCard(
-                        message = state.errorType.toLocalizedMessage(),
-                        errorAction = state.errorType.suggestedAction(),
-                        onActionClicked = { onAction(SignInAction.RetryClicked) },
+                    // Show error card with new type-safe error handling
+                    QodeErrorCard(
+                        error = state.errorType,
+                        onRetry = { onAction(SignInAction.RetryClicked) },
                         onDismiss = { onAction(SignInAction.DismissErrorClicked) },
                         modifier = modifier.fillMaxWidth(),
                     )
@@ -331,7 +329,7 @@ fun AuthScreenErrorStatePreview() {
     QodeTheme {
         AuthScreenPreview(
             state = SignInUiState.Error(
-                errorType = ErrorType.AUTH_USER_CANCELLED,
+                errorType = UserError.AuthenticationFailure.Cancelled,
                 isRetryable = false,
                 shouldShowSnackbar = false,
                 errorCode = "AUTH_001",
@@ -349,7 +347,7 @@ fun AuthScreenNetworkErrorPreview() {
     QodeTheme {
         AuthScreenPreview(
             state = SignInUiState.Error(
-                errorType = ErrorType.NETWORK_GENERAL,
+                errorType = SystemError.Offline,
                 isRetryable = true,
                 shouldShowSnackbar = false,
                 errorCode = "NET_001",

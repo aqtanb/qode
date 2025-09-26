@@ -5,10 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogin
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
 import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,7 +56,6 @@ class SignInViewModel @Inject constructor(
         signInWithGoogleUseCase()
             .onEach { result ->
                 _state.value = when (result) {
-                    is Result.Loading -> SignInUiState.Loading
                     is Result.Success -> {
                         analyticsHelper.logLogin(method = "google", success = true)
                         emitEvent(AuthEvent.SignedIn)
@@ -69,10 +64,10 @@ class SignInViewModel @Inject constructor(
                     is Result.Error -> {
                         analyticsHelper.logLogin(method = "google", success = false)
                         SignInUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
+                            errorType = result.error,
+                            isRetryable = true, // Auth errors are generally retryable
+                            shouldShowSnackbar = false, // Using card instead of snackbar
+                            errorCode = null, // Simplified error handling
                         )
                     }
                 }

@@ -9,8 +9,7 @@ import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.toErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
@@ -143,7 +142,7 @@ class PromocodeDetailViewModel @Inject constructor(
                                     is Result.Success -> userInteractionResult.data
                                     is Result.Error -> {
                                         Logger.w("PromocodeDetailViewModel") {
-                                            "Failed to load user interaction: ${userInteractionResult.exception}"
+                                            "Failed to load user interaction: ${userInteractionResult.error}"
                                         }
                                         null
                                     }
@@ -160,17 +159,17 @@ class PromocodeDetailViewModel @Inject constructor(
                                     currentState.copy(
                                         promoCodeWithUserState = null,
                                         isLoading = false,
-                                        errorType = ErrorType.NETWORK_GENERAL,
+                                        errorType = OperationError.NETWORK_GENERAL,
                                     )
                                 }
                             }
                         }
                         is Result.Error -> {
-                            Logger.e("PromocodeDetailViewModel") { "Error loading promo code: ${promoCodeResult.exception}" }
+                            Logger.e("PromocodeDetailViewModel") { "Error loading promo code: ${promoCodeResult.error}" }
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     isLoading = false,
-                                    errorType = promoCodeResult.exception.toErrorType(),
+                                    errorType = promoCodeResult.error,
                                 )
                             }
                         }
@@ -184,7 +183,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isLoading = false,
-                        errorType = e.toErrorType(),
+                        errorType = e,
                     )
                 }
             }
@@ -335,11 +334,11 @@ class PromocodeDetailViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
-                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.exception}" }
+                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.error}" }
                         _uiState.update { currentState ->
                             currentState.copy(
                                 isVoting = false,
-                                errorType = result.exception.toErrorType(),
+                                errorType = result.error,
                             )
                         }
                     }
@@ -352,7 +351,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isVoting = false,
-                        errorType = e.toErrorType(),
+                        errorType = e,
                     )
                 }
             }
@@ -475,11 +474,11 @@ class PromocodeDetailViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
-                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.exception}" }
+                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.error}" }
                         _uiState.update { currentState ->
                             currentState.copy(
                                 isVoting = false,
-                                errorType = result.exception.toErrorType(),
+                                errorType = result.error,
                             )
                         }
                     }
@@ -492,7 +491,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isVoting = false,
-                        errorType = e.toErrorType(),
+                        errorType = e,
                     )
                 }
             }
@@ -546,12 +545,12 @@ class PromocodeDetailViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
-                        Logger.e("PromocodeDetailViewModel") { "Error toggling bookmark: ${result.exception}" }
+                        Logger.e("PromocodeDetailViewModel") { "Error toggling bookmark: ${result.error}" }
                         // Revert optimistic update
                         _uiState.update { currentState ->
                             currentState.copy(
                                 isBookmarked = currentIsBookmarked,
-                                errorType = result.exception.toErrorType(),
+                                errorType = result.error,
                             )
                         }
                     }
@@ -565,7 +564,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isBookmarked = currentIsBookmarked,
-                        errorType = e.toErrorType(),
+                        errorType = e,
                     )
                 }
             }
@@ -659,11 +658,11 @@ class PromocodeDetailViewModel @Inject constructor(
                             }
                         }
                         is Result.Error -> {
-                            Logger.e("PromocodeDetailViewModel") { "Sign in error: ${result.exception}" }
+                            Logger.e("PromocodeDetailViewModel") { "Sign in error: ${result.error}" }
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                                    errorType = result.exception.toErrorType(),
+                                    errorType = result.error,
                                 )
                             }
                         }
