@@ -26,7 +26,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortIconHelper
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.HomeAction
 import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.PromoCodeState
@@ -183,7 +183,7 @@ fun PromoCodesErrorState(
     modifier: Modifier = Modifier
 ) {
     ErrorCard(
-        message = errorState.errorType.toLocalizedMessage(),
+        message = errorState.errorType.asUiText(),
         isRetryable = errorState.isRetryable,
         onRetry = onRetry,
         modifier = modifier,

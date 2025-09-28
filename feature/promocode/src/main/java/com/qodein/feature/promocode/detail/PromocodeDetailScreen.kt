@@ -40,14 +40,13 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
-import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
@@ -203,12 +202,9 @@ private fun PromocodeDetailContent(
                         .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
-                    QodeActionErrorCard(
+                    QodeErrorCard(
                         message = "Failed to load promocode details. Please try again.",
-                        errorAction = uiState.errorType?.let {
-                            ErrorAction.RETRY
-                        } ?: ErrorAction.DISMISS_ONLY,
-                        onActionClicked = { onAction(PromocodeDetailAction.RetryClicked) },
+                        onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
                         onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
                     )
                 }

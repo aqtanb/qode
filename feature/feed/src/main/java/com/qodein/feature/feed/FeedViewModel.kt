@@ -6,9 +6,7 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logFilterContent
 import com.qodein.core.analytics.logSearch
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag
@@ -122,10 +120,10 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e,
-                    isRetryable = e.isRetryable(),
-                    shouldShowSnackbar = e.shouldShowSnackbar(),
-                    errorCode = e.getErrorCode(),
+                    errorType = SystemError.Unknown,
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 )
                 emitEvent(FeedEvent.ShowError("Search failed"))
             }
@@ -325,10 +323,10 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e,
-                    isRetryable = e.isRetryable(),
-                    shouldShowSnackbar = e.shouldShowSnackbar(),
-                    errorCode = e.getErrorCode(),
+                    errorType = SystemError.Unknown,
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 )
             }
         }
@@ -357,10 +355,10 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e,
-                    isRetryable = e.isRetryable(),
-                    shouldShowSnackbar = e.shouldShowSnackbar(),
-                    errorCode = e.getErrorCode(),
+                    errorType = SystemError.Unknown,
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 )
             }
         }
@@ -412,10 +410,10 @@ class FeedViewModel @Inject constructor(
                     selectedTags = currentState.selectedTags,
                     suggestedTags = currentState.suggestedTags,
                     isSearchFocused = currentState.isSearchFocused,
-                    errorType = e,
-                    isRetryable = e.isRetryable(),
-                    shouldShowSnackbar = e.shouldShowSnackbar(),
-                    errorCode = e.getErrorCode(),
+                    errorType = SystemError.Unknown,
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 )
             }
         }

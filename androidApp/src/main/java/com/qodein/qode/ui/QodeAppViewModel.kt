@@ -42,11 +42,11 @@ class QodeAppViewModel @Inject constructor(
 
     // Auth state from domain layer with proper error handling
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
-        .map { result ->
-            when (result) {
-                is Result.Loading -> AuthState.Loading
-                is Result.Success -> result.data
-                is Result.Error -> AuthState.Unauthenticated
+        .map { user ->
+            if (user != null) {
+                AuthState.Authenticated(user)
+            } else {
+                AuthState.Unauthenticated
             }
         }
         .catch { emit(AuthState.Unauthenticated) }
@@ -60,7 +60,6 @@ class QodeAppViewModel @Inject constructor(
     val themeState: StateFlow<Theme> = getThemeUseCase()
         .map { result ->
             when (result) {
-                is Result.Loading -> Theme.SYSTEM
                 is Result.Success -> result.data
                 is Result.Error -> Theme.SYSTEM
             }
@@ -76,7 +75,6 @@ class QodeAppViewModel @Inject constructor(
     val languageState: StateFlow<Language> = getLanguageUseCase()
         .map { result ->
             when (result) {
-                is Result.Loading -> Language.ENGLISH
                 is Result.Success -> result.data
                 is Result.Error -> Language.ENGLISH
             }

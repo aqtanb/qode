@@ -10,9 +10,7 @@ import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
@@ -98,18 +96,22 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadBanners(userLanguage: Language? = null) {
+        // Set loading state before starting operation
+        _uiState.update { state ->
+            state.copy(bannerState = BannerState.Loading)
+        }
+
         viewModelScope.launch {
             getBannersUseCase.getBanners(userLanguage = userLanguage, limit = DEFAULT_PAGE_SIZE).collect { result ->
                 _uiState.update { state ->
                     state.copy(
                         bannerState = when (result) {
-                            is Result.Loading -> BannerState.Loading
                             is Result.Success -> BannerState.Success(result.data)
                             is Result.Error -> BannerState.Error(
                                 errorType = result.error,
-                                isRetryable = result.error.isRetryable(),
-                                shouldShowSnackbar = result.error.shouldShowSnackbar(),
-                                errorCode = result.error.getErrorCode(),
+                                isRetryable = true,
+                                shouldShowSnackbar = false,
+                                errorCode = null,
                             )
                         },
                     )
@@ -122,6 +124,17 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
+
+            // Set loading state before starting operation
+            if (!isLoadMore) {
+                _uiState.update { state ->
+                    state.copy(promoCodeState = PromoCodeState.Loading)
+                }
+            } else {
+                _uiState.update { state ->
+                    state.copy(isLoadingMore = true)
+                }
+            }
 
             getPromoCodesUseCase(
                 sortBy = filters.sortFilter.sortBy,
@@ -137,13 +150,6 @@ class HomeViewModel @Inject constructor(
             ).collect { result ->
                 _uiState.update { state ->
                     when (result) {
-                        is Result.Loading -> {
-                            if (isLoadMore) {
-                                state.copy(isLoadingMore = true)
-                            } else {
-                                state.copy(promoCodeState = PromoCodeState.Loading)
-                            }
-                        }
                         is Result.Success -> {
                             val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
                             updatedState.copy(isLoadingMore = false)
@@ -201,7 +207,7 @@ class HomeViewModel @Inject constructor(
         }
 
     private fun handlePromoCodesError(
-        result: Result.Error,
+        result: Result.Error<OperationError>,
         isLoadMore: Boolean,
         currentState: HomeUiState
     ): HomeUiState =
@@ -212,9 +218,9 @@ class HomeViewModel @Inject constructor(
             currentState.copy(
                 promoCodeState = PromoCodeState.Error(
                     errorType = result.error,
-                    isRetryable = result.error.isRetryable(),
-                    shouldShowSnackbar = result.error.shouldShowSnackbar(),
-                    errorCode = result.error.getErrorCode(),
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 ),
             )
         }

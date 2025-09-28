@@ -38,7 +38,7 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
@@ -94,7 +94,6 @@ fun SubmissionScreen(
                     onSignInClick = { viewModel.onAction(SubmissionWizardAction.SignInWithGoogle) },
                     onDismiss = { viewModel.onAction(SubmissionWizardAction.DismissAuthSheet) },
                     isLoading = isSigningIn,
-                    errorType = authError,
                     onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
                     isDarkTheme = isDarkTheme,
                 )
@@ -174,7 +173,7 @@ fun SubmissionScreen(
         }
         is SubmissionWizardUiState.Error -> {
             ErrorState(
-                message = currentState.errorType.toLocalizedMessage(),
+                message = currentState.errorType.asUiText(),
                 onRetry = { viewModel.onAction(SubmissionWizardAction.RetryClicked) },
             )
         }

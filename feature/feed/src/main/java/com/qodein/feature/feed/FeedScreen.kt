@@ -34,14 +34,12 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.QodeActionErrorCard
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.feed.component.PostCard
 import com.qodein.feature.feed.component.SearchBar
 import com.qodein.feature.feed.preview.MockFeedData
-import com.qodein.shared.common.result.ErrorAction
 
 // MARK: - Constants
 
@@ -247,10 +245,9 @@ private fun FeedErrorState(
             .padding(horizontal = SpacingTokens.md),
         contentAlignment = Alignment.Center,
     ) {
-        QodeActionErrorCard(
-            message = uiState.errorType.toLocalizedMessage(),
-            errorAction = if (uiState.isRetryable) ErrorAction.RETRY else ErrorAction.DISMISS_ONLY,
-            onActionClicked = { onAction(FeedAction.RetryClicked) },
+        QodeErrorCard(
+            error = uiState.errorType,
+            onRetry = { onAction(FeedAction.RetryClicked) },
             onDismiss = { onAction(FeedAction.ErrorDismissed) },
             modifier = Modifier.fillMaxWidth(),
         )

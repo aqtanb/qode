@@ -10,6 +10,7 @@ import com.qodein.core.analytics.logVote
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
@@ -22,6 +23,7 @@ import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -99,33 +101,19 @@ class PromocodeDetailViewModel @Inject constructor(
                 coroutineScope {
                     // Load promo code data (always needed)
                     val promoCodeDeferred = async {
-                        var result: Result<PromoCode?> = Result.Loading
-                        try {
-                            getPromoCodeByIdUseCase(promoCodeId).collect {
-                                result = it
-                            }
-                            result
-                        } catch (e: Exception) {
-                            Logger.e("PromocodeDetailViewModel") {
-                                "Failed to load promo code: $e"
-                            }
-                            Result.Error(e)
+                        var result: Result<PromoCode?, OperationError>? = null
+                        getPromoCodeByIdUseCase(promoCodeId).collect {
+                            result = it
                         }
+                        result ?: Result.Error(SystemError.Unknown)
                     }
 
                     // Load user interaction data (only if user is authenticated)
                     val userInteractionDeferred = async {
                         if (effectiveUserId != null) {
-                            try {
-                                getUserInteractionUseCase(promoCodeId.value, effectiveUserId)
-                            } catch (e: Exception) {
-                                Logger.w("PromocodeDetailViewModel") {
-                                    "Failed to load user interaction, using defaults: $e"
-                                }
-                                Result.Success(null)
-                            }
+                            getUserInteractionUseCase(promoCodeId.value, effectiveUserId)
                         } else {
-                            Result.Success(null)
+                            Result.Success(null) as Result<UserInteraction?, OperationError>
                         }
                     }
 
@@ -146,7 +134,6 @@ class PromocodeDetailViewModel @Inject constructor(
                                         }
                                         null
                                     }
-                                    is Result.Loading -> null
                                 }
 
                                 val promoCodeWithUserState = PromoCodeWithUserState(
@@ -159,7 +146,7 @@ class PromocodeDetailViewModel @Inject constructor(
                                     currentState.copy(
                                         promoCodeWithUserState = null,
                                         isLoading = false,
-                                        errorType = OperationError.NETWORK_GENERAL,
+                                        errorType = SystemError.Unknown,
                                     )
                                 }
                             }
@@ -173,9 +160,6 @@ class PromocodeDetailViewModel @Inject constructor(
                                 )
                             }
                         }
-                        is Result.Loading -> {
-                            _uiState.update { it.copy(isLoading = true) }
-                        }
                     }
                 }
             } catch (e: Exception) {
@@ -183,7 +167,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isLoading = false,
-                        errorType = e,
+                        errorType = SystemError.Unknown,
                     )
                 }
             }
@@ -342,16 +326,13 @@ class PromocodeDetailViewModel @Inject constructor(
                             )
                         }
                     }
-                    is Result.Loading -> {
-                        _uiState.update { it.copy(isVoting = true) }
-                    }
                 }
             } catch (e: Exception) {
                 Logger.e("PromocodeDetailViewModel") { "Unexpected error during upvote: $e" }
                 _uiState.update { currentState ->
                     currentState.copy(
                         isVoting = false,
-                        errorType = e,
+                        errorType = SystemError.Unknown,
                     )
                 }
             }
@@ -482,16 +463,13 @@ class PromocodeDetailViewModel @Inject constructor(
                             )
                         }
                     }
-                    is Result.Loading -> {
-                        _uiState.update { it.copy(isVoting = true) }
-                    }
                 }
             } catch (e: Exception) {
                 Logger.e("PromocodeDetailViewModel") { "Unexpected error during downvote: $e" }
                 _uiState.update { currentState ->
                     currentState.copy(
                         isVoting = false,
-                        errorType = e,
+                        errorType = SystemError.Unknown,
                     )
                 }
             }
@@ -554,9 +532,6 @@ class PromocodeDetailViewModel @Inject constructor(
                             )
                         }
                     }
-                    is Result.Loading -> {
-                        // Already handling loading state optimistically
-                    }
                 }
             } catch (e: Exception) {
                 Logger.e("PromocodeDetailViewModel") { "Unexpected error during bookmark toggle: $e" }
@@ -564,7 +539,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         isBookmarked = currentIsBookmarked,
-                        errorType = e,
+                        errorType = SystemError.Unknown,
                     )
                 }
             }
@@ -665,9 +640,6 @@ class PromocodeDetailViewModel @Inject constructor(
                                     errorType = result.error,
                                 )
                             }
-                        }
-                        is Result.Loading -> {
-                            _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
                         }
                     }
                 }

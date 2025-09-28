@@ -7,7 +7,7 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.common.Result
-import com.qodein.shared.domain.AuthState
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
@@ -259,20 +259,14 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun setupAuthStateMonitoring() {
         viewModelScope.launch {
             getAuthStateUseCase()
-                .collect { authResult ->
+                .collect { user ->
                     _uiState.update { currentState ->
                         when (currentState) {
                             is SubmissionWizardUiState.Success -> {
-                                val newAuthState = when (authResult) {
-                                    is Result.Loading -> AuthenticationState.Loading
-                                    is Result.Success -> {
-                                        when (val authState = authResult.data) {
-                                            is AuthState.Loading -> AuthenticationState.Loading
-                                            is AuthState.Authenticated -> AuthenticationState.Authenticated(authState.user)
-                                            is AuthState.Unauthenticated -> AuthenticationState.Unauthenticated
-                                        }
-                                    }
-                                    is Result.Error -> AuthenticationState.Error(authResult.error)
+                                val newAuthState = if (user != null) {
+                                    AuthenticationState.Authenticated(user)
+                                } else {
+                                    AuthenticationState.Unauthenticated
                                 }
                                 currentState.updateAuthentication(newAuthState)
                             }
@@ -301,15 +295,14 @@ class SubmissionWizardViewModel @Inject constructor(
                         when (currentState) {
                             is SubmissionWizardUiState.Success -> {
                                 val newAuthState = when (result) {
-                                    is Result.Loading -> AuthenticationState.Loading
                                     is Result.Success -> {
                                         Logger.i(TAG) { "Sign-in successful" }
                                         // Auth state will be updated via setupAuthStateMonitoring
                                         return@update currentState
                                     }
                                     is Result.Error -> {
-                                        Logger.w(TAG) { "Sign-in failed: ${result.error.message}" }
-                                        AuthenticationState.Error(result.error)
+                                        Logger.w(TAG) { "Sign-in failed: ${result.error}" }
+                                        AuthenticationState.Error(Exception(result.error.toString()))
                                     }
                                 }
                                 currentState.updateAuthentication(newAuthState)
@@ -474,7 +467,6 @@ class SubmissionWizardViewModel @Inject constructor(
                         .collect { result ->
                             updateSuccessState { state ->
                                 when (result) {
-                                    is Result.Loading -> state // Already in submitting state
                                     is Result.Success -> {
                                         // UI navigation events (not business analytics)
                                         viewModelScope.launch {
@@ -483,16 +475,13 @@ class SubmissionWizardViewModel @Inject constructor(
                                         }
                                         state.submitSuccess(result.data.id.value)
                                     }
-                                    is Result.Error -> state.submitError(result.error)
+                                    is Result.Error -> state.submitError(Exception(result.error.toString()))
                                 }
                             }
                         }
                 }
                 is Result.Error -> {
-                    updateSuccessState { it.submitError(promoCodeResult.error) }
-                }
-                is Result.Loading -> {
-                    // Should not happen for synchronous validation
+                    updateSuccessState { it.submitError(Exception(promoCodeResult.error.toString())) }
                 }
             }
         }
@@ -505,7 +494,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun createPromoCodeFromWizardData(
         wizardData: SubmissionWizardData,
         user: User
-    ): Result<PromoCode> {
+    ): Result<PromoCode, SystemError> {
         val serviceLogoUrl = wizardData.selectedService?.logoUrl
         val category = wizardData.selectedService?.category ?: "Unspecified"
 
@@ -551,10 +540,10 @@ class SubmissionWizardViewModel @Inject constructor(
                     ).getOrThrow(),
                 )
 
-                null -> Result.Error(IllegalStateException("PromoCode type must be specified"))
+                null -> Result.Error(SystemError.Unknown)
             }
         } catch (exception: Exception) {
-            Result.Error(exception)
+            Result.Error(SystemError.Unknown)
         }
     }
 

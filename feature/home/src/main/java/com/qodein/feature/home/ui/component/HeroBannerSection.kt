@@ -49,7 +49,7 @@ import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.BackdropBlurOverlay
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.rememberBackdropBlurState
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.shared.model.Banner
@@ -152,7 +152,7 @@ fun HeroBannerSection(
                     }
                 },
                 ctaTitle = stringResource(R.string.banner_error_title),
-                ctaDescription = bannerState.errorType.toLocalizedMessage(),
+                ctaDescription = bannerState.errorType.asUiText(),
                 modifier = modifier,
             )
         }
