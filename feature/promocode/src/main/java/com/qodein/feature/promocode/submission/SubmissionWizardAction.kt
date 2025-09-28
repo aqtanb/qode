@@ -1,11 +1,14 @@
 package com.qodein.feature.promocode.submission
 
+import com.qodein.shared.model.Service
+import com.qodein.shared.model.User
 import java.time.LocalDate
 
 sealed interface SubmissionWizardAction {
     // Progressive step navigation
     data object NextProgressiveStep : SubmissionWizardAction
     data object PreviousProgressiveStep : SubmissionWizardAction
+    data class NavigateToStep(val step: SubmissionStep) : SubmissionWizardAction
 
     // Service selection UI actions
     data object ShowServiceSelector : SubmissionWizardAction
@@ -13,7 +16,8 @@ sealed interface SubmissionWizardAction {
     data object ToggleManualEntry : SubmissionWizardAction
 
     // Step 1: Core Details actions
-    data class UpdateServiceName(val serviceName: String) : SubmissionWizardAction
+    data class SelectService(val service: Service) : SubmissionWizardAction
+    data class UpdateServiceName(val serviceName: String) : SubmissionWizardAction // For manual entry
     data class UpdatePromoCodeType(val type: PromoCodeType) : SubmissionWizardAction
     data class SearchServices(val query: String) : SubmissionWizardAction
     data class UpdatePromoCode(val promoCode: String) : SubmissionWizardAction
@@ -21,14 +25,20 @@ sealed interface SubmissionWizardAction {
     data class UpdateDiscountAmount(val amount: String) : SubmissionWizardAction
     data class UpdateMinimumOrderAmount(val amount: String) : SubmissionWizardAction
     data class UpdateFirstUserOnly(val isFirstUserOnly: Boolean) : SubmissionWizardAction
+    data class UpdateOneTimeUseOnly(val isOneTimeUseOnly: Boolean) : SubmissionWizardAction
     data class UpdateDescription(val description: String) : SubmissionWizardAction
 
     // Step 2: Date Settings actions
     data class UpdateStartDate(val date: LocalDate) : SubmissionWizardAction
     data class UpdateEndDate(val date: LocalDate) : SubmissionWizardAction
 
-    // Form submission
+    data class SubmitPromoCodeWithUser(val user: User) : SubmissionWizardAction
     data object SubmitPromoCode : SubmissionWizardAction
+
+    // Authentication actions
+    data object SignInWithGoogle : SubmissionWizardAction
+    data object DismissAuthSheet : SubmissionWizardAction
+    data object ClearAuthError : SubmissionWizardAction
 
     // Error handling
     data object RetryClicked : SubmissionWizardAction

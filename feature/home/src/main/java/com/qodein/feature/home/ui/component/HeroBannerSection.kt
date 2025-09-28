@@ -26,8 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -48,14 +46,17 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AutoScrollingBanner
+import com.qodein.core.ui.component.BackdropBlurOverlay
 import com.qodein.core.ui.component.ComingSoonDialog
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.component.rememberBackdropBlurState
+import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.getTranslatedCtaDescription
 import com.qodein.shared.model.getTranslatedCtaTitle
+import dev.chrisbanes.haze.haze
 import kotlin.time.Duration.Companion.seconds
 
 // MARK: - Constants
@@ -64,10 +65,16 @@ private val LOADING_STROKE_WIDTH = 3.dp
 private val BLUR_RADIUS = 16.dp
 private const val ERROR_ICON_ALPHA = 0.6f
 private const val EMPTY_ICON_ALPHA = 0.6f
-private const val BANNER_HEIGHT_PERCENTAGE = 0.6f
-private const val TEXT_BACKGROUND_TOP_ALPHA = 0.4f
-private const val TEXT_BACKGROUND_BOTTOM_ALPHA = 0.6f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.7f
+private const val TEXT_BACKGROUND_TOP_ALPHA = 0.6f
+private const val TEXT_BACKGROUND_BOTTOM_ALPHA = 0.8f
 private const val INDICATOR_INACTIVE_ALPHA = 0.3f
+
+// MARK: - Layout Proportions
+
+private const val COUNTRY_PICKER_WEIGHT = 0.1f
+private const val CLEAR_IMAGE_WEIGHT = 0.75f
+private const val CTA_AREA_WEIGHT = 0.15f
 
 // MARK: - Main Component
 
@@ -145,7 +152,7 @@ fun HeroBannerSection(
                     }
                 },
                 ctaTitle = stringResource(R.string.banner_error_title),
-                ctaDescription = bannerState.errorType.toLocalizedMessage(),
+                ctaDescription = bannerState.errorType.asUiText(),
                 modifier = modifier,
             )
         }
@@ -201,12 +208,14 @@ private fun BannerItem(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
+    val hazeState = rememberBackdropBlurState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .clickable { onBannerClick(banner) },
     ) {
-        // Background layer
+        // Layer 1: The Image with Haze blur source
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -219,35 +228,65 @@ private fun BannerItem(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            } else {
+                AsyncImage(
+                    model = banner.imageUrl,
+                    contentDescription = banner.getTranslatedCtaTitle(userLanguage),
+                    modifier = modifier
+                        .fillMaxSize()
+                        .haze(hazeState),
+                    contentScale = ContentScale.Crop,
+                )
             }
         }
 
-        // Single image layer
-        if (banner.imageUrl.isNotBlank()) {
-            AsyncImage(
-                model = banner.imageUrl,
-                contentDescription = banner.getTranslatedCtaTitle(userLanguage),
-                modifier = modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
+        // Layer 2: Removed separate black overlay - using component-level backgrounds instead
 
-        // Backdrop blur overlays (transparent boxes with blur)
-        BackdropBlurOverlays()
+        // Layer 3: Enterprise-level Backdrop Blur Overlay (no black overlay)
+        BackdropBlurOverlay(
+            hazeState = hazeState,
+            topAlpha = TEXT_BACKGROUND_TOP_ALPHA,
+            bottomAlpha = TEXT_BACKGROUND_BOTTOM_ALPHA,
+            blurRadius = BLUR_RADIUS,
+            topAreaWeight = COUNTRY_PICKER_WEIGHT,
+            middleAreaWeight = CLEAR_IMAGE_WEIGHT,
+            bottomAreaWeight = CTA_AREA_WEIGHT,
+            overlayAlpha = 0f, // No black overlay here since we added it separately
+        )
 
-        // Content overlay
+        // Layer 4: The Content with matching proportions
         Column(
             modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.Top,
         ) {
-            CountryPicker()
+            // CountryPicker area
+            Box(
+                modifier = Modifier
+                    .weight(COUNTRY_PICKER_WEIGHT)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CountryPicker(modifier = Modifier.fillMaxSize())
+            }
 
-            BannerCallToAction(
-                ctaTitle = banner.getTranslatedCtaTitle(userLanguage),
-                ctaDescription = banner.getTranslatedCtaDescription(userLanguage),
-                currentPage = currentPage,
-                totalPages = totalPages,
-            )
+            // Clear image space
+            Spacer(modifier = Modifier.weight(CLEAR_IMAGE_WEIGHT))
+
+            // BannerCallToAction area
+            Box(
+                modifier = Modifier
+                    .weight(CTA_AREA_WEIGHT)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                BannerCallToAction(
+                    ctaTitle = banner.getTranslatedCtaTitle(userLanguage),
+                    ctaDescription = banner.getTranslatedCtaDescription(userLanguage),
+                    currentPage = currentPage,
+                    totalPages = totalPages,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }
@@ -271,8 +310,6 @@ private fun BannerStructure(
             .height(screenHeight * BANNER_HEIGHT_PERCENTAGE)
             .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        VignetteOverlay()
-
         // Center image content
         Box(
             modifier = modifier.fillMaxSize(),
@@ -300,115 +337,35 @@ private fun BannerStructure(
 // MARK: - Shared Components
 
 @Composable
-private fun BackdropBlurOverlays(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        // Top blurred and darkened section for CountryPicker
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.2f)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.2f),
-                            Color.Transparent,
-                        ),
-                    ),
-                )
-                .blur(radius = BLUR_RADIUS),
-        )
-
-        // Middle area - crystal clear image
-        Spacer(modifier = Modifier.weight(0.6f))
-
-        // Bottom blurred and darkened section for BannerCallToAction
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.2f)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.2f),
-                        ),
-                    ),
-                )
-                .blur(radius = 24.dp),
-        )
-    }
-}
-
-@Composable
-private fun VignetteOverlay(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        // Top blur area for country picker
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.15f)
-                .blur(radius = BLUR_RADIUS),
-        )
-
-        // Middle transparent area - no blur
-        Spacer(modifier = modifier.weight(0.65f))
-
-        // Bottom blur area for CTA text
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .weight(0.2f)
-                .blur(radius = BLUR_RADIUS),
-        )
-    }
-}
-
-@Composable
-private fun CountryPicker(modifier: Modifier = Modifier) {
+private fun CountryPicker(
+    textColor: Color = Color.White,
+    modifier: Modifier = Modifier
+) {
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         color = Color.Black.copy(alpha = 0.01f),
     ) {
-        Column(
+        Row(
             modifier = modifier
-                .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.sm),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                .background(Color.Black.copy(alpha = 0.1f))
+                .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxxs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
+            QodeDivider(modifier = Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.banner_country_picker_title),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
+                text = stringResource(R.string.country_kazakhstan),
+                style = MaterialTheme.typography.labelSmall,
+                color = textColor,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clickable { showComingSoonDialog = true }
+                    .padding(horizontal = SpacingTokens.xs),
             )
-
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                QodeDivider(modifier = modifier.weight(1f))
-                Text(
-                    text = stringResource(R.string.country_kazakhstan),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = modifier
-                        .clickable { showComingSoonDialog = true }
-                        .padding(horizontal = SpacingTokens.md),
-                )
-                QodeDivider(modifier = modifier.weight(1f))
-            }
+            QodeDivider(modifier = Modifier.weight(1f))
         }
     }
 
@@ -428,44 +385,43 @@ private fun BannerCallToAction(
     ctaDescription: String,
     currentPage: Int,
     totalPages: Int,
+    textColor: Color = Color.White,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(SpacingTokens.md),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            .background(Color.Black.copy(alpha = 0.2f))
+            .padding(SpacingTokens.sm),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (totalPages > 1) {
             PageIndicator(
                 currentPage = currentPage,
                 totalPages = totalPages,
-                modifier = modifier.padding(top = SpacingTokens.xs),
-                inactiveColor = Color.White.copy(alpha = INDICATOR_INACTIVE_ALPHA),
-                activeColor = Color.White,
+                inactiveColor = textColor.copy(alpha = INDICATOR_INACTIVE_ALPHA),
+                activeColor = textColor,
+                modifier = Modifier.padding(bottom = SpacingTokens.xs),
             )
         }
 
         Text(
             text = ctaTitle,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                letterSpacing = 0.5.sp,
-            ),
+            style = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.5.sp),
             fontWeight = FontWeight.ExtraBold,
-            color = Color.White,
+            color = textColor,
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
 
         Text(
             text = ctaDescription,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                letterSpacing = 0.25.sp,
-                lineHeight = 24.sp,
-            ),
+            style = MaterialTheme.typography.bodyMedium.copy(letterSpacing = 0.25.sp),
             fontWeight = FontWeight.Medium,
-            color = Color.White,
+            color = textColor,
             textAlign = TextAlign.Center,
+            maxLines = 2,
         )
     }
 }

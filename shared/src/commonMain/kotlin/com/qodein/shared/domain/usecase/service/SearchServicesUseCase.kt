@@ -1,8 +1,8 @@
 package com.qodein.shared.domain.usecase.service
 
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.asResult
-import com.qodein.shared.domain.repository.PromoCodeRepository
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 
@@ -16,16 +16,16 @@ import kotlinx.coroutines.flow.Flow
  * - Popular services fourth
  * - Others last
  */
-class SearchServicesUseCase(private val repository: PromoCodeRepository) {
+class SearchServicesUseCase(private val repository: PromocodeRepository) {
     /**
      * Search for services matching the query.
      *
      * @param query Search query text
      * @param limit Maximum number of results (default: 20)
-     * @return Flow<Result<List<Service>>> with search results
+     * @return Flow<Result<List<Service>, OperationError>> with search results
      */
     operator fun invoke(
         query: String,
         limit: Int = 5
-    ): Flow<Result<List<Service>>> = repository.searchServices(query.trim(), limit).asResult()
+    ): Flow<Result<List<Service>, OperationError>> = repository.searchServices(query.trim(), limit)
 }

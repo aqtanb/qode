@@ -40,6 +40,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
+    implementation(projects.core.data)
 
     // Core Android & Compose
     implementation(libs.bundles.androidx.core)
@@ -50,6 +51,9 @@ dependencies {
 
     // Coil
     implementation(libs.bundles.image.loading)
+
+    // Blur Effects
+    implementation(libs.haze)
 
     // Browser (CustomTabs)
     implementation(libs.androidx.browser)

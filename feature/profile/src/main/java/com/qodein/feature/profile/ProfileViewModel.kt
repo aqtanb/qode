@@ -5,12 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.AuthState
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -99,35 +95,18 @@ class ProfileViewModel @Inject constructor(
         _state.value = ProfileUiState.Loading
 
         authJob = getAuthStateUseCase()
-            .onEach { result ->
-                _state.value = when (result) {
-                    is Result.Loading -> ProfileUiState.Loading
-                    is Result.Success -> {
-                        val authState = result.data
-                        when (authState) {
-                            is AuthState.Loading -> ProfileUiState.Loading
-                            is AuthState.Authenticated -> ProfileUiState.Success(user = authState.user)
-                            is AuthState.Unauthenticated -> {
-                                // With smart routing, this should not happen
-                                // If user is unauthenticated, navigation should have redirected to auth
-                                val exception = IllegalStateException("User not authenticated - navigation should have redirected to auth")
-                                ProfileUiState.Error(
-                                    errorType = exception.toErrorType(),
-                                    isRetryable = exception.isRetryable(),
-                                    shouldShowSnackbar = exception.shouldShowSnackbar(),
-                                    errorCode = exception.getErrorCode(),
-                                )
-                            }
-                        }
-                    }
-                    is Result.Error -> {
-                        ProfileUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
-                        )
-                    }
+            .onEach { user ->
+                _state.value = if (user != null) {
+                    ProfileUiState.Success(user = user)
+                } else {
+                    // With smart routing, this should not happen
+                    // If user is unauthenticated, navigation should have redirected to auth
+                    ProfileUiState.Error(
+                        errorType = SystemError.Unknown,
+                        isRetryable = true,
+                        shouldShowSnackbar = false,
+                        errorCode = null,
+                    )
                 }
             }
             .launchIn(viewModelScope)
@@ -144,7 +123,6 @@ class ProfileViewModel @Inject constructor(
         signOutUseCase()
             .onEach { result ->
                 when (result) {
-                    is Result.Loading -> { /* Loading already shown above */ }
                     is Result.Success -> {
                         // Log successful logout
                         analyticsHelper.logLogout()
@@ -155,10 +133,10 @@ class ProfileViewModel @Inject constructor(
                         // Restart auth monitoring if sign out fails
                         checkAuthState()
                         _state.value = ProfileUiState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
+                            errorType = result.error,
+                            isRetryable = true,
+                            shouldShowSnackbar = false,
+                            errorCode = null,
                         )
                     }
                 }

@@ -1,5 +1,8 @@
 package com.qodein.core.designsystem.icon
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
@@ -566,7 +569,8 @@ object QodeActionIcons {
     val Unfollow: ImageVector = FeatherIcons.UserMinus
     val Subscribe: ImageVector = FeatherIcons.Bell
     val Unsubscribe: ImageVector = FeatherIcons.BellOff
-    val Bookmark: ImageVector = FeatherIcons.Bookmark
+    val Bookmark: ImageVector = Icons.Outlined.BookmarkAdd
+    val BookmarkFilled: ImageVector = Icons.Filled.Bookmark
     val Report: ImageVector = FeatherIcons.Flag
     val Block: ImageVector = FeatherIcons.Shield
     val Rate: ImageVector = FeatherIcons.Star

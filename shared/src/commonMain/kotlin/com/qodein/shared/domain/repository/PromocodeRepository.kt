@@ -1,0 +1,55 @@
+package com.qodein.shared.domain.repository
+
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.ContentSortBy
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationRequest
+import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.Service
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Repository interface for PromoCode operations.
+ * Returns Result<D, OperationError> for type-safe error handling.
+ * Repository implementations handle exception translation to domain errors.
+ */
+interface PromocodeRepository {
+
+    /**
+     * Create a new promo code.
+     */
+    fun createPromoCode(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>>
+
+    /**
+     * Get promo codes with filtering and sorting using cursor-based pagination.
+     */
+    fun getPromoCodes(
+        query: String? = null,
+        sortBy: ContentSortBy = ContentSortBy.POPULARITY,
+        filterByServices: List<String>? = null,
+        filterByCategories: List<String>? = null,
+        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
+    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>>
+
+    /**
+     * Get a specific promo code by ID.
+     */
+    fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>>
+
+    // Service-related methods
+
+    /**
+     * Search for services by name or category.
+     */
+    fun searchServices(
+        query: String,
+        limit: Int = 20
+    ): Flow<Result<List<Service>, OperationError>>
+
+    /**
+     * Get popular services for quick selection.
+     */
+    fun getPopularServices(limit: Int = 10): Flow<Result<List<Service>, OperationError>>
+}

@@ -12,6 +12,7 @@
     <string name="action_try_again">Try Again</string>
     <string name="action_submit">Submit</string>
     <string name="action_continue">Continue</string>
+    <string name="action_complete">Complete</string>
 
     <!-- Wizard Steps -->
     <string name="wizard_step_service_type">Service &amp; Type</string>
@@ -93,4 +94,41 @@
     <string name="filter_chip_category">Category</string>
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>
+
+    <!-- Submission Steps -->
+    <string name="step_service_title">Select Service</string>
+    <string name="step_service_short">Service</string>
+    <string name="step_discount_type_title">Discount Type</string>
+    <string name="step_discount_type_short">Type</string>
+    <string name="step_promo_code_title">Promo Code</string>
+    <string name="step_promo_code_short">Code</string>
+    <string name="step_discount_value_title">Discount Value</string>
+    <string name="step_discount_value_short">Value</string>
+    <string name="step_minimum_order_title">Minimum Order</string>
+    <string name="step_minimum_order_short">Minimum</string>
+    <string name="step_eligibility_title">Eligibility</string>
+    <string name="step_eligibility_short">Eligibility</string>
+    <string name="step_description_title">Description</string>
+    <string name="step_description_short">Description</string>
+    <string name="step_start_date_title">Start Date</string>
+    <string name="step_start_date_short">Start</string>
+    <string name="step_end_date_title">End Date</string>
+    <string name="step_end_date_short">End</string>
+
+    <!-- Step Hints -->
+    <string name="step_service_hint">Which service does this promo code work with?</string>
+    <string name="step_discount_type_hint">Percentage (%) – the higher the order, the bigger the discount.\nFixed amount ($) – same discount no matter how much you spend.</string>
+    <string name="step_promo_code_hint">Enter the exact promo code as it appears.</string>
+    <string name="step_discount_value_hint">How much discount does this code give?</string>
+    <string name="step_minimum_order_hint">What\'s the minimum order required to use this code?</string>
+    <string name="step_start_date_hint">When does this promo code become active?</string>
+    <string name="step_end_date_hint">When does this promo code expire?</string>
+    <string name="step_eligibility_hint">Who can use this code and how often?</string>
+    <string name="step_description_hint">Add any helpful details about this deal.</string>
+
+    <!-- Promo Code Types -->
+    <string name="promo_type_percentage_title">Percentage</string>
+    <string name="promo_type_percentage_subtitle">Discount %</string>
+    <string name="promo_type_fixed_amount_title">Fixed Amount</string>
+    <string name="promo_type_fixed_amount_subtitle">Exact ₸</string>
 </resources>

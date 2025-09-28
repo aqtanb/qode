@@ -15,7 +15,6 @@ object ServiceMapper {
             name = dto.name,
             category = dto.category,
             logoUrl = dto.logoUrl,
-            isPopular = dto.isPopular,
             promoCodeCount = dto.promoCodeCount,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Instant.fromEpochSeconds(0),
         )
@@ -26,7 +25,6 @@ object ServiceMapper {
             name = service.name,
             category = service.category,
             logoUrl = service.logoUrl,
-            isPopular = service.isPopular,
             promoCodeCount = service.promoCodeCount,
             createdAt = Timestamp(service.createdAt.epochSeconds, 0),
         )

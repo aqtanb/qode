@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -122,21 +123,23 @@ private fun CircularImageFallback(
             modifier = Modifier.fillMaxSize(),
         ) {
             val displayInitials = fallbackText?.takeIf { it.isNotBlank() }?.take(2)?.uppercase()
+            val fontSize = with(LocalDensity.current) { (size * 0.5f).toSp() }
 
             if (displayInitials != null) {
                 Text(
                     text = displayInitials,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    ),
+                    fontWeight = FontWeight.Bold,
                     color = contentColor,
+                    fontSize = fontSize,
+                    lineHeight = fontSize,
+                    textAlign = TextAlign.Center,
                 )
             } else {
                 Icon(
                     imageVector = fallbackIcon,
                     contentDescription = contentDescription,
-                    modifier = Modifier.size(size * 0.6f),
                     tint = contentColor,
+                    modifier = Modifier.size(size * 0.6f),
                 )
             }
         }

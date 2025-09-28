@@ -12,10 +12,13 @@ import androidx.compose.runtime.setValue
 import com.qodein.core.ui.component.CategoryFilterBottomSheet
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.component.SortFilterBottomSheet
+import com.qodein.core.ui.state.ServiceSelectionUiAction
+import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.HomeAction
-import com.qodein.feature.home.ui.state.SearchResultState
-import com.qodein.feature.home.ui.state.ServiceSearchState
+import com.qodein.shared.domain.service.selection.SelectionState
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -29,7 +32,8 @@ import com.qodein.shared.ui.FilterDialogType
 fun DialogCoordinator(
     activeDialog: FilterDialogType?,
     currentFilters: CompleteFilterState,
-    serviceSearchState: ServiceSearchState,
+    serviceSelectionState: ServiceSelectionState,
+    cachedServices: Map<String, Service>,
     onAction: (HomeAction) -> Unit
 ) {
     activeDialog?.let { dialogType ->
@@ -50,43 +54,63 @@ fun DialogCoordinator(
 
             FilterDialogType.Service -> {
                 var isSearchFocused by remember { mutableStateOf(false) }
-                val searchQuery = serviceSearchState.query
-                val isSearching = serviceSearchState.isSearching
+                val isSearching = serviceSelectionState.search.isSearching
 
                 // Use different sheet state based on focus/search mode
                 val sheetState = rememberModalBottomSheetState(
                     skipPartiallyExpanded = isSearchFocused || isSearching,
                 )
 
-                val services = when (serviceSearchState.state) {
-                    is SearchResultState.Success -> serviceSearchState.state.services
-                    else -> emptyList()
+                // Use cached services from ViewModel
+
+                val selectedServiceIds = when (val filter = currentFilters.serviceFilter) {
+                    ServiceFilter.All -> emptySet()
+                    is ServiceFilter.Selected -> filter.services.map { it.id }.toSet()
                 }
 
-                ServiceSelectorBottomSheet(
+                // Update selection state with current filter
+                val updatedSelectionState = serviceSelectionState.copy(
+                    selection = SelectionState.Multi(selectedIds = selectedServiceIds),
+                )
+
+                val uiState = ServiceSelectionUiState(
+                    domainState = updatedSelectionState,
+                    allServices = cachedServices,
                     isVisible = true,
-                    services = services,
-                    popularServices = services, // TODO: Separate popular services from search results
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = { query -> onAction(HomeAction.SearchServices(query)) },
-                    onServiceSelected = { service ->
-                        val currentFilter = currentFilters.serviceFilter
-                        val newFilter = when (currentFilter) {
-                            ServiceFilter.All -> ServiceFilter.Selected(setOf(service))
-                            is ServiceFilter.Selected -> currentFilter.toggle(service)
-                        }
-                        onAction(HomeAction.ApplyServiceFilter(newFilter))
-                        onAction(HomeAction.DismissFilterDialog)
-                    },
-                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
-                    onSearch = { query -> onAction(HomeAction.SearchServices(query)) },
-                    isLoading = serviceSearchState.isLoading,
+                    isSearchFocused = isSearchFocused,
+                )
+
+                ServiceSelectorBottomSheet(
+                    state = uiState,
                     sheetState = sheetState,
-                    selectedServices = when (val filter = currentFilters.serviceFilter) {
-                        ServiceFilter.All -> emptyList()
-                        is ServiceFilter.Selected -> filter.services.toList()
+                    onAction = { uiAction ->
+                        when (uiAction) {
+                            is ServiceSelectionUiAction.UpdateQuery -> {
+                                onAction(HomeAction.SearchServices(uiAction.query))
+                            }
+                            ServiceSelectionUiAction.ClearQuery -> {
+                                onAction(HomeAction.SearchServices(""))
+                            }
+                            is ServiceSelectionUiAction.SelectService -> {
+                                val currentFilter = currentFilters.serviceFilter
+                                val newFilter = when (currentFilter) {
+                                    ServiceFilter.All -> ServiceFilter.Selected(setOf(uiAction.service))
+                                    is ServiceFilter.Selected -> currentFilter.toggle(uiAction.service)
+                                }
+                                onAction(HomeAction.ApplyServiceFilter(newFilter))
+                                onAction(HomeAction.DismissFilterDialog)
+                            }
+                            is ServiceSelectionUiAction.SetSearchFocus -> {
+                                isSearchFocused = uiAction.focused
+                            }
+                            ServiceSelectionUiAction.Dismiss -> {
+                                onAction(HomeAction.DismissFilterDialog)
+                            }
+                            else -> {
+                                // Handle other UI actions if needed
+                            }
+                        }
                     },
-                    onSearchFocused = { focused -> isSearchFocused = focused },
                 )
             }
 

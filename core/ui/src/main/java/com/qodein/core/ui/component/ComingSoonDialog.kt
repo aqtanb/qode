@@ -65,7 +65,7 @@ fun ComingSoonDialog(
     // Smooth entrance animation
     val alpha by animateFloatAsState(
         targetValue = 1f,
-        animationSpec = AnimationTokens.Spec.medium,
+        animationSpec = AnimationTokens.Spec.medium(),
         label = "dialog_alpha",
     )
 

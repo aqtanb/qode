@@ -1,14 +1,8 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import java.time.LocalDate
-
-sealed interface ServiceSelectionUiState {
-    data object Default : ServiceSelectionUiState
-    data object ManualEntry : ServiceSelectionUiState
-    data class Searching(val query: String, val results: List<Service>) : ServiceSelectionUiState
-}
 
 enum class PromoCodeType {
     PERCENTAGE,
@@ -17,7 +11,9 @@ enum class PromoCodeType {
 
 data class SubmissionWizardData(
     // Service Details
-    val serviceName: String = "",
+    val selectedService: Service? = null,
+    val serviceName: String = "", // Manual service name entry
+    val isManualServiceEntry: Boolean = false, // Toggle between service selector and manual entry
 
     // Promo Code Details
     val promoCode: String = "",
@@ -28,13 +24,15 @@ data class SubmissionWizardData(
 
     // Options
     val isFirstUserOnly: Boolean = false,
+    val isOneTimeUseOnly: Boolean = false,
     val description: String = "",
 
     // Date Settings
     val startDate: LocalDate = LocalDate.now(),
     val endDate: LocalDate? = null
 ) {
-    val hasValidService: Boolean get() = serviceName.isNotBlank()
+    val hasValidService: Boolean get() = selectedService != null || serviceName.isNotBlank()
+    val effectiveServiceName: String get() = selectedService?.name ?: serviceName
 
     val hasValidPromoCode: Boolean get() = promoCode.isNotBlank()
 
@@ -46,32 +44,38 @@ data class SubmissionWizardData(
 
     val hasValidMinimumOrder: Boolean get() = minimumOrderAmount.isNotBlank()
 
-    fun canProceedFromProgressiveStep(step: ProgressiveStep): Boolean = step.canProceed(this)
+    fun canProceedFromProgressiveStep(step: SubmissionStep): Boolean = step.canProceed(this)
 }
 
 sealed interface SubmissionWizardUiState {
     data object Loading : SubmissionWizardUiState
 
     data class Success(
-        val wizardData: SubmissionWizardData,
-        val isSubmitting: Boolean = false,
-        val validationErrors: Map<String, String> = emptyMap(),
-        // Progressive step state
-        val currentProgressiveStep: ProgressiveStep = ProgressiveStep.SERVICE,
-        // UI state
-        val serviceSelectionUiState: ServiceSelectionUiState = ServiceSelectionUiState.Default,
+        val wizardFlow: WizardFlowState,
+        val authentication: AuthenticationState,
+        val validation: ValidationState,
+        val submission: SubmissionState,
         val showServiceSelector: Boolean = false
     ) : SubmissionWizardUiState {
-        // Progressive step methods
-        val canGoNextProgressive: Boolean get() = wizardData.canProceedFromProgressiveStep(currentProgressiveStep) && !isSubmitting
-        val canGoPreviousProgressive: Boolean get() = !currentProgressiveStep.isFirst && !isSubmitting
-        val canSubmitProgressive: Boolean get() = currentProgressiveStep.isLast &&
-            wizardData.canProceedFromProgressiveStep(currentProgressiveStep) &&
-            !isSubmitting
+
+        // Navigation capabilities
+        val canGoNext: Boolean get() = wizardFlow.canGoNext && submission !is SubmissionState.Submitting
+        val canGoPrevious: Boolean get() = wizardFlow.canGoPrevious && submission !is SubmissionState.Submitting
+        val canSubmit: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is SubmissionState.Submitting
+
+        companion object {
+            fun initial(): Success =
+                Success(
+                    wizardFlow = WizardFlowState.initial(),
+                    authentication = AuthenticationState.Loading,
+                    validation = ValidationState.valid(),
+                    submission = SubmissionState.Idle,
+                )
+        }
     }
 
     data class Error(
-        val errorType: ErrorType,
+        val errorType: OperationError,
         val isRetryable: Boolean,
         val shouldShowSnackbar: Boolean = true,
         val errorCode: String? = null

@@ -3,8 +3,8 @@ package com.qodein.feature.profile
 import app.cash.turbine.test
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.testing.data.TestUsers
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.Result
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -77,7 +77,7 @@ class ProfileViewModelTest {
 
             val finalState = viewModel.state.value
             assertTrue(finalState is ProfileUiState.Error)
-            assertEquals(ErrorType.SERVICE_UNAVAILABLE_GENERAL, (finalState as ProfileUiState.Error).errorType)
+            assertEquals(OperationError.SERVICE_UNAVAILABLE_GENERAL, (finalState as ProfileUiState.Error).errorType)
         }
 
     @Test
@@ -93,7 +93,7 @@ class ProfileViewModelTest {
                 advanceUntilIdle()
                 val errorState = awaitItem() as ProfileUiState.Error
                 assertTrue(errorState is ProfileUiState.Error)
-                assertEquals(ErrorType.NETWORK_GENERAL, errorState.errorType)
+                assertEquals(OperationError.NETWORK_GENERAL, errorState.errorType)
             }
         }
 
@@ -150,7 +150,7 @@ class ProfileViewModelTest {
                 // 4. State becomes Error because the use case fails
                 val errorState = awaitItem() as ProfileUiState.Error
                 assertTrue(errorState is ProfileUiState.Error)
-                assertEquals(ErrorType.NETWORK_GENERAL, errorState.errorType)
+                assertEquals(OperationError.NETWORK_GENERAL, errorState.errorType)
 
                 // 5. Run the recovery logic (checkAuthState)
                 advanceUntilIdle()

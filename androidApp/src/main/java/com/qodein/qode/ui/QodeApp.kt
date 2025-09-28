@@ -20,8 +20,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.feature.auth.component.requireAuthentication
 import com.qodein.feature.promocode.navigation.navigateToSubmission
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
@@ -109,13 +107,6 @@ internal fun QodeApp(
 
     // Theme container wraps everything for status bar management
     AppThemeContainer(appViewModel) { statusBarOverlayColor, isDarkTheme ->
-
-        // Authentication-protected submission navigation
-        val requireSubmissionNavigation = requireAuthentication(
-            action = AuthPromptAction.SubmitPromoCode,
-            onAuthenticated = { appState.navController.navigateToSubmission() },
-            isDarkTheme = isDarkTheme,
-        )
 
         Box(modifier = modifier.fillMaxSize()) {
             Scaffold(

@@ -2,10 +2,8 @@ package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
 import com.qodein.core.data.model.PromoCodeDto
-import com.qodein.core.data.model.PromoCodeVoteDto
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.PromoCodeVote
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlin.time.Clock
@@ -34,7 +32,11 @@ object PromoCodeMapper {
         }
 
         val promoCodeId = PromoCodeId(dto.documentId)
-        val createdBy = dto.createdBy?.let { UserId(it) }
+        val createdBy = if (dto.createdBy.isBlank()) {
+            throw IllegalArgumentException("PromoCode createdBy cannot be blank")
+        } else {
+            UserId(dto.createdBy)
+        }
 
         return when (dto.type.lowercase()) {
             "percentage" -> PromoCode.PercentagePromoCode(
@@ -50,17 +52,17 @@ object PromoCodeMapper {
                 startDate = dto.startDate.toInstant().toKotlinInstant(),
                 endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
+                isOneTimeUseOnly = dto.isOneTimeUseOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
-                views = dto.views,
                 shares = dto.shares,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
-                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
+                createdByUsername = dto.createdByUsername,
+                createdByAvatarUrl = dto.createdByAvatarUrl,
+                serviceLogoUrl = dto.serviceLogoUrl,
             )
 
             "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
@@ -76,17 +78,17 @@ object PromoCodeMapper {
                 startDate = dto.startDate.toInstant().toKotlinInstant(),
                 endDate = dto.endDate.toInstant().toKotlinInstant(),
                 isFirstUserOnly = dto.isFirstUserOnly,
+                isOneTimeUseOnly = dto.isOneTimeUseOnly,
                 upvotes = dto.upvotes,
                 downvotes = dto.downvotes,
-                views = dto.views,
                 shares = dto.shares,
                 targetCountries = dto.targetCountries,
                 isVerified = dto.isVerified,
                 createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
                 createdBy = createdBy,
-                isUpvotedByCurrentUser = dto.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = dto.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = dto.isBookmarkedByCurrentUser,
+                createdByUsername = dto.createdByUsername,
+                createdByAvatarUrl = dto.createdByAvatarUrl,
+                serviceLogoUrl = dto.serviceLogoUrl,
             )
 
             else -> throw IllegalArgumentException("Unknown promo code type: ${dto.type}")
@@ -106,19 +108,20 @@ object PromoCodeMapper {
                 discountPercentage = domain.discountPercentage,
                 minimumOrderAmount = domain.minimumOrderAmount,
                 isFirstUserOnly = domain.isFirstUserOnly,
+                isOneTimeUseOnly = domain.isOneTimeUseOnly,
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
-                views = domain.views,
+                voteScore = domain.upvotes - domain.downvotes, // Calculate vote score
                 shares = domain.shares,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
-                startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
-                endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
+                startDate = Timestamp(domain.startDate.toJavaInstant()),
+                endDate = Timestamp(domain.endDate.toJavaInstant()),
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy?.value,
-                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
+                createdBy = domain.createdBy.value,
+                createdByUsername = domain.createdByUsername,
+                createdByAvatarUrl = domain.createdByAvatarUrl,
+                serviceLogoUrl = domain.serviceLogoUrl,
             )
 
             is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
@@ -132,37 +135,20 @@ object PromoCodeMapper {
                 discountAmount = domain.discountAmount,
                 minimumOrderAmount = domain.minimumOrderAmount,
                 isFirstUserOnly = domain.isFirstUserOnly,
+                isOneTimeUseOnly = domain.isOneTimeUseOnly,
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,
-                views = domain.views,
+                voteScore = domain.upvotes - domain.downvotes, // Calculate vote score
                 shares = domain.shares,
                 targetCountries = domain.targetCountries,
                 isVerified = domain.isVerified,
-                startDate = domain.startDate.let { Timestamp(it.toJavaInstant()) },
-                endDate = domain.endDate.let { Timestamp(it.toJavaInstant()) },
+                startDate = Timestamp(domain.startDate.toJavaInstant()),
+                endDate = Timestamp(domain.endDate.toJavaInstant()),
                 createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy?.value,
-                isUpvotedByCurrentUser = domain.isUpvotedByCurrentUser,
-                isDownvotedByCurrentUser = domain.isDownvotedByCurrentUser,
-                isBookmarkedByCurrentUser = domain.isBookmarkedByCurrentUser,
+                createdBy = domain.createdBy.value,
+                createdByUsername = domain.createdByUsername,
+                createdByAvatarUrl = domain.createdByAvatarUrl,
+                serviceLogoUrl = domain.serviceLogoUrl,
             )
         }
-
-    fun voteToDomain(dto: PromoCodeVoteDto): PromoCodeVote =
-        PromoCodeVote(
-            id = dto.id,
-            promoCodeId = PromoCodeId(dto.promoCodeId),
-            userId = UserId(dto.userId),
-            isUpvote = dto.isUpvote,
-            votedAt = dto.votedAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-        )
-
-    fun voteToDto(domain: PromoCodeVote): PromoCodeVoteDto =
-        PromoCodeVoteDto(
-            id = domain.id,
-            promoCodeId = domain.promoCodeId.value,
-            userId = domain.userId.value,
-            isUpvote = domain.isUpvote,
-            votedAt = Timestamp(domain.votedAt.toJavaInstant()),
-        )
 }

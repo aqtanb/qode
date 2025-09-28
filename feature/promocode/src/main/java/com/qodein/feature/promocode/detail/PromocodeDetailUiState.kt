@@ -1,13 +1,17 @@
 package com.qodein.feature.promocode.detail
 
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.model.PromoCode
+import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.VoteState
+
+data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boolean = false)
 
 data class PromocodeDetailUiState(
     // Data State
-    val promoCode: PromoCode? = null,
+    val promoCodeWithUserState: PromoCodeWithUserState? = null,
     val isLoading: Boolean = false,
-    val errorType: ErrorType? = null,
+    val errorType: OperationError? = null,
 
     // Interaction States
     val isVoting: Boolean = false,
@@ -17,18 +21,14 @@ data class PromocodeDetailUiState(
 
     // UI States
     val showVoteAnimation: Boolean = false,
-    val lastVoteType: VoteType? = null,
+    val lastVoteType: VoteState? = null,
+    val authBottomSheet: AuthBottomSheetState? = null,
 
     // TODO Follow states (as requested by user)
     val isFollowingService: Boolean = false,
     val isFollowingCategory: Boolean = false
 ) {
     val hasError: Boolean get() = errorType != null
-    val hasData: Boolean get() = promoCode != null
+    val hasData: Boolean get() = promoCodeWithUserState != null
     val isEmpty: Boolean get() = !isLoading && !hasError && !hasData
-}
-
-enum class VoteType {
-    UPVOTE,
-    DOWNVOTE
 }

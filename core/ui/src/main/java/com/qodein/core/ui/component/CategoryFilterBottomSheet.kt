@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,7 +98,7 @@ fun CategoryFilterBottomSheet(
                         MaterialTheme.colorScheme.outline
                     },
                 ),
-                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = if (currentFilter is CategoryFilter.All) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -335,7 +336,6 @@ private fun CategoryFilterBottomSheetMultipleSelectedPreview() {
                 currentFilter = CategoryFilter.Selected(
                     setOf(
                         Service.Companion.Categories.FOOD,
-                        Service.Companion.Categories.STREAMING,
                         Service.Companion.Categories.SHOPPING,
                     ),
                 ),
@@ -365,14 +365,14 @@ private fun GradientCategoryChipSelectedPreview() {
                 )
 
                 GradientCategoryChip(
-                    category = Service.Companion.Categories.STREAMING,
+                    category = Service.Companion.Categories.EDUCATION,
                     isSelected = false,
                     gradient = QodeColorScheme.BannerPurple,
                     onClick = { },
                 )
 
                 GradientCategoryChip(
-                    category = Service.Companion.Categories.GAMING,
+                    category = Service.Companion.Categories.ELECTRONICS,
                     isSelected = true,
                     gradient = QodeColorScheme.BannerPurple,
                     onClick = { },

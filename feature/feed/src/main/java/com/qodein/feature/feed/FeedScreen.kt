@@ -1,30 +1,22 @@
 package com.qodein.feature.feed
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,35 +26,41 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.QodeActionErrorCard
-import com.qodein.core.ui.error.toLocalizedMessage
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.feed.component.PostCard
 import com.qodein.feature.feed.component.SearchBar
-import com.qodein.shared.common.result.ErrorAction
+import com.qodein.feature.feed.preview.MockFeedData
+
+// MARK: - Constants
+
+private object FeedScreenConstants {
+    const val SCREEN_NAME = "Feed"
+    const val PAGINATION_LOAD_THRESHOLD = 3
+}
+
+// MARK: - Main Screen
 
 /**
  * Modern feed screen with post feed and tag-based filtering
+ * Follows the Screen + Content pattern for better organization
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel(),
     scrollStateRegistry: ScrollStateRegistry? = null
 ) {
-    TrackScreenViewEvent(screenName = "Feed")
+    TrackScreenViewEvent(screenName = FeedScreenConstants.SCREEN_NAME)
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -105,7 +103,7 @@ fun FeedScreen(
             val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
 
             val currentState = uiState
-            lastVisibleItemIndex > (totalItemsNumber - 3) &&
+            lastVisibleItemIndex > (totalItemsNumber - FeedScreenConstants.PAGINATION_LOAD_THRESHOLD) &&
                 currentState is FeedUiState.Content &&
                 currentState.hasMorePosts
         }
@@ -118,6 +116,24 @@ fun FeedScreen(
         }
     }
 
+    // Use the Screen + Content pattern like other screens
+    FeedContent(
+        uiState = uiState,
+        listState = lazyListState,
+        onAction = viewModel::handleAction,
+        modifier = modifier,
+    )
+}
+
+// MARK: - Content
+
+@Composable
+private fun FeedContent(
+    uiState: FeedUiState,
+    listState: LazyListState,
+    onAction: (FeedAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -129,347 +145,296 @@ fun FeedScreen(
         ) {
             Spacer(modifier = Modifier.height(SpacingTokens.sm))
 
-            // Search bar
             SearchBar(
                 query = uiState.searchQuery,
-                onQueryChange = { viewModel.handleAction(FeedAction.FeedQueryChanged(it)) },
-                onSearchSubmit = { viewModel.handleAction(FeedAction.FeedSubmitted) },
-                onClearSearch = { viewModel.handleAction(FeedAction.ClearFeed) },
+                onQueryChange = { onAction(FeedAction.FeedQueryChanged(it)) },
+                onSearchSubmit = { onAction(FeedAction.FeedSubmitted) },
+                onClearSearch = { onAction(FeedAction.ClearFeed) },
             )
 
             Spacer(modifier = Modifier.height(SpacingTokens.md))
         }
 
-        // Scrollable posts section
-        when (val currentState = uiState) {
+        // Content based on state
+        when (uiState) {
             is FeedUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = SpacingTokens.md),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                    ) {
-                        CircularProgressIndicator()
-                        Text(
-                            text = "Loading posts...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                FeedLoadingState()
             }
-
             is FeedUiState.Content -> {
-                if (currentState.isEmpty) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = SpacingTokens.md),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        QodeEmptyState(
-                            icon = Icons.Default.Search,
-                            title = if (currentState.hasFilters) "No posts found" else "Start exploring",
-                            description = if (currentState.hasFilters) {
-                                "Try adjusting your search or tags to find more posts."
-                            } else {
-                                "Search for posts by tags or content to discover what the community is talking about!"
-                            },
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        state = lazyListState,
+                if (uiState.isEmpty) {
+                    FeedEmptyState(
+                        hasFilters = uiState.hasFilters,
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                        contentPadding = PaddingValues(
-                            start = SpacingTokens.md,
-                            end = SpacingTokens.md,
-                            bottom = SpacingTokens.xxl,
-                        ),
-                    ) {
-                        // Active filters section
-                        if (currentState.selectedTags.isNotEmpty()) {
-                            item("active_filters") {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = SpacingTokens.sm),
-                                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
-                                    color = MaterialTheme.colorScheme.surfaceContainer,
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(SpacingTokens.md),
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(SpacingTokens.sm)
-                                                        .background(
-                                                            color = MaterialTheme.colorScheme.primary,
-                                                            shape = CircleShape,
-                                                        ),
-                                                )
-                                                Text(
-                                                    text = "Active filters (${currentState.selectedTags.size})",
-                                                    style = MaterialTheme.typography.labelLarge.copy(
-                                                        fontWeight = FontWeight.SemiBold,
-                                                    ),
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                )
-                                            }
-
-                                            Surface(
-                                                onClick = { viewModel.handleAction(FeedAction.ClearAllTags) },
-                                                shape = RoundedCornerShape(ShapeTokens.Corner.large),
-                                                color = MaterialTheme.colorScheme.errorContainer,
-                                            ) {
-                                                Text(
-                                                    text = "Clear all",
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                                    modifier = Modifier.padding(
-                                                        horizontal = SpacingTokens.sm,
-                                                        vertical = SpacingTokens.xs,
-                                                    ),
-                                                )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                                        FlowRow(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                        ) {
-                                            currentState.selectedTags.forEach { tag ->
-                                                Surface(
-                                                    onClick = {},
-                                                    shape = RoundedCornerShape(ShapeTokens.Corner.large),
-                                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                                    border = BorderStroke(
-                                                        1.dp,
-                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                                    ),
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier.padding(
-                                                            start = SpacingTokens.lg,
-                                                            end = SpacingTokens.sm,
-                                                            top = SpacingTokens.sm,
-                                                            bottom = SpacingTokens.sm,
-                                                        ),
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                                                    ) {
-                                                        Text(
-                                                            text = "#${tag.name}",
-                                                            style = MaterialTheme.typography.labelMedium.copy(
-                                                                fontWeight = FontWeight.Medium,
-                                                            ),
-                                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                        )
-
-                                                        Surface(
-                                                            onClick = { viewModel.handleAction(FeedAction.TagRemoved(tag)) },
-                                                            shape = CircleShape,
-                                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
-                                                            modifier = Modifier.size(20.dp),
-                                                        ) {
-                                                            Box(
-                                                                contentAlignment = Alignment.Center,
-                                                                modifier = Modifier.fillMaxSize(),
-                                                            ) {
-                                                                Text(
-                                                                    text = "×",
-                                                                    style = MaterialTheme.typography.labelSmall,
-                                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                                    fontWeight = FontWeight.Bold,
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Suggested tags section
-                        if (currentState.searchQuery.isBlank() && currentState.suggestedTags.isNotEmpty()) {
-                            item("suggested_tags") {
-                                Column(
-                                    modifier = Modifier.padding(bottom = SpacingTokens.md),
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(6.dp)
-                                                .background(
-                                                    color = MaterialTheme.colorScheme.secondary,
-                                                    shape = CircleShape,
-                                                ),
-                                        )
-                                        Text(
-                                            text = "Trending tags",
-                                            style = MaterialTheme.typography.titleSmall.copy(
-                                                fontWeight = FontWeight.SemiBold,
-                                            ),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                        Text(
-                                            text = "🔥",
-                                            style = MaterialTheme.typography.titleSmall,
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-                                    FlowRow(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                    ) {
-                                        currentState.suggestedTags.take(8).forEach { tag ->
-                                            Surface(
-                                                onClick = { viewModel.handleAction(FeedAction.TagSelected(tag)) },
-                                                shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-                                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                                border = BorderStroke(
-                                                    1.dp,
-                                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                                                ),
-                                            ) {
-                                                Row(
-                                                    modifier = Modifier.padding(
-                                                        horizontal = SpacingTokens.lg,
-                                                        vertical = SpacingTokens.sm + 2.dp,
-                                                    ),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                                                ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(6.dp)
-                                                            .background(
-                                                                color = MaterialTheme.colorScheme.secondary,
-                                                                shape = CircleShape,
-                                                            ),
-                                                    )
-
-                                                    Text(
-                                                        text = "#${tag.name}",
-                                                        style = MaterialTheme.typography.labelLarge.copy(
-                                                            fontWeight = FontWeight.Medium,
-                                                        ),
-                                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Posts
-                        items(
-                            items = currentState.posts,
-                            key = { it.id.value },
-                        ) { post ->
-                            PostCard(
-                                post = post,
-                                onLikeClick = { postId ->
-                                    if (post.isUpvotedByCurrentUser) {
-                                        viewModel.handleAction(FeedAction.PostUnliked(postId))
-                                    } else {
-                                        viewModel.handleAction(FeedAction.PostLiked(postId))
-                                    }
-                                },
-                                onCommentClick = { postId ->
-                                    viewModel.handleAction(FeedAction.PostCommentClicked(postId))
-                                },
-                                onShareClick = { postId ->
-                                    viewModel.handleAction(FeedAction.PostShared(postId))
-                                },
-                                onUserClick = { username ->
-                                    viewModel.handleAction(FeedAction.UserClicked(username))
-                                },
-                                onTagClick = { tag ->
-                                    viewModel.handleAction(FeedAction.TagSelected(tag))
-                                },
-                            )
-                        }
-
-                        // Loading more indicator
-                        if (currentState.isLoadingMore) {
-                            item("loading_more") {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = SpacingTokens.md),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-                    }
+                    )
+                } else {
+                    FeedPostsList(
+                        uiState = uiState,
+                        listState = listState,
+                        onAction = onAction,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
-
             is FeedUiState.Error -> {
+                FeedErrorState(
+                    uiState = uiState,
+                    onAction = onAction,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
+    }
+}
+
+// MARK: - State Components
+
+@Composable
+private fun FeedLoadingState(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = SpacingTokens.md),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            CircularProgressIndicator()
+            Text(
+                text = "Loading posts...",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FeedEmptyState(
+    hasFilters: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = SpacingTokens.md),
+        contentAlignment = Alignment.Center,
+    ) {
+        QodeEmptyState(
+            icon = Icons.Default.Search,
+            title = if (hasFilters) "No posts found" else "Start exploring",
+            description = if (hasFilters) {
+                "Try adjusting your search or tags to find more posts."
+            } else {
+                "Search for posts by tags or content to discover what the community is talking about!"
+            },
+        )
+    }
+}
+
+@Composable
+private fun FeedErrorState(
+    uiState: FeedUiState.Error,
+    onAction: (FeedAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = SpacingTokens.md),
+        contentAlignment = Alignment.Center,
+    ) {
+        QodeErrorCard(
+            error = uiState.errorType,
+            onRetry = { onAction(FeedAction.RetryClicked) },
+            onDismiss = { onAction(FeedAction.ErrorDismissed) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun FeedPostsList(
+    uiState: FeedUiState.Content,
+    listState: LazyListState,
+    onAction: (FeedAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        state = listState,
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        contentPadding = PaddingValues(
+            start = SpacingTokens.md,
+            end = SpacingTokens.md,
+            bottom = SpacingTokens.xxl,
+        ),
+    ) {
+        // Posts
+        items(
+            items = uiState.posts,
+            key = { it.id.value },
+        ) { post ->
+            PostCard(
+                post = post,
+                onLikeClick = { postId ->
+                    if (post.isUpvotedByCurrentUser) {
+                        onAction(FeedAction.PostUnliked(postId))
+                    } else {
+                        onAction(FeedAction.PostLiked(postId))
+                    }
+                },
+                onCommentClick = { postId ->
+                    onAction(FeedAction.PostCommentClicked(postId))
+                },
+                onShareClick = { postId ->
+                    onAction(FeedAction.PostShared(postId))
+                },
+                onUserClick = { username ->
+                    onAction(FeedAction.UserClicked(username))
+                },
+                onTagClick = { tag ->
+                    onAction(FeedAction.TagSelected(tag))
+                },
+            )
+        }
+
+        // Loading more indicator
+        if (uiState.isLoadingMore) {
+            item("loading_more") {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = SpacingTokens.md),
+                        .fillMaxWidth()
+                        .padding(vertical = SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
-                    QodeActionErrorCard(
-                        message = currentState.errorType.toLocalizedMessage(),
-                        errorAction = if (currentState.isRetryable) ErrorAction.RETRY else ErrorAction.DISMISS_ONLY,
-                        onActionClicked = { viewModel.handleAction(FeedAction.RetryClicked) },
-                        onDismiss = { viewModel.handleAction(FeedAction.ErrorDismissed) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    CircularProgressIndicator()
                 }
             }
         }
     }
 }
 
-// Preview with mock data
-@Preview(name = "Feed Screen", showBackground = true)
+// MARK: - Previews
+
+@Preview(name = "Feed Screen - Loading", showBackground = true)
 @Composable
-private fun FeedScreenPreview() {
+private fun FeedScreenLoadingPreview() {
     QodeTheme {
-        // Note: This preview won't show posts since we don't have a mock ViewModel
-        // In a real implementation, you'd create a preview-specific version
-        Column {
-            SearchBar(
-                query = "",
-                onQueryChange = {},
-                onSearchSubmit = {},
-                onClearSearch = {},
-            )
-        }
+        FeedContent(
+            uiState = MockFeedData.createLoadingState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Content with Posts", showBackground = true)
+@Composable
+private fun FeedScreenContentPreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createContentState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Content with Filters", showBackground = true)
+@Composable
+private fun FeedScreenWithFiltersPreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createContentWithFiltersState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Empty with Filters", showBackground = true)
+@Composable
+private fun FeedScreenEmptyWithFiltersPreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createEmptyState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Empty No Filters", showBackground = true)
+@Composable
+private fun FeedScreenEmptyNoFiltersPreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createNoFiltersEmptyState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Error", showBackground = true)
+@Composable
+private fun FeedScreenErrorPreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createErrorState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(name = "Feed Screen - Loading More", showBackground = true)
+@Composable
+private fun FeedScreenLoadingMorePreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createLoadingMoreState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun FeedScreenDarkThemePreview() {
+    QodeTheme {
+        FeedContent(
+            uiState = MockFeedData.createContentWithFiltersState(),
+            listState = rememberLazyListState(),
+            onAction = {},
+        )
+    }
+}
+
+// Individual component previews
+@Preview(name = "Feed Loading State", showBackground = true)
+@Composable
+private fun FeedLoadingStatePreview() {
+    QodeTheme {
+        FeedLoadingState()
+    }
+}
+
+@Preview(name = "Feed Empty State - With Filters", showBackground = true)
+@Composable
+private fun FeedEmptyStateWithFiltersPreview() {
+    QodeTheme {
+        FeedEmptyState(hasFilters = true)
+    }
+}
+
+@Preview(name = "Feed Empty State - No Filters", showBackground = true)
+@Composable
+private fun FeedEmptyStateNoFiltersPreview() {
+    QodeTheme {
+        FeedEmptyState(hasFilters = false)
     }
 }

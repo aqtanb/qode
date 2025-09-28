@@ -1,6 +1,17 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Votes collection - managed by Cloud Functions
+    match /votes/{voteId} {
+      // Allow read access to authenticated users for their own votes or public vote data
+      allow read: if request.auth != null;
+      
+      // Only allow Cloud Functions to write votes (not direct client writes)
+      // This prevents vote manipulation and ensures proper validation
+      allow write: if false;
+    }
+    
+    // Default: Allow all for other collections (you may want to restrict this later)
     match /{document=**} {
       allow read, write: if true;
     }

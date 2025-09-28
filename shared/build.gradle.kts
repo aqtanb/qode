@@ -84,4 +84,7 @@ kotlin {
 // Use same JVM toolchain as other modules
 kotlin {
     jvmToolchain(17)
+    sourceSets.all {
+        languageSettings.optIn("kotlin.time.ExperimentalTime")
+    }
 }

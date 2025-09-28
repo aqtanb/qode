@@ -1,6 +1,6 @@
 package com.qodein.feature.promocode.detail.component
 
-import androidx.compose.foundation.clickable
+import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeLocationIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeSecurityIcons
@@ -28,13 +29,10 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.getPromoCodeStatus
-import com.qodein.feature.auth.component.requireAuthentication
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 // MARK: - Main Component
 
@@ -42,19 +40,12 @@ import kotlin.time.Duration.Companion.days
 fun ServiceInfoSection(
     promoCode: PromoCode,
     isFollowingService: Boolean,
-    isFollowingCategory: Boolean,
     onServiceClicked: () -> Unit,
     onFollowServiceClicked: () -> Unit,
-    onFollowCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
-    // Authentication-protected follow service action
-    val requireFollowService = requireAuthentication(
-        action = AuthPromptAction.FollowStore,
-        onAuthenticated = onFollowServiceClicked,
-        isDarkTheme = isDarkTheme,
-    )
+    // Follow service action - auth checking handled at parent level
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -73,6 +64,14 @@ fun ServiceInfoSection(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 modifier = Modifier.weight(1f, fill = false),
             ) {
+                CircularImage(
+                    imageUrl = promoCode.serviceLogoUrl,
+                    fallbackText = promoCode.serviceName,
+                    fallbackIcon = QodeCommerceIcons.Store,
+                    size = SizeTokens.Icon.sizeLarge,
+                    contentDescription = "Logo of ${promoCode.serviceName}",
+                )
+
                 Text(
                     text = promoCode.serviceName,
                     style = MaterialTheme.typography.titleLarge,
@@ -82,12 +81,12 @@ fun ServiceInfoSection(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                Surface(
+                /*Surface(
                     color = if (isFollowingService) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
                         .size(SizeTokens.Icon.sizeLarge)
-                        .clickable { requireFollowService() }, // Protected follow action
+                        .clickable { onFollowServiceClicked() }, // Auth checking handled at parent level
                 ) {
                     Icon(
                         imageVector = if (isFollowingService) QodeActionIcons.Unfollow else QodeActionIcons.Follow,
@@ -97,7 +96,7 @@ fun ServiceInfoSection(
                             .padding(4.dp),
                         tint = if (isFollowingService) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
+                }*/
             }
 
             // Right: Target countries
@@ -261,28 +260,14 @@ fun ServiceInfoSection(
 @Composable
 private fun ServiceInfoSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro Service",
-            category = "Food",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 5000.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(7.days),
-            targetCountries = listOf("KZ", "US"),
-            isVerified = true,
-            isFirstUserOnly = true,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         Surface {
             ServiceInfoSection(
                 promoCode = samplePromoCode,
                 isFollowingService = false,
-                isFollowingCategory = false,
                 onServiceClicked = {},
                 onFollowServiceClicked = {},
-                onFollowCategoryClicked = {},
                 isDarkTheme = false,
             )
         }

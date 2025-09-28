@@ -5,22 +5,22 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.functions
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
+import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
-import com.qodein.core.data.repository.CommentRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
-import com.qodein.core.data.repository.PostRepositoryImpl
-import com.qodein.core.data.repository.PromoCodeRepositoryImpl
-import com.qodein.core.data.repository.PromoRepositoryImpl
-import com.qodein.core.data.repository.UserInteractionRepositoryImpl
+import com.qodein.core.data.repository.PromocodeRepositoryImpl
+import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
-import com.qodein.shared.domain.repository.CommentRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
-import com.qodein.shared.domain.repository.PostRepository
-import com.qodein.shared.domain.repository.PromoCodeRepository
-import com.qodein.shared.domain.repository.PromoRepository
-import com.qodein.shared.domain.repository.UserInteractionRepository
+import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.service.ServiceCache
+import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,7 +38,7 @@ abstract class DataModule {
 
     @Binds
     @Singleton
-    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromoCodeRepositoryImpl): PromoCodeRepository
+    abstract fun bindPromoCodeRepository(promoCodeRepositoryImpl: PromocodeRepositoryImpl): PromocodeRepository
 
     @Binds
     @Singleton
@@ -52,19 +52,12 @@ abstract class DataModule {
 
     @Binds
     @Singleton
-    abstract fun bindPostRepository(postRepositoryImpl: PostRepositoryImpl): PostRepository
+    abstract fun bindUnifiedUserInteractionRepository(
+        unifiedUserInteractionRepositoryImpl: UnifiedUserInteractionRepositoryImpl
+    ): UnifiedUserInteractionRepository
 
     @Binds
-    @Singleton
-    abstract fun bindPromoRepository(promoRepositoryImpl: PromoRepositoryImpl): PromoRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindCommentRepository(commentRepositoryImpl: CommentRepositoryImpl): CommentRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindUserInteractionRepository(userInteractionRepositoryImpl: UserInteractionRepositoryImpl): UserInteractionRepository
+    abstract fun bindServiceSelectionManager(serviceSelectionManagerImpl: ServiceSelectionManagerImpl): ServiceSelectionManager
 
     companion object {
         @Provides
@@ -74,5 +67,29 @@ abstract class DataModule {
         @Provides
         @Singleton
         fun provideFirebaseFirestore(): FirebaseFirestore = Firebase.firestore
+
+        @Provides
+        @Singleton
+        fun provideFirebaseFunctions(): FirebaseFunctions {
+            // Firebase Functions automatically uses Firebase Auth context when properly configured
+            return Firebase.functions
+        }
+
+        @Provides
+        @Singleton
+        fun provideServiceCache(): ServiceCache = ServiceCache.getInstance()
+
+        @Provides
+        @Singleton
+        fun provideServiceSelectionCoordinator(
+            serviceSearchManager: com.qodein.shared.domain.manager.ServiceSearchManager,
+            serviceSelectionManager: ServiceSelectionManager,
+            serviceCache: ServiceCache
+        ): ServiceSelectionCoordinator =
+            ServiceSelectionCoordinator(
+                serviceSearchManager,
+                serviceSelectionManager,
+                serviceCache,
+            )
     }
 }

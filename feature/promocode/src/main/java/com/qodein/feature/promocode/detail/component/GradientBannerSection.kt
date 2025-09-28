@@ -27,15 +27,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeBannerGradient
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CategoryIconHelper
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 
 @Composable
 fun GradientBannerSection(
@@ -71,7 +68,7 @@ fun GradientBannerSection(
         )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             modifier = Modifier.padding(SpacingTokens.xl),
         ) {
             // Category pill with proper circular background and spacing
@@ -79,9 +76,9 @@ fun GradientBannerSection(
                 modifier = Modifier
                     .background(
                         Color.White.copy(alpha = 0.2f),
-                        CircleShape, // Circular like reference
+                        CircleShape,
                     )
-                    .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.sm),
+                    .padding(SpacingTokens.sm),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm), // Proper spacing
             ) {
@@ -89,7 +86,7 @@ fun GradientBannerSection(
                     imageVector = categoryIcon,
                     contentDescription = promoCode.category,
                     tint = Color.White,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium), // Proper size
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall), // Proper size
                 )
 
                 Text(
@@ -100,27 +97,23 @@ fun GradientBannerSection(
                 )
             }
 
-            // PROMO CODE - THE MOST IMPORTANT, BIGGEST TEXT
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                modifier = Modifier.padding(top = SpacingTokens.md),
+                modifier = Modifier.padding(top = SpacingTokens.sm),
             ) {
                 Text(
                     text = promoCode.code,
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Black,
                     color = Color.White,
-                )
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable(
+                        enabled = !isCopying,
+                        onClick = onCopyClicked,
+                    ),
 
-                Icon(
-                    imageVector = QodeActionIcons.Copy,
-                    contentDescription = "Copy promo code",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(SizeTokens.Icon.sizeLarge)
-                        .alpha(if (isCopying) 0.7f else 1f)
-                        .clickable { onCopyClicked() },
                 )
             }
 
@@ -136,6 +129,7 @@ fun GradientBannerSection(
             )
 
             // Description - clean and readable
+            // TODO: Make description extensible
             promoCode.description?.let { description ->
                 Text(
                     text = description,
@@ -143,8 +137,8 @@ fun GradientBannerSection(
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     color = Color.White.copy(alpha = 0.8f),
-                    maxLines = 4,
-                    overflow = TextOverflow.Clip,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -155,19 +149,7 @@ fun GradientBannerSection(
 @Composable
 private fun GradientBannerSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            description = "Қазақстандағы ең жақсы бағалар",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 5000.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(7.days),
-            upvotes = 331,
-            downvotes = 28,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         GradientBannerSection(
             promoCode = samplePromoCode,

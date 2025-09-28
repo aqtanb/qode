@@ -16,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import java.text.NumberFormat
 import java.util.Locale
@@ -28,7 +31,8 @@ import kotlin.time.Instant
 
 @Composable
 fun FooterSection(
-    views: Int,
+    username: String?,
+    avatarUrl: String?,
     createdAt: Instant,
     modifier: Modifier = Modifier
 ) {
@@ -48,14 +52,14 @@ fun FooterSection(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = QodeStatusIcons.Review,
+            CircularImage(
+                imageUrl = avatarUrl,
+                fallbackIcon = QodeNavigationIcons.Profile,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
             )
             Text(
-                text = "${formatViewCount(views)} views",
+                text = "Submitted by ${username ?: "Anonymous"}",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -128,17 +132,20 @@ private fun FooterPreview() {
             )
 
             FooterSection(
-                views = 1250,
+                username = "Алия Касымова",
+                avatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
                 createdAt = Clock.System.now().minus(2.days),
             )
 
             FooterSection(
-                views = 52000,
+                username = "Арман Нурланов",
+                avatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
                 createdAt = Clock.System.now().minus(1.days + 3.hours),
             )
 
             FooterSection(
-                views = 2500000,
+                username = null,
+                avatarUrl = null,
                 createdAt = Clock.System.now().minus(7.days),
             )
         }

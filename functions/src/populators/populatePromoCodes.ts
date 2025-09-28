@@ -10,6 +10,24 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+// Utility functions (same as services populator)
+const translit = (s: string): string => {
+  const m: { [key: string]: string } = {
+    а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"c",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya",
+    А:"a",Б:"b",В:"v",Г:"g",Д:"d",Е:"e",Ё:"e",Ж:"zh",З:"z",И:"i",Й:"y",К:"k",Л:"l",М:"m",Н:"n",О:"o",П:"p",Р:"r",С:"s",Т:"t",У:"u",Ф:"f",Х:"h",Ц:"c",Ч:"ch",Ш:"sh",Щ:"sch",Ъ:"",Ы:"y",Ь:"",Э:"e",Ю:"yu",Я:"ya"
+  };
+  return s.split("").map(ch => m[ch] ?? ch).join("");
+};
+
+// Transliterate THEN sanitize for meaningful IDs
+const sanitizeForId = (s: string): string =>
+  translit(s)  // Convert Cyrillic to Latin first
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_{2,}/g, "_")  // Clean up consecutive underscores
+    .replace(/^_+|_+$/g, ""); // Remove leading/trailing underscores
+
 // Enhanced sample data based on your Kazakhstan market
 const sampleCodes = [
   "SAVE10", "DISCOUNT20", "OFFER30", "PROMO50", "DEAL15", "COUPON25", "FLASH40", "SALE60", "BONUS5", "EXTRA70",
@@ -17,94 +35,67 @@ const sampleCodes = [
   "ALMATY10", "ASTANA20", "KAZAKHSTAN30", "TENGE40", "QAZAQ50", "BAITEREK60"
 ];
 
-// Service definitions with proper category linking
+// Kazakhstan service definitions - EXACTLY matching populateServices.ts
 const serviceDefinitions = [
-  // Food
-  { name: "Яндекс Лавка", category: "Food" },
-  { name: "Dodo", category: "Food" },
-  { name: "chocofood", category: "Food" },
-  { name: "arbuz", category: "Food" },
-  { name: "abr", category: "Food" },
+  // ENTERTAINMENT (STREAMING + GAMING + MUSIC + ENTERTAINMENT)
+  { name: "BeeTV", category: "Entertainment", domain: "beetv.kz" },
+  { name: "Meloman", category: "Entertainment", domain: "meloman.kz" },
+  { name: "Яндекс Плюс", category: "Entertainment", domain: "plus.yandex.kz" },
 
-  // Beauty
-  { name: "Золотое Яблоко", category: "Beauty" },
-  { name: "Letoile", category: "Beauty" },
+  // FOOD
+  { name: "Dodo Pizza", category: "Food", domain: "dodopizza.kz" },
+  { name: "Saya Sushi", category: "Food", domain: "saya-sushi.kz" },
+  { name: "Vlife", category: "Food", domain: "vlife.kz" },
+  { name: "Del Papa", category: "Food", domain: "delpapa.kz" },
+  { name: "DIONA", category: "Food", domain: "diona.kz" },
+  { name: "Shaurma Food", category: "Food", domain: "shaurmafood.kz" },
+  { name: "Papa John's", category: "Food", domain: "papajohns.kz" },
+  { name: "Tanuki", category: "Food", domain: "tanuki.kz" },
+  { name: "Manga Sushi", category: "Food", domain: "mangasushi.kz" },
+  { name: "Izuimi Sushi", category: "Food", domain: "izuimi.kz" },
+  { name: "Burger King", category: "Food", domain: "burgerking.kz" },
+  { name: "Яндекс Лавка", category: "Food", domain: "lavka.yandex.kz" },
+  { name: "Яндекс Экспресс", category: "Food", domain: "express.yandex.kz" },
 
-  // Electronics
-  { name: "Sulpak", category: "Electronics" },
-  { name: "Technodom", category: "Electronics" },
+  // TRANSPORT
+  { name: "Яндекс Go", category: "Transport", domain: "go.yandex.kz" },
+  { name: "Anytime", category: "Transport", domain: "anytime.kz" },
+  { name: "Vietjet Air", category: "Transport", domain: "vietjetair.com" },
 
-  // Jewelry
-  { name: "Sokolov", category: "Jewelry" },
+  // SHOPPING (SHOPPING + MARKETPLACE)
+  { name: "Flip", category: "Shopping", domain: "flip.kz" },
+  { name: "Halyk Market", category: "Shopping", domain: "halykmarket.kz" },
+  { name: "Clever Market", category: "Shopping", domain: "clevermarket.kz" },
+  { name: "Arbuz", category: "Shopping", domain: "arbuz.kz" },
 
-  // Health
-  { name: "iHerb", category: "Health" },
+  // EDUCATION
+  { name: "Яндекс Практикум", category: "Education", domain: "praktikum.yandex.kz" },
+  { name: "Яндекс 360", category: "Other", domain: "360.yandex.kz" },
 
-  // Transport
-  { name: "anytime", category: "Transport" },
+  // FITNESS
+  { name: "Sportmaster", category: "Fitness", domain: "sportmaster.kz" },
 
-  // Education
-  { name: "Яндекс Практикум", category: "Education" },
+  // BEAUTY
+  { name: "BeautyMania", category: "Beauty", domain: "beautymania.kz" },
+  { name: "L'Etoile", category: "Beauty", domain: "letoile.kz" },
 
-  // Entertainment/Streaming
-  { name: "Яндекс Плюс", category: "Entertainment" },
-  { name: "КиноПоиск", category: "Entertainment" },
-  { name: "YouTube Premium", category: "Streaming" },
-  { name: "Netflix", category: "Streaming" },
-  { name: "Spotify", category: "Music" },
+  // CLOTHING
+  { name: "Mark Formelle", category: "Clothing", domain: "markformelle.kz" },
+  { name: "DeFacto", category: "Clothing", domain: "defacto.com" },
 
-  // Marketplace
-  { name: "Teez", category: "Marketplace" },
-  { name: "Halyk Market", category: "Marketplace" },
-  { name: "clever market", category: "Marketplace" },
-  { name: "ForteMarket", category: "Marketplace" },
-  { name: "flowwow", category: "Marketplace" },
+  // ELECTRONICS
+  { name: "Sulpak", category: "Electronics", domain: "sulpak.kz" },
+  { name: "Technodom", category: "Electronics", domain: "technodom.kz" },
+  { name: "Tefal.kz", category: "Electronics", domain: "tefal.kz" },
+  { name: "Xiaomi", category: "Electronics", domain: "xiaomi.com" },
 
-  // Shopping
-  { name: "Kaspi.kz", category: "Shopping" },
-  { name: "Wildberries", category: "Shopping" },
+  // TRAVEL
+  { name: "Freedom Travel", category: "Travel", domain: "freedom.kz" },
 
-  // Gaming
-  { name: "Steam", category: "Gaming" },
-  { name: "Epic Games", category: "Gaming" },
-
-  // Finance
-  { name: "Kaspi Bank", category: "Finance" },
-  { name: "Halyk Bank", category: "Finance" },
-
-  // Services
-  { name: "Naimi.kz", category: "Services" },
-  { name: "Freedom Travel", category: "Services" },
-
-  // Telecom
-  { name: "izi", category: "Telecom" },
-  { name: "Beeline", category: "Telecom" },
-  { name: "Tele2", category: "Telecom" },
-
-  // Fitness
-  { name: "World Class", category: "Fitness" },
-
-  // Travel
-  { name: "Booking.com", category: "Travel" },
-  { name: "Airbnb", category: "Travel" },
-
-  // Pharmacy
-  { name: "Eapteka", category: "Pharmacy" },
-
-  // Clothing
-  { name: "Zara", category: "Clothing" },
-
-  // Other
-  { name: "Google", category: "Other" }
+  // JEWELRY
+  { name: "Sokolov", category: "Jewelry", domain: "sokolov.ru" }
 ];
 
-const sampleTitles = [
-  "Жаңа қолданушыларға арнайы жеңілдік", "Астанада тегін жеткізу", "Алматыда арнайы ұсыныс",
-  "Special Discount for Kazakhstan", "Limited Time Offer", "Flash Sale", "Exclusive Deal",
-  "Welcome Bonus", "Seasonal Savings", "Holiday Special", "New User Promo", "Loyalty Reward",
-  "Clearance Sale", "Free Shipping", "Extra Savings", "Weekend Deal", "Midweek Madness",
-  "Казахстанда арнайы баға", "Тегін жеткізу", "Жаз маусымының жеңілдігі"
-];
 
 const sampleDescriptions = [
   "Қазақстанда ең жақсы бағалар", "Сүйікті тауарларыңызға керемет жеңілдіктер алыңыз",
@@ -115,60 +106,63 @@ const sampleDescriptions = [
   "Астана мен Алматыда жеткізу тегін", "Қазақстанның барлық қалаларына жеткізу"
 ];
 
-const kazakhTargetCountries = [["KZ"]];
+const kazakhTargetCountries = ["KZ"];
 
 interface PromoCodeData {
   code: string;
+  serviceId?: string; // Reference to Service document
   serviceName: string;
-  category: string;
-  title: string;
-  description: string;
-  type: string;
+  category?: string;
+  description?: string;
+  type: string; // "percentage" or "fixed"
   discountPercentage?: number;
   discountAmount?: number;
   minimumOrderAmount: number;
   isFirstUserOnly: boolean;
+  isOneTimeUseOnly: boolean;
   upvotes: number;
   downvotes: number;
-  voteScore: number; // 🆕 Pre-calculated voteScore!
-  views: number;
   shares: number;
-  screenshotUrl?: string;
   targetCountries: string[];
   isVerified: boolean;
   startDate: admin.firestore.Timestamp;
   endDate: admin.firestore.Timestamp;
   createdAt: admin.firestore.FieldValue;
-  createdBy: string | null;
-  isUpvotedByCurrentUser: boolean;
-  isDownvotedByCurrentUser: boolean;
-  isBookmarkedByCurrentUser: boolean;
+  createdBy: string;
+  createdByUsername?: string;
+  createdByAvatarUrl?: string;
+  serviceLogoUrl?: string;
 }
 
 function createSamplePromoCode(): PromoCodeData {
   const randomCode = sampleCodes[Math.floor(Math.random() * sampleCodes.length)];
 
-  // Select a service and use its proper category (no more random assignment!)
-  const randomService = serviceDefinitions[Math.floor(Math.random() * serviceDefinitions.length)];
-  const serviceName = randomService.name;
-  const category = randomService.category;
+  // Select a service and use its proper category and logo
+  const selectedService = serviceDefinitions[Math.floor(Math.random() * serviceDefinitions.length)];
+  const serviceName = selectedService.name;
+  const category = selectedService.category;
+  const serviceLogoUrl = selectedService.domain ? `https://logo.clearbit.com/${selectedService.domain}` : undefined;
 
-  const randomTitle = sampleTitles[Math.floor(Math.random() * sampleTitles.length)];
+  // Generate service ID matching the services collection format
+  const categorySlug = sanitizeForId(category);
+  const serviceSlug = sanitizeForId(serviceName);
+  const serviceId = `${serviceSlug}_${categorySlug}`;
+
   const randomDescription = sampleDescriptions[Math.floor(Math.random() * sampleDescriptions.length)];
 
-  const type = Math.random() < 0.7 ? "percentage" : "fixed"; // More percentage discounts
+  const type = Math.random() < 0.7 ? "percentage" : "fixed";
   const discountPercentage = type === "percentage" ? Math.floor(Math.random() * 50) + 10 : undefined; // 10-60%
   const discountAmount = type === "fixed" ? Math.floor(Math.random() * 5000) + 500 : undefined; // 500-5500 KZT
   const minimumOrderAmount = Math.floor(Math.random() * 10000) + 1000; // 1000-11000 KZT
   const isFirstUserOnly = Math.random() < 0.3;
-  const isVerified = Math.random() < 0.4; // 40% verified (more realistic)
+  const isOneTimeUseOnly = Math.random() < 0.2; // 20% are one-time use only
+  const isVerified = Math.random() < 0.4;
 
   // More realistic vote distribution
   const upvotes = Math.floor(Math.random() * 500) + 1; // 1-500 upvotes
   const downvotes = Math.floor(Math.random() * 50); // 0-49 downvotes
-  const voteScore = upvotes - downvotes; // 🆕 Pre-calculate voteScore!
 
-  // Random dates with Kazakhstan timezone consideration
+  // Random dates
   const now = new Date();
   const startOffset = Math.floor(Math.random() * 30) * 86400000; // Past 30 days
   const endOffset = (Math.floor(Math.random() * 90) + 7) * 86400000; // Future 7-97 days
@@ -177,27 +171,26 @@ function createSamplePromoCode(): PromoCodeData {
 
   const data: any = {
     code: randomCode,
+    serviceId: serviceId,
     serviceName: serviceName,
     category: category,
-    title: randomTitle,
     description: randomDescription,
     type: type,
     minimumOrderAmount: minimumOrderAmount,
     isFirstUserOnly: isFirstUserOnly,
+    isOneTimeUseOnly: isOneTimeUseOnly,
     upvotes: upvotes,
     downvotes: downvotes,
-    voteScore: voteScore, // 🆕 Store computed voteScore!
-    views: Math.floor(Math.random() * 1000), // Random view count
-    shares: Math.floor(Math.random() * 50), // Random share count
-    targetCountries: kazakhTargetCountries[0],
+    voteScore: upvotes - downvotes, // Computed field for Firestore sorting
+    shares: Math.floor(Math.random() * 50),
+    targetCountries: kazakhTargetCountries,
     isVerified: isVerified,
     startDate: startDate,
     endDate: endDate,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    createdBy: null, // Set to actual user ID if needed
-    isUpvotedByCurrentUser: false,
-    isDownvotedByCurrentUser: false,
-    isBookmarkedByCurrentUser: false
+    createdBy: "mock_data",
+    createdByUsername: "Mock Data",
+    createdByAvatarUrl: "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png"
   };
 
   // Only add optional fields if they have values
@@ -207,8 +200,10 @@ function createSamplePromoCode(): PromoCodeData {
   if (discountAmount !== undefined) {
     data.discountAmount = discountAmount;
   }
-  if (Math.random() < 0.3) {
-    data.screenshotUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png";
+
+  // Add service logo URL if available
+  if (serviceLogoUrl) {
+    data.serviceLogoUrl = serviceLogoUrl;
   }
 
   return data;
@@ -234,12 +229,8 @@ async function populatePromoCodes(count: number = 100): Promise<void> {
     for (let i = 0; i < currentBatchSize; i++) {
       const promoCodeData = createSamplePromoCode();
 
-      // Create composite document ID: lowercase sanitized servicename_promocode
-      const sanitizedServiceName = promoCodeData.serviceName
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '_')
-        .replace(/_{2,}/g, '_')
-        .replace(/^_+|_+$/g, '');
+      // Create composite document ID: servicename_promocode (matching Kotlin format)
+      const sanitizedServiceName = sanitizeForId(promoCodeData.serviceName);
       const sanitizedCode = promoCodeData.code.toLowerCase();
       const docId = `${sanitizedServiceName}_${sanitizedCode}`;
       const docRef = collectionRef.doc(docId);

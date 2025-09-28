@@ -1,6 +1,6 @@
 package com.qodein.feature.home.ui.state
 
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 
 /**
@@ -19,6 +19,6 @@ sealed class SearchResultState {
         val isEmpty: Boolean get() = services.isEmpty()
         val hasResults: Boolean get() = services.isNotEmpty()
     }
-    data class Error(val errorType: ErrorType, val isRetryable: Boolean, val shouldShowSnackbar: Boolean, val errorCode: String?) :
+    data class Error(val errorType: OperationError, val isRetryable: Boolean, val shouldShowSnackbar: Boolean, val errorCode: String?) :
         SearchResultState()
 }

@@ -1,4 +1,3 @@
-
 @file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
 
 package com.qodein.shared.model
@@ -8,131 +7,6 @@ import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.Instant
-
-// ================================================================================================
-// POST MODELS
-// ================================================================================================
-
-@Serializable
-@JvmInline
-value class PostId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "Post ID cannot be blank" }
-    }
-
-    override fun toString(): String = value
-}
-
-@Serializable
-data class Tag(val id: String, val name: String, val color: String? = null) {
-    init {
-        require(id.isNotBlank()) { "Tag ID cannot be blank" }
-        require(name.isNotBlank()) { "Tag name cannot be blank" }
-        require(name.length <= 50) { "Tag name cannot exceed 50 characters" }
-        color?.let {
-            require(it.matches(Regex("^#[0-9A-Fa-f]{6}$"))) { "Color must be a valid hex code" }
-        }
-    }
-
-    companion object {
-        fun create(
-            name: String,
-            color: String? = null
-        ): Tag {
-            val cleanName = name.trim().lowercase()
-            return Tag(
-                id = cleanName.replace(Regex("\\s+"), "_"),
-                name = cleanName,
-                color = color,
-            )
-        }
-    }
-}
-
-@Serializable
-data class Post
-constructor(
-    val id: PostId,
-    val authorId: UserId,
-    val authorUsername: String,
-    val authorAvatarUrl: String? = null,
-    val authorCountry: String? = null,
-    val title: String? = null,
-    val content: String,
-    val imageUrls: List<String> = emptyList(),
-    val tags: List<Tag>,
-    val upvotes: Int = 0,
-    val downvotes: Int = 0,
-    val shares: Int = 0,
-    val createdAt: Instant,
-    val isUpvotedByCurrentUser: Boolean = false,
-    val isDownvotedByCurrentUser: Boolean = false,
-    val isBookmarkedByCurrentUser: Boolean = false
-) {
-    init {
-        require(content.isNotBlank()) { "Post content cannot be blank" }
-        require(content.length <= 2000) { "Post content cannot exceed 2000 characters" }
-        require(authorUsername.isNotBlank()) { "Author username cannot be blank" }
-        title?.let { require(it.length <= 200) { "Post title cannot exceed 200 characters" } }
-        require(upvotes >= 0) { "Upvotes cannot be negative" }
-        require(downvotes >= 0) { "Downvotes cannot be negative" }
-        require(shares >= 0) { "Shares cannot be negative" }
-        require(tags.size <= 10) { "Post cannot have more than 10 tags" }
-        require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
-    }
-
-    val voteScore: Int get() = upvotes - downvotes
-
-    companion object {
-
-        fun create(
-            authorId: UserId,
-            authorUsername: String,
-            content: String,
-            title: String? = null,
-            imageUrls: List<String> = emptyList(),
-            tags: List<Tag> = emptyList(),
-            authorAvatarUrl: String? = null,
-            authorCountry: String? = null
-        ): Result<Post> =
-            runCatching {
-                Post(
-                    id = PostId(generateId()),
-                    authorId = authorId,
-                    authorUsername = authorUsername.trim(),
-                    authorAvatarUrl = authorAvatarUrl?.trim(),
-                    authorCountry = authorCountry?.uppercase()?.trim(),
-                    title = title?.trim(),
-                    content = content.trim(),
-                    imageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() },
-                    tags = tags,
-                    createdAt = Clock.System.now(),
-                )
-            }
-
-        private fun generateId(): String = "post_${Clock.System.now().toEpochMilliseconds()}_${(0..999).random()}"
-    }
-}
-
-@Serializable
-data class PostInteraction
-constructor(
-    val postId: PostId,
-    val userId: UserId,
-    val type: InteractionType,
-    val createdAt: Instant = Clock.System.now()
-)
-
-@Serializable
-enum class InteractionType {
-    UPVOTE,
-    DOWNVOTE,
-    REMOVE_VOTE,
-    COMMENT,
-    SHARE,
-    BOOKMARK,
-    UNBOOKMARK
-}
 
 // ================================================================================================
 // PROMO CODE MODELS
@@ -154,23 +28,23 @@ sealed class PromoCode {
     abstract val code: String
     abstract val serviceId: ServiceId? // Reference to Service document
     abstract val serviceName: String // Denormalized for display and filtering
-    abstract val category: String?
+    abstract val category: String
     abstract val description: String?
+    abstract val minimumOrderAmount: Double
     abstract val startDate: Instant
     abstract val endDate: Instant
     abstract val isFirstUserOnly: Boolean
+    abstract val isOneTimeUseOnly: Boolean
     abstract val upvotes: Int
     abstract val downvotes: Int
-    abstract val views: Int
     abstract val shares: Int
-    abstract val screenshotUrl: String?
     abstract val targetCountries: List<String>
     abstract val isVerified: Boolean
     abstract val createdAt: Instant
-    abstract val createdBy: UserId?
-    abstract val isUpvotedByCurrentUser: Boolean
-    abstract val isDownvotedByCurrentUser: Boolean
-    abstract val isBookmarkedByCurrentUser: Boolean
+    abstract val createdBy: UserId
+    abstract val createdByUsername: String? // Denormalized from User for display performance
+    abstract val createdByAvatarUrl: String? // Denormalized from User for display performance
+    abstract val serviceLogoUrl: String? // Denormalized from Service for display performance
 
     val isExpired: Boolean get() = Clock.System.now() > endDate
     val isNotStarted: Boolean get() = Clock.System.now() < startDate
@@ -185,25 +59,24 @@ sealed class PromoCode {
         override val code: String,
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
-        override val category: String? = null,
+        override val category: String = "Unspecified",
         override val description: String? = null,
         val discountPercentage: Double,
-        val minimumOrderAmount: Double,
+        override val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
+        override val isOneTimeUseOnly: Boolean = false,
         override val upvotes: Int = 0,
         override val downvotes: Int = 0,
-        override val views: Int = 0,
         override val shares: Int = 0,
-        override val screenshotUrl: String? = null,
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null,
-        override val isUpvotedByCurrentUser: Boolean = false,
-        override val isDownvotedByCurrentUser: Boolean = false,
-        override val isBookmarkedByCurrentUser: Boolean = false
+        override val createdBy: UserId,
+        override val createdByUsername: String? = null,
+        override val createdByAvatarUrl: String? = null,
+        override val serviceLogoUrl: String? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -212,7 +85,6 @@ sealed class PromoCode {
             require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
             require(upvotes >= 0) { "Upvotes cannot be negative" }
             require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(views >= 0) { "Views cannot be negative" }
             require(shares >= 0) { "Shares cannot be negative" }
             require(endDate > startDate) { "End date must be after start date" }
         }
@@ -226,25 +98,24 @@ sealed class PromoCode {
         override val code: String,
         override val serviceId: ServiceId? = null,
         override val serviceName: String,
-        override val category: String? = null,
+        override val category: String = "Unspecified",
         override val description: String? = null,
         val discountAmount: Double,
-        val minimumOrderAmount: Double,
+        override val minimumOrderAmount: Double,
         override val startDate: Instant,
         override val endDate: Instant,
         override val isFirstUserOnly: Boolean = false,
+        override val isOneTimeUseOnly: Boolean = false,
         override val upvotes: Int = 0,
         override val downvotes: Int = 0,
-        override val views: Int = 0,
         override val shares: Int = 0,
-        override val screenshotUrl: String? = null,
         override val targetCountries: List<String> = emptyList(),
         override val isVerified: Boolean = false,
         override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId? = null,
-        override val isUpvotedByCurrentUser: Boolean = false,
-        override val isDownvotedByCurrentUser: Boolean = false,
-        override val isBookmarkedByCurrentUser: Boolean = false
+        override val createdBy: UserId,
+        override val createdByUsername: String? = null,
+        override val createdByAvatarUrl: String? = null,
+        override val serviceLogoUrl: String? = null
     ) : PromoCode() {
         init {
             require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -253,7 +124,6 @@ sealed class PromoCode {
             require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
             require(upvotes >= 0) { "Upvotes cannot be negative" }
             require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(views >= 0) { "Views cannot be negative" }
             require(shares >= 0) { "Shares cannot be negative" }
             require(endDate > startDate) { "End date must be after start date" }
         }
@@ -274,15 +144,19 @@ sealed class PromoCode {
         fun createPercentage(
             code: String,
             serviceName: String,
+            serviceId: ServiceId? = null,
             discountPercentage: Double,
-            category: String? = null,
+            category: String = "Unspecified",
             description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
             targetCountries: List<String> = emptyList(),
-            createdBy: UserId? = null
+            createdBy: UserId,
+            createdByUsername: String? = null,
+            createdByAvatarUrl: String? = null,
+            serviceLogoUrl: String? = null
         ): Result<PercentagePromoCode> =
             runCatching {
                 val cleanCode = code.uppercase().trim()
@@ -291,7 +165,8 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
-                    category = category?.trim(),
+                    serviceId = serviceId,
+                    category = category.trim(),
                     description = description?.trim(),
                     discountPercentage = discountPercentage,
                     minimumOrderAmount = minimumOrderAmount,
@@ -300,6 +175,9 @@ sealed class PromoCode {
                     isFirstUserOnly = isFirstUserOnly,
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
+                    createdByUsername = createdByUsername,
+                    createdByAvatarUrl = createdByAvatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
             }
 
@@ -307,14 +185,18 @@ sealed class PromoCode {
             code: String,
             serviceName: String,
             discountAmount: Double,
-            category: String? = null,
+            category: String = "Unspecified",
             description: String? = null,
+            serviceId: ServiceId? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
             isFirstUserOnly: Boolean = false,
             targetCountries: List<String> = emptyList(),
-            createdBy: UserId? = null
+            createdBy: UserId,
+            createdByUsername: String? = null,
+            createdByAvatarUrl: String? = null,
+            serviceLogoUrl: String? = null
         ): Result<FixedAmountPromoCode> =
             runCatching {
                 val cleanCode = code.uppercase().trim()
@@ -323,7 +205,8 @@ sealed class PromoCode {
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     serviceName = cleanServiceName,
-                    category = category?.trim(),
+                    serviceId = serviceId,
+                    category = category.trim(),
                     description = description?.trim(),
                     discountAmount = discountAmount,
                     minimumOrderAmount = minimumOrderAmount,
@@ -332,37 +215,11 @@ sealed class PromoCode {
                     isFirstUserOnly = isFirstUserOnly,
                     targetCountries = targetCountries.map { it.uppercase() },
                     createdBy = createdBy,
+                    createdByUsername = createdByUsername,
+                    createdByAvatarUrl = createdByAvatarUrl,
+                    serviceLogoUrl = serviceLogoUrl,
                 )
             }
-    }
-}
-
-@Serializable
-data class PromoCodeVote(
-    val id: String,
-    val promoCodeId: PromoCodeId,
-    val userId: UserId,
-    val isUpvote: Boolean,
-    val votedAt: Instant = Clock.System.now()
-) {
-    companion object {
-        fun create(
-            promoCodeId: PromoCodeId,
-            userId: UserId,
-            isUpvote: Boolean
-        ): PromoCodeVote =
-            PromoCodeVote(
-                id = generateId(promoCodeId.value, userId.value, isUpvote),
-                promoCodeId = promoCodeId,
-                userId = userId,
-                isUpvote = isUpvote,
-            )
-
-        private fun generateId(
-            promoCodeId: String,
-            userId: String,
-            isUpvote: Boolean
-        ): String = "${promoCodeId}_${userId}_${if (isUpvote) "up" else "down"}"
     }
 }
 
@@ -527,7 +384,7 @@ data class Promo(
             serviceName: String,
             createdBy: UserId,
             imageUrls: List<String> = emptyList(),
-            category: String? = null,
+            category: String = "Unspecified",
             targetCountries: List<String> = emptyList(),
             expiresAt: Instant? = null
         ): Result<Promo> =
@@ -543,7 +400,7 @@ data class Promo(
                     serviceName = serviceName.trim(),
                     createdBy = createdBy,
                     imageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() },
-                    category = category?.trim(),
+                    category = category.trim(),
                     targetCountries = targetCountries.map { it.uppercase() },
                     expiresAt = expiresAt,
                 )

@@ -3,37 +3,51 @@ package com.qodein.feature.promocode.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logCopyPromoCode
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.usecase.promocode.GetPromoCodeByIdUseCase
-import com.qodein.shared.domain.usecase.promocode.GetUserVoteUseCase
-import com.qodein.shared.domain.usecase.promocode.VoteOnPromoCodeUseCase
+import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
+import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
+import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
+import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
+import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserInteraction
+import com.qodein.shared.model.VoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PromocodeDetailViewModel @Inject constructor(
-    private val getPromoCodeByIdUseCase: GetPromoCodeByIdUseCase,
-    private val getUserVoteUseCase: GetUserVoteUseCase,
-    private val voteOnPromoCodeUseCase: VoteOnPromoCodeUseCase,
-    private val analyticsHelper: AnalyticsHelper
+    private val getPromoCodeByIdUseCase: GetPromocodeByIdUseCase,
+    private val getUserInteractionUseCase: GetUserInteractionUseCase,
+    private val toggleVoteUseCase: ToggleVoteUseCase,
+    private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
+    private val analyticsHelper: AnalyticsHelper,
+    private val authStateManager: AuthStateManager,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PromocodeDetailUiState())
@@ -50,387 +64,536 @@ class PromocodeDetailViewModel @Inject constructor(
     fun onAction(action: PromocodeDetailAction) {
         when (action) {
             is PromocodeDetailAction.LoadPromocode -> loadPromocode(action.promoCodeId)
+            is PromocodeDetailAction.LoadPromocodeWithUser -> loadPromocodeWithUser(action.promoCodeId, action.userId)
             is PromocodeDetailAction.RefreshData -> refreshCurrentPromocode()
-            is PromocodeDetailAction.UpvoteClicked -> handleVote(true)
-            is PromocodeDetailAction.DownvoteClicked -> handleVote(false)
+            is PromocodeDetailAction.UpvoteClicked -> handleUpvote()
+            is PromocodeDetailAction.DownvoteClicked -> handleDownvote()
             is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BookmarkToggleClicked -> handleBookmarkToggle()
             is PromocodeDetailAction.CommentsClicked -> handleCommentsClick()
             is PromocodeDetailAction.FollowServiceClicked -> handleFollowService()
-            is PromocodeDetailAction.FollowCategoryClicked -> handleFollowCategory()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.ServiceClicked -> handleServiceClick()
+            is PromocodeDetailAction.SignInWithGoogleClicked -> handleSignInWithGoogle()
+            is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> handleRetry()
             is PromocodeDetailAction.ErrorDismissed -> dismissError()
         }
     }
 
     private fun loadPromocode(promoCodeId: PromoCodeId) {
+        loadPromocodeWithUser(promoCodeId, null)
+    }
+
+    private fun loadPromocodeWithUser(
+        promoCodeId: PromoCodeId,
+        userId: UserId?
+    ) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorType = null) }
 
             try {
-                getPromoCodeByIdUseCase(promoCodeId).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    promoCode = result.data,
-                                    isLoading = false,
-                                    errorType = null,
-                                    isBookmarked = result.data?.isBookmarkedByCurrentUser ?: false,
-                                )
-                            }
-                            // Track analytics
-                            result.data?.let { promoCode ->
-                                val promoType = when (promoCode) {
-                                    is PromoCode.PercentagePromoCode -> "percentage"
-                                    is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-                                }
-                                analyticsHelper.logPromoCodeView(promoCode.id.value, promoType)
-                            }
+                // Get current auth state to determine if we need user interaction data
+                val authState = authStateManager.getAuthState().first()
+                val effectiveUserId = userId ?: (authState as? AuthState.Authenticated)?.user?.id
+
+                coroutineScope {
+                    // Load promo code data (always needed)
+                    val promoCodeDeferred = async {
+                        var result: Result<PromoCode?, OperationError>? = null
+                        getPromoCodeByIdUseCase(promoCodeId).collect {
+                            result = it
                         }
-                        is Result.Loading -> {
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    isLoading = true,
-                                    errorType = null,
+                        result ?: Result.Error(SystemError.Unknown)
+                    }
+
+                    // Load user interaction data (only if user is authenticated)
+                    val userInteractionDeferred = async {
+                        if (effectiveUserId != null) {
+                            getUserInteractionUseCase(promoCodeId.value, effectiveUserId)
+                        } else {
+                            Result.Success(null) as Result<UserInteraction?, OperationError>
+                        }
+                    }
+
+                    // Wait for both results
+                    val promoCodeResult = promoCodeDeferred.await()
+                    val userInteractionResult = userInteractionDeferred.await()
+
+                    when (promoCodeResult) {
+                        is Result.Success -> {
+                            val promoCode = promoCodeResult.data
+                            if (promoCode != null) {
+                                // Get user interaction data if available
+                                val userInteraction = when (userInteractionResult) {
+                                    is Result.Success -> userInteractionResult.data
+                                    is Result.Error -> {
+                                        Logger.w("PromocodeDetailViewModel") {
+                                            "Failed to load user interaction: ${userInteractionResult.error}"
+                                        }
+                                        null
+                                    }
+                                }
+
+                                val promoCodeWithUserState = PromoCodeWithUserState(
+                                    promoCode = promoCode,
+                                    userInteraction = userInteraction,
                                 )
+                                showPromoCodeWithUserState(promoCodeWithUserState)
+                            } else {
+                                _uiState.update { currentState ->
+                                    currentState.copy(
+                                        promoCodeWithUserState = null,
+                                        isLoading = false,
+                                        errorType = SystemError.Unknown,
+                                    )
+                                }
                             }
                         }
                         is Result.Error -> {
+                            Logger.e("PromocodeDetailViewModel") { "Error loading promo code: ${promoCodeResult.error}" }
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     isLoading = false,
-                                    errorType = result.exception.toErrorType(),
+                                    errorType = promoCodeResult.error,
                                 )
-                            }
-                            Logger.e("PromocodeDetailViewModel") {
-                                "Failed to load promocode: ${result.exception.message}"
                             }
                         }
                     }
                 }
             } catch (e: Exception) {
+                Logger.e("PromocodeDetailViewModel") { "Unexpected error: $e" }
                 _uiState.update { currentState ->
                     currentState.copy(
                         isLoading = false,
-                        errorType = e.toErrorType(),
+                        errorType = SystemError.Unknown,
                     )
                 }
-                Logger.e("PromocodeDetailViewModel") { "Unexpected error: ${e.message}" }
             }
         }
+    }
+
+    private fun showPromoCodeWithUserState(promoCodeWithUserState: PromoCodeWithUserState) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                promoCodeWithUserState = promoCodeWithUserState,
+                isLoading = false,
+                errorType = null,
+                isBookmarked = promoCodeWithUserState.isBookmarkedByCurrentUser,
+            )
+        }
+
+        // Log promo code view for analytics
+        analyticsHelper.logPromoCodeView(
+            promocodeId = promoCodeWithUserState.promoCode.id.value,
+            promocodeType = when (promoCodeWithUserState.promoCode) {
+                is PromoCode.PercentagePromoCode -> "percentage"
+                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                else -> "unknown"
+            },
+        )
     }
 
     private fun refreshCurrentPromocode() {
-        val currentPromoCode = _uiState.value.promoCode
-        currentPromoCode?.let {
-            loadPromocode(it.id)
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
+            loadPromocode(currentPromoCode.id)
         }
     }
 
-    private fun handleVote(isUpvote: Boolean) {
-        val currentState = _uiState.value
-        val promoCode = currentState.promoCode ?: return
-
-        if (currentState.isVoting) return
-
-        // Determine what action to take based on current vote state
-        val currentlyUpvoted = promoCode.isUpvotedByCurrentUser
-        val currentlyDownvoted = promoCode.isDownvotedByCurrentUser
-
-        val actionDescription = when {
-            isUpvote && currentlyUpvoted -> "remove upvote"
-            isUpvote && currentlyDownvoted -> "switch to upvote"
-            isUpvote && !currentlyUpvoted && !currentlyDownvoted -> "add upvote"
-            !isUpvote && currentlyDownvoted -> "remove downvote"
-            !isUpvote && currentlyUpvoted -> "switch to downvote"
-            !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> "add downvote"
-            else -> "vote"
-        }
-
+    private fun handleUpvote() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isVoting = true,
-                    showVoteAnimation = true,
-                    lastVoteType = if (isUpvote) VoteType.UPVOTE else VoteType.DOWNVOTE,
-                )
+            val authState = authStateManager.getAuthState().first()
+            val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+
+            if (authState !is AuthState.Authenticated) {
+                showAuthBottomSheet(AuthPromptAction.UpvotePromoCode)
+                return@launch
             }
 
-            // Optimistically update UI state
-            val optimisticPromoCode = updatePromoCodeOptimistically(promoCode, isUpvote)
-            _uiState.update { it.copy(promoCode = optimisticPromoCode) }
+            if (currentPromoCode == null) return@launch
+
+            val currentUserState = _uiState.value.promoCodeWithUserState?.userInteraction
+            val isCurrentlyUpvoted = currentUserState?.voteState == VoteState.UPVOTE
+
+            // Optimistic UI update - immediately update vote counts and user state
+            val currentPromoCodeWithUserState = _uiState.value.promoCodeWithUserState
+            if (currentPromoCodeWithUserState != null) {
+                val updatedPromoCode = if (isCurrentlyUpvoted) {
+                    // Remove upvote: decrease upvote count
+                    when (currentPromoCode) {
+                        is PromoCode.PercentagePromoCode -> currentPromoCode.copy(
+                            upvotes = maxOf(0, currentPromoCode.upvotes - 1),
+                        )
+                        is PromoCode.FixedAmountPromoCode -> currentPromoCode.copy(
+                            upvotes = maxOf(0, currentPromoCode.upvotes - 1),
+                        )
+                    }
+                } else {
+                    // Add upvote: increase upvote count, maybe decrease downvote if switching
+                    val upvoteDelta = 1
+                    val downvoteDelta = if (currentUserState?.voteState == VoteState.DOWNVOTE) -1 else 0
+                    when (currentPromoCode) {
+                        is PromoCode.PercentagePromoCode -> currentPromoCode.copy(
+                            upvotes = currentPromoCode.upvotes + upvoteDelta,
+                            downvotes = maxOf(0, currentPromoCode.downvotes + downvoteDelta),
+                        )
+                        is PromoCode.FixedAmountPromoCode -> currentPromoCode.copy(
+                            upvotes = currentPromoCode.upvotes + upvoteDelta,
+                            downvotes = maxOf(0, currentPromoCode.downvotes + downvoteDelta),
+                        )
+                    }
+                }
+
+                // Update user interaction optimistically
+                val newVoteState = if (isCurrentlyUpvoted) VoteState.NONE else VoteState.UPVOTE
+                val updatedUserInteraction = currentUserState?.copy(voteState = newVoteState)
+                    ?: com.qodein.shared.model.UserInteraction.create(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                        voteState = newVoteState,
+                    )
+
+                val optimisticState = PromoCodeWithUserState(
+                    promoCode = updatedPromoCode,
+                    userInteraction = updatedUserInteraction,
+                )
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        promoCodeWithUserState = optimisticState,
+                        isVoting = true,
+                        showVoteAnimation = true,
+                        lastVoteType = newVoteState,
+                    )
+                }
+            }
 
             try {
-                // TODO: Get actual user ID from authentication
-                val userId = UserId("current_user")
+                // Determine what action to take
+                val result = if (isCurrentlyUpvoted) {
+                    toggleVoteUseCase.removeVote(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                    )
+                } else {
+                    toggleVoteUseCase.toggleUpvote(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                    )
+                }
 
-                voteOnPromoCodeUseCase(promoCode.id, userId, isUpvote).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            // Refresh to get actual server state (in case of conflicts)
-                            refreshCurrentPromocode()
-
-                            _events.emit(PromocodeDetailEvent.ShowVoteFeedback(isUpvote))
-
-                            // Track analytics
-                            val voteType = if (isUpvote) "upvote" else "downvote"
-                            analyticsHelper.logVote(promoCode.id.value, voteType)
-
-                            Logger.d("PromocodeDetailViewModel") { "Successfully $actionDescription" }
-                        }
-                        is Result.Loading -> {
-                            // Loading state already handled by isVoting flag
-                        }
-                        is Result.Error -> {
-                            // Rollback optimistic update
-                            _uiState.update { it.copy(promoCode = promoCode) }
-
-                            val errorMessage = when {
-                                result.exception.message?.contains("already voted") == true -> {
-                                    "You have already voted on this promocode"
-                                }
-                                result.exception.message?.contains("network") == true -> {
-                                    "Network error. Please check your connection"
-                                }
-                                else -> "Failed to vote. Please try again"
+                when (result) {
+                    is Result.Success -> {
+                        val updatedInteraction = result.data
+                        val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
+                            userInteraction = updatedInteraction,
+                        )
+                        if (updatedPromoCodeWithUserState != null) {
+                            val newVoteState = updatedInteraction.voteState
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    promoCodeWithUserState = updatedPromoCodeWithUserState,
+                                    isVoting = false,
+                                    showVoteAnimation = true,
+                                    lastVoteType = newVoteState,
+                                )
                             }
 
-                            _events.emit(PromocodeDetailEvent.ShowSnackbar(errorMessage))
-                            Logger.e("PromocodeDetailViewModel") {
-                                "Failed to $actionDescription: ${result.exception.message}"
+                            // Log analytics
+                            analyticsHelper.logVote(
+                                promocodeId = currentPromoCode.id.value,
+                                voteType = if (isCurrentlyUpvoted) "remove_upvote" else "upvote",
+                            )
+
+                            // Hide vote animation after delay
+                            viewModelScope.launch {
+                                delay(VOTE_ANIMATION_DURATION)
+                                _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
                             }
                         }
                     }
-                    _uiState.update { it.copy(isVoting = false) }
+                    is Result.Error -> {
+                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.error}" }
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                isVoting = false,
+                                errorType = result.error,
+                            )
+                        }
+                    }
                 }
             } catch (e: Exception) {
-                // Rollback optimistic update
-                _uiState.update { it.copy(promoCode = promoCode, isVoting = false) }
-                _events.emit(
-                    PromocodeDetailEvent.ShowSnackbar(
-                        "Voting failed. Please check your connection.",
-                    ),
-                )
-                Logger.e("PromocodeDetailViewModel") { "Vote error: ${e.message}" }
+                Logger.e("PromocodeDetailViewModel") { "Unexpected error during upvote: $e" }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isVoting = false,
+                        errorType = SystemError.Unknown,
+                    )
+                }
             }
-
-            // Hide vote animation after delay
-            delay(VOTE_ANIMATION_DURATION)
-            _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
         }
     }
 
-    private fun updatePromoCodeOptimistically(
-        promoCode: PromoCode,
-        isUpvote: Boolean
-    ): PromoCode {
-        val currentlyUpvoted = promoCode.isUpvotedByCurrentUser
-        val currentlyDownvoted = promoCode.isDownvotedByCurrentUser
+    private fun handleDownvote() {
+        viewModelScope.launch {
+            val authState = authStateManager.getAuthState().first()
+            val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
 
-        return when (promoCode) {
-            is PromoCode.PercentagePromoCode -> {
-                when {
-                    isUpvote && currentlyUpvoted -> {
-                        // Remove upvote
-                        promoCode.copy(
-                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = false,
+            if (authState !is AuthState.Authenticated) {
+                showAuthBottomSheet(AuthPromptAction.DownvotePromoCode)
+                return@launch
+            }
+
+            if (currentPromoCode == null) return@launch
+
+            val currentUserState = _uiState.value.promoCodeWithUserState?.userInteraction
+            val isCurrentlyDownvoted = currentUserState?.voteState == VoteState.DOWNVOTE
+
+            // Optimistic UI update - immediately update vote counts and user state
+            val currentPromoCodeWithUserState = _uiState.value.promoCodeWithUserState
+            if (currentPromoCodeWithUserState != null) {
+                val updatedPromoCode = if (isCurrentlyDownvoted) {
+                    // Remove downvote: decrease downvote count
+                    when (currentPromoCode) {
+                        is PromoCode.PercentagePromoCode -> currentPromoCode.copy(
+                            downvotes = maxOf(0, currentPromoCode.downvotes - 1),
+                        )
+                        is PromoCode.FixedAmountPromoCode -> currentPromoCode.copy(
+                            downvotes = maxOf(0, currentPromoCode.downvotes - 1),
                         )
                     }
-                    isUpvote && currentlyDownvoted -> {
-                        // Switch from downvote to upvote
-                        promoCode.copy(
-                            upvotes = promoCode.upvotes + 1,
-                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = true,
-                            isDownvotedByCurrentUser = false,
+                } else {
+                    // Add downvote: increase downvote count, maybe decrease upvote if switching
+                    val downvoteDelta = 1
+                    val upvoteDelta = if (currentUserState?.voteState == VoteState.UPVOTE) -1 else 0
+                    when (currentPromoCode) {
+                        is PromoCode.PercentagePromoCode -> currentPromoCode.copy(
+                            downvotes = currentPromoCode.downvotes + downvoteDelta,
+                            upvotes = maxOf(0, currentPromoCode.upvotes + upvoteDelta),
+                        )
+                        is PromoCode.FixedAmountPromoCode -> currentPromoCode.copy(
+                            downvotes = currentPromoCode.downvotes + downvoteDelta,
+                            upvotes = maxOf(0, currentPromoCode.upvotes + upvoteDelta),
                         )
                     }
-                    isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
-                        // Add upvote
-                        promoCode.copy(
-                            upvotes = promoCode.upvotes + 1,
-                            isUpvotedByCurrentUser = true,
-                            isDownvotedByCurrentUser = false,
-                        )
-                    }
-                    !isUpvote && currentlyDownvoted -> {
-                        // Remove downvote
-                        promoCode.copy(
-                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = false,
-                        )
-                    }
-                    !isUpvote && currentlyUpvoted -> {
-                        // Switch from upvote to downvote
-                        promoCode.copy(
-                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
-                            downvotes = promoCode.downvotes + 1,
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = true,
-                        )
-                    }
-                    !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
-                        // Add downvote
-                        promoCode.copy(
-                            downvotes = promoCode.downvotes + 1,
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = true,
-                        )
-                    }
-                    else -> promoCode
+                }
+
+                // Update user interaction optimistically
+                val newVoteState = if (isCurrentlyDownvoted) VoteState.NONE else VoteState.DOWNVOTE
+                val updatedUserInteraction = currentUserState?.copy(voteState = newVoteState)
+                    ?: com.qodein.shared.model.UserInteraction.create(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                        voteState = newVoteState,
+                    )
+
+                val optimisticState = PromoCodeWithUserState(
+                    promoCode = updatedPromoCode,
+                    userInteraction = updatedUserInteraction,
+                )
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        promoCodeWithUserState = optimisticState,
+                        isVoting = true,
+                        showVoteAnimation = true,
+                        lastVoteType = newVoteState,
+                    )
                 }
             }
-            is PromoCode.FixedAmountPromoCode -> {
-                when {
-                    isUpvote && currentlyUpvoted -> {
-                        // Remove upvote
-                        promoCode.copy(
-                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = false,
+
+            try {
+                // Determine what action to take
+                val result = if (isCurrentlyDownvoted) {
+                    toggleVoteUseCase.removeVote(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                    )
+                } else {
+                    toggleVoteUseCase.toggleDownvote(
+                        itemId = currentPromoCode.id.value,
+                        itemType = ContentType.PROMO_CODE,
+                        userId = authState.user.id,
+                    )
+                }
+
+                when (result) {
+                    is Result.Success -> {
+                        val updatedInteraction = result.data
+                        val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
+                            userInteraction = updatedInteraction,
                         )
+                        if (updatedPromoCodeWithUserState != null) {
+                            val newVoteState = updatedInteraction.voteState
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    promoCodeWithUserState = updatedPromoCodeWithUserState,
+                                    isVoting = false,
+                                    showVoteAnimation = true,
+                                    lastVoteType = newVoteState,
+                                )
+                            }
+
+                            // Log analytics
+                            analyticsHelper.logVote(
+                                promocodeId = currentPromoCode.id.value,
+                                voteType = if (isCurrentlyDownvoted) "remove_downvote" else "downvote",
+                            )
+
+                            // Hide vote animation after delay
+                            viewModelScope.launch {
+                                delay(VOTE_ANIMATION_DURATION)
+                                _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
+                            }
+                        }
                     }
-                    isUpvote && currentlyDownvoted -> {
-                        // Switch from downvote to upvote
-                        promoCode.copy(
-                            upvotes = promoCode.upvotes + 1,
-                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = true,
-                            isDownvotedByCurrentUser = false,
+                    is Result.Error -> {
+                        Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.error}" }
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                isVoting = false,
+                                errorType = result.error,
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.e("PromocodeDetailViewModel") { "Unexpected error during downvote: $e" }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isVoting = false,
+                        errorType = SystemError.Unknown,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun handleBookmarkToggle() {
+        viewModelScope.launch {
+            val authState = authStateManager.getAuthState().first()
+            val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+
+            if (authState !is AuthState.Authenticated) {
+                showAuthBottomSheet(AuthPromptAction.BookmarkPromoCode)
+                return@launch
+            }
+
+            if (currentPromoCode == null) return@launch
+
+            val currentIsBookmarked = _uiState.value.promoCodeWithUserState?.isBookmarkedByCurrentUser == true
+
+            // Optimistic update
+            val currentPromoCodeWithUserState = _uiState.value.promoCodeWithUserState
+            if (currentPromoCodeWithUserState != null) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isBookmarked = !currentIsBookmarked,
+                    )
+                }
+            }
+
+            try {
+                val result = toggleBookmarkUseCase(
+                    itemId = currentPromoCode.id.value,
+                    itemType = ContentType.PROMO_CODE,
+                    userId = authState.user.id,
+                )
+
+                when (result) {
+                    is Result.Success -> {
+                        val updatedInteraction = result.data
+                        val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
+                            userInteraction = updatedInteraction,
                         )
+                        if (updatedPromoCodeWithUserState != null) {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    promoCodeWithUserState = updatedPromoCodeWithUserState,
+                                    isBookmarked = updatedPromoCodeWithUserState.isBookmarkedByCurrentUser,
+                                )
+                            }
+                        }
                     }
-                    isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
-                        // Add upvote
-                        promoCode.copy(
-                            upvotes = promoCode.upvotes + 1,
-                            isUpvotedByCurrentUser = true,
-                            isDownvotedByCurrentUser = false,
-                        )
+                    is Result.Error -> {
+                        Logger.e("PromocodeDetailViewModel") { "Error toggling bookmark: ${result.error}" }
+                        // Revert optimistic update
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                isBookmarked = currentIsBookmarked,
+                                errorType = result.error,
+                            )
+                        }
                     }
-                    !isUpvote && currentlyDownvoted -> {
-                        // Remove downvote
-                        promoCode.copy(
-                            downvotes = (promoCode.downvotes - 1).coerceAtLeast(0),
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = false,
-                        )
-                    }
-                    !isUpvote && currentlyUpvoted -> {
-                        // Switch from upvote to downvote
-                        promoCode.copy(
-                            upvotes = (promoCode.upvotes - 1).coerceAtLeast(0),
-                            downvotes = promoCode.downvotes + 1,
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = true,
-                        )
-                    }
-                    !isUpvote && !currentlyUpvoted && !currentlyDownvoted -> {
-                        // Add downvote
-                        promoCode.copy(
-                            downvotes = promoCode.downvotes + 1,
-                            isUpvotedByCurrentUser = false,
-                            isDownvotedByCurrentUser = true,
-                        )
-                    }
-                    else -> promoCode
+                }
+            } catch (e: Exception) {
+                Logger.e("PromocodeDetailViewModel") { "Unexpected error during bookmark toggle: $e" }
+                // Revert optimistic update
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isBookmarked = currentIsBookmarked,
+                        errorType = SystemError.Unknown,
+                    )
                 }
             }
         }
     }
 
     private fun handleCopyCode() {
-        val promoCode = _uiState.value.promoCode ?: return
-
-        viewModelScope.launch {
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
             _uiState.update { it.copy(isCopying = true) }
 
-            _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(promoCode.code))
-            _events.emit(PromocodeDetailEvent.ShowSnackbar("Code copied to clipboard!"))
+            viewModelScope.launch {
+                _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code))
 
-            // Track analytics
-            val promoType = when (promoCode) {
-                is PromoCode.PercentagePromoCode -> "percentage"
-                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                // Log analytics
+                analyticsHelper.logCopyPromoCode(
+                    promocodeId = currentPromoCode.id.value,
+                    promocodeType = when (currentPromoCode) {
+                        is PromoCode.PercentagePromoCode -> "percentage"
+                        is PromoCode.FixedAmountPromoCode -> "fixed_amount"
+                        else -> "unknown"
+                    },
+                )
+
+                delay(COPY_FEEDBACK_DURATION)
+                _uiState.update { it.copy(isCopying = false) }
             }
-            analyticsHelper.logCopyPromoCode(promoCode.id.value, promoType)
-
-            delay(COPY_FEEDBACK_DURATION)
-            _uiState.update { it.copy(isCopying = false) }
         }
     }
 
     private fun handleShare() {
-        val promoCode = _uiState.value.promoCode ?: return
-
-        viewModelScope.launch {
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
             _uiState.update { it.copy(isSharing = true) }
 
-            _events.emit(PromocodeDetailEvent.SharePromocode(promoCode))
-
-            // Track analytics - use generic event for share as no specific extension exists
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = "share_promocode",
-                    extras = listOf(
-                        AnalyticsEvent.Param("promocode_id", promoCode.id.value),
-                        AnalyticsEvent.Param("service_name", promoCode.serviceName),
-                        AnalyticsEvent.Param(
-                            "discount_type",
-                            when (promoCode) {
-                                is PromoCode.PercentagePromoCode -> "percentage"
-                                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-                            },
-                        ),
-                    ),
-                ),
-            )
-
-            delay(1000) // Brief delay for UI feedback
-            _uiState.update { it.copy(isSharing = false) }
-        }
-    }
-
-    private fun handleBookmarkToggle() {
-        // TODO: Implement bookmark functionality
-        val currentBookmarkState = _uiState.value.isBookmarked
-        _uiState.update { it.copy(isBookmarked = !currentBookmarkState) }
-
-        viewModelScope.launch {
-            val message = if (!currentBookmarkState) "Bookmarked!" else "Bookmark removed"
-            _events.emit(PromocodeDetailEvent.ShowSnackbar(message))
+            viewModelScope.launch {
+                _events.emit(PromocodeDetailEvent.SharePromocode(currentPromoCode))
+                _uiState.update { it.copy(isSharing = false) }
+            }
         }
     }
 
     private fun handleCommentsClick() {
-        val promoCode = _uiState.value.promoCode ?: return
-
-        viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.NavigateToComments(promoCode.id))
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
+            viewModelScope.launch {
+                _events.emit(PromocodeDetailEvent.NavigateToComments(currentPromoCode.id))
+            }
         }
     }
 
     private fun handleFollowService() {
-        val promoCode = _uiState.value.promoCode ?: return
-
-        viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.ShowFollowServiceTodo(promoCode.serviceName))
-        }
-    }
-
-    private fun handleFollowCategory() {
-        val promoCode = _uiState.value.promoCode ?: return
-        val category = promoCode.category ?: return
-
-        viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.ShowFollowCategoryTodo(category))
-        }
+        // TODO: Implement service following
+        _uiState.update { it.copy(isFollowingService = !it.isFollowingService) }
     }
 
     private fun handleBack() {
@@ -440,33 +603,66 @@ class PromocodeDetailViewModel @Inject constructor(
     }
 
     private fun handleServiceClick() {
-        val promoCode = _uiState.value.promoCode ?: return
-
-        viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.NavigateToService(promoCode.serviceName))
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
+            viewModelScope.launch {
+                _events.emit(PromocodeDetailEvent.NavigateToService(currentPromoCode.serviceName))
+            }
         }
+    }
+
+    private fun handleSignInWithGoogle() {
+        val currentAuthSheet = _uiState.value.authBottomSheet
+        if (currentAuthSheet != null) {
+            _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
+
+            viewModelScope.launch {
+                signInWithGoogleUseCase().collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _uiState.update { it.copy(authBottomSheet = null) }
+
+                            // Retry the original action
+                            when (currentAuthSheet.action) {
+                                AuthPromptAction.SubmitPromoCode -> {} // User will click submit again
+                                AuthPromptAction.UpvotePromoCode -> {} // User will click upvote again
+                                AuthPromptAction.DownvotePromoCode -> {} // User will click downvote again
+                                AuthPromptAction.WriteComment -> {} // User will click comment again
+                                AuthPromptAction.BookmarkPromoCode -> {} // User will click bookmark again
+                                AuthPromptAction.FollowStore -> {} // User will click follow again
+                            }
+                        }
+                        is Result.Error -> {
+                            Logger.e("PromocodeDetailViewModel") { "Sign in error: ${result.error}" }
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    authBottomSheet = currentAuthSheet.copy(isLoading = false),
+                                    errorType = result.error,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun dismissAuthSheet() {
+        _uiState.update { it.copy(authBottomSheet = null) }
     }
 
     private fun handleRetry() {
-        val errorType = _uiState.value.errorType
-        if (errorType != null && isErrorTypeRetryable(errorType)) {
-            refreshCurrentPromocode()
+        val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode
+        if (currentPromoCode != null) {
+            loadPromocode(currentPromoCode.id)
         }
     }
 
-    private fun isErrorTypeRetryable(errorType: ErrorType): Boolean =
-        when (errorType) {
-            ErrorType.NETWORK_TIMEOUT,
-            ErrorType.NETWORK_NO_CONNECTION,
-            ErrorType.NETWORK_HOST_UNREACHABLE,
-            ErrorType.NETWORK_GENERAL,
-            ErrorType.SERVICE_UNAVAILABLE_GENERAL,
-            ErrorType.SERVICE_CONFIGURATION_ERROR,
-            ErrorType.UNKNOWN_ERROR -> true
-            else -> false
-        }
-
     private fun dismissError() {
         _uiState.update { it.copy(errorType = null) }
+    }
+
+    private fun showAuthBottomSheet(action: AuthPromptAction) {
+        _uiState.update { it.copy(authBottomSheet = AuthBottomSheetState(action)) }
     }
 }

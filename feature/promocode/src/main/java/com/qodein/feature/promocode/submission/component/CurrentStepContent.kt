@@ -1,192 +1,552 @@
 package com.qodein.feature.promocode.submission.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.component.QodeTextField
+import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.ProgressiveStep
 import com.qodein.feature.promocode.submission.PromoCodeType
-import com.qodein.feature.promocode.submission.ServiceSelectionUiState
+import com.qodein.feature.promocode.submission.SubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.component.steps.DateSelector
+import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeSelector
+import com.qodein.feature.promocode.submission.component.steps.ServiceStepContent
+import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
+import com.qodein.feature.promocode.submission.validation.getPromoCodeValidationError
+import kotlinx.coroutines.delay
+
+// Simple UI validation states for field feedback
+private enum class FieldValidationState {
+    IDLE,
+    VALIDATING,
+    VALID,
+    ERROR
+}
 
 @Composable
-fun CurrentStepContent(
-    currentStep: ProgressiveStep,
+fun SubmissionWizardStepContent(
+    currentStep: SubmissionStep,
     wizardData: SubmissionWizardData,
-    serviceSelectionUiState: ServiceSelectionUiState,
     onAction: (SubmissionWizardAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (currentStep) {
-        ProgressiveStep.SERVICE -> {
-            ServiceSelectionCard(
-                serviceName = wizardData.serviceName,
-                showManualEntry = serviceSelectionUiState is ServiceSelectionUiState.ManualEntry,
-                onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
-                onSelectService = { onAction(SubmissionWizardAction.ShowServiceSelector) },
-                onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
-                modifier = modifier,
-            )
-        }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
-        ProgressiveStep.DISCOUNT_TYPE -> {
-            PromoCodeTypeSelector(
+    // Auto-focus when step changes
+    LaunchedEffect(currentStep) {
+        delay(300) // Wait for animations to settle
+        focusRequester.requestFocus()
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        when (currentStep) {
+            SubmissionStep.SERVICE -> ServiceStepContent(
+                selectedService = wizardData.selectedService,
+                serviceName = wizardData.serviceName,
+                isManualEntry = wizardData.isManualServiceEntry,
+                onShowServiceSelector = { onAction(SubmissionWizardAction.ShowServiceSelector) },
+                onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
+                onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
+                focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+            )
+
+            SubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
                 selectedType = wizardData.promoCodeType,
                 onTypeSelected = { onAction(SubmissionWizardAction.UpdatePromoCodeType(it)) },
-                modifier = modifier,
             )
-        }
 
-        ProgressiveStep.PROMO_CODE -> {
-            QodeTextField(
-                value = wizardData.promoCode,
-                onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
-                label = "Promo Code",
-                placeholder = "SAVE20",
-                modifier = modifier.fillMaxWidth(),
-                required = true,
+            SubmissionStep.PROMO_CODE -> PromoCodeStepContent(
+                promoCode = wizardData.promoCode,
+                onPromoCodeChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
+                focusRequester = focusRequester,
+                keyboardController = keyboardController,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
             )
-        }
 
-        ProgressiveStep.DISCOUNT_VALUE -> {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-                ) {
-                    // Discount field
-                    when (wizardData.promoCodeType) {
-                        PromoCodeType.PERCENTAGE -> {
-                            QodeTextField(
-                                value = wizardData.discountPercentage,
-                                onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
-                                label = "Percentage",
-                                placeholder = "20",
-                                modifier = Modifier.weight(1f),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                required = true,
-                            )
-                        }
-                        PromoCodeType.FIXED_AMOUNT -> {
-                            QodeTextField(
-                                value = wizardData.discountAmount,
-                                onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
-                                label = "Amount (₸)",
-                                placeholder = "100",
-                                modifier = Modifier.weight(1f),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                required = true,
-                            )
-                        }
-                        null -> Unit
+            SubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
+                promoCodeType = wizardData.promoCodeType,
+                discountPercentage = wizardData.discountPercentage,
+                discountAmount = wizardData.discountAmount,
+                onDiscountPercentageChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
+                onDiscountAmountChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
+                focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+            )
+
+            SubmissionStep.MINIMUM_ORDER -> MinimumOrderStepContent(
+                minimumOrderAmount = wizardData.minimumOrderAmount,
+                onMinimumOrderAmountChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
+                focusRequester = focusRequester,
+                wizardData = wizardData,
+                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+            )
+
+            SubmissionStep.ELIGIBILITY -> EligibilityStepContent(
+                isFirstUserOnly = wizardData.isFirstUserOnly,
+                isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
+                onFirstUserOnlyChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
+                onOneTimeUseOnlyChange = { onAction(SubmissionWizardAction.UpdateOneTimeUseOnly(it)) },
+                focusRequester = focusRequester,
+            )
+
+            SubmissionStep.DESCRIPTION -> DescriptionStepContent(
+                description = wizardData.description,
+                onDescriptionChange = { onAction(SubmissionWizardAction.UpdateDescription(it)) },
+                focusRequester = focusRequester,
+                onNextStep = { onAction(SubmissionWizardAction.SubmitPromoCode) },
+            )
+
+            SubmissionStep.START_DATE -> StartDateStepContent(
+                startDate = wizardData.startDate,
+                onDateSelected = { onAction(SubmissionWizardAction.UpdateStartDate(it)) },
+            )
+
+            SubmissionStep.END_DATE -> EndDateStepContent(
+                endDate = wizardData.endDate,
+                onDateSelected = { date ->
+                    if (date != null) {
+                        onAction(SubmissionWizardAction.UpdateEndDate(date))
                     }
-
-                    // Min order field
-                    QodeTextField(
-                        value = wizardData.minimumOrderAmount,
-                        onValueChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
-                        label = "Min Order (₸)",
-                        placeholder = "500",
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        required = true,
-                    )
-                }
-            }
+                },
+            )
         }
+    }
+}
 
-        ProgressiveStep.OPTIONS -> {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-            ) {
-                // First user only checkbox
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = wizardData.isFirstUserOnly,
-                        onCheckedChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
-                    )
-                    Text(
-                        text = "First-time customers only",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
+@Composable
+private fun DiscountTypeStepContent(
+    selectedType: PromoCodeType?,
+    onTypeSelected: (PromoCodeType) -> Unit
+) {
+    PromocodeTypeSelector(
+        selectedType = selectedType,
+        onTypeSelected = onTypeSelected,
+    )
+}
 
-                // Description
-                QodeTextField(
-                    value = wizardData.description,
-                    onValueChange = { onAction(SubmissionWizardAction.UpdateDescription(it)) },
-                    label = "Description (Optional)",
-                    placeholder = "Add details about this promo code...",
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+// TODO: Add paste button
+@Composable
+private fun PromoCodeStepContent(
+    promoCode: String,
+    onPromoCodeChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    keyboardController: SoftwareKeyboardController?,
+    onNextStep: () -> Unit
+) {
+    var validationState by remember { mutableStateOf(FieldValidationState.IDLE) }
+
+    // Centralized validation for promo codes
+    LaunchedEffect(promoCode) {
+        if (promoCode.isNotEmpty()) {
+            validationState = FieldValidationState.VALIDATING
+            delay(300) // Simulate validation
+
+            validationState = if (getPromoCodeValidationError(promoCode) == null) {
+                FieldValidationState.VALID
+            } else {
+                FieldValidationState.ERROR
+            }
+        } else {
+            validationState = FieldValidationState.IDLE
+        }
+    }
+
+    SubmissionTextField(
+        value = promoCode,
+        onValueChange = { newValue ->
+            // Smart formatting: default uppercase but allow user control
+            val formatted = newValue
+                .filter { it.isLetterOrDigit() || it == '-' || it == ' ' }
+                .take(50) // Allow up to 50 chars to handle most real promo codes
+            onPromoCodeChange(formatted)
+        },
+        label = "Promo Code",
+        placeholder = "Enter promo code (e.g., SAVE20)",
+        leadingIcon = QodeCommerceIcons.PromoCode,
+        errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
+            getPromoCodeValidationError(promoCode)
+        } else {
+            null
+        },
+        helperText = "Enter the promo code exactly as shown (2-50 characters)",
+        isRequired = true,
+        focusRequester = focusRequester,
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Companion.Characters,
+            imeAction = ImeAction.Companion.Next,
+            keyboardType = KeyboardType.Companion.Text,
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { onNextStep() },
+        ),
+    )
+}
+
+@Composable
+private fun DiscountValueStepContent(
+    promoCodeType: PromoCodeType?,
+    discountPercentage: String,
+    discountAmount: String,
+    onDiscountPercentageChange: (String) -> Unit,
+    onDiscountAmountChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    onNextStep: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        // Discount value field (changes based on type)
+        when (promoCodeType) {
+            PromoCodeType.PERCENTAGE -> {
+                SubmissionTextField(
+                    value = discountPercentage,
+                    onValueChange = onDiscountPercentageChange,
+                    label = "Discount Percentage",
+                    placeholder = "20",
+                    fieldType = SubmissionFieldType.PERCENTAGE,
+                    leadingIcon = QodeCommerceIcons.Sale,
+                    helperText = "Enter percentage (1-99%)",
+                    isRequired = true,
+                    focusRequester = focusRequester,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Number,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { onNextStep() },
+                    ),
+                    supportingContent = {
+                        if (discountPercentage.isNotEmpty()) {
+                            val percentage = discountPercentage.toIntOrNull() ?: 0
+                            if (percentage > 0) {
+                                Text(
+                                    text = "Customer saves $percentage% on their order",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+            PromoCodeType.FIXED_AMOUNT -> {
+                SubmissionTextField(
+                    value = discountAmount,
+                    onValueChange = onDiscountAmountChange,
+                    label = "Discount Amount",
+                    placeholder = "500",
+                    fieldType = SubmissionFieldType.CURRENCY,
+                    leadingIcon = QodeCommerceIcons.Dollar,
+                    helperText = "Enter amount in ₸ (tenge)",
+                    isRequired = true,
+                    focusRequester = focusRequester,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Number,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { onNextStep() },
+                    ),
+                    supportingContent = {
+                        if (discountAmount.isNotEmpty()) {
+                            val amount = discountAmount.toIntOrNull() ?: 0
+                            if (amount > 0) {
+                                Text(
+                                    text = "Customer saves ₸$amount on their order",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+            null -> {
+                SubmissionTextField(
+                    value = "",
+                    onValueChange = { },
+                    label = "Discount Value",
+                    placeholder = "Select discount type first",
+                    enabled = false,
+                    helperText = "Choose a discount type in the previous step",
                 )
             }
         }
+    }
+}
 
-        ProgressiveStep.START_DATE -> {
-            DatePickerStep(
-                label = "Start Date",
-                selectedDate = wizardData.startDate,
-                onDateSelected = { onAction(SubmissionWizardAction.UpdateStartDate(it)) },
-                modifier = modifier,
+@Composable
+private fun MinimumOrderStepContent(
+    minimumOrderAmount: String,
+    onMinimumOrderAmountChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    wizardData: SubmissionWizardData,
+    onNextStep: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        SubmissionTextField(
+            value = minimumOrderAmount,
+            onValueChange = onMinimumOrderAmountChange,
+            label = "Minimum Order Amount",
+            placeholder = "1000",
+            fieldType = SubmissionFieldType.CURRENCY,
+            leadingIcon = QodeCommerceIcons.Dollar,
+            helperText = "Minimum order value required to apply this discount",
+            errorText = getBusinessLogicValidationError(wizardData),
+            isRequired = true,
+            focusRequester = focusRequester,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Number,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { onNextStep() },
+            ),
+        )
+    }
+}
+
+@Composable
+private fun EligibilityStepContent(
+    isFirstUserOnly: Boolean,
+    isOneTimeUseOnly: Boolean,
+    onFirstUserOnlyChange: (Boolean) -> Unit,
+    onOneTimeUseOnlyChange: (Boolean) -> Unit,
+    focusRequester: FocusRequester
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        // First user only toggle
+        val options = listOf(
+            SubmissionFieldOption(
+                value = "all",
+                label = "All Customers",
+                description = "Any customer can use this promo code",
+            ),
+            SubmissionFieldOption(
+                value = "first",
+                label = "First-time Customers Only",
+                description = "Only new customers can use this code",
+            ),
+        )
+
+        // Simple toggle for customer eligibility
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        ) {
+            Text(
+                text = "Customer Eligibility",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
             )
+
+            options.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onFirstUserOnlyChange(option.value == "first")
+                        }
+                        .padding(SpacingTokens.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = (isFirstUserOnly && option.value == "first") || (!isFirstUserOnly && option.value == "all"),
+                        onClick = { onFirstUserOnlyChange(option.value == "first") },
+                    )
+                    Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                    Column {
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        option.description?.let { desc ->
+                            Text(
+                                text = desc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
         }
 
-        ProgressiveStep.END_DATE -> {
-            DatePickerStep(
-                label = "End Date",
-                selectedDate = wizardData.endDate,
-                onDateSelected = { onAction(SubmissionWizardAction.UpdateEndDate(it)) },
-                placeholder = "Select end date",
-                isRequired = true,
-                modifier = modifier,
+        // Usage Limitation Group
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        ) {
+            Text(
+                text = "Usage Limitation",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            val usageOptions = listOf(
+                SubmissionFieldOption(
+                    value = "multiple",
+                    label = "Multiple uses",
+                    description = "Can be used multiple times",
+                ),
+                SubmissionFieldOption(
+                    value = "oneTime",
+                    label = "One-time use only",
+                    description = "Code gets deleted after first use",
+                ),
+            )
+
+            usageOptions.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onOneTimeUseOnlyChange(option.value == "oneTime")
+                        }
+                        .padding(SpacingTokens.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = (isOneTimeUseOnly && option.value == "oneTime") || (!isOneTimeUseOnly && option.value == "multiple"),
+                        onClick = { onOneTimeUseOnlyChange(option.value == "oneTime") },
+                    )
+                    Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                    Column {
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        option.description?.let { desc ->
+                            Text(
+                                text = desc,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DescriptionStepContent(
+    description: String,
+    onDescriptionChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    onNextStep: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        SubmissionTextField(
+            value = description,
+            onValueChange = onDescriptionChange,
+            label = "Description",
+            placeholder = "Brief description of the offer (optional)",
+            helperText = "Add a description to help customers understand the offer better",
+            focusRequester = focusRequester,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onNextStep() },
+            ),
+        )
+    }
+}
+
+@Composable
+private fun StartDateStepContent(
+    startDate: java.time.LocalDate,
+    onDateSelected: (java.time.LocalDate) -> Unit
+) {
+    DateSelector(
+        label = "Start Date",
+        selectedDate = startDate,
+        onDateSelected = onDateSelected,
+        placeholder = "Select start date",
+        isRequired = true,
+    )
+}
+
+@Composable
+private fun EndDateStepContent(
+    endDate: java.time.LocalDate?,
+    onDateSelected: (java.time.LocalDate?) -> Unit
+) {
+    DateSelector(
+        label = "End Date",
+        selectedDate = endDate,
+        onDateSelected = { date -> onDateSelected(date) },
+        placeholder = "Select end date",
+        isRequired = true,
+    )
+}
+
+@Preview(name = "Service Step Content", showBackground = true)
+@Composable
+private fun ServiceStepContentPreview() {
+    QodeTheme {
+        Column(modifier = Modifier.padding(SpacingTokens.md)) {
+            SubmissionWizardStepContent(
+                currentStep = SubmissionStep.SERVICE,
+                wizardData = SubmissionWizardData(),
+                onAction = {},
             )
         }
     }
 }
 
-@Preview(name = "Current Step Content - Service", showBackground = true)
+@Preview(name = "Promo Code Step Content", showBackground = true)
 @Composable
-private fun CurrentStepContentServicePreview() {
+private fun PromoCodeStepContentPreview() {
     QodeTheme {
-        CurrentStepContent(
-            currentStep = ProgressiveStep.SERVICE,
-            wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.Default,
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Current Step Content - Promo Type", showBackground = true)
-@Composable
-private fun CurrentStepContentPromoTypePreview() {
-    QodeTheme {
-        CurrentStepContent(
-            currentStep = ProgressiveStep.DISCOUNT_TYPE,
-            wizardData = SubmissionWizardData(),
-            serviceSelectionUiState = ServiceSelectionUiState.Default,
-            onAction = {},
-        )
+        Column(modifier = Modifier.padding(SpacingTokens.md)) {
+            SubmissionWizardStepContent(
+                currentStep = SubmissionStep.PROMO_CODE,
+                wizardData = SubmissionWizardData(promoCode = "SAVE20"),
+                onAction = {},
+            )
+        }
     }
 }

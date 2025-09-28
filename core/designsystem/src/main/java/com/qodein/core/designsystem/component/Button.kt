@@ -115,7 +115,7 @@ fun QodeButton(
     // Modern animation using design tokens
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled && !loading) MotionTokens.Scale.PRESSED else 1f,
-        animationSpec = AnimationTokens.Spec.fast,
+        animationSpec = AnimationTokens.Spec.fast(),
         label = "button_scale",
     )
 
@@ -314,7 +314,7 @@ fun QodeIconButton(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled && !loading) MotionTokens.Scale.ICON_PRESSED else 1f,
-        animationSpec = AnimationTokens.Spec.fast,
+        animationSpec = AnimationTokens.Spec.fast(),
         label = "icon_button_scale",
     )
 

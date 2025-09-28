@@ -244,21 +244,43 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
         val scrollState = _currentScrollableState.value
         when (scrollState) {
             is LazyListState -> {
-                // Use animateScrollToItem instead of scrollToItem for smooth animation
                 coroutineScope.launch {
-                    scrollState.animateScrollToItem(0)
+                    // Check if we're far from top - if so, jump closer first then animate smoothly
+                    val firstVisibleIndex = scrollState.firstVisibleItemIndex
+                    if (firstVisibleIndex > 10) {
+                        // Jump to item 5 first, then smoothly animate to top
+                        scrollState.scrollToItem(5)
+                        scrollState.animateScrollToItem(0)
+                    } else {
+                        // We're close to top, just animate smoothly
+                        scrollState.animateScrollToItem(0)
+                    }
                 }
             }
             is ScrollState -> {
-                // Animate scroll to top position
                 coroutineScope.launch {
-                    scrollState.animateScrollTo(0)
+                    // Check if we're far from top
+                    if (scrollState.value > 2000) {
+                        // Jump closer first, then animate smoothly
+                        scrollState.scrollTo(500)
+                        scrollState.animateScrollTo(0)
+                    } else {
+                        // We're close to top, just animate smoothly
+                        scrollState.animateScrollTo(0)
+                    }
                 }
             }
             is LazyGridState -> {
-                // Animate scroll to first item
                 coroutineScope.launch {
-                    scrollState.animateScrollToItem(0)
+                    val firstVisibleIndex = scrollState.firstVisibleItemIndex
+                    if (firstVisibleIndex > 10) {
+                        // Jump to item 5 first, then smoothly animate to top
+                        scrollState.scrollToItem(5)
+                        scrollState.animateScrollToItem(0)
+                    } else {
+                        // We're close to top, just animate smoothly
+                        scrollState.animateScrollToItem(0)
+                    }
                 }
             }
             // No scroll state available - ignore the scroll to top request

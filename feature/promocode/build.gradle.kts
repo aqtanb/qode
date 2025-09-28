@@ -40,7 +40,6 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
-    implementation(projects.feature.auth)
 
     implementation(projects.core.data)
 
@@ -55,6 +54,9 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     implementation(libs.bundles.image.loading)
+
+    // Haze blur library
+    implementation(libs.haze)
 
     // Dependency Injection
     implementation(libs.bundles.hilt)

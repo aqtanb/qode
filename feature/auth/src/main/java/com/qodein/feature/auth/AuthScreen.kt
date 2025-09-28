@@ -40,16 +40,15 @@ import com.qodein.core.ui.FontScalePreviews
 import com.qodein.core.ui.MobilePreviews
 import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
-import com.qodein.core.ui.component.QodeActionErrorCard
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
-import com.qodein.core.ui.error.toLocalizedMessage
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.suggestedAction
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.UserError
 
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: SignInViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit = {},
     onNavigateToTermsOfService: () -> Unit = {},
     onNavigateToPrivacyPolicy: () -> Unit = {},
@@ -82,8 +81,8 @@ fun AuthScreen(
 @Composable
 fun AuthContent(
     modifier: Modifier = Modifier,
-    state: AuthUiState,
-    onAction: (AuthAction) -> Unit,
+    state: SignInUiState,
+    onAction: (SignInAction) -> Unit,
     isDarkTheme: Boolean
 ) {
     Box(
@@ -100,13 +99,12 @@ fun AuthContent(
             verticalArrangement = Arrangement.Center,
         ) {
             when (state) {
-                is AuthUiState.Error -> {
-                    // Show action-based error card with intelligent action mapping
-                    QodeActionErrorCard(
-                        message = state.errorType.toLocalizedMessage(),
-                        errorAction = state.errorType.suggestedAction(),
-                        onActionClicked = { onAction(AuthAction.RetryClicked) },
-                        onDismiss = { onAction(AuthAction.DismissErrorClicked) },
+                is SignInUiState.Error -> {
+                    // Show error card with new type-safe error handling
+                    QodeErrorCard(
+                        error = state.errorType,
+                        onRetry = { onAction(SignInAction.RetryClicked) },
+                        onDismiss = { onAction(SignInAction.DismissErrorClicked) },
                         modifier = modifier.fillMaxWidth(),
                     )
                 }
@@ -127,8 +125,8 @@ fun AuthContent(
 
 @Composable
 private fun AuthSignInCard(
-    state: AuthUiState,
-    onAction: (AuthAction) -> Unit,
+    state: SignInUiState,
+    onAction: (SignInAction) -> Unit,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
@@ -168,10 +166,10 @@ private fun AuthSignInCard(
 
             QodeGoogleSignInButton(
                 onClick = {
-                    onAction(AuthAction.SignInWithGoogleClicked)
+                    onAction(SignInAction.SignInWithGoogleClicked)
                 },
                 modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
-                isLoading = state is AuthUiState.Loading,
+                isLoading = state is SignInUiState.Loading,
                 isDarkTheme = isDarkTheme,
             )
 
@@ -194,7 +192,7 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.terms_of_service),
                         onClick = {
-                            onAction(AuthAction.TermsOfServiceClicked)
+                            onAction(SignInAction.TermsOfServiceClicked)
                         },
                         style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
@@ -209,7 +207,7 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.privacy_policy),
                         onClick = {
-                            onAction(AuthAction.PrivacyPolicyClicked)
+                            onAction(SignInAction.PrivacyPolicyClicked)
                         },
                         style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
@@ -227,7 +225,7 @@ private fun AuthSignInCard(
  */
 @Composable
 private fun AuthScreenPreview(
-    state: AuthUiState,
+    state: SignInUiState,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean = false
 ) {
@@ -247,7 +245,7 @@ private fun AuthScreenPreview(
 fun AuthScreenDevicePreviews() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Idle,
+            state = SignInUiState.Idle,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -261,7 +259,7 @@ fun AuthScreenDevicePreviews() {
 fun AuthScreenThemePreviews() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Idle,
+            state = SignInUiState.Idle,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -275,7 +273,7 @@ fun AuthScreenThemePreviews() {
 fun AuthScreenFontScalePreviews() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Idle,
+            state = SignInUiState.Idle,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -289,7 +287,7 @@ fun AuthScreenFontScalePreviews() {
 fun AuthScreenMobilePreviews() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Idle,
+            state = SignInUiState.Idle,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -303,7 +301,7 @@ fun AuthScreenMobilePreviews() {
 fun AuthScreenTabletPreviews() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Idle,
+            state = SignInUiState.Idle,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -317,7 +315,7 @@ fun AuthScreenTabletPreviews() {
 fun AuthScreenLoadingStatePreview() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Loading,
+            state = SignInUiState.Loading,
         )
     }
 }
@@ -330,8 +328,8 @@ fun AuthScreenLoadingStatePreview() {
 fun AuthScreenErrorStatePreview() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Error(
-                errorType = ErrorType.AUTH_USER_CANCELLED,
+            state = SignInUiState.Error(
+                errorType = UserError.AuthenticationFailure.Cancelled,
                 isRetryable = false,
                 shouldShowSnackbar = false,
                 errorCode = "AUTH_001",
@@ -348,8 +346,8 @@ fun AuthScreenErrorStatePreview() {
 fun AuthScreenNetworkErrorPreview() {
     QodeTheme {
         AuthScreenPreview(
-            state = AuthUiState.Error(
-                errorType = ErrorType.NETWORK_GENERAL,
+            state = SignInUiState.Error(
+                errorType = SystemError.Offline,
                 isRetryable = true,
                 shouldShowSnackbar = false,
                 errorCode = "NET_001",

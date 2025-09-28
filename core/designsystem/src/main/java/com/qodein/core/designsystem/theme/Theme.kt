@@ -95,7 +95,7 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHigh = surfaceContainerHighDark,
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
-
+/*
 private val mediumContrastLightColorScheme = lightColorScheme(
     primary = primaryLightMediumContrast,
     onPrimary = onPrimaryLightMediumContrast,
@@ -246,7 +246,7 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainer = surfaceContainerDarkHighContrast,
     surfaceContainerHigh = surfaceContainerHighDarkHighContrast,
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
-)
+)*/
 
 val extendedLight = ExtendedColorScheme(
     complementary = complementaryLight,
@@ -269,7 +269,7 @@ val extendedDark = ExtendedColorScheme(
     successContainer = successContainerDark,
     onSuccessContainer = onSuccessContainerDark,
 )
-
+/*
 val extendedLightMediumContrast = ExtendedColorScheme(
     complementary = complementaryLightMediumContrast,
     onComplementary = onComplementaryLightMediumContrast,
@@ -313,6 +313,7 @@ val extendedDarkHighContrast = ExtendedColorScheme(
     successContainer = successContainerDark,
     onSuccessContainer = onSuccessContainerDark,
 )
+*/
 
 // CompositionLocal for extended colors
 val LocalExtendedColorScheme = staticCompositionLocalOf {

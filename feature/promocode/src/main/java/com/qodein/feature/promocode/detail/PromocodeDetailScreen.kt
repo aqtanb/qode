@@ -39,19 +39,17 @@ import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.core.ui.component.QodeActionErrorCard
-import com.qodein.feature.auth.component.requireAuthentication
+import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.shared.common.result.ErrorAction
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
+import com.qodein.shared.model.PromoCodeWithUserState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,17 +66,16 @@ fun PromocodeDetailScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Load promocode on first composition
+    // Load promocode on first composition - enhanced for authenticated users
     LaunchedEffect(promoCodeId) {
         viewModel.onAction(PromocodeDetailAction.LoadPromocode(promoCodeId))
     }
 
     // Authentication-protected bookmark action
-    val requireBookmark = requireAuthentication(
-        action = AuthPromptAction.BookmarkPromoCode,
-        onAuthenticated = { viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked) },
-        isDarkTheme = isDarkTheme,
-    )
+    val requireBookmark = {
+        // This will be handled by wrapping the button in AuthenticationGate
+        viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked)
+    }
 
     // Handle events
     LaunchedEffect(Unit) {
@@ -114,11 +111,15 @@ fun PromocodeDetailScreen(
                         duration = SnackbarDuration.Short,
                     )
                 }
+                is PromocodeDetailEvent.ShowAuthenticationRequired -> {
+                    // This event is no longer used - authentication is handled via UI state
+                }
             }
         }
     }
 
     // Screen-level scaffold with own top bar to avoid app-level coupling
+    // TODO: Make it have positive UI
     Scaffold(
         topBar = {
             QodeTopAppBar(
@@ -129,8 +130,12 @@ fun PromocodeDetailScreen(
                 statusBarPadding = true, // Add status bar padding manually
                 actions = listOf(
                     TopAppBarAction(
-                        icon = QodeActionIcons.Bookmark,
-                        contentDescription = if (uiState.promoCode?.isBookmarkedByCurrentUser == true) {
+                        icon = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
+                            QodeActionIcons.BookmarkFilled
+                        } else {
+                            QodeActionIcons.Bookmark
+                        },
+                        contentDescription = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
                             "Remove bookmark"
                         } else {
                             "Bookmark promocode"
@@ -197,12 +202,9 @@ private fun PromocodeDetailContent(
                         .padding(SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
-                    QodeActionErrorCard(
+                    QodeErrorCard(
                         message = "Failed to load promocode details. Please try again.",
-                        errorAction = uiState.errorType?.let {
-                            ErrorAction.RETRY
-                        } ?: ErrorAction.DISMISS_ONLY,
-                        onActionClicked = { onAction(PromocodeDetailAction.RetryClicked) },
+                        onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
                         onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
                     )
                 }
@@ -210,7 +212,17 @@ private fun PromocodeDetailContent(
 
             uiState.hasData -> {
                 // Content state
-                val promoCode = uiState.promoCode!!
+                val promoCodeWithUserState = uiState.promoCodeWithUserState!!
+                val promoCode = promoCodeWithUserState.promoCode
+
+                // Vote actions - auth checking now handled in ViewModel
+                val requireUpvote = {
+                    onAction(PromocodeDetailAction.UpvoteClicked)
+                }
+
+                val requireDownvote = {
+                    onAction(PromocodeDetailAction.DownvoteClicked)
+                }
 
                 Column(
                     modifier = Modifier
@@ -228,10 +240,8 @@ private fun PromocodeDetailContent(
                     ServiceInfoSection(
                         promoCode = promoCode,
                         isFollowingService = uiState.isFollowingService,
-                        isFollowingCategory = uiState.isFollowingCategory,
                         onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
                         onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
-                        onFollowCategoryClicked = { onAction(PromocodeDetailAction.FollowCategoryClicked) },
                         isDarkTheme = isDarkTheme,
                     )
 
@@ -241,19 +251,20 @@ private fun PromocodeDetailContent(
                     // Action Buttons Section
                     ActionButtonsSection(
                         promoCode = promoCode,
-                        isVoting = uiState.isVoting,
+                        isUpvotedByCurrentUser = promoCodeWithUserState.isUpvotedByCurrentUser,
+                        isDownvotedByCurrentUser = promoCodeWithUserState.isDownvotedByCurrentUser,
                         showVoteAnimation = uiState.showVoteAnimation,
                         lastVoteType = uiState.lastVoteType,
                         isSharing = uiState.isSharing,
-                        onUpvoteClicked = { onAction(PromocodeDetailAction.UpvoteClicked) },
-                        onDownvoteClicked = { onAction(PromocodeDetailAction.DownvoteClicked) },
+                        onUpvoteClicked = requireUpvote,
+                        onDownvoteClicked = requireDownvote,
                         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
                         onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
-                        isDarkTheme = isDarkTheme,
                     )
 
                     FooterSection(
-                        views = promoCode.views,
+                        username = promoCode.createdByUsername,
+                        avatarUrl = promoCode.createdByAvatarUrl,
                         createdAt = promoCode.createdAt,
                         modifier = Modifier.padding(horizontal = SpacingTokens.md),
                     )
@@ -262,6 +273,17 @@ private fun PromocodeDetailContent(
                     Spacer(modifier = Modifier.height(SpacingTokens.md))
                 }
             }
+        }
+
+        // Authentication Bottom Sheet
+        uiState.authBottomSheet?.let { authSheetState ->
+            AuthenticationBottomSheet(
+                action = authSheetState.action,
+                isLoading = authSheetState.isLoading,
+                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
+                onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
+                isDarkTheme = isDarkTheme,
+            )
         }
     }
 }
@@ -310,30 +332,14 @@ private fun copyToClipboard(
 @Composable
 private fun PromocodeDetailScreenPreview() {
     QodeTheme(darkTheme = false) {
-        val samplePromoCode = PromoCode.PercentagePromoCode(
-            id = PromoCodeId("SAMPLE_ID"),
-            code = "FALL60",
-            serviceName = "Food Delivery Pro",
-            category = "Food",
-            description = "Казахстанда ең жақсы бағалар",
-            discountPercentage = 51.0,
-            minimumOrderAmount = 76060.0,
-            startDate = Clock.System.now(),
-            endDate = Clock.System.now().plus(30.days),
-            upvotes = 331,
-            downvotes = 28,
-            views = 1250,
-            shares = 26,
-            isVerified = true,
-            targetCountries = listOf("KZ"),
-            isUpvotedByCurrentUser = false,
-            isDownvotedByCurrentUser = false,
-            isBookmarkedByCurrentUser = false,
-        )
+        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(
-                promoCode = samplePromoCode,
+                promoCodeWithUserState = PromoCodeWithUserState(
+                    promoCode = samplePromoCode,
+                    userInteraction = null,
+                ),
                 isLoading = false,
                 isBookmarked = true,
             ),

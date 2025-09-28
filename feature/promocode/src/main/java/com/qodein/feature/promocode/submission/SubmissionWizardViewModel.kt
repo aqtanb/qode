@@ -2,21 +2,21 @@ package com.qodein.feature.promocode.submission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.analytics.logPromoCodeSubmission
-import com.qodein.shared.common.result.ErrorType
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.domain.service.selection.SelectionState
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.promocode.CreatePromoCodeUseCase
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
+import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.UserId
+import com.qodein.shared.model.Service
+import com.qodein.shared.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -32,12 +31,27 @@ import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.time.toKotlinInstant
 
+/**
+ * ViewModel for the progressive promo code submission wizard.
+ *
+ * Manages the multi-step submission flow with clean separation of concerns:
+ * - UI state management and wizard navigation
+ * - Authentication state and service selection
+ * - Form validation and PromoCode creation (UI → Domain mapping)
+ * - Delegates business logic and analytics to SubmitPromocodeUseCase
+ *
+ * Architecture:
+ * - ViewModel: UI state, navigation, form data → PromoCode mapping
+ * - SubmitPromocodeUseCase: Business logic, validation, persistence, analytics
+ * - Clean dependency flow: UI → ViewModel → Use Case → Repository
+ */
 @HiltViewModel
 class SubmissionWizardViewModel @Inject constructor(
-    private val createPromoCodeUseCase: CreatePromoCodeUseCase,
+    private val submitPromocodeUseCase: SubmitPromocodeUseCase,
+    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
+    private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val serviceSearchManager: ServiceSearchManager,
-    private val analyticsHelper: AnalyticsHelper
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SubmissionWizardUiState>(SubmissionWizardUiState.Loading)
@@ -47,12 +61,10 @@ class SubmissionWizardViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     companion object {
-        // Analytics constants
-        private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
-        private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
-        private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
+        private const val TAG = "SubmissionWizardViewModel"
 
-        // Analytics parameter keys
+        // UI Analytics constants (step navigation only)
+        private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
         private const val PARAM_STEP_FROM = "step_from"
         private const val PARAM_STEP_TO = "step_to"
         private const val PARAM_DIRECTION = "direction"
@@ -62,7 +74,7 @@ class SubmissionWizardViewModel @Inject constructor(
 
     init {
         initialize()
-        setupServiceSearch()
+        setupAuthStateMonitoring()
     }
 
     // MARK: - Public API
@@ -72,6 +84,7 @@ class SubmissionWizardViewModel @Inject constructor(
             // Progressive step navigation
             SubmissionWizardAction.NextProgressiveStep -> goToNextProgressiveStep()
             SubmissionWizardAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
+            is SubmissionWizardAction.NavigateToStep -> navigateToStep(action.step)
 
             // Service selection UI actions
             SubmissionWizardAction.ShowServiceSelector -> showServiceSelector()
@@ -79,6 +92,7 @@ class SubmissionWizardViewModel @Inject constructor(
             SubmissionWizardAction.ToggleManualEntry -> toggleManualEntry()
 
             // Step 1: Core Details
+            is SubmissionWizardAction.SelectService -> selectService(action.service)
             is SubmissionWizardAction.UpdateServiceName -> updateServiceName(action.serviceName)
             is SubmissionWizardAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
             is SubmissionWizardAction.SearchServices -> searchServices(action.query)
@@ -87,6 +101,7 @@ class SubmissionWizardViewModel @Inject constructor(
             is SubmissionWizardAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
             is SubmissionWizardAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
             is SubmissionWizardAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
+            is SubmissionWizardAction.UpdateOneTimeUseOnly -> updateOneTimeUseOnly(action.isOneTimeUseOnly)
             is SubmissionWizardAction.UpdateDescription -> updateDescription(action.description)
 
             // Step 2: Date Settings
@@ -94,7 +109,13 @@ class SubmissionWizardViewModel @Inject constructor(
             is SubmissionWizardAction.UpdateEndDate -> updateEndDate(action.date)
 
             // Submission
+            is SubmissionWizardAction.SubmitPromoCodeWithUser -> submitPromoCode(action.user)
             SubmissionWizardAction.SubmitPromoCode -> submitPromoCode()
+
+            // Authentication
+            SubmissionWizardAction.SignInWithGoogle -> signInWithGoogle()
+            SubmissionWizardAction.DismissAuthSheet -> handleBack()
+            SubmissionWizardAction.ClearAuthError -> clearAuthError()
 
             // Error handling
             SubmissionWizardAction.RetryClicked -> initialize()
@@ -105,71 +126,39 @@ class SubmissionWizardViewModel @Inject constructor(
     // MARK: - Initialization
 
     private fun initialize() {
-        _uiState.update {
-            SubmissionWizardUiState.Success(
-                wizardData = SubmissionWizardData(),
-                currentProgressiveStep = ProgressiveStep.SERVICE,
-            )
-        }
+        _uiState.update { SubmissionWizardUiState.Success.initial() }
     }
 
-    private fun setupServiceSearch() {
-        viewModelScope.launch {
-            combine(
-                serviceSearchManager.searchQuery,
-                serviceSearchManager.searchResult,
-            ) { query, result ->
-                when (result) {
-                    is Result.Loading -> ServiceSelectionUiState.Searching(query, emptyList())
-                    is Result.Success -> ServiceSelectionUiState.Searching(query, result.data)
-                    is Result.Error -> ServiceSelectionUiState.Searching(query, emptyList())
-                }
-            }.collect { newSelectionUiState ->
-                _uiState.update { currentState ->
-                    when (currentState) {
-                        is SubmissionWizardUiState.Success -> currentState.copy(serviceSelectionUiState = newSelectionUiState)
-                        else -> currentState
-                    }
-                }
-            }
-        }
-    }
+    // Service selection state managed through ServiceSelectionManager - configured for single-selection
+    private val _serviceSelectionState = MutableStateFlow(
+        ServiceSelectionState(selection = SelectionState.Single()), // Submission allows only single service selection
+    )
+    val serviceSelectionState = _serviceSelectionState.asStateFlow()
+
+    // Expose ServiceCache for UI components that need service lookup
+    val cachedServices: StateFlow<Map<String, Service>> get() = serviceSelectionCoordinator.cachedServices
 
     // MARK: - Service Selection
 
     private fun showServiceSelector() {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(showServiceSelector = true)
-                else -> currentState
-            }
-        }
-        serviceSearchManager.clearQuery()
+        updateSuccessState { it.showServiceSelector() }
+        // Setup service selection and load popular services when showing the selector
+        setupServiceSelection()
+        handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
     }
 
     private fun hideServiceSelector() {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(
-                    showServiceSelector = false,
-                )
-                else -> currentState
-            }
-        }
+        updateSuccessState { it.hideServiceSelector() }
     }
 
     private fun toggleManualEntry() {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SubmissionWizardUiState.Success -> {
-                    val newState = when (currentState.serviceSelectionUiState) {
-                        ServiceSelectionUiState.ManualEntry -> ServiceSelectionUiState.Default
-                        else -> ServiceSelectionUiState.ManualEntry
-                    }
-                    currentState.copy(serviceSelectionUiState = newState)
-                }
-                else -> currentState
-            }
+        updateWizardData { data ->
+            data.copy(
+                isManualServiceEntry = !data.isManualServiceEntry,
+                // Clear the other service selection method when toggling
+                selectedService = if (!data.isManualServiceEntry) null else data.selectedService,
+                serviceName = if (data.isManualServiceEntry) "" else data.serviceName,
+            )
         }
     }
 
@@ -179,20 +168,25 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    val nextStep = currentState.currentProgressiveStep.next()
-                    if (nextStep != null && currentState.canGoNextProgressive) {
-                        // Track progressive step navigation
-                        analyticsHelper.logEvent(
-                            AnalyticsEvent(
-                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                                extras = listOf(
-                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
-                                    AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
-                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
+                    if (currentState.canGoNext) {
+                        val currentStep = currentState.wizardFlow.currentStep
+                        val nextStep = currentStep.next()
+                        if (nextStep != null) {
+                            // Track progressive step navigation
+                            analyticsHelper.logEvent(
+                                AnalyticsEvent(
+                                    type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                    extras = listOf(
+                                        AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
+                                        AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
+                                        AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
+                                    ),
                                 ),
-                            ),
-                        )
-                        currentState.copy(currentProgressiveStep = nextStep)
+                            )
+                            currentState.moveToNextStep()
+                        } else {
+                            currentState
+                        }
                     } else {
                         currentState
                     }
@@ -206,20 +200,25 @@ class SubmissionWizardViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is SubmissionWizardUiState.Success -> {
-                    val previousStep = currentState.currentProgressiveStep.previous()
-                    if (previousStep != null && currentState.canGoPreviousProgressive) {
-                        // Track progressive step navigation
-                        analyticsHelper.logEvent(
-                            AnalyticsEvent(
-                                type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                                extras = listOf(
-                                    AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentProgressiveStep.name),
-                                    AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
-                                    AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
+                    if (currentState.canGoPrevious) {
+                        val currentStep = currentState.wizardFlow.currentStep
+                        val previousStep = currentStep.previous()
+                        if (previousStep != null) {
+                            // Track progressive step navigation
+                            analyticsHelper.logEvent(
+                                AnalyticsEvent(
+                                    type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                                    extras = listOf(
+                                        AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
+                                        AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
+                                        AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
+                                    ),
                                 ),
-                            ),
-                        )
-                        currentState.copy(currentProgressiveStep = previousStep)
+                            )
+                            currentState.moveToPreviousStep()
+                        } else {
+                            currentState
+                        }
                     } else {
                         currentState
                     }
@@ -229,9 +228,110 @@ class SubmissionWizardViewModel @Inject constructor(
         }
     }
 
-    // MARK: - Data Updates
+    private fun navigateToStep(targetStep: SubmissionStep) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> {
+                    // Track step navigation
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
+                            extras = listOf(
+                                AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.wizardFlow.currentStep.name),
+                                AnalyticsEvent.Param(PARAM_STEP_TO, targetStep.name),
+                                AnalyticsEvent.Param(PARAM_DIRECTION, "DIRECT"),
+                            ),
+                        ),
+                    )
+                    currentState.copy(
+                        wizardFlow = currentState.wizardFlow.copy(
+                            currentStep = targetStep,
+                        ),
+                    )
+                }
+                else -> currentState
+            }
+        }
+    }
+
+    // MARK: - Authentication
+
+    private fun setupAuthStateMonitoring() {
+        viewModelScope.launch {
+            getAuthStateUseCase()
+                .collect { user ->
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is SubmissionWizardUiState.Success -> {
+                                val newAuthState = if (user != null) {
+                                    AuthenticationState.Authenticated(user)
+                                } else {
+                                    AuthenticationState.Unauthenticated
+                                }
+                                currentState.updateAuthentication(newAuthState)
+                            }
+                            is SubmissionWizardUiState.Loading,
+                            is SubmissionWizardUiState.Error -> currentState
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun signInWithGoogle() {
+        Logger.i(TAG) { "signInWithGoogle() called" }
+
+        _uiState.update { currentState ->
+            when (currentState) {
+                is SubmissionWizardUiState.Success -> currentState.updateAuthentication(AuthenticationState.Loading)
+                else -> currentState
+            }
+        }
+
+        viewModelScope.launch {
+            signInWithGoogleUseCase()
+                .collect { result ->
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is SubmissionWizardUiState.Success -> {
+                                val newAuthState = when (result) {
+                                    is Result.Success -> {
+                                        Logger.i(TAG) { "Sign-in successful" }
+                                        // Auth state will be updated via setupAuthStateMonitoring
+                                        return@update currentState
+                                    }
+                                    is Result.Error -> {
+                                        Logger.w(TAG) { "Sign-in failed: ${result.error}" }
+                                        AuthenticationState.Error(Exception(result.error.toString()))
+                                    }
+                                }
+                                currentState.updateAuthentication(newAuthState)
+                            }
+                            else -> currentState
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun clearAuthError() {
+        Logger.i(TAG) { "clearAuthError() called" }
+        updateSuccessState { currentState ->
+            when (currentState.authentication) {
+                is AuthenticationState.Error -> currentState.updateAuthentication(AuthenticationState.Unauthenticated)
+                else -> currentState
+            }
+        }
+    }
+
+    // MARK: - Data Updates (Step 1: Core Details)
+
+    private fun selectService(service: Service) {
+        updateWizardData { it.copy(selectedService = service) }
+    }
 
     private fun updateServiceName(serviceName: String) {
+        // Update the manual service name field
         updateWizardData { it.copy(serviceName = serviceName) }
     }
 
@@ -240,10 +340,9 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun searchServices(query: String) {
-        serviceSearchManager.updateQuery(query)
+        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
-    // Step 2 Updates
     private fun updatePromoCode(promoCode: String) {
         updateWizardData { it.copy(promoCode = promoCode) }
     }
@@ -264,7 +363,11 @@ class SubmissionWizardViewModel @Inject constructor(
         updateWizardData { it.copy(isFirstUserOnly = isFirstUserOnly) }
     }
 
-    // Step 3 Updates
+    private fun updateOneTimeUseOnly(isOneTimeUseOnly: Boolean) {
+        updateWizardData { it.copy(isOneTimeUseOnly = isOneTimeUseOnly) }
+    }
+
+    // MARK: - Data Updates (Step 2: Date Settings)
     private fun updateStartDate(date: LocalDate) {
         updateWizardData { it.copy(startDate = date) }
     }
@@ -278,167 +381,196 @@ class SubmissionWizardViewModel @Inject constructor(
     }
 
     private fun clearValidationErrors() {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.copy(validationErrors = emptyMap())
-                else -> currentState
-            }
+        updateSuccessState { it.clearValidationErrors() }
+    }
+
+    // MARK: - Service Selection Management
+
+    private fun setupServiceSelection() {
+        serviceSelectionCoordinator.setupServiceSelection(
+            scope = viewModelScope,
+            getCurrentState = { _serviceSelectionState.value },
+            onStateUpdate = { newState ->
+                _serviceSelectionState.update { newState }
+            },
+        )
+    }
+
+    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+        val currentState = _serviceSelectionState.value
+        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
+
+        _serviceSelectionState.update { newState }
+    }
+
+    private fun handleBack() {
+        viewModelScope.launch {
+            _events.emit(SubmissionWizardEvent.NavigateBack)
         }
     }
 
+    // MARK: - Submission Logic
+
+    /**
+     * Submit promo code with explicit user (for external calls)
+     */
+    private fun submitPromoCode(user: User) {
+        Logger.i(TAG) { "submitPromoCode() called with user: ${user.id.value}" }
+        performSubmission(user)
+    }
+
+    /**
+     * Submit promo code using authenticated user from current state
+     */
     private fun submitPromoCode() {
-        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: return
-        if (!currentState.canSubmitProgressive) return
+        Logger.i(TAG) { "submitPromoCode() called - using authenticated user" }
 
-        val wizardData = currentState.wizardData
-
-        _uiState.update { state ->
-            when (state) {
-                is SubmissionWizardUiState.Success -> state.copy(isSubmitting = true)
-                else -> state
-            }
+        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: run {
+            Logger.w(TAG) { "Cannot submit: currentState is not Success" }
+            return
         }
+
+        val authenticatedUser = (currentState.authentication as? AuthenticationState.Authenticated)?.user
+        if (authenticatedUser == null) {
+            Logger.w(TAG) { "Cannot submit: user is not authenticated" }
+            return
+        }
+
+        performSubmission(authenticatedUser)
+    }
+
+    /**
+     * Core submission logic - creates PromoCode and delegates to use case
+     */
+    private fun performSubmission(user: User) {
+        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: return
+
+        if (!currentState.canSubmit) {
+            Logger.w(TAG) { "Cannot submit: validation failed" }
+            return
+        }
+
+        val wizardData = currentState.wizardFlow.wizardData
+        Logger.d(TAG) { "Submitting: service='${wizardData.effectiveServiceName}', code='${wizardData.promoCode}'" }
+
+        updateSuccessState { it.startSubmission() }
 
         viewModelScope.launch {
-            // Get current user ID
-            var currentUserId: UserId? = null
-            getAuthStateUseCase().collect { authResult ->
-                when (authResult) {
-                    is Result.Success -> {
-                        when (val authState = authResult.data) {
-                            is AuthState.Authenticated -> {
-                                currentUserId = authState.user.id
-                                return@collect
-                            }
-                            else -> {
-                                // User not authenticated, handle error
-                                _uiState.update {
-                                    SubmissionWizardUiState.Error(
-                                        errorType = ErrorType.AUTH_UNAUTHORIZED,
-                                        isRetryable = false,
-                                        shouldShowSnackbar = true,
-                                        errorCode = "auth_required",
-                                    )
-                                }
-                                return@collect
-                            }
-                        }
-                    }
-                    else -> {
-                        // Auth state loading or error, handle it
-                        _uiState.update {
-                            SubmissionWizardUiState.Error(
-                                errorType = ErrorType.AUTH_UNAUTHORIZED,
-                                isRetryable = true,
-                                shouldShowSnackbar = true,
-                                errorCode = "auth_check_failed",
-                            )
-                        }
-                        return@collect
-                    }
-                }
-            }
+            val promoCodeResult = createPromoCodeFromWizardData(wizardData, user)
 
-            val promoCodeResult = when (wizardData.promoCodeType) {
-                PromoCodeType.PERCENTAGE -> PromoCode.createPercentage(
-                    code = wizardData.promoCode,
-                    serviceName = wizardData.serviceName,
-                    discountPercentage = wizardData.discountPercentage.toDoubleOrNull() ?: 0.0,
-                    description = wizardData.description.takeIf { it.isNotBlank() },
-                    minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    isFirstUserOnly = wizardData.isFirstUserOnly,
-                    createdBy = currentUserId,
-                )
-                PromoCodeType.FIXED_AMOUNT -> PromoCode.createFixedAmount(
-                    code = wizardData.promoCode,
-                    serviceName = wizardData.serviceName,
-                    discountAmount = wizardData.discountAmount.toDoubleOrNull() ?: 0.0,
-                    description = wizardData.description.takeIf { it.isNotBlank() },
-                    minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                    startDate = wizardData.startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    endDate = wizardData.endDate!!.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant(),
-                    isFirstUserOnly = wizardData.isFirstUserOnly,
-                    createdBy = currentUserId,
-                )
-                null -> return@launch
-            }
-
-            promoCodeResult.fold(
-                onSuccess = { promoCode ->
-                    createPromoCodeUseCase(promoCode)
+            when (promoCodeResult) {
+                is Result.Success -> {
+                    submitPromocodeUseCase(promoCodeResult.data)
                         .catch { exception ->
-                            _uiState.update {
-                                SubmissionWizardUiState.Error(
-                                    errorType = exception.toErrorType(),
-                                    isRetryable = exception.isRetryable(),
-                                    shouldShowSnackbar = exception.shouldShowSnackbar(),
-                                    errorCode = exception.getErrorCode(),
-                                )
-                            }
+                            updateSuccessState { it.submitError(exception) }
                         }
                         .collect { result ->
-                            when (result) {
-                                is Result.Loading -> { /* Loading state if needed */ }
-                                is Result.Success -> {
-                                    // Track successful promo code submission
-                                    analyticsHelper.logPromoCodeSubmission(
-                                        promocodeId = result.data.id.value,
-                                        promocodeType = when (promoCode) {
-                                            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
-                                            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
-                                        },
-                                        success = true,
-                                    )
-                                    _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
-                                    _events.emit(SubmissionWizardEvent.NavigateBack)
-                                }
-                                is Result.Error -> {
-                                    // Track failed promo code submission
-                                    analyticsHelper.logPromoCodeSubmission(
-                                        promocodeId = "unknown",
-                                        promocodeType = when (promoCode) {
-                                            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
-                                            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
-                                        },
-                                        success = false,
-                                    )
-                                    _uiState.update {
-                                        SubmissionWizardUiState.Error(
-                                            errorType = result.exception.toErrorType(),
-                                            isRetryable = result.exception.isRetryable(),
-                                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                            errorCode = result.exception.getErrorCode(),
-                                        )
+                            updateSuccessState { state ->
+                                when (result) {
+                                    is Result.Success -> {
+                                        // UI navigation events (not business analytics)
+                                        viewModelScope.launch {
+                                            _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
+                                            _events.emit(SubmissionWizardEvent.NavigateBack)
+                                        }
+                                        state.submitSuccess(result.data.id.value)
                                     }
+                                    is Result.Error -> state.submitError(Exception(result.error.toString()))
                                 }
                             }
                         }
-                },
-                onFailure = { exception ->
-                    _uiState.update {
-                        SubmissionWizardUiState.Error(
-                            errorType = exception.toErrorType(),
-                            isRetryable = exception.isRetryable(),
-                            shouldShowSnackbar = exception.shouldShowSnackbar(),
-                            errorCode = exception.getErrorCode(),
-                        )
-                    }
-                },
-            )
+                }
+                is Result.Error -> {
+                    updateSuccessState { it.submitError(Exception(promoCodeResult.error.toString())) }
+                }
+            }
         }
     }
 
-    private fun updateWizardData(update: (SubmissionWizardData) -> SubmissionWizardData) {
+    /**
+     * Create PromoCode instance from wizard data and user info
+     * (UI → Domain mapping responsibility)
+     */
+    private fun createPromoCodeFromWizardData(
+        wizardData: SubmissionWizardData,
+        user: User
+    ): Result<PromoCode, SystemError> {
+        val serviceLogoUrl = wizardData.selectedService?.logoUrl
+        val category = wizardData.selectedService?.category ?: "Unspecified"
+
+        return try {
+            when (wizardData.promoCodeType) {
+                PromoCodeType.PERCENTAGE -> Result.Success(
+                    PromoCode.createPercentage(
+                        code = wizardData.promoCode,
+                        serviceName = wizardData.effectiveServiceName,
+                        serviceId = wizardData.selectedService?.id,
+                        discountPercentage = wizardData.discountPercentage.toDoubleOrNull() ?: 0.0,
+                        description = wizardData.description.takeIf { it.isNotBlank() },
+                        minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
+                        startDate = wizardData.startDate.toInstant(),
+                        endDate = wizardData.endDate!!.toInstant(),
+                        isFirstUserOnly = wizardData.isFirstUserOnly,
+                        createdBy = user.id,
+                        createdByUsername = user.profile.displayName,
+                        createdByAvatarUrl = user.profile.photoUrl,
+                        serviceLogoUrl = serviceLogoUrl,
+                        targetCountries = listOf("KZ"), // Kazakhstan market
+                        category = category,
+                    ).getOrThrow(),
+                )
+
+                PromoCodeType.FIXED_AMOUNT -> Result.Success(
+                    PromoCode.createFixedAmount(
+                        code = wizardData.promoCode,
+                        serviceName = wizardData.effectiveServiceName,
+                        serviceId = wizardData.selectedService?.id,
+                        discountAmount = wizardData.discountAmount.toDoubleOrNull() ?: 0.0,
+                        description = wizardData.description.takeIf { it.isNotBlank() },
+                        minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
+                        startDate = wizardData.startDate.toInstant(),
+                        endDate = wizardData.endDate!!.toInstant(),
+                        isFirstUserOnly = wizardData.isFirstUserOnly,
+                        createdBy = user.id,
+                        createdByUsername = user.profile.displayName,
+                        createdByAvatarUrl = user.profile.photoUrl,
+                        serviceLogoUrl = serviceLogoUrl,
+                        targetCountries = listOf("KZ"), // Kazakhstan market
+                        category = category,
+                    ).getOrThrow(),
+                )
+
+                null -> Result.Error(SystemError.Unknown)
+            }
+        } catch (exception: Exception) {
+            Result.Error(SystemError.Unknown)
+        }
+    }
+
+    /**
+     * Convert LocalDate to Instant for PromoCode creation
+     */
+    private fun LocalDate.toInstant() = this.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant()
+
+    // MARK: - State Update Helpers
+
+    /**
+     * Helper function to update SubmissionWizardUiState.Success state safely.
+     * Uses the extension functions from StateUpdateExtensions.kt for ergonomic updates.
+     */
+    private inline fun updateSuccessState(crossinline update: (SubmissionWizardUiState.Success) -> SubmissionWizardUiState.Success) {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> {
-                    val newData = update(currentState.wizardData)
-                    currentState.copy(wizardData = newData)
-                }
+                is SubmissionWizardUiState.Success -> update(currentState)
                 else -> currentState
             }
         }
+    }
+
+    /**
+     * Helper function specifically for wizard data updates using extensions
+     */
+    private fun updateWizardData(update: (SubmissionWizardData) -> SubmissionWizardData) {
+        updateSuccessState { it.updateWizardData(update) }
     }
 }

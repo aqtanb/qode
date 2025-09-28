@@ -1,36 +1,81 @@
 package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.BannerId
 import kotlinx.coroutines.flow.Flow
-import timber.log.Timber
+import kotlinx.coroutines.flow.flow
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Implementation of BannerRepository using Firestore as the data source.
- * Follows the existing repository pattern in the project.
  */
 @Singleton
 class BannerRepositoryImpl @Inject constructor(private val firestoreBannerDataSource: FirestoreBannerDataSource) : BannerRepository {
 
-    init {
-        Timber.d("BannerRepositoryImpl constructor called - DI working correctly")
-    }
-
     override fun getBannersForCountry(
         countryCode: String,
         limit: Int
-    ): Flow<List<Banner>> = firestoreBannerDataSource.getBannersForCountry(countryCode, limit)
+    ): Flow<Result<List<Banner>, OperationError>> =
+        flow {
+            try {
+                firestoreBannerDataSource.getBannersForCountry(countryCode, limit).collect { banners ->
+                    emit(Result.Success(banners))
+                }
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                emit(Result.Error(SystemError.ServiceDown))
+            } catch (e: Exception) {
+                emit(Result.Error(SystemError.Unknown))
+            }
+        }
 
-    override fun getAllActiveBanners(limit: Int): Flow<List<Banner>> {
-        Timber.d("BannerRepositoryImpl.getAllActiveBanners called with limit=$limit")
-        return firestoreBannerDataSource.getAllActiveBanners(limit)
-    }
+    override fun getAllActiveBanners(limit: Int): Flow<Result<List<Banner>, OperationError>> =
+        flow {
+            try {
+                firestoreBannerDataSource.getAllActiveBanners(limit).collect { banners ->
+                    emit(Result.Success(banners))
+                }
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                emit(Result.Error(SystemError.ServiceDown))
+            } catch (e: Exception) {
+                emit(Result.Error(SystemError.Unknown))
+            }
+        }
 
-    override suspend fun getBannerById(bannerId: BannerId): Banner? = firestoreBannerDataSource.getBannerById(bannerId)
+    override suspend fun getBannerById(bannerId: BannerId): Result<Banner?, OperationError> =
+        try {
+            val banner = firestoreBannerDataSource.getBannerById(bannerId)
+            Result.Success(banner)
+        } catch (e: IOException) {
+            Result.Error(SystemError.Offline)
+        } catch (e: IllegalStateException) {
+            Result.Error(SystemError.ServiceDown)
+        } catch (e: Exception) {
+            Result.Error(SystemError.Unknown)
+        }
 
-    override fun observeBanners(bannerIds: List<BannerId>): Flow<List<Banner>> = firestoreBannerDataSource.observeBanners(bannerIds)
+    override fun observeBanners(bannerIds: List<BannerId>): Flow<Result<List<Banner>, OperationError>> =
+        flow {
+            try {
+                firestoreBannerDataSource.observeBanners(bannerIds).collect { banners ->
+                    emit(Result.Success(banners))
+                }
+            } catch (e: IOException) {
+                emit(Result.Error(SystemError.Offline))
+            } catch (e: IllegalStateException) {
+                emit(Result.Error(SystemError.ServiceDown))
+            } catch (e: Exception) {
+                emit(Result.Error(SystemError.Unknown))
+            }
+        }
 }

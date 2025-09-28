@@ -2,8 +2,10 @@ package com.qodein.feature.home
 
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.feature.home.ui.state.ServiceSearchState
+import com.qodein.shared.domain.service.selection.SelectionState
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Service
 import com.qodein.shared.ui.FilterDialogType
 
 /**
@@ -19,8 +21,13 @@ data class HomeUiState(
     val currentFilters: CompleteFilterState = CompleteFilterState(),
     val activeFilterDialog: FilterDialogType? = null,
 
-    // Service search (for service filter dialog)
-    val serviceSearchState: ServiceSearchState = ServiceSearchState(),
+    // Service selection (for service filter dialog) - configured for multi-selection
+    val serviceSelectionState: ServiceSelectionState = ServiceSelectionState(
+        selection = SelectionState.Multi(), // Home allows multiple service selection
+    ),
+
+    // Cached services for service selection UI
+    val cachedServices: Map<String, Service> = emptyMap(),
 
     // Pagination state
     val isLoadingMore: Boolean = false

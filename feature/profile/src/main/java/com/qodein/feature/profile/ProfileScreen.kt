@@ -86,9 +86,8 @@ import com.qodein.core.ui.UserPreviewParameterProvider
 import com.qodein.core.ui.UserStatsPreviewParameterProvider
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.ProfileAvatar
-import com.qodein.core.ui.component.QodeRetryableErrorCard
-import com.qodein.core.ui.error.toLocalizedMessage
-import com.qodein.shared.common.result.ErrorType
+import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
 import kotlinx.coroutines.delay
@@ -152,8 +151,8 @@ fun ProfileScreen(
             }
 
             is ProfileUiState.Error -> {
-                QodeRetryableErrorCard(
-                    message = currentState.errorType.toLocalizedMessage(),
+                QodeErrorCard(
+                    error = currentState.errorType,
                     onRetry = { viewModel.handleAction(ProfileAction.RetryClicked) },
                     modifier = Modifier
                         .padding(SpacingTokens.lg),
@@ -904,8 +903,8 @@ private fun ProfileScreenPreview(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    QodeRetryableErrorCard(
-                        message = state.errorType.toLocalizedMessage(),
+                    QodeErrorCard(
+                        error = state.errorType,
                         onRetry = {}, // Empty for previews
                         modifier = Modifier.padding(SpacingTokens.lg),
                     )
@@ -1096,7 +1095,7 @@ fun ProfileScreenErrorStatePreview() {
     QodeTheme {
         ProfileScreenPreview(
             state = ProfileUiState.Error(
-                errorType = ErrorType.NETWORK_GENERAL,
+                errorType = SystemError.Offline,
                 isRetryable = true,
                 shouldShowSnackbar = false,
                 errorCode = "NET_001",

@@ -6,18 +6,14 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
+import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.feature.home.ui.state.SearchResultState
-import com.qodein.feature.home.ui.state.ServiceSearchState
-import com.qodein.shared.common.result.Result
-import com.qodein.shared.common.result.getErrorCode
-import com.qodein.shared.common.result.isRetryable
-import com.qodein.shared.common.result.shouldShowSnackbar
-import com.qodein.shared.common.result.toErrorType
-import com.qodein.shared.domain.manager.ServiceSearchManager
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
-import com.qodein.shared.domain.usecase.promocode.GetPromoCodesUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
@@ -34,7 +30,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,9 +38,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
-    private val getPromoCodesUseCase: GetPromoCodesUseCase,
-    // Service search manager
-    private val serviceSearchManager: ServiceSearchManager,
+    private val getPromoCodesUseCase: GetPromocodesUseCase,
+    // Service selection coordinator
+    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -69,7 +64,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadHomeData()
-        setupServiceSearch()
     }
 
     fun onAction(action: HomeAction) {
@@ -102,18 +96,22 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadBanners(userLanguage: Language? = null) {
+        // Set loading state before starting operation
+        _uiState.update { state ->
+            state.copy(bannerState = BannerState.Loading)
+        }
+
         viewModelScope.launch {
             getBannersUseCase.getBanners(userLanguage = userLanguage, limit = DEFAULT_PAGE_SIZE).collect { result ->
                 _uiState.update { state ->
                     state.copy(
                         bannerState = when (result) {
-                            is Result.Loading -> BannerState.Loading
                             is Result.Success -> BannerState.Success(result.data)
                             is Result.Error -> BannerState.Error(
-                                errorType = result.exception.toErrorType(),
-                                isRetryable = result.exception.isRetryable(),
-                                shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                                errorCode = result.exception.getErrorCode(),
+                                errorType = result.error,
+                                isRetryable = true,
+                                shouldShowSnackbar = false,
+                                errorCode = null,
                             )
                         },
                     )
@@ -126,6 +124,17 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
+
+            // Set loading state before starting operation
+            if (!isLoadMore) {
+                _uiState.update { state ->
+                    state.copy(promoCodeState = PromoCodeState.Loading)
+                }
+            } else {
+                _uiState.update { state ->
+                    state.copy(isLoadingMore = true)
+                }
+            }
 
             getPromoCodesUseCase(
                 sortBy = filters.sortFilter.sortBy,
@@ -141,13 +150,6 @@ class HomeViewModel @Inject constructor(
             ).collect { result ->
                 _uiState.update { state ->
                     when (result) {
-                        is Result.Loading -> {
-                            if (isLoadMore) {
-                                state.copy(isLoadingMore = true)
-                            } else {
-                                state.copy(promoCodeState = PromoCodeState.Loading)
-                            }
-                        }
                         is Result.Success -> {
                             val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
                             updatedState.copy(isLoadingMore = false)
@@ -205,7 +207,7 @@ class HomeViewModel @Inject constructor(
         }
 
     private fun handlePromoCodesError(
-        result: Result.Error,
+        result: Result.Error<OperationError>,
         isLoadMore: Boolean,
         currentState: HomeUiState
     ): HomeUiState =
@@ -215,10 +217,10 @@ class HomeViewModel @Inject constructor(
         } else {
             currentState.copy(
                 promoCodeState = PromoCodeState.Error(
-                    errorType = result.exception.toErrorType(),
-                    isRetryable = result.exception.isRetryable(),
-                    shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                    errorCode = result.exception.getErrorCode(),
+                    errorType = result.error,
+                    isRetryable = true,
+                    shouldShowSnackbar = false,
+                    errorCode = null,
                 ),
             )
         }
@@ -306,7 +308,7 @@ class HomeViewModel @Inject constructor(
 
     private fun retryServices() {
         Logger.d("HomeViewModel: Retrying services load")
-        serviceSearchManager.clearQuery()
+        handleServiceSelectionAction(ServiceSelectionAction.RetryPopularServices)
     }
 
     // MARK: - Filter Actions
@@ -316,9 +318,10 @@ class HomeViewModel @Inject constructor(
             state.copy(activeFilterDialog = type)
         }
 
-        // Load popular services when service dialog is opened
+        // Activate and load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
-            serviceSearchManager.clearQuery()
+            setupServiceSelection()
+            handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
         }
     }
 
@@ -369,47 +372,41 @@ class HomeViewModel @Inject constructor(
         loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
-    // MARK: - Service Search
+    // MARK: - Service Selection
 
-    private fun setupServiceSearch() {
-        viewModelScope.launch {
-            combine(
-                serviceSearchManager.searchQuery,
-                serviceSearchManager.searchResult,
-            ) { query, result ->
-                ServiceSearchState(
-                    query = query,
-                    state = when (result) {
-                        is Result.Loading -> SearchResultState.Loading
-                        is Result.Success -> {
-                            if (result.data.isEmpty()) {
-                                SearchResultState.Empty
-                            } else {
-                                SearchResultState.Success(result.data)
-                            }
-                        }
-                        is Result.Error -> SearchResultState.Error(
-                            errorType = result.exception.toErrorType(),
-                            isRetryable = result.exception.isRetryable(),
-                            shouldShowSnackbar = result.exception.shouldShowSnackbar(),
-                            errorCode = result.exception.getErrorCode(),
-                        )
-                    },
-                )
-            }.collect { searchState ->
+    private fun setupServiceSelection() {
+        serviceSelectionCoordinator.setupServiceSelection(
+            scope = viewModelScope,
+            getCurrentState = { _uiState.value.serviceSelectionState },
+            onStateUpdate = { newState ->
                 _uiState.update { state ->
-                    state.copy(serviceSearchState = searchState)
+                    state.copy(serviceSelectionState = newState)
                 }
-            }
+            },
+            onCachedServicesUpdate = { cachedServices ->
+                _uiState.update { state ->
+                    state.copy(cachedServices = cachedServices)
+                }
+            },
+        )
+    }
+
+    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+        val currentState = _uiState.value.serviceSelectionState
+        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
+
+        _uiState.update { state ->
+            state.copy(serviceSelectionState = newState)
         }
     }
 
     private fun searchServices(query: String) {
-        serviceSearchManager.updateQuery(query)
+        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     override fun onCleared() {
         super.onCleared()
+        serviceSelectionCoordinator.deactivate()
         Logger.d("HomeViewModel: Clearing resources")
     }
 }
