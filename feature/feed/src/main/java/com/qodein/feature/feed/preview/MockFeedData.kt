@@ -58,7 +58,7 @@ object MockFeedData {
         Post(
             id = PostId("preview_post_$index"),
             authorId = UserId("user_$index"),
-            authorUsername = mockUsers[index % mockUsers.size],
+            authorName = mockUsers[index % mockUsers.size],
             authorAvatarUrl = "https://picsum.photos/seed/$index/150/150",
             content = content,
             tags = suggestedTags.shuffled().take((1..3).random()),

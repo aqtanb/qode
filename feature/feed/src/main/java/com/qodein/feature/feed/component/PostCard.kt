@@ -195,14 +195,14 @@ private fun PostAuthorInfo(
         Box {
             CircularImage(
                 imageUrl = post.authorAvatarUrl,
-                fallbackText = post.authorUsername,
+                fallbackText = post.authorName,
                 fallbackIcon = QodeNavigationIcons.Profile,
                 size = PostCardTokens.avatarSize,
-                contentDescription = "Avatar of ${post.authorUsername}",
+                contentDescription = "Avatar of ${post.authorName}",
                 modifier = Modifier.clickable(
                     interactionSource = interactionSource,
                     indication = null,
-                ) { onUserClick(post.authorUsername) },
+                ) { onUserClick(post.authorName) },
             )
 
             // Online indicator
@@ -219,7 +219,7 @@ private fun PostAuthorInfo(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "@${post.authorUsername}",
+                text = "@${post.authorName}",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                 ),
@@ -227,7 +227,7 @@ private fun PostAuthorInfo(
                 modifier = Modifier.clickable(
                     interactionSource = interactionSource,
                     indication = null,
-                ) { onUserClick(post.authorUsername) },
+                ) { onUserClick(post.authorName) },
             )
 
             Row(
@@ -430,7 +430,7 @@ private fun PostCardStandardPreview() {
         val mockPost = Post(
             id = PostId("preview_post"),
             authorId = UserId("user_1"),
-            authorUsername = "deal_finder",
+            authorName = "deal_finder",
             authorAvatarUrl = null,
             content = "🔥 Found an amazing subscription deal! Anyone tried this service before? " +
                 "The savings are incredible and I'm curious about the user experience.",
@@ -465,7 +465,7 @@ private fun PostCardHotPreview() {
         val mockPost = Post(
             id = PostId("hot_post"),
             authorId = UserId("tech_hunter"),
-            authorUsername = "tech_hunter",
+            authorName = "tech_hunter",
             authorAvatarUrl = "https://picsum.photos/seed/tech_hunter/150/150",
             content = "🚀 This new streaming service is absolutely incredible! The interface is clean, " +
                 "the content quality is top-notch, and the pricing beats all competitors. " +
@@ -502,7 +502,7 @@ private fun PostCardNoAvatarPreview() {
         val mockPost = Post(
             id = PostId("no_avatar_post"),
             authorId = UserId("anon_user"),
-            authorUsername = "anonymous_deals",
+            authorName = "anonymous_deals",
             authorAvatarUrl = null,
             content = "Found a great discount code for mobile subscriptions. " +
                 "Anyone know if this service is reliable? Looking for feedback before I commit.",
@@ -536,7 +536,7 @@ private fun PostCardNoTagsPreview() {
         val mockPost = Post(
             id = PostId("no_tags_post"),
             authorId = UserId("simple_user"),
-            authorUsername = "minimalist",
+            authorName = "minimalist",
             authorAvatarUrl = "https://picsum.photos/seed/minimalist/150/150",
             content = "Sometimes the best deals are the simplest ones. " +
                 "Just sharing a quick tip about finding great subscription offers.",
@@ -567,7 +567,7 @@ private fun PostCardLongContentPreview() {
         val mockPost = Post(
             id = PostId("long_content_post"),
             authorId = UserId("detailed_user"),
-            authorUsername = "comprehensive_reviewer",
+            authorName = "comprehensive_reviewer",
             authorAvatarUrl = null,
             content = "Here's a comprehensive breakdown of the top subscription services available right now. " +
                 "I've been testing these for months and can provide detailed insights on pricing, features, " +
@@ -607,7 +607,7 @@ private fun PostCardDarkThemePreview() {
         val mockPost = Post(
             id = PostId("dark_theme_post"),
             authorId = UserId("theme_tester"),
-            authorUsername = "ui_enthusiast",
+            authorName = "ui_enthusiast",
             authorAvatarUrl = "https://picsum.photos/seed/ui_enthusiast/150/150",
             content = "Testing how the PostCard looks in dark theme. " +
                 "The contrast and readability should be excellent across all UI elements.",

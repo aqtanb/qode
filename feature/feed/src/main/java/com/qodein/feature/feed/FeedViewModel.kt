@@ -476,7 +476,7 @@ class FeedViewModel @Inject constructor(
             Post(
                 id = PostId("post_$actualIndex"),
                 authorId = UserId("user_${actualIndex % mockUsers.size}"),
-                authorUsername = mockUsers[actualIndex % mockUsers.size],
+                authorName = mockUsers[actualIndex % mockUsers.size],
                 authorAvatarUrl = "https://picsum.photos/seed/$actualIndex/150/150",
                 content = mockContent[actualIndex % mockContent.size],
                 tags = mockTags.shuffled().take((1..3).random()),
