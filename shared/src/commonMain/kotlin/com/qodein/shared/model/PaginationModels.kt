@@ -2,58 +2,39 @@ package com.qodein.shared.model
 
 /**
  * Represents a pagination cursor for Firebase Firestore queries.
- * Contains the serialized document snapshot data needed for cursor-based pagination.
+ * Type-safe with the sort order that was used.
+ *
+ * @property documentSnapshot The Firestore DocumentSnapshot used for startAfter() queries (contains all field values)
+ * @property sortBy The sort order that was used for this query
+ * @property documentId Optional document ID for debugging/display
  */
-data class PaginationCursor(
-    val documentId: String,
-    val sortFieldValue: Any? = null,
-    val additionalFields: Map<String, Any> = emptyMap(),
-    val lastDocumentSnapshot: Any? = null // Store DocumentSnapshot for proper Firestore pagination
-) {
-    companion object {
-        /**
-         * Create a cursor from Firebase DocumentSnapshot.
-         * This will be implemented in the platform-specific data layer.
-         */
-        fun fromDocumentSnapshot(
-            documentId: String,
-            sortFieldValue: Any?,
-            additionalFields: Map<String, Any> = emptyMap(),
-            lastDocumentSnapshot: Any? = null
-        ): PaginationCursor =
-            PaginationCursor(
-                documentId = documentId,
-                sortFieldValue = sortFieldValue,
-                additionalFields = additionalFields,
-                lastDocumentSnapshot = lastDocumentSnapshot,
-            )
-    }
-}
+data class PaginationCursor<out S : SortBy>(val documentSnapshot: FirestoreDocumentSnapshot?, val sortBy: S, val documentId: String? = null)
 
 /**
  * Represents a pagination request with cursor-based parameters.
  */
-data class PaginationRequest(val limit: Int = 20, val cursor: PaginationCursor? = null) {
+data class PaginationRequest<out S : SortBy>(val limit: Int = 20, val cursor: PaginationCursor<S>? = null) {
     companion object {
         /**
          * Create a request for the first page.
          */
-        fun firstPage(limit: Int = 20): PaginationRequest = PaginationRequest(limit = limit, cursor = null)
+        fun <S : SortBy> firstPage(limit: Int = 20): PaginationRequest<S> = PaginationRequest(limit = limit, cursor = null)
 
         /**
          * Create a request for the next page using a cursor.
          */
-        fun nextPage(
-            cursor: PaginationCursor,
+        fun <S : SortBy> nextPage(
+            cursor: PaginationCursor<S>,
             limit: Int = 20
-        ): PaginationRequest = PaginationRequest(limit = limit, cursor = cursor)
+        ): PaginationRequest<S> = PaginationRequest(limit = limit, cursor = cursor)
     }
 }
 
 /**
  * Represents a paginated result containing data and pagination information.
+ * Type-safe with the sort order that was used.
  */
-data class PaginatedResult<T>(val data: List<T>, val nextCursor: PaginationCursor?, val hasMore: Boolean) {
+data class PaginatedResult<T, out S : SortBy>(val data: List<T>, val nextCursor: PaginationCursor<S>?, val hasMore: Boolean) {
     /**
      * Check if this is an empty result.
      */
@@ -68,7 +49,7 @@ data class PaginatedResult<T>(val data: List<T>, val nextCursor: PaginationCurso
         /**
          * Create an empty paginated result.
          */
-        fun <T> empty(): PaginatedResult<T> =
+        fun <T, S : SortBy> empty(): PaginatedResult<T, S> =
             PaginatedResult(
                 data = emptyList(),
                 nextCursor = null,
@@ -78,11 +59,11 @@ data class PaginatedResult<T>(val data: List<T>, val nextCursor: PaginationCurso
         /**
          * Create a paginated result with data.
          */
-        fun <T> of(
+        fun <T, S : SortBy> of(
             data: List<T>,
-            nextCursor: PaginationCursor?,
+            nextCursor: PaginationCursor<S>?,
             hasMore: Boolean
-        ): PaginatedResult<T> =
+        ): PaginatedResult<T, S> =
             PaginatedResult(
                 data = data,
                 nextCursor = nextCursor,

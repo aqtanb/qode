@@ -61,8 +61,8 @@ class PromocodeRepositoryImpl @Inject constructor(
         sortBy: ContentSortBy,
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
-        paginationRequest: PaginationRequest
-    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>> =
+        paginationRequest: PaginationRequest<ContentSortBy>
+    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
         flow {
             try {
                 val result = promoCodeDataSource.getPromoCodes(

@@ -69,7 +69,10 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Android-specific implementations if needed
+                // Firebase BOM for version management
+                implementation(project.dependencies.platform(libs.firebase.bom))
+                // Firebase for expect/actual DocumentSnapshot
+                implementation(libs.firebase.firestore)
             }
         }
 

@@ -15,8 +15,8 @@ class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository)
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
         filterByCategories: List<String>? = null,
-        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>> =
+        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
+    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
         promoCodeRepository.getPromoCodes(
             query = query,
             sortBy = sortBy,

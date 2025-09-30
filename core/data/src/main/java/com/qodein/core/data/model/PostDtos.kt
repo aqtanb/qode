@@ -77,7 +77,16 @@ data class CreatePostRequest(
     val content: String,
     val imageUrls: List<String> = emptyList(),
     val tags: List<String> = emptyList()
-)
+) {
+    init {
+        require(title.isNotBlank()) { "Post title cannot be blank" }
+        require(title.length <= 200) { "Post title cannot exceed 200 characters" }
+        require(content.isNotBlank()) { "Post content cannot be blank" }
+        require(content.length <= 2000) { "Post content cannot exceed 2000 characters" }
+        require(tags.size <= 10) { "Post cannot have more than 10 tags" }
+        require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
+    }
+}
 
 // MARK: - CLIENT RESPONSE DTOs
 
@@ -120,3 +129,24 @@ data class PostSummaryDto(
 // MARK: - PAGINATION DTOs
 
 data class PostPageDto(val posts: List<PostSummaryDto>, val nextPageToken: String? = null, val hasMore: Boolean = false)
+
+// MARK: - TAG DTOs
+
+/**
+ * Firestore document model for Tag.
+ * Represents tags used for post categorization.
+ * Document ID = tag value (lowercase, sanitized [a-z0-9_-])
+ */
+data class TagDto(
+    @DocumentId
+    val documentId: String = "", // The tag value itself
+
+    @PropertyName("postCount")
+    val postCount: Int = 0, // Denormalized count of posts using this tag
+
+    @PropertyName("createdAt")
+    val createdAt: Timestamp? = null
+) {
+    // No-args constructor required for Firestore deserialization
+    constructor() : this("", 0, null)
+}

@@ -7,7 +7,7 @@ package com.qodein.shared.common.error
 sealed interface PostError : OperationError {
 
     /**
-     * Failures when user tries to create/submit a post.
+     * Failures when user tries to create/submit a post (client-side validation).
      */
     sealed interface CreationFailure : PostError {
         data object EmptyTitle : CreationFailure
@@ -18,6 +18,14 @@ sealed interface PostError : OperationError {
         data object TooManyTags : CreationFailure
         data object TooManyImages : CreationFailure
         data object InvalidTagData : CreationFailure
+    }
+
+    /**
+     * Failures when submitting a post to the backend (server-side rejection).
+     */
+    sealed interface SubmissionFailure : PostError {
+        data object NotAuthorized : SubmissionFailure
+        data object InvalidData : SubmissionFailure
     }
 
     /**

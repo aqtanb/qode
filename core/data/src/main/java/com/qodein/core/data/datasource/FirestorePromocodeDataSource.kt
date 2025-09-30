@@ -2,7 +2,6 @@ package com.qodein.core.data.datasource
 
 import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
@@ -54,8 +53,8 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
         sortBy: ContentSortBy,
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
-        paginationRequest: PaginationRequest
-    ): PaginatedResult<PromoCode> {
+        paginationRequest: PaginationRequest<ContentSortBy>
+    ): PaginatedResult<PromoCode, ContentSortBy> {
         val isFirstPage = paginationRequest.cursor == null
 
         // Check cache for first page queries
@@ -118,7 +117,7 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
 
         // Apply cursor-based pagination
         paginationRequest.cursor?.let { cursor ->
-            cursor.lastDocumentSnapshot?.let { docSnapshot ->
+            cursor.documentSnapshot?.let { docSnapshot ->
                 firestoreQuery = firestoreQuery.startAfter(docSnapshot as DocumentSnapshot)
             }
         }
@@ -145,15 +144,10 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
 
         val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
             val lastDoc = documents.last()
-            val sortFieldValue = when (sortBy) {
-                ContentSortBy.POPULARITY -> lastDoc.getLong("voteScore")
-                ContentSortBy.NEWEST -> lastDoc.getTimestamp("createdAt")
-                ContentSortBy.EXPIRING_SOON -> lastDoc.getTimestamp("endDate")
-            }
-            PaginationCursor.fromDocumentSnapshot(
+            PaginationCursor(
+                documentSnapshot = lastDoc,
+                sortBy = sortBy,
                 documentId = lastDoc.id,
-                sortFieldValue = sortFieldValue,
-                lastDocumentSnapshot = lastDoc,
             )
         } else {
             null
@@ -186,23 +180,5 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
             .await()
 
         return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
-    }
-
-    suspend fun updatePromoCode(promoCode: PromoCode): PromoCode {
-        val dto = PromoCodeMapper.toDto(promoCode)
-
-        firestore.collection(PROMOCODES_COLLECTION)
-            .document(dto.documentId)
-            .set(dto)
-            .await()
-
-        return promoCode
-    }
-
-    suspend fun incrementViewCount(id: PromoCodeId) {
-        firestore.collection(PROMOCODES_COLLECTION)
-            .document(id.value)
-            .update("views", FieldValue.increment(1))
-            .await()
     }
 }

@@ -52,16 +52,16 @@ fun PostCard(
         variant = QodeCardVariant.Elevated,
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         onClick = { onPostClick(post.id) },
-        contentPadding = PaddingValues(SpacingTokens.lg)
+        contentPadding = PaddingValues(SpacingTokens.lg),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md)
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             // Author Info Header
             PostAuthorHeader(
                 authorName = post.authorName,
                 authorAvatarUrl = post.authorAvatarUrl,
-                timeAgo = post.createdAt?.let { "2h" }
+                timeAgo = post.createdAt?.let { "2h" },
             )
 
             // Post Title
@@ -71,7 +71,7 @@ fun PostCard(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
 
             // Post Content Preview
@@ -80,14 +80,14 @@ fun PostCard(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 4,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
 
             // Images Grid (if available)
             if (post.imageUrls.isNotEmpty()) {
                 PostImagesGrid(
                     imageUrls = post.imageUrls,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -102,7 +102,7 @@ fun PostCard(
                 commentCount = post.commentCount,
                 userVoteState = post.userVoteState,
                 onCommentClick = { onCommentClick(post.id) },
-                onShareClick = { onShareClick(post.id) }
+                onShareClick = { onShareClick(post.id) },
             )
         }
     }
@@ -118,14 +118,14 @@ private fun PostAuthorHeader(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         CircularImage(
             imageUrl = authorAvatarUrl,
             fallbackText = authorName,
             fallbackIcon = QodeNavigationIcons.Profile,
             size = SizeTokens.Avatar.sizeMedium,
-            contentDescription = "$authorName profile picture"
+            contentDescription = "$authorName profile picture",
         )
 
         Column(modifier = Modifier.weight(1f)) {
@@ -133,14 +133,14 @@ private fun PostAuthorHeader(
                 text = authorName,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             if (timeAgo != null) {
                 Text(
                     text = timeAgo,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -165,7 +165,7 @@ private fun PostImagesGrid(
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
                     .clip(RoundedCornerShape(ShapeTokens.Corner.large)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
         }
 
@@ -173,7 +173,7 @@ private fun PostImagesGrid(
             // Horizontal scrollable row for multiple images
             LazyRow(
                 modifier = modifier,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs)
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
             ) {
                 items(imageUrls) { imageUrl ->
                     AsyncImage(
@@ -186,7 +186,7 @@ private fun PostImagesGrid(
                             .size(120.dp)
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(ShapeTokens.Corner.medium)),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                 }
             }
@@ -201,21 +201,22 @@ private fun PostTagsRow(
 ) {
     LazyRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs)
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
-        items(tags.take(5)) { tag -> // Limit to 5 tags
+        items(tags.take(5)) { tag ->
+            // Limit to 5 tags
             Surface(
                 shape = RoundedCornerShape(ShapeTokens.Corner.full),
-                color = MaterialTheme.colorScheme.secondaryContainer
+                color = MaterialTheme.colorScheme.secondaryContainer,
             ) {
                 Text(
                     text = "#$tag",
                     modifier = Modifier.padding(
                         horizontal = SpacingTokens.sm,
-                        vertical = SpacingTokens.xxs
+                        vertical = SpacingTokens.xxs,
                     ),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
         }
@@ -234,12 +235,12 @@ private fun PostActionRow(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Vote Score (read-only for feed)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xxs)
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
         ) {
             Icon(
                 imageVector = when (userVoteState) {
@@ -253,34 +254,34 @@ private fun PostActionRow(
                     "UPVOTE" -> MaterialTheme.colorScheme.primary
                     "DOWNVOTE" -> MaterialTheme.colorScheme.error
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                },
             )
             Text(
                 text = formatCount(voteScore),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs)
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         ) {
             // Comment Button
             IconButton(onClick = onCommentClick) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xxs)
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
                 ) {
                     Icon(
                         imageVector = QodeActionIcons.Comment,
                         contentDescription = "Comments",
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
                         text = formatCount(commentCount),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -291,33 +292,33 @@ private fun PostActionRow(
                     imageVector = QodeActionIcons.Share,
                     contentDescription = "Share",
                     modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
     }
 }
 
-private fun formatCount(count: Int): String = when {
-    count < 1000 -> count.toString()
-    count < 1000000 -> {
-        val thousands = count / 1000.0
-        if (thousands % 1 == 0.0) {
-            "${thousands.toInt()}K"
-        } else {
-            String.format("%.1fK", thousands)
+private fun formatCount(count: Int): String =
+    when {
+        count < 1000 -> count.toString()
+        count < 1000000 -> {
+            val thousands = count / 1000.0
+            if (thousands % 1 == 0.0) {
+                "${thousands.toInt()}K"
+            } else {
+                String.format("%.1fK", thousands)
+            }
+        }
+        else -> {
+            val millions = count / 1000000.0
+            if (millions % 1 == 0.0) {
+                "${millions.toInt()}M"
+            } else {
+                String.format("%.1fM", millions)
+            }
         }
     }
-    else -> {
-        val millions = count / 1000000.0
-        if (millions % 1 == 0.0) {
-            "${millions.toInt()}M"
-        } else {
-            String.format("%.1fM", millions)
-        }
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable
@@ -325,7 +326,7 @@ private fun PostCardPreview() {
     QodeTheme {
         Column(
             modifier = Modifier.padding(SpacingTokens.md),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md)
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             // Post with multiple images
             PostCard(
@@ -340,7 +341,7 @@ private fun PostCardPreview() {
                     imageUrls = listOf(
                         "https://picsum.photos/400/300?random=1",
                         "https://picsum.photos/400/300?random=2",
-                        "https://picsum.photos/400/300?random=3"
+                        "https://picsum.photos/400/300?random=3",
                     ),
                     tags = listOf("android", "mobile", "development", "features"),
                     upvotes = 142,
@@ -348,11 +349,11 @@ private fun PostCardPreview() {
                     commentCount = 28,
                     voteScore = 130,
                     createdAt = null,
-                    userVoteState = "UPVOTE"
+                    userVoteState = "UPVOTE",
                 ),
                 onPostClick = {},
                 onCommentClick = {},
-                onShareClick = {}
+                onShareClick = {},
             )
 
             // Post without images
@@ -371,11 +372,11 @@ private fun PostCardPreview() {
                     commentCount = 15,
                     voteScore = 86,
                     createdAt = null,
-                    userVoteState = "NONE"
+                    userVoteState = "NONE",
                 ),
                 onPostClick = {},
                 onCommentClick = {},
-                onShareClick = {}
+                onShareClick = {},
             )
         }
     }

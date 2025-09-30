@@ -23,7 +23,7 @@ object PostMapper {
             title = dto.title,
             content = dto.content,
             imageUrls = dto.imageUrls,
-            tags = dto.tags.map { Tag(it) },
+            tags = dto.tags.map { Tag(value = it, postCount = 0) },
             upvotes = dto.upvotes,
             downvotes = dto.downvotes,
             shares = dto.shares,

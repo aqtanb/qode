@@ -1,15 +1,18 @@
 package com.qodein.shared.model
 
 /**
- * Generic sorting options for content
- * Can be used across different content types (PromoCode, Posts, Promos, etc.)
+ * Base interface for all sorting options.
+ * Used to make pagination type-safe across different content types.
  */
-enum class ContentSortBy {
+sealed interface SortBy
+
+/**
+ * Generic sorting options for content
+ * Can be used across different content types (PromoCode, Promos, etc.)
+ */
+enum class ContentSortBy : SortBy {
     /**
      * Sort by popularity/score (most popular first)
-     * For PromoCode: upvotes - downvotes
-     * For Posts: upvotes - downvotes
-     * For Promos: upvotes - downvotes
      */
     POPULARITY,
 
@@ -20,9 +23,21 @@ enum class ContentSortBy {
 
     /**
      * Sort by expiry/end date (expiring soon first)
-     * For PromoCode: end date
-     * For Posts: It shouldn't have it
-     * For Promos: end date
      */
     EXPIRING_SOON
+}
+
+/**
+ * Sorting options for posts (no expiry date)
+ */
+enum class PostSortBy : SortBy {
+    /**
+     * Sort by popularity (upvotes descending)
+     */
+    POPULARITY,
+
+    /**
+     * Sort by creation date (newest first)
+     */
+    NEWEST
 }

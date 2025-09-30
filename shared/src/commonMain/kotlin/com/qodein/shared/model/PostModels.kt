@@ -25,19 +25,21 @@ value class PostId(val value: String) {
 }
 
 @Serializable
-@JvmInline
-value class Tag(val value: String) {
+data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant = Clock.System.now()) {
     init {
         require(value.isNotBlank()) { "Tag cannot be blank" }
         require(value.length <= 50) { "Tag cannot exceed 50 characters" }
         require(value == value.lowercase()) { "Tag must be lowercase" }
         require(value.matches(Regex("^[a-z0-9_-]+$"))) { "Tag contains invalid characters" }
+        require(postCount >= 0) { "Post count cannot be negative" }
     }
 
-    override fun toString(): String = value
-
     companion object {
-        fun create(name: String): Result<Tag, PostError.CreationFailure> {
+        fun create(
+            name: String,
+            postCount: Int = 0,
+            createdAt: Instant = Clock.System.now()
+        ): Result<Tag, PostError.CreationFailure> {
             val cleanName = name.trim()
                 .lowercase()
                 .replace(Regex("\\s+"), "_")
@@ -46,7 +48,7 @@ value class Tag(val value: String) {
             return if (cleanName.isBlank()) {
                 Result.Error(PostError.CreationFailure.InvalidTagData)
             } else {
-                Result.Success(Tag(cleanName))
+                Result.Success(Tag(cleanName, postCount, createdAt))
             }
         }
     }

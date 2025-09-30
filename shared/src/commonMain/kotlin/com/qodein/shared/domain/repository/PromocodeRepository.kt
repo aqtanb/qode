@@ -30,8 +30,8 @@ interface PromocodeRepository {
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
         filterByCategories: List<String>? = null,
-        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>>
+        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
+    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>>
 
     /**
      * Get a specific promo code by ID.
