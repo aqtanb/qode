@@ -80,7 +80,7 @@ fun TagFilterBottomSheet(
                             },
                             label = {
                                 Text(
-                                    text = tag.name,
+                                    text = tag.value,
                                     fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                                 )
                             },

@@ -4,9 +4,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 
-// ================================================================================================
-// SERVICE DTOs
-// ================================================================================================
+// MARK: ffdssdf
 
 /**
  * Firestore document model for Service.

@@ -311,9 +311,7 @@ import compose.icons.tablericons.Train
 import compose.icons.tablericons.TruckDelivery
 import compose.icons.tablericons.Video
 
-// =============================================================================
-// 🛍️ COMMERCE & PROMO CODES
-// =============================================================================
+// MARK:
 object QodeCommerceIcons {
     // Promo & Discounts
     val PromoCode: ImageVector = TablerIcons.Tag
@@ -374,9 +372,7 @@ object QodeCommerceIcons {
     val Merchant: ImageVector = FeatherIcons.Briefcase
 }
 
-// =============================================================================
-// 🏷️ CATEGORIES - THE ULTIMATE COLLECTION
-// =============================================================================
+// MARK:
 object QodeCategoryIcons {
     // Technology & Electronics
     val Electronics: ImageVector = TablerIcons.DeviceLaptop
@@ -520,9 +516,7 @@ object QodeCategoryIcons {
     val Printing: ImageVector = FeatherIcons.Printer
 }
 
-// =============================================================================
-// 🎬 ACTIONS & INTERACTIONS
-// =============================================================================
+// MARK:
 object QodeActionIcons {
     // Basic Actions
     val Add: ImageVector = FeatherIcons.Plus
@@ -624,9 +618,7 @@ object QodeActionIcons {
     val Spam: ImageVector = FeatherIcons.Shield
 }
 
-// =============================================================================
-// 📱 NAVIGATION & UI ELEMENTS
-// =============================================================================
+// MARK:
 object QodeNavigationIcons {
     // Bottom Navigation
     val Home: ImageVector = FeatherIcons.Home
@@ -685,9 +677,7 @@ object QodeNavigationIcons {
     val Feedback: ImageVector = FeatherIcons.MessageSquare
 }
 
-// =============================================================================
-// 🌟 STATUS & INDICATORS
-// =============================================================================
+// MARK:
 object QodeStatusIcons {
     // Verification & Trust
     val Verified: ImageVector = FeatherIcons.CheckCircle
@@ -754,9 +744,7 @@ object QodeStatusIcons {
     val Development: ImageVector = FeatherIcons.Cpu
 }
 
-// =============================================================================
-// 🌐 SOCIAL & BRAND ICONS
-// =============================================================================
+// MARK:
 object QodeSocialIcons {
     // Major Platforms
     val Google: ImageVector = SimpleIcons.Google
@@ -859,9 +847,7 @@ object QodeSocialIcons {
     val Revolut: ImageVector = SimpleIcons.Revolut
 }
 
-// =============================================================================
-// 🎨 UI ELEMENTS & DESIGN
-// =============================================================================
+// MARK:
 object QodeUIIcons {
     // Layout & Structure
     val Layout: ImageVector = FeatherIcons.Layout
@@ -951,9 +937,7 @@ object QodeUIIcons {
     val Report: ImageVector = FeatherIcons.PieChart
 }
 
-// =============================================================================
-// 🏢 BUSINESS & ENTERPRISE
-// =============================================================================
+// MARK:
 object QodeBusinessIcons {
     // Company Structure
     val Company: ImageVector = TablerIcons.Building
@@ -1033,9 +1017,7 @@ object QodeBusinessIcons {
     val Channel: ImageVector = FeatherIcons.Navigation
 }
 
-// =============================================================================
-// 🔒 SECURITY & PRIVACY
-// =============================================================================
+// MARK:
 object QodeSecurityIcons {
     // Security States
     val Secure: ImageVector = FeatherIcons.Shield
@@ -1106,9 +1088,7 @@ object QodeSecurityIcons {
     val Scan: ImageVector = FeatherIcons.Search
 }
 
-// =============================================================================
-// 🌍 LOCATION & GEOGRAPHY
-// =============================================================================
+// MARK:
 object QodeLocationIcons {
     // Basic Location
     val Location: ImageVector = FeatherIcons.MapPin
@@ -1173,9 +1153,7 @@ object QodeLocationIcons {
     val Center: ImageVector = TablerIcons.Building
 }
 
-// =============================================================================
-// ⚡ PERFORMANCE & ANALYTICS
-// =============================================================================
+// MARK:
 object QodeAnalyticsIcons {
     // Metrics & KPIs
     val Metrics: ImageVector = FeatherIcons.Activity

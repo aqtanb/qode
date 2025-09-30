@@ -170,6 +170,19 @@
     <!-- General Error -->
     <string name="error_unknown">Something went wrong. Please try again.</string>
 
+    <!-- Post Errors -->
+    <string name="error_post_title_empty">Post title is required</string>
+    <string name="error_post_title_too_long">Post title is too long (max 200 characters)</string>
+    <string name="error_post_content_empty">Post content is required</string>
+    <string name="error_post_content_too_long">Post content is too long (max 2000 characters)</string>
+    <string name="error_post_author_missing">Author information is missing</string>
+    <string name="error_post_too_many_tags">Too many tags (max 10 allowed)</string>
+    <string name="error_post_too_many_images">Too many images (max 5 allowed)</string>
+    <string name="error_post_invalid_tag">Invalid tag format</string>
+    <string name="error_post_not_found">Post not found or may have been deleted</string>
+    <string name="error_post_no_results">No posts found</string>
+    <string name="error_post_access_denied">You don\'t have permission to access this post</string>
+
     <!-- Error Actions -->
     <string name="action_retry">Retry</string>
     <string name="action_sign_in">Sign In</string>

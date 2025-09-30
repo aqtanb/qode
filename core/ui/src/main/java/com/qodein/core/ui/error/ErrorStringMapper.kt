@@ -6,6 +6,7 @@ import com.qodein.core.ui.R
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.PostError
 import com.qodein.shared.common.error.PromoCodeError
 import com.qodein.shared.common.error.ServiceError
 import com.qodein.shared.common.error.SystemError
@@ -73,6 +74,17 @@ fun OperationError.asUiText(): String =
         is SystemError.Offline -> stringResource(R.string.error_network_no_connection)
         is SystemError.ServiceDown -> stringResource(R.string.error_service_unavailable)
         is SystemError.Unknown -> stringResource(R.string.error_unknown)
+        PostError.CreationFailure.ContentTooLong -> stringResource(R.string.error_post_content_too_long)
+        PostError.CreationFailure.EmptyAuthorName -> stringResource(R.string.error_post_author_missing)
+        PostError.CreationFailure.EmptyContent -> stringResource(R.string.error_post_content_empty)
+        PostError.CreationFailure.EmptyTitle -> stringResource(R.string.error_post_title_empty)
+        PostError.CreationFailure.InvalidTagData -> stringResource(R.string.error_post_invalid_tag)
+        PostError.CreationFailure.TitleTooLong -> stringResource(R.string.error_post_title_too_long)
+        PostError.CreationFailure.TooManyImages -> stringResource(R.string.error_post_too_many_images)
+        PostError.CreationFailure.TooManyTags -> stringResource(R.string.error_post_too_many_tags)
+        PostError.RetrievalFailure.AccessDenied -> stringResource(R.string.error_post_access_denied)
+        PostError.RetrievalFailure.NoResults -> stringResource(R.string.error_post_no_results)
+        PostError.RetrievalFailure.NotFound -> stringResource(R.string.error_post_not_found)
     }
 
 /**

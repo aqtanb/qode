@@ -1,23 +1,23 @@
 package com.qodein.feature.feed
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -25,416 +25,286 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.QodeEmptyState
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
+import com.qodein.feature.feed.component.FeedSearchBar
 import com.qodein.feature.feed.component.PostCard
-import com.qodein.feature.feed.component.SearchBar
-import com.qodein.feature.feed.preview.MockFeedData
+import com.qodein.shared.model.Post
+import com.qodein.shared.model.PostId
 
-// MARK: - Constants
-
-private object FeedScreenConstants {
-    const val SCREEN_NAME = "Feed"
-    const val PAGINATION_LOAD_THRESHOLD = 3
-}
-
-// MARK: - Main Screen
-
-/**
- * Modern feed screen with post feed and tag-based filtering
- * Follows the Screen + Content pattern for better organization
- */
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
-    viewModel: FeedViewModel = hiltViewModel(),
-    scrollStateRegistry: ScrollStateRegistry? = null
+    scrollStateRegistry: ScrollStateRegistry? = null,
+    viewModel: FeedViewModel = hiltViewModel()
 ) {
-    TrackScreenViewEvent(screenName = FeedScreenConstants.SCREEN_NAME)
-
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val lazyListState = rememberLazyListState()
 
     // Register scroll state for bottom navigation auto-hiding
     scrollStateRegistry?.RegisterScrollState(lazyListState)
 
-    // Handle events
-    LaunchedEffect(viewModel.events) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is FeedEvent.NavigateToPost -> {
-                    // TODO: Handle navigation to post details
-                }
-                is FeedEvent.NavigateToComments -> {
-                    // TODO: Handle navigation to comments
-                }
-                is FeedEvent.NavigateToProfile -> {
-                    // TODO: Handle navigation to user profile
-                }
-                is FeedEvent.ShowShareDialog -> {
-                    // TODO: Handle share dialog
-                }
-                is FeedEvent.ShowError -> {
-                    // TODO: Show error snackbar/toast
-                }
-                is FeedEvent.ShowSuccess -> {
-                    // TODO: Show success snackbar/toast
-                }
+    // Handle error messages
+    LaunchedEffect(uiState) {
+        if (uiState is FeedUiState.Error && uiState.shouldShowSnackbar) {
+            snackbarHostState.showSnackbar(message = "Failed to load posts")
+            viewModel.onAction(FeedAction.ErrorDismissed)
+        }
+    }
+
+    // Handle pagination
+    LaunchedEffect(lazyListState, uiState) {
+        val shouldLoadMore by derivedStateOf {
+            if (uiState is FeedUiState.Content && uiState.hasMorePosts && !uiState.isLoadingMore) {
+                val layoutInfo = lazyListState.layoutInfo
+                val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                val totalItems = layoutInfo.totalItemsCount
+                lastVisibleIndex >= totalItems - 3
+            } else {
+                false
             }
         }
-    }
 
-    // Detect when user scrolls near bottom for pagination
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val layoutInfo = lazyListState.layoutInfo
-            val totalItemsNumber = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-
-            val currentState = uiState
-            lastVisibleItemIndex > (totalItemsNumber - FeedScreenConstants.PAGINATION_LOAD_THRESHOLD) &&
-                currentState is FeedUiState.Content &&
-                currentState.hasMorePosts
+        if (shouldLoadMore) {
+            viewModel.onAction(FeedAction.LoadMorePosts)
         }
     }
 
-    LaunchedEffect(shouldLoadMore) {
-        val currentState = uiState
-        if (shouldLoadMore && currentState is FeedUiState.Content && !currentState.isLoadingMore) {
-            viewModel.handleAction(FeedAction.LoadMorePosts)
-        }
-    }
-
-    // Use the Screen + Content pattern like other screens
-    FeedContent(
-        uiState = uiState,
-        listState = lazyListState,
-        onAction = viewModel::handleAction,
-        modifier = modifier,
-    )
-}
-
-// MARK: - Content
-
-@Composable
-private fun FeedContent(
-    uiState: FeedUiState,
-    listState: LazyListState,
-    onAction: (FeedAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
+    Scaffold(
         modifier = modifier.fillMaxSize(),
-    ) {
-        // Fixed search bar at top
-        Column(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SpacingTokens.md),
+                .fillMaxSize()
+                .padding(paddingValues),
         ) {
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            SearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = { onAction(FeedAction.FeedQueryChanged(it)) },
-                onSearchSubmit = { onAction(FeedAction.FeedSubmitted) },
-                onClearSearch = { onAction(FeedAction.ClearFeed) },
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.md))
-        }
-
-        // Content based on state
-        when (uiState) {
-            is FeedUiState.Loading -> {
-                FeedLoadingState()
-            }
-            is FeedUiState.Content -> {
-                if (uiState.isEmpty) {
-                    FeedEmptyState(
-                        hasFilters = uiState.hasFilters,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    FeedPostsList(
-                        uiState = uiState,
-                        listState = listState,
-                        onAction = onAction,
-                        modifier = Modifier.fillMaxSize(),
+            when (uiState) {
+                is FeedUiState.Loading -> {
+                    FeedLoadingState(
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
+
+                is FeedUiState.Error -> {
+                    FeedErrorState(
+                        onRetry = { viewModel.onAction(FeedAction.RetryClicked) },
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+
+                is FeedUiState.Content -> {
+                    if (uiState.isEmpty && !uiState.isRefreshing) {
+                        FeedEmptyState(
+                            searchQuery = uiState.searchQuery,
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    } else {
+                        LazyColumn(
+                            state = lazyListState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = SpacingTokens.md,
+                                end = SpacingTokens.md,
+                                bottom = SpacingTokens.xl,
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+                        ) {
+                            // Search Bar
+                            item {
+                                FeedSearchBar(
+                                    query = uiState.searchQuery,
+                                    onQueryChange = { viewModel.onAction(FeedAction.FeedQueryChanged(it)) },
+                                    onSearchClick = { viewModel.onAction(FeedAction.FeedSubmitted) },
+                                    onFilterClick = { /* TODO: Implement filters */ },
+                                    modifier = Modifier.padding(bottom = SpacingTokens.sm),
+                                )
+                            }
+
+                            // Posts
+                            items(
+                                items = uiState.posts,
+                                key = { post -> post.id.value },
+                            ) { post ->
+                                PostCard(
+                                    post = post.toSummaryDto(),
+                                    onPostClick = { viewModel.onAction(FeedAction.PostClicked(PostId(it))) },
+                                    onCommentClick = { viewModel.onAction(FeedAction.PostCommentClicked(PostId(it))) },
+                                    onShareClick = { viewModel.onAction(FeedAction.PostShared(PostId(it))) },
+                                )
+                            }
+
+                            // Loading more indicator
+                            if (uiState.isLoadingMore) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(SpacingTokens.lg),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.padding(SpacingTokens.md),
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            is FeedUiState.Error -> {
-                FeedErrorState(
-                    uiState = uiState,
-                    onAction = onAction,
-                    modifier = Modifier.fillMaxSize(),
-                )
+
+            // Gradient overlay at top for search bar elevation effect
+            if (uiState is FeedUiState.Content && uiState.hasContent) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingTokens.md)
+                        .padding(top = SpacingTokens.sm),
+                ) {
+                    if (lazyListState.firstVisibleItemScrollOffset > 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.background,
+                                            Color.Transparent,
+                                        ),
+                                        endY = 40f,
+                                    ),
+                                ),
+                        )
+                    }
+                }
             }
         }
     }
 }
-
-// MARK: - State Components
 
 @Composable
 private fun FeedLoadingState(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = SpacingTokens.md),
-        contentAlignment = Alignment.Center,
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            CircularProgressIndicator()
-            Text(
-                text = "Loading posts...",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
-private fun FeedEmptyState(
-    hasFilters: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = SpacingTokens.md),
-        contentAlignment = Alignment.Center,
-    ) {
-        QodeEmptyState(
-            icon = Icons.Default.Search,
-            title = if (hasFilters) "No posts found" else "Start exploring",
-            description = if (hasFilters) {
-                "Try adjusting your search or tags to find more posts."
-            } else {
-                "Search for posts by tags or content to discover what the community is talking about!"
-            },
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Text(
+            text = "Loading posts...",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
 @Composable
 private fun FeedErrorState(
-    uiState: FeedUiState.Error,
-    onAction: (FeedAction) -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = SpacingTokens.md),
-        contentAlignment = Alignment.Center,
-    ) {
-        QodeErrorCard(
-            error = uiState.errorType,
-            onRetry = { onAction(FeedAction.RetryClicked) },
-            onDismiss = { onAction(FeedAction.ErrorDismissed) },
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@Composable
-private fun FeedPostsList(
-    uiState: FeedUiState.Content,
-    listState: LazyListState,
-    onAction: (FeedAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        state = listState,
-        modifier = modifier,
+    Column(
+        modifier = modifier.padding(SpacingTokens.xl),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        contentPadding = PaddingValues(
-            start = SpacingTokens.md,
-            end = SpacingTokens.md,
-            bottom = SpacingTokens.xxl,
-        ),
     ) {
-        // Posts
-        items(
-            items = uiState.posts,
-            key = { it.id.value },
-        ) { post ->
-            PostCard(
-                post = post,
-                onLikeClick = { postId ->
-                    if (post.isUpvotedByCurrentUser) {
-                        onAction(FeedAction.PostUnliked(postId))
-                    } else {
-                        onAction(FeedAction.PostLiked(postId))
-                    }
-                },
-                onCommentClick = { postId ->
-                    onAction(FeedAction.PostCommentClicked(postId))
-                },
-                onShareClick = { postId ->
-                    onAction(FeedAction.PostShared(postId))
-                },
-                onUserClick = { username ->
-                    onAction(FeedAction.UserClicked(username))
-                },
-                onTagClick = { tag ->
-                    onAction(FeedAction.TagSelected(tag))
-                },
-            )
-        }
+        Text(
+            text = "Failed to load posts",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
 
-        // Loading more indicator
-        if (uiState.isLoadingMore) {
-            item("loading_more") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SpacingTokens.md),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+        Text(
+            text = "Please check your connection and try again",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+
+        TextButton(
+            onClick = onRetry,
+            modifier = Modifier.padding(top = SpacingTokens.sm),
+        ) {
+            Text("Retry")
         }
     }
 }
 
-// MARK: - Previews
-
-@Preview(name = "Feed Screen - Loading", showBackground = true)
 @Composable
-private fun FeedScreenLoadingPreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createLoadingState(),
-            listState = rememberLazyListState(),
-            onAction = {},
+private fun FeedEmptyState(
+    searchQuery: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(SpacingTokens.xl),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        Text(
+            text = if (searchQuery.isNotEmpty()) {
+                "No posts found for \"$searchQuery\""
+            } else {
+                "No posts available"
+            },
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
+
+        Text(
+            text = if (searchQuery.isNotEmpty()) {
+                "Try adjusting your search terms or check back later for new posts."
+            } else {
+                "Be the first to share something interesting with the community!"
+            },
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
         )
     }
 }
 
-@Preview(name = "Feed Screen - Content with Posts", showBackground = true)
-@Composable
-private fun FeedScreenContentPreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createContentState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
+// Extension function to convert domain Post to PostSummaryDto for PostCard
+private fun Post.toSummaryDto(): com.qodein.core.data.model.PostSummaryDto =
+    com.qodein.core.data.model.PostSummaryDto(
+        id = id.value,
+        authorName = authorName,
+        authorAvatarUrl = authorAvatarUrl,
+        title = title,
+        contentPreview = if (content.length > 200) content.take(200) + "..." else content,
+        imageUrls = imageUrls,
+        tags = tags.map { it.value },
+        upvotes = upvotes,
+        downvotes = downvotes,
+        commentCount = commentCount,
+        voteScore = upvotes - downvotes,
+        createdAt = null, // Will be handled by mapper with proper time formatting
+        userVoteState = "NONE", // Will be determined by user interaction state
+    )
 
-@Preview(name = "Feed Screen - Content with Filters", showBackground = true)
+@Preview(showBackground = true)
 @Composable
-private fun FeedScreenWithFiltersPreview() {
+private fun FeedScreenPreview() {
     QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createContentWithFiltersState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Feed Screen - Empty with Filters", showBackground = true)
-@Composable
-private fun FeedScreenEmptyWithFiltersPreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createEmptyState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Feed Screen - Empty No Filters", showBackground = true)
-@Composable
-private fun FeedScreenEmptyNoFiltersPreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createNoFiltersEmptyState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Feed Screen - Error", showBackground = true)
-@Composable
-private fun FeedScreenErrorPreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createErrorState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Feed Screen - Loading More", showBackground = true)
-@Composable
-private fun FeedScreenLoadingMorePreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createLoadingMoreState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun FeedScreenDarkThemePreview() {
-    QodeTheme {
-        FeedContent(
-            uiState = MockFeedData.createContentWithFiltersState(),
-            listState = rememberLazyListState(),
-            onAction = {},
-        )
-    }
-}
-
-// Individual component previews
-@Preview(name = "Feed Loading State", showBackground = true)
-@Composable
-private fun FeedLoadingStatePreview() {
-    QodeTheme {
+        // Preview with mock ViewModel would go here
         FeedLoadingState()
-    }
-}
-
-@Preview(name = "Feed Empty State - With Filters", showBackground = true)
-@Composable
-private fun FeedEmptyStateWithFiltersPreview() {
-    QodeTheme {
-        FeedEmptyState(hasFilters = true)
-    }
-}
-
-@Preview(name = "Feed Empty State - No Filters", showBackground = true)
-@Composable
-private fun FeedEmptyStateNoFiltersPreview() {
-    QodeTheme {
-        FeedEmptyState(hasFilters = false)
     }
 }

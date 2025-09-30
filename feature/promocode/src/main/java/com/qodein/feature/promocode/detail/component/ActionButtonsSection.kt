@@ -53,8 +53,6 @@ fun ActionButtonsSection(
     onCommentsClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Authentication protection is now handled at the parent level
-    // These callbacks are already auth-protected when passed down
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SpacingTokens.lg),
@@ -66,7 +64,6 @@ fun ActionButtonsSection(
             modifier = Modifier.padding(SpacingTokens.md),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            // Upvote Button - Crystal Clear States
             ActionButton(
                 type = ActionButtonType.Upvote,
                 icon = QodeActionIcons.Thumbs,
@@ -77,8 +74,6 @@ fun ActionButtonsSection(
                 onClick = onUpvoteClicked,
                 modifier = Modifier.weight(1f),
             )
-
-            // Downvote Button - Crystal Clear States
             ActionButton(
                 type = ActionButtonType.Downvote,
                 icon = QodeActionIcons.ThumbsDown,
