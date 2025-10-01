@@ -60,10 +60,10 @@ private object ScreenConstants {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubmissionScreen(
+fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
     isDarkTheme: Boolean,
-    viewModel: SubmissionWizardViewModel = hiltViewModel()
+    viewModel: PromocodeSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
 
@@ -72,29 +72,29 @@ fun SubmissionScreen(
 
     LaunchedEffect(events) {
         when (events) {
-            SubmissionWizardEvent.NavigateBack -> onNavigateBack()
-            SubmissionWizardEvent.PromoCodeSubmitted -> onNavigateBack()
+            PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
+            PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
             null -> { /* No event */ }
         }
     }
 
     when (val currentState = uiState) {
-        is SubmissionWizardUiState.Loading -> {
+        is PromocodeSubmissionUiState.Loading -> {
             LoadingState()
         }
-        is SubmissionWizardUiState.Success -> {
+        is PromocodeSubmissionUiState.Success -> {
             // MARK: Authentication check
-            val showAuthSheet = currentState.authentication !is AuthenticationState.Authenticated
+            val showAuthSheet = currentState.authentication !is PromocodeSubmissionAuthenticationState.Authenticated
             if (showAuthSheet) {
-                val isSigningIn = currentState.authentication is AuthenticationState.Loading
-                val authError = (currentState.authentication as? AuthenticationState.Error)?.throwable
+                val isSigningIn = currentState.authentication is PromocodeSubmissionAuthenticationState.Loading
+                val authError = (currentState.authentication as? PromocodeSubmissionAuthenticationState.Error)?.throwable
 
                 AuthenticationBottomSheet(
                     action = AuthPromptAction.SubmitPromoCode,
-                    onSignInClick = { viewModel.onAction(SubmissionWizardAction.SignInWithGoogle) },
-                    onDismiss = { viewModel.onAction(SubmissionWizardAction.DismissAuthSheet) },
+                    onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle) },
+                    onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
                     isLoading = isSigningIn,
-                    onErrorDismissed = { viewModel.onAction(SubmissionWizardAction.ClearAuthError) },
+                    onErrorDismissed = { viewModel.onAction(PromocodeSubmissionAction.ClearAuthError) },
                     isDarkTheme = isDarkTheme,
                 )
                 return
@@ -148,20 +148,20 @@ fun SubmissionScreen(
                     onAction = { uiAction ->
                         when (uiAction) {
                             is ServiceSelectionUiAction.UpdateQuery -> {
-                                viewModel.onAction(SubmissionWizardAction.SearchServices(uiAction.query))
+                                viewModel.onAction(PromocodeSubmissionAction.SearchServices(uiAction.query))
                             }
                             ServiceSelectionUiAction.ClearQuery -> {
-                                viewModel.onAction(SubmissionWizardAction.SearchServices(""))
+                                viewModel.onAction(PromocodeSubmissionAction.SearchServices(""))
                             }
                             is ServiceSelectionUiAction.SelectService -> {
-                                viewModel.onAction(SubmissionWizardAction.SelectService(uiAction.service))
-                                viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
+                                viewModel.onAction(PromocodeSubmissionAction.SelectService(uiAction.service))
+                                viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
                             }
                             is ServiceSelectionUiAction.SetSearchFocus -> {
                                 isSearchFocused = uiAction.focused
                             }
                             ServiceSelectionUiAction.Dismiss -> {
-                                viewModel.onAction(SubmissionWizardAction.HideServiceSelector)
+                                viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
                             }
                             else -> {
                                 // Handle other UI actions if needed
@@ -171,10 +171,10 @@ fun SubmissionScreen(
                 )
             }
         }
-        is SubmissionWizardUiState.Error -> {
+        is PromocodeSubmissionUiState.Error -> {
             ErrorState(
                 message = currentState.errorType.asUiText(),
-                onRetry = { viewModel.onAction(SubmissionWizardAction.RetryClicked) },
+                onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
             )
         }
     }
@@ -183,8 +183,8 @@ fun SubmissionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SubmissionContent(
-    uiState: SubmissionWizardUiState.Success,
-    onAction: (SubmissionWizardAction) -> Unit,
+    uiState: PromocodeSubmissionUiState.Success,
+    onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -233,7 +233,7 @@ private fun SubmissionContent(
                 ProgressIndicator(
                     currentStep = uiState.wizardFlow.currentStep,
                     onStepClick = { step ->
-                        onAction(SubmissionWizardAction.NavigateToStep(step))
+                        onAction(PromocodeSubmissionAction.NavigateToStep(step))
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -251,17 +251,17 @@ private fun SubmissionContent(
         WizardController(
             canGoNext = uiState.canGoNext,
             canGoBack = uiState.canGoPrevious,
-            isLoading = uiState.submission is SubmissionState.Submitting,
+            isLoading = uiState.submission is PromocodeSubmissionState.Submitting,
             nextButtonText = stringResource(R.string.action_continue),
             onNext = {
-                onAction(SubmissionWizardAction.NextProgressiveStep)
+                onAction(PromocodeSubmissionAction.NextProgressiveStep)
             },
             onPrevious = {
-                onAction(SubmissionWizardAction.PreviousProgressiveStep)
+                onAction(PromocodeSubmissionAction.PreviousProgressiveStep)
             },
             canSubmit = uiState.canSubmit,
             onSubmit = {
-                onAction(SubmissionWizardAction.SubmitPromoCode)
+                onAction(PromocodeSubmissionAction.SubmitPromoCode)
             },
             showSubmitAlongside = uiState.wizardFlow.currentStep.isLastRequired && !uiState.wizardFlow.currentStep.isLast,
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -306,12 +306,12 @@ private fun ErrorState(
 private fun ProgressiveSubmissionContentServicePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success.initial().copy(
+            uiState = PromocodeSubmissionUiState.Success.initial().copy(
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(),
-                    currentStep = SubmissionStep.SERVICE,
+                    currentStep = PromocodeSubmissionStep.SERVICE,
                 ),
-                authentication = AuthenticationState.Unauthenticated,
+                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -323,15 +323,15 @@ private fun ProgressiveSubmissionContentServicePreview() {
 private fun ProgressiveSubmissionContentPromoCodePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success.initial().copy(
+            uiState = PromocodeSubmissionUiState.Success.initial().copy(
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
                         promoCodeType = PromoCodeType.PERCENTAGE,
                     ),
-                    currentStep = SubmissionStep.PROMO_CODE,
+                    currentStep = PromocodeSubmissionStep.PROMO_CODE,
                 ),
-                authentication = AuthenticationState.Unauthenticated,
+                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -362,15 +362,15 @@ private fun SubmissionScreenErrorPreview() {
 private fun SubmissionContentDarkThemePreview() {
     QodeTheme {
         SubmissionContent(
-            uiState = SubmissionWizardUiState.Success.initial().copy(
+            uiState = PromocodeSubmissionUiState.Success.initial().copy(
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
                         promoCodeType = PromoCodeType.PERCENTAGE,
                     ),
-                    currentStep = SubmissionStep.DISCOUNT_VALUE,
+                    currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
                 ),
-                authentication = AuthenticationState.Unauthenticated,
+                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
         )

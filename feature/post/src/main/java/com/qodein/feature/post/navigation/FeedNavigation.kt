@@ -1,11 +1,11 @@
-package com.qodein.feature.feed.navigation
+package com.qodein.feature.post.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.qodein.core.ui.scroll.ScrollStateRegistry
-import com.qodein.feature.feed.FeedScreen
+import com.qodein.feature.post.FeedScreen
 import kotlinx.serialization.Serializable
 
 /**

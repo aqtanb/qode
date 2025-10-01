@@ -46,7 +46,7 @@ import kotlin.time.toKotlinInstant
  * - Clean dependency flow: UI → ViewModel → Use Case → Repository
  */
 @HiltViewModel
-class SubmissionWizardViewModel @Inject constructor(
+class PromocodeSubmissionViewModel @Inject constructor(
     private val submitPromocodeUseCase: SubmitPromocodeUseCase,
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     private val analyticsHelper: AnalyticsHelper,
@@ -54,14 +54,14 @@ class SubmissionWizardViewModel @Inject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<SubmissionWizardUiState>(SubmissionWizardUiState.Loading)
-    val uiState: StateFlow<SubmissionWizardUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
+    val uiState: StateFlow<PromocodeSubmissionUiState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<SubmissionWizardEvent>()
+    private val _events = MutableSharedFlow<PromocodeSubmissionEvent>()
     val events = _events.asSharedFlow()
 
     companion object {
-        private const val TAG = "SubmissionWizardViewModel"
+        private const val TAG = "PromocodeSubmissionViewModel"
 
         // UI Analytics constants (step navigation only)
         private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
@@ -79,54 +79,54 @@ class SubmissionWizardViewModel @Inject constructor(
 
     // MARK: - Public API
 
-    fun onAction(action: SubmissionWizardAction) {
+    fun onAction(action: PromocodeSubmissionAction) {
         when (action) {
             // Progressive step navigation
-            SubmissionWizardAction.NextProgressiveStep -> goToNextProgressiveStep()
-            SubmissionWizardAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
-            is SubmissionWizardAction.NavigateToStep -> navigateToStep(action.step)
+            PromocodeSubmissionAction.NextProgressiveStep -> goToNextProgressiveStep()
+            PromocodeSubmissionAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
+            is PromocodeSubmissionAction.NavigateToStep -> navigateToStep(action.step)
 
             // Service selection UI actions
-            SubmissionWizardAction.ShowServiceSelector -> showServiceSelector()
-            SubmissionWizardAction.HideServiceSelector -> hideServiceSelector()
-            SubmissionWizardAction.ToggleManualEntry -> toggleManualEntry()
+            PromocodeSubmissionAction.ShowServiceSelector -> showServiceSelector()
+            PromocodeSubmissionAction.HideServiceSelector -> hideServiceSelector()
+            PromocodeSubmissionAction.ToggleManualEntry -> toggleManualEntry()
 
             // Step 1: Core Details
-            is SubmissionWizardAction.SelectService -> selectService(action.service)
-            is SubmissionWizardAction.UpdateServiceName -> updateServiceName(action.serviceName)
-            is SubmissionWizardAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
-            is SubmissionWizardAction.SearchServices -> searchServices(action.query)
-            is SubmissionWizardAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
-            is SubmissionWizardAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
-            is SubmissionWizardAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
-            is SubmissionWizardAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
-            is SubmissionWizardAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
-            is SubmissionWizardAction.UpdateOneTimeUseOnly -> updateOneTimeUseOnly(action.isOneTimeUseOnly)
-            is SubmissionWizardAction.UpdateDescription -> updateDescription(action.description)
+            is PromocodeSubmissionAction.SelectService -> selectService(action.service)
+            is PromocodeSubmissionAction.UpdateServiceName -> updateServiceName(action.serviceName)
+            is PromocodeSubmissionAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
+            is PromocodeSubmissionAction.SearchServices -> searchServices(action.query)
+            is PromocodeSubmissionAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
+            is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
+            is PromocodeSubmissionAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
+            is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
+            is PromocodeSubmissionAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
+            is PromocodeSubmissionAction.UpdateOneTimeUseOnly -> updateOneTimeUseOnly(action.isOneTimeUseOnly)
+            is PromocodeSubmissionAction.UpdateDescription -> updateDescription(action.description)
 
             // Step 2: Date Settings
-            is SubmissionWizardAction.UpdateStartDate -> updateStartDate(action.date)
-            is SubmissionWizardAction.UpdateEndDate -> updateEndDate(action.date)
+            is PromocodeSubmissionAction.UpdateStartDate -> updateStartDate(action.date)
+            is PromocodeSubmissionAction.UpdateEndDate -> updateEndDate(action.date)
 
             // Submission
-            is SubmissionWizardAction.SubmitPromoCodeWithUser -> submitPromoCode(action.user)
-            SubmissionWizardAction.SubmitPromoCode -> submitPromoCode()
+            is PromocodeSubmissionAction.SubmitPromoCodeWithUser -> submitPromoCode(action.user)
+            PromocodeSubmissionAction.SubmitPromoCode -> submitPromoCode()
 
             // Authentication
-            SubmissionWizardAction.SignInWithGoogle -> signInWithGoogle()
-            SubmissionWizardAction.DismissAuthSheet -> handleBack()
-            SubmissionWizardAction.ClearAuthError -> clearAuthError()
+            PromocodeSubmissionAction.SignInWithGoogle -> signInWithGoogle()
+            PromocodeSubmissionAction.DismissAuthSheet -> handleBack()
+            PromocodeSubmissionAction.ClearAuthError -> clearAuthError()
 
             // Error handling
-            SubmissionWizardAction.RetryClicked -> initialize()
-            SubmissionWizardAction.ClearValidationErrors -> clearValidationErrors()
+            PromocodeSubmissionAction.RetryClicked -> initialize()
+            PromocodeSubmissionAction.ClearValidationErrors -> clearValidationErrors()
         }
     }
 
     // MARK: - Initialization
 
     private fun initialize() {
-        _uiState.update { SubmissionWizardUiState.Success.initial() }
+        _uiState.update { PromocodeSubmissionUiState.Success.initial() }
     }
 
     // Service selection state managed through ServiceSelectionManager - configured for single-selection
@@ -167,7 +167,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun goToNextProgressiveStep() {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> {
+                is PromocodeSubmissionUiState.Success -> {
                     if (currentState.canGoNext) {
                         val currentStep = currentState.wizardFlow.currentStep
                         val nextStep = currentStep.next()
@@ -199,7 +199,7 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun goToPreviousProgressiveStep() {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> {
+                is PromocodeSubmissionUiState.Success -> {
                     if (currentState.canGoPrevious) {
                         val currentStep = currentState.wizardFlow.currentStep
                         val previousStep = currentStep.previous()
@@ -228,10 +228,10 @@ class SubmissionWizardViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToStep(targetStep: SubmissionStep) {
+    private fun navigateToStep(targetStep: PromocodeSubmissionStep) {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> {
+                is PromocodeSubmissionUiState.Success -> {
                     // Track step navigation
                     analyticsHelper.logEvent(
                         AnalyticsEvent(
@@ -262,16 +262,16 @@ class SubmissionWizardViewModel @Inject constructor(
                 .collect { user ->
                     _uiState.update { currentState ->
                         when (currentState) {
-                            is SubmissionWizardUiState.Success -> {
+                            is PromocodeSubmissionUiState.Success -> {
                                 val newAuthState = if (user != null) {
-                                    AuthenticationState.Authenticated(user)
+                                    PromocodeSubmissionAuthenticationState.Authenticated(user)
                                 } else {
-                                    AuthenticationState.Unauthenticated
+                                    PromocodeSubmissionAuthenticationState.Unauthenticated
                                 }
                                 currentState.updateAuthentication(newAuthState)
                             }
-                            is SubmissionWizardUiState.Loading,
-                            is SubmissionWizardUiState.Error -> currentState
+                            is PromocodeSubmissionUiState.Loading,
+                            is PromocodeSubmissionUiState.Error -> currentState
                         }
                     }
                 }
@@ -283,7 +283,7 @@ class SubmissionWizardViewModel @Inject constructor(
 
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> currentState.updateAuthentication(AuthenticationState.Loading)
+                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Loading)
                 else -> currentState
             }
         }
@@ -293,7 +293,7 @@ class SubmissionWizardViewModel @Inject constructor(
                 .collect { result ->
                     _uiState.update { currentState ->
                         when (currentState) {
-                            is SubmissionWizardUiState.Success -> {
+                            is PromocodeSubmissionUiState.Success -> {
                                 val newAuthState = when (result) {
                                     is Result.Success -> {
                                         Logger.i(TAG) { "Sign-in successful" }
@@ -302,7 +302,7 @@ class SubmissionWizardViewModel @Inject constructor(
                                     }
                                     is Result.Error -> {
                                         Logger.w(TAG) { "Sign-in failed: ${result.error}" }
-                                        AuthenticationState.Error(Exception(result.error.toString()))
+                                        PromocodeSubmissionAuthenticationState.Error(Exception(result.error.toString()))
                                     }
                                 }
                                 currentState.updateAuthentication(newAuthState)
@@ -318,7 +318,9 @@ class SubmissionWizardViewModel @Inject constructor(
         Logger.i(TAG) { "clearAuthError() called" }
         updateSuccessState { currentState ->
             when (currentState.authentication) {
-                is AuthenticationState.Error -> currentState.updateAuthentication(AuthenticationState.Unauthenticated)
+                is PromocodeSubmissionAuthenticationState.Error -> currentState.updateAuthentication(
+                    PromocodeSubmissionAuthenticationState.Unauthenticated,
+                )
                 else -> currentState
             }
         }
@@ -405,7 +407,7 @@ class SubmissionWizardViewModel @Inject constructor(
 
     private fun handleBack() {
         viewModelScope.launch {
-            _events.emit(SubmissionWizardEvent.NavigateBack)
+            _events.emit(PromocodeSubmissionEvent.NavigateBack)
         }
     }
 
@@ -425,12 +427,12 @@ class SubmissionWizardViewModel @Inject constructor(
     private fun submitPromoCode() {
         Logger.i(TAG) { "submitPromoCode() called - using authenticated user" }
 
-        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: run {
+        val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: run {
             Logger.w(TAG) { "Cannot submit: currentState is not Success" }
             return
         }
 
-        val authenticatedUser = (currentState.authentication as? AuthenticationState.Authenticated)?.user
+        val authenticatedUser = (currentState.authentication as? PromocodeSubmissionAuthenticationState.Authenticated)?.user
         if (authenticatedUser == null) {
             Logger.w(TAG) { "Cannot submit: user is not authenticated" }
             return
@@ -443,7 +445,7 @@ class SubmissionWizardViewModel @Inject constructor(
      * Core submission logic - creates PromoCode and delegates to use case
      */
     private fun performSubmission(user: User) {
-        val currentState = _uiState.value as? SubmissionWizardUiState.Success ?: return
+        val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
 
         if (!currentState.canSubmit) {
             Logger.w(TAG) { "Cannot submit: validation failed" }
@@ -470,8 +472,8 @@ class SubmissionWizardViewModel @Inject constructor(
                                     is Result.Success -> {
                                         // UI navigation events (not business analytics)
                                         viewModelScope.launch {
-                                            _events.emit(SubmissionWizardEvent.PromoCodeSubmitted)
-                                            _events.emit(SubmissionWizardEvent.NavigateBack)
+                                            _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
+                                            _events.emit(PromocodeSubmissionEvent.NavigateBack)
                                         }
                                         state.submitSuccess(result.data.id.value)
                                     }
@@ -555,13 +557,13 @@ class SubmissionWizardViewModel @Inject constructor(
     // MARK: - State Update Helpers
 
     /**
-     * Helper function to update SubmissionWizardUiState.Success state safely.
+     * Helper function to update PromocodeSubmissionUiState.Success state safely.
      * Uses the extension functions from StateUpdateExtensions.kt for ergonomic updates.
      */
-    private inline fun updateSuccessState(crossinline update: (SubmissionWizardUiState.Success) -> SubmissionWizardUiState.Success) {
+    private inline fun updateSuccessState(crossinline update: (PromocodeSubmissionUiState.Success) -> PromocodeSubmissionUiState.Success) {
         _uiState.update { currentState ->
             when (currentState) {
-                is SubmissionWizardUiState.Success -> update(currentState)
+                is PromocodeSubmissionUiState.Success -> update(currentState)
                 else -> currentState
             }
         }

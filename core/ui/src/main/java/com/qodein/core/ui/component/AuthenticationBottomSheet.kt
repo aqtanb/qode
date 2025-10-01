@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -78,6 +79,11 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         titleResId = R.string.auth_follow_store_title,
         messageResId = R.string.auth_follow_store_message,
         iconVector = QodeActionIcons.Follow,
+    ),
+    CreatePost(
+        titleResId = R.string.auth_create_post_title,
+        messageResId = R.string.auth_create_post_message,
+        iconVector = PostIcons.Post,
     )
 }
 
@@ -358,6 +364,22 @@ private fun AuthenticationBottomSheetErrorPreview() {
             isLoading = false,
             error = UserError.AuthenticationFailure.Cancelled,
             onErrorDismissed = {},
+            isDarkTheme = false,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "Post Submission Auth", showBackground = true)
+@Composable
+private fun AuthenticationBottomSheetPostSubmissionPreview() {
+    QodeTheme {
+        AuthenticationBottomSheetContent(
+            action = AuthPromptAction.CreatePost,
+            onSignInClick = {},
+            onDismiss = {},
+            isLoading = false,
             isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )

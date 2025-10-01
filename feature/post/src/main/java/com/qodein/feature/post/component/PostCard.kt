@@ -1,4 +1,4 @@
-package com.qodein.feature.feed.component
+package com.qodein.feature.post.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

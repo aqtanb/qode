@@ -198,7 +198,7 @@
     <string name="filter_sort_title">Sort Options</string>
     <string name="filter_tag_title">Filter by Tags</string>
     <string name="filter_tag_all">All Tags</string>
-    
+
     <!-- Service Selector -->
     <string name="select_service_title">Select Service</string>
     <string name="search_services_title">Search Services</string>
@@ -212,17 +212,17 @@
     <string name="search_icon_description">Search</string>
     <string name="loading_popular_services">Loading popular services...</string>
     <string name="search_error_message">Failed to search services. Please try again.</string>
-    
+
     <!-- Sort Options -->
     <string name="sort_popularity">Most Popular</string>
     <string name="sort_newest">Newest First</string>
     <string name="sort_expiring_soon">Expiring Soon</string>
-    
+
     <!-- Sort Section Titles -->
     <string name="sort_section_title_popularity">Popular Deals</string>
     <string name="sort_section_title_newest">Latest Deals</string>
     <string name="sort_section_title_expiring">Expiring Soon</string>
-    
+
     <!-- Authentication Bottom Sheet -->
     <string name="auth_submit_promo_title">Sign in to submit promo code</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
@@ -253,4 +253,6 @@
     <string name="step_start_date_short">Start</string>
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
+    <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
+    <string name="auth_create_post_title">Sign in to create a post</string>
 </resources>

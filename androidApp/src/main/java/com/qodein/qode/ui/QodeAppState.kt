@@ -29,8 +29,8 @@ import com.qodein.core.designsystem.component.ScrollInfo
 import com.qodein.core.designsystem.component.ScrollStateExtractor
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
-import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
+import com.qodein.feature.post.navigation.FeedRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
 import com.qodein.feature.promocode.navigation.SubmissionRoute

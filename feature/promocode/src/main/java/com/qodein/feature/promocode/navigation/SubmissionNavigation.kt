@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.qodein.feature.promocode.detail.PromocodeDetailScreen
-import com.qodein.feature.promocode.submission.SubmissionScreen
+import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.serialization.Serializable
 
@@ -26,7 +26,7 @@ fun NavGraphBuilder.submissionSection(
     isDarkTheme: Boolean
 ) {
     composable<SubmissionRoute> {
-        SubmissionScreen(
+        PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
             isDarkTheme = isDarkTheme,
         )

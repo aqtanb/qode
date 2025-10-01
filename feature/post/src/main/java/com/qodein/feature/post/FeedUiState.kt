@@ -1,4 +1,4 @@
-package com.qodein.feature.feed
+package com.qodein.feature.post
 
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post

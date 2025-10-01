@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
-import com.qodein.feature.feed.navigation.feedSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
+import com.qodein.feature.post.navigation.feedSection
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.submissionSection

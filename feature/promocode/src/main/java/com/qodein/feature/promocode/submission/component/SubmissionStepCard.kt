@@ -40,17 +40,17 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.SubmissionStep
-import com.qodein.feature.promocode.submission.SubmissionWizardAction
+import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
+import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.hintRes
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
 fun SubmissionStepCard(
-    currentStep: SubmissionStep,
+    currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
-    onAction: (SubmissionWizardAction) -> Unit,
+    onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isHintExpanded by remember { mutableStateOf(false) }
@@ -122,7 +122,7 @@ fun SubmissionStepCard(
 
 @Composable
 private fun StepHeader(
-    step: SubmissionStep,
+    step: PromocodeSubmissionStep,
     isHintExpanded: Boolean,
     onHintToggle: () -> Unit,
     modifier: Modifier = Modifier
@@ -161,7 +161,7 @@ private fun StepHeader(
 
 @Composable
 private fun HintCard(
-    step: SubmissionStep,
+    step: PromocodeSubmissionStep,
     modifier: Modifier = Modifier
 ) {
     // Using your beautiful StepWithInstructions pattern
@@ -200,7 +200,7 @@ private fun HintCard(
 private fun FloatingStepCardServicePreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.SERVICE,
+            currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
@@ -213,7 +213,7 @@ private fun FloatingStepCardServicePreview() {
 private fun FloatingStepCardPromoCodePreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.PROMO_CODE,
+            currentStep = PromocodeSubmissionStep.PROMO_CODE,
             wizardData = SubmissionWizardData(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),

@@ -6,7 +6,7 @@ package com.qodein.feature.promocode.submission
  * This state encapsulates wizard progression logic with efficient computed properties
  * and safe navigation methods that don't break flow with nulls.
  */
-data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep: SubmissionStep) {
+data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep: PromocodeSubmissionStep) {
     val canGoNext get() = (currentStep.canProceed(wizardData) || !currentStep.isRequired) && !currentStep.isLast
     val canGoPrevious get() = !currentStep.isFirst
     val canSubmit get() = allRequiredStepsComplete() &&
@@ -14,12 +14,12 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
         currentStep.stepNumber >= getLastRequiredStepNumber()
 
     private fun getLastRequiredStepNumber(): Int =
-        SubmissionStep.entries
+        PromocodeSubmissionStep.entries
             .filter { it.isRequired }
             .maxOfOrNull { it.stepNumber } ?: 1
 
     private fun allRequiredStepsComplete(): Boolean =
-        SubmissionStep.entries
+        PromocodeSubmissionStep.entries
             .filter { it.isRequired }
             .all { step ->
                 step.stepNumber <= currentStep.stepNumber && step.canProceed(wizardData)
@@ -29,7 +29,7 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
         fun initial() =
             WizardFlowState(
                 SubmissionWizardData(),
-                SubmissionStep.SERVICE,
+                PromocodeSubmissionStep.SERVICE,
             )
     }
 
@@ -39,5 +39,5 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
 
     fun moveToPrevious() = currentStep.previous()?.let { WizardFlowState(wizardData, it) } ?: this
 
-    fun moveToStep(step: SubmissionStep) = WizardFlowState(wizardData, step)
+    fun moveToStep(step: PromocodeSubmissionStep) = WizardFlowState(wizardData, step)
 }

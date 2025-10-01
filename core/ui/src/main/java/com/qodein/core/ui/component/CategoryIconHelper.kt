@@ -27,7 +27,7 @@ object CategoryIconHelper {
         Service.Companion.Categories.EDUCATION to QodeCategoryIcons.Education,
         Service.Companion.Categories.FITNESS to QodeCategoryIcons.Fitness,
         Service.Companion.Categories.BEAUTY to QodeCategoryIcons.Cosmetics,
-        Service.Companion.Categories.CLOTHING to QodeCategoryIcons.Clothing,
+        Service.Companion.Categories.CLOTHING to QodeCategoryIcons.Shirt,
         Service.Companion.Categories.ELECTRONICS to QodeCategoryIcons.Electronics,
         Service.Companion.Categories.TRAVEL to QodeCategoryIcons.Travel,
         Service.Companion.Categories.JEWELRY to QodeCategoryIcons.Accessories,

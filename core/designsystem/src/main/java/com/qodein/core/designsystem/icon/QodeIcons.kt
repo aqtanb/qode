@@ -2,7 +2,9 @@ package com.qodein.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
@@ -21,7 +23,6 @@ import compose.icons.feathericons.Bell
 import compose.icons.feathericons.BellOff
 import compose.icons.feathericons.Book
 import compose.icons.feathericons.BookOpen
-import compose.icons.feathericons.Bookmark
 import compose.icons.feathericons.Box
 import compose.icons.feathericons.Briefcase
 import compose.icons.feathericons.Calendar
@@ -311,7 +312,11 @@ import compose.icons.tablericons.Train
 import compose.icons.tablericons.TruckDelivery
 import compose.icons.tablericons.Video
 
-// MARK:
+// MARK: Post
+object PostIcons {
+    val Post: ImageVector = Icons.Outlined.PostAdd
+}
+
 object QodeCommerceIcons {
     // Promo & Discounts
     val PromoCode: ImageVector = TablerIcons.Tag
@@ -376,20 +381,20 @@ object QodeCommerceIcons {
 object QodeCategoryIcons {
     // Technology & Electronics
     val Electronics: ImageVector = TablerIcons.DeviceLaptop
-    val Computers: ImageVector = TablerIcons.DeviceDesktop
-    val Laptops: ImageVector = TablerIcons.DeviceLaptop
-    val Tablets: ImageVector = TablerIcons.DeviceTablet
-    val Phones: ImageVector = TablerIcons.DeviceMobile
-    val Audio: ImageVector = TablerIcons.Headphones
+    val DeviceDesktop: ImageVector = TablerIcons.DeviceDesktop
+    val DeviceLaptop: ImageVector = TablerIcons.DeviceLaptop
+    val DeviceTablet: ImageVector = TablerIcons.DeviceTablet
+    val DeviceMobile: ImageVector = TablerIcons.DeviceMobile
+    val Headphones: ImageVector = TablerIcons.Headphones
     val Video: ImageVector = TablerIcons.Video
-    val Cameras: ImageVector = FeatherIcons.Camera
-    val Smartwatch: ImageVector = TablerIcons.DeviceWatch
-    val TV: ImageVector = TablerIcons.DeviceTv
+    val Camera: ImageVector = FeatherIcons.Camera
+    val DeviceWatch: ImageVector = TablerIcons.DeviceWatch
+    val DeviceTv: ImageVector = TablerIcons.DeviceTv
     val Drone: ImageVector = TablerIcons.Drone
 
     // Fashion & Clothing
-    val Fashion: ImageVector = FeatherIcons.ShoppingBag
-    val Clothing: ImageVector = TablerIcons.Shirt
+    val ShoppingBag: ImageVector = FeatherIcons.ShoppingBag
+    val Shirt: ImageVector = TablerIcons.Shirt
     val Accessories: ImageVector = TablerIcons.Diamond
     val Watches: ImageVector = TablerIcons.Clock
     val Bags: ImageVector = FeatherIcons.ShoppingBag

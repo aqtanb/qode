@@ -40,6 +40,8 @@ dependencies {
     // Shared multiplatform module
     implementation(project(":shared"))
 
+    implementation(projects.core.analytics)
+
     // Hilt DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

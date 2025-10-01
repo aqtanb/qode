@@ -1,4 +1,4 @@
-package com.qodein.feature.feed
+package com.qodein.feature.post
 
 import com.qodein.shared.model.PostId
 

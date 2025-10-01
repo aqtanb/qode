@@ -23,13 +23,13 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromoCodeType
-import com.qodein.feature.promocode.submission.SubmissionWizardAction
+import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 
 @Composable
 fun PromocodeDetailsCard(
     wizardData: SubmissionWizardData,
-    onAction: (SubmissionWizardAction) -> Unit,
+    onAction: (PromocodeSubmissionAction) -> Unit,
     focusManager: FocusManager,
     modifier: Modifier = Modifier
 ) {
@@ -51,7 +51,7 @@ fun PromocodeDetailsCard(
             // Promo Code Input with circular design
             QodeTextField(
                 value = wizardData.promoCode,
-                onValueChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
+                onValueChange = { onAction(PromocodeSubmissionAction.UpdatePromoCode(it)) },
                 label = "Promo Code",
                 placeholder = "SAVE20",
                 modifier = Modifier.fillMaxWidth(),
@@ -72,7 +72,7 @@ fun PromocodeDetailsCard(
                     PromoCodeType.PERCENTAGE -> {
                         QodeTextField(
                             value = wizardData.discountPercentage,
-                            onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
+                            onValueChange = { onAction(PromocodeSubmissionAction.UpdateDiscountPercentage(it)) },
                             label = "Percentage",
                             placeholder = "20",
                             modifier = Modifier.weight(1f),
@@ -89,7 +89,7 @@ fun PromocodeDetailsCard(
                     PromoCodeType.FIXED_AMOUNT -> {
                         QodeTextField(
                             value = wizardData.discountAmount,
-                            onValueChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
+                            onValueChange = { onAction(PromocodeSubmissionAction.UpdateDiscountAmount(it)) },
                             label = "Amount",
                             placeholder = "100",
                             modifier = Modifier.weight(1f),
@@ -109,7 +109,7 @@ fun PromocodeDetailsCard(
                 // Minimum order field - same height as discount field
                 QodeTextField(
                     value = wizardData.minimumOrderAmount,
-                    onValueChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
+                    onValueChange = { onAction(PromocodeSubmissionAction.UpdateMinimumOrderAmount(it)) },
                     label = "Min Order",
                     placeholder = "500",
                     modifier = Modifier.weight(1f),

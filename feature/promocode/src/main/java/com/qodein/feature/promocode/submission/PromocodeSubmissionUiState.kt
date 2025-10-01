@@ -44,32 +44,32 @@ data class SubmissionWizardData(
 
     val hasValidMinimumOrder: Boolean get() = minimumOrderAmount.isNotBlank()
 
-    fun canProceedFromProgressiveStep(step: SubmissionStep): Boolean = step.canProceed(this)
+    fun canProceedFromProgressiveStep(step: PromocodeSubmissionStep): Boolean = step.canProceed(this)
 }
 
-sealed interface SubmissionWizardUiState {
-    data object Loading : SubmissionWizardUiState
+sealed interface PromocodeSubmissionUiState {
+    data object Loading : PromocodeSubmissionUiState
 
     data class Success(
         val wizardFlow: WizardFlowState,
-        val authentication: AuthenticationState,
+        val authentication: PromocodeSubmissionAuthenticationState,
         val validation: ValidationState,
-        val submission: SubmissionState,
+        val submission: PromocodeSubmissionState,
         val showServiceSelector: Boolean = false
-    ) : SubmissionWizardUiState {
+    ) : PromocodeSubmissionUiState {
 
         // Navigation capabilities
-        val canGoNext: Boolean get() = wizardFlow.canGoNext && submission !is SubmissionState.Submitting
-        val canGoPrevious: Boolean get() = wizardFlow.canGoPrevious && submission !is SubmissionState.Submitting
-        val canSubmit: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is SubmissionState.Submitting
+        val canGoNext: Boolean get() = wizardFlow.canGoNext && submission !is PromocodeSubmissionState.Submitting
+        val canGoPrevious: Boolean get() = wizardFlow.canGoPrevious && submission !is PromocodeSubmissionState.Submitting
+        val canSubmit: Boolean get() = wizardFlow.canSubmit && validation.isValid && submission !is PromocodeSubmissionState.Submitting
 
         companion object {
             fun initial(): Success =
                 Success(
                     wizardFlow = WizardFlowState.initial(),
-                    authentication = AuthenticationState.Loading,
+                    authentication = PromocodeSubmissionAuthenticationState.Loading,
                     validation = ValidationState.valid(),
-                    submission = SubmissionState.Idle,
+                    submission = PromocodeSubmissionState.Idle,
                 )
         }
     }
@@ -79,5 +79,5 @@ sealed interface SubmissionWizardUiState {
         val isRetryable: Boolean,
         val shouldShowSnackbar: Boolean = true,
         val errorCode: String? = null
-    ) : SubmissionWizardUiState
+    ) : PromocodeSubmissionUiState
 }

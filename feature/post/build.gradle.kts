@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.feature.feed"
+    namespace = "com.qodein.feature.post"
     compileSdk =
         libs.versions.compileSdk
             .get()
@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
+
+    implementation(libs.kermit)
 
     // Dependency Injection
     implementation(libs.bundles.hilt)

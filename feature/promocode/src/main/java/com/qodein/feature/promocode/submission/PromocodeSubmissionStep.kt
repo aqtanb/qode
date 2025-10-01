@@ -12,7 +12,7 @@ import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmo
 import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
 import com.qodein.feature.promocode.submission.validation.isValidServiceName
 
-enum class SubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
+enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
     SERVICE(1) {
         override fun canProceed(data: SubmissionWizardData): Boolean = isValidServiceName(data.effectiveServiceName)
     },
@@ -48,7 +48,7 @@ enum class SubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
     val isLast: Boolean get() = this == DESCRIPTION
     val isLastRequired: Boolean get() = this == END_DATE
 
-    fun next(): SubmissionStep? =
+    fun next(): PromocodeSubmissionStep? =
         when (this) {
             SERVICE -> DISCOUNT_TYPE
             DISCOUNT_TYPE -> PROMO_CODE
@@ -61,7 +61,7 @@ enum class SubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
             DESCRIPTION -> null
         }
 
-    fun previous(): SubmissionStep? =
+    fun previous(): PromocodeSubmissionStep? =
         when (this) {
             SERVICE -> null
             DISCOUNT_TYPE -> SERVICE
@@ -76,57 +76,57 @@ enum class SubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
 }
 
 // Centralized step icon logic
-fun SubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector =
+fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector =
     when {
         isCompleted -> QodeActionIcons.Check
         else -> when (this) {
-            SubmissionStep.SERVICE -> QodeCommerceIcons.Store
-            SubmissionStep.DISCOUNT_TYPE -> QodeCommerceIcons.Sale
-            SubmissionStep.PROMO_CODE -> QodeCommerceIcons.PromoCode
-            SubmissionStep.DISCOUNT_VALUE -> QodeCommerceIcons.Dollar
-            SubmissionStep.MINIMUM_ORDER -> QodeCommerceIcons.Dollar
-            SubmissionStep.ELIGIBILITY -> QodeNavigationIcons.Settings
-            SubmissionStep.DESCRIPTION -> QodeUIIcons.Info
-            SubmissionStep.START_DATE, SubmissionStep.END_DATE -> QodeUIIcons.Datepicker
+            PromocodeSubmissionStep.SERVICE -> QodeCommerceIcons.Store
+            PromocodeSubmissionStep.DISCOUNT_TYPE -> QodeCommerceIcons.Sale
+            PromocodeSubmissionStep.PROMO_CODE -> QodeCommerceIcons.PromoCode
+            PromocodeSubmissionStep.DISCOUNT_VALUE -> QodeCommerceIcons.Dollar
+            PromocodeSubmissionStep.MINIMUM_ORDER -> QodeCommerceIcons.Dollar
+            PromocodeSubmissionStep.ELIGIBILITY -> QodeNavigationIcons.Settings
+            PromocodeSubmissionStep.DESCRIPTION -> QodeUIIcons.Info
+            PromocodeSubmissionStep.START_DATE, PromocodeSubmissionStep.END_DATE -> QodeUIIcons.Datepicker
         }
     }
 
 // String resource extensions
-val SubmissionStep.titleRes: Int
+val PromocodeSubmissionStep.titleRes: Int
     get() = when (this) {
-        SubmissionStep.SERVICE -> R.string.step_service_title
-        SubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_title
-        SubmissionStep.PROMO_CODE -> R.string.step_promo_code_title
-        SubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_title
-        SubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_title
-        SubmissionStep.ELIGIBILITY -> R.string.step_eligibility_title
-        SubmissionStep.DESCRIPTION -> R.string.step_description_title
-        SubmissionStep.START_DATE -> R.string.step_start_date_title
-        SubmissionStep.END_DATE -> R.string.step_end_date_title
+        PromocodeSubmissionStep.SERVICE -> R.string.step_service_title
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_title
+        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_title
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_title
+        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_title
+        PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_title
+        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_title
+        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_title
+        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_title
     }
 
-val SubmissionStep.shortNameRes: Int
+val PromocodeSubmissionStep.shortNameRes: Int
     get() = when (this) {
-        SubmissionStep.SERVICE -> R.string.step_service_short
-        SubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_short
-        SubmissionStep.PROMO_CODE -> R.string.step_promo_code_short
-        SubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_short
-        SubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_short
-        SubmissionStep.ELIGIBILITY -> R.string.step_eligibility_short
-        SubmissionStep.DESCRIPTION -> R.string.step_description_short
-        SubmissionStep.START_DATE -> R.string.step_start_date_short
-        SubmissionStep.END_DATE -> R.string.step_end_date_short
+        PromocodeSubmissionStep.SERVICE -> R.string.step_service_short
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_short
+        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_short
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_short
+        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_short
+        PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_short
+        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_short
+        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_short
+        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_short
     }
 
-val SubmissionStep.hintRes: Int
+val PromocodeSubmissionStep.hintRes: Int
     get() = when (this) {
-        SubmissionStep.SERVICE -> R.string.step_service_hint
-        SubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_hint
-        SubmissionStep.PROMO_CODE -> R.string.step_promo_code_hint
-        SubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_hint
-        SubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_hint
-        SubmissionStep.ELIGIBILITY -> R.string.step_eligibility_hint
-        SubmissionStep.DESCRIPTION -> R.string.step_description_hint
-        SubmissionStep.START_DATE -> R.string.step_start_date_hint
-        SubmissionStep.END_DATE -> R.string.step_end_date_hint
+        PromocodeSubmissionStep.SERVICE -> R.string.step_service_hint
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_hint
+        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_hint
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_hint
+        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_hint
+        PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_hint
+        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_hint
+        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_hint
+        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_hint
     }

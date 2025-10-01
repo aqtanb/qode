@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +47,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.SubmissionStep
+import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.SubmissionTextField
@@ -263,7 +262,7 @@ fun ServiceSelector(
 private fun ServiceSelectorPreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.SERVICE,
+            currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             onAction = {},
         )
@@ -275,7 +274,7 @@ private fun ServiceSelectorPreview() {
 private fun ServiceManualPreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.SERVICE,
+            currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             onAction = {},
         )

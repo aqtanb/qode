@@ -249,7 +249,7 @@ class PromocodeDetailViewModel @Inject constructor(
                 // Update user interaction optimistically
                 val newVoteState = if (isCurrentlyUpvoted) VoteState.NONE else VoteState.UPVOTE
                 val updatedUserInteraction = currentUserState?.copy(voteState = newVoteState)
-                    ?: com.qodein.shared.model.UserInteraction.create(
+                    ?: UserInteraction.create(
                         itemId = currentPromoCode.id.value,
                         itemType = ContentType.PROMO_CODE,
                         userId = authState.user.id,
@@ -630,6 +630,7 @@ class PromocodeDetailViewModel @Inject constructor(
                                 AuthPromptAction.WriteComment -> {} // User will click comment again
                                 AuthPromptAction.BookmarkPromoCode -> {} // User will click bookmark again
                                 AuthPromptAction.FollowStore -> {} // User will click follow again
+                                AuthPromptAction.CreatePost -> {}
                             }
                         }
                         is Result.Error -> {
