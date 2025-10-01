@@ -147,7 +147,6 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
             PaginationCursor(
                 documentSnapshot = lastDoc,
                 sortBy = sortBy,
-                documentId = lastDoc.id,
             )
         } else {
             null

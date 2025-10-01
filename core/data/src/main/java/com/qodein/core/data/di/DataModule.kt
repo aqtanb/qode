@@ -12,11 +12,13 @@ import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
+import com.qodein.core.data.repository.PostRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
+import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.domain.service.ServiceCache
@@ -55,6 +57,10 @@ abstract class DataModule {
     abstract fun bindUnifiedUserInteractionRepository(
         unifiedUserInteractionRepositoryImpl: UnifiedUserInteractionRepositoryImpl
     ): UnifiedUserInteractionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPostRepository(postRepositoryImpl: PostRepositoryImpl): PostRepository
 
     @Binds
     abstract fun bindServiceSelectionManager(serviceSelectionManagerImpl: ServiceSelectionManagerImpl): ServiceSelectionManager

@@ -6,9 +6,8 @@ package com.qodein.shared.model
  *
  * @property documentSnapshot The Firestore DocumentSnapshot used for startAfter() queries (contains all field values)
  * @property sortBy The sort order that was used for this query
- * @property documentId Optional document ID for debugging/display
  */
-data class PaginationCursor<out S : SortBy>(val documentSnapshot: FirestoreDocumentSnapshot?, val sortBy: S, val documentId: String? = null)
+data class PaginationCursor<out S : SortBy>(val documentSnapshot: FirestoreDocumentSnapshot?, val sortBy: S)
 
 /**
  * Represents a pagination request with cursor-based parameters.

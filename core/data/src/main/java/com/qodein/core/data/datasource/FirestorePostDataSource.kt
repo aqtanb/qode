@@ -89,7 +89,7 @@ class FirestorePostDataSource @Inject constructor(
             val querySnapshot = firestoreQuery.get().await()
             val documents = querySnapshot.documents
 
-            var results = documents.mapNotNull { document ->
+            val results = documents.mapNotNull { document ->
                 try {
                     document.toObject<PostDto>()?.let { PostMapper.toDomain(it) }
                 } catch (e: Exception) {
@@ -98,21 +98,11 @@ class FirestorePostDataSource @Inject constructor(
                 }
             }
 
-            // Client-side filtering for multiple tags
-            filterByTags?.let { tags ->
-                if (tags.size > 1) {
-                    results = results.filter { post ->
-                        tags.all { tag -> post.tags.any { it.value == tag.value } }
-                    }
-                }
-            }
-
             val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
                 val lastDoc = documents.last()
                 PaginationCursor(
                     documentSnapshot = lastDoc,
                     sortBy = sortBy,
-                    documentId = lastDoc.id,
                 )
             } else {
                 null

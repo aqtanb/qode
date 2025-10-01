@@ -57,13 +57,6 @@ fun PostCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            // Author Info Header
-            PostAuthorHeader(
-                authorName = post.authorName,
-                authorAvatarUrl = post.authorAvatarUrl,
-                timeAgo = post.createdAt?.let { "2h" },
-            )
-
             // Post Title
             Text(
                 text = post.title,
@@ -348,7 +341,6 @@ private fun PostCardPreview() {
                     downvotes = 12,
                     commentCount = 28,
                     voteScore = 130,
-                    createdAt = null,
                     userVoteState = "UPVOTE",
                 ),
                 onPostClick = {},
@@ -371,7 +363,6 @@ private fun PostCardPreview() {
                     downvotes = 3,
                     commentCount = 15,
                     voteScore = 86,
-                    createdAt = null,
                     userVoteState = "NONE",
                 ),
                 onPostClick = {},
