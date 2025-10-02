@@ -5,15 +5,10 @@ import com.qodein.shared.model.User
 /**
  * Represents the authentication state of the user.
  *
- * Simplified to focus only on essential states - auth errors are handled
- * in the UI layer where they occur (AuthViewModel, ProfileViewModel, etc.)
+ * Simplified to focus only on essential domain states. Loading and error states
+ * are handled in the UI layer where they occur (AuthViewModel, ProfileViewModel, etc.)
  */
 sealed interface AuthState {
-
-    /**
-     * Authentication state is being determined
-     */
-    data object Loading : AuthState
 
     /**
      * User is not authenticated

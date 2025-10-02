@@ -41,7 +41,7 @@ class QodeAppViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Auth state from domain layer with proper error handling
-    val authState: StateFlow<AuthState> = getAuthStateUseCase()
+    val authState: StateFlow<AuthState?> = getAuthStateUseCase()
         .map { user ->
             if (user != null) {
                 AuthState.Authenticated(user)
@@ -53,7 +53,7 @@ class QodeAppViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AuthState.Loading,
+            initialValue = null, // null represents loading state
         )
 
     // Theme state from domain layer with proper error handling
