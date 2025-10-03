@@ -60,16 +60,15 @@ fun PromocodeDetailScreen(
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,
-    viewModel: PromocodeDetailViewModel = hiltViewModel()
+    viewModel: PromocodeDetailViewModel = hiltViewModel(
+        creationCallback = { factory: PromocodeDetailViewModel.Factory ->
+            factory.create(promoCodeId)
+        },
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Load promocode on first composition - enhanced for authenticated users
-    LaunchedEffect(promoCodeId) {
-        viewModel.onAction(PromocodeDetailAction.LoadPromocode(promoCodeId))
-    }
 
     // Authentication-protected bookmark action
     val requireBookmark = {
@@ -336,12 +335,12 @@ private fun PromocodeDetailScreenPreview() {
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(
+                promoCodeId = samplePromoCode.id,
                 promoCodeWithUserState = PromoCodeWithUserState(
                     promoCode = samplePromoCode,
                     userInteraction = null,
                 ),
                 isLoading = false,
-                isBookmarked = true,
             ),
             onAction = {},
             isDarkTheme = false,

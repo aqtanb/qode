@@ -1,6 +1,7 @@
 package com.qodein.shared.domain
 
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 
 /**
  * Represents the authentication state of the user.
@@ -20,3 +21,9 @@ sealed interface AuthState {
      */
     data class Authenticated(val user: User) : AuthState
 }
+
+/**
+ * Returns the UserId if authenticated, null otherwise.
+ */
+val AuthState.userIdOrNull: UserId?
+    get() = (this as? AuthState.Authenticated)?.user?.id

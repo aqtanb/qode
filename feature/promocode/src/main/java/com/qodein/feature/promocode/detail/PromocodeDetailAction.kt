@@ -1,13 +1,8 @@
 package com.qodein.feature.promocode.detail
 
-import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.UserId
-
 sealed class PromocodeDetailAction {
 
     // Data Loading Actions
-    data class LoadPromocode(val promoCodeId: PromoCodeId) : PromocodeDetailAction()
-    data class LoadPromocodeWithUser(val promoCodeId: PromoCodeId, val userId: UserId) : PromocodeDetailAction()
     data object RefreshData : PromocodeDetailAction()
 
     // Voting Actions

@@ -1,6 +1,7 @@
 package com.qodein.feature.promocode.detail
 
 import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 
@@ -17,6 +18,7 @@ sealed class PromocodeDetailEvent {
 
     // UI Feedback Events
     data class ShowSnackbar(val message: String) : PromocodeDetailEvent()
+    data class ShowError(val error: OperationError) : PromocodeDetailEvent()
     data class ShowVoteFeedback(val isUpvote: Boolean) : PromocodeDetailEvent()
 
     // Authentication Events

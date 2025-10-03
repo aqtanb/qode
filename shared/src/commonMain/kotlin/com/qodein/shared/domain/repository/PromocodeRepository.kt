@@ -35,8 +35,9 @@ interface PromocodeRepository {
 
     /**
      * Get a specific promo code by ID.
+     * Returns NotFound error if promo code doesn't exist.
      */
-    fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>>
+    suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError>
 
     // Service-related methods
 

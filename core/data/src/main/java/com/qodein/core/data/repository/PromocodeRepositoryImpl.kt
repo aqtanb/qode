@@ -82,18 +82,27 @@ class PromocodeRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>> =
-        flow {
-            try {
-                val result = promoCodeDataSource.getPromoCodeById(id)
-                emit(Result.Success(result))
-            } catch (e: IOException) {
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: IllegalStateException) {
-                emit(Result.Error(SystemError.ServiceDown))
-            } catch (e: Exception) {
-                emit(Result.Error(PromoCodeError.RetrievalFailure.NotFound))
+    override suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError> =
+        try {
+            val promoCode = promoCodeDataSource.getPromoCodeById(id)
+            if (promoCode != null) {
+                Result.Success(promoCode)
+            } else {
+                Logger.w(TAG) { "PromoCode not found: ${id.value}" }
+                Result.Error(PromoCodeError.RetrievalFailure.NotFound)
             }
+        } catch (e: IllegalArgumentException) {
+            Logger.e(TAG, e) { "Invalid PromoCode data for id: ${id.value}" }
+            Result.Error(PromoCodeError.RetrievalFailure.NotFound)
+        } catch (e: IOException) {
+            Logger.e(TAG, e) { "Network error getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.Offline)
+        } catch (e: IllegalStateException) {
+            Logger.e(TAG, e) { "Service down getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.ServiceDown)
+        } catch (e: Exception) {
+            Logger.e(TAG, e) { "Unknown error getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.Unknown)
         }
 
     // Service-related methods
