@@ -2,6 +2,7 @@ package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
 import com.qodein.core.data.model.PromoCodeDto
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.ServiceId
@@ -38,117 +39,77 @@ object PromoCodeMapper {
             UserId(dto.createdBy)
         }
 
-        return when (dto.type.lowercase()) {
-            "percentage" -> PromoCode.PercentagePromoCode(
-                id = promoCodeId,
-                code = dto.code,
-                serviceId = dto.serviceId?.let { ServiceId(it) },
-                serviceName = dto.serviceName,
-                category = dto.category,
-                description = dto.description,
-                discountPercentage = dto.discountPercentage
+        // Map discount based on type
+        val discount = when (dto.type.lowercase()) {
+            "percentage" -> Discount.Percentage(
+                dto.discountPercentage
                     ?: throw IllegalArgumentException("Percentage promo code missing discountPercentage"),
-                minimumOrderAmount = dto.minimumOrderAmount,
-                startDate = dto.startDate.toInstant().toKotlinInstant(),
-                endDate = dto.endDate.toInstant().toKotlinInstant(),
-                isFirstUserOnly = dto.isFirstUserOnly,
-                isOneTimeUseOnly = dto.isOneTimeUseOnly,
-                upvotes = dto.upvotes,
-                downvotes = dto.downvotes,
-                shares = dto.shares,
-                targetCountries = dto.targetCountries,
-                isVerified = dto.isVerified,
-                createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-                createdBy = createdBy,
-                createdByUsername = dto.createdByUsername,
-                createdByAvatarUrl = dto.createdByAvatarUrl,
-                serviceLogoUrl = dto.serviceLogoUrl,
             )
-
-            "fixed", "fixed_amount" -> PromoCode.FixedAmountPromoCode(
-                id = promoCodeId,
-                code = dto.code,
-                serviceId = dto.serviceId?.let { ServiceId(it) },
-                serviceName = dto.serviceName,
-                category = dto.category,
-                description = dto.description,
-                discountAmount = dto.discountAmount
+            "fixed", "fixed_amount" -> Discount.FixedAmount(
+                dto.discountAmount
                     ?: throw IllegalArgumentException("Fixed amount promo code missing discountAmount"),
-                minimumOrderAmount = dto.minimumOrderAmount,
-                startDate = dto.startDate.toInstant().toKotlinInstant(),
-                endDate = dto.endDate.toInstant().toKotlinInstant(),
-                isFirstUserOnly = dto.isFirstUserOnly,
-                isOneTimeUseOnly = dto.isOneTimeUseOnly,
-                upvotes = dto.upvotes,
-                downvotes = dto.downvotes,
-                shares = dto.shares,
-                targetCountries = dto.targetCountries,
-                isVerified = dto.isVerified,
-                createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-                createdBy = createdBy,
-                createdByUsername = dto.createdByUsername,
-                createdByAvatarUrl = dto.createdByAvatarUrl,
-                serviceLogoUrl = dto.serviceLogoUrl,
             )
-
             else -> throw IllegalArgumentException("Unknown promo code type: ${dto.type}")
         }
+
+        return PromoCode(
+            id = promoCodeId,
+            code = dto.code,
+            discount = discount,
+            serviceId = dto.serviceId?.let { ServiceId(it) },
+            serviceName = dto.serviceName,
+            category = dto.category,
+            description = dto.description,
+            minimumOrderAmount = dto.minimumOrderAmount,
+            startDate = dto.startDate.toInstant().toKotlinInstant(),
+            endDate = dto.endDate.toInstant().toKotlinInstant(),
+            isFirstUserOnly = dto.isFirstUserOnly,
+            isOneTimeUseOnly = dto.isOneTimeUseOnly,
+            upvotes = dto.upvotes,
+            downvotes = dto.downvotes,
+            shares = dto.shares,
+            targetCountries = dto.targetCountries,
+            isVerified = dto.isVerified,
+            createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
+            createdBy = createdBy,
+            createdByUsername = dto.createdByUsername,
+            createdByAvatarUrl = dto.createdByAvatarUrl,
+            serviceLogoUrl = dto.serviceLogoUrl,
+        )
     }
 
-    fun toDto(domain: PromoCode): PromoCodeDto =
-        when (domain) {
-            is PromoCode.PercentagePromoCode -> PromoCodeDto(
-                documentId = domain.id.value,
-                code = domain.code,
-                serviceId = domain.serviceId?.value,
-                serviceName = domain.serviceName,
-                category = domain.category,
-                description = domain.description,
-                type = "percentage",
-                discountPercentage = domain.discountPercentage,
-                minimumOrderAmount = domain.minimumOrderAmount,
-                isFirstUserOnly = domain.isFirstUserOnly,
-                isOneTimeUseOnly = domain.isOneTimeUseOnly,
-                upvotes = domain.upvotes,
-                downvotes = domain.downvotes,
-                voteScore = domain.upvotes - domain.downvotes, // Calculate vote score
-                shares = domain.shares,
-                targetCountries = domain.targetCountries,
-                isVerified = domain.isVerified,
-                startDate = Timestamp(domain.startDate.toJavaInstant()),
-                endDate = Timestamp(domain.endDate.toJavaInstant()),
-                createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy.value,
-                createdByUsername = domain.createdByUsername,
-                createdByAvatarUrl = domain.createdByAvatarUrl,
-                serviceLogoUrl = domain.serviceLogoUrl,
-            )
-
-            is PromoCode.FixedAmountPromoCode -> PromoCodeDto(
-                documentId = domain.id.value,
-                code = domain.code,
-                serviceId = domain.serviceId?.value,
-                serviceName = domain.serviceName,
-                category = domain.category,
-                description = domain.description,
-                type = "fixed",
-                discountAmount = domain.discountAmount,
-                minimumOrderAmount = domain.minimumOrderAmount,
-                isFirstUserOnly = domain.isFirstUserOnly,
-                isOneTimeUseOnly = domain.isOneTimeUseOnly,
-                upvotes = domain.upvotes,
-                downvotes = domain.downvotes,
-                voteScore = domain.upvotes - domain.downvotes, // Calculate vote score
-                shares = domain.shares,
-                targetCountries = domain.targetCountries,
-                isVerified = domain.isVerified,
-                startDate = Timestamp(domain.startDate.toJavaInstant()),
-                endDate = Timestamp(domain.endDate.toJavaInstant()),
-                createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-                createdBy = domain.createdBy.value,
-                createdByUsername = domain.createdByUsername,
-                createdByAvatarUrl = domain.createdByAvatarUrl,
-                serviceLogoUrl = domain.serviceLogoUrl,
-            )
+    fun toDto(domain: PromoCode): PromoCodeDto {
+        val (type, discountPercentage, discountAmount) = when (domain.discount) {
+            is Discount.Percentage -> Triple("percentage", domain.discount.value, null)
+            is Discount.FixedAmount -> Triple("fixed", null, domain.discount.value)
         }
+
+        return PromoCodeDto(
+            documentId = domain.id.value,
+            code = domain.code,
+            serviceId = domain.serviceId?.value,
+            serviceName = domain.serviceName,
+            category = domain.category,
+            description = domain.description,
+            type = type,
+            discountPercentage = discountPercentage,
+            discountAmount = discountAmount,
+            minimumOrderAmount = domain.minimumOrderAmount,
+            isFirstUserOnly = domain.isFirstUserOnly,
+            isOneTimeUseOnly = domain.isOneTimeUseOnly,
+            upvotes = domain.upvotes,
+            downvotes = domain.downvotes,
+            voteScore = domain.voteScore,
+            shares = domain.shares,
+            targetCountries = domain.targetCountries,
+            isVerified = domain.isVerified,
+            startDate = Timestamp(domain.startDate.toJavaInstant()),
+            endDate = Timestamp(domain.endDate.toJavaInstant()),
+            createdAt = Timestamp(domain.createdAt.toJavaInstant()),
+            createdBy = domain.createdBy.value,
+            createdByUsername = domain.createdByUsername,
+            createdByAvatarUrl = domain.createdByAvatarUrl,
+            serviceLogoUrl = domain.serviceLogoUrl,
+        )
+    }
 }

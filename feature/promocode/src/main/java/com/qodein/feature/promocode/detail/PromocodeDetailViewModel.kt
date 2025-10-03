@@ -19,7 +19,6 @@ import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
 import com.qodein.shared.domain.userIdOrNull
 import com.qodein.shared.model.ContentType
-import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.VoteState
@@ -175,11 +174,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         // Log promo code view for analytics
         analyticsHelper.logPromoCodeView(
             promocodeId = promoCodeWithUserState.promoCode.id.value,
-            promocodeType = when (promoCodeWithUserState.promoCode) {
-                is PromoCode.PercentagePromoCode -> "percentage"
-                is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-                else -> "unknown"
-            },
+            promocodeType = promoCodeWithUserState.promoCode.discount.typeForAnalytics,
         )
     }
 
@@ -210,16 +205,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 targetVoteState = targetVoteState,
             )
 
-            val updatedPromoCode = when (currentPromoCode) {
-                is PromoCode.PercentagePromoCode -> currentPromoCode.copy(
-                    upvotes = voteUpdate.newUpvotes,
-                    downvotes = voteUpdate.newDownvotes,
-                )
-                is PromoCode.FixedAmountPromoCode -> currentPromoCode.copy(
-                    upvotes = voteUpdate.newUpvotes,
-                    downvotes = voteUpdate.newDownvotes,
-                )
-            }
+            val updatedPromoCode = currentPromoCode.copy(
+                upvotes = voteUpdate.newUpvotes,
+                downvotes = voteUpdate.newDownvotes,
+            )
 
             val updatedInteraction = InteractionStateHandler.createOrUpdateVoteInteraction(
                 currentInteraction = currentUserState,
@@ -402,11 +391,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 // Log analytics
                 analyticsHelper.logCopyPromoCode(
                     promocodeId = currentPromoCode.id.value,
-                    promocodeType = when (currentPromoCode) {
-                        is PromoCode.PercentagePromoCode -> "percentage"
-                        is PromoCode.FixedAmountPromoCode -> "fixed_amount"
-                        else -> "unknown"
-                    },
+                    promocodeType = currentPromoCode.discount.typeForAnalytics,
                 )
 
                 delay(COPY_FEEDBACK_DURATION)

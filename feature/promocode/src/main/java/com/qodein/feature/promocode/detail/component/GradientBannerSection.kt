@@ -49,8 +49,8 @@ fun GradientBannerSection(
 
     // Calculate discount display text using proper localization
     val discountDisplay = when (promoCode) {
-        is PromoCode.PercentagePromoCode -> "${promoCode.discountPercentage.toInt()}% OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
-        is PromoCode.FixedAmountPromoCode -> "${promoCode.discountAmount.toInt()}₸ OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
+        is Discount.Percentage -> "${promoCode.discountPercentage.toInt()}% OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
+        is Discount.FixedAmount -> "${promoCode.discountAmount.toInt()}₸ OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
     }
 
     // Banner with proper height and centering like reference

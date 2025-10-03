@@ -60,7 +60,7 @@ fun DetailsSection(
         ) {
             // Minimum Order
             when (promoCode) {
-                is PromoCode.PercentagePromoCode -> {
+                is Discount.Percentage -> {
                     DetailRow(
                         icon = QodeCommerceIcons.Cost,
                         label = "Minimum Order",
@@ -68,7 +68,7 @@ fun DetailsSection(
                         valueColor = MaterialTheme.colorScheme.primary,
                     )
                 }
-                is PromoCode.FixedAmountPromoCode -> {
+                is Discount.FixedAmount -> {
                     DetailRow(
                         icon = QodeCommerceIcons.Cost,
                         label = "Minimum Order",

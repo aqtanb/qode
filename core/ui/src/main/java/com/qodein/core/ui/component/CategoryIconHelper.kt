@@ -1,12 +1,12 @@
 package com.qodein.core.ui.component
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.component.QodeColorScheme
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.Service
 import kotlin.collections.get
@@ -52,25 +52,8 @@ object CategoryIconHelper {
      * Purple gradient for FixedAmountPromoCode, Orange gradient for PercentagePromoCode
      */
     fun getPromoCodeGradient(promoCode: PromoCode): QodeColorScheme =
-        when (promoCode) {
-            is PromoCode.FixedAmountPromoCode -> QodeColorScheme.BannerPurple
-            is PromoCode.PercentagePromoCode -> QodeColorScheme.BannerOrange
-        }
-
-    /**
-     * Gets gradient colors for PromoCode based on type
-     * Returns List<Color> for reusability across the app
-     * Purple colors for fixed amount, Orange colors for percentage
-     */
-    fun getPromoCodeGradientColors(promoCode: PromoCode): List<Color> =
-        when (promoCode) {
-            is PromoCode.FixedAmountPromoCode -> listOf(
-                Color(0xFF6C5CE7), // Purple start
-                Color(0xFF8F4C34), // Brown end (from theme)
-            )
-            is PromoCode.PercentagePromoCode -> listOf(
-                Color(0xFFFF6B35), // Orange start
-                Color(0xFFE74C3C), // Reddish end
-            )
+        when (promoCode.discount) {
+            is Discount.Percentage -> QodeColorScheme.BannerPurple
+            is Discount.FixedAmount -> QodeColorScheme.BannerOrange
         }
 }

@@ -75,6 +75,7 @@ import com.qodein.core.designsystem.theme.extendedColorScheme
 import com.qodein.core.ui.R
 import com.qodein.core.ui.component.getPromoCodeStatus
 import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -211,21 +212,21 @@ fun CouponPromoCodeCard(
     )
 
     // Determine discount display for the stub
-    val discountText = when (promoCode) {
-        is PromoCode.PercentagePromoCode -> "${promoCode.discountPercentage.toInt()}%\nOFF"
-        is PromoCode.FixedAmountPromoCode -> "${promoCode.discountAmount.toInt()}\nKZT\nOFF"
+    val discountText = when (val discount = promoCode.discount) {
+        is Discount.Percentage -> "${discount.value.toInt()}%\nOFF"
+        is Discount.FixedAmount -> "${discount.value.toInt()}\nKZT\nOFF"
     }
 
     // Theme-aware color scheme for better visual appeal
     val extendedColors = MaterialTheme.extendedColorScheme
-    val (stubColor, stubGradient) = when (promoCode) {
-        is PromoCode.PercentagePromoCode -> {
+    val (stubColor, stubGradient) = when (promoCode.discount) {
+        is Discount.Percentage -> {
             val baseColor = MaterialTheme.colorScheme.primary
             baseColor to Brush.verticalGradient(
                 listOf(baseColor, baseColor.copy(alpha = 0.8f)),
             )
         }
-        is PromoCode.FixedAmountPromoCode -> {
+        is Discount.FixedAmount -> {
             val baseColor = extendedColors.complementary
             baseColor to Brush.verticalGradient(
                 listOf(baseColor, baseColor.copy(alpha = 0.8f)),
@@ -380,25 +381,14 @@ private fun CouponHeader(
                 )
             }
 
-            // Only show status icon for expiring soon or not active (no expired since they don't load)
-            when (statusInfo.text) {
-                "Expiring Soon" -> {
-                    Icon(
-                        imageVector = QodeNavigationIcons.Warning,
-                        contentDescription = "Expiring soon",
-                        tint = Color(0xFFFF8A00),
-                        modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                    )
-                }
-                "Not Active" -> {
-                    Icon(
-                        imageVector = QodeNavigationIcons.Calendar,
-                        contentDescription = "Not active yet",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                    )
-                }
-                // No icon for "Active" (default) or "Expired" (never loads in list)
+            // Show status icon (use statusInfo for consistency and i18n)
+            if (statusInfo.text != "Active") {
+                Icon(
+                    imageVector = statusInfo.icon,
+                    contentDescription = statusInfo.text,
+                    tint = statusInfo.contentColor,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                )
             }
 
             // Only show verified icon if it's actually verified

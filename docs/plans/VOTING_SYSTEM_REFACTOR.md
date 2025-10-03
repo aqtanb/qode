@@ -82,11 +82,11 @@ fun PromoCode.asVotable(): Votable = object : Votable {
     override val downvotes = this@asVotable.downvotes
 
     override fun applyVoteDeltas(deltas: VoteDeltas) = when (this@asVotable) {
-        is PromoCode.PercentagePromoCode -> this@asVotable.copy(
+        is Discount.Percentage -> this@asVotable.copy(
             upvotes = maxOf(0, upvotes + deltas.upvoteDelta),
             downvotes = maxOf(0, downvotes + deltas.downvoteDelta)
         )
-        is PromoCode.FixedAmountPromoCode -> this@asVotable.copy(
+        is Discount.FixedAmount -> this@asVotable.copy(
             upvotes = maxOf(0, upvotes + deltas.upvoteDelta),
             downvotes = maxOf(0, downvotes + deltas.downvoteDelta)
         )

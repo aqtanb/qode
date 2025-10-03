@@ -296,8 +296,8 @@ private fun sharePromocode(
         append("🎉 Check out this amazing deal!\n\n")
         append("${promoCode.serviceName}\n")
         when (promoCode) {
-            is PromoCode.PercentagePromoCode -> append("${promoCode.discountPercentage.toInt()}% OFF")
-            is PromoCode.FixedAmountPromoCode -> append("${promoCode.discountAmount.toInt()}₸ OFF")
+            is Discount.Percentage -> append("${promoCode.discountPercentage.toInt()}% OFF")
+            is Discount.FixedAmount -> append("${promoCode.discountAmount.toInt()}₸ OFF")
         }
         append("\n\nCode: ${promoCode.code}")
         promoCode.description?.let { append("\n\n$it") }
