@@ -14,6 +14,7 @@ import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.User
@@ -503,11 +504,11 @@ class PromocodeSubmissionViewModel @Inject constructor(
         return try {
             when (wizardData.promoCodeType) {
                 PromoCodeType.PERCENTAGE -> Result.Success(
-                    PromoCode.createPercentage(
+                    PromoCode.create(
                         code = wizardData.promoCode,
                         serviceName = wizardData.effectiveServiceName,
+                        discount = Discount.Percentage(wizardData.discountPercentage.toDoubleOrNull() ?: 0.0),
                         serviceId = wizardData.selectedService?.id,
-                        discountPercentage = wizardData.discountPercentage.toDoubleOrNull() ?: 0.0,
                         description = wizardData.description.takeIf { it.isNotBlank() },
                         minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
                         startDate = wizardData.startDate.toInstant(),
@@ -523,11 +524,11 @@ class PromocodeSubmissionViewModel @Inject constructor(
                 )
 
                 PromoCodeType.FIXED_AMOUNT -> Result.Success(
-                    PromoCode.createFixedAmount(
+                    PromoCode.create(
                         code = wizardData.promoCode,
                         serviceName = wizardData.effectiveServiceName,
+                        discount = Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0),
                         serviceId = wizardData.selectedService?.id,
-                        discountAmount = wizardData.discountAmount.toDoubleOrNull() ?: 0.0,
                         description = wizardData.description.takeIf { it.isNotBlank() },
                         minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
                         startDate = wizardData.startDate.toInstant(),

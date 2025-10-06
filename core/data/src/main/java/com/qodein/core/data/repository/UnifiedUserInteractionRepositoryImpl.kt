@@ -1,5 +1,6 @@
 package com.qodein.core.data.repository
 
+import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.mapper.UserInteractionMapper
 import com.qodein.shared.common.Result
@@ -27,6 +28,10 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
     private val mapper: UserInteractionMapper
 ) : UnifiedUserInteractionRepository {
 
+    companion object {
+        private const val TAG = "UserInteractionRepo"
+    }
+
     // Single interaction operations
 
     override suspend fun getUserInteraction(
@@ -38,12 +43,16 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
             val interaction = dto?.let { mapper.fromDto(it) }
             Result.Success(interaction)
         } catch (e: SecurityException) {
+            Logger.e(TAG, e) { "Failed to get interaction - unauthorized: item=$itemId, user=${userId.value}" }
             Result.Error(InteractionError.VotingFailure.NotAuthorized)
         } catch (e: IOException) {
+            Logger.e(TAG, e) { "Failed to get interaction - network: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Offline)
         } catch (e: IllegalStateException) {
+            Logger.e(TAG, e) { "Failed to get interaction - service down: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.ServiceDown)
         } catch (e: Exception) {
+            Logger.e(TAG, e) { "Failed to get interaction - unknown: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Unknown)
         }
 
@@ -157,6 +166,8 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
         newVoteState: VoteState
     ): Result<UserInteraction, OperationError> =
         try {
+            Logger.d(TAG) { "Toggling vote: item=$itemId, user=${userId.value}, targetState=$newVoteState" }
+
             // Get existing interaction or create new one
             val existingDto = dataSource.getUserInteraction(itemId, userId.value)
             val existingInteraction = existingDto?.let { mapper.fromDto(it) }
@@ -175,12 +186,16 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
             val savedDto = dataSource.upsertUserInteraction(updatedDto)
             val savedInteraction = mapper.fromDto(savedDto) ?: updatedInteraction
 
+            Logger.i(TAG) { "Vote toggled successfully: item=$itemId, finalState=${savedInteraction.voteState}" }
             Result.Success(savedInteraction)
         } catch (e: SecurityException) {
+            Logger.e(TAG, e) { "Failed to toggle vote - unauthorized: item=$itemId, user=${userId.value}" }
             Result.Error(InteractionError.VotingFailure.NotAuthorized)
         } catch (e: IOException) {
+            Logger.e(TAG, e) { "Failed to toggle vote - network: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
+            Logger.e(TAG, e) { "Failed to toggle vote - unknown: item=$itemId, user=${userId.value}" }
             Result.Error(InteractionError.VotingFailure.SaveFailed)
         }
 
@@ -190,6 +205,8 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
         userId: UserId
     ): Result<UserInteraction, OperationError> =
         try {
+            Logger.d(TAG) { "Toggling bookmark: item=$itemId, user=${userId.value}" }
+
             // Get existing interaction or create new one
             val existingDto = dataSource.getUserInteraction(itemId, userId.value)
             val existingInteraction = existingDto?.let { mapper.fromDto(it) }
@@ -207,12 +224,16 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
             val savedDto = dataSource.upsertUserInteraction(updatedDto)
             val savedInteraction = mapper.fromDto(savedDto) ?: updatedInteraction
 
+            Logger.i(TAG) { "Bookmark toggled successfully: item=$itemId, bookmarked=${savedInteraction.isBookmarked}" }
             Result.Success(savedInteraction)
         } catch (e: SecurityException) {
+            Logger.e(TAG, e) { "Failed to toggle bookmark - unauthorized: item=$itemId, user=${userId.value}" }
             Result.Error(InteractionError.BookmarkFailure.NotAuthorized)
         } catch (e: IOException) {
+            Logger.e(TAG, e) { "Failed to toggle bookmark - network: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
+            Logger.e(TAG, e) { "Failed to toggle bookmark - unknown: item=$itemId, user=${userId.value}" }
             Result.Error(InteractionError.BookmarkFailure.SaveFailed)
         }
 }

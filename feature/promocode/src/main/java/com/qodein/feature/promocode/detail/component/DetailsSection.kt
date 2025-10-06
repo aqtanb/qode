@@ -25,6 +25,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -59,7 +60,7 @@ fun DetailsSection(
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             // Minimum Order
-            when (promoCode) {
+            when (promoCode.discount) {
                 is Discount.Percentage -> {
                     DetailRow(
                         icon = QodeCommerceIcons.Cost,

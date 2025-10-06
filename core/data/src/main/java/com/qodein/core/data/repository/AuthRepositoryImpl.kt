@@ -1,5 +1,6 @@
 package com.qodein.core.data.repository
 
+import co.touchlab.kermit.Logger
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -21,19 +22,29 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(private val firebaseGoogleAuthService: FirebaseGoogleAuthService) : AuthRepository {
 
+    companion object {
+        private const val TAG = "AuthRepository"
+    }
+
     override fun signInWithGoogle(): Flow<Result<User, OperationError>> =
         flow {
             try {
+                Logger.d(TAG) { "Signing in with Google" }
                 firebaseGoogleAuthService.signIn().collect { user ->
+                    Logger.i(TAG) { "Successfully signed in: userId=${user.id.value}" }
                     emit(Result.Success(user))
                 }
             } catch (e: SecurityException) {
+                Logger.e(TAG, e) { "Sign in failed - invalid credentials" }
                 emit(Result.Error(UserError.AuthenticationFailure.InvalidCredentials))
             } catch (e: IllegalStateException) {
+                Logger.e(TAG, e) { "Sign in failed - service unavailable" }
                 emit(Result.Error(UserError.AuthenticationFailure.ServiceUnavailable))
             } catch (e: IOException) {
+                Logger.e(TAG, e) { "Sign in failed - network error" }
                 emit(Result.Error(SystemError.Offline))
             } catch (e: Exception) {
+                Logger.e(TAG, e) { "Sign in failed - unknown error" }
                 emit(Result.Error(SystemError.Unknown))
             }
         }

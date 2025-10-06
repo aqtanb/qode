@@ -47,6 +47,7 @@ import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
@@ -88,6 +89,12 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(
                         message = event.message,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+                is PromocodeDetailEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Something went wrong. Please try again.",
                         duration = SnackbarDuration.Short,
                     )
                 }
@@ -295,9 +302,9 @@ private fun sharePromocode(
     val shareText = buildString {
         append("🎉 Check out this amazing deal!\n\n")
         append("${promoCode.serviceName}\n")
-        when (promoCode) {
-            is Discount.Percentage -> append("${promoCode.discountPercentage.toInt()}% OFF")
-            is Discount.FixedAmount -> append("${promoCode.discountAmount.toInt()}₸ OFF")
+        when (val discount = promoCode.discount) {
+            is Discount.Percentage -> append("${discount.value.toInt()}% OFF")
+            is Discount.FixedAmount -> append("${discount.value.toInt()}₸ OFF")
         }
         append("\n\nCode: ${promoCode.code}")
         promoCode.description?.let { append("\n\n$it") }

@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.analytics.logCopyPromoCode
-import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.analytics.logVote
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
@@ -21,8 +20,11 @@ import com.qodein.shared.domain.userIdOrNull
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 import com.qodein.shared.presentation.interaction.InteractionStateHandler
+import com.qodein.shared.presentation.interaction.VoteUpdate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -136,9 +138,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                     val userInteraction = when (userInteractionResult) {
                         is Result.Success -> userInteractionResult.data
                         is Result.Error -> {
-                            Logger.w("PromocodeDetailViewModel") {
-                                "Failed to load user interaction: ${userInteractionResult.error}"
-                            }
                             _events.emit(PromocodeDetailEvent.ShowError(userInteractionResult.error))
                             null
                         }
@@ -152,7 +151,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 }
 
                 is Result.Error -> {
-                    Logger.e("PromocodeDetailViewModel") { "Error loading promo code: ${promoCodeResult.error}" }
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -172,12 +170,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 errorType = null,
             )
         }
-
-        // Log promo code view for analytics
-        analyticsHelper.logPromoCodeView(
-            promocodeId = promoCodeWithUserState.promoCode.id.value,
-            promocodeType = promoCodeWithUserState.promoCode.discount.typeForAnalytics,
-        )
     }
 
     private fun reloadPromocode() {
@@ -193,11 +185,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     ) {
         viewModelScope.launch {
             val authState = requireAuth(authPromptAction) ?: return@launch
-            val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode ?: return@launch
-            val currentUserState = _uiState.value.promoCodeWithUserState?.userInteraction
-
-            // Save original state for rollback on error
-            val originalPromoCodeWithUserState = _uiState.value.promoCodeWithUserState
+            val promoCodeWithUserState = _uiState.value.promoCodeWithUserState ?: return@launch
+            val currentPromoCode = promoCodeWithUserState.promoCode
+            val currentUserState = promoCodeWithUserState.userInteraction
+            val originalPromoCodeWithUserState = promoCodeWithUserState
 
             // Compute optimistic updates using handler
             val voteUpdate = InteractionStateHandler.computeVoteUpdate(
@@ -220,100 +211,37 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 userId = authState.user.id,
             )
 
-            val optimisticState = PromoCodeWithUserState(
-                promoCode = updatedPromoCode,
-                userInteraction = updatedInteraction,
-            )
-
             // Apply optimistic update to UI
             _uiState.update { currentState ->
                 currentState.copy(
-                    promoCodeWithUserState = optimisticState,
+                    promoCodeWithUserState = PromoCodeWithUserState(
+                        promoCode = updatedPromoCode,
+                        userInteraction = updatedInteraction,
+                    ),
                     showVoteAnimation = true,
                     lastVoteType = voteUpdate.newVoteState,
                 )
             }
 
             // Execute vote operation
-            val result = if (voteUpdate.newVoteState == VoteState.NONE) {
-                // Removing vote
-                toggleVoteUseCase.removeVote(
-                    itemId = currentPromoCode.id.value,
-                    itemType = ContentType.PROMO_CODE,
-                    userId = authState.user.id,
-                )
-            } else {
-                // Adding/switching vote
-                when (targetVoteState) {
-                    VoteState.UPVOTE -> toggleVoteUseCase.toggleUpvote(
-                        itemId = currentPromoCode.id.value,
-                        itemType = ContentType.PROMO_CODE,
-                        userId = authState.user.id,
-                    )
-                    VoteState.DOWNVOTE -> toggleVoteUseCase.toggleDownvote(
-                        itemId = currentPromoCode.id.value,
-                        itemType = ContentType.PROMO_CODE,
-                        userId = authState.user.id,
-                    )
-                    VoteState.NONE -> {
-                        Logger.e("PromocodeDetailViewModel") { "Invalid vote state: NONE" }
-                        _events.emit(PromocodeDetailEvent.ShowError(SystemError.Unknown))
-                        return@launch
-                    }
-                }
-            }
+            val result = executeVoteOperation(
+                voteUpdate = voteUpdate,
+                targetVoteState = targetVoteState,
+                contentId = currentPromoCode.id.value,
+                userId = authState.user.id,
+            )
 
             when (result) {
-                is Result.Success -> {
-                    val updatedInteraction = result.data
-                    val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
-                        userInteraction = updatedInteraction,
-                    )
-                    if (updatedPromoCodeWithUserState != null) {
-                        val newVoteState = updatedInteraction.voteState
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                promoCodeWithUserState = updatedPromoCodeWithUserState,
-                                showVoteAnimation = true,
-                                lastVoteType = newVoteState,
-                            )
-                        }
-
-                        // Log analytics
-                        val voteTypeForAnalytics = when {
-                            voteUpdate.newVoteState == VoteState.NONE && targetVoteState == VoteState.UPVOTE -> "remove_upvote"
-                            voteUpdate.newVoteState == VoteState.NONE && targetVoteState == VoteState.DOWNVOTE -> "remove_downvote"
-                            voteUpdate.newVoteState == VoteState.UPVOTE -> "upvote"
-                            voteUpdate.newVoteState == VoteState.DOWNVOTE -> "downvote"
-                            else -> "unknown"
-                        }
-                        analyticsHelper.logVote(
-                            promocodeId = currentPromoCode.id.value,
-                            voteType = voteTypeForAnalytics,
-                        )
-
-                        // Hide vote animation after delay
-                        viewModelScope.launch {
-                            delay(VOTE_ANIMATION_DURATION)
-                            _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
-                        }
-                    }
-                }
-                is Result.Error -> {
-                    Logger.e("PromocodeDetailViewModel") { "Error voting: ${result.error}" }
-
-                    // Rollback optimistic update
-                    _uiState.update {
-                        it.copy(
-                            promoCodeWithUserState = originalPromoCodeWithUserState,
-                            showVoteAnimation = false,
-                            lastVoteType = null,
-                        )
-                    }
-
-                    // Show transient error (doesn't block UI)
-                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
-                }
+                is Result.Success -> handleVoteSuccess(
+                    updatedInteraction = result.data,
+                    voteUpdate = voteUpdate,
+                    targetVoteState = targetVoteState,
+                    contentId = currentPromoCode.id.value,
+                )
+                is Result.Error -> handleInteractionError(
+                    error = result.error,
+                    originalState = originalPromoCodeWithUserState,
+                )
             }
         }
     }
@@ -321,11 +249,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private fun handleBookmarkToggle() {
         viewModelScope.launch {
             val authState = requireAuth(AuthPromptAction.BookmarkPromoCode) ?: return@launch
-            val currentPromoCode = _uiState.value.promoCodeWithUserState?.promoCode ?: return@launch
-            val currentUserState = _uiState.value.promoCodeWithUserState?.userInteraction
-
-            // Save original state for rollback on error
-            val originalPromoCodeWithUserState = _uiState.value.promoCodeWithUserState
+            val promoCodeWithUserState = _uiState.value.promoCodeWithUserState ?: return@launch
+            val currentPromoCode = promoCodeWithUserState.promoCode
+            val currentUserState = promoCodeWithUserState.userInteraction
+            val originalPromoCodeWithUserState = promoCodeWithUserState
 
             // Compute optimistic bookmark update using handler
             val updatedInteraction = InteractionStateHandler.createOrUpdateBookmarkInteraction(
@@ -335,15 +262,13 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 userId = authState.user.id,
             )
 
-            val optimisticState = PromoCodeWithUserState(
-                promoCode = currentPromoCode,
-                userInteraction = updatedInteraction,
-            )
-
             // Apply optimistic update to UI
             _uiState.update { currentState ->
                 currentState.copy(
-                    promoCodeWithUserState = optimisticState,
+                    promoCodeWithUserState = PromoCodeWithUserState(
+                        promoCode = currentPromoCode,
+                        userInteraction = updatedInteraction,
+                    ),
                 )
             }
 
@@ -355,29 +280,18 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 
             when (result) {
                 is Result.Success -> {
-                    val updatedInteraction = result.data
-                    val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
-                        userInteraction = updatedInteraction,
-                    )
-                    if (updatedPromoCodeWithUserState != null) {
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                promoCodeWithUserState = updatedPromoCodeWithUserState,
+                    _uiState.value.promoCodeWithUserState?.let { currentState ->
+                        _uiState.update {
+                            it.copy(
+                                promoCodeWithUserState = currentState.copy(userInteraction = result.data),
                             )
                         }
                     }
                 }
-                is Result.Error -> {
-                    Logger.e("PromocodeDetailViewModel") { "Error toggling bookmark: ${result.error}" }
-
-                    // Rollback optimistic update
-                    _uiState.update {
-                        it.copy(promoCodeWithUserState = originalPromoCodeWithUserState)
-                    }
-
-                    // Show transient error (doesn't block UI)
-                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
-                }
+                is Result.Error -> handleInteractionError(
+                    error = result.error,
+                    originalState = originalPromoCodeWithUserState,
+                )
             }
         }
     }
@@ -389,12 +303,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 
             viewModelScope.launch {
                 _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code))
-
-                // Log analytics
-                analyticsHelper.logCopyPromoCode(
-                    promocodeId = currentPromoCode.id.value,
-                    promocodeType = currentPromoCode.discount.typeForAnalytics,
-                )
 
                 delay(COPY_FEEDBACK_DURATION)
                 _uiState.update { it.copy(isCopying = false) }
@@ -456,7 +364,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                             // Screen auto-reloads with user data via auth state listener in init
                         }
                         is Result.Error -> {
-                            Logger.e("PromocodeDetailViewModel") { "Sign in error: ${result.error}" }
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     authBottomSheet = currentAuthSheet.copy(isLoading = false),
@@ -490,5 +397,99 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             showAuthBottomSheet(action)
             null
         }
+    }
+
+    private suspend fun executeVoteOperation(
+        voteUpdate: VoteUpdate,
+        targetVoteState: VoteState,
+        contentId: String,
+        userId: UserId
+    ): Result<UserInteraction, OperationError> =
+        if (voteUpdate.newVoteState == VoteState.NONE) {
+            // Removing vote
+            toggleVoteUseCase.removeVote(
+                itemId = contentId,
+                itemType = ContentType.PROMO_CODE,
+                userId = userId,
+            )
+        } else {
+            // Adding/switching vote
+            when (targetVoteState) {
+                VoteState.UPVOTE -> toggleVoteUseCase.toggleUpvote(
+                    itemId = contentId,
+                    itemType = ContentType.PROMO_CODE,
+                    userId = userId,
+                )
+                VoteState.DOWNVOTE -> toggleVoteUseCase.toggleDownvote(
+                    itemId = contentId,
+                    itemType = ContentType.PROMO_CODE,
+                    userId = userId,
+                )
+                VoteState.NONE -> {
+                    Logger.e("PromocodeDetailViewModel") { "Invalid vote state: NONE" }
+                    Result.Error(SystemError.Unknown)
+                }
+            }
+        }
+
+    private fun computeAnalyticsVoteType(
+        newVoteState: VoteState,
+        targetVoteState: VoteState
+    ): String =
+        when {
+            newVoteState == VoteState.NONE && targetVoteState == VoteState.UPVOTE -> "remove_upvote"
+            newVoteState == VoteState.NONE && targetVoteState == VoteState.DOWNVOTE -> "remove_downvote"
+            newVoteState == VoteState.UPVOTE -> "upvote"
+            newVoteState == VoteState.DOWNVOTE -> "downvote"
+            else -> "unknown"
+        }
+
+    private suspend fun handleVoteSuccess(
+        updatedInteraction: UserInteraction,
+        voteUpdate: VoteUpdate,
+        targetVoteState: VoteState,
+        contentId: String
+    ) {
+        val updatedPromoCodeWithUserState = _uiState.value.promoCodeWithUserState?.copy(
+            userInteraction = updatedInteraction,
+        )
+        if (updatedPromoCodeWithUserState != null) {
+            val newVoteState = updatedInteraction.voteState
+            _uiState.update { currentState ->
+                currentState.copy(
+                    promoCodeWithUserState = updatedPromoCodeWithUserState,
+                    showVoteAnimation = true,
+                    lastVoteType = newVoteState,
+                )
+            }
+
+            // Log analytics
+            val voteTypeForAnalytics = computeAnalyticsVoteType(voteUpdate.newVoteState, targetVoteState)
+            analyticsHelper.logVote(
+                promocodeId = contentId,
+                voteType = voteTypeForAnalytics,
+            )
+
+            // Hide vote animation after delay
+            delay(VOTE_ANIMATION_DURATION)
+            _uiState.update { it.copy(showVoteAnimation = false, lastVoteType = null) }
+        }
+    }
+
+    private suspend fun handleInteractionError(
+        error: OperationError,
+        originalState: PromoCodeWithUserState?
+    ) {
+        // Rollback optimistic update
+        _uiState.update {
+            it.copy(
+                promoCodeWithUserState = originalState,
+                showVoteAnimation = false,
+                lastVoteType = null,
+            )
+        }
+
+        // Show transient error (doesn't block UI)
+        _events.emit(PromocodeDetailEvent.ShowError(error))
     }
 }

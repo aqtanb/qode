@@ -32,6 +32,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.CategoryIconHelper
 import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 
 @Composable
@@ -48,9 +49,9 @@ fun GradientBannerSection(
     val categoryIcon = CategoryIconHelper.getCategoryIcon(promoCode.category)
 
     // Calculate discount display text using proper localization
-    val discountDisplay = when (promoCode) {
-        is Discount.Percentage -> "${promoCode.discountPercentage.toInt()}% OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
-        is Discount.FixedAmount -> "${promoCode.discountAmount.toInt()}₸ OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
+    val discountDisplay = when (promoCode.discount) {
+        is Discount.Percentage -> "${promoCode.discount.value.toInt()}% OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
+        is Discount.FixedAmount -> "${promoCode.discount.value.toInt()}₸ OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
     }
 
     // Banner with proper height and centering like reference
