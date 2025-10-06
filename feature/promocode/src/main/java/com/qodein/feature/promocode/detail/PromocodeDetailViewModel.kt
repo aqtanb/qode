@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = PromocodeDetailViewModel.Factory::class)
 class PromocodeDetailViewModel @AssistedInject constructor(
-    @Assisted private val promoCodeId: PromoCodeId,
+    @Assisted promoCodeIdString: String,
     private val getPromoCodeByIdUseCase: GetPromocodeByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
@@ -52,9 +52,11 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
+    private val promoCodeId = PromoCodeId(promoCodeIdString)
+
     @AssistedFactory
     interface Factory {
-        fun create(promoCodeId: PromoCodeId): PromocodeDetailViewModel
+        fun create(promoCodeId: String): PromocodeDetailViewModel
     }
 
     private val _uiState = MutableStateFlow(PromocodeDetailUiState(promoCodeId = promoCodeId))

@@ -62,7 +62,7 @@ fun PromocodeDetailScreen(
     isDarkTheme: Boolean,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
-            factory.create(promoCodeId)
+            factory.create(promoCodeId.value)
         },
     )
 ) {
