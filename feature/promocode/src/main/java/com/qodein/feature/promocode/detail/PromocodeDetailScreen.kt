@@ -284,7 +284,7 @@ private fun PromocodeDetailContent(
         // Authentication Bottom Sheet
         uiState.authBottomSheet?.let { authSheetState ->
             AuthenticationBottomSheet(
-                action = authSheetState.action,
+                authPromptAction = authSheetState.action,
                 isLoading = authSheetState.isLoading,
                 onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
                 onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },

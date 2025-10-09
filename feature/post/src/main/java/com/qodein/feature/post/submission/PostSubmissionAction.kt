@@ -30,7 +30,6 @@ sealed interface PostSubmissionAction {
     // Auth actions
     data object SignInWithGoogle : PostSubmissionAction
     data object DismissAuthSheet : PostSubmissionAction
-    data object ClearAuthError : PostSubmissionAction
 
     // Error handling
     data object ClearValidationErrors : PostSubmissionAction

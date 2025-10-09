@@ -204,7 +204,7 @@ private fun HomeContent(
                             topEnd = SHEET_CORNER_RADIUS_DP.dp,
                         ),
                     )
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(MaterialTheme.colorScheme.background),
             ) {
                 BottomSheetContent(
                     uiState = uiState,
@@ -216,7 +216,7 @@ private fun HomeContent(
         },
         sheetPeekHeight = peekHeight,
         sheetDragHandle = null, // We'll add custom drag handle
-        sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        sheetContentColor = MaterialTheme.colorScheme.onBackground,
         modifier = modifier,
     ) {
         // Main content - animated banner that responds to sheet drag

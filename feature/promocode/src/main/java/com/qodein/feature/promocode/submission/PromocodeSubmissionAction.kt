@@ -38,7 +38,6 @@ sealed interface PromocodeSubmissionAction {
     // Authentication actions
     data object SignInWithGoogle : PromocodeSubmissionAction
     data object DismissAuthSheet : PromocodeSubmissionAction
-    data object ClearAuthError : PromocodeSubmissionAction
 
     // Error handling
     data object RetryClicked : PromocodeSubmissionAction

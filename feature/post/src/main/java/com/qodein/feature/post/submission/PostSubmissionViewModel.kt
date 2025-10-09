@@ -28,13 +28,11 @@ class PostSubmissionViewModel @Inject constructor(
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PostSubmissionUiState())
+    private val _uiState = MutableStateFlow<PostSubmissionUiState>(PostSubmissionUiState.Success.initial())
     val uiState: StateFlow<PostSubmissionUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<PostSubmissionEvent>()
     val events = _events.asSharedFlow()
-
-    private var currentUser: User? = null
 
     companion object {
         private const val TAG = "PostSubmissionVM"
@@ -42,6 +40,18 @@ class PostSubmissionViewModel @Inject constructor(
 
     init {
         observeAuthState()
+    }
+
+    /**
+     * Helper to update only Success state, ignoring Loading/Error states.
+     */
+    private inline fun updateSuccessState(update: (PostSubmissionUiState.Success) -> PostSubmissionUiState.Success) {
+        _uiState.update { currentState ->
+            when (currentState) {
+                is PostSubmissionUiState.Success -> update(currentState)
+                else -> currentState
+            }
+        }
     }
 
     fun onAction(action: PostSubmissionAction) {
@@ -71,8 +81,7 @@ class PostSubmissionViewModel @Inject constructor(
 
             // Auth
             PostSubmissionAction.SignInWithGoogle -> signInWithGoogle()
-            PostSubmissionAction.DismissAuthSheet -> dismissAuthSheet()
-            PostSubmissionAction.ClearAuthError -> clearAuthError()
+            PostSubmissionAction.DismissAuthSheet -> navigateBack()
 
             // Error handling
             PostSubmissionAction.ClearValidationErrors -> clearValidationErrors()
@@ -82,22 +91,28 @@ class PostSubmissionViewModel @Inject constructor(
 
     private fun observeAuthState() {
         viewModelScope.launch {
-            getAuthStateUseCase().collect { authState ->
-                currentUser = authState
+            getAuthStateUseCase().collect { user ->
+                updateSuccessState { state ->
+                    val authState = when (user) {
+                        null -> PostAuthenticationState.Unauthenticated
+                        else -> PostAuthenticationState.Authenticated(user)
+                    }
+                    state.copy(authentication = authState)
+                }
             }
         }
     }
 
     private fun updateTitle(title: String) {
-        _uiState.update { it.copy(title = title) }
+        updateSuccessState { it.copy(title = title) }
     }
 
     private fun updateContent(content: String) {
-        _uiState.update { it.copy(content = content) }
+        updateSuccessState { it.copy(content = content) }
     }
 
     private fun addTag(tag: Tag) {
-        _uiState.update { state ->
+        updateSuccessState { state ->
             if (state.tags.size < 10 && tag !in state.tags) {
                 state.copy(tags = state.tags + tag)
             } else {
@@ -107,22 +122,22 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun removeTag(tag: Tag) {
-        _uiState.update { state ->
+        updateSuccessState { state ->
             state.copy(tags = state.tags - tag)
         }
     }
 
     private fun showTagSelector() {
-        _uiState.update { it.copy(isTagSelectorVisible = true) }
+        updateSuccessState { it.copy(isTagSelectorVisible = true) }
         // TODO: Load popular tags
     }
 
     private fun hideTagSelector() {
-        _uiState.update { it.copy(isTagSelectorVisible = false) }
+        updateSuccessState { it.copy(isTagSelectorVisible = false) }
     }
 
     private fun searchTags(query: String) {
-        _uiState.update { it.copy(tagSearchQuery = query) }
+        updateSuccessState { it.copy(tagSearchQuery = query) }
         // TODO: Search tags
     }
 
@@ -133,38 +148,52 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun removeImage(index: Int) {
-        _uiState.update { state ->
+        updateSuccessState { state ->
             state.copy(imageUris = state.imageUris.filterIndexed { i, _ -> i != index })
         }
     }
 
     private fun updateImageUris(uris: List<String>) {
-        _uiState.update { state ->
+        updateSuccessState { state ->
             val newUris = (state.imageUris + uris).take(5) // Max 5 images
             state.copy(imageUris = newUris)
         }
     }
 
     private fun submitPost() {
-    }
-
-    private fun submitPostWithUser(user: User) {
-        val state = _uiState.value
+        val currentState = _uiState.value
+        if (currentState !is PostSubmissionUiState.Success) return
 
         // Validate
-        val validationErrors = validateInputs(state)
+        val validationErrors = validateInputs(currentState)
         if (validationErrors.hasErrors) {
-            _uiState.update { it.copy(validationErrors = validationErrors) }
+            updateSuccessState { it.copy(validationErrors = validationErrors) }
             return
         }
 
-        _uiState.update { it.copy(isSubmitting = true, submissionError = null) }
+        updateSuccessState { it.copy(submission = PostSubmissionState.Submitting) }
 
         viewModelScope.launch {
+            // TODO: Implement post submission
+            // createPostUseCase(...).collect { result ->
+            //     when (result) {
+            //         is Result.Success -> {
+            //             _events.emit(PostSubmissionEvent.PostSubmitted)
+            //         }
+            //         is Result.Error -> {
+            //             updateSuccessState { it.copy(submission = PostSubmissionState.Idle) }
+            //             _events.emit(PostSubmissionEvent.ShowError(result.error))
+            //         }
+            //     }
+            // }
         }
     }
 
-    private fun validateInputs(state: PostSubmissionUiState): PostSubmissionUiState.ValidationErrors {
+    private fun submitPostWithUser(user: User) {
+        submitPost()
+    }
+
+    private fun validateInputs(state: PostSubmissionUiState.Success): ValidationErrors {
         var titleError: String? = null
         var contentError: String? = null
         var tagsError: String? = null
@@ -192,7 +221,7 @@ class PostSubmissionViewModel @Inject constructor(
             imagesError = "Too many images (max 5)"
         }
 
-        return PostSubmissionUiState.ValidationErrors(
+        return ValidationErrors(
             titleError = titleError,
             contentError = contentError,
             tagsError = tagsError,
@@ -207,31 +236,28 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun signInWithGoogle() {
+        updateSuccessState { it.copy(authentication = PostAuthenticationState.Loading) }
+
         viewModelScope.launch {
             signInWithGoogleUseCase().collect { result ->
                 when (result) {
                     is Result.Success -> {
                         Logger.i(TAG) { "Sign in successful" }
-                        _uiState.update { it.copy(isAuthSheetVisible = false, authError = null) }
+                        // Auth state will be updated via observeAuthState()
                     }
                     is Result.Error -> {
-                        Logger.e(TAG) { "Sign in failed: ${result.error}" }
-                        _uiState.update { it.copy(authError = result.error) }
+                        Logger.w(TAG) { "Sign in failed: ${result.error}" }
+                        // Reset to unauthenticated
+                        updateSuccessState { it.copy(authentication = PostAuthenticationState.Unauthenticated) }
+                        // Show error snackbar
+                        _events.emit(PostSubmissionEvent.ShowError(result.error))
                     }
                 }
             }
         }
     }
 
-    private fun dismissAuthSheet() {
-        _uiState.update { it.copy(isAuthSheetVisible = false) }
-    }
-
-    private fun clearAuthError() {
-        _uiState.update { it.copy(authError = null) }
-    }
-
     private fun clearValidationErrors() {
-        _uiState.update { it.copy(validationErrors = PostSubmissionUiState.ValidationErrors()) }
+        updateSuccessState { it.copy(validationErrors = ValidationErrors()) }
     }
 }

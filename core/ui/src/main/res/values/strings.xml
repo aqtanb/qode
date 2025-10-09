@@ -224,7 +224,7 @@
     <string name="sort_section_title_expiring">Expiring Soon</string>
 
     <!-- Authentication Bottom Sheet -->
-    <string name="auth_submit_promo_title">Sign in to submit promo code</string>
+    <string name="auth_submit_promo_title">Sign in to submit promocode</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
     <string name="auth_upvote_title">Sign in to upvote</string>
     <string name="auth_upvote_message">Help others discover great deals by upvoting the best promo codes.</string>

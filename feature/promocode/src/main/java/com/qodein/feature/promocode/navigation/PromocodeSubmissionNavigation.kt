@@ -10,22 +10,23 @@ import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.serialization.Serializable
 
-@Serializable object SubmissionRoute
+@Serializable object PromocodeSubmissionRoute
 
 @Serializable data class PromocodeDetailRoute(val promoCodeId: String)
 
-fun NavController.navigateToSubmission(navOptions: NavOptions? = null) = navigate(route = SubmissionRoute, navOptions = navOptions)
+fun NavController.navigateToPromocodeSubmission(navOptions: NavOptions? = null) =
+    navigate(route = PromocodeSubmissionRoute, navOptions = navOptions)
 
 fun NavController.navigateToPromocodeDetail(
     promoCodeId: PromoCodeId,
     navOptions: NavOptions? = null
 ) = navigate(route = PromocodeDetailRoute(promoCodeId.value), navOptions = navOptions)
 
-fun NavGraphBuilder.submissionSection(
-    onNavigateBack: () -> Unit = {},
+fun NavGraphBuilder.promocodeSubmissionSection(
+    onNavigateBack: () -> Unit,
     isDarkTheme: Boolean
 ) {
-    composable<SubmissionRoute> {
+    composable<PromocodeSubmissionRoute> {
         PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
             isDarkTheme = isDarkTheme,

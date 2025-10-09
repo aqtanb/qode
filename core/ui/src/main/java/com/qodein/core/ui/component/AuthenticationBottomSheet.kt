@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -93,7 +92,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
  * Provides contextual messaging based on the action that triggered the auth requirement.
  * Non-intrusive, easy to dismiss, with one-tap Google Sign-In.
  *
- * @param action The action that triggered the authentication prompt
+ * @param authPromptAction The action that triggered the authentication prompt
  * @param onSignInClick Called when user clicks the sign-in button
  * @param onDismiss Called when user dismisses the bottom sheet
  * @param modifier Modifier to be applied to the bottom sheet
@@ -106,7 +105,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthenticationBottomSheet(
-    action: AuthPromptAction,
+    authPromptAction: AuthPromptAction,
     onSignInClick: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -161,7 +160,7 @@ fun AuthenticationBottomSheet(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AuthenticationBottomSheetContent(
-                action = action,
+                action = authPromptAction,
                 onSignInClick = onSignInClick,
                 onDismiss = onDismiss,
                 isLoading = isLoading,
@@ -358,7 +357,7 @@ private fun AuthenticationBottomSheetLoadingPreview() {
 private fun AuthenticationBottomSheetErrorPreview() {
     QodeTheme {
         AuthenticationBottomSheet(
-            action = AuthPromptAction.UpvotePromoCode,
+            authPromptAction = AuthPromptAction.UpvotePromoCode,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,

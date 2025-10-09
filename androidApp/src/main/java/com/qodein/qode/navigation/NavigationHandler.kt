@@ -2,8 +2,9 @@ package com.qodein.qode.navigation
 
 import androidx.navigation.NavController
 import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.feature.post.navigation.navigateToPostSubmission
 import com.qodein.feature.profile.navigation.navigateToProfile
-import com.qodein.feature.promocode.navigation.navigateToSubmission
+import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.shared.domain.AuthState
 import javax.inject.Inject
@@ -81,8 +82,12 @@ class NavigationHandler @Inject constructor() {
                 navigateToTopLevel(TopLevelDestination.HOME)
             }
 
-            NavigationActions.NavigateToSubmission -> {
-                navController.navigateToSubmission()
+            NavigationActions.NavigateToPromocodeSubmission -> {
+                navController.navigateToPromocodeSubmission()
+            }
+
+            NavigationActions.NavigateToPostSubmission -> {
+                navController.navigateToPostSubmission()
             }
         }
     }

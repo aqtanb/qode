@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -187,7 +188,7 @@ fun ServiceSelector(
                 indication = ripple(),
                 onClick = onServiceSelectorClick,
             ),
-        color = animatedBackgroundColor,
+        color = Color.Transparent,
         shape = RoundedCornerShape(SizeTokens.Selector.shape),
         tonalElevation = if (hasSelection) ElevationTokens.none else ElevationTokens.none,
         shadowElevation = ElevationTokens.none,
@@ -275,7 +276,7 @@ private fun ServiceManualPreview() {
     QodeTheme {
         SubmissionStepCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
-            wizardData = SubmissionWizardData(),
+            wizardData = SubmissionWizardData(isManualServiceEntry = true),
             onAction = {},
         )
     }

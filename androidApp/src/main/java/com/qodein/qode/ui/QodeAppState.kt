@@ -33,7 +33,7 @@ import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.post.navigation.FeedRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
-import com.qodein.feature.promocode.navigation.SubmissionRoute
+import com.qodein.feature.promocode.navigation.PromocodeSubmissionRoute
 import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.FEED
@@ -140,7 +140,7 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
      */
     val isSubmissionScreen: Boolean
         @Composable get() {
-            return currentDestination?.hasRoute<SubmissionRoute>() == true
+            return currentDestination?.hasRoute<PromocodeSubmissionRoute>() == true
         }
 
     /**

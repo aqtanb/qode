@@ -12,5 +12,4 @@ sealed interface PromocodeSubmissionAuthenticationState {
     data object Loading : PromocodeSubmissionAuthenticationState
     data object Unauthenticated : PromocodeSubmissionAuthenticationState
     data class Authenticated(val user: User) : PromocodeSubmissionAuthenticationState
-    data class Error(val throwable: Throwable) : PromocodeSubmissionAuthenticationState
 }

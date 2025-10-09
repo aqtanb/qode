@@ -14,6 +14,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,113 +71,130 @@ fun PromocodeSubmissionScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(events) {
+    // Handle error string outside LaunchedEffect since asUiText is @Composable
+    val errorMessage = (events as? PromocodeSubmissionEvent.ShowError)?.error?.asUiText()
+
+    LaunchedEffect(events, errorMessage) {
         when (events) {
             PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
             PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
+            is PromocodeSubmissionEvent.ShowError -> {
+                errorMessage?.let {
+                    snackbarHostState.showSnackbar(
+                        message = it,
+                        withDismissAction = true,
+                    )
+                }
+            }
             null -> { /* No event */ }
         }
     }
 
-    when (val currentState = uiState) {
-        is PromocodeSubmissionUiState.Loading -> {
-            LoadingState()
-        }
-        is PromocodeSubmissionUiState.Success -> {
-            // MARK: Authentication check
-            val showAuthSheet = currentState.authentication !is PromocodeSubmissionAuthenticationState.Authenticated
-            if (showAuthSheet) {
-                val isSigningIn = currentState.authentication is PromocodeSubmissionAuthenticationState.Loading
-                val authError = (currentState.authentication as? PromocodeSubmissionAuthenticationState.Error)?.throwable
-
-                AuthenticationBottomSheet(
-                    action = AuthPromptAction.SubmitPromoCode,
-                    onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle) },
-                    onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
-                    isLoading = isSigningIn,
-                    onErrorDismissed = { viewModel.onAction(PromocodeSubmissionAction.ClearAuthError) },
-                    isDarkTheme = isDarkTheme,
-                )
-                return
-            }
-
-            val serviceSelectorSheetState = rememberModalBottomSheetState()
-
-            // Effect to control bottom sheet visibility based on state
-            LaunchedEffect(currentState.showServiceSelector) {
-                if (currentState.showServiceSelector) {
-                    serviceSelectorSheetState.show()
-                } else {
-                    serviceSelectorSheetState.hide()
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent,
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (val currentState = uiState) {
+                is PromocodeSubmissionUiState.Loading -> {
+                    LoadingState()
                 }
-            }
+                is PromocodeSubmissionUiState.Success -> {
+                    // MARK: Authentication check
+                    val showAuthSheet = currentState.authentication !is PromocodeSubmissionAuthenticationState.Authenticated
+                    if (showAuthSheet) {
+                        val isSigningIn = currentState.authentication is PromocodeSubmissionAuthenticationState.Loading
 
-            SubmissionContent(
-                uiState = currentState,
-                onAction = viewModel::onAction,
-            )
+                        AuthenticationBottomSheet(
+                            authPromptAction = AuthPromptAction.SubmitPromoCode,
+                            onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle) },
+                            onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
+                            isLoading = isSigningIn,
+                            isDarkTheme = isDarkTheme,
+                        )
+                    } else {
+                        val serviceSelectorSheetState = rememberModalBottomSheetState()
 
-            // Always render the bottom sheet, visibility controlled by sheetState
-            if (currentState.showServiceSelector) {
-                var isSearchFocused by remember { mutableStateOf(false) }
-
-                // Get unified service selection state from ViewModel
-                val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
-                // Get cached services from coordinator
-                val cachedServices by viewModel.cachedServices.collectAsStateWithLifecycle()
-
-                // Use different sheet state based on focus/search mode
-                val adjustedSheetState = rememberModalBottomSheetState(
-                    skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.isSearching,
-                )
-
-                // Update selection state with current wizard selection
-                val updatedSelectionState = serviceSelectionState.copy(
-                    selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
-                )
-
-                val uiState = ServiceSelectionUiState(
-                    domainState = updatedSelectionState,
-                    allServices = cachedServices,
-                    isVisible = true,
-                    isSearchFocused = isSearchFocused,
-                )
-
-                ServiceSelectorBottomSheet(
-                    state = uiState,
-                    sheetState = adjustedSheetState,
-                    onAction = { uiAction ->
-                        when (uiAction) {
-                            is ServiceSelectionUiAction.UpdateQuery -> {
-                                viewModel.onAction(PromocodeSubmissionAction.SearchServices(uiAction.query))
-                            }
-                            ServiceSelectionUiAction.ClearQuery -> {
-                                viewModel.onAction(PromocodeSubmissionAction.SearchServices(""))
-                            }
-                            is ServiceSelectionUiAction.SelectService -> {
-                                viewModel.onAction(PromocodeSubmissionAction.SelectService(uiAction.service))
-                                viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
-                            }
-                            is ServiceSelectionUiAction.SetSearchFocus -> {
-                                isSearchFocused = uiAction.focused
-                            }
-                            ServiceSelectionUiAction.Dismiss -> {
-                                viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
-                            }
-                            else -> {
-                                // Handle other UI actions if needed
+                        // Effect to control bottom sheet visibility based on state
+                        LaunchedEffect(currentState.showServiceSelector) {
+                            if (currentState.showServiceSelector) {
+                                serviceSelectorSheetState.show()
+                            } else {
+                                serviceSelectorSheetState.hide()
                             }
                         }
-                    },
-                )
+
+                        SubmissionContent(
+                            uiState = currentState,
+                            onAction = viewModel::onAction,
+                            snackbarHostState = snackbarHostState,
+                        )
+
+                        // Always render the bottom sheet, visibility controlled by sheetState
+                        if (currentState.showServiceSelector) {
+                            var isSearchFocused by remember { mutableStateOf(false) }
+
+                            // Get unified service selection state from ViewModel
+                            val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
+                            // Get cached services from coordinator
+                            val cachedServices by viewModel.cachedServices.collectAsStateWithLifecycle()
+
+                            // Use different sheet state based on focus/search mode
+                            val adjustedSheetState = rememberModalBottomSheetState(
+                                skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.isSearching,
+                            )
+
+                            // Update selection state with current wizard selection
+                            val updatedSelectionState = serviceSelectionState.copy(
+                                selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
+                            )
+
+                            val uiState = ServiceSelectionUiState(
+                                domainState = updatedSelectionState,
+                                allServices = cachedServices,
+                                isVisible = true,
+                                isSearchFocused = isSearchFocused,
+                            )
+
+                            ServiceSelectorBottomSheet(
+                                state = uiState,
+                                sheetState = adjustedSheetState,
+                                onAction = { uiAction ->
+                                    when (uiAction) {
+                                        is ServiceSelectionUiAction.UpdateQuery -> {
+                                            viewModel.onAction(PromocodeSubmissionAction.SearchServices(uiAction.query))
+                                        }
+                                        ServiceSelectionUiAction.ClearQuery -> {
+                                            viewModel.onAction(PromocodeSubmissionAction.SearchServices(""))
+                                        }
+                                        is ServiceSelectionUiAction.SelectService -> {
+                                            viewModel.onAction(PromocodeSubmissionAction.SelectService(uiAction.service))
+                                            viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
+                                        }
+                                        is ServiceSelectionUiAction.SetSearchFocus -> {
+                                            isSearchFocused = uiAction.focused
+                                        }
+                                        ServiceSelectionUiAction.Dismiss -> {
+                                            viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
+                                        }
+                                        else -> {
+                                            // Handle other UI actions if needed
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+                is PromocodeSubmissionUiState.Error -> {
+                    ErrorState(
+                        message = currentState.errorType.asUiText(),
+                        onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
+                    )
+                }
             }
-        }
-        is PromocodeSubmissionUiState.Error -> {
-            ErrorState(
-                message = currentState.errorType.asUiText(),
-                onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
-            )
         }
     }
 }
@@ -185,6 +204,7 @@ fun PromocodeSubmissionScreen(
 private fun SubmissionContent(
     uiState: PromocodeSubmissionUiState.Success,
     onAction: (PromocodeSubmissionAction) -> Unit,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -215,36 +235,31 @@ private fun SubmissionContent(
             ),
     ) {
         // Main content - no bottom padding reserved for controller
-        Scaffold(
-            containerColor = Color.Transparent,
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = adaptiveSpacing)
-                    .padding(vertical = verticalSpacing)
-                    .padding(bottom = 100.dp) // Account for floating controller height + extra breathing room
-                    .imePadding(), // Apply IME padding to the content area
-                verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                ProgressIndicator(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    onStepClick = { step ->
-                        onAction(PromocodeSubmissionAction.NavigateToStep(step))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = adaptiveSpacing)
+                .padding(vertical = verticalSpacing)
+                .padding(bottom = 100.dp) // Account for floating controller height + extra breathing room
+                .imePadding(), // Apply IME padding to the content area
+            verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            ProgressIndicator(
+                currentStep = uiState.wizardFlow.currentStep,
+                onStepClick = { step ->
+                    onAction(PromocodeSubmissionAction.NavigateToStep(step))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-                SubmissionStepCard(
-                    currentStep = uiState.wizardFlow.currentStep,
-                    wizardData = uiState.wizardFlow.wizardData,
-                    onAction = onAction,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+            SubmissionStepCard(
+                currentStep = uiState.wizardFlow.currentStep,
+                wizardData = uiState.wizardFlow.wizardData,
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         // Floating controller at bottom - hidden when keyboard is active
@@ -314,6 +329,7 @@ private fun ProgressiveSubmissionContentServicePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }
@@ -334,6 +350,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }
@@ -373,6 +390,7 @@ private fun SubmissionContentDarkThemePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }

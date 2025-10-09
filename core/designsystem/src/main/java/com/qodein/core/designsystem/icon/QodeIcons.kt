@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
@@ -315,6 +316,7 @@ import compose.icons.tablericons.Video
 // MARK: Post
 object PostIcons {
     val Post: ImageVector = Icons.Outlined.PostAdd
+    val Hashtag: ImageVector = Icons.Outlined.Tag
 }
 
 object QodeCommerceIcons {

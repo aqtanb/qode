@@ -116,7 +116,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
             // Authentication
             PromocodeSubmissionAction.SignInWithGoogle -> signInWithGoogle()
             PromocodeSubmissionAction.DismissAuthSheet -> handleBack()
-            PromocodeSubmissionAction.ClearAuthError -> clearAuthError()
 
             // Error handling
             PromocodeSubmissionAction.RetryClicked -> initialize()
@@ -292,38 +291,25 @@ class PromocodeSubmissionViewModel @Inject constructor(
         viewModelScope.launch {
             signInWithGoogleUseCase()
                 .collect { result ->
-                    _uiState.update { currentState ->
-                        when (currentState) {
-                            is PromocodeSubmissionUiState.Success -> {
-                                val newAuthState = when (result) {
-                                    is Result.Success -> {
-                                        Logger.i(TAG) { "Sign-in successful" }
-                                        // Auth state will be updated via setupAuthStateMonitoring
-                                        return@update currentState
-                                    }
-                                    is Result.Error -> {
-                                        Logger.w(TAG) { "Sign-in failed: ${result.error}" }
-                                        PromocodeSubmissionAuthenticationState.Error(Exception(result.error.toString()))
-                                    }
+                    when (result) {
+                        is Result.Success -> {
+                            Logger.i(TAG) { "Sign-in successful" }
+                            // Auth state will be updated via setupAuthStateMonitoring
+                        }
+                        is Result.Error -> {
+                            Logger.w(TAG) { "Sign-in failed: ${result.error}" }
+                            // Reset to unauthenticated
+                            _uiState.update { currentState ->
+                                when (currentState) {
+                                    is PromocodeSubmissionUiState.Success ->
+                                        currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Unauthenticated)
+                                    else -> currentState
                                 }
-                                currentState.updateAuthentication(newAuthState)
                             }
-                            else -> currentState
+                            _events.emit(PromocodeSubmissionEvent.ShowError(result.error))
                         }
                     }
                 }
-        }
-    }
-
-    private fun clearAuthError() {
-        Logger.i(TAG) { "clearAuthError() called" }
-        updateSuccessState { currentState ->
-            when (currentState.authentication) {
-                is PromocodeSubmissionAuthenticationState.Error -> currentState.updateAuthentication(
-                    PromocodeSubmissionAuthenticationState.Unauthenticated,
-                )
-                else -> currentState
-            }
         }
     }
 

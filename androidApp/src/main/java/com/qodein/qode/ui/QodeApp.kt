@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.feature.promocode.navigation.navigateToSubmission
+import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.qode.navigation.NavigationHandler
 import com.qodein.qode.navigation.QodeNavHost
 import com.qodein.qode.navigation.TopLevelDestination
@@ -55,7 +55,7 @@ fun QodeApp(
     QodeApp(
         appState = appState,
         onTopBarActionClick = {
-            appState.navController.navigateToSubmission()
+            appState.navController.navigateToPromocodeSubmission()
         },
         modifier = modifier,
     )
