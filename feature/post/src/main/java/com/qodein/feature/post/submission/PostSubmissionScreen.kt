@@ -6,15 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,21 +26,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -51,6 +49,10 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
+import com.qodein.feature.post.submission.component.PostCreationTopBar
+import com.qodein.feature.post.submission.component.TagSelector
+import com.qodein.feature.post.submission.component.TagsSection
+import com.qodein.shared.model.Tag
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +66,7 @@ fun PostSubmissionScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
+    var showTagBottomSheet by remember { mutableStateOf(false) }
 
     val errorMessage = (events as? PostSubmissionEvent.ShowError)?.error?.asUiText()
 
@@ -87,18 +90,19 @@ fun PostSubmissionScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             when (val currentState = uiState) {
                 is PostSubmissionUiState.Success -> {
-                    PostSubmissionTopBar(
+                    PostCreationTopBar(
                         canSubmit = currentState.canSubmit,
                         onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
                         onSubmit = { viewModel.onAction(PostSubmissionAction.Submit) },
                     )
                 }
                 else -> {
-                    PostSubmissionTopBar(
+                    PostCreationTopBar(
                         canSubmit = false,
                         onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
                         onSubmit = {},
@@ -127,6 +131,17 @@ fun PostSubmissionScreen(
                         PostSubmissionContent(
                             uiState = currentState,
                             onAction = viewModel::onAction,
+                            onOpenTagSelector = { showTagBottomSheet = true },
+                        )
+                    }
+
+                    // Tag selector bottom sheet
+                    if (showTagBottomSheet) {
+                        TagSelectorBottomSheet(
+                            selectedTags = currentState.tags,
+                            onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
+                            onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
+                            onDismiss = { showTagBottomSheet = false },
                         )
                     }
                 }
@@ -141,124 +156,96 @@ fun PostSubmissionScreen(
     }
 }
 
+/**
+ * Reddit-style clean content
+ */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PostSubmissionTopBar(
-    canSubmit: Boolean,
-    onNavigateBack: () -> Unit,
-    onSubmit: () -> Unit
-) {
-    QodeTopAppBar(
-        title = "Create Post",
-        navigationIcon = QodeActionIcons.Back,
-        onNavigationClick = onNavigateBack,
-        customActions = {
-            TextButton(
-                onClick = onSubmit,
-                enabled = canSubmit,
-            ) {
-                Text("Share")
-            }
-        },
-    )
-}
-
 @Composable
 private fun PostSubmissionContent(
     uiState: PostSubmissionUiState.Success,
     onAction: (PostSubmissionAction) -> Unit,
+    onOpenTagSelector: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .imePadding()
-            .padding(SpacingTokens.lg),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        // Title field
-        CircularTextField(
-            value = uiState.title,
-            onValueChange = { onAction(PostSubmissionAction.UpdateTitle(it)) },
-            placeholder = "What's your story?",
-            charCount = uiState.titleCharCount,
-            maxChars = 200,
-            errorText = uiState.validationErrors.titleError,
-            singleLine = true,
-        )
-
-        // Content field
-        CircularTextField(
-            value = uiState.content,
-            onValueChange = { onAction(PostSubmissionAction.UpdateContent(it)) },
-            placeholder = "Share your thoughts with the world...",
-            charCount = uiState.contentCharCount,
-            maxChars = 2000,
-            errorText = uiState.validationErrors.contentError,
-            minLines = 5,
-            singleLine = false,
-        )
-
-        // Image picker button
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center,
+    Box(modifier = modifier.fillMaxSize()) {
+        // Scrollable content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 48.dp), // Space for bottom toolbar
         ) {
-            Box(
+            // Tag selector button (circular, like Reddit's community selector)
+            TagSelector(
+                selectedTags = uiState.tags,
+                onClick = onOpenTagSelector,
+            )
+
+            // Title (plain text, no border)
+            PlainTextField(
+                value = uiState.title,
+                onValueChange = { onAction(PostSubmissionAction.UpdateTitle(it)) },
+                placeholder = "Title",
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                ),
                 modifier = Modifier
-                    .size(SpacingTokens.huge)
-                    .border(ShapeTokens.Border.medium, MaterialTheme.colorScheme.primary, CircleShape)
-                    .clickable(onClick = { onAction(PostSubmissionAction.AddImage) }),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    QodeCategoryIcons.Camera,
-                    contentDescription = "Add image",
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingTokens.md),
+            )
+
+            // Image carousel (if images exist)
+            if (uiState.imageUris.isNotEmpty()) {
+                HorizontalPager(
+                    state = rememberPagerState { uiState.imageUris.size },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SpacingTokens.xs),
+                ) { page ->
+                    ImageCarouselItem(
+                        uri = uiState.imageUris[page],
+                        currentPage = page + 1,
+                        totalPages = uiState.imageUris.size,
+                        onRemove = { onAction(PostSubmissionAction.RemoveImage(page)) },
+                    )
+                }
             }
+
+            // Body text (plain, no border, multiline)
+            PlainTextField(
+                value = uiState.content,
+                onValueChange = { onAction(PostSubmissionAction.UpdateContent(it)) },
+                placeholder = "Body text",
+                singleLine = false,
+                minLines = 3,
+                textStyle = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingTokens.md),
+            )
         }
 
-        // Image preview row
-        if (uiState.imageUris.isNotEmpty()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                contentPadding = PaddingValues(horizontal = SpacingTokens.sm),
-            ) {
-                itemsIndexed(uiState.imageUris) { index, uri ->
-                    // TODO: Image preview with remove button
-                    Text("Image $index")
-                }
-            }
-        }
-
-        // Tags section
-        if (uiState.tags.isNotEmpty()) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                contentPadding = PaddingValues(horizontal = SpacingTokens.sm),
-            ) {
-                items(uiState.tags.size) { index ->
-                    // TODO: Tag chip with remove button
-                    Text("Tag ${index + 1}")
-                }
-            }
-        }
-
-        // Validation errors
-        if (uiState.validationErrors.hasErrors) {
-            Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs)) {
-                uiState.validationErrors.titleError?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                }
-                uiState.validationErrors.contentError?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                }
-                uiState.validationErrors.tagsError?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                }
-            }
+        // Bottom toolbar (fixed at bottom)
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .imePadding()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xs),
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            // Image icon
+            Icon(
+                imageVector = QodeCategoryIcons.Camera,
+                contentDescription = "Add image",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { onAction(PostSubmissionAction.AddImage) },
+                tint = MaterialTheme.colorScheme.onBackground,
+            )
         }
     }
 }
@@ -293,60 +280,289 @@ private fun ErrorState(
     }
 }
 
+/**
+ * Action button with icon, label, and count indicator
+ */
 @Composable
-private fun CircularTextField(
+private fun ActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    count: Int,
+    maxCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = if (isActive) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                },
+                shape = RoundedCornerShape(ShapeTokens.Corner.large),
+            )
+            .border(
+                width = if (isActive) ShapeTokens.Border.medium else ShapeTokens.Border.thin,
+                color = if (isActive) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                },
+                shape = RoundedCornerShape(ShapeTokens.Corner.large),
+            )
+            .clickable(onClick = onClick)
+            .padding(SpacingTokens.md),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isActive) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isActive) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+
+            // Count badge
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = if (count > 0) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                        },
+                        shape = CircleShape,
+                    )
+                    .padding(horizontal = SpacingTokens.xs, vertical = 2.dp),
+            ) {
+                Text(
+                    text = "$count/$maxCount",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (count > 0) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Image preview card with remove button
+ */
+@Composable
+private fun ImagePreviewCard(
+    uri: String,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(100.dp)
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant,
+                RoundedCornerShape(ShapeTokens.Corner.medium),
+            )
+            .border(
+                width = ShapeTokens.Border.thin,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+            ),
+    ) {
+        // TODO: Load actual image with Coil/Glide
+        // For now, placeholder
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = QodeCategoryIcons.Camera,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        // Remove button
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(4.dp)
+                .size(24.dp)
+                .background(MaterialTheme.colorScheme.error, CircleShape)
+                .clickable(onClick = onRemove),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = QodeActionIcons.Close,
+                contentDescription = "Remove",
+                tint = MaterialTheme.colorScheme.onError,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlainTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    charCount: Int,
-    maxChars: Int,
-    errorText: String?,
-    singleLine: Boolean,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = false,
     minLines: Int = 1,
+    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    androidx.compose.foundation.text.BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
+        modifier = modifier.padding(vertical = SpacingTokens.xs),
+        decorationBox = { innerTextField ->
+            if (value.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    style = textStyle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            }
+            innerTextField()
+        },
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+    )
+}
+
+@Composable
+private fun ImageCarouselItem(
+    uri: String,
+    currentPage: Int,
+    totalPages: Int,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        Row {
-            Box {
-            }
-        }
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = { Text(placeholder) },
-            singleLine = singleLine,
-            minLines = minLines,
-            shape = RoundedCornerShape(SpacingTokens.lg),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
-            ),
-            isError = errorText != null,
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+    ) {
+        // TODO: Load actual image with Coil/Glide
+        // Placeholder for now
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = ShapeTokens.Border.medium,
-                    color = if (errorText != null) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
-                    },
-                    shape = RoundedCornerShape(SpacingTokens.lg),
-                ),
+                .padding(SpacingTokens.huge + SpacingTokens.xl),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = QodeCategoryIcons.Camera,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(56.dp),
+            )
+        }
+
+        // Page indicator (top right, like Reddit)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(SpacingTokens.sm)
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f), RoundedCornerShape(ShapeTokens.Corner.medium))
+                .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxxs),
+        ) {
+            Text(
+                text = "$currentPage/$totalPages",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+        }
+
+        // Remove button (X)
+        Icon(
+            imageVector = QodeActionIcons.Close,
+            contentDescription = "Remove",
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(SpacingTokens.sm)
+                .size(24.dp)
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f), CircleShape)
+                .clickable(onClick = onRemove)
+                .padding(SpacingTokens.xxxs),
+            tint = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }
 
+/**
+ * Tag selector bottom sheet
+ */
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TagSelectorBottomSheet(
+    selectedTags: List<Tag>,
+    onTagSelected: (Tag) -> Unit,
+    onTagRemoved: (Tag) -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+    ) {
+        var customTagInput by remember { mutableStateOf("") }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingTokens.lg),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            Text(
+                "Select Tags",
+                style = MaterialTheme.typography.titleLarge,
+            )
+
+            // Use the existing TagsSection component
+            TagsSection(
+                selectedTags = selectedTags.map { it.value },
+                customTagInput = customTagInput,
+                onCustomTagInputChange = { customTagInput = it },
+                onTagSelected = { tagValue ->
+                    onTagSelected(Tag(tagValue))
+                    customTagInput = ""
+                },
+                onTagRemoved = { tagValue ->
+                    val tag = selectedTags.find { it.value == tagValue }
+                    tag?.let { onTagRemoved(it) }
+                },
+                popularTags = listOf("#tech", "#food", "#travel", "#lifestyle", "#fashion", "#gaming"),
+                maxTags = 10,
+                onDone = onDismiss,
+            )
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
-private fun PostSubmissionTopBarPreview() {
+private fun CleanTopBarPreview() {
     QodeTheme {
-        PostSubmissionTopBar(
+        PostCreationTopBar(
             canSubmit = false,
             onNavigateBack = {},
             onSubmit = {},
@@ -361,6 +577,7 @@ private fun PostSubmissionContentPreview() {
         PostSubmissionContent(
             uiState = PostSubmissionUiState.Success.initial(),
             onAction = {},
+            onOpenTagSelector = {},
         )
     }
 }

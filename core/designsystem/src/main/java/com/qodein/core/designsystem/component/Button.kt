@@ -106,7 +106,7 @@ fun QodeButton(
     loading: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.large),
     contentDescription: String? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -497,11 +497,9 @@ private fun ButtonContent(
         }
     } else {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = SpacingTokens.xs),
+            modifier = Modifier.padding(vertical = SpacingTokens.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
         ) {
             // Leading icon
             leadingIcon?.let { icon ->
@@ -517,7 +515,6 @@ private fun ButtonContent(
             Text(
                 text = text,
                 style = textStyle,
-                modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

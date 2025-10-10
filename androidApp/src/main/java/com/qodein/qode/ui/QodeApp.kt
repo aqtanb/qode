@@ -33,8 +33,6 @@ import com.qodein.qode.ui.container.rememberDialogState
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.qode.ui.state.TopBarConfig
 import com.qodein.qode.ui.state.getTopBarConfig
-import com.qodein.qode.ui.state.shouldShowProfile
-import com.qodein.qode.ui.state.shouldShowSettings
 
 /**
  * QodeApp - Clean orchestrator using container pattern.
@@ -116,8 +114,6 @@ internal fun QodeApp(
                         appState = appState,
                         authState = authState,
                         onEvent = onEvent,
-                        showProfile = appState.shouldShowProfile(),
-                        showSettings = appState.shouldShowSettings(),
                     )
                 },
 

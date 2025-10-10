@@ -25,8 +25,6 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -173,7 +171,7 @@ fun QodeTopAppBar(
             )
         }
         QodeTopAppBarVariant.Transparent -> {
-            QodeTransparentTopAppBarImpl(
+            QodeTransparentTopAppBar(
                 modifier = modifier,
                 title = title,
                 titleComposable = titleComposable,
@@ -207,7 +205,7 @@ data class TopAppBarAction(
  * Internal implementation for transparent variant that integrates with QodeTopAppBar
  */
 @Composable
-private fun QodeTransparentTopAppBarImpl(
+private fun QodeTransparentTopAppBar(
     modifier: Modifier = Modifier,
     title: String? = null,
     titleComposable: (@Composable () -> Unit)? = null,

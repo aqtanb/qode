@@ -138,7 +138,7 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
     /**
      * Check if current destination is the submission screen
      */
-    val isSubmissionScreen: Boolean
+    val isPromocodeSubmissionScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<PromocodeSubmissionRoute>() == true
         }
@@ -207,7 +207,7 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             currentTopLevelDestination == FEED -> ScreenType.FEED
             isProfileScreen -> ScreenType.PROFILE
             isAuthScreen -> ScreenType.AUTH
-            isSubmissionScreen -> ScreenType.SUBMISSION
+            isPromocodeSubmissionScreen -> ScreenType.SUBMISSION
             isSettingsScreen -> ScreenType.SETTINGS
             isPromocodeDetailScreen -> ScreenType.DETAIL
             else -> ScreenType.OTHER

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Post Submission -->
+    <string name="post">Post</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="select_tags">Select tags</string>
+</resources>
