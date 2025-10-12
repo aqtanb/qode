@@ -112,15 +112,15 @@ private fun TagSelectorPreview() {
                 )
 
                 TagSelector(
-                    selectedTags = listOf(Tag("#tech")),
+                    selectedTags = listOf(Tag("tech")),
                     onClick = {},
                 )
 
                 TagSelector(
                     selectedTags = listOf(
-                        Tag("#tech"),
-                        Tag("#lifestyle"),
-                        Tag("#coding"),
+                        Tag("tech"),
+                        Tag("lifestyle"),
+                        Tag("coding"),
                     ),
                     onClick = {},
                 )

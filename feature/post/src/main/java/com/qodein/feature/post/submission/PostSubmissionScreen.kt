@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
+import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -49,10 +52,10 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
+import com.qodein.feature.post.R
 import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.TagSelector
-import com.qodein.feature.post.submission.component.TagsSection
-import com.qodein.shared.model.Tag
+import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,6 +145,18 @@ fun PostSubmissionScreen(
                             onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
                             onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
                             onDismiss = { showTagBottomSheet = false },
+                            popularTags = listOf(
+                                "#tech",
+                                "#food",
+                                "#travel",
+                                "#lifestyle",
+                                "#fashion",
+                                "#gaming",
+                                "#music",
+                                "#sports",
+                                "#fitness",
+                                "#beauty",
+                            ),
                         )
                     }
                 }
@@ -237,10 +252,9 @@ private fun PostSubmissionContent(
                 .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xs),
             horizontalArrangement = Arrangement.Start,
         ) {
-            // Image icon
             Icon(
-                imageVector = QodeCategoryIcons.Camera,
-                contentDescription = "Add image",
+                imageVector = QodeNavigationIcons.Gallery,
+                contentDescription = stringResource(R.string.cd_add_image),
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { onAction(PostSubmissionAction.AddImage) },
@@ -413,7 +427,7 @@ private fun ImagePreviewCard(
         ) {
             Icon(
                 imageVector = QodeActionIcons.Close,
-                contentDescription = "Remove",
+                contentDescription = stringResource(R.string.cd_remove_image),
                 tint = MaterialTheme.colorScheme.onError,
                 modifier = Modifier.size(16.dp),
             )
@@ -431,7 +445,7 @@ private fun PlainTextField(
     minLines: Int = 1,
     textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
 ) {
-    androidx.compose.foundation.text.BasicTextField(
+    BasicTextField(
         value = value,
         onValueChange = onValueChange,
         textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -497,7 +511,7 @@ private fun ImageCarouselItem(
         // Remove button (X)
         Icon(
             imageVector = QodeActionIcons.Close,
-            contentDescription = "Remove",
+            contentDescription = stringResource(R.string.cd_remove_image),
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(SpacingTokens.sm)
@@ -507,54 +521,6 @@ private fun ImageCarouselItem(
                 .padding(SpacingTokens.xxxs),
             tint = MaterialTheme.colorScheme.onPrimary,
         )
-    }
-}
-
-/**
- * Tag selector bottom sheet
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TagSelectorBottomSheet(
-    selectedTags: List<Tag>,
-    onTagSelected: (Tag) -> Unit,
-    onTagRemoved: (Tag) -> Unit,
-    onDismiss: () -> Unit
-) {
-    androidx.compose.material3.ModalBottomSheet(
-        onDismissRequest = onDismiss,
-    ) {
-        var customTagInput by remember { mutableStateOf("") }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            Text(
-                "Select Tags",
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            // Use the existing TagsSection component
-            TagsSection(
-                selectedTags = selectedTags.map { it.value },
-                customTagInput = customTagInput,
-                onCustomTagInputChange = { customTagInput = it },
-                onTagSelected = { tagValue ->
-                    onTagSelected(Tag(tagValue))
-                    customTagInput = ""
-                },
-                onTagRemoved = { tagValue ->
-                    val tag = selectedTags.find { it.value == tagValue }
-                    tag?.let { onTagRemoved(it) }
-                },
-                popularTags = listOf("#tech", "#food", "#travel", "#lifestyle", "#fashion", "#gaming"),
-                maxTags = 10,
-                onDone = onDismiss,
-            )
-        }
     }
 }
 

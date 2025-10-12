@@ -4,4 +4,20 @@
     <string name="post">Post</string>
     <string name="navigate_back">Navigate back</string>
     <string name="select_tags">Select tags</string>
+    <string name="popular_tags">Popular Tags</string>
+    <string name="type_tag">Type a tag</string>
+    <string name="selected">Selected</string>
+    <string name="max_tags_reached">Maximum %d tags</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_add_image">Add image</string>
+    <string name="cd_remove_image">Remove image</string>
+    <string name="cd_take_photo">Take photo</string>
+    <string name="cd_close">Close</string>
+
+    <!-- Image Picker -->
+    <string name="choose_image_source">Choose image source</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="cancel">Cancel</string>
 </resources>
