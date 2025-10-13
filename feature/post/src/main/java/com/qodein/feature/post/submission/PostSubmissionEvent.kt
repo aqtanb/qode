@@ -10,5 +10,4 @@ sealed interface PostSubmissionEvent {
     data object NavigateBack : PostSubmissionEvent
     data object PostSubmitted : PostSubmissionEvent
     data class ShowError(val error: OperationError) : PostSubmissionEvent
-    data object OpenImagePicker : PostSubmissionEvent
 }

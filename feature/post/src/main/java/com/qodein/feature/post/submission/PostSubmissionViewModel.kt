@@ -67,8 +67,6 @@ class PostSubmissionViewModel @Inject constructor(
             PostSubmissionAction.HideTagSelector -> hideTagSelector()
             is PostSubmissionAction.SearchTags -> searchTags(action.query)
 
-            // Image actions
-            PostSubmissionAction.AddImage -> openImagePicker()
             is PostSubmissionAction.RemoveImage -> removeImage(action.index)
             is PostSubmissionAction.UpdateImageUris -> updateImageUris(action.uris)
 
@@ -139,12 +137,6 @@ class PostSubmissionViewModel @Inject constructor(
     private fun searchTags(query: String) {
         updateSuccessState { it.copy(tagSearchQuery = query) }
         // TODO: Search tags
-    }
-
-    private fun openImagePicker() {
-        viewModelScope.launch {
-            _events.emit(PostSubmissionEvent.OpenImagePicker)
-        }
     }
 
     private fun removeImage(index: Int) {

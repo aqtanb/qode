@@ -1,5 +1,8 @@
 package com.qodein.feature.post.submission
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,7 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -67,28 +70,37 @@ fun PostSubmissionScreen(
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
     var showTagBottomSheet by remember { mutableStateOf(false) }
 
+    // Image picker launcher
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5),
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            val uriStrings = uris.map { it.toString() }
+            viewModel.onAction(PostSubmissionAction.UpdateImageUris(uriStrings))
+        }
+    }
+
+    // Collect events and map error message in Composable context
+    val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val errorMessage = (events as? PostSubmissionEvent.ShowError)?.error?.asUiText()
 
+    // Handle events
     LaunchedEffect(events, errorMessage) {
         when (events) {
             is PostSubmissionEvent.NavigateBack -> onNavigateBack()
             is PostSubmissionEvent.PostSubmitted -> onNavigateBack()
             is PostSubmissionEvent.ShowError -> {
-                errorMessage?.let {
+                errorMessage?.let { message ->
                     snackbarHostState.showSnackbar(
-                        message = it,
+                        message = message,
                         withDismissAction = true,
                     )
                 }
             }
-            is PostSubmissionEvent.OpenImagePicker -> {
-                // TODO: Launch image picker
-            }
-            null -> { /* No event */ }
+            null -> { /* No event yet */ }
         }
     }
 
@@ -135,6 +147,11 @@ fun PostSubmissionScreen(
                             uiState = currentState,
                             onAction = viewModel::onAction,
                             onOpenTagSelector = { showTagBottomSheet = true },
+                            onOpenImagePicker = {
+                                pickMediaLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                )
+                            },
                         )
                     }
 
@@ -180,6 +197,7 @@ private fun PostSubmissionContent(
     uiState: PostSubmissionUiState.Success,
     onAction: (PostSubmissionAction) -> Unit,
     onOpenTagSelector: () -> Unit,
+    onOpenImagePicker: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -257,7 +275,7 @@ private fun PostSubmissionContent(
                 contentDescription = stringResource(R.string.cd_add_image),
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { onAction(PostSubmissionAction.AddImage) },
+                    .clickable { onOpenImagePicker() },
                 tint = MaterialTheme.colorScheme.onBackground,
             )
         }
@@ -544,6 +562,7 @@ private fun PostSubmissionContentPreview() {
             uiState = PostSubmissionUiState.Success.initial(),
             onAction = {},
             onOpenTagSelector = {},
+            onOpenImagePicker = {},
         )
     }
 }

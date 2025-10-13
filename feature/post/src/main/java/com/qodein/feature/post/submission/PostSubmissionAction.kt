@@ -16,7 +16,6 @@ sealed interface PostSubmissionAction {
     data class SearchTags(val query: String) : PostSubmissionAction
 
     // Image actions
-    data object AddImage : PostSubmissionAction
     data class RemoveImage(val index: Int) : PostSubmissionAction
     data class UpdateImageUris(val uris: List<String>) : PostSubmissionAction
 
