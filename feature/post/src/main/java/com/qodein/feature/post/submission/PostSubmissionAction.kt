@@ -1,7 +1,6 @@
 package com.qodein.feature.post.submission
 
 import com.qodein.shared.model.Tag
-import com.qodein.shared.model.User
 
 sealed interface PostSubmissionAction {
     // Input actions
@@ -11,9 +10,6 @@ sealed interface PostSubmissionAction {
     // Tag actions
     data class AddTag(val tag: Tag) : PostSubmissionAction
     data class RemoveTag(val tag: Tag) : PostSubmissionAction
-    data object ShowTagSelector : PostSubmissionAction
-    data object HideTagSelector : PostSubmissionAction
-    data class SearchTags(val query: String) : PostSubmissionAction
 
     // Image actions
     data class RemoveImage(val index: Int) : PostSubmissionAction
@@ -21,7 +17,6 @@ sealed interface PostSubmissionAction {
 
     // Submission actions
     data object Submit : PostSubmissionAction
-    data class SubmitWithUser(val user: User) : PostSubmissionAction
 
     // Navigation actions
     data object NavigateBack : PostSubmissionAction

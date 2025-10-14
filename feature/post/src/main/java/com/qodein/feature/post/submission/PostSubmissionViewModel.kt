@@ -9,7 +9,6 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.post.CreatePostUseCase
 import com.qodein.shared.model.Tag
-import com.qodein.shared.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,16 +62,12 @@ class PostSubmissionViewModel @Inject constructor(
             // Tag actions
             is PostSubmissionAction.AddTag -> addTag(action.tag)
             is PostSubmissionAction.RemoveTag -> removeTag(action.tag)
-            PostSubmissionAction.ShowTagSelector -> showTagSelector()
-            PostSubmissionAction.HideTagSelector -> hideTagSelector()
-            is PostSubmissionAction.SearchTags -> searchTags(action.query)
 
             is PostSubmissionAction.RemoveImage -> removeImage(action.index)
             is PostSubmissionAction.UpdateImageUris -> updateImageUris(action.uris)
 
             // Submission
             PostSubmissionAction.Submit -> submitPost()
-            is PostSubmissionAction.SubmitWithUser -> submitPostWithUser(action.user)
 
             // Navigation
             PostSubmissionAction.NavigateBack -> navigateBack()
@@ -125,20 +120,6 @@ class PostSubmissionViewModel @Inject constructor(
         }
     }
 
-    private fun showTagSelector() {
-        updateSuccessState { it.copy(isTagSelectorVisible = true) }
-        // TODO: Load popular tags
-    }
-
-    private fun hideTagSelector() {
-        updateSuccessState { it.copy(isTagSelectorVisible = false) }
-    }
-
-    private fun searchTags(query: String) {
-        updateSuccessState { it.copy(tagSearchQuery = query) }
-        // TODO: Search tags
-    }
-
     private fun removeImage(index: Int) {
         updateSuccessState { state ->
             state.copy(imageUris = state.imageUris.filterIndexed { i, _ -> i != index })
@@ -179,10 +160,6 @@ class PostSubmissionViewModel @Inject constructor(
             //     }
             // }
         }
-    }
-
-    private fun submitPostWithUser(user: User) {
-        submitPost()
     }
 
     private fun validateInputs(state: PostSubmissionUiState.Success): ValidationErrors {

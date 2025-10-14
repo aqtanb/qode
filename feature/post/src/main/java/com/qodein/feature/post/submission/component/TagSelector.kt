@@ -44,7 +44,7 @@ internal fun TagSelector(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(ShapeTokens.Corner.large))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = OpacityTokens.HOVER))
+            .background(MaterialTheme.colorScheme.background.copy(alpha = OpacityTokens.HOVER))
             .border(
                 width = ShapeTokens.Border.thin,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = OpacityTokens.DIVIDER),

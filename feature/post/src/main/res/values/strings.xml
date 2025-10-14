@@ -20,4 +20,11 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="cancel">Cancel</string>
+    <string name="cd_post_image">Post Image</string>
+    <string name="image_limit_reached">Maximum 5 images allowed. Delete some to add more.</string>
+    <string name="images_partially_added">Only %1$d image(s) added. Maximum 5 images allowed.</string>
+
+    <!-- Placeholders -->
+    <string name="placeholder_title">Title</string>
+    <string name="placeholder_description">Description</string>
 </resources>

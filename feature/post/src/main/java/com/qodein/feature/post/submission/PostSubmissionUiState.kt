@@ -24,8 +24,6 @@ sealed interface PostSubmissionUiState {
         val tags: List<Tag> = emptyList(),
         val imageUris: List<String> = emptyList(),
 
-        // UI state
-        val isTagSelectorVisible: Boolean = false,
         val tagSearchQuery: String = "",
         val availableTags: List<Tag> = emptyList(),
 
