@@ -31,7 +31,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
 
 @Composable
-internal fun PostImage(
+internal fun PostSubmissionImage(
     uri: String,
     currentPage: Int,
     totalPages: Int,
@@ -93,7 +93,7 @@ internal fun PostImage(
 @Composable
 private fun ImageCarouselItemPreview() {
     QodeTheme {
-        PostImage(
+        PostSubmissionImage(
             uri = "content://media/image/123",
             currentPage = 2,
             totalPages = 5,

@@ -32,7 +32,6 @@ internal fun PostCreationTopBar(
         variant = QodeTopAppBarVariant.CenterAligned,
         navigationIconTint = MaterialTheme.colorScheme.onSurface,
         backgroundColor = MaterialTheme.colorScheme.surface,
-        statusBarPadding = true,
         modifier = modifier,
         customActions = {
             QodeButton(

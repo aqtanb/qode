@@ -3,8 +3,6 @@ package com.qodein.qode.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
@@ -31,7 +28,6 @@ import com.qodein.qode.ui.container.AppThemeContainer
 import com.qodein.qode.ui.container.AppTopBarContainer
 import com.qodein.qode.ui.container.rememberDialogState
 import com.qodein.qode.ui.state.AppUiEvents
-import com.qodein.qode.ui.state.TopBarConfig
 import com.qodein.qode.ui.state.getTopBarConfig
 
 /**
@@ -66,18 +62,14 @@ internal fun QodeApp(
     onTopBarActionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // ViewModels and state
     val appViewModel: QodeAppViewModel = hiltViewModel()
     val authState by appViewModel.authState.collectAsStateWithLifecycle()
     val languageState by appViewModel.languageState.collectAsStateWithLifecycle()
 
-    // Dialog state management
     val dialogState = rememberDialogState()
 
-    // Navigation handler (reused instance)
     val navigationHandler = NavigationHandler()
 
-    // Handle navigation events
     LaunchedEffect(Unit) {
         appViewModel.navigationEvents.collect { action ->
             navigationHandler.handleNavigation(
@@ -91,19 +83,16 @@ internal fun QodeApp(
         }
     }
 
-    // Handle UI events (dialogs, etc.)
     LaunchedEffect(Unit) {
         appViewModel.uiEvents.collect { event ->
             dialogState.handleUiEvent(event)
         }
     }
 
-    // Event handler for containers
     val onEvent: (AppUiEvents) -> Unit = { event ->
         appViewModel.handleUiEvent(event)
     }
 
-    // Theme container wraps everything for status bar management
     AppThemeContainer(appViewModel) { statusBarOverlayColor, isDarkTheme ->
 
         Box(modifier = modifier.fillMaxSize()) {
@@ -118,7 +107,6 @@ internal fun QodeApp(
                 },
 
                 floatingActionButton = {
-                    // Centralized FAB with auto-hiding for all top-level destinations
                     AppFabContainer(
                         appState = appState,
                         onEvent = onEvent,
@@ -133,35 +121,22 @@ internal fun QodeApp(
                 },
 
             ) { innerPadding ->
-                // Get current screen state for smart padding
                 val currentDestination = appState.currentTopLevelDestination
                 val isHomeDestination = currentDestination == TopLevelDestination.HOME
                 val isProfileScreen = appState.isProfileScreen
                 val isAuthScreen = appState.isAuthScreen
+                val isPostSubmissionScreen = appState.isPostSubmissionScreen
 
-                // Navigation host with smart padding based on screen type
                 QodeNavHost(
                     appState = appState,
                     userLanguage = languageState,
                     isDarkTheme = isDarkTheme,
                     modifier = when {
-                        // Home screens handle their own UI - no padding for translucent effect
-                        isHomeDestination -> Modifier.fillMaxSize()
-                        // Profile and auth screens with transparent top bar - no top padding
-                        isProfileScreen || isAuthScreen -> Modifier.padding(
-                            start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
-                            end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                            bottom = innerPadding.calculateBottomPadding(),
-                            // No top padding - let content flow behind transparent top bar
-                        )
-                        // Screens that manage their own scaffolds (TopBarConfig.None) - no padding
-                        appState.getTopBarConfig() is TopBarConfig.None -> Modifier.fillMaxSize()
-                        // All other screens with solid top bars - full padding
+                        isHomeDestination || isProfileScreen || isAuthScreen || isPostSubmissionScreen -> Modifier.fillMaxSize()
                         else -> Modifier.padding(innerPadding)
                     },
                 )
 
-                // Status bar overlay for text visibility
                 val density = LocalDensity.current
                 val statusBarHeight = with(density) {
                     WindowInsets.statusBars.getTop(density).toDp()
@@ -176,7 +151,6 @@ internal fun QodeApp(
             }
         }
 
-        // App-level dialogs
         AppDialogsContainer(dialogState = dialogState)
     }
 }

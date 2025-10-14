@@ -31,6 +31,7 @@ import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.post.navigation.FeedRoute
+import com.qodein.feature.post.navigation.PostSubmissionRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
 import com.qodein.feature.promocode.navigation.PromocodeSubmissionRoute
@@ -164,6 +165,14 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             return currentDestination?.hasRoute<AuthRoute>() == true
         }
 
+    /**
+     * Check if current destination is the post submission screen
+     */
+    val isPostSubmissionScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<PostSubmissionRoute>() == true
+        }
+
     // MARK: - Auto-Hiding Public API
 
     /**
@@ -208,6 +217,7 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             isProfileScreen -> ScreenType.PROFILE
             isAuthScreen -> ScreenType.AUTH
             isPromocodeSubmissionScreen -> ScreenType.SUBMISSION
+            isPostSubmissionScreen -> ScreenType.POST_SUBMISSION
             isSettingsScreen -> ScreenType.SETTINGS
             isPromocodeDetailScreen -> ScreenType.DETAIL
             else -> ScreenType.OTHER
@@ -386,6 +396,7 @@ private enum class ScreenType {
     PROFILE,
     AUTH,
     SUBMISSION,
+    POST_SUBMISSION,
     SETTINGS,
     DETAIL,
     OTHER

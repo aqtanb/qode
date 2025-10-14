@@ -7,8 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -45,8 +47,8 @@ import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.post.R
 import com.qodein.feature.post.submission.component.PlainTextField
 import com.qodein.feature.post.submission.component.PostCreationTopBar
-import com.qodein.feature.post.submission.component.PostImage
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
+import com.qodein.feature.post.submission.component.PostSubmissionImage
 import com.qodein.feature.post.submission.component.TagSelector
 import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
 import kotlinx.coroutines.launch
@@ -108,7 +110,9 @@ fun PostSubmissionScreen(
     }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surface,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             when (val currentState = uiState) {
@@ -128,8 +132,35 @@ fun PostSubmissionScreen(
                 }
             }
         },
+        bottomBar = {
+            val currentState = uiState as? PostSubmissionUiState.Success
+            if (currentState != null && currentState.authentication is PostAuthenticationState.Authenticated) {
+                PostSubmissionBottomToolbar(
+                    isImageLimitReached = currentState.imageUris.size >= 5,
+                    onClick = {
+                        if (currentState.imageUris.size >= 5) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = context.getString(R.string.image_limit_reached),
+                                    withDismissAction = true,
+                                )
+                            }
+                        } else {
+                            pickMediaLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                            )
+                        }
+                    },
+                    modifier = Modifier.imePadding(),
+                )
+            }
+        },
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+        ) {
             when (val currentState = uiState) {
                 is PostSubmissionUiState.Loading -> {
                     LoadingState()
@@ -164,6 +195,7 @@ fun PostSubmissionScreen(
                                     )
                                 }
                             },
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
 
@@ -207,64 +239,56 @@ private fun PostSubmissionContent(
     onOpenImagePicker: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+    ) {
+        TagSelector(
+            selectedTags = uiState.tags,
+            onClick = onOpenTagSelector,
+        )
+
+        PlainTextField(
+            value = uiState.title,
+            onValueChange = { onAction(PostSubmissionAction.UpdateTitle(it)) },
+            placeholder = stringResource(R.string.placeholder_title),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.Bold,
+            ),
             modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            TagSelector(
-                selectedTags = uiState.tags,
-                onClick = onOpenTagSelector,
-            )
+                .fillMaxWidth()
+                .padding(start = SpacingTokens.md, top = SpacingTokens.md, end = SpacingTokens.md),
+        )
 
-            PlainTextField(
-                value = uiState.title,
-                onValueChange = { onAction(PostSubmissionAction.UpdateTitle(it)) },
-                placeholder = stringResource(R.string.placeholder_title),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                ),
+        if (uiState.imageUris.isNotEmpty()) {
+            HorizontalPager(
+                state = rememberPagerState { uiState.imageUris.size },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = SpacingTokens.md, top = SpacingTokens.md, end = SpacingTokens.md),
-            )
-
-            if (uiState.imageUris.isNotEmpty()) {
-                HorizontalPager(
-                    state = rememberPagerState { uiState.imageUris.size },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SpacingTokens.xs),
-                ) { page ->
-                    PostImage(
-                        uri = uiState.imageUris[page],
-                        currentPage = page + 1,
-                        totalPages = uiState.imageUris.size,
-                        onRemove = { onAction(PostSubmissionAction.RemoveImage(page)) },
-                    )
-                }
+                    .padding(vertical = SpacingTokens.xs),
+            ) { page ->
+                PostSubmissionImage(
+                    uri = uiState.imageUris[page],
+                    currentPage = page + 1,
+                    totalPages = uiState.imageUris.size,
+                    onRemove = { onAction(PostSubmissionAction.RemoveImage(page)) },
+                )
             }
-
-            PlainTextField(
-                value = uiState.content,
-                onValueChange = { onAction(PostSubmissionAction.UpdateContent(it)) },
-                placeholder = stringResource(R.string.placeholder_description),
-                singleLine = false,
-                minLines = 3,
-                textStyle = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SpacingTokens.md),
-            )
         }
 
-        PostSubmissionBottomToolbar(
-            isImageLimitReached = uiState.imageUris.size >= 5,
-            onClick = onOpenImagePicker,
-            modifier = Modifier.align(Alignment.BottomStart),
+        PlainTextField(
+            value = uiState.content,
+            onValueChange = { onAction(PostSubmissionAction.UpdateContent(it)) },
+            placeholder = stringResource(R.string.placeholder_description),
+            singleLine = false,
+            minLines = 3,
+            textStyle = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = SpacingTokens.md),
         )
     }
 }
