@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -45,12 +46,15 @@ import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.post.R
+import com.qodein.feature.post.submission.component.FullScreenImageViewer
 import com.qodein.feature.post.submission.component.PlainTextField
 import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
 import com.qodein.feature.post.submission.component.PostSubmissionImage
 import com.qodein.feature.post.submission.component.TagSelector
 import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,6 +71,9 @@ fun PostSubmissionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showTagBottomSheet by remember { mutableStateOf(false) }
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageIndex by remember { mutableStateOf(0) }
+    val hazeState = remember { HazeState() }
 
     val pickMediaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5),
@@ -109,123 +116,142 @@ fun PostSubmissionScreen(
         }
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            when (val currentState = uiState) {
-                is PostSubmissionUiState.Success -> {
-                    PostCreationTopBar(
-                        canSubmit = currentState.canSubmit,
-                        onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
-                        onSubmit = { viewModel.onAction(PostSubmissionAction.Submit) },
-                    )
-                }
-                else -> {
-                    PostCreationTopBar(
-                        canSubmit = false,
-                        onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
-                        onSubmit = {},
-                    )
-                }
-            }
-        },
-        bottomBar = {
-            val currentState = uiState as? PostSubmissionUiState.Success
-            if (currentState != null && currentState.authentication is PostAuthenticationState.Authenticated) {
-                PostSubmissionBottomToolbar(
-                    isImageLimitReached = currentState.imageUris.size >= 5,
-                    onClick = {
-                        if (currentState.imageUris.size >= 5) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.image_limit_reached),
-                                    withDismissAction = true,
-                                )
-                            }
-                        } else {
-                            pickMediaLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                            )
-                        }
-                    },
-                    modifier = Modifier.imePadding(),
-                )
-            }
-        },
-    ) { paddingValues ->
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
-        ) {
-            when (val currentState = uiState) {
-                is PostSubmissionUiState.Loading -> {
-                    LoadingState()
-                }
-                is PostSubmissionUiState.Success -> {
-                    val showAuthenticationSheet = currentState.authentication !is PostAuthenticationState.Authenticated
-                    if (showAuthenticationSheet) {
-                        val isSigningIn = currentState.authentication is PostAuthenticationState.Loading
-                        AuthenticationBottomSheet(
-                            authPromptAction = AuthPromptAction.CreatePost,
-                            onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle) },
-                            onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
-                            isDarkTheme = isDarkTheme,
-                            isLoading = isSigningIn,
+                .fillMaxSize()
+                .hazeSource(state = hazeState),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                when (val currentState = uiState) {
+                    is PostSubmissionUiState.Success -> {
+                        PostCreationTopBar(
+                            canSubmit = currentState.canSubmit,
+                            onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
+                            onSubmit = { viewModel.onAction(PostSubmissionAction.Submit) },
                         )
-                    } else {
-                        PostSubmissionContent(
-                            uiState = currentState,
-                            onAction = viewModel::onAction,
-                            onOpenTagSelector = { showTagBottomSheet = true },
-                            onOpenImagePicker = {
-                                if (currentState.imageUris.size >= 5) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.image_limit_reached),
-                                            withDismissAction = true,
-                                        )
-                                    }
-                                } else {
-                                    pickMediaLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    }
+                    else -> {
+                        PostCreationTopBar(
+                            canSubmit = false,
+                            onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
+                            onSubmit = {},
+                        )
+                    }
+                }
+            },
+            bottomBar = {
+                val currentState = uiState as? PostSubmissionUiState.Success
+                if (currentState != null && currentState.authentication is PostAuthenticationState.Authenticated) {
+                    PostSubmissionBottomToolbar(
+                        isImageLimitReached = currentState.imageUris.size >= 5,
+                        onClick = {
+                            if (currentState.imageUris.size >= 5) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.getString(R.string.image_limit_reached),
+                                        withDismissAction = true,
                                     )
                                 }
-                            },
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-
-                    if (showTagBottomSheet) {
-                        TagSelectorBottomSheet(
-                            selectedTags = currentState.tags,
-                            onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
-                            onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
-                            onDismiss = { showTagBottomSheet = false },
-                            popularTags = listOf(
-                                "#tech",
-                                "#food",
-                                "#travel",
-                                "#lifestyle",
-                                "#fashion",
-                                "#gaming",
-                                "#music",
-                                "#sports",
-                                "#fitness",
-                                "#beauty",
-                            ),
-                        )
-                    }
-                }
-                is PostSubmissionUiState.Error -> {
-                    ErrorState(
-                        message = currentState.errorType.asUiText(),
-                        onRetry = { viewModel.onAction(PostSubmissionAction.RetryPostSubmission) },
+                            } else {
+                                pickMediaLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                )
+                            }
+                        },
+                        modifier = Modifier.imePadding().navigationBarsPadding(),
                     )
                 }
+            },
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+            ) {
+                when (val currentState = uiState) {
+                    is PostSubmissionUiState.Loading -> {
+                        LoadingState()
+                    }
+                    is PostSubmissionUiState.Success -> {
+                        val showAuthenticationSheet = currentState.authentication !is PostAuthenticationState.Authenticated
+                        if (showAuthenticationSheet) {
+                            val isSigningIn = currentState.authentication is PostAuthenticationState.Loading
+                            AuthenticationBottomSheet(
+                                authPromptAction = AuthPromptAction.CreatePost,
+                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle) },
+                                onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
+                                isDarkTheme = isDarkTheme,
+                                isLoading = isSigningIn,
+                            )
+                        } else {
+                            PostSubmissionContent(
+                                uiState = currentState,
+                                onAction = viewModel::onAction,
+                                onOpenTagSelector = { showTagBottomSheet = true },
+                                onOpenImagePicker = {
+                                    if (currentState.imageUris.size >= 5) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = context.getString(R.string.image_limit_reached),
+                                                withDismissAction = true,
+                                            )
+                                        }
+                                    } else {
+                                        pickMediaLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                        )
+                                    }
+                                },
+                                onOpenImage = { index ->
+                                    fullScreenImageIndex = index
+                                    showFullScreenImage = true
+                                },
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+
+                        if (showTagBottomSheet) {
+                            TagSelectorBottomSheet(
+                                selectedTags = currentState.tags,
+                                onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
+                                onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
+                                onDismiss = { showTagBottomSheet = false },
+                                popularTags = listOf(
+                                    "#tech",
+                                    "#food",
+                                    "#travel",
+                                    "#lifestyle",
+                                    "#fashion",
+                                    "#gaming",
+                                    "#music",
+                                    "#sports",
+                                    "#fitness",
+                                    "#beauty",
+                                ),
+                            )
+                        }
+                    }
+                    is PostSubmissionUiState.Error -> {
+                        ErrorState(
+                            message = currentState.errorType.asUiText(),
+                            onRetry = { viewModel.onAction(PostSubmissionAction.RetryPostSubmission) },
+                        )
+                    }
+                }
+            }
+        }
+
+        if (showFullScreenImage) {
+            val currentState = uiState as? PostSubmissionUiState.Success
+            if (currentState != null && currentState.imageUris.isNotEmpty()) {
+                FullScreenImageViewer(
+                    uri = currentState.imageUris[fullScreenImageIndex],
+                    onDismiss = { showFullScreenImage = false },
+                    hazeState = hazeState,
+                )
             }
         }
     }
@@ -237,6 +263,7 @@ private fun PostSubmissionContent(
     onAction: (PostSubmissionAction) -> Unit,
     onOpenTagSelector: () -> Unit,
     onOpenImagePicker: () -> Unit,
+    onOpenImage: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -275,6 +302,7 @@ private fun PostSubmissionContent(
                     currentPage = page + 1,
                     totalPages = uiState.imageUris.size,
                     onRemove = { onAction(PostSubmissionAction.RemoveImage(page)) },
+                    onClick = { onOpenImage(page) },
                 )
             }
         }
@@ -344,6 +372,7 @@ private fun PostSubmissionContentPreview() {
             onAction = {},
             onOpenTagSelector = {},
             onOpenImagePicker = {},
+            onOpenImage = {},
         )
     }
 }

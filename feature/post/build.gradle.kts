@@ -52,6 +52,9 @@ dependencies {
 
     implementation(libs.kermit)
 
+    // Blur Effects
+    implementation(libs.haze)
+
     // Dependency Injection
     implementation(libs.bundles.hilt)
     implementation(libs.androidx.compose.animation.core)

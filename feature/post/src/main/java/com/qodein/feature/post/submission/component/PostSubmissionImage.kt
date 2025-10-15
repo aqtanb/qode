@@ -36,6 +36,7 @@ internal fun PostSubmissionImage(
     currentPage: Int,
     totalPages: Int,
     onRemove: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -50,7 +51,9 @@ internal fun PostSubmissionImage(
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.cd_post_image),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(onClick = onClick),
             contentScale = ContentScale.Crop,
         )
 
@@ -98,6 +101,7 @@ private fun ImageCarouselItemPreview() {
             currentPage = 2,
             totalPages = 5,
             onRemove = {},
+            onClick = {},
         )
     }
 }

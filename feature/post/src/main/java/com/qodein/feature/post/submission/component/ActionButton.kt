@@ -30,7 +30,7 @@ internal fun ActionButton(
     count: Int,
     maxCount: Int,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     isActive: Boolean = false
 ) {
     Box(
@@ -57,7 +57,7 @@ internal fun ActionButton(
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            verticalAlignment = Alignment.Companion.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = icon,
@@ -81,7 +81,7 @@ internal fun ActionButton(
 
             // Count badge
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .background(
                         color = if (count > 0) {
                             MaterialTheme.colorScheme.primary
