@@ -24,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeCard
 import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -104,7 +103,6 @@ fun QodeErrorCard(
                     QodeButton(
                         text = stringResource(R.string.action_retry),
                         onClick = onRetry,
-                        variant = QodeButtonVariant.Primary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = SpacingTokens.sm),
@@ -183,7 +181,6 @@ fun QodeErrorCard(
                     QodeButton(
                         text = stringResource(R.string.action_retry),
                         onClick = onRetry,
-                        variant = QodeButtonVariant.Primary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = SpacingTokens.sm),

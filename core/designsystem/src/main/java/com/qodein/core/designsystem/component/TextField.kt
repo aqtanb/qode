@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -47,11 +48,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -280,12 +284,92 @@ fun QodeinTextField(
     }
 }
 
-@Preview(name = "Qode TextField", showBackground = true)
+/**
+ * Qode basic text field component for inline editing without borders or decorations
+ *
+ * Perfect for post titles, descriptions, and content where the text should blend naturally
+ * into the layout without visual boundaries.
+ *
+ * @param value The current text value
+ * @param onValueChange Called when the text changes
+ * @param modifier Modifier to be applied to the text field
+ * @param placeholder Optional placeholder text shown when empty
+ * @param enabled Whether the text field is enabled
+ * @param readOnly Whether the text field is in read-only mode
+ * @param textStyle Text style to apply (default: bodyMedium)
+ * @param keyboardOptions Software keyboard options
+ * @param keyboardActions Software keyboard actions
+ * @param singleLine Whether the field is single line
+ * @param minLines Minimum number of lines for multiline text field
+ * @param maxLines Maximum number of lines for multiline text field
+ */
+@Composable
+fun QodeinBasicTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
+        color = MaterialTheme.colorScheme.onSurface,
+    ),
+    keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = true,
+    minLines: Int = 1,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    focusRequester: FocusRequester = FocusRequester.Default
+) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+    var isFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(value, isFocused) {
+        if (isFocused) {
+            coroutineScope.launch {
+                bringIntoViewRequester.bringIntoView()
+            }
+        }
+    }
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = textStyle,
+        modifier = modifier
+            .padding(vertical = SpacingTokens.xs)
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusRequester(focusRequester),
+        enabled = enabled,
+        readOnly = readOnly,
+        singleLine = singleLine,
+        minLines = if (singleLine) 1 else minLines,
+        maxLines = if (singleLine) 1 else maxLines,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        decorationBox = { innerTextField ->
+            if (value.isEmpty() && placeholder != null) {
+                Text(
+                    text = placeholder,
+                    style = textStyle.copy(
+                        color = textStyle.color.copy(alpha = 0.5f),
+                    ),
+                )
+            }
+            innerTextField()
+        },
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+    )
+}
+
+@PreviewLightDark
 @Composable
 private fun QodeTextFieldPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(SpacingTokens.md),
+            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.md),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             var value by remember { mutableStateOf("") }
@@ -307,6 +391,48 @@ private fun QodeTextFieldPreview() {
                 placeholder = "Enter text...",
                 errorText = "This field has an error",
                 leadingIcon = QodeUIIcons.Tag,
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun QodeBasicTextFieldPreview() {
+    QodeTheme {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.md),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            var singleLineValue by remember { mutableStateOf("") }
+            QodeinBasicTextField(
+                value = singleLineValue,
+                onValueChange = { singleLineValue = it },
+                placeholder = "Single line placeholder",
+                singleLine = true,
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+            var multiLineValue by remember { mutableStateOf("") }
+            QodeinBasicTextField(
+                value = multiLineValue,
+                onValueChange = { multiLineValue = it },
+                placeholder = "Multi-line placeholder\nType here...",
+                singleLine = false,
+                minLines = 3,
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+            var titleValue by remember { mutableStateOf("") }
+            QodeinBasicTextField(
+                value = titleValue,
+                onValueChange = { titleValue = it },
+                placeholder = "Title",
+                singleLine = true,
             )
         }
     }

@@ -30,7 +30,6 @@ import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
-import com.qodein.core.designsystem.component.QodeTextButtonStyle
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -194,7 +193,6 @@ private fun AuthSignInCard(
                         onClick = {
                             onAction(SignInAction.TermsOfServiceClicked)
                         },
-                        style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
                     )
 
@@ -209,7 +207,6 @@ private fun AuthSignInCard(
                         onClick = {
                             onAction(SignInAction.PrivacyPolicyClicked)
                         },
-                        style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
                     )
                 }

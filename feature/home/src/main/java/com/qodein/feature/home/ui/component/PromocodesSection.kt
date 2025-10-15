@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -222,7 +221,8 @@ private fun ErrorCard(
             QodeButton(
                 onClick = onRetry,
                 text = stringResource(R.string.error_retry),
-                variant = QodeButtonVariant.Secondary,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
     }

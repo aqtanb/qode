@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +20,10 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
 
@@ -74,20 +71,15 @@ internal fun PostSubmissionImage(
             )
         }
 
-        Icon(
-            imageVector = QodeActionIcons.Close,
+        QodeinIconButton(
+            onClick = onRemove,
+            icon = QodeActionIcons.Close,
             contentDescription = stringResource(R.string.cd_remove_image),
+            containerColor = MaterialTheme.colorScheme.inverseSurface,
+            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(SpacingTokens.sm)
-                .size(SizeTokens.Icon.sizeLarge)
-                .background(
-                    MaterialTheme.colorScheme.inverseSurface,
-                    CircleShape,
-                )
-                .clickable(onClick = onRemove)
-                .padding(SpacingTokens.xxxs),
-            tint = MaterialTheme.colorScheme.inverseOnSurface,
+                .padding(SpacingTokens.sm),
         )
     }
 }

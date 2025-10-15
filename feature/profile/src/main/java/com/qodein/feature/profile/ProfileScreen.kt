@@ -60,7 +60,6 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
@@ -335,7 +334,8 @@ internal fun AnimatedSignOutButton(
         QodeButton(
             text = stringResource(R.string.profile_sign_out_button),
             onClick = { onAction(ProfileAction.SignOutClicked) },
-            variant = QodeButtonVariant.Error,
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
             modifier = modifier
                 .fillMaxWidth()
                 .testTag("sign_out_button"),
@@ -393,7 +393,6 @@ private fun EditProfileButton(
     QodeButton(
         onClick = { onAction(ProfileAction.EditProfileClicked) },
         text = stringResource(R.string.edit_profile_button),
-        variant = QodeButtonVariant.Primary,
         modifier = modifier
             .widthIn(min = 120.dp, max = 280.dp)
             .shadow(
@@ -1012,7 +1011,8 @@ internal fun ProfileSuccessContentPreview(
             QodeButton(
                 text = stringResource(R.string.profile_sign_out_button),
                 onClick = { onAction(ProfileAction.SignOutClicked) },
-                variant = QodeButtonVariant.Error,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("sign_out_button"),

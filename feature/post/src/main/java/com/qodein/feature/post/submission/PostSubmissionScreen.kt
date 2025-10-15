@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,13 +34,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.TextUnit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthPromptAction
@@ -47,7 +55,6 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.post.R
 import com.qodein.feature.post.submission.component.FullScreenImageViewer
-import com.qodein.feature.post.submission.component.PlainTextField
 import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
 import com.qodein.feature.post.submission.component.PostSubmissionImage
@@ -67,6 +74,7 @@ fun PostSubmissionScreen(
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
 
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -206,6 +214,7 @@ fun PostSubmissionScreen(
                                     }
                                 },
                                 onOpenImage = { index ->
+                                    focusManager.clearFocus()
                                     fullScreenImageIndex = index
                                     showFullScreenImage = true
                                 },
@@ -266,6 +275,8 @@ private fun PostSubmissionContent(
     onOpenImage: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val contentFocusRequester = remember { FocusRequester() }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -277,17 +288,26 @@ private fun PostSubmissionContent(
             onClick = onOpenTagSelector,
         )
 
-        PlainTextField(
+        QodeinBasicTextField(
             value = uiState.title,
             onValueChange = { onAction(PostSubmissionAction.UpdateTitle(it)) },
             placeholder = stringResource(R.string.placeholder_title),
             singleLine = true,
             textStyle = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                lineHeight = TextUnit.Unspecified,
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = SpacingTokens.md, top = SpacingTokens.md, end = SpacingTokens.md),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                capitalization = KeyboardCapitalization.Sentences,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { contentFocusRequester.requestFocus() },
+            ),
         )
 
         if (uiState.imageUris.isNotEmpty()) {
@@ -307,16 +327,19 @@ private fun PostSubmissionContent(
             }
         }
 
-        PlainTextField(
+        QodeinBasicTextField(
             value = uiState.content,
             onValueChange = { onAction(PostSubmissionAction.UpdateContent(it)) },
             placeholder = stringResource(R.string.placeholder_description),
             singleLine = false,
             minLines = 3,
-            textStyle = MaterialTheme.typography.bodyMedium,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onBackground,
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = SpacingTokens.md),
+            focusRequester = contentFocusRequester,
         )
     }
 }

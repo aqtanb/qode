@@ -60,8 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeButtonSize
-import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeIconButton
+import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -437,11 +436,11 @@ private fun PromoCodeRow(
 
         Spacer(modifier = modifier.width(SpacingTokens.md))
 
-        QodeIconButton(
+        QodeinIconButton(
             onClick = onCopyClick,
             icon = QodeActionIcons.Copy,
             contentDescription = stringResource(R.string.copy_code),
-            variant = QodeButtonVariant.Outlined,
+            outlined = true,
             size = QodeButtonSize.Small,
         )
     }

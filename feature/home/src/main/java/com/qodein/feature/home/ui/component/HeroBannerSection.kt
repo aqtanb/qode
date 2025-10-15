@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonVariant
 import com.qodein.core.designsystem.component.QodeDivider
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -146,7 +145,8 @@ fun HeroBannerSection(
                             QodeButton(
                                 onClick = onRetryBanners,
                                 text = stringResource(R.string.error_retry),
-                                variant = QodeButtonVariant.Secondary,
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                         }
                     }
