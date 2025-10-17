@@ -2,7 +2,9 @@ package com.qodein.feature.post.submission.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -54,33 +57,38 @@ internal fun PostSubmissionImage(
             contentScale = ContentScale.Crop,
         )
 
-        Box(
+        Row(
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(SpacingTokens.sm)
-                .background(
-                    MaterialTheme.colorScheme.inverseSurface,
-                    RoundedCornerShape(ShapeTokens.Corner.medium),
-                )
-                .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxxs),
-        ) {
-            Text(
-                text = "$currentPage/$totalPages",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.inverseOnSurface,
-            )
-        }
-
-        QodeinIconButton(
-            onClick = onRemove,
-            icon = QodeActionIcons.Close,
-            contentDescription = stringResource(R.string.cd_remove_image),
-            containerColor = MaterialTheme.colorScheme.inverseSurface,
-            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-            modifier = Modifier
-                .align(Alignment.TopStart)
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
                 .padding(SpacingTokens.sm),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            QodeinIconButton(
+                onClick = onRemove,
+                icon = QodeActionIcons.Close,
+                contentDescription = stringResource(R.string.cd_remove_image),
+                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                size = ButtonSize.Small,
+            )
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.inverseSurface,
+                        RoundedCornerShape(ShapeTokens.Corner.large),
+                    )
+                    .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxs),
+            ) {
+                Text(
+                    text = "$currentPage/$totalPages",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                )
+            }
+        }
     }
 }
 

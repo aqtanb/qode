@@ -8,6 +8,11 @@
     <string name="type_tag">Type a tag</string>
     <string name="selected">Selected</string>
     <string name="max_tags_reached">Maximum %d tags</string>
+    <string name="tag_helper_text">Use lowercase letters, numbers and underscores</string>
+    <string name="tag_too_long">Tag cannot exceed 50 characters</string>
+    <string name="tag_invalid_characters">Only lowercase letters, numbers, dashes, and underscores allowed</string>
+    <string name="tag_already_added">Tag already added</string>
+    <string name="clear_all_tags">Clear all</string>
 
     <!-- Content Descriptions -->
     <string name="cd_add_image">Add image</string>

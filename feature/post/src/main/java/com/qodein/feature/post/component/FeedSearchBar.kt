@@ -152,7 +152,7 @@ fun FeedSearchBar(
                     modifier = Modifier.size(SizeTokens.IconButton.sizeMedium),
                 ) {
                     Icon(
-                        imageVector = QodeActionIcons.Clear,
+                        imageVector = QodeActionIcons.ClearCircled,
                         contentDescription = "Clear search",
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,

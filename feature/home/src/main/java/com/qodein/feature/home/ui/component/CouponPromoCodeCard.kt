@@ -58,8 +58,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -441,7 +441,7 @@ private fun PromoCodeRow(
             icon = QodeActionIcons.Copy,
             contentDescription = stringResource(R.string.copy_code),
             outlined = true,
-            size = QodeButtonSize.Small,
+            size = ButtonSize.Small,
         )
     }
 }

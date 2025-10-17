@@ -28,13 +28,17 @@ value class PostId(val value: String) {
 data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant = Clock.System.now()) {
     init {
         require(value.isNotBlank()) { "Tag cannot be blank" }
-        require(value.length <= 50) { "Tag cannot exceed 50 characters" }
+        require(value.length <= MAX_LENGTH) { "Tag cannot exceed $MAX_LENGTH characters" }
         require(value == value.lowercase()) { "Tag must be lowercase" }
-        require(value.matches(Regex("^[a-z0-9_-]+$"))) { "Tag contains invalid characters" }
+        require(value.matches(VALID_PATTERN)) { "Tag contains invalid characters" }
         require(postCount >= 0) { "Post count cannot be negative" }
     }
 
     companion object {
+        const val MAX_LENGTH = 50
+        const val MAX_TAGS_SELECTED = 10
+        val VALID_PATTERN = Regex("^[a-z0-9_]+$")
+
         fun create(
             name: String,
             postCount: Int = 0,
@@ -43,7 +47,7 @@ data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant
             val cleanName = name.trim()
                 .lowercase()
                 .replace(Regex("\\s+"), "_")
-                .replace(Regex("[^a-z0-9_-]"), "")
+                .replace(Regex("[^a-z0-9_]"), "")
 
             return if (cleanName.isBlank()) {
                 Result.Error(PostError.CreationFailure.InvalidTagData)

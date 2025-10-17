@@ -60,7 +60,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 /**
  * Button sizes for Qode design system
  */
-enum class QodeButtonSize {
+enum class ButtonSize {
     Small,
     Medium,
     Large
@@ -78,34 +78,34 @@ private data class ButtonConfig(
 )
 
 @Composable
-private fun QodeButtonSize.toConfig(): ButtonConfig {
+private fun ButtonSize.toConfig(): ButtonConfig {
     val textStyle = when (this) {
-        QodeButtonSize.Small -> MaterialTheme.typography.labelSmall
-        QodeButtonSize.Medium -> MaterialTheme.typography.labelLarge
-        QodeButtonSize.Large -> MaterialTheme.typography.titleMedium
+        ButtonSize.Small -> MaterialTheme.typography.labelSmall
+        ButtonSize.Medium -> MaterialTheme.typography.labelLarge
+        ButtonSize.Large -> MaterialTheme.typography.titleMedium
     }
 
     return ButtonConfig(
         height = when (this) {
-            QodeButtonSize.Small -> SizeTokens.Button.heightSmall
-            QodeButtonSize.Medium -> SizeTokens.Button.heightMedium
-            QodeButtonSize.Large -> SizeTokens.Button.heightLarge
+            ButtonSize.Small -> SizeTokens.Button.heightSmall
+            ButtonSize.Medium -> SizeTokens.Button.heightMedium
+            ButtonSize.Large -> SizeTokens.Button.heightLarge
         },
         horizontalPadding = when (this) {
-            QodeButtonSize.Small -> SpacingTokens.xs
-            QodeButtonSize.Medium -> SpacingTokens.md
-            QodeButtonSize.Large -> SpacingTokens.lg
+            ButtonSize.Small -> SpacingTokens.xs
+            ButtonSize.Medium -> SpacingTokens.md
+            ButtonSize.Large -> SpacingTokens.lg
         },
         verticalPadding = when (this) {
-            QodeButtonSize.Small -> SpacingTokens.none
-            QodeButtonSize.Medium -> SpacingTokens.xxxs
-            QodeButtonSize.Large -> SpacingTokens.xxs
+            ButtonSize.Small -> SpacingTokens.none
+            ButtonSize.Medium -> SpacingTokens.xxxs
+            ButtonSize.Large -> SpacingTokens.xxs
         },
         textStyle = textStyle,
         iconSize = when (this) {
-            QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
-            QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
-            QodeButtonSize.Large -> SizeTokens.Icon.sizeLarge
+            ButtonSize.Small -> SizeTokens.Icon.sizeSmall
+            ButtonSize.Medium -> SizeTokens.Icon.sizeLarge
+            ButtonSize.Large -> SizeTokens.Icon.sizeLarge
         },
     )
 }
@@ -131,7 +131,7 @@ fun QodeButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    size: QodeButtonSize = QodeButtonSize.Medium,
+    size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
     containerColor: Color = MaterialTheme.colorScheme.primary,
@@ -207,7 +207,7 @@ fun QodeOutlinedButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    size: QodeButtonSize = QodeButtonSize.Medium,
+    size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
     containerColor: Color = Color.Transparent,
@@ -291,7 +291,7 @@ fun QodeTextButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    size: QodeButtonSize = QodeButtonSize.Medium,
+    size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
     contentColor: Color = MaterialTheme.colorScheme.primary,
@@ -353,17 +353,17 @@ fun QodeTextButton(
 private data class IconButtonConfig(val buttonSize: Dp, val iconSize: Dp)
 
 @Composable
-private fun QodeButtonSize.toIconButtonConfig(): IconButtonConfig =
+private fun ButtonSize.toIconButtonConfig(): IconButtonConfig =
     IconButtonConfig(
         buttonSize = when (this) {
-            QodeButtonSize.Small -> SizeTokens.IconButton.sizeSmall
-            QodeButtonSize.Medium -> SizeTokens.IconButton.sizeMedium
-            QodeButtonSize.Large -> SizeTokens.IconButton.sizeLarge
+            ButtonSize.Small -> SizeTokens.IconButton.sizeSmall
+            ButtonSize.Medium -> SizeTokens.IconButton.sizeMedium
+            ButtonSize.Large -> SizeTokens.IconButton.sizeLarge
         },
         iconSize = when (this) {
-            QodeButtonSize.Small -> SizeTokens.Icon.sizeSmall
-            QodeButtonSize.Medium -> SizeTokens.Icon.sizeLarge
-            QodeButtonSize.Large -> SizeTokens.Icon.sizeXLarge
+            ButtonSize.Small -> SizeTokens.Icon.sizeSmall
+            ButtonSize.Medium -> SizeTokens.Icon.sizeLarge
+            ButtonSize.Large -> SizeTokens.Icon.sizeXLarge
         },
     )
 
@@ -388,7 +388,7 @@ fun QodeinIconButton(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    size: QodeButtonSize = QodeButtonSize.Medium,
+    size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
     outlined: Boolean = false,
@@ -592,17 +592,17 @@ private fun QodeButtonSizesPreview() {
             QodeButton(
                 onClick = {},
                 text = "Small Button",
-                size = QodeButtonSize.Small,
+                size = ButtonSize.Small,
             )
             QodeButton(
                 onClick = {},
                 text = "Medium Button",
-                size = QodeButtonSize.Medium,
+                size = ButtonSize.Medium,
             )
             QodeButton(
                 onClick = {},
                 text = "Large Button",
-                size = QodeButtonSize.Large,
+                size = ButtonSize.Large,
             )
         }
     }
@@ -706,25 +706,25 @@ private fun QodeinIconButtonPreview() {
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
-                size = QodeButtonSize.Small,
+                size = ButtonSize.Small,
             )
             QodeinIconButton(
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
-                size = QodeButtonSize.Medium,
+                size = ButtonSize.Medium,
             )
             QodeinIconButton(
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
-                size = QodeButtonSize.Large,
+                size = ButtonSize.Large,
             )
             QodeinIconButton(
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
-                size = QodeButtonSize.Medium,
+                size = ButtonSize.Medium,
                 outlined = true,
             )
         }

@@ -2,8 +2,8 @@ package com.qodein.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -264,7 +264,6 @@ import compose.icons.tablericons.CashBanknote
 import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.ChartCandle
 import compose.icons.tablericons.ChartLine
-import compose.icons.tablericons.ClearAll
 import compose.icons.tablericons.Clock
 import compose.icons.tablericons.Copy
 import compose.icons.tablericons.Crown
@@ -330,7 +329,6 @@ object QodeCommerceIcons {
     val Voucher: ImageVector = FeatherIcons.CreditCard
     val Cashback: ImageVector = TablerIcons.CashBanknote
     val Rebate: ImageVector = FeatherIcons.RotateCcw
-    val Clearance: ImageVector = TablerIcons.ClearAll
     val Flash: ImageVector = FeatherIcons.Zap
     val Limited: ImageVector = FeatherIcons.Clock
     val Exclusive: ImageVector = TablerIcons.Crown
@@ -529,12 +527,13 @@ object QodeActionIcons {
     val Add: ImageVector = FeatherIcons.Plus
     val Remove: ImageVector = FeatherIcons.Minus
     val Delete: ImageVector = FeatherIcons.Trash2
+    val Clear: ImageVector = Icons.Outlined.Clear
     val Edit: ImageVector = FeatherIcons.Edit3
     val Save: ImageVector = FeatherIcons.Save
     val Cancel: ImageVector = FeatherIcons.X
     val Check: ImageVector = FeatherIcons.Check
     val Submit: ImageVector = FeatherIcons.Send
-    val Clear: ImageVector = FeatherIcons.XCircle
+    val ClearCircled: ImageVector = FeatherIcons.XCircle
     val Reset: ImageVector = FeatherIcons.RotateCcw
     val Undo: ImageVector = FeatherIcons.CornerUpLeft
     val Redo: ImageVector = FeatherIcons.CornerUpRight
@@ -1207,7 +1206,6 @@ object QodeAnalyticsIcons {
     val Import: ImageVector = FeatherIcons.Upload
     val Backup: ImageVector = FeatherIcons.HardDrive
     val Archive: ImageVector = FeatherIcons.Archive
-    val Delete: ImageVector = FeatherIcons.Trash2
     val Restore: ImageVector = FeatherIcons.RotateCcw
 
     // Business Intelligence

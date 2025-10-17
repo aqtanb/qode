@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeButtonSize
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -37,7 +37,7 @@ internal fun PostCreationTopBar(
                 onClick = onSubmit,
                 text = stringResource(R.string.post),
                 enabled = canSubmit,
-                size = QodeButtonSize.Small,
+                size = ButtonSize.Small,
                 modifier = Modifier.padding(end = SpacingTokens.xs),
             )
         },

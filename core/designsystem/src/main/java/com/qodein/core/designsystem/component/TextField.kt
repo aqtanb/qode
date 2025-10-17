@@ -1,7 +1,6 @@
 package com.qodein.core.designsystem.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
@@ -13,15 +12,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,7 +24,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -41,7 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
@@ -50,12 +43,15 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -73,14 +69,11 @@ import kotlinx.coroutines.launch
  * @param errorText Optional error text (takes priority over helperText)
  * @param enabled Whether the text field is enabled
  * @param leadingIcon Optional leading icon
- * @param trailingIcon Optional trailing icon
- * @param onTrailingIconClick Called when trailing icon is clicked
  * @param keyboardOptions Software keyboard options
  * @param keyboardActions Software keyboard actions
  * @param focusRequester Optional focus requester
  * @param singleLine Whether the field is single line (default true)
  * @param minLines Minimum number of lines for multiline text field
- * @param maxChars Maximum character count (shows char counter badge if provided)
  */
 @Composable
 fun QodeinTextField(
@@ -92,19 +85,17 @@ fun QodeinTextField(
     errorText: String? = null,
     enabled: Boolean = true,
     leadingIcon: ImageVector? = null,
-    trailingIcon: ImageVector? = null,
-    onTrailingIconClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     focusRequester: FocusRequester? = null,
     singleLine: Boolean = true,
-    minLines: Int = 1,
-    maxChars: Int? = null
+    minLines: Int = 1
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val hapticFeedback = LocalHapticFeedback.current
 
     // Auto-scroll to bring text field into view when focused
     LaunchedEffect(isFocused) {
@@ -115,17 +106,6 @@ fun QodeinTextField(
         }
     }
 
-    // Animated colors
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            errorText != null -> MaterialTheme.colorScheme.error
-            isFocused -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.outline
-        },
-        animationSpec = spring(dampingRatio = 0.8f),
-        label = "borderColor",
-    )
-
     val fieldScale by animateFloatAsState(
         targetValue = if (isFocused) 1.02f else 1f,
         animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
@@ -134,8 +114,7 @@ fun QodeinTextField(
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .imePadding(),
+            .fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -154,6 +133,7 @@ fun QodeinTextField(
                         .bringIntoViewRequester(bringIntoViewRequester)
                         .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                         .onFocusChanged { isFocused = it.isFocused },
+                    isError = errorText != null,
                     placeholder = placeholder?.let {
                         {
                             Text(
@@ -176,19 +156,22 @@ fun QodeinTextField(
                             )
                         }
                     },
-                    trailingIcon = trailingIcon?.let {
+                    trailingIcon = if (value.isNotEmpty()) {
                         {
-                            IconButton(
-                                onClick = { onTrailingIconClick?.invoke() },
-                            ) {
-                                Icon(
-                                    imageVector = it,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                                )
-                            }
+                            QodeinIconButton(
+                                onClick = {
+                                    onValueChange("")
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                },
+                                icon = QodeActionIcons.Clear,
+                                contentDescription = "Clear text",
+                                size = ButtonSize.Small,
+                                modifier = Modifier.padding(end = SpacingTokens.md),
+                                outlined = true,
+                            )
                         }
+                    } else {
+                        null
                     },
                     enabled = enabled,
                     keyboardOptions = keyboardOptions,
@@ -227,25 +210,15 @@ fun QodeinTextField(
                     when {
                         // Error has highest priority
                         errorText != null -> {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Icon(
-                                    imageVector = QodeUIIcons.Error,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                                )
-                                Spacer(modifier = Modifier.width(SpacingTokens.sm))
-                                Text(
-                                    text = errorText,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error,
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
+                            Text(
+                                text = errorText,
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.lg),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                         // Helper text has medium priority
                         helperText != null -> {
@@ -255,30 +228,11 @@ fun QodeinTextField(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth(),
+
                             )
                         }
                     }
                 }
-            }
-        }
-
-        // Char counter badge - positioned absolutely at top-right, outside the border
-        if (maxChars != null) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(y = (-SpacingTokens.sm), x = (-SpacingTokens.lg))
-                    .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(SpacingTokens.lg),
-                    )
-                    .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.xs),
-            ) {
-                Text(
-                    text = "${value.length}/$maxChars",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
             }
         }
     }
@@ -372,14 +326,13 @@ private fun QodeTextFieldPreview() {
             modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.md),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            var value by remember { mutableStateOf("") }
+            var value by remember { mutableStateOf("aaa") }
             QodeinTextField(
                 value = value,
                 onValueChange = { value = it },
                 placeholder = "Enter text...",
                 helperText = "Helper text",
                 leadingIcon = QodeUIIcons.Tag,
-                maxChars = 10,
             )
 
             Spacer(modifier = Modifier.height(SpacingTokens.md))
@@ -389,7 +342,7 @@ private fun QodeTextFieldPreview() {
                 value = errorValue,
                 onValueChange = { errorValue = it },
                 placeholder = "Enter text...",
-                errorText = "This field has an error",
+                errorText = "This field has a really looooooooooooooooooooong error message\nType here...",
                 leadingIcon = QodeUIIcons.Tag,
             )
         }
@@ -406,7 +359,7 @@ private fun QodeBasicTextFieldPreview() {
                 .padding(SpacingTokens.md),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            var singleLineValue by remember { mutableStateOf("") }
+            var singleLineValue by remember { mutableStateOf("AAA") }
             QodeinBasicTextField(
                 value = singleLineValue,
                 onValueChange = { singleLineValue = it },
