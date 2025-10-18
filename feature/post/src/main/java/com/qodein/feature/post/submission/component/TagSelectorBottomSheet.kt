@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.QodeinChip
+import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -39,7 +39,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
 import com.qodein.shared.common.Result
 import com.qodein.shared.model.Tag
-import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 
 // TODO: Fix scrolling and imepadding
 @OptIn(ExperimentalMaterial3Api::class)
@@ -177,7 +176,7 @@ private fun TagSelectorContent(
                             val isSelected = selectedTags.contains(tag)
                             val canAdd = selectedTags.size < Tag.MAX_TAGS_SELECTED
                             // TODO: Improve QodeinChip
-                            QodeinChip(
+                            QodeinFilterChip(
                                 label = "#$displayValue",
                                 onClick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -221,7 +220,7 @@ private fun TagSelectorContent(
                         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                     ) {
                         selectedTags.forEach { tag ->
-                            QodeinChip(
+                            QodeinFilterChip(
                                 label = "#${tag.value}",
                                 onClick = { },
                                 selected = true,

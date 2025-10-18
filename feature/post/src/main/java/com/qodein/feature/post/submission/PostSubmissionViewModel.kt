@@ -9,6 +9,7 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.post.CreatePostUseCase
 import com.qodein.shared.model.Tag
+import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -106,7 +107,7 @@ class PostSubmissionViewModel @Inject constructor(
 
     private fun addTag(tag: Tag) {
         updateSuccessState { state ->
-            if (state.tags.size < 10 && tag !in state.tags) {
+            if (state.tags.size < MAX_TAGS_SELECTED && tag !in state.tags) {
                 state.copy(tags = state.tags + tag)
             } else {
                 state
@@ -182,7 +183,7 @@ class PostSubmissionViewModel @Inject constructor(
 
         if (state.tags.isEmpty()) {
             tagsError = "At least one tag is required"
-        } else if (state.tags.size > 10) {
+        } else if (state.tags.size > MAX_TAGS_SELECTED) {
             tagsError = "Too many tags (max 10)"
         }
 

@@ -1,20 +1,18 @@
-package com.qodein.feature.post.submission.component
+package com.qodein.feature.post.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -23,6 +21,7 @@ import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.qodein.core.designsystem.component.ButtonSize
+import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -31,18 +30,19 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
 
 @Composable
-internal fun PostSubmissionImage(
+internal fun PostImage(
     uri: String,
     currentPage: Int,
     totalPages: Int,
-    onRemove: () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRemove: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f / 1f)
+            .clip(RoundedCornerShape(ShapeTokens.Corner.large))
             .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
         AsyncImage(
@@ -57,38 +57,27 @@ internal fun PostSubmissionImage(
             contentScale = ContentScale.Crop,
         )
 
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .padding(SpacingTokens.sm),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        if (onRemove != null) {
             QodeinIconButton(
                 onClick = onRemove,
                 icon = QodeActionIcons.Close,
                 contentDescription = stringResource(R.string.cd_remove_image),
-                containerColor = MaterialTheme.colorScheme.inverseSurface,
-                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 size = ButtonSize.Small,
-            )
-
-            Box(
                 modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.inverseSurface,
-                        RoundedCornerShape(ShapeTokens.Corner.large),
-                    )
-                    .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxs),
-            ) {
-                Text(
-                    text = "$currentPage/$totalPages",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                )
-            }
+                    .align(Alignment.TopStart)
+                    .padding(SpacingTokens.sm),
+            )
         }
+
+        PageIndicator(
+            currentIndex = currentPage - 1,
+            totalPages = totalPages,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(SpacingTokens.sm),
+        )
     }
 }
 
@@ -96,10 +85,10 @@ internal fun PostSubmissionImage(
 @Composable
 private fun ImageCarouselItemPreview() {
     QodeTheme {
-        PostSubmissionImage(
+        PostImage(
             uri = "content://media/image/123",
             currentPage = 2,
-            totalPages = 5,
+            totalPages = 3,
             onRemove = {},
             onClick = {},
         )

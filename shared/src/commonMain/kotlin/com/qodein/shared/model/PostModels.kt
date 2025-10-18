@@ -4,6 +4,7 @@ package com.qodein.shared.model
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
+import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
@@ -36,7 +37,7 @@ data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant
 
     companion object {
         const val MAX_LENGTH = 50
-        const val MAX_TAGS_SELECTED = 10
+        const val MAX_TAGS_SELECTED = 5
         val VALID_PATTERN = Regex("^[a-z0-9_]+$")
 
         fun create(
@@ -85,7 +86,7 @@ data class Post(
         require(downvotes >= 0) { "Downvotes cannot be negative" }
         require(shares >= 0) { "Shares cannot be negative" }
         require(commentCount >= 0) { "Comment count cannot be negative" }
-        require(tags.size <= 10) { "Post cannot have more than 10 tags" }
+        require(tags.size <= MAX_TAGS_SELECTED) { "Post cannot have more than 5 tags" }
         require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
     }
 
@@ -122,7 +123,7 @@ data class Post(
             if (cleanAuthorName.isBlank()) {
                 return Result.Error(PostError.CreationFailure.EmptyAuthorName)
             }
-            if (tags.size > 10) {
+            if (tags.size > MAX_TAGS_SELECTED) {
                 return Result.Error(PostError.CreationFailure.TooManyTags)
             }
             if (cleanImageUrls.size > 5) {

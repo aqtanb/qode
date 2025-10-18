@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
+import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 
 // MARK: - POST DTOs
 
@@ -83,7 +84,7 @@ data class CreatePostRequest(
         require(title.length <= 200) { "Post title cannot exceed 200 characters" }
         require(content.isNotBlank()) { "Post content cannot be blank" }
         require(content.length <= 2000) { "Post content cannot exceed 2000 characters" }
-        require(tags.size <= 10) { "Post cannot have more than 10 tags" }
+        require(tags.size <= MAX_TAGS_SELECTED) { "Post cannot have more than 5 tags" }
         require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
     }
 }

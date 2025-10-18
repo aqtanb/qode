@@ -1,4 +1,4 @@
-package com.qodein.feature.post.component
+package com.qodein.feature.post.feed.component
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState

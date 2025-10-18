@@ -2,6 +2,7 @@ package com.qodein.feature.post.submission
 
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Tag
+import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import com.qodein.shared.model.User
 
 /**
@@ -41,7 +42,7 @@ sealed interface PostSubmissionUiState {
 
         val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= 200
         val isContentValid: Boolean get() = content.isNotBlank() && content.length <= 2000
-        val areTagsValid: Boolean get() = tags.isNotEmpty() && tags.size <= 10
+        val areTagsValid: Boolean get() = tags.isNotEmpty() && tags.size <= MAX_TAGS_SELECTED
         val areImagesValid: Boolean get() = imageUris.size <= 5
 
         val canSubmit: Boolean get() =

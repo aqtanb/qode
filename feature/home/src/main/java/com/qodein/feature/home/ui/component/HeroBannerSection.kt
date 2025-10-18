@@ -398,7 +398,7 @@ private fun BannerCallToAction(
     ) {
         if (totalPages > 1) {
             PageIndicator(
-                currentPage = currentPage,
+                currentIndex = currentPage,
                 totalPages = totalPages,
                 inactiveColor = textColor.copy(alpha = INDICATOR_INACTIVE_ALPHA),
                 activeColor = textColor,

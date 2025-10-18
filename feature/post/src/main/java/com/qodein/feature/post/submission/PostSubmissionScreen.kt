@@ -54,10 +54,10 @@ import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.post.R
-import com.qodein.feature.post.submission.component.FullScreenImageViewer
+import com.qodein.feature.post.component.FullScreenImageViewer
+import com.qodein.feature.post.component.PostImage
 import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
-import com.qodein.feature.post.submission.component.PostSubmissionImage
 import com.qodein.feature.post.submission.component.TagSelector
 import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
 import dev.chrisbanes.haze.HazeState
@@ -317,7 +317,7 @@ private fun PostSubmissionContent(
                     .fillMaxWidth()
                     .padding(vertical = SpacingTokens.xs),
             ) { page ->
-                PostSubmissionImage(
+                PostImage(
                     uri = uiState.imageUris[page],
                     currentPage = page + 1,
                     totalPages = uiState.imageUris.size,

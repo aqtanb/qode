@@ -1,4 +1,4 @@
-package com.qodein.feature.post
+package com.qodein.feature.post.feed
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

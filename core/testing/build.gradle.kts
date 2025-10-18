@@ -25,19 +25,12 @@ kotlin {
 }
 
 dependencies {
-    // Core modules - expose as API so test modules can use them
     api(project(":shared"))
-
-    // Compose BOM for consistent versions
+    api(projects.core.data)
     api(platform(libs.androidx.compose.bom))
-
-    // DateTime
     api(libs.kotlinx.datetime)
-
-    // Coroutines testing
     api(libs.kotlinx.coroutines.test)
 
-    // Test frameworks
     api(libs.junit)
     api(libs.mockk) {
         exclude(group = "org.junit.jupiter")

@@ -1,4 +1,4 @@
-package com.qodein.feature.post.submission.component
+package com.qodein.feature.post.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

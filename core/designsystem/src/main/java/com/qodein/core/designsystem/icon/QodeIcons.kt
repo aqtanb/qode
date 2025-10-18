@@ -525,7 +525,6 @@ object QodeCategoryIcons {
 object QodeActionIcons {
     // Basic Actions
     val Add: ImageVector = FeatherIcons.Plus
-    val Remove: ImageVector = FeatherIcons.Minus
     val Delete: ImageVector = FeatherIcons.Trash2
     val Clear: ImageVector = Icons.Outlined.Clear
     val Edit: ImageVector = FeatherIcons.Edit3
