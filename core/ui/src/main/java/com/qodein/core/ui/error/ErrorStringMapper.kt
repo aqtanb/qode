@@ -86,7 +86,7 @@ fun OperationError.asUiText(): String =
         is PostError.RetrievalFailure.NoResults -> stringResource(R.string.error_post_no_results)
         is PostError.RetrievalFailure.NotFound -> stringResource(R.string.error_post_not_found)
         is PostError.SubmissionFailure.InvalidData -> TODO()
-        is PostError.SubmissionFailure.NotAuthorized -> TODO()
+        is PostError.SubmissionFailure.NotAuthorized -> "Authorize to post"
     }
 
 /**

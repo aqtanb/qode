@@ -14,17 +14,17 @@ import kotlinx.coroutines.flow.flow
  *
  * Validates using Post.create() factory, then delegates to repository.
  */
-class CreatePostUseCase(private val postRepository: PostRepository) {
+class SubmitPostUseCase(private val postRepository: PostRepository) {
 
     companion object {
-        private const val TAG = "CreatePostUseCase"
+        private const val TAG = "SubmitPostUseCase"
     }
 
     operator fun invoke(
         authorId: UserId,
         authorUsername: String,
         title: String,
-        content: String,
+        content: String? = null,
         imageUrls: List<String> = emptyList(),
         tags: List<String> = emptyList(),
         authorAvatarUrl: String? = null

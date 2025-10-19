@@ -24,6 +24,7 @@ data class AnalyticsEvent(val type: String, val extras: List<Param> = emptyList(
         const val SHARE = "share"
         const val VOTE = "vote"
         const val SUBMIT_PROMOCODE = "submit_promocode"
+        const val SUBMIT_POST = "submit_post"
         const val VIEW_PROMOCODE = "view_promocode"
         const val FILTER_CONTENT = "filter_content"
         const val TAB_SWITCH = "tab_switch"
@@ -42,6 +43,7 @@ data class AnalyticsEvent(val type: String, val extras: List<Param> = emptyList(
     object ParamKeys {
         const val SCREEN_NAME = "screen_name"
         const val SCREEN_CLASS = "screen_class"
+        const val POST_ID = "post_id"
         const val USER_ID = "user_id"
         const val CONTENT_TYPE = "content_type"
         const val ITEM_ID = "item_id"

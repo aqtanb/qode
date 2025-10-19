@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +61,7 @@ internal fun TagSelectorBottomSheet(
         TagSelectorContent(
             selectedTags = selectedTags,
             customTagInput = customTagInput,
-            onCustomTagInputChange = { customTagInput = it },
+            onCustomTagInputChange = { customTagInput = it.lowercase().trim() },
             onAddCustomTag = {
                 val tagResult = Tag.create(customTagInput)
                 if (tagResult is Result.Success) {
@@ -112,11 +114,13 @@ private fun TagSelectorContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = SpacingTokens.lg)
-            .padding(bottom = SpacingTokens.xl),
+            .padding(bottom = SpacingTokens.xl)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
+        // TODO: Add imepadding, move out from the column
         QodeinTextField(
-            value = customTagInput.lowercase(),
+            value = customTagInput.lowercase().trim(),
             onValueChange = onCustomTagInputChange,
             placeholder = stringResource(R.string.type_tag),
             leadingIcon = PostIcons.Hashtag,

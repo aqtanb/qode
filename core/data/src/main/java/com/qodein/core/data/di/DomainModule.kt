@@ -15,9 +15,9 @@ import com.qodein.shared.domain.usecase.interaction.GetUserBookmarksUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
-import com.qodein.shared.domain.usecase.post.CreatePostUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
+import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
@@ -137,5 +137,5 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideCreatePostUseCase(postRepository: PostRepository): CreatePostUseCase = CreatePostUseCase(postRepository)
+    fun provideCreatePostUseCase(postRepository: PostRepository): SubmitPostUseCase = SubmitPostUseCase(postRepository)
 }

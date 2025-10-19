@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.analytics.logPostSubmission
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.PostError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
-import com.qodein.shared.domain.usecase.post.CreatePostUseCase
+import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,13 +18,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PostSubmissionViewModel @Inject constructor(
-    private val createPostUseCase: CreatePostUseCase,
+    private val submitPostUseCase: SubmitPostUseCase,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val analyticsHelper: AnalyticsHelper
@@ -135,31 +138,35 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun submitPost() {
-        val currentState = _uiState.value
-        if (currentState !is PostSubmissionUiState.Success) return
-
-        // Validate
-        val validationErrors = validateInputs(currentState)
-        if (validationErrors.hasErrors) {
-            updateSuccessState { it.copy(validationErrors = validationErrors) }
-            return
-        }
-
-        updateSuccessState { it.copy(submission = PostSubmissionState.Submitting) }
-
         viewModelScope.launch {
-            // TODO: Implement post submission
-            // createPostUseCase(...).collect { result ->
-            //     when (result) {
-            //         is Result.Success -> {
-            //             _events.emit(PostSubmissionEvent.PostSubmitted)
-            //         }
-            //         is Result.Error -> {
-            //             updateSuccessState { it.copy(submission = PostSubmissionState.Idle) }
-            //             _events.emit(PostSubmissionEvent.ShowError(result.error))
-            //         }
-            //     }
-            // }
+            val currentState = uiState.value
+            if (currentState !is PostSubmissionUiState.Success) return@launch
+            val authState = getAuthStateUseCase().firstOrNull()
+            val user = authState ?: run {
+                _uiState.update { PostSubmissionUiState.Error(PostError.SubmissionFailure.NotAuthorized) }
+                return@launch
+            }
+            _uiState.update { PostSubmissionUiState.Loading }
+            submitPostUseCase(
+                authorId = user.id,
+                authorUsername = user.displayName,
+                title = currentState.title,
+                content = currentState.content,
+                tags = currentState.tags.map { it.value },
+                imageUrls = currentState.imageUris,
+                authorAvatarUrl = user.profile.photoUrl,
+            ).collect { result ->
+                when (result) {
+                    is Result.Error -> {
+                        analyticsHelper.logPostSubmission(null, false)
+                        _uiState.update { PostSubmissionUiState.Error(result.error) }
+                    }
+                    is Result.Success -> {
+                        analyticsHelper.logPostSubmission(result.data.id.value, true)
+                        _events.emit(PostSubmissionEvent.PostSubmitted)
+                    }
+                }
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 package com.qodein.feature.post.submission
 
-import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import com.qodein.shared.model.User
@@ -41,8 +41,8 @@ sealed interface PostSubmissionUiState {
         val contentCharCount: Int get() = content.length
 
         val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= 200
-        val isContentValid: Boolean get() = content.isNotBlank() && content.length <= 2000
-        val areTagsValid: Boolean get() = tags.isNotEmpty() && tags.size <= MAX_TAGS_SELECTED
+        val isContentValid: Boolean get() = content.length <= 2000
+        val areTagsValid: Boolean get() = tags.size <= MAX_TAGS_SELECTED
         val areImagesValid: Boolean get() = imageUris.size <= 5
 
         val canSubmit: Boolean get() =
@@ -61,7 +61,7 @@ sealed interface PostSubmissionUiState {
     /**
      * Error state when initial loading fails.
      */
-    data class Error(val errorType: SystemError) : PostSubmissionUiState
+    data class Error(val errorType: OperationError) : PostSubmissionUiState
 }
 
 /**

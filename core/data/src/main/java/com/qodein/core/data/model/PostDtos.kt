@@ -25,7 +25,7 @@ data class PostDto(
     val title: String = "",
 
     @PropertyName("content")
-    val content: String = "",
+    val content: String? = null,
 
     @PropertyName("imageUrls")
     val imageUrls: List<String> = emptyList(),
@@ -97,7 +97,7 @@ data class PostWithInteractionDto(
     val authorName: String,
     val authorAvatarUrl: String? = null,
     val title: String,
-    val content: String,
+    val content: String?,
     val imageUrls: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val upvotes: Int = 0,
@@ -116,7 +116,7 @@ data class PostSummaryDto(
     val authorName: String,
     val authorAvatarUrl: String? = null,
     val title: String,
-    val contentPreview: String,
+    val contentPreview: String? = null,
     val imageUrls: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val upvotes: Int = 0,

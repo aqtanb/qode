@@ -56,6 +56,21 @@ fun AnalyticsHelper.logPromoCodeSubmission(
     )
 }
 
+fun AnalyticsHelper.logPostSubmission(
+    postId: String?,
+    success: Boolean
+) {
+    logEvent(
+        AnalyticsEvent(
+            type = AnalyticsEvent.Types.SUBMIT_POST,
+            extras = listOf(
+                AnalyticsEvent.Param(AnalyticsEvent.ParamKeys.POST_ID, postId ?: "null"),
+                AnalyticsEvent.Param(AnalyticsEvent.ParamKeys.SUCCESS, success.toString()),
+            ),
+        ),
+    )
+}
+
 fun AnalyticsHelper.logVote(
     promocodeId: String,
     voteType: String

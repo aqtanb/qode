@@ -66,7 +66,7 @@ data class Post(
     val authorName: String,
     val authorAvatarUrl: String? = null,
     val title: String,
-    val content: String,
+    val content: String?,
     val imageUrls: List<String> = emptyList(),
     val tags: List<Tag> = emptyList(),
     val upvotes: Int = 0,
@@ -79,8 +79,7 @@ data class Post(
     init {
         require(title.isNotBlank()) { "Post title cannot be blank" }
         require(title.length <= 200) { "Post title cannot exceed 200 characters" }
-        require(content.isNotBlank()) { "Post content cannot be blank" }
-        require(content.length <= 2000) { "Post content cannot exceed 2000 characters" }
+        content?.length?.let { require(it <= 2000) { "Post content cannot exceed 2000 characters" } }
         require(authorName.isNotBlank()) { "Author username cannot be blank" }
         require(upvotes >= 0) { "Upvotes cannot be negative" }
         require(downvotes >= 0) { "Downvotes cannot be negative" }
@@ -97,13 +96,13 @@ data class Post(
             authorId: UserId,
             authorUsername: String,
             title: String,
-            content: String,
+            content: String?,
             imageUrls: List<String> = emptyList(),
             tags: List<String> = emptyList(),
             authorAvatarUrl: String? = null
         ): Result<Post, PostError.CreationFailure> {
             val cleanTitle = title.trim()
-            val cleanContent = content.trim()
+            val cleanContent = content?.trim()
             val cleanAuthorName = authorUsername.trim()
             val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
 
@@ -114,11 +113,10 @@ data class Post(
             if (cleanTitle.length > 200) {
                 return Result.Error(PostError.CreationFailure.TitleTooLong)
             }
-            if (cleanContent.isBlank()) {
-                return Result.Error(PostError.CreationFailure.EmptyContent)
-            }
-            if (cleanContent.length > 2000) {
-                return Result.Error(PostError.CreationFailure.ContentTooLong)
+            cleanContent?.length?.let {
+                if (it > 2000) {
+                    return Result.Error(PostError.CreationFailure.ContentTooLong)
+                }
             }
             if (cleanAuthorName.isBlank()) {
                 return Result.Error(PostError.CreationFailure.EmptyAuthorName)

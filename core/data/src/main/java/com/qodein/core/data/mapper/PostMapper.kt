@@ -78,10 +78,12 @@ object PostMapper {
         dto: PostWithInteractionDto,
         maxContentLength: Int = 200
     ): PostSummaryDto {
-        val truncatedContent = if (dto.content.length > maxContentLength) {
-            dto.content.take(maxContentLength) + "..."
-        } else {
-            dto.content
+        val truncatedContent = dto.content?.length?.let {
+            if (it > maxContentLength) {
+                dto.content.take(maxContentLength) + "..."
+            } else {
+                dto.content
+            }
         }
 
         return PostSummaryDto(
