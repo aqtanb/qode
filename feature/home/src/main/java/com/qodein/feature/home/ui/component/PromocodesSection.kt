@@ -16,86 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
-import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.error.asUiText
-import com.qodein.feature.home.HomeAction
 import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.CompleteFilterState
-import com.qodein.shared.model.PromoCode
-
-/**
- * Promo codes section with header and list
- * Extracted from HomeScreen for better modularity
- */
-@Composable
-fun PromocodesSection(
-    promoCodeState: PromoCodeState,
-    currentFilters: CompleteFilterState,
-    isLoadingMore: Boolean,
-    onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        // Section header for ALL states
-        PromoCodesSectionHeader(
-            currentFilters = currentFilters,
-            modifier = modifier.padding(horizontal = SpacingTokens.lg),
-        )
-
-        when (promoCodeState) {
-            PromoCodeState.Loading -> {
-                PromoCodesLoadingState(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(SpacingTokens.xl),
-                )
-            }
-            is PromoCodeState.Success -> {
-                PromoCodeContent(
-                    promoCodes = promoCodeState.promoCodes,
-                    isLoadingMore = isLoadingMore,
-                    onAction = onAction,
-                )
-            }
-            PromoCodeState.Empty -> {
-                PromoCodesEmptyState(
-                    modifier = modifier.padding(horizontal = SpacingTokens.lg),
-                )
-            }
-            is PromoCodeState.Error -> {
-                PromoCodesErrorState(
-                    errorState = promoCodeState,
-                    onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
-                    modifier = modifier.padding(horizontal = SpacingTokens.lg),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PromoCodeContent(
-    promoCodes: List<PromoCode>,
-    isLoadingMore: Boolean,
-    onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    PromoCodesList(
-        promoCodes = promoCodes,
-        isLoadingMore = isLoadingMore,
-        onAction = onAction,
-        modifier = modifier.fillMaxWidth().padding(top = SpacingTokens.md),
-    )
-}
 
 @Composable
 fun PromoCodesSectionHeader(
@@ -112,40 +43,6 @@ fun PromoCodesSectionHeader(
         textAlign = TextAlign.Center,
         modifier = modifier.fillMaxWidth(),
     )
-}
-
-@Composable
-private fun PromoCodesList(
-    promoCodes: List<PromoCode>,
-    isLoadingMore: Boolean,
-    onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-    ) {
-        promoCodes.forEach { promoCode ->
-            CouponPromoCodeCard(
-                promoCode = promoCode,
-                onCardClick = {
-                    onAction(HomeAction.PromoCodeClicked(promoCode))
-                },
-                onCopyCodeClick = {
-                    onAction(HomeAction.CopyPromoCode(promoCode))
-                },
-                modifier = modifier.padding(
-                    horizontal = SpacingTokens.lg,
-                    vertical = SpacingTokens.xs,
-                ),
-            )
-        }
-
-        // Loading indicator for pagination
-        if (isLoadingMore) {
-            LoadingMoreIndicator()
-        }
-    }
 }
 
 @Composable
@@ -281,16 +178,3 @@ fun LoadingMoreIndicator(modifier: Modifier = Modifier) {
 // MARK: - Constants
 
 private const val ERROR_ICON_ALPHA = 0.6f
-
-@Preview(name = "PromoCodesSection - Loading", showBackground = true)
-@Composable
-private fun PromoCodesSectionPreview() {
-    QodeTheme {
-        PromocodesSection(
-            promoCodeState = PromoCodeState.Loading,
-            currentFilters = CompleteFilterState(),
-            isLoadingMore = false,
-            onAction = { },
-        )
-    }
-}
