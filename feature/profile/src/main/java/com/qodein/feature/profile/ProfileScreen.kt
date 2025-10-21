@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,9 +52,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
@@ -67,7 +66,6 @@ import com.qodein.core.designsystem.component.rememberAutoHidingState
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeSecurityIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -78,14 +76,12 @@ import com.qodein.core.ui.ComponentPreviews
 import com.qodein.core.ui.DevicePreviews
 import com.qodein.core.ui.FontScalePreviews
 import com.qodein.core.ui.MobilePreviews
-import com.qodein.core.ui.PreviewParameterData
 import com.qodein.core.ui.TabletPreviews
 import com.qodein.core.ui.ThemePreviews
-import com.qodein.core.ui.UserPreviewParameterProvider
-import com.qodein.core.ui.UserStatsPreviewParameterProvider
 import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.preview.UserPreviewData
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
@@ -96,19 +92,15 @@ fun ProfileScreen(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    onEditProfile: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {},
-    onAchievementsClick: () -> Unit = {},
-    onUserJourneyClick: () -> Unit = {}
+    onSignOut: () -> Unit = {}
 ) {
     TrackScreenViewEvent(screenName = "Profile")
 
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
     var showComingSoon by remember { mutableStateOf(false) }
 
-    // Collect and handle events
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
@@ -120,14 +112,11 @@ fun ProfileScreen(
         }
     }
 
-    // Handle different UI states directly in ProfileScreen
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        // Capture state in local variable to avoid smart cast issues with delegated properties
-        val currentState = state
-        when (currentState) {
+        when (val currentState = uiState) {
             is ProfileUiState.Success -> {
                 ProfileContent(
                     user = currentState.user,
@@ -449,7 +438,7 @@ private fun StatsCards(
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         StatCard(
-            value = userStats.submittedCodes,
+            value = userStats.submittedPostsCount,
             label = stringResource(R.string.profile_promocodes_label),
             icon = QodeCommerceIcons.PromoCode,
             gradientColors = listOf(
@@ -460,23 +449,12 @@ private fun StatsCards(
         )
 
         StatCard(
-            value = userStats.upvotesReceived,
+            value = userStats.submittedPromocodesCount,
             label = stringResource(R.string.profile_upvotes_label),
             icon = QodeStatusIcons.Recommended,
             gradientColors = listOf(
                 MaterialTheme.colorScheme.tertiary,
                 MaterialTheme.colorScheme.tertiaryContainer,
-            ),
-            modifier = Modifier.weight(1f),
-        )
-
-        StatCard(
-            value = userStats.downvotesReceived,
-            label = stringResource(R.string.profile_downvotes_label),
-            icon = QodeSecurityIcons.Denied,
-            gradientColors = listOf(
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.secondaryContainer,
             ),
             modifier = Modifier.weight(1f),
         )
@@ -496,7 +474,7 @@ private fun StatsCardsPreview(
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         StatCardPreview(
-            value = userStats.submittedCodes,
+            value = userStats.submittedPostsCount,
             label = stringResource(R.string.profile_promocodes_label),
             icon = QodeCommerceIcons.PromoCode,
             gradientColors = listOf(
@@ -507,23 +485,12 @@ private fun StatsCardsPreview(
         )
 
         StatCardPreview(
-            value = userStats.upvotesReceived,
+            value = userStats.submittedPromocodesCount,
             label = stringResource(R.string.profile_upvotes_label),
             icon = QodeStatusIcons.Recommended,
             gradientColors = listOf(
                 MaterialTheme.colorScheme.tertiary,
                 MaterialTheme.colorScheme.tertiaryContainer,
-            ),
-            modifier = Modifier.weight(1f),
-        )
-
-        StatCardPreview(
-            value = userStats.downvotesReceived,
-            label = stringResource(R.string.profile_downvotes_label),
-            icon = QodeSecurityIcons.Denied,
-            gradientColors = listOf(
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.secondaryContainer,
             ),
             modifier = Modifier.weight(1f),
         )
@@ -921,7 +888,7 @@ private fun ProfileScreenPreview(
 fun ProfileScreenDevicePreviews() {
     QodeTheme {
         ProfilePreview(
-            user = PreviewParameterData.powerUser,
+            user = UserPreviewData.powerUser,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -935,7 +902,7 @@ fun ProfileScreenDevicePreviews() {
 fun ProfileScreenThemePreviews() {
     QodeTheme {
         ProfilePreview(
-            user = PreviewParameterData.sampleUser,
+            user = UserPreviewData.newUser,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -949,7 +916,7 @@ fun ProfileScreenThemePreviews() {
 fun ProfileScreenFontScalePreviews() {
     QodeTheme {
         ProfilePreview(
-            user = PreviewParameterData.sampleUser,
+            user = UserPreviewData.newUser,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -1051,7 +1018,7 @@ private fun ProfilePreview(
 fun ProfileScreenMobilePreviews() {
     QodeTheme {
         ProfilePreview(
-            user = PreviewParameterData.sampleUser,
+            user = UserPreviewData.newUser,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -1065,7 +1032,7 @@ fun ProfileScreenMobilePreviews() {
 fun ProfileScreenTabletPreviews() {
     QodeTheme {
         ProfilePreview(
-            user = PreviewParameterData.powerUser,
+            user = UserPreviewData.newUser,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -1110,58 +1077,8 @@ fun ProfileScreenErrorStatePreview() {
 fun ProfileScreenSuccessStatePreview() {
     QodeTheme {
         ProfileScreenPreview(
-            state = ProfileUiState.Success(user = PreviewParameterData.sampleUser),
+            state = ProfileUiState.Success(user = UserPreviewData.newUser),
         )
-    }
-}
-
-/**
- * Individual component previews following NIA component testing patterns
- */
-@ComponentPreviews
-@Composable
-fun ProfileHeaderComponentPreview(@PreviewParameter(UserPreviewParameterProvider::class) user: User) {
-    QodeTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        ),
-                    ),
-                )
-                .padding(SpacingTokens.lg),
-        ) {
-            ProfileHeader(
-                user = user,
-                onAction = {}, // Empty for previews
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-/**
- * Stats section with different data scenarios
- */
-@ComponentPreviews
-@Composable
-fun StatsSectionComponentPreview(@PreviewParameter(UserStatsPreviewParameterProvider::class) userStats: UserStats) {
-    QodeTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SpacingTokens.lg),
-        ) {
-            StatsSection(
-                userStats = userStats,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
     }
 }
 

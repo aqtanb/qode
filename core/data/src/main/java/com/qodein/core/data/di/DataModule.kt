@@ -15,12 +15,14 @@ import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PostRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
+import com.qodein.core.data.repository.UserRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.domain.service.ServiceCache
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import dagger.Binds
@@ -61,6 +63,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindPostRepository(postRepositoryImpl: PostRepositoryImpl): PostRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
 
     @Binds
     abstract fun bindServiceSelectionManager(serviceSelectionManagerImpl: ServiceSelectionManagerImpl): ServiceSelectionManager

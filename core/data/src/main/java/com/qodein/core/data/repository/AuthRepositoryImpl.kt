@@ -7,20 +7,21 @@ import com.google.firebase.auth.auth
 import com.qodein.core.data.datasource.FirebaseGoogleAuthService
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.AuthRepository
+import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthRepositoryImpl @Inject constructor(private val firebaseGoogleAuthService: FirebaseGoogleAuthService) : AuthRepository {
+class AuthRepositoryImpl @Inject constructor(
+    private val firebaseGoogleAuthService: FirebaseGoogleAuthService,
+    private val userRepository: UserRepository
+) : AuthRepository {
 
     companion object {
         private const val TAG = "AuthRepository"
@@ -28,40 +29,38 @@ class AuthRepositoryImpl @Inject constructor(private val firebaseGoogleAuthServi
 
     override fun signInWithGoogle(): Flow<Result<User, OperationError>> =
         flow {
-            try {
-                Logger.d(TAG) { "Signing in with Google" }
-                firebaseGoogleAuthService.signIn().collect { user ->
-                    Logger.i(TAG) { "Successfully signed in: userId=${user.id.value}" }
-                    emit(Result.Success(user))
+            Logger.d(TAG) { "Signing in with Google" }
+            val result = firebaseGoogleAuthService.signIn()
+
+            when (result) {
+                is Result.Success -> {
+                    val user = result.data
+                    Logger.d(TAG) { "Syncing user to Firestore: ${user.id.value}" }
+
+                    userRepository.createUserIfNew(user).collect { syncResult ->
+                        when (syncResult) {
+                            is Result.Success -> {
+                                Logger.i(TAG) { "User synced successfully to Firestore" }
+                            }
+                            is Result.Error -> {
+                                Logger.w(TAG) { "Failed to sync user to Firestore: ${syncResult.error}" }
+                            }
+                        }
+                    }
+
+                    emit(result)
                 }
-            } catch (e: SecurityException) {
-                Logger.e(TAG, e) { "Sign in failed - invalid credentials" }
-                emit(Result.Error(UserError.AuthenticationFailure.InvalidCredentials))
-            } catch (e: IllegalStateException) {
-                Logger.e(TAG, e) { "Sign in failed - service unavailable" }
-                emit(Result.Error(UserError.AuthenticationFailure.ServiceUnavailable))
-            } catch (e: IOException) {
-                Logger.e(TAG, e) { "Sign in failed - network error" }
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: Exception) {
-                Logger.e(TAG, e) { "Sign in failed - unknown error" }
-                emit(Result.Error(SystemError.Unknown))
+                is Result.Error -> {
+                    emit(result)
+                }
             }
         }
 
     override fun signOut(): Flow<Result<Unit, OperationError>> =
         flow {
-            try {
-                firebaseGoogleAuthService.signOut().collect { unit ->
-                    emit(Result.Success(unit))
-                }
-            } catch (e: IllegalStateException) {
-                emit(Result.Error(UserError.AuthenticationFailure.ServiceUnavailable))
-            } catch (e: IOException) {
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: Exception) {
-                emit(Result.Error(SystemError.Unknown))
-            }
+            Logger.d(TAG) { "Signing out" }
+            val result = firebaseGoogleAuthService.signOut()
+            emit(result)
         }
 
     override fun getAuthStateFlow(): Flow<User?> =

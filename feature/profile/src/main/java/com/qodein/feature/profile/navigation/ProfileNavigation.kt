@@ -31,8 +31,6 @@ fun NavGraphBuilder.profileSection(
                 scrollState = scrollState,
                 onBackClick = onBackClick,
                 onSignOut = onSignOut,
-                onAchievementsClick = onAchievementsClick,
-                onUserJourneyClick = onUserJourneyClick,
             )
         }
     }

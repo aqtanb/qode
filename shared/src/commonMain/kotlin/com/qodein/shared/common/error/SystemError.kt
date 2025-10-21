@@ -7,5 +7,6 @@ package com.qodein.shared.common.error
 sealed interface SystemError : OperationError {
     data object Offline : SystemError
     data object ServiceDown : SystemError
+    data object PermissionDenied : SystemError
     data object Unknown : SystemError
 }

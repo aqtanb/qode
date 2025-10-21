@@ -85,8 +85,9 @@ fun OperationError.asUiText(): String =
         is PostError.RetrievalFailure.AccessDenied -> stringResource(R.string.error_post_access_denied)
         is PostError.RetrievalFailure.NoResults -> stringResource(R.string.error_post_no_results)
         is PostError.RetrievalFailure.NotFound -> stringResource(R.string.error_post_not_found)
-        is PostError.SubmissionFailure.InvalidData -> TODO()
+        is PostError.SubmissionFailure.InvalidData -> "Invalid Data"
         is PostError.SubmissionFailure.NotAuthorized -> "Authorize to post"
+        is SystemError.PermissionDenied -> "Permission Denied"
     }
 
 /**

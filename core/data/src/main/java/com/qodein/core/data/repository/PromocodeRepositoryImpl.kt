@@ -3,6 +3,7 @@ package com.qodein.core.data.repository
 import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
+import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PromoCodeError
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 @Singleton
 class PromocodeRepositoryImpl @Inject constructor(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
-    private val serviceDataSource: FirestoreServiceDataSource
+    private val serviceDataSource: FirestoreServiceDataSource,
+    private val userDataSource: FirestoreUserDataSource
 ) : PromocodeRepository {
 
     companion object {
@@ -37,6 +39,9 @@ class PromocodeRepositoryImpl @Inject constructor(
             try {
                 val result = promoCodeDataSource.createPromoCode(promoCode)
                 Logger.i(TAG) { "Repository successfully created promo code: ${result.id.value}" }
+
+                userDataSource.incrementPromocodeCount(promoCode.createdBy.value)
+
                 emit(Result.Success(result))
             } catch (e: SecurityException) {
                 Logger.e(TAG, e) { "Repository failed to create promo code - unauthorized: ${promoCode.code}" }
