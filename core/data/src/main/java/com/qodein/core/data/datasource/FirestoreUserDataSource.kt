@@ -91,4 +91,36 @@ class FirestoreUserDataSource @Inject constructor(private val firestore: Firebas
             Logger.e(TAG, e) { "Failed to create user: ${user.id.value}" }
             Result.Error(SystemError.Unknown)
         }
+
+    suspend fun getUserById(userId: String): Result<User, OperationError> =
+        try {
+            val snapshot = firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .get()
+                .await()
+
+            if (!snapshot.exists()) {
+                Logger.w(TAG) { "User not found in Firestore: $userId" }
+                Result.Error(SystemError.Unknown)
+            } else {
+                val userDto = snapshot.toObject(com.qodein.core.data.model.UserDto::class.java)
+                if (userDto == null) {
+                    Logger.e(TAG) { "Failed to parse user document: $userId" }
+                    Result.Error(SystemError.Unknown)
+                } else {
+                    val user = UserMapper.toDomain(userDto, com.qodein.shared.model.UserId(userId))
+                    Logger.i(TAG) { "Fetched user from Firestore: $userId" }
+                    Result.Success(user)
+                }
+            }
+        } catch (e: SecurityException) {
+            Logger.e(TAG, e) { "Unauthorized to fetch user: $userId" }
+            Result.Error(SystemError.PermissionDenied)
+        } catch (e: IOException) {
+            Logger.e(TAG, e) { "Network error fetching user: $userId" }
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Logger.e(TAG, e) { "Failed to fetch user: $userId" }
+            Result.Error(SystemError.Unknown)
+        }
 }

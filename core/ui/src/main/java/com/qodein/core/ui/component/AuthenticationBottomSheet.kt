@@ -82,7 +82,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
     CreatePost(
         titleResId = R.string.auth_create_post_title,
         messageResId = R.string.auth_create_post_message,
-        iconVector = PostIcons.Post,
+        iconVector = PostIcons.PostAdd,
     )
 }
 

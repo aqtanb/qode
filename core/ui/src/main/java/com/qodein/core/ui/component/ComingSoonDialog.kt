@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.qodein.core.designsystem.component.ButtonSize
-import com.qodein.core.designsystem.component.QodeCard
+import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
@@ -79,7 +79,7 @@ fun ComingSoonDialog(
             usePlatformDefaultWidth = false,
         ),
     ) {
-        QodeCard(
+        QodeinCard(
             modifier = modifier
                 .fillMaxWidth()
                 .alpha(alpha)

@@ -23,13 +23,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeHeroGradient
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
+import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -87,8 +85,6 @@ fun AuthContent(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        QodeHeroGradient()
-
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -129,8 +125,7 @@ private fun AuthSignInCard(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
-    QodeCard(
-        variant = QodeCardVariant.Elevated,
+    QodeinElevatedCard(
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         modifier = modifier,
     ) {

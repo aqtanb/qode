@@ -7,13 +7,13 @@
     <string name="profile_retry_button">Retry</string>
     <string name="profile_loading_description">Loading profile</string>
     <string name="profile_error_unknown">Unknown error</string>
-    
+
     <!-- Profile Header -->
     <string name="profile_picture_description">Profile picture</string>
     <string name="edit_profile_button">Edit Profile</string>
     <string name="profile_username_format">\@%1$s</string>
     <string name="profile_full_name_format">%1$s %2$s</string>
-    
+
     <!-- Profile Stats -->
     <string name="profile_stats_title">Your Statistics</string>
     <string name="profile_comments_label">Comments</string>
@@ -21,11 +21,12 @@
     <string name="profile_upvotes_label">Upvotes</string>
     <string name="profile_downvotes_label">Downvotes</string>
     <string name="profile_achievements_label">Achievements</string>
-    
+
     <!-- Profile Activity -->
     <string name="profile_activity_title">Recent Activity</string>
     <string name="profile_achievements_title">Achievements</string>
     <string name="profile_achievements_empty">No achievements yet. Start exploring to earn your first badge!</string>
     <string name="profile_user_journey_title">Your Journey</string>
     <string name="profile_user_journey_empty">Your adventure begins here. Submit promocodes and engage with the community!</string>
+    <string name="posts">Posts</string>
 </resources>

@@ -9,6 +9,7 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
+import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,9 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val analyticsHelper: AnalyticsHelper
-    // TODO: Add GetUserStatsUseCase for promocodes, upvotes, downvotes
     // TODO: Add GetUserAchievementsUseCase for achievements data
     // TODO: Add GetUserActivityUseCase for user journey (promocodes & comments history)
 ) : ViewModel() {
@@ -95,13 +96,24 @@ class ProfileViewModel @Inject constructor(
         _state.value = ProfileUiState.Loading
 
         authJob = getAuthStateUseCase()
-            .onEach { user ->
-                _state.value = if (user != null) {
-                    ProfileUiState.Success(user = user)
+            .onEach { authUser ->
+                if (authUser != null) {
+                    // Fetch user with real stats from Firestore
+                    getUserByIdUseCase(authUser.id.value)
+                        .onEach { result ->
+                            _state.value = when (result) {
+                                is Result.Success -> ProfileUiState.Success(user = result.data)
+                                is Result.Error -> {
+                                    // Fallback to auth user if Firestore fetch fails
+                                    ProfileUiState.Success(user = authUser)
+                                }
+                            }
+                        }
+                        .launchIn(viewModelScope)
                 } else {
                     // With smart routing, this should not happen
                     // If user is unauthenticated, navigation should have redirected to auth
-                    ProfileUiState.Error(
+                    _state.value = ProfileUiState.Error(
                         errorType = SystemError.Unknown,
                         isRetryable = true,
                         shouldShowSnackbar = false,

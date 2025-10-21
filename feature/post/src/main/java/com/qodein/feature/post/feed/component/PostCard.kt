@@ -18,9 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeinAssistChip
+import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -34,9 +33,8 @@ fun PostCard(
     onPostClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    QodeCard(
+    QodeinElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        variant = QodeCardVariant.Elevated,
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         onClick = { onPostClick(post.id.value) },
         contentPadding = PaddingValues(SpacingTokens.lg),

@@ -7,6 +7,7 @@ import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -27,6 +28,7 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
+import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -138,4 +140,9 @@ object DomainModule {
     @Provides
     @Singleton
     fun provideCreatePostUseCase(postRepository: PostRepository): SubmitPostUseCase = SubmitPostUseCase(postRepository)
+
+    // User Use Cases
+    @Provides
+    @Singleton
+    fun provideGetUserByIdUseCase(userRepository: UserRepository): GetUserByIdUseCase = GetUserByIdUseCase(userRepository)
 }

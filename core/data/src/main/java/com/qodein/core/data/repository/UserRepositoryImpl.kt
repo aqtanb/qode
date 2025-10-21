@@ -17,6 +17,11 @@ import javax.inject.Singleton
 @Singleton
 class UserRepositoryImpl @Inject constructor(private val dataSource: FirestoreUserDataSource) : UserRepository {
 
+    override fun getUserById(userId: String): Flow<Result<User, OperationError>> =
+        flow {
+            emit(dataSource.getUserById(userId))
+        }
+
     override fun createUserIfNew(user: User): Flow<Result<Unit, OperationError>> =
         flow {
             emit(dataSource.createUserIfNew(user))

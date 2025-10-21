@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -52,15 +54,60 @@ import com.qodein.core.designsystem.theme.SpacingTokens
  * Card variants for Qode design system
  */
 enum class QodeCardVariant {
-    Elevated,
     Filled,
     Outlined
 }
 
 @Composable
-fun QodeCard(
+fun QodeinElevatedCard(
     modifier: Modifier = Modifier,
-    variant: QodeCardVariant = QodeCardVariant.Elevated,
+    onClick: (() -> Unit)? = null,
+    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+    enabled: Boolean = true,
+    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val cardModifier = if (onClick != null) {
+        modifier
+            .semantics { role = Role.Button }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick,
+            )
+    } else {
+        modifier
+    }
+
+    ElevatedCard(
+        modifier = cardModifier,
+        shape = shape,
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = ElevationTokens.large,
+            pressedElevation = ElevationTokens.medium,
+            hoveredElevation = ElevationTokens.extraLarge,
+        ),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f),
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(contentPadding),
+            content = content,
+        )
+    }
+}
+
+@Composable
+fun QodeinCard(
+    modifier: Modifier = Modifier,
+    variant: QodeCardVariant = QodeCardVariant.Filled,
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
     enabled: Boolean = true,
@@ -83,29 +130,6 @@ fun QodeCard(
     }
 
     when (variant) {
-        QodeCardVariant.Elevated -> {
-            ElevatedCard(
-                modifier = cardModifier,
-                shape = shape,
-                elevation = CardDefaults.elevatedCardElevation(
-                    defaultElevation = ElevationTokens.large,
-                    pressedElevation = ElevationTokens.medium,
-                    hoveredElevation = ElevationTokens.extraLarge,
-                ),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                ),
-            ) {
-                Column(
-                    modifier = modifier.padding(contentPadding),
-                    content = content,
-                )
-            }
-        }
-
         QodeCardVariant.Filled -> {
             Card(
                 modifier = cardModifier,
@@ -118,7 +142,7 @@ fun QodeCard(
                 ),
             ) {
                 Column(
-                    modifier = modifier.padding(contentPadding),
+                    modifier = Modifier.padding(contentPadding),
                     content = content,
                 )
             }
@@ -151,7 +175,7 @@ fun QodeCard(
 @Composable
 fun QodeExpandableCard(
     modifier: Modifier = Modifier,
-    variant: QodeCardVariant = QodeCardVariant.Elevated,
+    variant: QodeCardVariant = QodeCardVariant.Outlined,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.medium),
     title: @Composable () -> Unit,
     expandedContent: @Composable ColumnScope.() -> Unit,
@@ -165,7 +189,7 @@ fun QodeExpandableCard(
         label = "expand_icon_rotation",
     )
 
-    QodeCard(
+    QodeinCard(
         modifier = modifier.animateContentSize(
             animationSpec = tween(durationMillis = MotionTokens.Duration.MEDIUM),
         ),
@@ -212,24 +236,22 @@ fun QodeExpandableCard(
 }
 
 // Previews
-@Preview(name = "Card Variants", showBackground = true)
+@PreviewLightDark
 @Composable
 private fun QodeCardVariantsPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.padding(SpacingTokens.md),
+            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.md),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            QodeCard(variant = QodeCardVariant.Elevated) {
+            QodeinElevatedCard {
                 Text("Elevated Card", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "This is an elevated card with a subtle shadow.",
+                    "This is an elevated card with a shadow.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-
-            QodeCard(variant = QodeCardVariant.Filled) {
+            QodeinCard(variant = QodeCardVariant.Filled) {
                 Text("Filled Card", style = MaterialTheme.typography.titleMedium)
                 Text(
                     "This is a filled card with a background color.",
@@ -238,7 +260,7 @@ private fun QodeCardVariantsPreview() {
                 )
             }
 
-            QodeCard(variant = QodeCardVariant.Outlined) {
+            QodeinCard(variant = QodeCardVariant.Outlined) {
                 Text("Outlined Card", style = MaterialTheme.typography.titleMedium)
                 Text(
                     "This is an outlined card with a border.",

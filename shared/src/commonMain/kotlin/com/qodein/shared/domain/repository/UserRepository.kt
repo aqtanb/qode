@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
 
     /**
+     * Get user by ID with current stats from Firestore.
+     */
+    fun getUserById(userId: String): Flow<Result<User, OperationError>>
+
+    /**
      * Create user document in Firestore if it doesn't exist.
      * If user already exists, this is a no-op.
      */

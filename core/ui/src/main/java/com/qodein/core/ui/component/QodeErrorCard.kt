@@ -24,8 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -47,8 +46,7 @@ fun QodeErrorCard(
     onDismiss: (() -> Unit)? = null,
     icon: ImageVector = Icons.Default.Warning
 ) {
-    QodeCard(
-        variant = QodeCardVariant.Elevated,
+    QodeinElevatedCard(
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         modifier = modifier.fillMaxWidth(),
     ) {
@@ -125,8 +123,7 @@ fun QodeErrorCard(
     onDismiss: (() -> Unit)? = null,
     icon: ImageVector = Icons.Default.Warning
 ) {
-    QodeCard(
-        variant = QodeCardVariant.Elevated,
+    QodeinElevatedCard(
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         modifier = modifier.fillMaxWidth(),
     ) {
