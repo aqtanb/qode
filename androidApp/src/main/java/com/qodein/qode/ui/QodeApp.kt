@@ -15,7 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.qode.navigation.NavigationHandler
@@ -121,19 +121,20 @@ internal fun QodeApp(
                 },
 
             ) { innerPadding ->
-                val currentDestination = appState.currentTopLevelDestination
-                val isHomeDestination = currentDestination == TopLevelDestination.HOME
-                val isProfileScreen = appState.isProfileScreen
-                val isAuthScreen = appState.isAuthScreen
-                val isPostSubmissionScreen = appState.isPostSubmissionScreen
+                val shouldFillMaxSize = appState.currentTopLevelDestination == TopLevelDestination.HOME ||
+                    appState.isProfileScreen ||
+                    appState.isPostSubmissionScreen
 
                 QodeNavHost(
                     appState = appState,
                     userLanguage = languageState,
                     isDarkTheme = isDarkTheme,
-                    modifier = when {
-                        isHomeDestination || isProfileScreen || isAuthScreen || isPostSubmissionScreen -> Modifier.fillMaxSize()
-                        else -> Modifier.padding(innerPadding)
+                    modifier = if (shouldFillMaxSize) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier
+                            .fillMaxSize()
+                            .padding(top = innerPadding.calculateTopPadding())
                     },
                 )
 

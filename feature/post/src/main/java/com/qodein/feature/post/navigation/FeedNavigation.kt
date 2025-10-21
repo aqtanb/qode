@@ -4,7 +4,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.post.feed.FeedScreen
 import com.qodein.feature.post.submission.PostSubmissionScreen
 import kotlinx.serialization.Serializable
@@ -30,9 +29,9 @@ fun NavController.navigateToPostSubmission(navOptions: NavOptions? = null) {
 /**
  * Navigation graph builder extension for feed feature
  */
-fun NavGraphBuilder.feedSection(scrollStateRegistry: ScrollStateRegistry? = null) {
+fun NavGraphBuilder.feedSection() {
     composable<FeedRoute> {
-        FeedScreen(scrollStateRegistry = scrollStateRegistry)
+        FeedScreen()
     }
 }
 

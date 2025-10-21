@@ -42,7 +42,7 @@ fun QodeNavHost(
             scrollStateRegistry = appState,
         )
 
-        feedSection(scrollStateRegistry = appState)
+        feedSection()
 
         profileSection(
             onBackClick = {

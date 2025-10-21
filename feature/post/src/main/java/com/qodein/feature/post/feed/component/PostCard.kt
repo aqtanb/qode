@@ -71,6 +71,14 @@ fun PostCard(
                         onClick = { },
                     )
                 }
+            } else if (!post.content.isNullOrBlank()) {
+                Text(
+                    text = post.content!!,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

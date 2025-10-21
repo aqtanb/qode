@@ -143,4 +143,11 @@ object PostPreviewData {
         createdAt = sampleTimestamp,
         updatedAt = sampleTimestamp,
     )
+    val allPosts = listOf(
+        postWithImages,
+        postWithoutImages,
+        postWithSingleImage,
+        popularPost,
+        unpopularPost,
+    )
 }

@@ -55,7 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
@@ -129,7 +129,7 @@ fun ProfileScreen(
         val currentState = state
         when (currentState) {
             is ProfileUiState.Success -> {
-                ProfileSuccessContent(
+                ProfileContent(
                     user = currentState.user,
                     scrollState = scrollState,
                     onAction = viewModel::handleAction,
@@ -175,7 +175,7 @@ fun ProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ProfileSuccessContent(
+internal fun ProfileContent(
     user: User,
     scrollState: ScrollState,
     onAction: (ProfileAction) -> Unit,
@@ -191,8 +191,6 @@ internal fun ProfileSuccessContent(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        QodeHeroGradient()
-
         // Main content with scroll
         Column(
             modifier = Modifier

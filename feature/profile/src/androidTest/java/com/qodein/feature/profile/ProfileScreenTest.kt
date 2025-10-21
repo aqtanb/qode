@@ -54,7 +54,7 @@ class ProfileScreenTest {
                 ) {
                     when (state) {
                         is ProfileUiState.Success -> {
-                            ProfileSuccessContent(
+                            ProfileContent(
                                 user = state.user,
                                 onAction = onAction,
                                 onBackClick = onBackClick,

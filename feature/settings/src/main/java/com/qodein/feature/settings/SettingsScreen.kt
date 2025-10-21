@@ -27,14 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeDecorationStyle
-import com.qodein.core.designsystem.component.QodeGradient
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
@@ -48,52 +48,56 @@ fun SettingsScreen(
 
     val state by viewModel.state.collectAsState()
 
+    SettingsContent(
+        selectedTheme = state.theme,
+        selectedLanguage = state.language,
+        onThemeSelected = { theme ->
+            viewModel.handleAction(SettingsAction.ThemeChanged(theme))
+        },
+        onLanguageSelected = { language ->
+            viewModel.handleAction(SettingsAction.LanguageChanged(language))
+        },
+    )
+}
+
+@Composable
+private fun SettingsContent(
+    selectedTheme: Theme,
+    selectedLanguage: Language,
+    onThemeSelected: (Theme) -> Unit,
+    onLanguageSelected: (Language) -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        QodeGradient(
-            decorations = QodeDecorationStyle.FloatingCircles,
-        )
-
-        // Top app bar is now handled centrally by QodeApp
-        Box(
-            modifier = Modifier.fillMaxSize(),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(SpacingTokens.xl)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = SpacingTokens.md)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+            SettingsSection(
+                title = "Theme",
+                icon = QodeNavigationIcons.Settings,
             ) {
-                // Theme Section
-                SettingsSection(
-                    title = stringResource(R.string.settings_theme_title),
-                    icon = QodeNavigationIcons.Settings,
-                ) {
-                    ThemeSelector(
-                        selectedTheme = state.theme,
-                        onThemeSelected = { theme ->
-                            viewModel.handleAction(SettingsAction.ThemeChanged(theme))
-                        },
-                    )
-                }
-
-                // Language Section
-                SettingsSection(
-                    title = stringResource(R.string.settings_language_title),
-                    icon = QodeCategoryIcons.Language,
-                ) {
-                    LanguageSelector(
-                        selectedLanguage = state.language,
-                        onLanguageSelected = { language ->
-                            viewModel.handleAction(SettingsAction.LanguageChanged(language))
-                        },
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(SpacingTokens.lg))
+                ThemeSelector(
+                    selectedTheme = selectedTheme,
+                    onThemeSelected = onThemeSelected,
+                )
             }
+
+            SettingsSection(
+                title = "Language",
+                icon = QodeCategoryIcons.Language,
+            ) {
+                LanguageSelector(
+                    selectedLanguage = selectedLanguage,
+                    onLanguageSelected = onLanguageSelected,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(SpacingTokens.lg))
         }
     }
 }
@@ -211,3 +215,16 @@ private val Theme.displayNameResId: Int
         Theme.LIGHT -> R.string.theme_light
         Theme.DARK -> R.string.theme_dark
     }
+
+@PreviewLightDark
+@Composable
+private fun SettingsContentPreview() {
+    QodeTheme {
+        SettingsContent(
+            selectedTheme = Theme.SYSTEM,
+            selectedLanguage = Language.ENGLISH,
+            onThemeSelected = {},
+            onLanguageSelected = {},
+        )
+    }
+}
