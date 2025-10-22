@@ -20,8 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeinCard
+import com.qodein.core.designsystem.component.QodeinOutlinedCard
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 
@@ -73,9 +72,8 @@ fun SharedFilterBottomSheet(
                 }
 
                 // Close button positioned at bottom - outside scrollable content
-                QodeinCard(
+                QodeinOutlinedCard(
                     onClick = onDismiss,
-                    variant = QodeCardVariant.Outlined,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 48.dp)

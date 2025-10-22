@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
@@ -83,7 +82,6 @@ private fun StatCard(
     QodeinCard(
         modifier = modifier,
         shape = RoundedCornerShape(ShapeTokens.Corner.large),
-        variant = QodeCardVariant.Filled,
     ) {
         Column(
             modifier = Modifier

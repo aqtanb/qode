@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.QodeBannerGradient
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -42,9 +41,6 @@ fun GradientBannerSection(
     onCopyClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Get PromoCode type-specific gradient scheme (purple for fixed amount, orange for percentage)
-    val gradientScheme = CategoryIconHelper.getPromoCodeGradient(promoCode)
-
     // Get category icon from centralized helper
     val categoryIcon = CategoryIconHelper.getCategoryIcon(promoCode.category)
 
@@ -54,19 +50,14 @@ fun GradientBannerSection(
         is Discount.FixedAmount -> "${promoCode.discount.value.toInt()}₸ OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
     }
 
-    // Banner with proper height and centering like reference
+    // Banner with solid background color
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(280.dp), // Much taller like reference
-        contentAlignment = Alignment.Center, // Center all content
+            .height(280.dp)
+            .background(MaterialTheme.colorScheme.primary),
+        contentAlignment = Alignment.Center,
     ) {
-        // Background gradient using centralized gradient system
-        QodeBannerGradient(
-            colors = gradientScheme,
-            height = 280.dp,
-            modifier = Modifier.fillMaxWidth(),
-        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),

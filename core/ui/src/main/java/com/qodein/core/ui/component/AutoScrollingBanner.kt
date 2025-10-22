@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.component.QodeColorScheme
 import com.qodein.core.designsystem.theme.QodeTheme
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
@@ -133,68 +132,6 @@ fun <T> AutoScrollingBanner(
         }
     }
 }
-
-// MARK: - Banner Configuration
-
-/**
- * Banner configuration data class for home banners
- */
-data class BannerConfig(
-    val id: String,
-    val brandName: String,
-    val gradientScheme: QodeColorScheme,
-    val discountPercent: Int,
-    val primaryColor: Color
-)
-
-/**
- * Default banner configurations used in HomeScreen
- */
-fun getDefaultBannerConfigs(): List<BannerConfig> =
-    listOf(
-        BannerConfig(
-            id = "kaspi",
-            brandName = "Kaspi Gold",
-            gradientScheme = QodeColorScheme.BannerIndigo,
-            discountPercent = 15,
-            primaryColor = Color(0xFF6366F1),
-        ),
-        BannerConfig(
-            id = "wildberries",
-            brandName = "Wildberries",
-            gradientScheme = QodeColorScheme.BannerPink,
-            discountPercent = 30,
-            primaryColor = Color(0xFFEC4899),
-        ),
-        BannerConfig(
-            id = "lamoda",
-            brandName = "Lamoda",
-            gradientScheme = QodeColorScheme.BannerGreen,
-            discountPercent = 45,
-            primaryColor = Color(0xFF10B981),
-        ),
-        BannerConfig(
-            id = "technodom",
-            brandName = "Technodom",
-            gradientScheme = QodeColorScheme.BannerOrange,
-            discountPercent = 60,
-            primaryColor = Color(0xFFF59E0B),
-        ),
-        BannerConfig(
-            id = "sulpak",
-            brandName = "Sulpak",
-            gradientScheme = QodeColorScheme.BannerPurple,
-            discountPercent = 75,
-            primaryColor = Color(0xFF8B5CF6),
-        ),
-        BannerConfig(
-            id = "magnum",
-            brandName = "Magnum",
-            gradientScheme = QodeColorScheme.BannerCyan,
-            discountPercent = 90,
-            primaryColor = Color(0xFF06B6D4),
-        ),
-    )
 
 // MARK: - Preview Data
 

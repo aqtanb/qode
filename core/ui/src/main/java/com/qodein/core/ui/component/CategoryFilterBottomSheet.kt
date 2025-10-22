@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.QodeColorScheme
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -168,7 +166,6 @@ fun CategoryFilterBottomSheet(
 private fun GradientCategoryChip(
     category: String,
     isSelected: Boolean,
-    gradient: QodeColorScheme,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -260,52 +257,6 @@ private fun GradientCategoryChip(
     }
 }
 
-/**
- * Enhanced filter chip for "All Categories" option
- */
-@Composable
-private fun EnhancedFilterChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    text: String,
-    icon: @Composable (() -> Unit)?,
-    gradient: QodeColorScheme?,
-    modifier: Modifier = Modifier
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                icon?.invoke()
-                if (icon != null) {
-                    Spacer(modifier = Modifier.width(SpacingTokens.sm))
-                }
-                Text(
-                    text = text,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-        },
-        modifier = modifier.height(48.dp),
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
-            selected = selected,
-            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            selectedBorderColor = Color.Transparent,
-        ),
-    )
-}
-
 // MARK: - Previews
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -360,21 +311,18 @@ private fun GradientCategoryChipSelectedPreview() {
                 GradientCategoryChip(
                     category = Service.Companion.Categories.FOOD,
                     isSelected = true,
-                    gradient = QodeColorScheme.BannerOrange,
                     onClick = { },
                 )
 
                 GradientCategoryChip(
                     category = Service.Companion.Categories.EDUCATION,
                     isSelected = false,
-                    gradient = QodeColorScheme.BannerPurple,
                     onClick = { },
                 )
 
                 GradientCategoryChip(
                     category = Service.Companion.Categories.ELECTRONICS,
                     isSelected = true,
-                    gradient = QodeColorScheme.BannerPurple,
                     onClick = { },
                 )
             }

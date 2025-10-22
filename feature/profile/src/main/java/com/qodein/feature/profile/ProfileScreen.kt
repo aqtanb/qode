@@ -8,11 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,13 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,8 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -58,11 +50,8 @@ import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
 import com.qodein.core.designsystem.component.rememberAutoHidingState
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.ComponentPreviews
@@ -372,119 +361,6 @@ private fun EditProfileButton(
                 elevation = ElevationTokens.large,
                 ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
             ),
-    )
-}
-
-// MARK: Recent Activity
-
-@Composable
-internal fun ActivityFeed(
-    onAction: (ProfileAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
-        SectionTitle(
-            title = stringResource(R.string.profile_activity_title),
-            modifier = Modifier.padding(horizontal = SpacingTokens.sm),
-        )
-
-        ActivityCard(
-            title = stringResource(R.string.profile_achievements_title),
-            content = stringResource(R.string.profile_achievements_empty),
-            icon = QodeStatusIcons.Gold,
-            iconTint = MaterialTheme.colorScheme.primary,
-            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-            onClick = { onAction(ProfileAction.AchievementsClicked) },
-        )
-
-        ActivityCard(
-            title = stringResource(R.string.profile_user_journey_title),
-            content = stringResource(R.string.profile_user_journey_empty),
-            icon = QodeNavigationIcons.History,
-            iconTint = MaterialTheme.colorScheme.secondary,
-            ambientColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-            onClick = { onAction(ProfileAction.UserJourneyClicked) },
-        )
-    }
-}
-
-@Composable
-private fun ActivityCard(
-    title: String,
-    content: String,
-    icon: ImageVector,
-    iconTint: Color,
-    ambientColor: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = ElevationTokens.large,
-                shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-                ambientColor = ambientColor,
-            )
-            .clickable { onClick() },
-        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        ) {
-            ActivityCardHeader(title = title, icon = icon, iconTint = iconTint)
-            ActivityCardContent(content = content)
-        }
-    }
-}
-
-@Composable
-private fun ActivityCardHeader(
-    title: String,
-    icon: ImageVector,
-    iconTint: Color,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun ActivityCardContent(
-    content: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = content,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier,
     )
 }
 

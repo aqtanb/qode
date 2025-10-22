@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.component.QodeCardVariant
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -257,7 +256,6 @@ private fun ServiceItem(
 ) {
     QodeinCard(
         onClick = onClick,
-        variant = if (isSelected) QodeCardVariant.Filled else QodeCardVariant.Outlined,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
