@@ -187,8 +187,8 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             viewModel.events.test {
-                viewModel.handleAction(ProfileAction.AchievementsClicked)
-                assertEquals(ProfileEvent.AchievementsRequested, awaitItem())
+                viewModel.handleAction(ProfileAction.LeaderboardClicked)
+                assertEquals(ProfileEvent.LeaderboardRequested, awaitItem())
             }
         }
 

@@ -106,3 +106,4 @@ functions/src/*-service-account.json
 **/serviceAccountKey.json
 **/*-service-account.json
 
+/AGENTS.md

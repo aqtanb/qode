@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
-import com.qodein.core.designsystem.icon.PostIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
@@ -123,7 +123,7 @@ private fun TagSelectorContent(
             value = customTagInput.lowercase().trim(),
             onValueChange = onCustomTagInputChange,
             placeholder = stringResource(R.string.type_tag),
-            leadingIcon = PostIcons.Hashtag,
+            leadingIcon = QodeinIcons.Hashtag,
             helperText = helperText,
             errorText = errorText,
             enabled = !isMaxTagsReached,

@@ -58,27 +58,16 @@ class ProfileViewModel @Inject constructor(
                 )
                 emitEvent(ProfileEvent.EditProfileRequested)
             }
-            is ProfileAction.AchievementsClicked -> {
+            is ProfileAction.LeaderboardClicked -> {
                 analyticsHelper.logEvent(
                     AnalyticsEvent(
                         type = "profile_action",
                         extras = listOf(
-                            AnalyticsEvent.Param("action", "view_achievements"),
+                            AnalyticsEvent.Param("action", "view_leaderboard"),
                         ),
                     ),
                 )
-                emitEvent(ProfileEvent.AchievementsRequested)
-            }
-            is ProfileAction.UserJourneyClicked -> {
-                analyticsHelper.logEvent(
-                    AnalyticsEvent(
-                        type = "profile_action",
-                        extras = listOf(
-                            AnalyticsEvent.Param("action", "view_user_journey"),
-                        ),
-                    ),
-                )
-                emitEvent(ProfileEvent.UserJourneyRequested)
+                emitEvent(ProfileEvent.LeaderboardRequested)
             }
         }
     }

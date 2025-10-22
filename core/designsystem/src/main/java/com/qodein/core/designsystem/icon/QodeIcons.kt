@@ -6,9 +6,9 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
@@ -315,16 +315,12 @@ import compose.icons.tablericons.Train
 import compose.icons.tablericons.TruckDelivery
 import compose.icons.tablericons.Video
 
-// MARK: Post
-object PostIcons {
+object QodeinIcons {
     val PostAdd: ImageVector = Icons.Outlined.PostAdd
     val Hashtag: ImageVector = Icons.Outlined.Tag
     val Post: ImageVector = Icons.AutoMirrored.Outlined.TextSnippet
-}
-
-// MARK: Promocode
-object PromocodeIcons {
     val Promocode: ImageVector = Icons.Outlined.ConfirmationNumber
+    val Leaderboard: ImageVector = Icons.Outlined.Leaderboard
 }
 
 object QodeCommerceIcons {

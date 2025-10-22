@@ -143,7 +143,7 @@ class ProfileScreenTest {
                 ActivityFeed(
                     onAction = { action ->
                         when (action) {
-                            ProfileAction.AchievementsClicked -> achievementsClicked = true
+                            ProfileAction.LeaderboardClicked -> achievementsClicked = true
                             ProfileAction.UserJourneyClicked -> userJourneyClicked = true
                             else -> {}
                         }

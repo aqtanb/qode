@@ -15,7 +15,7 @@
     <string name="profile_full_name_format">%1$s %2$s</string>
 
     <!-- Profile Stats -->
-    <string name="profile_stats_title">Your Statistics</string>
+    <string name="profile_stats_title">Statistics</string>
     <string name="profile_comments_label">Comments</string>
     <string name="profile_promocodes_label">Promocodes</string>
     <string name="profile_upvotes_label">Upvotes</string>

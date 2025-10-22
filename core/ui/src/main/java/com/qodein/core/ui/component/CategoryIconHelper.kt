@@ -10,12 +10,12 @@ import kotlin.collections.get
 
 /**
  * Android-specific category icon mapping utility.
- * Maps category strings to appropriate Material/QodeIcons.
+ * Maps category strings to appropriate Material/QodeinIcons.
  */
 object CategoryIconHelper {
 
     /**
-     * Category to icon mapping using existing QodeIcons
+     * Category to icon mapping using existing QodeinIcons
      */
     private val CATEGORY_ICONS: Map<String, ImageVector> = mapOf(
         Service.Companion.Categories.FOOD to QodeCategoryIcons.Food,

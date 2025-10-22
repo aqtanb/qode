@@ -35,8 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -82,7 +82,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
     CreatePost(
         titleResId = R.string.auth_create_post_title,
         messageResId = R.string.auth_create_post_message,
-        iconVector = PostIcons.PostAdd,
+        iconVector = QodeinIcons.PostAdd,
     )
 }
 

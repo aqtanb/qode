@@ -30,7 +30,7 @@ Comprehensive design system with centralized tokens, gradients, icons, and Mater
 - `core/designsystem/component/Dialog.kt` - Modal dialogs and confirmations
 
 ### Icon System
-- `core/designsystem/icon/QodeIcons.kt` - Centralized icon definitions using Feather/Tabler icons
+- `core/designsystem/icon/QodeinIcons.kt` - Centralized icon definitions using Feather/Tabler icons
 
 ## Design Tokens
 

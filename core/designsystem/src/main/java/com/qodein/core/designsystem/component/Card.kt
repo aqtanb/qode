@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -16,6 +14,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -46,7 +45,7 @@ private fun Modifier.conditionalClickable(
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = ripple(),
                 enabled = enabled,
                 onClick = onClick,
             )
@@ -63,7 +62,6 @@ private fun Modifier.conditionalClickable(
  * @param onClick Optional click handler. When provided, card becomes clickable with button semantics
  * @param shape Shape of the card corners
  * @param enabled Whether the card and its click interaction are enabled
- * @param contentPadding Padding applied to the content inside the card
  * @param content The content displayed inside the card
  */
 @Composable
@@ -72,8 +70,7 @@ fun QodeinElevatedCard(
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
     enabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -92,10 +89,7 @@ fun QodeinElevatedCard(
             disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
         ),
     ) {
-        Column(
-            modifier = Modifier.padding(contentPadding),
-            content = content,
-        )
+        content()
     }
 }
 
@@ -108,7 +102,6 @@ fun QodeinElevatedCard(
  * @param onClick Optional click handler. When provided, card becomes clickable with button semantics
  * @param shape Shape of the card corners
  * @param enabled Whether the card and its click interaction are enabled
- * @param contentPadding Padding applied to the content inside the card
  * @param content The content displayed inside the card
  */
 @Composable
@@ -117,8 +110,7 @@ fun QodeinOutlinedCard(
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
     enabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -136,10 +128,7 @@ fun QodeinOutlinedCard(
             disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
         ),
     ) {
-        Column(
-            modifier = Modifier.padding(contentPadding),
-            content = content,
-        )
+        content()
     }
 }
 
@@ -153,7 +142,6 @@ fun QodeinOutlinedCard(
  * @param onClick Optional click handler. When provided, card becomes clickable with button semantics
  * @param shape Shape of the card corners
  * @param enabled Whether the card and its click interaction are enabled
- * @param contentPadding Padding applied to the content inside the card
  * @param content The content displayed inside the card
  */
 @Composable
@@ -162,8 +150,7 @@ fun QodeinCard(
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
     enabled: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(SpacingTokens.md),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -177,10 +164,7 @@ fun QodeinCard(
             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.DISABLED),
         ),
     ) {
-        Column(
-            modifier = Modifier.padding(contentPadding),
-            content = content,
-        )
+        content()
     }
 }
 
@@ -195,27 +179,42 @@ private fun QodeCardVariantsPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             QodeinElevatedCard {
-                Text("Elevated Card", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "This is an elevated card with a shadow.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Column(
+                    modifier = Modifier.padding(SpacingTokens.md),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    Text("Elevated Card", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "This is an elevated card with a shadow.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
             QodeinCard {
-                Text("Filled Card", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "This is a filled card with a background color.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Column(
+                    modifier = Modifier.padding(SpacingTokens.md),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    Text("Filled Card", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "This is a filled card with a background color.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             QodeinOutlinedCard {
-                Text("Outlined Card", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "This is an outlined card with a border.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Column(
+                    modifier = Modifier.padding(SpacingTokens.md),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    Text("Outlined Card", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "This is an outlined card with a border.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         }
     }

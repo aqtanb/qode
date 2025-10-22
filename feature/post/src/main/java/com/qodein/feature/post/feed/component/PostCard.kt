@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,7 +36,6 @@ fun PostCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         onClick = { onPostClick(post.id.value) },
-        contentPadding = PaddingValues(SpacingTokens.lg),
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),

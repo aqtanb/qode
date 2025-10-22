@@ -24,8 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -62,7 +62,7 @@ internal fun TagSelector(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = PostIcons.Hashtag,
+                imageVector = QodeinIcons.Hashtag,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
