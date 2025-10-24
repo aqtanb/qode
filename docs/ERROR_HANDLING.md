@@ -6,7 +6,7 @@ Qode uses `Result<Data, OperationError>` for type-safe error handling across all
 
 ## Architecture
 
-**Repositories** catch exceptions and map to domain errors:
+**Data Sources** catch exceptions and map to domain errors:
 - Domain-specific: `PostError`, `StorageError`, `PromoCodeError`
 - Infrastructure: `SystemError` (network, auth, permissions)
 
@@ -32,7 +32,7 @@ Qode uses `Result<Data, OperationError>` for type-safe error handling across all
 
 ## Patterns
 
-**Repository:**
+**Data Source:**
 ```kotlin
 catch (e: IOException) -> Result.Error(SystemError.Offline)
 catch (e: StorageException) -> Result.Error(StorageError.UploadFailure.QuotaExceeded)
