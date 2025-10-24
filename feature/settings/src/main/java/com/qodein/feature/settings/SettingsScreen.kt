@@ -27,10 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -216,7 +216,7 @@ private val Theme.displayNameResId: Int
         Theme.DARK -> R.string.theme_dark
     }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun SettingsContentPreview() {
     QodeTheme {

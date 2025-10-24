@@ -29,11 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthPromptAction
@@ -48,6 +48,7 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.SelectionState
 
 // MARK: - Constants
@@ -190,7 +191,7 @@ fun PromocodeSubmissionScreen(
                 }
                 is PromocodeSubmissionUiState.Error -> {
                     ErrorState(
-                        message = currentState.errorType.asUiText(),
+                        error = currentState.errorType,
                         onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
                     )
                 }
@@ -296,7 +297,7 @@ private fun LoadingState(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ErrorState(
-    message: String,
+    error: OperationError,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -308,8 +309,9 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         QodeErrorCard(
-            message = message,
+            error = error,
             onRetry = onRetry,
+            onDismiss = {},
         )
     }
 }
@@ -363,18 +365,7 @@ private fun SubmissionScreenLoadingPreview() {
     }
 }
 
-@Preview(name = "Submission Screen - Error", showSystemUi = true)
-@Composable
-private fun SubmissionScreenErrorPreview() {
-    QodeTheme {
-        ErrorState(
-            message = "Failed to load submission data",
-            onRetry = {},
-        )
-    }
-}
-
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun SubmissionContentDarkThemePreview() {
     QodeTheme {

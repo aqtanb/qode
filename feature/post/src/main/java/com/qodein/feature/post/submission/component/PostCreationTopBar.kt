@@ -6,7 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
@@ -44,7 +44,7 @@ internal fun PostCreationTopBar(
     )
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun PostCreationTopBarPreview() {
     QodeTheme {

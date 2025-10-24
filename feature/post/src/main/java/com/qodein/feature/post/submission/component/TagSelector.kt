@@ -23,7 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
@@ -97,7 +97,7 @@ internal fun TagSelector(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun TagSelectorPreview() {
     QodeTheme {

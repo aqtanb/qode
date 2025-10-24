@@ -47,6 +47,7 @@ import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
+import com.qodein.shared.common.error.PromoCodeError
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
@@ -209,7 +210,7 @@ private fun PromocodeDetailContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeErrorCard(
-                        message = "Failed to load promocode details. Please try again.",
+                        error = PromoCodeError.RetrievalFailure.NotFound,
                         onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
                         onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
                     )

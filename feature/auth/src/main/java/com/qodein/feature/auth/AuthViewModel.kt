@@ -24,13 +24,13 @@ import javax.inject.Inject
  * and handles screen-specific concerns like analytics and navigation events.
  */
 @HiltViewModel
-class SignInViewModel @Inject constructor(
+class AuthViewModel @Inject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val authStateManager: AuthStateManager,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<SignInUiState>(SignInUiState.Idle)
+    private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<AuthEvent>()
@@ -51,7 +51,7 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun signInWithGoogle() {
-        _state.value = SignInUiState.Loading
+        _state.value = AuthUiState.Loading
 
         signInWithGoogleUseCase()
             .onEach { result ->
@@ -59,16 +59,11 @@ class SignInViewModel @Inject constructor(
                     is Result.Success -> {
                         analyticsHelper.logLogin(method = "google", success = true)
                         emitEvent(AuthEvent.SignedIn)
-                        SignInUiState.Idle
+                        AuthUiState.Idle
                     }
                     is Result.Error -> {
                         analyticsHelper.logLogin(method = "google", success = false)
-                        SignInUiState.Error(
-                            errorType = result.error,
-                            isRetryable = true, // Auth errors are generally retryable
-                            shouldShowSnackbar = false, // Using card instead of snackbar
-                            errorCode = null, // Simplified error handling
-                        )
+                        AuthUiState.Error(errorType = result.error)
                     }
                 }
             }
@@ -82,6 +77,6 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun clearError() {
-        _state.value = SignInUiState.Idle
+        _state.value = AuthUiState.Idle
     }
 }

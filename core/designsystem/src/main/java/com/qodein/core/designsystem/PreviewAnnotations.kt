@@ -1,4 +1,4 @@
-package com.qodein.core.ui
+package com.qodein.core.designsystem
 
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,10 +28,14 @@ annotation class DevicePreviews
 @Preview(
     name = "Light Theme",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true,
+    backgroundColor = 0xFFFFF6ED,
 )
 @Preview(
     name = "Dark Theme",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    backgroundColor = 0xFF1A110F,
 )
 annotation class ThemePreviews
 

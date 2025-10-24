@@ -21,11 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qodein.core.data.model.PostSummaryDto
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PostPreviewData
@@ -188,7 +188,7 @@ private fun Post.toSummaryDto(): PostSummaryDto =
         userVoteState = "NONE", // Will be determined by user interaction state
     )
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun FeedScreenPreview() {
     QodeTheme {
@@ -203,7 +203,7 @@ private fun FeedScreenPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun FeedScreenLoadingStatePreview() {
     QodeTheme {
@@ -216,7 +216,7 @@ private fun FeedScreenLoadingStatePreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun FeedScreenErrorStatePreview() {
     QodeTheme {

@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinAssistChip
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -100,7 +100,7 @@ private fun PostTagsRow(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun PostCardPreview() {
     QodeTheme {

@@ -1,5 +1,6 @@
 package com.qodein.feature.post.submission
 
+import android.R.id.message
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,11 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.TextUnit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -60,6 +61,7 @@ import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
 import com.qodein.feature.post.submission.component.TagSelector
 import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
+import com.qodein.shared.common.error.OperationError
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
@@ -245,7 +247,7 @@ fun PostSubmissionScreen(
                     }
                     is PostSubmissionUiState.Error -> {
                         ErrorState(
-                            message = currentState.errorType.asUiText(),
+                            error = currentState.errorType,
                             onRetry = { viewModel.onAction(PostSubmissionAction.RetryPostSubmission) },
                         )
                     }
@@ -356,7 +358,7 @@ private fun LoadingState(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ErrorState(
-    message: String,
+    error: OperationError,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -368,13 +370,14 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         QodeErrorCard(
-            message = message,
+            error = error,
             onRetry = onRetry,
+            onDismiss = {},
         )
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun PostCreationTopBarPreview() {
     QodeTheme {
@@ -386,7 +389,7 @@ private fun PostCreationTopBarPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun PostSubmissionContentPreview() {
     QodeTheme {

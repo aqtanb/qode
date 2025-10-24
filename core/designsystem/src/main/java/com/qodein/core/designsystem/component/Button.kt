@@ -47,8 +47,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.OpacityTokens
@@ -377,10 +377,8 @@ private fun ButtonSize.toIconButtonConfig(): IconButtonConfig =
  * @param size The size of the button
  * @param enabled Whether the button is enabled
  * @param loading Whether the button is in loading state
- * @param outlined Whether to use outlined style
- * @param containerColor Background color of the button (transparent for outlined)
+ * @param containerColor Background color of the button
  * @param contentColor Color of the icon
- * @param borderColor Color of the border (only used when outlined = true)
  */
 @Composable
 fun QodeinIconButton(
@@ -391,9 +389,73 @@ fun QodeinIconButton(
     size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
-    outlined: Boolean = false,
-    containerColor: Color = if (outlined) Color.Transparent else MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = if (outlined) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer,
+    containerColor: Color = Color.Transparent,
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val config = size.toIconButtonConfig()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed && enabled && !loading) MotionTokens.Scale.ICON_PRESSED else 1f,
+        animationSpec = AnimationTokens.Spec.fast(),
+        label = "icon_button_scale",
+    )
+
+    Box(
+        modifier = modifier
+            .size(config.buttonSize)
+            .scale(scale),
+    ) {
+        IconButton(
+            onClick = onClick,
+            enabled = enabled && !loading,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = if (containerColor == Color.Transparent) {
+                    Color.Transparent
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
+                },
+                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
+            ),
+            interactionSource = interactionSource,
+        ) {
+            IconButtonContent(
+                icon = icon,
+                contentDescription = contentDescription,
+                loading = loading,
+                iconSize = config.iconSize,
+                contentColor = contentColor,
+            )
+        }
+    }
+}
+
+/**
+ * Outlined icon button component for Qode design system
+ *
+ * @param onClick Called when the button is clicked
+ * @param icon The icon to display
+ * @param contentDescription Accessibility description for the button
+ * @param modifier Modifier to be applied to the button
+ * @param size The size of the button
+ * @param enabled Whether the button is enabled
+ * @param loading Whether the button is in loading state
+ * @param contentColor Color of the icon
+ * @param borderColor Color of the border
+ */
+@Composable
+fun QodeinOutlinedIconButton(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    size: ButtonSize = ButtonSize.Medium,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
     borderColor: Color = MaterialTheme.colorScheme.outline
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -411,56 +473,30 @@ fun QodeinIconButton(
             .size(config.buttonSize)
             .scale(scale),
     ) {
-        if (outlined) {
-            OutlinedIconButton(
-                onClick = onClick,
-                enabled = enabled && !loading,
-                colors = IconButtonDefaults.outlinedIconButtonColors(
-                    contentColor = contentColor,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
-                ),
-                border = BorderStroke(
-                    width = ShapeTokens.Border.thin,
-                    color = if (enabled && !loading) {
-                        borderColor
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
-                    },
-                ),
-                interactionSource = interactionSource,
-            ) {
-                IconButtonContent(
-                    icon = icon,
-                    contentDescription = contentDescription,
-                    loading = loading,
-                    iconSize = config.iconSize,
-                    contentColor = contentColor,
-                )
-            }
-        } else {
-            IconButton(
-                onClick = onClick,
-                enabled = enabled && !loading,
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    disabledContainerColor = if (containerColor == Color.Transparent) {
-                        Color.Transparent
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
-                    },
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
-                ),
-                interactionSource = interactionSource,
-            ) {
-                IconButtonContent(
-                    icon = icon,
-                    contentDescription = contentDescription,
-                    loading = loading,
-                    iconSize = config.iconSize,
-                    contentColor = contentColor,
-                )
-            }
+        OutlinedIconButton(
+            onClick = onClick,
+            enabled = enabled && !loading,
+            colors = IconButtonDefaults.outlinedIconButtonColors(
+                contentColor = contentColor,
+                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
+            ),
+            border = BorderStroke(
+                width = ShapeTokens.Border.thin,
+                color = if (enabled && !loading) {
+                    borderColor
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
+                },
+            ),
+            interactionSource = interactionSource,
+        ) {
+            IconButtonContent(
+                icon = icon,
+                contentDescription = contentDescription,
+                loading = loading,
+                iconSize = config.iconSize,
+                contentColor = contentColor,
+            )
         }
     }
 }
@@ -553,7 +589,7 @@ private fun IconButtonContent(
 
 // MARK: - Previews
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeButtonVariantsPreview() {
     QodeTheme {
@@ -579,7 +615,7 @@ private fun QodeButtonVariantsPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeButtonSizesPreview() {
     QodeTheme {
@@ -608,7 +644,7 @@ private fun QodeButtonSizesPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeButtonWithIconPreview() {
     QodeTheme {
@@ -632,7 +668,7 @@ private fun QodeButtonWithIconPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeButtonLoadingPreview() {
     QodeTheme {
@@ -662,7 +698,7 @@ private fun QodeButtonLoadingPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeButtonDisabledPreview() {
     QodeTheme {
@@ -692,7 +728,7 @@ private fun QodeButtonDisabledPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeinIconButtonPreview() {
     QodeTheme {
@@ -720,12 +756,11 @@ private fun QodeinIconButtonPreview() {
                 contentDescription = "Favorite",
                 size = ButtonSize.Large,
             )
-            QodeinIconButton(
+            QodeinOutlinedIconButton(
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
                 size = ButtonSize.Medium,
-                outlined = true,
             )
         }
     }

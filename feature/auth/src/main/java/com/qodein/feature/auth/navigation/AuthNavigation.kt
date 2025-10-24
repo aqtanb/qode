@@ -28,6 +28,8 @@ fun NavGraphBuilder.authSection(
             AuthScreen(
                 onNavigateToHome = onAuthSuccess,
                 isDarkTheme = isDarkTheme,
+                onNavigateToTermsOfService = { TODO() },
+                onNavigateToPrivacyPolicy = { TODO() },
             )
         }
     }

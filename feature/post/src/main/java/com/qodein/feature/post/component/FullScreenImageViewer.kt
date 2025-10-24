@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.feature.post.R
 import dev.chrisbanes.haze.HazeState
@@ -62,7 +62,7 @@ internal fun FullScreenImageViewer(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun FullScreenImageViewerPreview() {
     QodeTheme {

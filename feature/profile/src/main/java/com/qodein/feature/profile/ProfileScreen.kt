@@ -45,10 +45,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.ButtonSize
@@ -122,6 +122,7 @@ fun ProfileScreen(
                 QodeErrorCard(
                     error = currentState.errorType,
                     onRetry = { viewModel.handleAction(ProfileAction.RetryClicked) },
+                    onDismiss = { },
                     modifier = Modifier
                         .padding(SpacingTokens.lg),
                 )
@@ -224,21 +225,22 @@ private fun AnimatedActionsSection(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInVertically(
-            initialOffsetY = { it / 2 },
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
-        ) + fadeIn(animationSpec = tween(1000, 400)),
-    ) {
-        LeaderboardCard(
-            onAction = onAction,
-            modifier = modifier.fillMaxWidth(),
-        )
-    }
+    // TODO: Uncomment when leaderboard logic is implemented
+//    AnimatedVisibility(
+//        visible = isVisible,
+//        enter = slideInVertically(
+//            initialOffsetY = { it / 2 },
+//            animationSpec = spring(
+//                dampingRatio = Spring.DampingRatioMediumBouncy,
+//                stiffness = Spring.StiffnessLow,
+//            ),
+//        ) + fadeIn(animationSpec = tween(1000, 400)),
+//    ) {
+//        LeaderboardCard(
+//            onAction = onAction,
+//            modifier = modifier.fillMaxWidth(),
+//        )
+//    }
 }
 
 @Composable
@@ -463,7 +465,7 @@ private fun StatItem(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ProfileHeaderPreview() {
     QodeTheme {
@@ -478,7 +480,7 @@ private fun ProfileHeaderPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun LeaderboardCardPreview() {
     QodeTheme {
@@ -490,25 +492,20 @@ private fun LeaderboardCardPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ProfileContentPreview() {
     QodeTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            ProfileContent(
-                user = UserPreviewData.powerUser,
-                scrollState = rememberScrollState(),
-                onAction = {},
-                onBackClick = {},
-            )
-        }
+        ProfileContent(
+            user = UserPreviewData.powerUser,
+            scrollState = rememberScrollState(),
+            onAction = {},
+            onBackClick = {},
+        )
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ProfileLoadingPreview() {
     QodeTheme {
@@ -533,7 +530,7 @@ private fun ProfileLoadingPreview() {
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ProfileErrorPreview() {
     QodeTheme {
@@ -548,6 +545,7 @@ private fun ProfileErrorPreview() {
                 QodeErrorCard(
                     error = SystemError.Offline,
                     onRetry = {},
+                    onDismiss = {},
                     modifier = Modifier.padding(SpacingTokens.lg),
                 )
             }

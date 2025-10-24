@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -170,7 +170,7 @@ fun QodeinCard(
 
 // MARK: Previews
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun QodeCardVariantsPreview() {
     QodeTheme {

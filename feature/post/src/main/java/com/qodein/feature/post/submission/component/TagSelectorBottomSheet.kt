@@ -32,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeinIcons
@@ -242,7 +242,7 @@ private fun TagSelectorContent(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun TagSelectorContentPreview() {
     QodeTheme {
