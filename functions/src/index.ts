@@ -6,6 +6,9 @@ import * as admin from 'firebase-admin';
 // Export unified interaction handler
 export { updateContentVotesFromInteractions } from './unifiedInteractionHandler';
 
+// Export scheduled tasks
+export { cleanupOldStorageFiles } from './scheduledTasks/cleanupOldStorageFiles';
+
 // Initialize Firebase Admin
 admin.initializeApp();
 const db = admin.firestore();

@@ -102,15 +102,21 @@ npm run init:votescores
 - **Purpose**: Maintains computed `voteScore` field (upvotes - downvotes)
 - **Performance**: Only triggers when vote counts change
 
-#### `initializeVoteScores` 
+#### `initializeVoteScores`
 - **Type**: Callable HTTPS function
 - **Purpose**: One-time migration to add voteScore to existing data
 - **Security**: Requires authentication
 
 #### `updateServicePromoCounts`
-- **Type**: Callable HTTPS function  
+- **Type**: Callable HTTPS function
 - **Purpose**: Updates denormalized promo code counts on services
 - **Use Case**: Run periodically or after bulk operations
+
+#### `cleanupOldStorageFiles`
+- **Type**: Scheduled function (runs daily at 2:00 AM UTC)
+- **Purpose**: Automatically deletes files from Firebase Storage older than 30 days
+- **Performance**: Processes files in batches of 100 to avoid memory issues
+- **Cost Optimization**: Reduces storage costs by removing outdated files
 
 ### Data Structure
 
@@ -151,6 +157,26 @@ The populators include:
 - **Batch Operations**: Populators use Firestore batches
 - **Computed Fields**: Pre-calculate expensive operations
 - **Free Tier Usage**: 2M function invocations/month free
+- **Automatic Storage Cleanup**: Daily deletion of files older than 30 days
+
+### Storage Cleanup Configuration
+
+The `cleanupOldStorageFiles` function automatically runs daily to delete old files:
+
+- **Schedule**: Daily at 2:00 AM UTC
+- **Retention Period**: 30 days (customizable in `cleanupOldStorageFiles.ts`)
+- **Batch Processing**: Processes 100 files at a time to avoid memory issues
+- **Logging**: Detailed logs of all deletions and errors
+
+To customize the retention period, edit the value in `functions/src/scheduledTasks/cleanupOldStorageFiles.ts`:
+```typescript
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30); // Change 30 to your desired days
+```
+
+To change the schedule, modify the schedule option:
+```typescript
+schedule: 'every day 02:00',  // Change to 'every 12 hours', 'every monday 00:00', etc.
+```
 
 ## 🔐 Security
 
