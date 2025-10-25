@@ -13,14 +13,13 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Repository interface for Post operations.
  * Returns Result<D, OperationError> for type-safe error handling.
- * Phase 1 (MVP): CREATE and READ only, tag filtering only.
  */
 interface PostRepository {
 
     /**
      * Create a new post.
      */
-    fun createPost(post: Post): Flow<Result<Post, OperationError>>
+    suspend fun createPost(post: Post): Result<Post, OperationError>
 
     /**
      * Get posts with optional tag filtering and sorting using cursor-based pagination.

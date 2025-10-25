@@ -27,17 +27,15 @@ class PostRepositoryImpl @Inject constructor(
     private val userDataSource: FirestoreUserDataSource
 ) : PostRepository {
 
-    override fun createPost(post: Post): Flow<Result<Post, OperationError>> =
-        flow {
-            val result = dataSource.createPost(post)
+    override suspend fun createPost(post: Post): Result<Post, OperationError> {
+        val result = dataSource.createPost(post)
 
-            if (result is Result.Success) {
-                userDataSource.incrementPostCount(post.authorId.value)
-                // We don't emit the increment result - it's not critical for post creation
-            }
-
-            emit(result)
+        if (result is Result.Success) {
+            userDataSource.incrementPostCount(post.authorId.value)
         }
+
+        return result
+    }
 
     override fun getPosts(
         sortBy: PostSortBy,

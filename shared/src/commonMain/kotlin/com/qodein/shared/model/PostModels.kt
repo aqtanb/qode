@@ -59,8 +59,9 @@ data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant
     }
 }
 
+@ConsistentCopyVisibility
 @Serializable
-data class Post(
+data class Post private constructor(
     val id: PostId,
     val authorId: UserId,
     val authorName: String,
@@ -76,19 +77,6 @@ data class Post(
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
-    init {
-        require(title.isNotBlank()) { "Post title cannot be blank" }
-        require(title.length <= 200) { "Post title cannot exceed 200 characters" }
-        content?.length?.let { require(it <= 2000) { "Post content cannot exceed 2000 characters" } }
-        require(authorName.isNotBlank()) { "Author username cannot be blank" }
-        require(upvotes >= 0) { "Upvotes cannot be negative" }
-        require(downvotes >= 0) { "Downvotes cannot be negative" }
-        require(shares >= 0) { "Shares cannot be negative" }
-        require(commentCount >= 0) { "Comment count cannot be negative" }
-        require(tags.size <= MAX_TAGS_SELECTED) { "Post cannot have more than 5 tags" }
-        require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
-    }
-
     val voteScore: Int get() = upvotes - downvotes
 
     companion object {
@@ -96,7 +84,7 @@ data class Post(
             authorId: UserId,
             authorUsername: String,
             title: String,
-            content: String?,
+            content: String? = null,
             imageUrls: List<String> = emptyList(),
             tags: List<String> = emptyList(),
             authorAvatarUrl: String? = null
@@ -152,6 +140,43 @@ data class Post(
                 ),
             )
         }
+
+        /**
+         * Reconstruct a Post from storage/DTO (for mappers/repositories only).
+         * Assumes data is already validated. No sanitization performed.
+         */
+        fun fromDto(
+            id: PostId,
+            authorId: UserId,
+            authorName: String,
+            authorAvatarUrl: String? = null,
+            title: String,
+            content: String?,
+            imageUrls: List<String> = emptyList(),
+            tags: List<Tag> = emptyList(),
+            upvotes: Int = 0,
+            downvotes: Int = 0,
+            shares: Int = 0,
+            commentCount: Int = 0,
+            createdAt: Instant,
+            updatedAt: Instant
+        ): Post =
+            Post(
+                id = id,
+                authorId = authorId,
+                authorName = authorName,
+                authorAvatarUrl = authorAvatarUrl,
+                title = title,
+                content = content,
+                imageUrls = imageUrls,
+                tags = tags,
+                upvotes = upvotes,
+                downvotes = downvotes,
+                shares = shares,
+                commentCount = commentCount,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+            )
 
         @OptIn(ExperimentalUuidApi::class)
         private fun generateRandomId(): String = Uuid.random().toHexString()

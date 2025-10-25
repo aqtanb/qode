@@ -6,8 +6,6 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.UserId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 /**
  * Use case for creating posts with domain validation.
@@ -20,7 +18,7 @@ class SubmitPostUseCase(private val postRepository: PostRepository) {
         private const val TAG = "SubmitPostUseCase"
     }
 
-    operator fun invoke(
+    suspend operator fun invoke(
         authorId: UserId,
         authorUsername: String,
         title: String,
@@ -28,32 +26,28 @@ class SubmitPostUseCase(private val postRepository: PostRepository) {
         imageUrls: List<String> = emptyList(),
         tags: List<String> = emptyList(),
         authorAvatarUrl: String? = null
-    ): Flow<Result<Post, OperationError>> =
-        flow {
-            Logger.i(TAG) { "Creating post: $title by $authorUsername" }
+    ): Result<Post, OperationError> {
+        Logger.i(TAG) { "Creating post: $title by $authorUsername" }
 
-            // Domain-level validation via Post.create()
-            when (
-                val createResult = Post.create(
-                    authorId = authorId,
-                    authorUsername = authorUsername,
-                    title = title,
-                    content = content,
-                    imageUrls = imageUrls,
-                    tags = tags,
-                    authorAvatarUrl = authorAvatarUrl,
-                )
-            ) {
-                is Result.Success -> {
-                    Logger.d(TAG) { "Post validation passed, delegating to repository" }
-                    postRepository.createPost(createResult.data).collect { result ->
-                        emit(result)
-                    }
-                }
-                is Result.Error -> {
-                    Logger.e(TAG) { "Post validation failed: ${createResult.error}" }
-                    emit(Result.Error(createResult.error))
-                }
+        return when (
+            val createResult = Post.create(
+                authorId = authorId,
+                authorUsername = authorUsername,
+                title = title,
+                content = content,
+                imageUrls = imageUrls,
+                tags = tags,
+                authorAvatarUrl = authorAvatarUrl,
+            )
+        ) {
+            is Result.Success -> {
+                Logger.d(TAG) { "Post validation passed, delegating to repository" }
+                postRepository.createPost(createResult.data)
+            }
+            is Result.Error -> {
+                Logger.e(TAG) { "Post validation failed: ${createResult.error}" }
+                Result.Error(createResult.error)
             }
         }
+    }
 }

@@ -34,7 +34,7 @@ kotlin {
 
 dependencies {
     // Shared multiplatform module
-    implementation(project(":shared"))
+    implementation(projects.shared)
 
     // Android-specific project modules
     implementation(projects.core.designsystem)

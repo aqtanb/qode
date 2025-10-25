@@ -147,7 +147,8 @@ class PostSubmissionViewModel @Inject constructor(
                 return@launch
             }
             _uiState.update { PostSubmissionUiState.Loading }
-            submitPostUseCase(
+
+            val result = submitPostUseCase(
                 authorId = user.id,
                 authorUsername = user.displayName,
                 title = currentState.title,
@@ -155,16 +156,16 @@ class PostSubmissionViewModel @Inject constructor(
                 tags = currentState.tags.map { it.value },
                 imageUrls = currentState.imageUris,
                 authorAvatarUrl = user.profile.photoUrl,
-            ).collect { result ->
-                when (result) {
-                    is Result.Error -> {
-                        analyticsHelper.logPostSubmission(null, false)
-                        _uiState.update { PostSubmissionUiState.Error(result.error) }
-                    }
-                    is Result.Success -> {
-                        analyticsHelper.logPostSubmission(result.data.id.value, true)
-                        _events.emit(PostSubmissionEvent.PostSubmitted)
-                    }
+            )
+
+            when (result) {
+                is Result.Error -> {
+                    analyticsHelper.logPostSubmission(null, false)
+                    _uiState.update { PostSubmissionUiState.Error(result.error) }
+                }
+                is Result.Success -> {
+                    analyticsHelper.logPostSubmission(result.data.id.value, true)
+                    _events.emit(PostSubmissionEvent.PostSubmitted)
                 }
             }
         }

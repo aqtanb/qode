@@ -37,7 +37,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":shared"))
+    implementation(projects.shared)
     implementation(projects.core.analytics)
 
     implementation(libs.hilt.android)

@@ -8,5 +8,5 @@ expect class PlatformUri {
     /**
      * String representation of the URI.
      */
-    fun toString(): String
+    override fun toString(): String
 }

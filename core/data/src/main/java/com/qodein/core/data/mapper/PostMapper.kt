@@ -15,7 +15,7 @@ import kotlin.time.toKotlinInstant
 object PostMapper {
 
     fun toDomain(dto: PostDto): Post =
-        Post(
+        Post.fromDto(
             id = PostId(dto.id),
             authorId = UserId(dto.authorId),
             authorName = dto.authorName,
