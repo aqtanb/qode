@@ -10,8 +10,5 @@ interface Notifier {
         max: Int
     )
     fun showUploadSuccess(uploadId: String)
-    fun showUploadError(
-        uploadId: String,
-        errorMessage: String
-    )
+    fun showUploadError(uploadId: String)
 }

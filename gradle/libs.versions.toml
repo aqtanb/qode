@@ -143,6 +143,7 @@ datastore-proto = { group = "androidx.datastore", name = "datastore", version.re
 
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 work-hilt = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltNavigationCompose" }
+hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltNavigationCompose" }
 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
@@ -282,12 +283,19 @@ authentication = [
     "googleid"
 ]
 
+
+
 icons = [
     "compose-icons-feather",
     "compose-icons-tabler",
     "compose-icons-font-awesome",
     "compose-icons-simple",
     "compose-icons-octicons"
+]
+
+work = [
+    "work-runtime-ktx",
+    "work-hilt"
 ]
 
 

@@ -6,6 +6,7 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -139,7 +140,10 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideCreatePostUseCase(postRepository: PostRepository): SubmitPostUseCase = SubmitPostUseCase(postRepository)
+    fun provideCreatePostUseCase(
+        postRepository: PostRepository,
+        storageRepository: StorageRepository
+    ): SubmitPostUseCase = SubmitPostUseCase(postRepository, storageRepository)
 
     // User Use Cases
     @Provides

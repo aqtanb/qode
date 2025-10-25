@@ -40,36 +40,24 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
-
     implementation(projects.core.data)
 
-    // Core Android & Compose
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
-
-    implementation(libs.kermit)
-
-    // Blur Effects
-    implementation(libs.haze)
-
-    // Dependency Injection
+    implementation(libs.bundles.image.loading)
     implementation(libs.bundles.hilt)
-    implementation(libs.androidx.compose.animation.core)
     ksp(libs.hilt.compiler)
+    implementation(libs.bundles.work)
 
-    // Testing
-    testImplementation(libs.bundles.testing.unit)
-    androidTestImplementation(libs.bundles.testing.android)
-
-    // Debug Tools
-    debugImplementation(libs.bundles.debug)
-
-    // DateTime
+    implementation(libs.androidx.compose.animation.core)
+    implementation(libs.kermit)
+    implementation(libs.haze)
     implementation(libs.kotlinx.datetime)
 
-    // Image
-    implementation(libs.bundles.image.loading)
+    testImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.bundles.testing.android)
+    debugImplementation(libs.bundles.debug)
 }

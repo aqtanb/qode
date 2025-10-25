@@ -14,8 +14,5 @@ internal class NoOpNotifier @Inject constructor() : Notifier {
 
     override fun showUploadSuccess(uploadId: String) = Unit
 
-    override fun showUploadError(
-        uploadId: String,
-        errorMessage: String
-    ) = Unit
+    override fun showUploadError(uploadId: String) = Unit
 }

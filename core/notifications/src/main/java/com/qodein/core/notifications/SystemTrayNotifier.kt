@@ -16,14 +16,38 @@ import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.qodein.core.designsystem.R as DesignSystemR
-import com.qodein.core.notifications.R as NotificationsR
 
+/**
+ * The fully qualified name of the main activity to launch when tapping notifications.
+ */
 private const val TARGET_ACTIVITY_NAME = "com.qodein.qode.MainActivity"
+
+/**
+ * Notification channel ID for upload-related notifications.
+ * Users can customize this channel's behavior in system settings.
+ */
 private const val UPLOAD_CHANNEL_ID = "post_upload"
+
+/**
+ * Group identifier for visually grouping multiple upload notifications together.
+ * All notifications with this group tag will be stacked in the notification drawer.
+ */
 private const val UPLOAD_NOTIFICATION_GROUP = "post_uploads"
-private const val UPLOAD_SUMMARY_ID = 1
+
+/**
+ * Fixed notification ID for the group summary notification.
+ * This ID must remain constant so Android can update/cancel the summary notification.
+ */
+private const val UPLOAD_SUMMARY_NOTIFICATION_ID = 1
+
+/**
+ * Deep link scheme for navigating to app content from notifications.
+ */
 private const val DEEP_LINK_SCHEME = "qodein"
+
+/**
+ * Deep link path segment for navigating to post detail screens.
+ */
 private const val DEEP_LINK_POST_PATH = "post"
 
 /**
@@ -40,9 +64,9 @@ internal class SystemTrayNotifier @Inject constructor(@param:ApplicationContext 
         if (!hasNotificationPermission()) return
 
         val notification = context.createUploadNotification {
-            setContentTitle(context.getString(NotificationsR.string.core_notifications_upload_in_progress))
-            setContentText(context.getString(NotificationsR.string.core_notifications_upload_progress, progress, max))
-            setSmallIcon(DesignSystemR.drawable.ic_qode)
+            setContentTitle(context.getString(R.string.core_notifications_upload_in_progress))
+            setContentText(context.getString(R.string.core_notifications_upload_progress, progress, max))
+            setSmallIcon(R.drawable.core_notifications_ic_qode_notification)
             setProgress(max, progress, false)
             setOngoing(true)
             setGroup(UPLOAD_NOTIFICATION_GROUP)
@@ -56,34 +80,31 @@ internal class SystemTrayNotifier @Inject constructor(@param:ApplicationContext 
         if (!hasNotificationPermission()) return
 
         NotificationManagerCompat.from(context).cancel(uploadId.hashCode())
+        NotificationManagerCompat.from(context).cancel(UPLOAD_SUMMARY_NOTIFICATION_ID)
 
         val notification = context.createUploadNotification {
-            setContentTitle(context.getString(NotificationsR.string.core_notifications_upload_success))
-            setContentText(context.getString(NotificationsR.string.core_notifications_tap_to_view))
+            setContentTitle(context.getString(R.string.core_notifications_upload_success))
+            setContentText(context.getString(R.string.core_notifications_tap_to_view))
             setContentIntent(context.createPostDeepLinkIntent(uploadId))
-            setSmallIcon(DesignSystemR.drawable.ic_qode)
+            setSmallIcon(R.drawable.core_notifications_ic_qode_notification)
             setAutoCancel(true)
-            setGroup(UPLOAD_NOTIFICATION_GROUP)
         }
 
         NotificationManagerCompat.from(context).notify(uploadId.hashCode(), notification)
     }
 
-    override fun showUploadError(
-        uploadId: String,
-        errorMessage: String
-    ) {
+    override fun showUploadError(uploadId: String) {
         if (!hasNotificationPermission()) return
 
         NotificationManagerCompat.from(context).cancel(uploadId.hashCode())
+        NotificationManagerCompat.from(context).cancel(UPLOAD_SUMMARY_NOTIFICATION_ID)
 
         // TODO: Implement retry intent using BroadcastReceiver
         val notification = context.createUploadNotification {
-            setContentTitle(context.getString(NotificationsR.string.core_notifications_upload_failed))
-            setContentText(errorMessage)
-            setSmallIcon(DesignSystemR.drawable.ic_qode)
+            setContentTitle(context.getString(R.string.core_notifications_upload_failed))
+            setContentText(context.getString(R.string.core_notifications_upload_failed_content))
+            setSmallIcon(R.drawable.core_notifications_ic_qode_notification)
             setAutoCancel(true)
-            setGroup(UPLOAD_NOTIFICATION_GROUP)
         }
 
         NotificationManagerCompat.from(context).notify(uploadId.hashCode(), notification)
@@ -100,14 +121,14 @@ internal class SystemTrayNotifier @Inject constructor(@param:ApplicationContext 
         if (!hasNotificationPermission()) return
 
         val summaryNotification = context.createUploadNotification {
-            setContentTitle(context.getString(NotificationsR.string.core_notifications_uploading_posts))
-            setContentText(context.getString(NotificationsR.string.core_notifications_multiple_uploads))
-            setSmallIcon(DesignSystemR.drawable.ic_qode)
+            setContentTitle(context.getString(R.string.core_notifications_uploading_posts))
+            setContentText(context.getString(R.string.core_notifications_multiple_uploads))
+            setSmallIcon(R.drawable.core_notifications_ic_qode_notification)
             setGroup(UPLOAD_NOTIFICATION_GROUP)
             setGroupSummary(true)
         }
 
-        NotificationManagerCompat.from(context).notify(UPLOAD_SUMMARY_ID, summaryNotification)
+        NotificationManagerCompat.from(context).notify(UPLOAD_SUMMARY_NOTIFICATION_ID, summaryNotification)
     }
 }
 
@@ -126,10 +147,10 @@ private fun Context.createUploadNotification(block: NotificationCompat.Builder.(
 private fun Context.ensureNotificationChannelExists() {
     val channel = NotificationChannel(
         UPLOAD_CHANNEL_ID,
-        getString(NotificationsR.string.core_notifications_upload_channel_name),
+        getString(R.string.core_notifications_upload_channel_name),
         NotificationManager.IMPORTANCE_LOW,
     ).apply {
-        description = getString(NotificationsR.string.core_notifications_upload_channel_description)
+        description = getString(R.string.core_notifications_upload_channel_description)
     }
 
     NotificationManagerCompat.from(this).createNotificationChannel(channel)

@@ -1,18 +1,21 @@
 package com.qodein.feature.post.submission
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
+import coil.util.CoilUtils.result
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.analytics.logPostSubmission
+import com.qodein.core.data.worker.UploadPostWorker
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
-import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostSubmissionViewModel @Inject constructor(
-    private val submitPostUseCase: SubmitPostUseCase,
+    @param:ApplicationContext private val context: Context,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val analyticsHelper: AnalyticsHelper
@@ -148,26 +151,17 @@ class PostSubmissionViewModel @Inject constructor(
             }
             _uiState.update { PostSubmissionUiState.Loading }
 
-            val result = submitPostUseCase(
-                authorId = user.id,
-                authorUsername = user.displayName,
+            val workRequest = UploadPostWorker.createWorkRequest(
                 title = currentState.title,
                 content = currentState.content,
                 tags = currentState.tags.map { it.value },
-                imageUrls = currentState.imageUris,
+                imageUris = currentState.imageUris,
+                authorId = user.id.value,
+                authorUsername = user.displayName,
                 authorAvatarUrl = user.profile.photoUrl,
             )
-
-            when (result) {
-                is Result.Error -> {
-                    analyticsHelper.logPostSubmission(null, false)
-                    _uiState.update { PostSubmissionUiState.Error(result.error) }
-                }
-                is Result.Success -> {
-                    analyticsHelper.logPostSubmission(result.data.id.value, true)
-                    _events.emit(PostSubmissionEvent.PostSubmitted)
-                }
-            }
+            WorkManager.getInstance(context).enqueue(workRequest)
+            _events.emit(PostSubmissionEvent.PostSubmitted)
         }
     }
 

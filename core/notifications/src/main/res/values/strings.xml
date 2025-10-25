@@ -18,4 +18,5 @@
 
     <!-- Upload Error -->
     <string name="core_notifications_upload_failed">Upload failed</string>
+    <string name="core_notifications_upload_failed_content">Try again later</string>
 </resources>

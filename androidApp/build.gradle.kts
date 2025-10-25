@@ -80,6 +80,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
+    implementation(projects.core.notifications)
 
     implementation(projects.feature.auth)
     implementation(projects.feature.home)
@@ -89,31 +90,23 @@ dependencies {
     implementation(projects.feature.promocode)
     implementation(projects.feature.settings)
 
-    // Core Android & Compose
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
-    implementation(libs.androidx.startup)
-
-    // Dependency Injection
+    implementation(libs.bundles.work)
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase)
-
-    // Logging
+    implementation(libs.androidx.startup)
     implementation(libs.kermit)
     implementation(libs.timber)
 
-    // Testing
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-
-    // Debug Tools
     debugImplementation(libs.bundles.debug)
 }

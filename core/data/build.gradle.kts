@@ -39,16 +39,18 @@ kotlin {
 dependencies {
     implementation(projects.shared)
     implementation(projects.core.analytics)
+    implementation(projects.core.notifications)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.bundles.coroutines)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
     implementation(libs.bundles.authentication)
+    implementation(libs.bundles.work)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.ext.compiler)
     implementation(libs.datastore.preferences)
-    implementation(libs.work.runtime.ktx)
-    implementation(libs.work.hilt)
     implementation(libs.androidx.core.ktx)
     implementation(libs.timber)
     implementation(libs.kermit)
