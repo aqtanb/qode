@@ -4,64 +4,125 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.qodein.core.data.model.PostSummaryDto
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.PostPreviewData
+import com.qodein.feature.post.component.FullScreenImageViewer
+import com.qodein.feature.post.feed.component.FeedTopAppBar
 import com.qodein.feature.post.feed.component.PostCard
+import com.qodein.feature.post.feed.component.PostCardSkeleton
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.User
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
-fun FeedScreen(
+fun FeedRoute(
+    user: User?,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background,
-    ) { paddingValues ->
-        Box(
+    FeedScreen(
+        uiState = uiState,
+        user = user,
+        onRetry = { viewModel.onAction(FeedAction.LoadPosts) },
+        onProfileClick = onProfileClick,
+        onSettingsClick = onSettingsClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun FeedScreen(
+    uiState: FeedUiState,
+    user: User?,
+    onRetry: () -> Unit,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageUri by remember { mutableStateOf("") }
+    val hazeState = remember { HazeState() }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            when (val currentState = uiState) {
-                is FeedUiState.Loading -> FeedLoadingState(modifier = modifier.fillMaxSize())
-                is FeedUiState.Success -> {
-                    FeedContent(
-                        posts = currentState.posts,
+                .hazeSource(state = hazeState),
+            topBar = {
+                FeedTopAppBar(
+                    user = user,
+                    onProfileClick = onProfileClick,
+                    onSettingsClick = onSettingsClick,
+                )
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = MaterialTheme.colorScheme.background,
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                when (val currentState = uiState) {
+                    is FeedUiState.Loading -> FeedLoadingState()
+                    is FeedUiState.Success -> {
+                        FeedContent(
+                            posts = currentState.posts,
+                            onImageClick = { uri ->
+                                focusManager.clearFocus()
+                                fullScreenImageUri = uri
+                                showFullScreenImage = true
+                            },
+                        )
+                    }
+                    is FeedUiState.Error -> FeedErrorState(
+                        error = currentState.error,
+                        onRetry = onRetry,
                     )
                 }
-                is FeedUiState.Error -> FeedErrorState(
-                    onRetry = { viewModel.onAction(FeedAction.LoadPosts) },
-                    modifier = modifier.fillMaxSize(),
-                )
             }
+        }
+
+        if (showFullScreenImage) {
+            FullScreenImageViewer(
+                uri = fullScreenImageUri,
+                onDismiss = { showFullScreenImage = false },
+                hazeState = hazeState,
+            )
         }
     }
 }
@@ -69,16 +130,25 @@ fun FeedScreen(
 @Composable
 private fun FeedContent(
     posts: List<Post>,
+    onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(horizontal = SpacingTokens.sm),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
     ) {
-        items(posts.size) {
+        items(posts.size) { index ->
+            if (index < posts.size) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = SpacingTokens.md),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
+            }
+
             PostCard(
-                post = posts[it],
+                post = posts[index],
                 onPostClick = { },
+                onImageClick = onImageClick,
             )
         }
     }
@@ -86,118 +156,46 @@ private fun FeedContent(
 
 @Composable
 private fun FeedLoadingState(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = SpacingTokens.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = "Loading posts...",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun FeedErrorState(
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.padding(SpacingTokens.xl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = "Failed to load posts",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-        )
-
-        Text(
-            text = "Please check your connection and try again",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-
-        TextButton(
-            onClick = onRetry,
-            modifier = Modifier.padding(top = SpacingTokens.sm),
-        ) {
-            Text("Retry")
+        items(3) { index ->
+            PostCardSkeleton(
+                showImage = index % 2 == 0,
+            )
         }
     }
 }
 
 @Composable
-private fun FeedEmptyState(
-    searchQuery: String,
+private fun FeedErrorState(
+    error: OperationError,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.padding(SpacingTokens.xl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        Text(
-            text = if (searchQuery.isNotEmpty()) {
-                "No posts found for \"$searchQuery\""
-            } else {
-                "No posts available"
-            },
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-        )
-
-        Text(
-            text = if (searchQuery.isNotEmpty()) {
-                "Try adjusting your search terms or check back later for new posts."
-            } else {
-                "Be the first to share something interesting with the community!"
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-// Extension function to convert domain Post to PostSummaryDto for PostCard
-private fun Post.toSummaryDto(): PostSummaryDto =
-    PostSummaryDto(
-        id = id.value,
-        authorName = authorName,
-        authorAvatarUrl = authorAvatarUrl,
-        title = title,
-        contentPreview = content?.length?.let { if (it > 200) content?.take(200) + "..." else content },
-        imageUrls = imageUrls,
-        tags = tags.map { it.value },
-        upvotes = upvotes,
-        downvotes = downvotes,
-        commentCount = commentCount,
-        voteScore = upvotes - downvotes,
-        userVoteState = "NONE", // Will be determined by user interaction state
+    QodeErrorCard(
+        error = error,
+        onRetry = onRetry,
+        modifier = modifier,
     )
+}
 
 @ThemePreviews
 @Composable
 private fun FeedScreenPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             FeedContent(
                 posts = PostPreviewData.allPosts,
+                onImageClick = {},
             )
         }
     }
@@ -207,9 +205,11 @@ private fun FeedScreenPreview() {
 @Composable
 private fun FeedScreenLoadingStatePreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center,
         ) {
             FeedLoadingState()
         }
@@ -220,11 +220,16 @@ private fun FeedScreenLoadingStatePreview() {
 @Composable
 private fun FeedScreenErrorStatePreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center,
         ) {
-            FeedErrorState(onRetry = {})
+            FeedErrorState(
+                error = SystemError.Offline,
+                onRetry = {},
+            )
         }
     }
 }

@@ -8,17 +8,21 @@ import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
 import com.qodein.feature.post.navigation.postSubmissionSection
+import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
+import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.shared.model.Language
+import com.qodein.shared.model.User
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
     userLanguage: Language,
+    user: User?,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
@@ -42,7 +46,11 @@ fun QodeNavHost(
             scrollStateRegistry = appState,
         )
 
-        feedSection()
+        feedSection(
+            user = user,
+            onProfileClick = { navController.navigateToProfile() },
+            onSettingsClick = { navController.navigateToSettings() },
+        )
 
         profileSection(
             onBackClick = {

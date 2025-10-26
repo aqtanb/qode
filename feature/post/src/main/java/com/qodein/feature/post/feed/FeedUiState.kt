@@ -12,5 +12,5 @@ sealed interface FeedUiState {
 
     data class Success(val posts: List<Post> = emptyList()) : FeedUiState
 
-    data class Error(val errorType: OperationError) : FeedUiState
+    data class Error(val error: OperationError) : FeedUiState
 }

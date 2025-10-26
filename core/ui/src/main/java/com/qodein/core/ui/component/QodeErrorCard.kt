@@ -36,28 +36,16 @@ import com.qodein.shared.common.error.SystemError
 @Composable
 fun QodeErrorCard(
     error: OperationError,
-    onDismiss: (() -> Unit),
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.error_default_title),
+    onDismiss: (() -> Unit)? = null,
     onRetry: (() -> Unit)? = null
 ) {
     QodeinElevatedCard(
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         modifier = modifier.fillMaxWidth(),
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            QodeinIconButton(
-                onClick = onDismiss,
-                icon = QodeActionIcons.Close,
-                contentDescription = "Close button",
-                size = ButtonSize.Small,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(SpacingTokens.sm),
-            )
-
+        Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
                     .padding(SpacingTokens.xl)
@@ -74,7 +62,6 @@ fun QodeErrorCard(
                     textAlign = TextAlign.Center,
                 )
 
-                // Error message from OperationError
                 Text(
                     text = error.asUiText(),
                     style = MaterialTheme.typography.bodyMedium,
@@ -82,7 +69,6 @@ fun QodeErrorCard(
                     textAlign = TextAlign.Center,
                 )
 
-                // Retry button (only show if callback provided)
                 if (onRetry != null) {
                     QodeButton(
                         text = stringResource(R.string.action_retry),
@@ -92,6 +78,18 @@ fun QodeErrorCard(
                             .padding(top = SpacingTokens.sm),
                     )
                 }
+            }
+
+            if (onDismiss != null) {
+                QodeinIconButton(
+                    onClick = onDismiss,
+                    icon = QodeActionIcons.Close,
+                    contentDescription = stringResource(R.string.cd_close),
+                    size = ButtonSize.Small,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(SpacingTokens.sm),
+                )
             }
         }
     }

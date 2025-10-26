@@ -324,6 +324,7 @@ private fun PostSubmissionContent(
                     currentPage = page + 1,
                     totalPages = uiState.imageUris.size,
                     onRemove = { onAction(PostSubmissionAction.RemoveImage(page)) },
+                    ratio = 1f,
                     onClick = { onOpenImage(page) },
                 )
             }

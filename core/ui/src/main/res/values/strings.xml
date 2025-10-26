@@ -19,6 +19,7 @@
     <!-- Navigation -->
     <string name="navigate_back">Navigate back</string>
     <string name="close">Close</string>
+    <string name="cd_close">Close button</string>
     <string name="clear_search">Clear search</string>
     <string name="clear_phone_number">Clear phone number</string>
 

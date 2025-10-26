@@ -49,7 +49,7 @@ object SpacingTokens {
     /** 80dp - Massive: landing screens, wide layouts */
     val massive = 80.dp
 
-    /** 96dp - Gigantic: banners, big empty states */
+    /** 96dp - Gigantic: banners, big empty states, space for floating controller */
     val gigantic = 96.dp
 }
 
@@ -95,7 +95,9 @@ object SizeTokens {
     @Immutable
     object Chip {
         val height = 32.dp
-        val heightSmall = 24.dp
+        val sizeSmall = 16.dp
+        val sizeMedium = 24.dp
+        val sizeLarge = 32.dp
     }
 
     @Immutable
