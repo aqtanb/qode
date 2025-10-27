@@ -33,5 +33,5 @@ interface PostRepository {
     /**
      * Get a specific post by ID.
      */
-    fun getPostById(id: PostId): Flow<Result<Post?, OperationError>>
+    suspend fun getPostById(id: PostId): Result<Post, OperationError>
 }

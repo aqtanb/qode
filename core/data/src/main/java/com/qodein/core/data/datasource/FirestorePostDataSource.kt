@@ -3,6 +3,7 @@ package com.qodein.core.data.datasource
 import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.mapper.PostMapper
@@ -124,7 +125,7 @@ class FirestorePostDataSource @Inject constructor(
             Result.Error(SystemError.Unknown)
         }
 
-    suspend fun getPostById(id: PostId): Result<Post?, OperationError> {
+    suspend fun getPostById(id: PostId): Result<Post, OperationError> {
         Logger.d(TAG) { "Fetching post by ID: ${id.value}" }
 
         return try {
@@ -135,21 +136,33 @@ class FirestorePostDataSource @Inject constructor(
 
             if (!docSnapshot.exists()) {
                 Logger.w(TAG) { "Post not found: ${id.value}" }
-                return Result.Success(null)
+                return Result.Error(PostError.RetrievalFailure.NotFound)
             }
 
             val dto = docSnapshot.toObject<PostDto>()
             if (dto == null) {
-                Logger.w(TAG) { "Failed to convert post document to DTO: ${id.value}" }
+                Logger.e(TAG) { "Failed to convert post document to DTO: ${id.value}" }
                 return Result.Error(PostError.RetrievalFailure.NotFound)
             }
 
+            Logger.i(TAG) { "Successfully fetched post: ${id.value}" }
             Result.Success(PostMapper.toDomain(dto))
+        } catch (e: FirebaseFirestoreException) {
+            Logger.e(TAG, e) { "Firestore exception: code=${e.code}" }
+            val error = when (e.code) {
+                FirebaseFirestoreException.Code.PERMISSION_DENIED -> PostError.RetrievalFailure.AccessDenied
+                FirebaseFirestoreException.Code.UNAUTHENTICATED -> SystemError.Unauthorized
+                FirebaseFirestoreException.Code.UNAVAILABLE -> SystemError.ServiceDown
+                FirebaseFirestoreException.Code.DEADLINE_EXCEEDED -> SystemError.Offline
+                FirebaseFirestoreException.Code.RESOURCE_EXHAUSTED -> SystemError.ServiceDown
+                else -> SystemError.Unknown
+            }
+            Result.Error(error)
         } catch (e: IOException) {
             Logger.e(TAG, e) { "Network error fetching post: ${id.value}" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Failed to fetch post: ${id.value}" }
+            Logger.e(TAG, e) { "Unexpected error fetching post: ${id.value}" }
             Result.Error(SystemError.Unknown)
         }
     }

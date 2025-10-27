@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -37,6 +36,7 @@ import com.qodein.feature.post.feed.component.PostCardSkeleton
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.PostId
 import com.qodein.shared.model.User
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
@@ -46,17 +46,26 @@ fun FeedRoute(
     user: User?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onPostClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                FeedEvent.NavigateToProfile -> onProfileClick
+                FeedEvent.NavigateToSettings -> onSettingsClick()
+                is FeedEvent.NavigateToPost -> onPostClick(event.postId.value)
+            }
+        }
+    }
+
     FeedScreen(
         uiState = uiState,
         user = user,
-        onRetry = { viewModel.onAction(FeedAction.LoadPosts) },
-        onProfileClick = onProfileClick,
-        onSettingsClick = onSettingsClick,
+        onAction = { viewModel.onAction(it) },
         modifier = modifier,
     )
 }
@@ -65,9 +74,7 @@ fun FeedRoute(
 internal fun FeedScreen(
     uiState: FeedUiState,
     user: User?,
-    onRetry: () -> Unit,
-    onProfileClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onAction: (FeedAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -84,8 +91,8 @@ internal fun FeedScreen(
             topBar = {
                 FeedTopAppBar(
                     user = user,
-                    onProfileClick = onProfileClick,
-                    onSettingsClick = onSettingsClick,
+                    onProfileClick = { onAction(FeedAction.ProfileClicked) },
+                    onSettingsClick = { onAction(FeedAction.SettingsClicked) },
                 )
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -107,11 +114,12 @@ internal fun FeedScreen(
                                 fullScreenImageUri = uri
                                 showFullScreenImage = true
                             },
+                            onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
                         )
                     }
                     is FeedUiState.Error -> FeedErrorState(
                         error = currentState.error,
-                        onRetry = onRetry,
+                        onRetry = { onAction(FeedAction.RetryClicked) },
                     )
                 }
             }
@@ -130,6 +138,7 @@ internal fun FeedScreen(
 @Composable
 private fun FeedContent(
     posts: List<Post>,
+    onPostClick: (PostId) -> Unit,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -147,7 +156,7 @@ private fun FeedContent(
 
             PostCard(
                 post = posts[index],
-                onPostClick = { },
+                onPostClick = { onPostClick(posts[index].id) },
                 onImageClick = onImageClick,
             )
         }
@@ -196,6 +205,7 @@ private fun FeedScreenPreview() {
             FeedContent(
                 posts = PostPreviewData.allPosts,
                 onImageClick = {},
+                onPostClick = {},
             )
         }
     }

@@ -46,8 +46,5 @@ class PostRepositoryImpl @Inject constructor(
             emit(dataSource.getPosts(sortBy, filterByTags, paginationRequest))
         }
 
-    override fun getPostById(id: PostId): Flow<Result<Post?, OperationError>> =
-        flow {
-            emit(dataSource.getPostById(id))
-        }
+    override suspend fun getPostById(id: PostId): Result<Post, OperationError> = dataSource.getPostById(id)
 }

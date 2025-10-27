@@ -5,7 +5,6 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Use case for fetching a single post by ID.
@@ -14,5 +13,5 @@ import kotlinx.coroutines.flow.Flow
  */
 class GetPostByIdUseCase(private val postRepository: PostRepository) {
 
-    operator fun invoke(id: PostId): Flow<Result<Post?, OperationError>> = postRepository.getPostById(id)
+    suspend operator fun invoke(id: PostId): Result<Post, OperationError> = postRepository.getPostById(id)
 }

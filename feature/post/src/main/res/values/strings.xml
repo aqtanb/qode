@@ -44,4 +44,10 @@
     <string name="image_load_failed">Failed to load the image</string>
     <string name="feed_load_failed">Failed to load the feed</string>
     <string name="cd_feed_load_failed">Feed load failed</string>
+
+    <!-- Post Detail -->
+    <string name="cd_upvote">Upvote, %1$d</string>
+    <string name="cd_downvote">Downvote, %1$d</string>
+    <string name="cd_comments">Comments, %1$d</string>
+    <string name="cd_share">Share</string>
 </resources>

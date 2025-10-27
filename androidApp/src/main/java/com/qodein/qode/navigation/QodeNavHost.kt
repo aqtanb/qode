@@ -7,6 +7,8 @@ import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
+import com.qodein.feature.post.navigation.navigateToPostDetail
+import com.qodein.feature.post.navigation.postDetailSection
 import com.qodein.feature.post.navigation.postSubmissionSection
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
@@ -50,6 +52,9 @@ fun QodeNavHost(
             user = user,
             onProfileClick = { navController.navigateToProfile() },
             onSettingsClick = { navController.navigateToSettings() },
+            onPostClick = { postId ->
+                navController.navigateToPostDetail(postId)
+            },
         )
 
         profileSection(
@@ -90,6 +95,11 @@ fun QodeNavHost(
             onBackClick = {
                 navController.popBackStack()
             },
+        )
+
+        postDetailSection(
+            onNavigateBack = { navController.popBackStack() },
+            isDarkTheme = isDarkTheme,
         )
     }
 }
