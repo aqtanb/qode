@@ -224,6 +224,20 @@ fun PostSubmissionScreen(
                             )
                         }
 
+                        if (currentState.compression is ImageCompressionState.Compressing) {
+                            LaunchedEffect(currentState.compression) {
+                                snackbarHostState.showSnackbar(
+                                    message = context.getString(
+                                        R.string.compressing_images,
+                                        currentState.compression.current,
+                                        currentState.compression.total,
+                                    ),
+                                    withDismissAction = false,
+                                    duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+                                )
+                            }
+                        }
+
                         if (showTagBottomSheet) {
                             TagSelectorBottomSheet(
                                 selectedTags = currentState.tags,

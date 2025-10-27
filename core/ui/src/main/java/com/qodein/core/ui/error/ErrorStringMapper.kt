@@ -83,13 +83,17 @@ fun OperationError.asUiText(): String =
         is PostError.SubmissionFailure.InvalidData -> "Invalid Data"
         is PostError.SubmissionFailure.NotAuthorized -> "Authorize to post"
         is SystemError.PermissionDenied -> "Permission Denied"
-        StorageError.DeletionFailure.FileNotFound -> TODO()
-        StorageError.RetrievalFailure.FileNotFound -> TODO()
-        StorageError.UploadFailure.CorruptedFile -> TODO()
-        StorageError.UploadFailure.FileTooLarge -> TODO()
-        StorageError.UploadFailure.InvalidFileType -> TODO()
-        StorageError.UploadFailure.NotAuthenticated -> TODO()
-        StorageError.UploadFailure.QuotaExceeded -> TODO()
-        StorageError.UploadFailure.UploadCancelled -> TODO()
-        SystemError.Unauthorized -> TODO()
+        StorageError.DeletionFailure.FileNotFound -> stringResource(R.string.error_storage_file_not_found)
+        StorageError.RetrievalFailure.FileNotFound -> stringResource(R.string.error_storage_file_not_found)
+        StorageError.UploadFailure.CorruptedFile -> stringResource(R.string.error_storage_upload_corrupted_file)
+        StorageError.UploadFailure.FileTooLarge -> stringResource(R.string.error_storage_upload_file_too_large)
+        StorageError.UploadFailure.InvalidFileType -> stringResource(R.string.error_storage_upload_invalid_file_type)
+        StorageError.UploadFailure.NotAuthenticated -> stringResource(R.string.error_storage_upload_not_authenticated)
+        StorageError.UploadFailure.QuotaExceeded -> stringResource(R.string.error_storage_upload_quota_exceeded)
+        StorageError.UploadFailure.UploadCancelled -> stringResource(R.string.error_storage_upload_cancelled)
+        StorageError.CompressionFailure.CannotReadImage -> stringResource(R.string.error_storage_compression_cannot_read)
+        StorageError.CompressionFailure.InvalidImageFormat -> stringResource(R.string.error_storage_compression_invalid_format)
+        StorageError.CompressionFailure.OutOfMemory -> stringResource(R.string.error_storage_compression_out_of_memory)
+        StorageError.CompressionFailure.CompressionFailed -> stringResource(R.string.error_storage_compression_failed)
+        SystemError.Unauthorized -> stringResource(R.string.error_auth_unauthorized)
     }

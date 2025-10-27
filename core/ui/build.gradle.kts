@@ -58,6 +58,10 @@ dependencies {
 
     // Logging
     implementation(libs.timber)
+    implementation(libs.kermit)
+
+    // Image Processing
+    implementation(libs.androidx.exifinterface)
 
     // Testing
     testImplementation(libs.bundles.testing.unit)

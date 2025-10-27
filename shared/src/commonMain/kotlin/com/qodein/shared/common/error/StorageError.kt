@@ -31,4 +31,14 @@ sealed interface StorageError : OperationError {
     sealed interface DeletionFailure : StorageError {
         data object FileNotFound : DeletionFailure
     }
+
+    /**
+     * Image compression failures
+     */
+    sealed interface CompressionFailure : StorageError {
+        data object CannotReadImage : CompressionFailure
+        data object InvalidImageFormat : CompressionFailure
+        data object OutOfMemory : CompressionFailure
+        data object CompressionFailed : CompressionFailure
+    }
 }

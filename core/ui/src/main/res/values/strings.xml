@@ -184,6 +184,19 @@
     <string name="error_post_no_results">No posts found</string>
     <string name="error_post_access_denied">You don\'t have permission to access this post</string>
 
+    <!-- Storage Errors -->
+    <string name="error_storage_upload_not_authenticated">You must be signed in to upload files</string>
+    <string name="error_storage_upload_quota_exceeded">Storage quota exceeded. Please try again later.</string>
+    <string name="error_storage_upload_file_too_large">File is too large to upload</string>
+    <string name="error_storage_upload_invalid_file_type">Invalid file type</string>
+    <string name="error_storage_upload_cancelled">Upload was cancelled</string>
+    <string name="error_storage_upload_corrupted_file">File appears to be corrupted</string>
+    <string name="error_storage_file_not_found">File not found</string>
+    <string name="error_storage_compression_cannot_read">Cannot read image file</string>
+    <string name="error_storage_compression_invalid_format">Invalid or unsupported image format</string>
+    <string name="error_storage_compression_out_of_memory">Image is too large to process</string>
+    <string name="error_storage_compression_failed">Failed to compress image. Please try another image.</string>
+
     <!-- Error Actions -->
     <string name="action_retry">Retry</string>
     <string name="action_sign_in">Sign In</string>

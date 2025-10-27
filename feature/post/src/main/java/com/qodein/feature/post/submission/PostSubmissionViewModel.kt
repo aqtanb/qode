@@ -1,6 +1,7 @@
 package com.qodein.feature.post.submission
 
 import android.content.Context
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
@@ -8,6 +9,7 @@ import co.touchlab.kermit.Logger
 import coil.util.CoilUtils.result
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.data.worker.UploadPostWorker
+import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -134,9 +136,51 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun updateImageUris(uris: List<String>) {
-        updateSuccessState { state ->
-            val newUris = (state.imageUris + uris).take(5) // Max 5 images
-            state.copy(imageUris = newUris)
+        viewModelScope.launch {
+            val currentState = uiState.value
+            if (currentState !is PostSubmissionUiState.Success) return@launch
+
+            val availableSlots = 5 - currentState.imageUris.size
+            val urisToCompress = uris.take(availableSlots).map { it.toUri() }
+
+            if (urisToCompress.isEmpty()) return@launch
+
+            Logger.d(TAG) { "Starting compression for ${urisToCompress.size} images" }
+
+            // Update state to show compression progress
+            updateSuccessState {
+                it.copy(compression = ImageCompressionState.Compressing(0, urisToCompress.size))
+            }
+
+            val result = ImageCompressor.compressImages(
+                context = context,
+                uris = urisToCompress,
+                onProgress = { current, total ->
+                    updateSuccessState {
+                        it.copy(compression = ImageCompressionState.Compressing(current, total))
+                    }
+                },
+            )
+
+            when (result) {
+                is Result.Success -> {
+                    Logger.i(TAG) { "Successfully compressed ${result.data.size} images" }
+                    val compressedUriStrings = result.data.map { it.toString() }
+                    updateSuccessState { state ->
+                        state.copy(
+                            imageUris = state.imageUris + compressedUriStrings,
+                            compression = ImageCompressionState.Idle,
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    Logger.e(TAG) { "Image compression failed: ${result.error}" }
+                    updateSuccessState {
+                        it.copy(compression = ImageCompressionState.Idle)
+                    }
+                    _events.emit(PostSubmissionEvent.ShowError(result.error))
+                }
+            }
         }
     }
 

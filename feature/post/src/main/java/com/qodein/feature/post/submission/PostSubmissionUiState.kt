@@ -34,6 +34,9 @@ sealed interface PostSubmissionUiState {
         // Submission state
         val submission: PostSubmissionState = PostSubmissionState.Idle,
 
+        // Compression state
+        val compression: ImageCompressionState = ImageCompressionState.Idle,
+
         // Validation
         val validationErrors: ValidationErrors = ValidationErrors()
     ) : PostSubmissionUiState {
@@ -51,6 +54,7 @@ sealed interface PostSubmissionUiState {
                 areTagsValid &&
                 areImagesValid &&
                 submission is PostSubmissionState.Idle &&
+                compression is ImageCompressionState.Idle &&
                 authentication is PostAuthenticationState.Authenticated
 
         companion object {
@@ -80,6 +84,16 @@ sealed interface PostAuthenticationState {
 sealed interface PostSubmissionState {
     data object Idle : PostSubmissionState
     data object Submitting : PostSubmissionState
+}
+
+/**
+ * Image compression state tracking.
+ */
+sealed interface ImageCompressionState {
+    data object Idle : ImageCompressionState
+    data class Compressing(val current: Int, val total: Int) : ImageCompressionState {
+        val progress: Float get() = if (total > 0) current.toFloat() / total else 0f
+    }
 }
 
 /**
