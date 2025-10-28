@@ -190,11 +190,14 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             val currentUserState = promoCodeWithUserState.userInteraction
             val originalPromoCodeWithUserState = promoCodeWithUserState
 
+            // Get current vote state
+            val currentVoteState = currentUserState?.voteState ?: VoteState.NONE
+
             // Compute optimistic updates using handler
             val voteUpdate = InteractionStateHandler.computeVoteUpdate(
                 currentUpvotes = currentPromoCode.upvotes,
                 currentDownvotes = currentPromoCode.downvotes,
-                currentVoteState = currentUserState?.voteState ?: VoteState.NONE,
+                currentVoteState = currentVoteState,
                 targetVoteState = targetVoteState,
             )
 
@@ -225,7 +228,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 
             // Execute vote operation
             val result = executeVoteOperation(
-                voteUpdate = voteUpdate,
+                currentVoteState = currentVoteState,
                 targetVoteState = targetVoteState,
                 contentId = currentPromoCode.id.value,
                 userId = authState.user.id,
@@ -400,35 +403,27 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     }
 
     private suspend fun executeVoteOperation(
-        voteUpdate: VoteUpdate,
+        currentVoteState: VoteState,
         targetVoteState: VoteState,
         contentId: String,
         userId: UserId
     ): Result<UserInteraction, OperationError> =
-        if (voteUpdate.newVoteState == VoteState.NONE) {
-            // Removing vote
-            toggleVoteUseCase.removeVote(
+        when (targetVoteState) {
+            VoteState.UPVOTE -> toggleVoteUseCase.toggleUpvote(
                 itemId = contentId,
                 itemType = ContentType.PROMO_CODE,
                 userId = userId,
+                currentVoteState = currentVoteState,
             )
-        } else {
-            // Adding/switching vote
-            when (targetVoteState) {
-                VoteState.UPVOTE -> toggleVoteUseCase.toggleUpvote(
-                    itemId = contentId,
-                    itemType = ContentType.PROMO_CODE,
-                    userId = userId,
-                )
-                VoteState.DOWNVOTE -> toggleVoteUseCase.toggleDownvote(
-                    itemId = contentId,
-                    itemType = ContentType.PROMO_CODE,
-                    userId = userId,
-                )
-                VoteState.NONE -> {
-                    Logger.e("PromocodeDetailViewModel") { "Invalid vote state: NONE" }
-                    Result.Error(SystemError.Unknown)
-                }
+            VoteState.DOWNVOTE -> toggleVoteUseCase.toggleDownvote(
+                itemId = contentId,
+                itemType = ContentType.PROMO_CODE,
+                userId = userId,
+                currentVoteState = currentVoteState,
+            )
+            VoteState.NONE -> {
+                Logger.e("PromocodeDetailViewModel") { "Invalid target vote state: NONE" }
+                Result.Error(SystemError.Unknown)
             }
         }
 

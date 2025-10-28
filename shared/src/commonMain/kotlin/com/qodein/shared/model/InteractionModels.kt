@@ -10,9 +10,9 @@ import kotlin.time.Instant
 
 @Serializable
 enum class VoteState {
-    UPVOTE, // User has upvoted
-    DOWNVOTE, // User has downvoted
-    NONE // User has no vote (removed or never voted)
+    UPVOTE,
+    DOWNVOTE,
+    NONE
 }
 
 @Serializable

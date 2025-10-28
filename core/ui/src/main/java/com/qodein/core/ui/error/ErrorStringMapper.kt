@@ -62,10 +62,6 @@ fun OperationError.asUiText(): String =
         is InteractionError.BookmarkFailure.SaveFailed -> stringResource(R.string.error_interaction_save_failed)
         is InteractionError.BookmarkFailure.RemoveFailed -> stringResource(R.string.error_interaction_remove_failed)
 
-        is InteractionError.SystemFailure.Offline -> stringResource(R.string.error_network_no_connection)
-        is InteractionError.SystemFailure.ServiceDown -> stringResource(R.string.error_service_unavailable)
-        is InteractionError.SystemFailure.Unknown -> stringResource(R.string.error_unknown)
-
         is SystemError.Offline -> stringResource(R.string.error_network_no_connection)
         is SystemError.ServiceDown -> stringResource(R.string.error_service_unavailable)
         is SystemError.Unknown -> stringResource(R.string.error_unknown)

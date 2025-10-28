@@ -1,6 +1,7 @@
 package com.qodein.core.data.repository
 
 import co.touchlab.kermit.Logger
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.mapper.UserInteractionMapper
 import com.qodein.shared.common.Result
@@ -12,8 +13,6 @@ import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +31,39 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
         private const val TAG = "UserInteractionRepo"
     }
 
-    // Single interaction operations
+    /**
+     * Maps FirebaseFirestoreException to domain-specific OperationError for voting operations
+     */
+    private fun mapFirestoreErrorForVoting(e: FirebaseFirestoreException): OperationError =
+        when (e.code) {
+            FirebaseFirestoreException.Code.PERMISSION_DENIED ->
+                InteractionError.VotingFailure.NotAuthorized
+            FirebaseFirestoreException.Code.NOT_FOUND ->
+                InteractionError.VotingFailure.ContentNotFound
+            FirebaseFirestoreException.Code.UNAVAILABLE ->
+                SystemError.ServiceDown
+            FirebaseFirestoreException.Code.DEADLINE_EXCEEDED ->
+                SystemError.Offline
+            else ->
+                SystemError.Unknown
+        }
+
+    /**
+     * Maps FirebaseFirestoreException to domain-specific OperationError for bookmark operations
+     */
+    private fun mapFirestoreErrorForBookmark(e: FirebaseFirestoreException): OperationError =
+        when (e.code) {
+            FirebaseFirestoreException.Code.PERMISSION_DENIED ->
+                InteractionError.BookmarkFailure.NotAuthorized
+            FirebaseFirestoreException.Code.NOT_FOUND ->
+                InteractionError.BookmarkFailure.ContentNotFound
+            FirebaseFirestoreException.Code.UNAVAILABLE ->
+                SystemError.ServiceDown
+            FirebaseFirestoreException.Code.DEADLINE_EXCEEDED ->
+                SystemError.Offline
+            else ->
+                SystemError.Unknown
+        }
 
     override suspend fun getUserInteraction(
         itemId: String,
@@ -87,25 +118,6 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
             Result.Error(InteractionError.BookmarkFailure.RemoveFailed)
         }
 
-    override fun observeUserInteraction(
-        itemId: String,
-        userId: UserId
-    ): Flow<Result<UserInteraction?, OperationError>> =
-        flow {
-            try {
-                dataSource.observeUserInteraction(itemId, userId.value).collect { dto ->
-                    val interaction = dto?.let { mapper.fromDto(it) }
-                    emit(Result.Success(interaction))
-                }
-            } catch (e: IOException) {
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: Exception) {
-                emit(Result.Error(SystemError.Unknown))
-            }
-        }
-
-    // Batch operations
-
     override suspend fun getUserBookmarks(userId: UserId): Result<List<UserInteraction>, OperationError> =
         try {
             val dtos = dataSource.getUserBookmarks(userId.value)
@@ -127,37 +139,6 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.Error(SystemError.Unknown)
         }
-
-    override suspend fun getUserInteractionsForItems(
-        itemIds: List<String>,
-        userId: UserId
-    ): Result<Map<String, UserInteraction>, OperationError> =
-        try {
-            val dtosMap = dataSource.getUserInteractionsForItems(itemIds, userId.value)
-            val interactionsMap = dtosMap.mapNotNull { (itemId, dto) ->
-                mapper.fromDto(dto)?.let { itemId to it }
-            }.toMap()
-            Result.Success(interactionsMap)
-        } catch (e: IOException) {
-            Result.Error(SystemError.Offline)
-        } catch (e: Exception) {
-            Result.Error(SystemError.Unknown)
-        }
-
-    // Content-centric operations
-
-    override suspend fun getInteractionsForContent(itemId: String): Result<List<UserInteraction>, OperationError> =
-        try {
-            val dtos = dataSource.getInteractionsForContent(itemId)
-            val interactions = dtos.mapNotNull { mapper.fromDto(it) }
-            Result.Success(interactions)
-        } catch (e: IOException) {
-            Result.Error(SystemError.Offline)
-        } catch (e: Exception) {
-            Result.Error(InteractionError.VotingFailure.ContentNotFound)
-        }
-
-    // Convenience methods
 
     override suspend fun toggleVote(
         itemId: String,
@@ -188,9 +169,9 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
 
             Logger.i(TAG) { "Vote toggled successfully: item=$itemId, finalState=${savedInteraction.voteState}" }
             Result.Success(savedInteraction)
-        } catch (e: SecurityException) {
-            Logger.e(TAG, e) { "Failed to toggle vote - unauthorized: item=$itemId, user=${userId.value}" }
-            Result.Error(InteractionError.VotingFailure.NotAuthorized)
+        } catch (e: FirebaseFirestoreException) {
+            Logger.e(TAG, e) { "Failed to toggle vote - Firestore error: item=$itemId, user=${userId.value}, code=${e.code}" }
+            Result.Error(mapFirestoreErrorForVoting(e))
         } catch (e: IOException) {
             Logger.e(TAG, e) { "Failed to toggle vote - network: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Offline)
@@ -226,9 +207,9 @@ class UnifiedUserInteractionRepositoryImpl @Inject constructor(
 
             Logger.i(TAG) { "Bookmark toggled successfully: item=$itemId, bookmarked=${savedInteraction.isBookmarked}" }
             Result.Success(savedInteraction)
-        } catch (e: SecurityException) {
-            Logger.e(TAG, e) { "Failed to toggle bookmark - unauthorized: item=$itemId, user=${userId.value}" }
-            Result.Error(InteractionError.BookmarkFailure.NotAuthorized)
+        } catch (e: FirebaseFirestoreException) {
+            Logger.e(TAG, e) { "Failed to toggle bookmark - Firestore error: item=$itemId, user=${userId.value}, code=${e.code}" }
+            Result.Error(mapFirestoreErrorForBookmark(e))
         } catch (e: IOException) {
             Logger.e(TAG, e) { "Failed to toggle bookmark - network: item=$itemId, user=${userId.value}" }
             Result.Error(SystemError.Offline)

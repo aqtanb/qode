@@ -1,5 +1,6 @@
 package com.qodein.feature.post.detail.component
 
+import android.R.attr.label
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,16 +21,15 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.R
+import com.qodein.feature.post.detail.PostDetailAction
 import com.qodein.feature.post.feed.component.PostCard
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.PostId
 
 @Composable
 internal fun PostDetailSection(
     post: Post,
-    onUpvoteClick: () -> Unit,
-    onDownvoteClick: () -> Unit,
-    onCommentClick: () -> Unit,
-    onShareClick: () -> Unit,
+    onAction: (PostDetailAction) -> Unit,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -44,15 +44,13 @@ internal fun PostDetailSection(
         )
 
         PostInteractionsRow(
+            postId = post.id,
             upvotes = post.upvotes,
             downvotes = post.downvotes,
             commentCount = post.commentCount,
             isUpvoted = false,
             isDownvoted = false,
-            onUpvoteClick = onUpvoteClick,
-            onDownvoteClick = onDownvoteClick,
-            onCommentClick = onCommentClick,
-            onShareClick = onShareClick,
+            onAction = onAction,
             modifier = Modifier.padding(horizontal = SpacingTokens.md),
         )
     }
@@ -60,15 +58,13 @@ internal fun PostDetailSection(
 
 @Composable
 private fun PostInteractionsRow(
+    postId: PostId,
     upvotes: Int,
     downvotes: Int,
     commentCount: Int,
     isUpvoted: Boolean,
     isDownvoted: Boolean,
-    onUpvoteClick: () -> Unit,
-    onDownvoteClick: () -> Unit,
-    onCommentClick: () -> Unit,
-    onShareClick: () -> Unit,
+    onAction: (PostDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val upvoteContentDescription = stringResource(R.string.cd_upvote, upvotes)
@@ -83,7 +79,7 @@ private fun PostInteractionsRow(
     ) {
         QodeinFilterChip(
             label = upvotes.toString(),
-            onClick = onUpvoteClick,
+            onClick = { },
             selected = isUpvoted,
             leadingIcon = QodeActionIcons.Up,
             modifier = Modifier
@@ -94,7 +90,7 @@ private fun PostInteractionsRow(
 
         QodeinFilterChip(
             label = downvotes.toString(),
-            onClick = onDownvoteClick,
+            onClick = {},
             selected = isDownvoted,
             leadingIcon = QodeActionIcons.Down,
             modifier = Modifier.semantics {
@@ -104,7 +100,7 @@ private fun PostInteractionsRow(
 
         QodeinFilterChip(
             label = commentCount.toString(),
-            onClick = onCommentClick,
+            onClick = {},
             selected = false,
             leadingIcon = QodeActionIcons.Comment,
             modifier = Modifier.semantics {
@@ -116,9 +112,12 @@ private fun PostInteractionsRow(
 
         QodeinFilterChip(
             label = "Share",
-            onClick = onCommentClick,
+            onClick = {},
             selected = false,
             leadingIcon = QodeActionIcons.Share,
+            modifier = Modifier.semantics {
+                contentDescription = shareContentDescription
+            },
         )
     }
 }
@@ -130,10 +129,7 @@ private fun PostDetailCardPreview() {
         Surface {
             PostDetailSection(
                 post = PostPreviewData.postWithLongEverything,
-                onUpvoteClick = {},
-                onDownvoteClick = {},
-                onCommentClick = {},
-                onShareClick = {},
+                onAction = {},
                 onImageClick = {},
             )
         }

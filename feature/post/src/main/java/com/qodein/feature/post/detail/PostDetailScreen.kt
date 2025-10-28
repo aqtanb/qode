@@ -1,17 +1,27 @@
 package com.qodein.feature.post.detail
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.feature.post.detail.component.PostDetailSection
+import com.qodein.feature.post.detail.component.PostDetailTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
-import com.qodein.shared.model.PostId
 
 @Composable
 internal fun PostDetailRoute(
@@ -21,54 +31,88 @@ internal fun PostDetailRoute(
     viewModel: PostDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is PostDetailEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(
+                        message = "",
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true,
+                    )
+                }
+            }
+        }
+    }
+
     PostDetailScreen(
+        onNavigateBack = onNavigateBack,
+        onAction = viewModel::onAction,
         isDarkTheme = isDarkTheme,
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun PostDetailScreen(
+    onNavigateBack: () -> Unit,
+    onAction: (PostDetailAction) -> Unit,
     isDarkTheme: Boolean,
     uiState: PostDetailUiState,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     TrackScreenViewEvent(screenName = "Post Detail")
-    when (val postState = uiState.postState) {
-        is DataState.Error -> PostDetailErrorState(
-            error = postState.error,
-            onRetry = {},
-            modifier = modifier,
-        )
-        DataState.Loading -> CircularProgressIndicator()
-        is DataState.Success -> PostDetailSuccessState(
-            post = postState.data,
-            onUpvoteClick = { },
-            onDownvoteClick = { },
-            onCommentClick = { },
-            onShareClick = { },
-            onImageClick = {},
-        )
+
+    Scaffold(
+        topBar = {
+            PostDetailTopAppBar(
+                onNavigationClick = onNavigateBack,
+            )
+        },
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { paddingValues ->
+        when (val postState = uiState.postState) {
+            is DataState.Error -> PostDetailErrorState(
+                error = postState.error,
+                onRetry = {},
+                modifier = Modifier.padding(paddingValues),
+            )
+            DataState.Loading -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            is DataState.Success -> PostDetailSuccessState(
+                post = postState.data,
+                onAction = onAction,
+                onImageClick = {},
+                modifier = Modifier.padding(paddingValues),
+            )
+        }
     }
 }
 
 @Composable
 private fun PostDetailSuccessState(
     post: Post,
-    onUpvoteClick: (PostId) -> Unit,
-    onDownvoteClick: (PostId) -> Unit,
-    onCommentClick: (PostId) -> Unit,
-    onShareClick: (PostId) -> Unit,
+    onAction: (PostDetailAction) -> Unit,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PostDetailSection(
         post = post,
-        onUpvoteClick = { },
-        onDownvoteClick = { },
-        onCommentClick = { },
-        onShareClick = { },
+        onAction = onAction,
         onImageClick = onImageClick,
+        modifier = modifier,
     )
 }
 
