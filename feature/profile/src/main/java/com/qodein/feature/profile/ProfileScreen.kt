@@ -23,10 +23,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,22 +42,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.component.AutoHideDirection
-import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBarVariant
 import com.qodein.core.designsystem.component.QodeinElevatedCard
-import com.qodein.core.designsystem.component.rememberAutoHidingState
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.component.ShimmerCircle
+import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -66,70 +63,83 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.UserPreviewData
+import com.qodein.feature.profile.component.ProfileTopAppBar
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
 
 @Composable
-fun ProfileRoute() {
-}
-
-@Composable
-fun ProfileScreen(
-    scrollState: ScrollState,
+fun ProfileRoute(
+    onBackClick: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel(),
-    onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {}
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Profile")
-
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is ProfileEvent.EditProfileRequested -> {}
                 is ProfileEvent.SignedOut -> onSignOut()
-                is ProfileEvent.LeaderboardRequested -> {}
             }
         }
     }
 
-    Box(
+    ProfileScreen(
+        onBackClick = onBackClick,
+        onAction = viewModel::onAction,
+        uiState = uiState,
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProfileScreen(
+    onBackClick: () -> Unit,
+    onAction: (ProfileAction) -> Unit,
+    uiState: ProfileUiState,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
+
+    Scaffold(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        when (val currentState = uiState) {
-            is ProfileUiState.Success -> {
-                ProfileContent(
-                    user = currentState.user,
-                    scrollState = scrollState,
-                    onAction = viewModel::handleAction,
-                    onBackClick = onBackClick,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+        topBar = {
+            ProfileTopAppBar(
+                scrollState = scrollState,
+                onBackClick = onBackClick,
+            )
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(SpacingTokens.lg),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (val currentState = uiState) {
+                is ProfileUiState.Success -> {
+                    ProfileContent(
+                        user = currentState.user,
+                        scrollState = scrollState,
+                        onAction = onAction,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
 
-            is ProfileUiState.Loading -> {
-                val loadingDescription = stringResource(R.string.profile_loading_description)
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(SpacingTokens.lg)
-                        .semantics {
-                            contentDescription = loadingDescription
-                        },
-                )
-            }
+                is ProfileUiState.Loading -> {
+                    ProfileLoadingState()
+                }
 
-            is ProfileUiState.Error -> {
-                QodeErrorCard(
-                    error = currentState.errorType,
-                    onRetry = { viewModel.handleAction(ProfileAction.RetryClicked) },
-                    onDismiss = { },
-                    modifier = Modifier
-                        .padding(SpacingTokens.lg),
-                )
+                is ProfileUiState.Error -> {
+                    QodeErrorCard(
+                        error = currentState.errorType,
+                        onRetry = { onAction(ProfileAction.RetryClicked) },
+                    )
+                }
             }
         }
     }
@@ -137,64 +147,78 @@ fun ProfileScreen(
 
 // MARK: - Success Content
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProfileContent(
     user: User,
     scrollState: ScrollState,
     onAction: (ProfileAction) -> Unit,
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Local animation state - this composable controls its own animations
     var isContentVisible by remember { mutableStateOf(false) }
 
-    // Trigger animations when this composable enters the composition
     LaunchedEffect(Unit) {
         isContentVisible = true
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        Spacer(modifier = Modifier.height(SpacingTokens.huge))
+
+        AnimatedProfileHeader(
+            user = user,
+            onAction = onAction,
+            isVisible = isContentVisible,
+        )
+
+        AnimatedSignOutButton(
+            onAction = onAction,
+            isVisible = isContentVisible,
+        )
+    }
+}
+
+@Composable
+private fun ProfileLoadingState(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        Spacer(modifier = Modifier.height(SpacingTokens.huge))
+
+        ShimmerCircle(size = SizeTokens.Avatar.sizeXLarge)
+
+        Spacer(modifier = Modifier.height(SpacingTokens.sm))
+
+        ShimmerLine(width = 180.dp, height = 32.dp)
+
+        Spacer(modifier = Modifier.height(SpacingTokens.lg))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(0.7f),
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            Spacer(modifier = Modifier.height(SpacingTokens.huge))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+            ) {
+                ShimmerLine(width = 40.dp, height = 28.dp)
+                ShimmerLine(width = 60.dp, height = 14.dp)
+            }
 
-            AnimatedProfileHeader(
-                user = user,
-                onAction = onAction,
-                isVisible = isContentVisible,
-            )
-
-            AnimatedActionsSection(
-                onAction = onAction,
-                isVisible = isContentVisible,
-            )
-
-            AnimatedSignOutButton(
-                onAction = onAction,
-                isVisible = isContentVisible,
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+            ) {
+                ShimmerLine(width = 40.dp, height = 28.dp)
+                ShimmerLine(width = 60.dp, height = 14.dp)
+            }
         }
-
-        // Beautiful self-contained transparent top app bar with auto-hiding
-        val autoHidingState = rememberAutoHidingState(scrollState = scrollState)
-        AutoHidingContent(
-            state = autoHidingState,
-            direction = AutoHideDirection.DOWN,
-        ) {
-            QodeTopAppBar(
-                title = "",
-                navigationIcon = QodeActionIcons.Back,
-                onNavigationClick = onBackClick,
-                variant = QodeTopAppBarVariant.Transparent,
-                statusBarPadding = true,
-            )
-        }
+        ShimmerLine(width = 180.dp, height = 32.dp)
     }
 }
 
@@ -229,22 +253,21 @@ private fun AnimatedActionsSection(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Uncomment when leaderboard logic is implemented
-//    AnimatedVisibility(
-//        visible = isVisible,
-//        enter = slideInVertically(
-//            initialOffsetY = { it / 2 },
-//            animationSpec = spring(
-//                dampingRatio = Spring.DampingRatioMediumBouncy,
-//                stiffness = Spring.StiffnessLow,
-//            ),
-//        ) + fadeIn(animationSpec = tween(1000, 400)),
-//    ) {
-//        LeaderboardCard(
-//            onAction = onAction,
-//            modifier = modifier.fillMaxWidth(),
-//        )
-//    }
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(
+            initialOffsetY = { it / 2 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        ) + fadeIn(animationSpec = tween(1000, 400)),
+    ) {
+        LeaderboardCard(
+            onAction = onAction,
+            modifier = modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @Composable
@@ -261,7 +284,7 @@ private fun LeaderboardCard(
             content = "Here is the leaderboard, see how you rank!",
             icon = QodeinIcons.Leaderboard,
             iconTint = MaterialTheme.colorScheme.primary,
-            onClick = { onAction(ProfileAction.LeaderboardClicked) },
+            onClick = { },
         )
     }
 }
@@ -504,7 +527,6 @@ private fun ProfileContentPreview() {
             user = UserPreviewData.powerUser,
             scrollState = rememberScrollState(),
             onAction = {},
-            onBackClick = {},
         )
     }
 }
@@ -517,19 +539,7 @@ private fun ProfileLoadingPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                val loadingDescription = stringResource(R.string.profile_loading_description)
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(SpacingTokens.lg)
-                        .semantics {
-                            contentDescription = loadingDescription
-                        },
-                )
-            }
+            ProfileLoadingState()
         }
     }
 }
@@ -549,7 +559,6 @@ private fun ProfileErrorPreview() {
                 QodeErrorCard(
                     error = SystemError.Offline,
                     onRetry = {},
-                    onDismiss = {},
                     modifier = Modifier.padding(SpacingTokens.lg),
                 )
             }

@@ -59,7 +59,6 @@ fun QodeNavHost(
 
         profileSection(
             onBackClick = {
-                // Navigate back to the last top-level destination instead of just popping
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
             onSignOut = {

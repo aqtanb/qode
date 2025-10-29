@@ -2,7 +2,6 @@ package com.qodein.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
 import com.qodein.shared.common.Result
@@ -43,32 +42,10 @@ class ProfileViewModel @Inject constructor(
         checkAuthState()
     }
 
-    fun handleAction(action: ProfileAction) {
+    fun onAction(action: ProfileAction) {
         when (action) {
             is ProfileAction.SignOutClicked -> signOut()
             is ProfileAction.RetryClicked -> checkAuthState()
-            is ProfileAction.EditProfileClicked -> {
-                analyticsHelper.logEvent(
-                    AnalyticsEvent(
-                        type = "profile_action",
-                        extras = listOf(
-                            AnalyticsEvent.Param("action", "edit_profile"),
-                        ),
-                    ),
-                )
-                emitEvent(ProfileEvent.EditProfileRequested)
-            }
-            is ProfileAction.LeaderboardClicked -> {
-                analyticsHelper.logEvent(
-                    AnalyticsEvent(
-                        type = "profile_action",
-                        extras = listOf(
-                            AnalyticsEvent.Param("action", "view_leaderboard"),
-                        ),
-                    ),
-                )
-                emitEvent(ProfileEvent.LeaderboardRequested)
-            }
         }
     }
 
