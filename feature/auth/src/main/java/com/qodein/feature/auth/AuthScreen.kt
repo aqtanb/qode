@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,11 +34,12 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
+import com.qodein.feature.auth.component.AuthTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 
 @Composable
-internal fun AuthScreen(
+fun AuthRoute(
     isDarkTheme: Boolean,
     onNavigateToHome: () -> Unit,
     onNavigateToTermsOfService: () -> Unit,
@@ -59,52 +61,67 @@ internal fun AuthScreen(
         }
     }
 
-    AuthContent(
-        modifier = modifier,
+    AuthScreen(
+        onBackClick = onNavigateToHome,
         state = uiState,
         onAction = viewModel::handleAction,
         isDarkTheme = isDarkTheme,
+        modifier = modifier,
     )
 }
 
 @Composable
-private fun AuthContent(
-    modifier: Modifier = Modifier,
+private fun AuthScreen(
+    onBackClick: () -> Unit,
     state: AuthUiState,
     onAction: (SignInAction) -> Unit,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = SpacingTokens.lg),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        when (state) {
-            is AuthUiState.Idle -> {
-                AuthIdleState(
-                    onAction = onAction,
-                    isDarkTheme = isDarkTheme,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+    val scrollState = rememberScrollState()
 
-            is AuthUiState.Loading -> {
-                AuthLoadingState(
-                    onAction = onAction,
-                    isDarkTheme = isDarkTheme,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            AuthTopAppBar(
+                scrollState = scrollState,
+                onBackClick = onBackClick,
+            )
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(horizontal = SpacingTokens.lg),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            when (state) {
+                is AuthUiState.Idle -> {
+                    AuthIdleState(
+                        onAction = onAction,
+                        isDarkTheme = isDarkTheme,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
-            is AuthUiState.Error -> {
-                AuthErrorState(
-                    error = state.errorType,
-                    onAction = onAction,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                is AuthUiState.Loading -> {
+                    AuthLoadingState(
+                        onAction = onAction,
+                        isDarkTheme = isDarkTheme,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                is AuthUiState.Error -> {
+                    AuthErrorState(
+                        error = state.errorType,
+                        onAction = onAction,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
@@ -254,7 +271,8 @@ private fun AuthSignInCard(
 @Composable
 private fun AuthIdleStatePreview() {
     QodeTheme {
-        AuthContent(
+        AuthScreen(
+            onBackClick = {},
             state = AuthUiState.Idle,
             onAction = {},
             isDarkTheme = false,
@@ -266,7 +284,8 @@ private fun AuthIdleStatePreview() {
 @Composable
 private fun AuthLoadingStatePreview() {
     QodeTheme {
-        AuthContent(
+        AuthScreen(
+            onBackClick = {},
             state = AuthUiState.Loading,
             onAction = {},
             isDarkTheme = false,
@@ -278,7 +297,8 @@ private fun AuthLoadingStatePreview() {
 @Composable
 private fun AuthErrorStatePreview() {
     QodeTheme {
-        AuthContent(
+        AuthScreen(
+            onBackClick = {},
             state = AuthUiState.Error(
                 errorType = SystemError.Offline,
             ),

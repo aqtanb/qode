@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.qodein.feature.auth.navigation.authSection
+import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
@@ -64,15 +65,13 @@ fun QodeNavHost(
             onSignOut = {
                 appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
             },
+            onNavigateToAuth = {
+                navController.navigateToAuth()
+            },
         )
 
         authSection(
-            onAuthSuccess = {
-                // Navigate back to the original tab after successful auth
-                appState.navigateToTopLevelDestination(selectedTabDestination)
-            },
-            onBackClick = {
-                // Navigate back to the last top-level destination instead of empty profile
+            onNavigateBack = {
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
             isDarkTheme = isDarkTheme,

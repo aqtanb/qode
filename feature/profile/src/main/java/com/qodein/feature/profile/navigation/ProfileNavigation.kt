@@ -18,13 +18,15 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.profileSection(
     onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {}
+    onSignOut: () -> Unit = {},
+    onNavigateToAuth: () -> Unit = {}
 ) {
     navigation<ProfileBaseRoute>(startDestination = ProfileRoute) {
         composable<ProfileRoute> {
             ProfileRoute(
                 onBackClick = onBackClick,
                 onSignOut = onSignOut,
+                onNavigateToAuth = onNavigateToAuth,
             )
         }
     }

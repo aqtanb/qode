@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
@@ -77,14 +76,7 @@ class ProfileViewModel @Inject constructor(
                         }
                         .launchIn(viewModelScope)
                 } else {
-                    // With smart routing, this should not happen
-                    // If user is unauthenticated, navigation should have redirected to auth
-                    _state.value = ProfileUiState.Error(
-                        errorType = SystemError.Unknown,
-                        isRetryable = true,
-                        shouldShowSnackbar = false,
-                        errorCode = null,
-                    )
+                    emitEvent(ProfileEvent.NavigateToAuth)
                 }
             }
             .launchIn(viewModelScope)
