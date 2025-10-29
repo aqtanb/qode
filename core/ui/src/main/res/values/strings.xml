@@ -241,13 +241,13 @@
     <string name="auth_submit_promo_title">Sign in to submit promocode</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
     <string name="auth_upvote_title">Sign in to upvote</string>
-    <string name="auth_upvote_message">Help others discover great deals by upvoting the best promo codes.</string>
+    <string name="auth_upvote_message">Help others discover the best content</string>
     <string name="auth_downvote_title">Sign in to downvote</string>
-    <string name="auth_downvote_message">Keep the community quality high by downvoting expired or invalid codes.</string>
+    <string name="auth_downvote_message">Keep the community quality high</string>
     <string name="auth_comment_title">Sign in to comment</string>
-    <string name="auth_comment_message">Share your experience and help others with tips about this promo code.</string>
+    <string name="auth_comment_message">Share your experience and help others with tips about this promo code</string>
     <string name="auth_bookmark_promo_title">Sign in to bookmark</string>
-    <string name="auth_bookmark_promo_message">Save this promo code to your personal collection for easy access later.</string>
+    <string name="auth_bookmark_promo_message">Save this promo code to your personal collection for easy access later</string>
     <string name="auth_follow_store_title">Sign in to follow store</string>
     <string name="auth_follow_store_message">Get notified when this store has new deals and promo codes available.</string>
     <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
@@ -269,4 +269,6 @@
     <string name="step_end_date_short">End</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
+    <string name="sign_in_to_upvote_the_post">Sign in to upvote the post</string>
+    <string name="help_the_community_by_upvoting_this_post">Help the community by upvoting this post.</string>
 </resources>

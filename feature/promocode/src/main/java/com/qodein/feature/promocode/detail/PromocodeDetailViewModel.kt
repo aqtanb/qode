@@ -89,8 +89,8 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     fun onAction(action: PromocodeDetailAction) {
         when (action) {
             is PromocodeDetailAction.RefreshData -> reloadPromocode()
-            is PromocodeDetailAction.UpvoteClicked -> handleVote(VoteState.UPVOTE, AuthPromptAction.UpvotePromoCode)
-            is PromocodeDetailAction.DownvoteClicked -> handleVote(VoteState.DOWNVOTE, AuthPromptAction.DownvotePromoCode)
+            is PromocodeDetailAction.UpvoteClicked -> handleVote(VoteState.UPVOTE, AuthPromptAction.UpvotePrompt)
+            is PromocodeDetailAction.DownvoteClicked -> handleVote(VoteState.DOWNVOTE, AuthPromptAction.DownvotePrompt)
             is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BookmarkToggleClicked -> handleBookmarkToggle()

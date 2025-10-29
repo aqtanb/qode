@@ -1,6 +1,5 @@
 package com.qodein.feature.post.detail.component
 
-import android.R.attr.label
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,11 +24,15 @@ import com.qodein.feature.post.detail.PostDetailAction
 import com.qodein.feature.post.feed.component.PostCard
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.VoteState
 
 @Composable
 internal fun PostDetailSection(
     post: Post,
     onAction: (PostDetailAction) -> Unit,
+    userVoteState: VoteState,
+    userId: UserId?,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,8 +51,8 @@ internal fun PostDetailSection(
             upvotes = post.upvotes,
             downvotes = post.downvotes,
             commentCount = post.commentCount,
-            isUpvoted = false,
-            isDownvoted = false,
+            userVoteState = userVoteState,
+            userId = userId,
             onAction = onAction,
             modifier = Modifier.padding(horizontal = SpacingTokens.md),
         )
@@ -62,8 +65,8 @@ private fun PostInteractionsRow(
     upvotes: Int,
     downvotes: Int,
     commentCount: Int,
-    isUpvoted: Boolean,
-    isDownvoted: Boolean,
+    userVoteState: VoteState,
+    userId: UserId?,
     onAction: (PostDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,8 +82,16 @@ private fun PostInteractionsRow(
     ) {
         QodeinFilterChip(
             label = upvotes.toString(),
-            onClick = { },
-            selected = isUpvoted,
+            onClick = {
+                onAction(
+                    PostDetailAction.UpvoteClicked(
+                        postId = postId.value,
+                        currentVoteState = userVoteState,
+                        userId = userId,
+                    ),
+                )
+            },
+            selected = userVoteState == VoteState.UPVOTE,
             leadingIcon = QodeActionIcons.Up,
             modifier = Modifier
                 .semantics {
@@ -90,8 +101,16 @@ private fun PostInteractionsRow(
 
         QodeinFilterChip(
             label = downvotes.toString(),
-            onClick = {},
-            selected = isDownvoted,
+            onClick = {
+                onAction(
+                    PostDetailAction.DownvoteClicked(
+                        postId = postId.value,
+                        currentVoteState = userVoteState,
+                        userId = userId,
+                    ),
+                )
+            },
+            selected = userVoteState == VoteState.DOWNVOTE,
             leadingIcon = QodeActionIcons.Down,
             modifier = Modifier.semantics {
                 contentDescription = downvoteContentDescription
@@ -130,6 +149,8 @@ private fun PostDetailCardPreview() {
             PostDetailSection(
                 post = PostPreviewData.postWithLongEverything,
                 onAction = {},
+                userVoteState = VoteState.UPVOTE,
+                userId = null,
                 onImageClick = {},
             )
         }

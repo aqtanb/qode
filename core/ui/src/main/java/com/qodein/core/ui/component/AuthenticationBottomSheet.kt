@@ -54,12 +54,12 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         messageResId = R.string.auth_submit_promo_message,
         iconVector = QodeActionIcons.Add,
     ),
-    UpvotePromoCode(
+    UpvotePrompt(
         titleResId = R.string.auth_upvote_title,
         messageResId = R.string.auth_upvote_message,
         iconVector = QodeActionIcons.Thumbs,
     ),
-    DownvotePromoCode(
+    DownvotePrompt(
         titleResId = R.string.auth_downvote_title,
         messageResId = R.string.auth_downvote_message,
         iconVector = QodeActionIcons.ThumbsDown,
@@ -293,7 +293,7 @@ private fun AuthenticationBottomSheetSubmitPreview() {
 private fun AuthenticationBottomSheetUpvotePreview() {
     QodeTheme {
         AuthenticationBottomSheetContent(
-            action = AuthPromptAction.UpvotePromoCode,
+            action = AuthPromptAction.UpvotePrompt,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
@@ -357,7 +357,7 @@ private fun AuthenticationBottomSheetLoadingPreview() {
 private fun AuthenticationBottomSheetErrorPreview() {
     QodeTheme {
         AuthenticationBottomSheet(
-            authPromptAction = AuthPromptAction.UpvotePromoCode,
+            authPromptAction = AuthPromptAction.UpvotePrompt,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,

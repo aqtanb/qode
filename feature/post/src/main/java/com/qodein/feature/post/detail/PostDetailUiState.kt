@@ -2,11 +2,12 @@ package com.qodein.feature.post.detail
 
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 
 data class PostDetailUiState(
     val postState: DataState<Post> = DataState.Loading,
-    val isAuthenticated: Boolean = false,
+    val userId: UserId? = null,
     val userVoteState: VoteState = VoteState.NONE,
     val isBookmarked: Boolean = false
 )

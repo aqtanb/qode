@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
@@ -54,16 +55,34 @@ class PostDetailViewModel @Inject constructor(
 
     internal fun onAction(action: PostDetailAction) {
         when (action) {
-            is PostDetailAction.UpvoteClicked -> handleUpvote(
-                itemId = action.postId,
-                userId = action.userId,
-                currentVoteState = action.currentVoteState,
-            )
-            is PostDetailAction.DownvoteClicked -> handleDownVote(
-                itemId = action.postId,
-                userId = action.userId,
-                currentVoteState = action.currentVoteState,
-            )
+            is PostDetailAction.UpvoteClicked -> {
+                val currentUserId = _uiState.value.userId
+                if (currentUserId == null) {
+                    viewModelScope.launch {
+                        _events.emit(PostDetailEvent.ShowAuthPrompt(authPromptAction = AuthPromptAction.UpvotePrompt))
+                    }
+                } else {
+                    handleUpvote(
+                        itemId = action.postId,
+                        userId = currentUserId,
+                        currentVoteState = action.currentVoteState,
+                    )
+                }
+            }
+            is PostDetailAction.DownvoteClicked -> {
+                val currentUserId = _uiState.value.userId
+                if (currentUserId == null) {
+                    viewModelScope.launch {
+                        _events.emit(PostDetailEvent.ShowAuthPrompt(AuthPromptAction.DownvotePrompt))
+                    }
+                } else {
+                    handleDownVote(
+                        itemId = action.postId,
+                        userId = currentUserId,
+                        currentVoteState = action.currentVoteState,
+                    )
+                }
+            }
         }
     }
 
@@ -72,7 +91,7 @@ class PostDetailViewModel @Inject constructor(
             authStateManager.getAuthState().distinctUntilChanged().collectLatest { authState ->
                 when (authState) {
                     is AuthState.Authenticated -> {
-                        _uiState.update { it.copy(isAuthenticated = true) }
+                        _uiState.update { it.copy(userId = authState.user.id) }
                         loadUserInteractions(
                             userId = authState.user.id,
                             itemId = args.postId,
@@ -80,7 +99,7 @@ class PostDetailViewModel @Inject constructor(
                     }
 
                     AuthState.Unauthenticated -> {
-                        _uiState.update { it.copy(isAuthenticated = false, userVoteState = VoteState.NONE, isBookmarked = false) }
+                        _uiState.update { it.copy(userId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
                     }
                 }
             }
