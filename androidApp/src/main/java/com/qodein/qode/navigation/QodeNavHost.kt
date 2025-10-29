@@ -3,6 +3,7 @@ package com.qodein.qode.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.home.navigation.HomeBaseRoute
@@ -11,6 +12,7 @@ import com.qodein.feature.post.navigation.feedSection
 import com.qodein.feature.post.navigation.navigateToPostDetail
 import com.qodein.feature.post.navigation.postDetailSection
 import com.qodein.feature.post.navigation.postSubmissionSection
+import com.qodein.feature.profile.navigation.ProfileBaseRoute
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
@@ -51,7 +53,13 @@ fun QodeNavHost(
 
         feedSection(
             user = user,
-            onProfileClick = { navController.navigateToProfile() },
+            onProfileClick = {
+                if (user != null) {
+                    navController.navigateToProfile()
+                } else {
+                    navController.navigateToAuth()
+                }
+            },
             onSettingsClick = { navController.navigateToSettings() },
             onPostClick = { postId ->
                 navController.navigateToPostDetail(postId)
@@ -66,7 +74,11 @@ fun QodeNavHost(
                 appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
             },
             onNavigateToAuth = {
-                navController.navigateToAuth()
+                navController.navigateToAuth(
+                    navOptions = navOptions {
+                        popUpTo(ProfileBaseRoute) { inclusive = true }
+                    },
+                )
             },
         )
 

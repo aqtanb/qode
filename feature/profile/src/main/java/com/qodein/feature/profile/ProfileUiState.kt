@@ -8,10 +8,5 @@ sealed interface ProfileUiState {
 
     data object Loading : ProfileUiState
 
-    data class Error(
-        val errorType: OperationError,
-        val isRetryable: Boolean,
-        val shouldShowSnackbar: Boolean = true,
-        val errorCode: String? = null
-    ) : ProfileUiState
+    data class Error(val errorType: OperationError) : ProfileUiState
 }

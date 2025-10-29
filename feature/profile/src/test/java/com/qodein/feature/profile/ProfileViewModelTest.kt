@@ -62,7 +62,7 @@ class ProfileViewModelTest {
             viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
-            val finalState = viewModel.state.value
+            val finalState = viewModel.uiState.value
             assertTrue(finalState is ProfileUiState.Success)
             assertEquals(testUser, (finalState as ProfileUiState.Success).user)
         }
@@ -75,7 +75,7 @@ class ProfileViewModelTest {
             viewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
             advanceUntilIdle()
 
-            val finalState = viewModel.state.value
+            val finalState = viewModel.uiState.value
             assertTrue(finalState is ProfileUiState.Error)
             assertEquals(OperationError.SERVICE_UNAVAILABLE_GENERAL, (finalState as ProfileUiState.Error).errorType)
         }
@@ -88,7 +88,7 @@ class ProfileViewModelTest {
 
             val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
 
-            localViewModel.state.test {
+            localViewModel.uiState.test {
                 assertEquals(ProfileUiState.Loading, awaitItem())
                 advanceUntilIdle()
                 val errorState = awaitItem() as ProfileUiState.Error
@@ -137,7 +137,7 @@ class ProfileViewModelTest {
             advanceUntilIdle()
 
             // When & Then
-            viewModel.state.test {
+            viewModel.uiState.test {
                 // 1. Initial state is Success
                 assertTrue(awaitItem() is ProfileUiState.Success)
 
@@ -214,7 +214,7 @@ class ProfileViewModelTest {
 
             val localViewModel = ProfileViewModel(getAuthStateUseCase, signOutUseCase, analyticsHelper)
 
-            localViewModel.state.test {
+            localViewModel.uiState.test {
                 assertEquals(ProfileUiState.Loading, awaitItem())
                 advanceUntilIdle()
                 assertTrue(awaitItem() is ProfileUiState.Error)
