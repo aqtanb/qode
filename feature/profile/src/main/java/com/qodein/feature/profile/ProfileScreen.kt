@@ -71,6 +71,10 @@ import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
 
 @Composable
+fun ProfileRoute() {
+}
+
+@Composable
 fun ProfileScreen(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,

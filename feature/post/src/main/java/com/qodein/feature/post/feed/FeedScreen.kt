@@ -55,7 +55,7 @@ fun FeedRoute(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                FeedEvent.NavigateToProfile -> onProfileClick
+                FeedEvent.NavigateToProfile -> onProfileClick()
                 FeedEvent.NavigateToSettings -> onSettingsClick()
                 is FeedEvent.NavigateToPost -> onPostClick(event.postId.value)
             }

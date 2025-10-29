@@ -9,7 +9,8 @@ data class PostDetailUiState(
     val postState: DataState<Post> = DataState.Loading,
     val userId: UserId? = null,
     val userVoteState: VoteState = VoteState.NONE,
-    val isBookmarked: Boolean = false
+    val isBookmarked: Boolean = false,
+    val isSigningIn: Boolean = false
 )
 
 sealed interface DataState<out T> {

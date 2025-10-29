@@ -42,7 +42,6 @@ internal fun PostDetailRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var showAuthBottomSheet by remember { mutableStateOf(false) }
     var authPromptAction by remember { mutableStateOf<AuthPromptAction?>(null) }
     var errorToShow by remember { mutableStateOf<OperationError?>(null) }
 
@@ -53,14 +52,12 @@ internal fun PostDetailRoute(
                     errorToShow = event.error
                 }
                 is PostDetailEvent.ShowAuthPrompt -> {
-                    showAuthBottomSheet = true
                     authPromptAction = event.authPromptAction
                 }
             }
         }
     }
 
-    // Show snackbar when error exists (in @Composable context to use asUiText)
     errorToShow?.let { error ->
         val errorMessage = error.asUiText()
         LaunchedEffect(error) {
@@ -76,23 +73,21 @@ internal fun PostDetailRoute(
     PostDetailScreen(
         onNavigateBack = onNavigateBack,
         onAction = viewModel::onAction,
-        isDarkTheme = isDarkTheme,
         uiState = uiState,
         snackbarHostState = snackbarHostState,
         modifier = modifier,
     )
 
-    // Show auth bottom sheet when needed
-    if (showAuthBottomSheet && authPromptAction != null) {
+    authPromptAction?.let { action ->
         AuthenticationBottomSheet(
-            authPromptAction = authPromptAction!!,
+            authPromptAction = action,
             onSignInClick = {
-                // TODO: Navigate to auth screen or handle sign-in
+                viewModel.onAction(PostDetailAction.SignInWithGoogleClicked)
             },
             onDismiss = {
-                showAuthBottomSheet = false
                 authPromptAction = null
             },
+            isLoading = uiState.isSigningIn,
             isDarkTheme = isDarkTheme,
         )
     }
@@ -102,7 +97,6 @@ internal fun PostDetailRoute(
 private fun PostDetailScreen(
     onNavigateBack: () -> Unit,
     onAction: (PostDetailAction) -> Unit,
-    isDarkTheme: Boolean,
     uiState: PostDetailUiState,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier

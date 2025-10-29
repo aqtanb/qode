@@ -9,6 +9,7 @@ import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
@@ -35,6 +36,7 @@ class PostDetailViewModel @Inject constructor(
     private val getPostByIdUseCase: GetPostByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val authStateManager: AuthStateManager
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState())
@@ -83,26 +85,8 @@ class PostDetailViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
 
-    private fun observeAuthState() {
-        viewModelScope.launch {
-            authStateManager.getAuthState().distinctUntilChanged().collectLatest { authState ->
-                when (authState) {
-                    is AuthState.Authenticated -> {
-                        _uiState.update { it.copy(userId = authState.user.id) }
-                        loadUserInteractions(
-                            userId = authState.user.id,
-                            itemId = args.postId,
-                        )
-                    }
-
-                    AuthState.Unauthenticated -> {
-                        _uiState.update { it.copy(userId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
-                    }
-                }
-            }
+            PostDetailAction.SignInWithGoogleClicked -> signInWithGoogle()
         }
     }
 
@@ -155,6 +139,37 @@ class PostDetailViewModel @Inject constructor(
                 userId = userId,
                 currentVoteState = currentVoteState,
             )
+        }
+    }
+
+    private fun observeAuthState() {
+        viewModelScope.launch {
+            authStateManager.getAuthState().distinctUntilChanged().collectLatest { authState ->
+                when (authState) {
+                    is AuthState.Authenticated -> {
+                        _uiState.update { it.copy(userId = authState.user.id) }
+                        loadUserInteractions(
+                            userId = authState.user.id,
+                            itemId = args.postId,
+                        )
+                    }
+
+                    AuthState.Unauthenticated -> {
+                        _uiState.update { it.copy(userId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun signInWithGoogle() {
+        viewModelScope.launch {
+            signInWithGoogleUseCase().collect {
+                when (it) {
+                    is Result.Error -> _events.emit(PostDetailEvent.ShowError(it.error))
+                    is Result.Success -> {}
+                }
+            }
         }
     }
 }
