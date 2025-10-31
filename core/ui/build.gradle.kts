@@ -56,6 +56,8 @@ dependencies {
     // Browser (CustomTabs)
     implementation(libs.androidx.browser)
 
+    implementation(libs.compose.markdown)
+
     // Logging
     implementation(libs.timber)
     implementation(libs.kermit)

@@ -55,8 +55,6 @@ fun AuthRoute(
         viewModel.events.collect { event ->
             when (event) {
                 is AuthEvent.SignedIn -> onNavigateToHome()
-                is AuthEvent.TermsOfServiceRequested -> onNavigateToTermsOfService()
-                is AuthEvent.PrivacyPolicyRequested -> onNavigateToPrivacyPolicy()
             }
         }
     }

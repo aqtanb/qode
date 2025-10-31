@@ -45,8 +45,8 @@ class AuthViewModel @Inject constructor(
                 signInWithGoogle()
             }
             is SignInAction.DismissErrorClicked -> clearError()
-            is SignInAction.TermsOfServiceClicked -> emitEvent(AuthEvent.TermsOfServiceRequested)
-            is SignInAction.PrivacyPolicyClicked -> emitEvent(AuthEvent.PrivacyPolicyRequested)
+            is SignInAction.TermsOfServiceClicked -> emitEvent(AuthEvent.ShowTermsOfService)
+            is SignInAction.PrivacyPolicyClicked -> emitEvent(AuthEvent.ShowPrivacyPolicy)
         }
     }
 

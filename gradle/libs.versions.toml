@@ -62,6 +62,7 @@ googleid = "1.1.1"
 composeIcons = "1.1.1"
 browser = "1.9.0"
 haze = "1.6.10"
+composeMarkdown = "0.5.4"
 
 
 kermit = "2.0.8"
@@ -162,6 +163,7 @@ androidx-browser = { group = "androidx.browser", name = "browser", version.ref =
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 
+compose-markdown = { group = "com.github.jeziellago", name = "compose-markdown", version.ref = "composeMarkdown" }
 
 compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "composeIcons" }
 compose-icons-tabler = { group = "br.com.devsrsouza.compose.icons", name = "tabler-icons", version.ref = "composeIcons" }
