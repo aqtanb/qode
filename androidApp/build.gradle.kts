@@ -101,6 +101,9 @@ dependencies {
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+
     implementation(libs.androidx.startup)
     implementation(libs.kermit)
     implementation(libs.timber)

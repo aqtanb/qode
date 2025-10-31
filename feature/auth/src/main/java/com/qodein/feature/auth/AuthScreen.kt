@@ -54,7 +54,11 @@ fun AuthRoute(
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
             when (event) {
-                is AuthEvent.SignedIn -> onNavigateToHome()
+                AuthEvent.SignedIn -> onNavigateToHome()
+                AuthEvent.ShowPrivacyPolicy -> {
+                }
+                AuthEvent.ShowTermsOfService -> {
+                }
             }
         }
     }
