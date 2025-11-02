@@ -174,7 +174,7 @@ class AuthScreenTest {
 
         // Then
         // Action should be captured (may need to use waitUntil or similar)
-        // assert(actionCaptured is AuthAction.SignInWithGoogleClicked)
+        // assert(actionCaptured is AuthAction.AuthWithGoogleClicked)
     }
 
     @Test
@@ -257,7 +257,7 @@ class AuthScreenTest {
 
         // Then
         composeTestRule.waitUntil(timeoutMillis = 1000) {
-            actionCaptured == AuthAction.RetryClicked
+            actionCaptured == AuthAction.AuthRetryClicked
         }
     }
 

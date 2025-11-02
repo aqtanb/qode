@@ -25,8 +25,6 @@ fun NavGraphBuilder.authSection(
             AuthRoute(
                 onNavigateToHome = onNavigateBack,
                 isDarkTheme = isDarkTheme,
-                onNavigateToTermsOfService = { },
-                onNavigateToPrivacyPolicy = { },
             )
         }
     }

@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogin
 import com.qodein.shared.common.Result
-import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
+import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
+import com.qodein.shared.model.DocumentType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,36 +27,39 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
-    private val authStateManager: AuthStateManager,
+    private val getLegalDocumentUseCase: GetLegalDocumentUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
-    val state = _state.asStateFlow()
+    private val _authState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    val authState = _authState.asStateFlow()
+
+    private val _legalDocumentState = MutableStateFlow<LegalDocumentUiState>(LegalDocumentUiState.Closed)
+    val legalDocumentState = _legalDocumentState.asStateFlow()
 
     private val _events = MutableSharedFlow<AuthEvent>()
     val events = _events.asSharedFlow()
 
-    fun handleAction(action: SignInAction) {
+    fun handleAction(action: AuthAction) {
         when (action) {
-            is SignInAction.SignInWithGoogleClicked -> {
-                signInWithGoogle()
+            is AuthAction.AuthWithGoogleClicked -> signInWithGoogle()
+            is AuthAction.AuthRetryClicked -> signInWithGoogle()
+            is AuthAction.AuthErrorDismissed -> clearError()
+
+            is AuthAction.LegalDocumentClicked -> getLegalDocument(type = action.documentType)
+            is AuthAction.LegalDocumentRetryClicked -> getLegalDocument(type = action.documentType)
+            AuthAction.LegalDocumentDismissed -> {
+                _legalDocumentState.value = LegalDocumentUiState.Closed
             }
-            is SignInAction.RetryClicked -> {
-                signInWithGoogle()
-            }
-            is SignInAction.DismissErrorClicked -> clearError()
-            is SignInAction.TermsOfServiceClicked -> emitEvent(AuthEvent.ShowTermsOfService)
-            is SignInAction.PrivacyPolicyClicked -> emitEvent(AuthEvent.ShowPrivacyPolicy)
         }
     }
 
     private fun signInWithGoogle() {
-        _state.value = AuthUiState.Loading
+        _authState.value = AuthUiState.Loading
 
         signInWithGoogleUseCase()
             .onEach { result ->
-                _state.value = when (result) {
+                _authState.value = when (result) {
                     is Result.Success -> {
                         analyticsHelper.logLogin(method = "google", success = true)
                         emitEvent(AuthEvent.SignedIn)
@@ -70,6 +74,27 @@ class AuthViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun getLegalDocument(type: DocumentType) {
+        viewModelScope.launch {
+            _legalDocumentState.value = LegalDocumentUiState.Loading(documentType = type)
+            val result = getLegalDocumentUseCase(
+                type = type,
+            )
+
+            when (result) {
+                is Result.Error -> {
+                    _legalDocumentState.value = LegalDocumentUiState.Error(
+                        documentType = type,
+                        errorType = result.error,
+                    )
+                }
+                is Result.Success -> {
+                    _legalDocumentState.value = LegalDocumentUiState.Content(document = result.data)
+                }
+            }
+        }
+    }
+
     private fun emitEvent(event: AuthEvent) {
         viewModelScope.launch {
             _events.emit(event)
@@ -77,6 +102,6 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun clearError() {
-        _state.value = AuthUiState.Idle
+        _authState.value = AuthUiState.Idle
     }
 }

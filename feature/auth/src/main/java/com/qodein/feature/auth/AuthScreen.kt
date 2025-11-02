@@ -37,28 +37,23 @@ import com.qodein.core.ui.component.QodeGoogleSignInButton
 import com.qodein.feature.auth.component.AuthTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.model.DocumentType
 
 @Composable
 fun AuthRoute(
     isDarkTheme: Boolean,
     onNavigateToHome: () -> Unit,
-    onNavigateToTermsOfService: () -> Unit,
-    onNavigateToPrivacyPolicy: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Auth")
 
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val uiState by viewModel.authState.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
             when (event) {
                 AuthEvent.SignedIn -> onNavigateToHome()
-                AuthEvent.ShowPrivacyPolicy -> {
-                }
-                AuthEvent.ShowTermsOfService -> {
-                }
             }
         }
     }
@@ -76,7 +71,7 @@ fun AuthRoute(
 private fun AuthScreen(
     onBackClick: () -> Unit,
     state: AuthUiState,
-    onAction: (SignInAction) -> Unit,
+    onAction: (AuthAction) -> Unit,
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -133,7 +128,7 @@ private fun AuthScreen(
 
 @Composable
 private fun AuthIdleState(
-    onAction: (SignInAction) -> Unit,
+    onAction: (AuthAction) -> Unit,
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -147,7 +142,7 @@ private fun AuthIdleState(
 
 @Composable
 private fun AuthLoadingState(
-    onAction: (SignInAction) -> Unit,
+    onAction: (AuthAction) -> Unit,
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -162,20 +157,20 @@ private fun AuthLoadingState(
 @Composable
 private fun AuthErrorState(
     error: OperationError,
-    onAction: (SignInAction) -> Unit,
+    onAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     QodeErrorCard(
         error = error,
-        onRetry = { onAction(SignInAction.RetryClicked) },
-        onDismiss = { onAction(SignInAction.DismissErrorClicked) },
+        onRetry = { onAction(AuthAction.AuthRetryClicked) },
+        onDismiss = { onAction(AuthAction.AuthErrorDismissed) },
         modifier = modifier,
     )
 }
 
 @Composable
 private fun AuthSignInCard(
-    onAction: (SignInAction) -> Unit,
+    onAction: (AuthAction) -> Unit,
     isDarkTheme: Boolean,
     isLoading: Boolean,
     modifier: Modifier = Modifier
@@ -215,7 +210,7 @@ private fun AuthSignInCard(
 
             QodeGoogleSignInButton(
                 onClick = {
-                    onAction(SignInAction.SignInWithGoogleClicked)
+                    onAction(AuthAction.AuthWithGoogleClicked)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,7 +238,7 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.terms_of_service),
                         onClick = {
-                            onAction(SignInAction.TermsOfServiceClicked)
+                            onAction(AuthAction.LegalDocumentClicked(DocumentType.TermsOfService))
                         },
                         showUnderline = true,
                     )
@@ -257,7 +252,7 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.privacy_policy),
                         onClick = {
-                            onAction(SignInAction.PrivacyPolicyClicked)
+                            onAction(AuthAction.LegalDocumentClicked(DocumentType.PrivacyPolicy))
                         },
                         showUnderline = true,
                     )
