@@ -11,11 +11,8 @@ import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirestoreUserDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestoreUserDataSource constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val TAG = "FirestoreUserDS"
         private const val USERS_COLLECTION = "users"

@@ -10,14 +10,12 @@ import com.qodein.shared.model.BannerId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Implementation of BannerRepository using Firestore as the data source.
  */
-@Singleton
-class BannerRepositoryImpl @Inject constructor(private val firestoreBannerDataSource: FirestoreBannerDataSource) : BannerRepository {
+
+class BannerRepositoryImpl constructor(private val firestoreBannerDataSource: FirestoreBannerDataSource) : BannerRepository {
 
     override fun getBannersForCountry(
         countryCode: String,

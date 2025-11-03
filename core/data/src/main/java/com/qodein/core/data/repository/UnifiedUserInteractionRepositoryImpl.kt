@@ -14,15 +14,13 @@ import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository implementation for unified user interactions.
  * Returns Result<D, OperationError> for type-safe error handling.
  */
-@Singleton
-class UnifiedUserInteractionRepositoryImpl @Inject constructor(
+
+class UnifiedUserInteractionRepositoryImpl constructor(
     private val dataSource: FirestoreUnifiedUserInteractionDataSource,
     private val mapper: UserInteractionMapper
 ) : UnifiedUserInteractionRepository {

@@ -8,7 +8,6 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.model.DocumentType
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Sign-in screen ViewModel - handles UI-specific logic and side effects.
@@ -24,8 +22,7 @@ import javax.inject.Inject
  * Uses AuthStateManager for authentication business logic
  * and handles screen-specific concerns like analytics and navigation events.
  */
-@HiltViewModel
-class AuthViewModel @Inject constructor(
+class AuthViewModel(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val getLegalDocumentUseCase: GetLegalDocumentUseCase,
     private val analyticsHelper: AnalyticsHelper

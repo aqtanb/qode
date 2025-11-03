@@ -9,13 +9,10 @@ import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // TODO: Improve Error handling
 
-@Singleton
-class DevicePreferencesDataSource @Inject constructor(private val dataStore: DataStore<Preferences>) {
+class DevicePreferencesDataSource constructor(private val dataStore: DataStore<Preferences>) {
     companion object {
         private val THEME_KEY = stringPreferencesKey("theme")
         private val LANGUAGE_KEY = stringPreferencesKey("language")

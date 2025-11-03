@@ -3,8 +3,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -47,9 +45,7 @@ dependencies {
     implementation(libs.bundles.authentication)
     implementation(libs.bundles.work)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    ksp(libs.hilt.ext.compiler)
+    implementation(libs.bundles.koin)
     implementation(libs.datastore.preferences)
     implementation(libs.androidx.core.ktx)
     implementation(libs.timber)

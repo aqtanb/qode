@@ -13,15 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Coordinates service selection between ServiceSearchManager and ServiceSelectionManager.
  * Eliminates code duplication between ViewModels and centralizes complex state management.
  */
-@Singleton
-class ServiceSelectionCoordinator @Inject constructor(
+
+class ServiceSelectionCoordinator constructor(
     private val serviceSearchManager: ServiceSearchManager,
     private val serviceSelectionManager: ServiceSelectionManager,
     private val serviceCache: ServiceCache

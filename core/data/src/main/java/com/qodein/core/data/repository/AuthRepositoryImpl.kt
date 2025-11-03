@@ -14,11 +14,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class AuthRepositoryImpl @Inject constructor(
+class AuthRepositoryImpl constructor(
     private val firebaseGoogleAuthService: FirebaseGoogleAuthService,
     private val userRepository: UserRepository
 ) : AuthRepository {

@@ -6,6 +6,9 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
+import com.qodein.core.analytics.di.analyticsModule
+import com.qodein.core.data.di.coreDataModule
+import com.qodein.feature.auth.di.authModule
 import com.qodein.qode.logging.KermitTimberWriter
 import com.qodein.shared.data.di.sharedDataModule
 import dagger.hilt.android.HiltAndroidApp
@@ -46,9 +49,14 @@ class QodeApplication :
         startKoin {
             androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.ERROR)
             androidContext(this@QodeApplication)
-            modules(sharedDataModule)
+            modules(
+                coreDataModule,
+                analyticsModule,
+                sharedDataModule,
+                authModule,
+            )
         }
-        Timber.d("Koin initialized: sharedDataModule loaded")
+        Timber.d("Koin initialized")
     }
 
     private fun initializeLogging() {

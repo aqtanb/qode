@@ -6,8 +6,6 @@ import com.google.firebase.firestore.toObject
 import com.qodein.core.data.model.UserInteractionDto
 import com.qodein.shared.model.UserInteraction
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Firestore data source for unified user interactions (votes + bookmarks).
@@ -15,8 +13,8 @@ import javax.inject.Singleton
  *
  * Collection structure: /user_interactions/{itemId}_{userId}
  */
-@Singleton
-class FirestoreUnifiedUserInteractionDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+
+class FirestoreUnifiedUserInteractionDataSource constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val COLLECTION_NAME = "user_interactions"
     }

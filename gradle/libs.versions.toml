@@ -255,6 +255,11 @@ hilt = [
     "hilt-navigation-compose"
 ]
 
+koin = [
+    "koin-core",
+    "koin-android",
+    "koin-compose"
+]
 
 firebase = [
     "firebase-auth",

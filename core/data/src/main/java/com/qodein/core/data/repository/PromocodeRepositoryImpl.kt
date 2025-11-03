@@ -19,11 +19,8 @@ import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class PromocodeRepositoryImpl @Inject constructor(
+class PromocodeRepositoryImpl constructor(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
     private val serviceDataSource: FirestoreServiceDataSource,
     private val userDataSource: FirestoreUserDataSource

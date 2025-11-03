@@ -9,12 +9,8 @@ import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class DevicePreferencesRepositoryImpl @Inject constructor(private val dataSource: DevicePreferencesDataSource) :
-    DevicePreferencesRepository {
+class DevicePreferencesRepositoryImpl constructor(private val dataSource: DevicePreferencesDataSource) : DevicePreferencesRepository {
 
     // Getters don't fail, so no Result wrapper needed
     override fun getTheme(): Flow<Theme> = dataSource.getTheme()

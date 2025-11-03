@@ -13,15 +13,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Firestore data source for banner operations.
  * Provides real-time data updates and country-based filtering.
  */
-@Singleton
-class FirestoreBannerDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+
+class FirestoreBannerDataSource constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val TAG = "FirestoreBannerDS"
         private const val BANNERS_COLLECTION = "banners"
