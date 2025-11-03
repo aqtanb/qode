@@ -89,7 +89,7 @@ class NavigationHandlerTest {
     @Test
     fun handleNavigation_navigateToProfile_whenLoading_doesNotNavigate() {
         // Given
-        val authState = AuthState.Loading
+        val authState = null // Loading state
         val action = NavigationActions.NavigateToProfile
 
         // When

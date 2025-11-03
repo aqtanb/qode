@@ -17,6 +17,8 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.ContentSortBy
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
@@ -120,7 +122,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadPromoCodes(paginationRequest: PaginationRequest) {
+    private fun loadPromoCodes(paginationRequest: PaginationRequest<ContentSortBy>) {
         viewModelScope.launch {
             val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
@@ -179,7 +181,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handlePromoCodesSuccess(
-        paginatedResult: PaginatedResult<PromoCode>,
+        paginatedResult: PaginatedResult<PromoCode, ContentSortBy>,
         isLoadMore: Boolean,
         currentState: HomeUiState
     ): HomeUiState =
@@ -285,9 +287,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun PromoCode.getAnalyticsType(): String =
-        when (this) {
-            is PromoCode.PercentagePromoCode -> PROMO_CODE_TYPE_PERCENTAGE
-            is PromoCode.FixedAmountPromoCode -> PROMO_CODE_TYPE_FIXED_AMOUNT
+        when (this.discount) {
+            is Discount.Percentage -> PROMO_CODE_TYPE_PERCENTAGE
+            is Discount.FixedAmount -> PROMO_CODE_TYPE_FIXED_AMOUNT
         }
 
     private fun dismissError() {

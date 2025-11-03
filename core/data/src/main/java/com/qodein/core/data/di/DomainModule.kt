@@ -4,8 +4,11 @@ import com.qodein.shared.domain.auth.AuthStateManager
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
+import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -14,6 +17,9 @@ import com.qodein.shared.domain.usecase.interaction.GetUserBookmarksUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
+import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
+import com.qodein.shared.domain.usecase.post.GetPostsUseCase
+import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
@@ -23,6 +29,7 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
+import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -121,4 +128,25 @@ object DomainModule {
     @Singleton
     fun provideSearchServicesUseCase(promoCodeRepository: PromocodeRepository): SearchServicesUseCase =
         SearchServicesUseCase(promoCodeRepository)
+
+    // Post Use Cases
+    @Provides
+    @Singleton
+    fun provideGetPostsUseCase(postRepository: PostRepository): GetPostsUseCase = GetPostsUseCase(postRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetPostByIdUseCase(postRepository: PostRepository): GetPostByIdUseCase = GetPostByIdUseCase(postRepository)
+
+    @Provides
+    @Singleton
+    fun provideCreatePostUseCase(
+        postRepository: PostRepository,
+        storageRepository: StorageRepository
+    ): SubmitPostUseCase = SubmitPostUseCase(postRepository, storageRepository)
+
+    // User Use Cases
+    @Provides
+    @Singleton
+    fun provideGetUserByIdUseCase(userRepository: UserRepository): GetUserByIdUseCase = GetUserByIdUseCase(userRepository)
 }

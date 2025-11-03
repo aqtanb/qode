@@ -4,6 +4,7 @@ package com.qodein.shared.model
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
+import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
@@ -25,41 +26,48 @@ value class PostId(val value: String) {
 }
 
 @Serializable
-@JvmInline
-value class Tag(val value: String) {
+data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant = Clock.System.now()) {
     init {
         require(value.isNotBlank()) { "Tag cannot be blank" }
-        require(value.length <= 50) { "Tag cannot exceed 50 characters" }
+        require(value.length <= MAX_LENGTH) { "Tag cannot exceed $MAX_LENGTH characters" }
         require(value == value.lowercase()) { "Tag must be lowercase" }
-        require(value.matches(Regex("^[a-z0-9_-]+$"))) { "Tag contains invalid characters" }
+        require(value.matches(VALID_PATTERN)) { "Tag contains invalid characters" }
+        require(postCount >= 0) { "Post count cannot be negative" }
     }
 
-    override fun toString(): String = value
-
     companion object {
-        fun create(name: String): Result<Tag, PostError.CreationFailure> {
+        const val MAX_LENGTH = 50
+        const val MAX_TAGS_SELECTED = 5
+        val VALID_PATTERN = Regex("^[a-z0-9_]+$")
+
+        fun create(
+            name: String,
+            postCount: Int = 0,
+            createdAt: Instant = Clock.System.now()
+        ): Result<Tag, PostError.CreationFailure> {
             val cleanName = name.trim()
                 .lowercase()
                 .replace(Regex("\\s+"), "_")
-                .replace(Regex("[^a-z0-9_-]"), "")
+                .replace(Regex("[^a-z0-9_]"), "")
 
             return if (cleanName.isBlank()) {
                 Result.Error(PostError.CreationFailure.InvalidTagData)
             } else {
-                Result.Success(Tag(cleanName))
+                Result.Success(Tag(cleanName, postCount, createdAt))
             }
         }
     }
 }
 
+@ConsistentCopyVisibility
 @Serializable
-data class Post(
+data class Post private constructor(
     val id: PostId,
     val authorId: UserId,
     val authorName: String,
     val authorAvatarUrl: String? = null,
     val title: String,
-    val content: String,
+    val content: String?,
     val imageUrls: List<String> = emptyList(),
     val tags: List<Tag> = emptyList(),
     val upvotes: Int = 0,
@@ -69,20 +77,6 @@ data class Post(
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
-    init {
-        require(title.isNotBlank()) { "Post title cannot be blank" }
-        require(title.length <= 200) { "Post title cannot exceed 200 characters" }
-        require(content.isNotBlank()) { "Post content cannot be blank" }
-        require(content.length <= 2000) { "Post content cannot exceed 2000 characters" }
-        require(authorName.isNotBlank()) { "Author username cannot be blank" }
-        require(upvotes >= 0) { "Upvotes cannot be negative" }
-        require(downvotes >= 0) { "Downvotes cannot be negative" }
-        require(shares >= 0) { "Shares cannot be negative" }
-        require(commentCount >= 0) { "Comment count cannot be negative" }
-        require(tags.size <= 10) { "Post cannot have more than 10 tags" }
-        require(imageUrls.size <= 5) { "Post cannot have more than 5 images" }
-    }
-
     val voteScore: Int get() = upvotes - downvotes
 
     companion object {
@@ -90,13 +84,13 @@ data class Post(
             authorId: UserId,
             authorUsername: String,
             title: String,
-            content: String,
+            content: String? = null,
             imageUrls: List<String> = emptyList(),
             tags: List<String> = emptyList(),
             authorAvatarUrl: String? = null
         ): Result<Post, PostError.CreationFailure> {
             val cleanTitle = title.trim()
-            val cleanContent = content.trim()
+            val cleanContent = content?.trim()
             val cleanAuthorName = authorUsername.trim()
             val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
 
@@ -107,16 +101,15 @@ data class Post(
             if (cleanTitle.length > 200) {
                 return Result.Error(PostError.CreationFailure.TitleTooLong)
             }
-            if (cleanContent.isBlank()) {
-                return Result.Error(PostError.CreationFailure.EmptyContent)
-            }
-            if (cleanContent.length > 2000) {
-                return Result.Error(PostError.CreationFailure.ContentTooLong)
+            cleanContent?.length?.let {
+                if (it > 2000) {
+                    return Result.Error(PostError.CreationFailure.ContentTooLong)
+                }
             }
             if (cleanAuthorName.isBlank()) {
                 return Result.Error(PostError.CreationFailure.EmptyAuthorName)
             }
-            if (tags.size > 10) {
+            if (tags.size > MAX_TAGS_SELECTED) {
                 return Result.Error(PostError.CreationFailure.TooManyTags)
             }
             if (cleanImageUrls.size > 5) {
@@ -147,6 +140,43 @@ data class Post(
                 ),
             )
         }
+
+        /**
+         * Reconstruct a Post from storage/DTO (for mappers/repositories only).
+         * Assumes data is already validated. No sanitization performed.
+         */
+        fun fromDto(
+            id: PostId,
+            authorId: UserId,
+            authorName: String,
+            authorAvatarUrl: String? = null,
+            title: String,
+            content: String?,
+            imageUrls: List<String> = emptyList(),
+            tags: List<Tag> = emptyList(),
+            upvotes: Int = 0,
+            downvotes: Int = 0,
+            shares: Int = 0,
+            commentCount: Int = 0,
+            createdAt: Instant,
+            updatedAt: Instant
+        ): Post =
+            Post(
+                id = id,
+                authorId = authorId,
+                authorName = authorName,
+                authorAvatarUrl = authorAvatarUrl,
+                title = title,
+                content = content,
+                imageUrls = imageUrls,
+                tags = tags,
+                upvotes = upvotes,
+                downvotes = downvotes,
+                shares = shares,
+                commentCount = commentCount,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+            )
 
         @OptIn(ExperimentalUuidApi::class)
         private fun generateRandomId(): String = Uuid.random().toHexString()

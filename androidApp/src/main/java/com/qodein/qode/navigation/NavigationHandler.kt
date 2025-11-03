@@ -2,8 +2,9 @@ package com.qodein.qode.navigation
 
 import androidx.navigation.NavController
 import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.feature.post.navigation.navigateToPostSubmission
 import com.qodein.feature.profile.navigation.navigateToProfile
-import com.qodein.feature.promocode.navigation.navigateToSubmission
+import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.shared.domain.AuthState
 import javax.inject.Inject
@@ -30,13 +31,13 @@ class NavigationHandler @Inject constructor() {
      *
      * @param action The navigation action to handle
      * @param navController Navigation controller for actual navigation
-     * @param authState Current authentication state
+     * @param authState Current authentication state (null = loading)
      * @param navigateToTopLevel Function to navigate to top level destinations
      */
     fun handleNavigation(
         action: NavigationActions,
         navController: NavController,
-        authState: AuthState,
+        authState: AuthState?,
         navigateToTopLevel: (TopLevelDestination) -> Unit
     ) {
         when (action) {
@@ -44,8 +45,8 @@ class NavigationHandler @Inject constructor() {
                 when (authState) {
                     is AuthState.Authenticated -> navController.navigateToProfile()
                     is AuthState.Unauthenticated -> navController.navigateToAuth()
-                    is AuthState.Loading -> {
-                        // Wait for auth state to resolve, or show loading
+                    null -> {
+                        // Auth state is loading, wait for it to resolve
                         // Could implement queue for pending actions
                     }
                 }
@@ -81,8 +82,12 @@ class NavigationHandler @Inject constructor() {
                 navigateToTopLevel(TopLevelDestination.HOME)
             }
 
-            NavigationActions.NavigateToSubmission -> {
-                navController.navigateToSubmission()
+            NavigationActions.NavigateToPromocodeSubmission -> {
+                navController.navigateToPromocodeSubmission()
+            }
+
+            NavigationActions.NavigateToPostSubmission -> {
+                navController.navigateToPostSubmission()
             }
         }
     }

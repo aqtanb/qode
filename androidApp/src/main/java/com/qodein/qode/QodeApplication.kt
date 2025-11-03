@@ -2,11 +2,19 @@ package com.qodein.qode
 
 import android.app.Application
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import com.qodein.qode.logging.KermitTimberWriter
+import com.qodein.shared.data.di.sharedDataModule
 import dagger.hilt.android.HiltAndroidApp
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Application class for Qode.
@@ -15,11 +23,32 @@ import timber.log.Timber
  * to ensure it's initialized before any Dagger/Hilt components are created.
  */
 @HiltAndroidApp
-class QodeApplication : Application() {
+class QodeApplication :
+    Application(),
+    Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration by lazy {
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+    }
 
     override fun onCreate() {
         super.onCreate()
         initializeLogging()
+        initializeKoin()
+    }
+
+    private fun initializeKoin() {
+        startKoin {
+            androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.ERROR)
+            androidContext(this@QodeApplication)
+            modules(sharedDataModule)
+        }
+        Timber.d("Koin initialized: sharedDataModule loaded")
     }
 
     private fun initializeLogging() {

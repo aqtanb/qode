@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".QodeApplication"
@@ -14,21 +15,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qode">
 
-        <!-- Firebase Startup Initializer -->
+        <!-- Startup Initializer Configuration -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
+
+            <!-- Firebase initialization -->
             <meta-data
                 android:name="com.qodein.qode.initializer.FirebaseInitializer"
                 android:value="androidx.startup" />
+
+            <!-- Disable WorkManager auto-init (use Hilt instead) -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
         </provider>
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Qode">
+            android:theme="@style/Theme.Qode"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

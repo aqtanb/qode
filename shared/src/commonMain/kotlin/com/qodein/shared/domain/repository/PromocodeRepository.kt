@@ -30,13 +30,14 @@ interface PromocodeRepository {
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
         filterByCategories: List<String>? = null,
-        paginationRequest: PaginationRequest = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>>
+        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
+    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>>
 
     /**
      * Get a specific promo code by ID.
+     * Returns NotFound error if promo code doesn't exist.
      */
-    fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>>
+    suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError>
 
     // Service-related methods
 

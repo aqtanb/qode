@@ -5,7 +5,6 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for unified user interactions (votes + bookmarks).
@@ -13,8 +12,6 @@ import kotlinx.coroutines.flow.Flow
  * Repository implementations handle exception translation to domain errors.
  */
 interface UnifiedUserInteractionRepository {
-
-    // Single interaction operations
 
     /**
      * Get user interaction for specific content and user.
@@ -38,16 +35,6 @@ interface UnifiedUserInteractionRepository {
     ): Result<Unit, OperationError>
 
     /**
-     * Observe user interaction for real-time updates.
-     */
-    fun observeUserInteraction(
-        itemId: String,
-        userId: UserId
-    ): Flow<Result<UserInteraction?, OperationError>>
-
-    // Batch operations
-
-    /**
      * Get all bookmarked content for a user.
      */
     suspend fun getUserBookmarks(userId: UserId): Result<List<UserInteraction>, OperationError>
@@ -56,23 +43,6 @@ interface UnifiedUserInteractionRepository {
      * Get all user interactions for specific user.
      */
     suspend fun getAllUserInteractions(userId: UserId): Result<List<UserInteraction>, OperationError>
-
-    /**
-     * Get user interactions for multiple content items.
-     */
-    suspend fun getUserInteractionsForItems(
-        itemIds: List<String>,
-        userId: UserId
-    ): Result<Map<String, UserInteraction>, OperationError>
-
-    // Content-centric operations
-
-    /**
-     * Get all interactions for specific content.
-     */
-    suspend fun getInteractionsForContent(itemId: String): Result<List<UserInteraction>, OperationError>
-
-    // Convenience methods
 
     /**
      * Toggle user's vote on content.

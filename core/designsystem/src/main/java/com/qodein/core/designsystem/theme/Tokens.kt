@@ -13,19 +13,44 @@ import androidx.compose.ui.unit.dp
  */
 @Immutable
 object SpacingTokens {
-    val none = 0.dp // dividers, tight separators
-    val xxxs = 2.dp // hairline gaps, icon nudges
-    val xxs = 4.dp // compact chip spacing, dense lists
-    val xs = 8.dp // small gaps, icon + text, compact padding
-    val sm = 12.dp // button inner padding, medium chips
-    val md = 16.dp // default padding, list items
-    val lg = 24.dp // section spacing, cards margin
-    val xl = 32.dp // screen padding, large components
-    val xxl = 40.dp // modal spacing, wide gutters
-    val xxxl = 48.dp // page section breaks, toolbars
-    val huge = 64.dp // hero sections, large dialog content
-    val massive = 80.dp // landing screens, wide layouts
-    val gigantic = 96.dp // banners, big empty states
+    /** 0dp - No spacing: dividers, flush layouts */
+    val none = 0.dp
+
+    /** 2dp - Minimal spacing: hairline gaps, icon nudges */
+    val xxxs = 2.dp
+
+    /** 4dp - Extra small: compact chip spacing, dense lists */
+    val xxs = 4.dp
+
+    /** 8dp - Small: icon + text spacing, compact padding */
+    val xs = 8.dp
+
+    /** 12dp - Small-medium: button inner padding, comfortable gaps */
+    val sm = 12.dp
+
+    /** 16dp - Medium (default): card padding, list item spacing */
+    val md = 16.dp
+
+    /** 24dp - Large: section spacing, card margins */
+    val lg = 24.dp
+
+    /** 32dp - Extra large: screen edge padding, large components */
+    val xl = 32.dp
+
+    /** 40dp - Double extra large: modal spacing, wide gutters */
+    val xxl = 40.dp
+
+    /** 48dp - Triple extra large: page section breaks */
+    val xxxl = 48.dp
+
+    /** 64dp - Huge: hero sections, large dialog content */
+    val huge = 64.dp
+
+    /** 80dp - Massive: landing screens, wide layouts */
+    val massive = 80.dp
+
+    /** 96dp - Gigantic: banners, big empty states, space for floating controller */
+    val gigantic = 96.dp
 }
 
 /**
@@ -70,7 +95,9 @@ object SizeTokens {
     @Immutable
     object Chip {
         val height = 32.dp
-        val heightSmall = 24.dp
+        val sizeSmall = 16.dp
+        val sizeMedium = 24.dp
+        val sizeLarge = 32.dp
     }
 
     @Immutable

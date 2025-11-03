@@ -9,9 +9,7 @@ import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-// ================================================================================================
-// BASIC VALUE CLASSES
-// ================================================================================================
+// MARK:
 
 @Serializable
 @JvmInline
@@ -75,9 +73,7 @@ enum class ProfileVisibility {
     PRIVATE
 }
 
-// ================================================================================================
-// SUPPORTING DATA CLASSES
-// ================================================================================================
+// MARK:
 
 data class NotificationSettings(
     val newCodesFromFollowedStores: Boolean = true,
@@ -129,9 +125,7 @@ data class UserPreferences(
     }
 }
 
-// ================================================================================================
-// USER PROFILE
-// ================================================================================================
+// MARK:
 
 data class UserProfile(
     val firstName: String,
@@ -216,55 +210,42 @@ data class UserProfile(
     }
 }
 
-// ================================================================================================
-// USER STATS
-// ================================================================================================
+// MARK:
 
 data class UserStats(
     val userId: UserId,
-    val followedStores: List<String> = emptyList(),
-    val submittedCodes: Int = 0,
-    val upvotesReceived: Int = 0,
-    val downvotesReceived: Int = 0,
+    val submittedPromocodesCount: Int = 0,
+    val submittedPostsCount: Int = 0,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds()
 ) {
     init {
-        require(upvotesReceived >= 0) { "Upvotes received cannot be negative" }
-        require(downvotesReceived >= 0) { "Downvotes received cannot be negative" }
-        require(submittedCodes >= 0) { "Submitted codes cannot be negative" }
+        require(submittedPromocodesCount >= 0) { "Submitted promocodes count cannot be negative" }
+        require(submittedPostsCount >= 0) { "Submitted posts count cannot be negative" }
         require(createdAt > 0) { "Created time must be positive" }
-        require(followedStores.size <= MAX_FOLLOWED_STORES) {
-            "Too many followed stores (max $MAX_FOLLOWED_STORES)"
-        }
     }
 
+    val totalSubmissions: Int get() = submittedPromocodesCount + submittedPostsCount
+
     companion object {
-        const val MAX_FOLLOWED_STORES = 100
 
         fun initial(userId: UserId): UserStats = UserStats(userId = userId)
 
         fun createSafe(
             userId: UserId,
-            followedStores: List<String> = emptyList(),
-            submittedCodes: Int = 0,
-            upvotesReceived: Int = 0,
-            downvotesReceived: Int = 0
+            submittedPromocodesCount: Int = 0,
+            submittedPostsCount: Int = 0
         ): Result<UserStats> =
             runCatching {
                 UserStats(
                     userId = userId,
-                    followedStores = followedStores.distinct(),
-                    submittedCodes = submittedCodes,
-                    upvotesReceived = upvotesReceived,
-                    downvotesReceived = downvotesReceived,
+                    submittedPromocodesCount = submittedPromocodesCount,
+                    submittedPostsCount = submittedPostsCount,
                 )
             }
     }
 }
 
-// ================================================================================================
-// MAIN USER MODEL
-// ================================================================================================
+// MARK:
 
 data class User(
     val id: UserId,

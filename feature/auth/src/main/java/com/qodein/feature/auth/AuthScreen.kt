@@ -1,7 +1,6 @@
 package com.qodein.feature.auth
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,111 +10,113 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
-import com.qodein.core.designsystem.component.QodeHeroGradient
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
-import com.qodein.core.designsystem.component.QodeTextButtonStyle
+import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.ComponentPreviews
-import com.qodein.core.ui.DevicePreviews
-import com.qodein.core.ui.FontScalePreviews
-import com.qodein.core.ui.MobilePreviews
-import com.qodein.core.ui.TabletPreviews
-import com.qodein.core.ui.ThemePreviews
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
+import com.qodein.feature.auth.component.AuthTopAppBar
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.common.error.UserError
+import com.qodein.shared.model.DocumentType
 
 @Composable
-fun AuthScreen(
+fun AuthRoute(
+    isDarkTheme: Boolean,
+    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SignInViewModel = hiltViewModel(),
-    onNavigateToHome: () -> Unit = {},
-    onNavigateToTermsOfService: () -> Unit = {},
-    onNavigateToPrivacyPolicy: () -> Unit = {},
-    isDarkTheme: Boolean
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
-    // Track screen view
     TrackScreenViewEvent(screenName = "Auth")
 
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.authState.collectAsStateWithLifecycle()
 
-    // Handle events
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
             when (event) {
-                is AuthEvent.SignedIn -> onNavigateToHome()
-                is AuthEvent.TermsOfServiceRequested -> onNavigateToTermsOfService()
-                is AuthEvent.PrivacyPolicyRequested -> onNavigateToPrivacyPolicy()
+                AuthEvent.SignedIn -> onNavigateToHome()
             }
         }
     }
 
-    AuthContent(
-        modifier = modifier,
-        state = state,
+    AuthScreen(
+        onBackClick = onNavigateToHome,
+        state = uiState,
         onAction = viewModel::handleAction,
         isDarkTheme = isDarkTheme,
+        modifier = modifier,
     )
 }
 
 @Composable
-fun AuthContent(
-    modifier: Modifier = Modifier,
-    state: SignInUiState,
-    onAction: (SignInAction) -> Unit,
-    isDarkTheme: Boolean
+private fun AuthScreen(
+    onBackClick: () -> Unit,
+    state: AuthUiState,
+    onAction: (AuthAction) -> Unit,
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        QodeHeroGradient()
+    val scrollState = rememberScrollState()
 
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            AuthTopAppBar(
+                scrollState = scrollState,
+                onBackClick = onBackClick,
+            )
+        },
+    ) { paddingValues ->
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
                 .padding(horizontal = SpacingTokens.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             when (state) {
-                is SignInUiState.Error -> {
-                    // Show error card with new type-safe error handling
-                    QodeErrorCard(
-                        error = state.errorType,
-                        onRetry = { onAction(SignInAction.RetryClicked) },
-                        onDismiss = { onAction(SignInAction.DismissErrorClicked) },
-                        modifier = modifier.fillMaxWidth(),
+                is AuthUiState.Idle -> {
+                    AuthIdleState(
+                        onAction = onAction,
+                        isDarkTheme = isDarkTheme,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
 
-                else -> {
-                    // Show sign-in card for all other states (Idle, Loading)
-                    AuthSignInCard(
-                        state = state,
+                is AuthUiState.Loading -> {
+                    AuthLoadingState(
                         onAction = onAction,
-                        modifier = modifier.fillMaxWidth(),
                         isDarkTheme = isDarkTheme,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                is AuthUiState.Error -> {
+                    AuthErrorState(
+                        error = state.errorType,
+                        onAction = onAction,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -123,20 +124,63 @@ fun AuthContent(
     }
 }
 
+// MARK: - State Composables
+
+@Composable
+private fun AuthIdleState(
+    onAction: (AuthAction) -> Unit,
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AuthSignInCard(
+        onAction = onAction,
+        isDarkTheme = isDarkTheme,
+        isLoading = false,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AuthLoadingState(
+    onAction: (AuthAction) -> Unit,
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AuthSignInCard(
+        onAction = onAction,
+        isDarkTheme = isDarkTheme,
+        isLoading = true,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AuthErrorState(
+    error: OperationError,
+    onAction: (AuthAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    QodeErrorCard(
+        error = error,
+        onRetry = { onAction(AuthAction.AuthRetryClicked) },
+        onDismiss = { onAction(AuthAction.AuthErrorDismissed) },
+        modifier = modifier,
+    )
+}
+
 @Composable
 private fun AuthSignInCard(
-    state: SignInUiState,
-    onAction: (SignInAction) -> Unit,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    onAction: (AuthAction) -> Unit,
+    isDarkTheme: Boolean,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    QodeCard(
-        variant = QodeCardVariant.Elevated,
+    QodeinElevatedCard(
         shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
         modifier = modifier,
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .padding(SpacingTokens.md)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -146,7 +190,7 @@ private fun AuthSignInCard(
                 size = QodeLogoSize.Large,
                 style = QodeLogoStyle.Default,
                 backgroundColor = MaterialTheme.colorScheme.surface,
-                modifier = modifier.padding(bottom = SpacingTokens.sm),
+                modifier = Modifier.padding(bottom = SpacingTokens.sm),
             )
 
             Text(
@@ -166,15 +210,17 @@ private fun AuthSignInCard(
 
             QodeGoogleSignInButton(
                 onClick = {
-                    onAction(SignInAction.SignInWithGoogleClicked)
+                    onAction(AuthAction.AuthWithGoogleClicked)
                 },
-                modifier = modifier.fillMaxWidth().padding(vertical = SpacingTokens.md),
-                isLoading = state is SignInUiState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = SpacingTokens.md),
+                isLoading = isLoading,
                 isDarkTheme = isDarkTheme,
             )
 
             Column(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
             ) {
@@ -192,9 +238,8 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.terms_of_service),
                         onClick = {
-                            onAction(SignInAction.TermsOfServiceClicked)
+                            onAction(AuthAction.LegalDocumentClicked(DocumentType.TermsOfService))
                         },
-                        style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
                     )
 
@@ -207,9 +252,8 @@ private fun AuthSignInCard(
                     QodeTextButton(
                         text = stringResource(R.string.privacy_policy),
                         onClick = {
-                            onAction(SignInAction.PrivacyPolicyClicked)
+                            onAction(AuthAction.LegalDocumentClicked(DocumentType.PrivacyPolicy))
                         },
-                        style = QodeTextButtonStyle.Primary,
                         showUnderline = true,
                     )
                 }
@@ -218,140 +262,45 @@ private fun AuthSignInCard(
     }
 }
 
-// MARK: - Preview Functions
+// MARK: - Previews
 
-/**
- * Preview-optimized version for AuthScreen with proper state handling
- */
-@Composable
-private fun AuthScreenPreview(
-    state: SignInUiState,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean = false
-) {
-    AuthContent(
-        state = state,
-        onAction = {}, // Empty for previews
-        modifier = modifier,
-        isDarkTheme = isDarkTheme,
-    )
-}
-
-/**
- * Comprehensive device previews following NIA patterns
- */
-@DevicePreviews
-@Composable
-fun AuthScreenDevicePreviews() {
-    QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Idle,
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
-
-/**
- * Theme variations preview
- */
 @ThemePreviews
 @Composable
-fun AuthScreenThemePreviews() {
+private fun AuthIdleStatePreview() {
     QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Idle,
-            modifier = Modifier.fillMaxSize(),
+        AuthScreen(
+            onBackClick = {},
+            state = AuthUiState.Idle,
+            onAction = {},
+            isDarkTheme = false,
         )
     }
 }
 
-/**
- * Font scale accessibility testing
- */
-@FontScalePreviews
+@ThemePreviews
 @Composable
-fun AuthScreenFontScalePreviews() {
+private fun AuthLoadingStatePreview() {
     QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Idle,
-            modifier = Modifier.fillMaxSize(),
+        AuthScreen(
+            onBackClick = {},
+            state = AuthUiState.Loading,
+            onAction = {},
+            isDarkTheme = false,
         )
     }
 }
 
-/**
- * Mobile-specific layouts
- */
-@MobilePreviews
+@ThemePreviews
 @Composable
-fun AuthScreenMobilePreviews() {
+private fun AuthErrorStatePreview() {
     QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Idle,
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
-
-/**
- * Tablet-optimized layouts
- */
-@TabletPreviews
-@Composable
-fun AuthScreenTabletPreviews() {
-    QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Idle,
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
-
-/**
- * Loading state preview following enterprise patterns
- */
-@ComponentPreviews
-@Composable
-fun AuthScreenLoadingStatePreview() {
-    QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Loading,
-        )
-    }
-}
-
-/**
- * Error state preview with proper error handling UI
- */
-@ComponentPreviews
-@Composable
-fun AuthScreenErrorStatePreview() {
-    QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Error(
-                errorType = UserError.AuthenticationFailure.Cancelled,
-                isRetryable = false,
-                shouldShowSnackbar = false,
-                errorCode = "AUTH_001",
-            ),
-        )
-    }
-}
-
-/**
- * Network error state preview
- */
-@ComponentPreviews
-@Composable
-fun AuthScreenNetworkErrorPreview() {
-    QodeTheme {
-        AuthScreenPreview(
-            state = SignInUiState.Error(
+        AuthScreen(
+            onBackClick = {},
+            state = AuthUiState.Error(
                 errorType = SystemError.Offline,
-                isRetryable = true,
-                shouldShowSnackbar = false,
-                errorCode = "NET_001",
             ),
+            onAction = {},
+            isDarkTheme = false,
         )
     }
 }

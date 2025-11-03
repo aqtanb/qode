@@ -3,6 +3,7 @@ package com.qodein.core.data.repository
 import co.touchlab.kermit.Logger
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
+import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PromoCodeError
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 @Singleton
 class PromocodeRepositoryImpl @Inject constructor(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
-    private val serviceDataSource: FirestoreServiceDataSource
+    private val serviceDataSource: FirestoreServiceDataSource,
+    private val userDataSource: FirestoreUserDataSource
 ) : PromocodeRepository {
 
     companion object {
@@ -37,6 +39,9 @@ class PromocodeRepositoryImpl @Inject constructor(
             try {
                 val result = promoCodeDataSource.createPromoCode(promoCode)
                 Logger.i(TAG) { "Repository successfully created promo code: ${result.id.value}" }
+
+                userDataSource.incrementPromocodeCount(promoCode.createdBy.value)
+
                 emit(Result.Success(result))
             } catch (e: SecurityException) {
                 Logger.e(TAG, e) { "Repository failed to create promo code - unauthorized: ${promoCode.code}" }
@@ -61,8 +66,8 @@ class PromocodeRepositoryImpl @Inject constructor(
         sortBy: ContentSortBy,
         filterByServices: List<String>?,
         filterByCategories: List<String>?,
-        paginationRequest: PaginationRequest
-    ): Flow<Result<PaginatedResult<PromoCode>, OperationError>> =
+        paginationRequest: PaginationRequest<ContentSortBy>
+    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
         flow {
             try {
                 val result = promoCodeDataSource.getPromoCodes(
@@ -82,18 +87,27 @@ class PromocodeRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getPromoCodeById(id: PromoCodeId): Flow<Result<PromoCode?, OperationError>> =
-        flow {
-            try {
-                val result = promoCodeDataSource.getPromoCodeById(id)
-                emit(Result.Success(result))
-            } catch (e: IOException) {
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: IllegalStateException) {
-                emit(Result.Error(SystemError.ServiceDown))
-            } catch (e: Exception) {
-                emit(Result.Error(PromoCodeError.RetrievalFailure.NotFound))
+    override suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError> =
+        try {
+            val promoCode = promoCodeDataSource.getPromoCodeById(id)
+            if (promoCode != null) {
+                Result.Success(promoCode)
+            } else {
+                Logger.w(TAG) { "PromoCode not found: ${id.value}" }
+                Result.Error(PromoCodeError.RetrievalFailure.NotFound)
             }
+        } catch (e: IllegalArgumentException) {
+            Logger.e(TAG, e) { "Invalid PromoCode data for id: ${id.value}" }
+            Result.Error(PromoCodeError.RetrievalFailure.NotFound)
+        } catch (e: IOException) {
+            Logger.e(TAG, e) { "Network error getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.Offline)
+        } catch (e: IllegalStateException) {
+            Logger.e(TAG, e) { "Service down getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.ServiceDown)
+        } catch (e: Exception) {
+            Logger.e(TAG, e) { "Unknown error getting PromoCode: ${id.value}" }
+            Result.Error(SystemError.Unknown)
         }
 
     // Service-related methods

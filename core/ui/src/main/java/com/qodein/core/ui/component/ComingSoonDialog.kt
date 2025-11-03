@@ -23,10 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.qodein.core.designsystem.component.QodeButtonSize
-import com.qodein.core.designsystem.component.QodeButtonVariant
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeIconButton
+import com.qodein.core.designsystem.component.ButtonSize
+import com.qodein.core.designsystem.component.QodeinCard
+import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -80,7 +79,7 @@ fun ComingSoonDialog(
             usePlatformDefaultWidth = false,
         ),
     ) {
-        QodeCard(
+        QodeinCard(
             modifier = modifier
                 .fillMaxWidth()
                 .alpha(alpha)
@@ -93,12 +92,11 @@ fun ComingSoonDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 // Close button in top right
-                QodeIconButton(
+                QodeinIconButton(
                     onClick = onDismiss,
                     icon = QodeActionIcons.Close,
                     contentDescription = stringResource(R.string.close),
-                    variant = QodeButtonVariant.Text,
-                    size = QodeButtonSize.Medium,
+                    size = ButtonSize.Medium,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(SpacingTokens.sm),

@@ -279,7 +279,7 @@ private fun RegularTextField(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -323,16 +323,8 @@ private fun RegularTextField(
             } else {
                 MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             },
-            focusedContainerColor = if (value.isNotEmpty()) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-            unfocusedContainerColor = if (value.isNotEmpty()) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,

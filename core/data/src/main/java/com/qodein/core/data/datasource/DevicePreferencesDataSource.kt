@@ -8,6 +8,7 @@ import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,6 +19,16 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
     companion object {
         private val THEME_KEY = stringPreferencesKey("theme")
         private val LANGUAGE_KEY = stringPreferencesKey("language")
+
+        private fun getSystemLanguage(): Language {
+            val systemLocale = Locale.getDefault().language
+            return when (systemLocale) {
+                "en" -> Language.ENGLISH
+                "kk" -> Language.KAZAKH
+                "ru" -> Language.RUSSIAN
+                else -> Language.RUSSIAN // Fall back to Russian for KZ market
+            }
+        }
     }
 
     /**
@@ -54,8 +65,8 @@ class DevicePreferencesDataSource @Inject constructor(private val dataStore: Dat
      */
     fun getLanguage(): Flow<Language> =
         dataStore.data.map { preferences ->
-            val languageCode = preferences[LANGUAGE_KEY] ?: Language.RUSSIAN.code // Default to Russian for KZ market
-            Language.entries.find { it.code == languageCode } ?: Language.RUSSIAN
+            val languageCode = preferences[LANGUAGE_KEY] ?: return@map getSystemLanguage()
+            Language.entries.find { it.code == languageCode } ?: getSystemLanguage()
         }
 
     /**

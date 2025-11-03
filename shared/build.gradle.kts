@@ -44,14 +44,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                // Serialization for data models
                 implementation(libs.kotlinx.serialization.json)
-                // Coroutines for async operations
                 implementation(libs.kotlinx.coroutines.core)
-                // DateTime for date/time handling
                 implementation(libs.kotlinx.datetime)
-                // Logging for multiplatform
                 implementation(libs.kermit)
+                implementation(libs.bundles.ktor)
+                implementation(libs.koin.core)
             }
         }
 
@@ -69,13 +67,19 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Android-specific implementations if needed
+                // Firebase BOM for version management
+                implementation(project.dependencies.platform(libs.firebase.bom))
+                // Firebase for expect/actual DocumentSnapshot
+                implementation(libs.firebase.firestore)
+                // Ktor Android engine
+                implementation(libs.ktor.client.okhttp)
             }
         }
 
         iosMain {
             dependencies {
-                // iOS-specific implementations if needed
+                // Ktor iOS engine
+                implementation(libs.ktor.client.darwin)
             }
         }
     }

@@ -1,0 +1,71 @@
+package com.qodein.feature.post.navigation
+
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
+import androidx.navigation.compose.composable
+import com.qodein.feature.post.detail.PostDetailRoute
+import com.qodein.feature.post.feed.FeedRoute
+import com.qodein.feature.post.submission.PostSubmissionScreen
+import com.qodein.shared.model.User
+import kotlinx.serialization.Serializable
+
+/**
+ * Feed navigation routes using type-safe navigation with Kotlin Serialization
+ */
+@Serializable data object FeedRoute
+
+@Serializable data object PostSubmissionRoute
+
+@Serializable data class PostDetailRoute(val postId: String)
+
+fun NavController.navigateToPostSubmission(navOptions: NavOptions? = null) {
+    navigate(route = PostSubmissionRoute, navOptions)
+}
+
+fun NavController.navigateToPostDetail(
+    postId: String,
+    navOptions: NavOptions? = null
+) {
+    navigate(route = PostDetailRoute(postId), navOptions)
+}
+
+/**
+ * Navigation graph builder extension for feed feature
+ */
+fun NavGraphBuilder.feedSection(
+    user: User?,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onPostClick: (String) -> Unit
+) {
+    composable<FeedRoute> {
+        FeedRoute(
+            user = user,
+            onProfileClick = onProfileClick,
+            onSettingsClick = onSettingsClick,
+            onPostClick = onPostClick,
+        )
+    }
+}
+
+fun NavGraphBuilder.postSubmissionSection(
+    onNavigateBack: () -> Unit,
+    isDarkTheme: Boolean
+) {
+    composable<PostSubmissionRoute> {
+        PostSubmissionScreen(onNavigateBack = onNavigateBack, isDarkTheme = isDarkTheme)
+    }
+}
+
+fun NavGraphBuilder.postDetailSection(
+    onNavigateBack: () -> Unit,
+    isDarkTheme: Boolean
+) {
+    composable<PostDetailRoute> {
+        PostDetailRoute(
+            onNavigateBack = onNavigateBack,
+            isDarkTheme = isDarkTheme,
+        )
+    }
+}

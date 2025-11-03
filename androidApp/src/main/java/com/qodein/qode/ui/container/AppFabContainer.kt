@@ -160,11 +160,11 @@ private fun handleFabClick(
     when (destination) {
         TopLevelDestination.HOME -> {
             // Navigate to promo code creation flow
-            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToSubmission))
+            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPromocodeSubmission))
         }
         TopLevelDestination.FEED -> {
             // Handle feed-specific action (could be add post, bookmark, etc.)
-            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToSubmission))
+            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPostSubmission))
         }
     }
 }

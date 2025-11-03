@@ -24,8 +24,6 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -35,8 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.component.QodeCard
-import com.qodein.core.designsystem.component.QodeCardVariant
+import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -257,9 +254,8 @@ private fun ServiceItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    QodeCard(
+    QodeinCard(
         onClick = onClick,
-        variant = if (isSelected) QodeCardVariant.Filled else QodeCardVariant.Outlined,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(

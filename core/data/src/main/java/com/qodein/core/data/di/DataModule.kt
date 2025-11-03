@@ -7,18 +7,26 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
+import com.qodein.core.data.repository.PostRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
+import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
+import com.qodein.core.data.repository.UserRepositoryImpl
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
+import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
+import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.domain.service.ServiceCache
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import dagger.Binds
@@ -30,7 +38,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+internal abstract class DataModule {
 
     @Binds
     @Singleton
@@ -57,7 +65,18 @@ abstract class DataModule {
     ): UnifiedUserInteractionRepository
 
     @Binds
+    @Singleton
+    abstract fun bindPostRepository(postRepositoryImpl: PostRepositoryImpl): PostRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
+
+    @Binds
     abstract fun bindServiceSelectionManager(serviceSelectionManagerImpl: ServiceSelectionManagerImpl): ServiceSelectionManager
+
+    @Binds
+    abstract fun bindStorageRepository(storageRepositoryImpl: StorageRepositoryImpl): StorageRepository
 
     companion object {
         @Provides
@@ -70,10 +89,11 @@ abstract class DataModule {
 
         @Provides
         @Singleton
-        fun provideFirebaseFunctions(): FirebaseFunctions {
-            // Firebase Functions automatically uses Firebase Auth context when properly configured
-            return Firebase.functions
-        }
+        fun provideFirebaseFunctions(): FirebaseFunctions = Firebase.functions
+
+        @Provides
+        @Singleton
+        fun provideFirebaseStorage(): FirebaseStorage = Firebase.storage
 
         @Provides
         @Singleton

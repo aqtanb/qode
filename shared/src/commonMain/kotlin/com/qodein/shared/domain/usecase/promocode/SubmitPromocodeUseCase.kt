@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.flow.Flow
 
@@ -39,13 +40,13 @@ class SubmitPromocodeUseCase(private val promoCodeRepository: PromocodeRepositor
         require(promoCode.serviceName.isNotBlank()) { "Service name cannot be blank" }
         require(promoCode.endDate > promoCode.startDate) { "End date must be after start date" }
 
-        when (promoCode) {
-            is PromoCode.PercentagePromoCode -> {
-                require(promoCode.discountPercentage > 0) { "Discount percentage must be positive" }
-                require(promoCode.discountPercentage <= 100) { "Discount percentage cannot exceed 100%" }
+        when (promoCode.discount) {
+            is Discount.Percentage -> {
+                require(promoCode.discount.value > 0) { "Discount percentage must be positive" }
+                require(promoCode.discount.value <= 100) { "Discount percentage cannot exceed 100%" }
             }
-            is PromoCode.FixedAmountPromoCode -> {
-                require(promoCode.discountAmount > 0) { "Discount amount must be positive" }
+            is Discount.FixedAmount -> {
+                require(promoCode.discount.value > 0) { "Discount amount must be positive" }
             }
         }
 

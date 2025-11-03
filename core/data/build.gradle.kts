@@ -37,33 +37,22 @@ kotlin {
 }
 
 dependencies {
-    // Shared multiplatform module
-    implementation(project(":shared"))
+    implementation(projects.shared)
+    implementation(projects.core.analytics)
+    implementation(projects.core.notifications)
 
-    // Hilt DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
-    // Coroutines
     implementation(libs.bundles.coroutines)
-
-    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-
-    // Authentication
     implementation(libs.bundles.authentication)
+    implementation(libs.bundles.work)
 
-    // Data Storage
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.ext.compiler)
     implementation(libs.datastore.preferences)
-
-    // Android Context access
     implementation(libs.androidx.core.ktx)
-
-    // Logging
     implementation(libs.timber)
     implementation(libs.kermit)
-
-    // DateTime
     implementation(libs.kotlinx.datetime)
 }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -54,12 +54,12 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         messageResId = R.string.auth_submit_promo_message,
         iconVector = QodeActionIcons.Add,
     ),
-    UpvotePromoCode(
+    UpvotePrompt(
         titleResId = R.string.auth_upvote_title,
         messageResId = R.string.auth_upvote_message,
         iconVector = QodeActionIcons.Thumbs,
     ),
-    DownvotePromoCode(
+    DownvotePrompt(
         titleResId = R.string.auth_downvote_title,
         messageResId = R.string.auth_downvote_message,
         iconVector = QodeActionIcons.ThumbsDown,
@@ -78,6 +78,11 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         titleResId = R.string.auth_follow_store_title,
         messageResId = R.string.auth_follow_store_message,
         iconVector = QodeActionIcons.Follow,
+    ),
+    CreatePost(
+        titleResId = R.string.auth_create_post_title,
+        messageResId = R.string.auth_create_post_message,
+        iconVector = QodeinIcons.PostAdd,
     )
 }
 
@@ -87,7 +92,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
  * Provides contextual messaging based on the action that triggered the auth requirement.
  * Non-intrusive, easy to dismiss, with one-tap Google Sign-In.
  *
- * @param action The action that triggered the authentication prompt
+ * @param authPromptAction The action that triggered the authentication prompt
  * @param onSignInClick Called when user clicks the sign-in button
  * @param onDismiss Called when user dismisses the bottom sheet
  * @param modifier Modifier to be applied to the bottom sheet
@@ -100,7 +105,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthenticationBottomSheet(
-    action: AuthPromptAction,
+    authPromptAction: AuthPromptAction,
     onSignInClick: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -155,7 +160,7 @@ fun AuthenticationBottomSheet(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AuthenticationBottomSheetContent(
-                action = action,
+                action = authPromptAction,
                 onSignInClick = onSignInClick,
                 onDismiss = onDismiss,
                 isLoading = isLoading,
@@ -288,7 +293,7 @@ private fun AuthenticationBottomSheetSubmitPreview() {
 private fun AuthenticationBottomSheetUpvotePreview() {
     QodeTheme {
         AuthenticationBottomSheetContent(
-            action = AuthPromptAction.UpvotePromoCode,
+            action = AuthPromptAction.UpvotePrompt,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
@@ -352,12 +357,28 @@ private fun AuthenticationBottomSheetLoadingPreview() {
 private fun AuthenticationBottomSheetErrorPreview() {
     QodeTheme {
         AuthenticationBottomSheet(
-            action = AuthPromptAction.UpvotePromoCode,
+            authPromptAction = AuthPromptAction.UpvotePrompt,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
             error = UserError.AuthenticationFailure.Cancelled,
             onErrorDismissed = {},
+            isDarkTheme = false,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(name = "Post Submission Auth", showBackground = true)
+@Composable
+private fun AuthenticationBottomSheetPostSubmissionPreview() {
+    QodeTheme {
+        AuthenticationBottomSheetContent(
+            action = AuthPromptAction.CreatePost,
+            onSignInClick = {},
+            onDismiss = {},
+            isLoading = false,
             isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Channel -->
+    <string name="core_notifications_upload_channel_name">Post Uploads</string>
+    <string name="core_notifications_upload_channel_description">Notifications for post upload progress</string>
+
+    <!-- Upload Progress -->
+    <string name="core_notifications_upload_in_progress">Uploading post</string>
+    <string name="core_notifications_upload_progress">Uploading images (%1$d/%2$d)…</string>
+
+    <!-- Upload Summary (Group) -->
+    <string name="core_notifications_uploading_posts">Uploading posts</string>
+    <string name="core_notifications_multiple_uploads">Multiple uploads in progress</string>
+
+    <!-- Upload Success -->
+    <string name="core_notifications_upload_success">Post published!</string>
+    <string name="core_notifications_tap_to_view">Tap to view your post</string>
+
+    <!-- Upload Error -->
+    <string name="core_notifications_upload_failed">Upload failed</string>
+    <string name="core_notifications_upload_failed_content">Try again later</string>
+</resources>

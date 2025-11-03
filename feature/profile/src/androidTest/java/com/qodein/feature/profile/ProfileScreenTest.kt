@@ -20,6 +20,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.testing.data.TestUsers
 import com.qodein.core.ui.component.QodeRetryableErrorCard
+import com.qodein.feature.profile.component.StatsSection
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +55,7 @@ class ProfileScreenTest {
                 ) {
                     when (state) {
                         is ProfileUiState.Success -> {
-                            ProfileSuccessContent(
+                            ProfileContent(
                                 user = state.user,
                                 onAction = onAction,
                                 onBackClick = onBackClick,
@@ -142,7 +143,7 @@ class ProfileScreenTest {
                 ActivityFeed(
                     onAction = { action ->
                         when (action) {
-                            ProfileAction.AchievementsClicked -> achievementsClicked = true
+                            ProfileAction.LeaderboardClicked -> achievementsClicked = true
                             ProfileAction.UserJourneyClicked -> userJourneyClicked = true
                             else -> {}
                         }

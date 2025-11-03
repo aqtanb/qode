@@ -29,11 +29,12 @@ import com.qodein.core.designsystem.component.ScrollInfo
 import com.qodein.core.designsystem.component.ScrollStateExtractor
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
-import com.qodein.feature.feed.navigation.FeedRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
+import com.qodein.feature.post.navigation.FeedRoute
+import com.qodein.feature.post.navigation.PostSubmissionRoute
 import com.qodein.feature.profile.navigation.ProfileRoute
 import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
-import com.qodein.feature.promocode.navigation.SubmissionRoute
+import com.qodein.feature.promocode.navigation.PromocodeSubmissionRoute
 import com.qodein.feature.settings.navigation.SettingsRoute
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.navigation.TopLevelDestination.FEED
@@ -138,9 +139,9 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
     /**
      * Check if current destination is the submission screen
      */
-    val isSubmissionScreen: Boolean
+    val isPromocodeSubmissionScreen: Boolean
         @Composable get() {
-            return currentDestination?.hasRoute<SubmissionRoute>() == true
+            return currentDestination?.hasRoute<PromocodeSubmissionRoute>() == true
         }
 
     /**
@@ -162,6 +163,14 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
     val isAuthScreen: Boolean
         @Composable get() {
             return currentDestination?.hasRoute<AuthRoute>() == true
+        }
+
+    /**
+     * Check if current destination is the post submission screen
+     */
+    val isPostSubmissionScreen: Boolean
+        @Composable get() {
+            return currentDestination?.hasRoute<PostSubmissionRoute>() == true
         }
 
     // MARK: - Auto-Hiding Public API
@@ -207,7 +216,8 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             currentTopLevelDestination == FEED -> ScreenType.FEED
             isProfileScreen -> ScreenType.PROFILE
             isAuthScreen -> ScreenType.AUTH
-            isSubmissionScreen -> ScreenType.SUBMISSION
+            isPromocodeSubmissionScreen -> ScreenType.SUBMISSION
+            isPostSubmissionScreen -> ScreenType.POST_SUBMISSION
             isSettingsScreen -> ScreenType.SETTINGS
             isPromocodeDetailScreen -> ScreenType.DETAIL
             else -> ScreenType.OTHER
@@ -386,6 +396,7 @@ private enum class ScreenType {
     PROFILE,
     AUTH,
     SUBMISSION,
+    POST_SUBMISSION,
     SETTINGS,
     DETAIL,
     OTHER

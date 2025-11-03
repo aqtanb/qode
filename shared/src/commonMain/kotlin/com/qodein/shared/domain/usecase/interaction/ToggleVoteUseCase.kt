@@ -20,8 +20,16 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
     suspend fun toggleUpvote(
         itemId: String,
         itemType: ContentType,
-        userId: UserId
-    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.UPVOTE)
+        userId: UserId,
+        currentVoteState: VoteState
+    ): Result<UserInteraction, OperationError> {
+        val newVoteState = when (currentVoteState) {
+            VoteState.UPVOTE -> VoteState.NONE
+            VoteState.DOWNVOTE -> VoteState.UPVOTE
+            VoteState.NONE -> VoteState.UPVOTE
+        }
+        return repository.toggleVote(itemId, itemType, userId, newVoteState)
+    }
 
     /**
      * Toggle downvote on content.
@@ -30,15 +38,14 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
     suspend fun toggleDownvote(
         itemId: String,
         itemType: ContentType,
-        userId: UserId
-    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.DOWNVOTE)
-
-    /**
-     * Remove vote on content.
-     */
-    suspend fun removeVote(
-        itemId: String,
-        itemType: ContentType,
-        userId: UserId
-    ): Result<UserInteraction, OperationError> = repository.toggleVote(itemId, itemType, userId, VoteState.NONE)
+        userId: UserId,
+        currentVoteState: VoteState
+    ): Result<UserInteraction, OperationError> {
+        val newVoteState = when (currentVoteState) {
+            VoteState.UPVOTE -> VoteState.DOWNVOTE
+            VoteState.DOWNVOTE -> VoteState.NONE
+            VoteState.NONE -> VoteState.DOWNVOTE
+        }
+        return repository.toggleVote(itemId, itemType, userId, newVoteState)
+    }
 }

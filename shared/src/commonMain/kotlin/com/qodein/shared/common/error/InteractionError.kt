@@ -25,13 +25,4 @@ sealed interface InteractionError : OperationError {
         data object SaveFailed : BookmarkFailure
         data object RemoveFailed : BookmarkFailure
     }
-
-    /**
-     * System-level failures that prevent any interaction operation.
-     */
-    sealed interface SystemFailure : InteractionError {
-        data object Offline : SystemFailure
-        data object ServiceDown : SystemFailure
-        data object Unknown : SystemFailure
-    }
 }

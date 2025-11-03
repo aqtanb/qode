@@ -40,17 +40,17 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.SubmissionStep
+import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.shortNameRes
 import com.qodein.feature.promocode.submission.stepIcon
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
 fun ProgressIndicator(
-    currentStep: SubmissionStep,
+    currentStep: PromocodeSubmissionStep,
     modifier: Modifier = Modifier,
-    totalSteps: Int = SubmissionStep.entries.size,
-    onStepClick: ((SubmissionStep) -> Unit)? = null
+    totalSteps: Int = PromocodeSubmissionStep.entries.size,
+    onStepClick: ((PromocodeSubmissionStep) -> Unit)? = null
 ) {
     val progress = (currentStep.stepNumber + 1f) / totalSteps
 
@@ -97,8 +97,8 @@ fun ProgressIndicator(
 
 @Composable
 private fun StepIndicatorRow(
-    currentStep: SubmissionStep,
-    onStepClick: ((SubmissionStep) -> Unit)?,
+    currentStep: PromocodeSubmissionStep,
+    onStepClick: ((PromocodeSubmissionStep) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -107,7 +107,7 @@ private fun StepIndicatorRow(
         contentPadding = PaddingValues(horizontal = SpacingTokens.md),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        itemsIndexed(SubmissionStep.entries) { index, step ->
+        itemsIndexed(PromocodeSubmissionStep.entries) { index, step ->
             val isCompleted = step.stepNumber < currentStep.stepNumber
             val isCurrent = step.stepNumber == currentStep.stepNumber
             val isClickable = onStepClick != null && (isCompleted || isCurrent)
@@ -142,7 +142,7 @@ private fun StepIndicatorRow(
 
 @Composable
 private fun StepIcon(
-    step: SubmissionStep,
+    step: PromocodeSubmissionStep,
     isCompleted: Boolean,
     isCurrent: Boolean,
     isClickable: Boolean,
@@ -211,7 +211,7 @@ private fun StepIcon(
 
 @Composable
 private fun StepLabel(
-    step: SubmissionStep,
+    step: PromocodeSubmissionStep,
     isCurrent: Boolean,
     isCompleted: Boolean,
     modifier: Modifier = Modifier
@@ -250,7 +250,7 @@ private fun StepLabel(
 private fun ProgressIndicatorPreview() {
     QodeTheme {
         ProgressIndicator(
-            currentStep = SubmissionStep.DISCOUNT_VALUE,
+            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
             modifier = Modifier.padding(SpacingTokens.md),
         )
     }
@@ -261,7 +261,7 @@ private fun ProgressIndicatorPreview() {
 private fun ProgressIndicatorInteractivePreview() {
     QodeTheme {
         ProgressIndicator(
-            currentStep = SubmissionStep.DISCOUNT_VALUE,
+            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
             onStepClick = { /* Handle step click */ },
             modifier = Modifier.padding(SpacingTokens.md),
         )

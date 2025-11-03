@@ -32,7 +32,7 @@ kotlin {
 dependencies {
     // Project modules
     implementation(projects.core.designsystem)
-    implementation(project(":shared"))
+    implementation(projects.shared)
 
     // Core Android
     implementation(libs.androidx.core.ktx)
@@ -56,8 +56,14 @@ dependencies {
     // Browser (CustomTabs)
     implementation(libs.androidx.browser)
 
+    implementation(libs.compose.markdown)
+
     // Logging
     implementation(libs.timber)
+    implementation(libs.kermit)
+
+    // Image Processing
+    implementation(libs.androidx.exifinterface)
 
     // Testing
     testImplementation(libs.bundles.testing.unit)

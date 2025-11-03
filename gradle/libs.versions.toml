@@ -1,92 +1,96 @@
 [versions]
-# Build Tools & SDK
-agp = "8.11.2"
-kotlin = "2.2.10"
+
+agp = "8.13.0"
+kotlin = "2.2.20"
 ksp = "2.2.10-2.0.2"
 
-# SDK Versions
+
 compileSdk = "36"
 minSdk = "29"
 targetSdk = "36"
 
-# App Version
+
 versionCode = "1"
 versionName = "0.3.0"
 
-# AndroidX Core
+
 coreKtx = "1.17.0"
-lifecycleRuntimeKtx = "2.9.3"
-activityCompose = "1.10.1"
+lifecycleRuntimeKtx = "2.9.4"
+activityCompose = "1.11.0"
 appcompat = "1.7.1"
 startup = "1.2.0"
 
-# Compose
-composeBom = "2025.08.01"
-material = "1.12.0"
 
-# Navigation & Serialization
-navigation = "2.9.3"
-kotlinxSerializationJson = "1.8.1"
+composeBom = "2025.10.00"
+material = "1.13.0"
 
-# Dependency Injection
-hilt = "2.57.1"
-hiltNavigationCompose = "1.2.0"
 
-# Firebase
-firebaseBom = "34.2.0"
-googleServices = "4.4.3"
+navigation = "2.9.5"
+kotlinxSerializationJson = "1.9.0"
 
-# Networking
+
+hilt = "2.57.2"
+hiltNavigationCompose = "1.3.0"
+koin = "4.0.1"
+
+
+firebaseBom = "34.4.0"
+googleServices = "4.4.4"
+
+
 retrofit = "3.0.0"
-okhttp = "5.1.0"
+okhttp = "5.2.1"
+ktor = "3.0.2"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
 
-# Data Storage
-room = "2.7.2"
-datastore = "1.1.7"
 
-# Media & Images
+room = "2.8.2"
+datastore = "1.1.7"
+workManager = "2.10.0"
+
+
 coil = "2.7.0"
 palette = "1.0.0"
+exifinterface = "1.3.7"
 
-# Authentication
+
 googleSignin = "21.4.0"
 credentials = "1.5.0"
 credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
 
-# UI Components
+
 composeIcons = "1.1.1"
 browser = "1.9.0"
 haze = "1.6.10"
+composeMarkdown = "0.5.4"
 
-# Logging
+
 kermit = "2.0.8"
 timber = "5.0.1"
 
-# Code Quality
-spotless = "7.2.1"
+
+spotless = "8.0.0"
 detekt = "1.23.8"
 
-# Testing
+
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-mockk = "1.14.5"
+mockk = "1.14.6"
 turbine = "1.2.1"
 robolectric = "4.16"
 
-# Debug
+
 leakcanary = "2.14"
-kotlinStdlib = "2.2.10"
 kotlinTest = "2.2.0"
 runner = "1.7.0"
 core = "1.7.0"
-animationCore = "1.9.0"
+animationCore = "1.9.3"
 
 [libraries]
-# AndroidX Core
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
@@ -95,7 +99,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup" }
 
-# Compose & UI
+
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -105,22 +109,25 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
-# Navigation
+
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
-# Coroutines
+
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
-# Hilt
+
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
-# Firebase
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
@@ -129,75 +136,81 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
 
-# Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
-# Database
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 datastore-proto = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 
-# Images
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
+work-hilt = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltNavigationCompose" }
+hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltNavigationCompose" }
+
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil" }
 androidx-palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
-# Auth
 google-signin = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleSignin" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
-# Browser
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
-# Blur Effects
+
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 
-# Icons
+compose-markdown = { group = "com.github.jeziellago", name = "compose-markdown", version.ref = "composeMarkdown" }
+
 compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "composeIcons" }
 compose-icons-tabler = { group = "br.com.devsrsouza.compose.icons", name = "tabler-icons", version.ref = "composeIcons" }
 compose-icons-font-awesome = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "composeIcons" }
 compose-icons-simple = { group = "br.com.devsrsouza.compose.icons", name = "simple-icons", version.ref = "composeIcons" }
 compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "octicons", version.ref = "composeIcons" }
 
-# Utilities
+
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
-# Logging
+
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 
-# Testing - Unit
+
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
-# Testing - Android
+
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
-# Debug
+
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 
 [bundles]
-# Core
+
 androidx-core = [
     "androidx-core-ktx",
     "androidx-lifecycle-runtime-ktx",
@@ -219,7 +232,7 @@ material-design = [
     "material"
 ]
 
-# Architecture
+
 navigation = [
     "androidx-navigation-compose",
     "kotlinx-serialization-json"
@@ -242,20 +255,13 @@ hilt = [
     "hilt-navigation-compose"
 ]
 
-# Backend
+
 firebase = [
     "firebase-auth",
     "firebase-firestore",
     "firebase-analytics",
     "firebase-messaging",
-    "firebase-functions"
-]
-
-firebase-extended = [
-    "firebase-auth",
-    "firebase-firestore",
-    "firebase-analytics",
-    "firebase-messaging",
+    "firebase-functions",
     "firebase-storage"
 ]
 
@@ -264,6 +270,12 @@ networking = [
     "retrofit-converter-kotlinx-serialization",
     "okhttp",
     "okhttp-logging-interceptor"
+]
+
+ktor = [
+    "ktor-client-core",
+    "ktor-client-content-negotiation",
+    "ktor-serialization-kotlinx-json"
 ]
 
 database = [
@@ -277,20 +289,22 @@ data-storage = [
     "room-ktx"
 ]
 
-# Media
+
 image-loading = [
     "coil-compose",
     "coil-svg",
     "androidx-palette"
 ]
 
-# Authentication
+
 authentication = [
     "google-signin",
     "androidx-credentials",
     "androidx-credentials-play-services-auth",
     "googleid"
 ]
+
+
 
 icons = [
     "compose-icons-feather",
@@ -300,7 +314,12 @@ icons = [
     "compose-icons-octicons"
 ]
 
-# Testing
+work = [
+    "work-runtime-ktx",
+    "work-hilt"
+]
+
+
 testing-unit = [
     "junit",
     "mockk",
@@ -326,7 +345,7 @@ testing = [
     "androidx-ui-test-junit4"
 ]
 
-# Debug
+
 debug = [
     "androidx-ui-tooling",
     "androidx-ui-test-manifest",
@@ -334,25 +353,25 @@ debug = [
 ]
 
 [plugins]
-# Android
+
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 
-# Kotlin
+
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
-# DI
+
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
-# Processing
+
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-# Firebase
+
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 
-# Quality
+
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

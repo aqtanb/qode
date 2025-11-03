@@ -3,21 +3,31 @@ package com.qodein.qode.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.authSection
-import com.qodein.feature.feed.navigation.feedSection
+import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
+import com.qodein.feature.post.navigation.feedSection
+import com.qodein.feature.post.navigation.navigateToPostDetail
+import com.qodein.feature.post.navigation.postDetailSection
+import com.qodein.feature.post.navigation.postSubmissionSection
+import com.qodein.feature.profile.navigation.ProfileBaseRoute
+import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
-import com.qodein.feature.promocode.navigation.submissionSection
+import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
+import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.shared.model.Language
+import com.qodein.shared.model.User
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
     userLanguage: Language,
+    user: User?,
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
@@ -41,34 +51,53 @@ fun QodeNavHost(
             scrollStateRegistry = appState,
         )
 
-        feedSection(scrollStateRegistry = appState)
+        feedSection(
+            user = user,
+            onProfileClick = {
+                if (user != null) {
+                    navController.navigateToProfile()
+                } else {
+                    navController.navigateToAuth()
+                }
+            },
+            onSettingsClick = { navController.navigateToSettings() },
+            onPostClick = { postId ->
+                navController.navigateToPostDetail(postId)
+            },
+        )
 
         profileSection(
             onBackClick = {
-                // Navigate back to the last top-level destination instead of just popping
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
             onSignOut = {
                 appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
             },
+            onNavigateToAuth = {
+                navController.navigateToAuth(
+                    navOptions = navOptions {
+                        popUpTo(ProfileBaseRoute) { inclusive = true }
+                    },
+                )
+            },
         )
 
         authSection(
-            onAuthSuccess = {
-                // Navigate back to the original tab after successful auth
-                appState.navigateToTopLevelDestination(selectedTabDestination)
-            },
-            onBackClick = {
-                // Navigate back to the last top-level destination instead of empty profile
+            onNavigateBack = {
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
             isDarkTheme = isDarkTheme,
         )
 
-        submissionSection(
+        promocodeSubmissionSection(
             onNavigateBack = {
                 navController.popBackStack()
             },
+            isDarkTheme = isDarkTheme,
+        )
+
+        postSubmissionSection(
+            onNavigateBack = navController::popBackStack,
             isDarkTheme = isDarkTheme,
         )
 
@@ -76,6 +105,11 @@ fun QodeNavHost(
             onBackClick = {
                 navController.popBackStack()
             },
+        )
+
+        postDetailSection(
+            onNavigateBack = { navController.popBackStack() },
+            isDarkTheme = isDarkTheme,
         )
     }
 }

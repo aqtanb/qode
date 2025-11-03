@@ -1,5 +1,6 @@
 package com.qodein.core.data.cache
 
+import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.sync.Mutex
@@ -23,7 +24,7 @@ class QueryCache @Inject constructor() {
     private val cache = mutableMapOf<String, CacheEntry>()
     private val mutex = Mutex()
 
-    data class CacheEntry(val result: PaginatedResult<PromoCode>, val timestamp: Long)
+    data class CacheEntry(val result: PaginatedResult<PromoCode, ContentSortBy>, val timestamp: Long)
 
     /**
      * Generate cache key for a query
@@ -55,7 +56,7 @@ class QueryCache @Inject constructor() {
         filterByService: String?,
         filterByCategory: String?,
         isFirstPage: Boolean
-    ): PaginatedResult<PromoCode>? {
+    ): PaginatedResult<PromoCode, ContentSortBy>? {
         val key = generateCacheKey(query, sortBy, filterByService, filterByCategory, isFirstPage)
         if (key.isEmpty()) return null
 
@@ -85,7 +86,7 @@ class QueryCache @Inject constructor() {
         filterByService: String?,
         filterByCategory: String?,
         isFirstPage: Boolean,
-        result: PaginatedResult<PromoCode>
+        result: PaginatedResult<PromoCode, ContentSortBy>
     ) {
         val key = generateCacheKey(query, sortBy, filterByService, filterByCategory, isFirstPage)
         if (key.isEmpty()) return
@@ -127,22 +128,4 @@ class QueryCache @Inject constructor() {
             Timber.tag(TAG).d("Cache cleared ($size entries)")
         }
     }
-
-    /**
-     * Get cache statistics for debugging
-     */
-    suspend fun getStats(): CacheStats =
-        mutex.withLock {
-            val now = System.currentTimeMillis()
-            val validEntries = cache.count { (_, entry) ->
-                now - entry.timestamp <= CACHE_TTL_MS
-            }
-            CacheStats(
-                totalEntries = cache.size,
-                validEntries = validEntries,
-                expiredEntries = cache.size - validEntries,
-            )
-        }
-
-    data class CacheStats(val totalEntries: Int, val validEntries: Int, val expiredEntries: Int)
 }

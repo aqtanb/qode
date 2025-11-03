@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
@@ -47,6 +47,8 @@ import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
+import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
@@ -60,16 +62,15 @@ fun PromocodeDetailScreen(
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,
-    viewModel: PromocodeDetailViewModel = hiltViewModel()
+    viewModel: PromocodeDetailViewModel = hiltViewModel(
+        creationCallback = { factory: PromocodeDetailViewModel.Factory ->
+            factory.create(promoCodeId.value)
+        },
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Load promocode on first composition - enhanced for authenticated users
-    LaunchedEffect(promoCodeId) {
-        viewModel.onAction(PromocodeDetailAction.LoadPromocode(promoCodeId))
-    }
 
     // Authentication-protected bookmark action
     val requireBookmark = {
@@ -89,6 +90,12 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(
                         message = event.message,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+                is PromocodeDetailEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Something went wrong. Please try again.",
                         duration = SnackbarDuration.Short,
                     )
                 }
@@ -203,7 +210,7 @@ private fun PromocodeDetailContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeErrorCard(
-                        message = "Failed to load promocode details. Please try again.",
+                        error = PromoCodeError.RetrievalFailure.NotFound,
                         onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
                         onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
                     )
@@ -278,7 +285,7 @@ private fun PromocodeDetailContent(
         // Authentication Bottom Sheet
         uiState.authBottomSheet?.let { authSheetState ->
             AuthenticationBottomSheet(
-                action = authSheetState.action,
+                authPromptAction = authSheetState.action,
                 isLoading = authSheetState.isLoading,
                 onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
                 onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
@@ -296,9 +303,9 @@ private fun sharePromocode(
     val shareText = buildString {
         append("🎉 Check out this amazing deal!\n\n")
         append("${promoCode.serviceName}\n")
-        when (promoCode) {
-            is PromoCode.PercentagePromoCode -> append("${promoCode.discountPercentage.toInt()}% OFF")
-            is PromoCode.FixedAmountPromoCode -> append("${promoCode.discountAmount.toInt()}₸ OFF")
+        when (val discount = promoCode.discount) {
+            is Discount.Percentage -> append("${discount.value.toInt()}% OFF")
+            is Discount.FixedAmount -> append("${discount.value.toInt()}₸ OFF")
         }
         append("\n\nCode: ${promoCode.code}")
         promoCode.description?.let { append("\n\n$it") }
@@ -336,12 +343,12 @@ private fun PromocodeDetailScreenPreview() {
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(
+                promoCodeId = samplePromoCode.id,
                 promoCodeWithUserState = PromoCodeWithUserState(
                     promoCode = samplePromoCode,
                     userInteraction = null,
                 ),
                 isLoading = false,
-                isBookmarked = true,
             ),
             onAction = {},
             isDarkTheme = false,

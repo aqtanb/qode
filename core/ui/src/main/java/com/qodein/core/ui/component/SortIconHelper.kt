@@ -8,7 +8,7 @@ import com.qodein.shared.model.ContentSortBy
 
 /**
  * Centralized helper for sort-related icons and titles across all features
- * Uses QodeIcons for consistent iconography
+ * Uses QodeinIcons for consistent iconography
  */
 object SortIconHelper {
 

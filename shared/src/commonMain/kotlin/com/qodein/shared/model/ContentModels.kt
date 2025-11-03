@@ -8,9 +8,7 @@ import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-// ================================================================================================
-// PROMO CODE MODELS
-// ================================================================================================
+// MARK:
 
 @Serializable
 @JvmInline
@@ -22,114 +20,74 @@ value class PromoCodeId(val value: String) {
     override fun toString(): String = value
 }
 
+/**
+ * Discount type for promocodes.
+ * Sealed interface ensures type safety while avoiding boilerplate.
+ */
 @Serializable
-sealed class PromoCode {
-    abstract val id: PromoCodeId // shouldnt we use composite document id lowercased brandname_promocode sanitized
-    abstract val code: String
-    abstract val serviceId: ServiceId? // Reference to Service document
-    abstract val serviceName: String // Denormalized for display and filtering
-    abstract val category: String
-    abstract val description: String?
-    abstract val minimumOrderAmount: Double
-    abstract val startDate: Instant
-    abstract val endDate: Instant
-    abstract val isFirstUserOnly: Boolean
-    abstract val isOneTimeUseOnly: Boolean
-    abstract val upvotes: Int
-    abstract val downvotes: Int
-    abstract val shares: Int
-    abstract val targetCountries: List<String>
-    abstract val isVerified: Boolean
-    abstract val createdAt: Instant
-    abstract val createdBy: UserId
-    abstract val createdByUsername: String? // Denormalized from User for display performance
-    abstract val createdByAvatarUrl: String? // Denormalized from User for display performance
-    abstract val serviceLogoUrl: String? // Denormalized from Service for display performance
+sealed interface Discount {
+    val value: Double
+
+    @Serializable
+    data class Percentage(override val value: Double) : Discount {
+        init {
+            require(value > 0 && value <= 100) { "Percentage must be between 0 and 100" }
+        }
+    }
+
+    @Serializable
+    data class FixedAmount(override val value: Double) : Discount {
+        init {
+            require(value > 0) { "Fixed amount must be positive" }
+        }
+    }
+}
+
+@Serializable
+data class PromoCode(
+    val id: PromoCodeId,
+    val code: String,
+    val discount: Discount,
+    val serviceId: ServiceId? = null,
+    val serviceName: String,
+    val category: String = "Unspecified",
+    val description: String? = null,
+    val minimumOrderAmount: Double,
+    val startDate: Instant,
+    val endDate: Instant,
+    val isFirstUserOnly: Boolean = false,
+    val isOneTimeUseOnly: Boolean = false,
+    val upvotes: Int = 0,
+    val downvotes: Int = 0,
+    val shares: Int = 0,
+    val targetCountries: List<String> = emptyList(),
+    val isVerified: Boolean = false,
+    val createdAt: Instant = Clock.System.now(),
+    val createdBy: UserId,
+    val createdByUsername: String? = null,
+    val createdByAvatarUrl: String? = null,
+    val serviceLogoUrl: String? = null
+) {
+    init {
+        require(code.isNotBlank()) { "PromoCode code cannot be blank" }
+        require(serviceName.isNotBlank()) { "Service name cannot be blank" }
+        require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
+        require(upvotes >= 0) { "Upvotes cannot be negative" }
+        require(downvotes >= 0) { "Downvotes cannot be negative" }
+        require(shares >= 0) { "Shares cannot be negative" }
+        require(endDate > startDate) { "End date must be after start date" }
+    }
 
     val isExpired: Boolean get() = Clock.System.now() > endDate
     val isNotStarted: Boolean get() = Clock.System.now() < startDate
     val isValidNow: Boolean get() = !isExpired && !isNotStarted
     val voteScore: Int get() = upvotes - downvotes
 
-    abstract fun calculateDiscount(orderAmount: Double): Double
-
-    @Serializable
-    data class PercentagePromoCode(
-        override val id: PromoCodeId,
-        override val code: String,
-        override val serviceId: ServiceId? = null,
-        override val serviceName: String,
-        override val category: String = "Unspecified",
-        override val description: String? = null,
-        val discountPercentage: Double,
-        override val minimumOrderAmount: Double,
-        override val startDate: Instant,
-        override val endDate: Instant,
-        override val isFirstUserOnly: Boolean = false,
-        override val isOneTimeUseOnly: Boolean = false,
-        override val upvotes: Int = 0,
-        override val downvotes: Int = 0,
-        override val shares: Int = 0,
-        override val targetCountries: List<String> = emptyList(),
-        override val isVerified: Boolean = false,
-        override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId,
-        override val createdByUsername: String? = null,
-        override val createdByAvatarUrl: String? = null,
-        override val serviceLogoUrl: String? = null
-    ) : PromoCode() {
-        init {
-            require(code.isNotBlank()) { "PromoCode code cannot be blank" }
-            require(serviceName.isNotBlank()) { "Service name cannot be blank" }
-            require(discountPercentage > 0 && discountPercentage <= 100) { "Discount percentage must be between 0 and 100" }
-            require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
-            require(upvotes >= 0) { "Upvotes cannot be negative" }
-            require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(shares >= 0) { "Shares cannot be negative" }
-            require(endDate > startDate) { "End date must be after start date" }
+    fun calculateDiscount(orderAmount: Double): Double =
+        when (discount) {
+            is Discount.Percentage -> discount.value
+            is Discount.FixedAmount -> discount.value * 100 / orderAmount
         }
-
-        override fun calculateDiscount(orderAmount: Double): Double = discountPercentage
-    }
-
-    @Serializable
-    data class FixedAmountPromoCode(
-        override val id: PromoCodeId,
-        override val code: String,
-        override val serviceId: ServiceId? = null,
-        override val serviceName: String,
-        override val category: String = "Unspecified",
-        override val description: String? = null,
-        val discountAmount: Double,
-        override val minimumOrderAmount: Double,
-        override val startDate: Instant,
-        override val endDate: Instant,
-        override val isFirstUserOnly: Boolean = false,
-        override val isOneTimeUseOnly: Boolean = false,
-        override val upvotes: Int = 0,
-        override val downvotes: Int = 0,
-        override val shares: Int = 0,
-        override val targetCountries: List<String> = emptyList(),
-        override val isVerified: Boolean = false,
-        override val createdAt: Instant = Clock.System.now(),
-        override val createdBy: UserId,
-        override val createdByUsername: String? = null,
-        override val createdByAvatarUrl: String? = null,
-        override val serviceLogoUrl: String? = null
-    ) : PromoCode() {
-        init {
-            require(code.isNotBlank()) { "PromoCode code cannot be blank" }
-            require(serviceName.isNotBlank()) { "Service name cannot be blank" }
-            require(discountAmount > 0) { "Discount amount must be positive" }
-            require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
-            require(upvotes >= 0) { "Upvotes cannot be negative" }
-            require(downvotes >= 0) { "Downvotes cannot be negative" }
-            require(shares >= 0) { "Shares cannot be negative" }
-            require(endDate > startDate) { "End date must be after start date" }
-        }
-
-        override fun calculateDiscount(orderAmount: Double): Double = discountAmount * 100 / orderAmount
-    }
 
     companion object {
         fun generateCompositeId(
@@ -141,11 +99,11 @@ sealed class PromoCode {
             return "${cleanService}_$cleanCode"
         }
 
-        fun createPercentage(
+        fun create(
             code: String,
             serviceName: String,
+            discount: Discount,
             serviceId: ServiceId? = null,
-            discountPercentage: Double,
             category: String = "Unspecified",
             description: String? = null,
             minimumOrderAmount: Double,
@@ -157,58 +115,18 @@ sealed class PromoCode {
             createdByUsername: String? = null,
             createdByAvatarUrl: String? = null,
             serviceLogoUrl: String? = null
-        ): Result<PercentagePromoCode> =
+        ): Result<PromoCode> =
             runCatching {
                 val cleanCode = code.uppercase().trim()
                 val cleanServiceName = serviceName.trim()
-                PercentagePromoCode(
+                PromoCode(
                     id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
+                    discount = discount,
                     serviceName = cleanServiceName,
                     serviceId = serviceId,
                     category = category.trim(),
                     description = description?.trim(),
-                    discountPercentage = discountPercentage,
-                    minimumOrderAmount = minimumOrderAmount,
-                    startDate = startDate,
-                    endDate = endDate,
-                    isFirstUserOnly = isFirstUserOnly,
-                    targetCountries = targetCountries.map { it.uppercase() },
-                    createdBy = createdBy,
-                    createdByUsername = createdByUsername,
-                    createdByAvatarUrl = createdByAvatarUrl,
-                    serviceLogoUrl = serviceLogoUrl,
-                )
-            }
-
-        fun createFixedAmount(
-            code: String,
-            serviceName: String,
-            discountAmount: Double,
-            category: String = "Unspecified",
-            description: String? = null,
-            serviceId: ServiceId? = null,
-            minimumOrderAmount: Double,
-            startDate: Instant,
-            endDate: Instant,
-            isFirstUserOnly: Boolean = false,
-            targetCountries: List<String> = emptyList(),
-            createdBy: UserId,
-            createdByUsername: String? = null,
-            createdByAvatarUrl: String? = null,
-            serviceLogoUrl: String? = null
-        ): Result<FixedAmountPromoCode> =
-            runCatching {
-                val cleanCode = code.uppercase().trim()
-                val cleanServiceName = serviceName.trim()
-                FixedAmountPromoCode(
-                    id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
-                    code = cleanCode,
-                    serviceName = cleanServiceName,
-                    serviceId = serviceId,
-                    category = category.trim(),
-                    description = description?.trim(),
-                    discountAmount = discountAmount,
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
                     endDate = endDate,
@@ -223,9 +141,7 @@ sealed class PromoCode {
     }
 }
 
-// ================================================================================================
-// COMMENT MODELS
-// ================================================================================================
+// MARK:
 
 @Serializable
 @JvmInline
@@ -322,9 +238,7 @@ enum class CommentInteractionType {
     REMOVE_VOTE
 }
 
-// ================================================================================================
-// PROMO MODELS
-// ================================================================================================
+// MARK:
 
 @Serializable
 @JvmInline
@@ -410,9 +324,7 @@ data class Promo(
     }
 }
 
-// ================================================================================================
-// BANNER MODELS
-// ================================================================================================
+// MARK:
 
 @Serializable
 @JvmInline
@@ -490,9 +402,7 @@ data class Banner(
     }
 }
 
-// ================================================================================================
-// BANNER EXTENSION FUNCTIONS
-// ================================================================================================
+// MARK:
 
 /**
  * Returns the CTA title in the specified language with fallback chain:

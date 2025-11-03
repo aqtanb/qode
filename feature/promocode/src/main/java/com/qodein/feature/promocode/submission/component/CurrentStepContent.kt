@@ -33,8 +33,8 @@ import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromoCodeType
-import com.qodein.feature.promocode.submission.SubmissionStep
-import com.qodein.feature.promocode.submission.SubmissionWizardAction
+import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
+import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.steps.DateSelector
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeSelector
@@ -53,9 +53,9 @@ private enum class FieldValidationState {
 
 @Composable
 fun SubmissionWizardStepContent(
-    currentStep: SubmissionStep,
+    currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
-    onAction: (SubmissionWizardAction) -> Unit,
+    onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -72,73 +72,73 @@ fun SubmissionWizardStepContent(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         when (currentStep) {
-            SubmissionStep.SERVICE -> ServiceStepContent(
+            PromocodeSubmissionStep.SERVICE -> ServiceStepContent(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
                 isManualEntry = wizardData.isManualServiceEntry,
-                onShowServiceSelector = { onAction(SubmissionWizardAction.ShowServiceSelector) },
-                onServiceNameChange = { onAction(SubmissionWizardAction.UpdateServiceName(it)) },
-                onToggleManualEntry = { onAction(SubmissionWizardAction.ToggleManualEntry) },
+                onShowServiceSelector = { onAction(PromocodeSubmissionAction.ShowServiceSelector) },
+                onServiceNameChange = { onAction(PromocodeSubmissionAction.UpdateServiceName(it)) },
+                onToggleManualEntry = { onAction(PromocodeSubmissionAction.ToggleManualEntry) },
                 focusRequester = focusRequester,
-                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            SubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
+            PromocodeSubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
                 selectedType = wizardData.promoCodeType,
-                onTypeSelected = { onAction(SubmissionWizardAction.UpdatePromoCodeType(it)) },
+                onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromoCodeType(it)) },
             )
 
-            SubmissionStep.PROMO_CODE -> PromoCodeStepContent(
+            PromocodeSubmissionStep.PROMO_CODE -> PromoCodeStepContent(
                 promoCode = wizardData.promoCode,
-                onPromoCodeChange = { onAction(SubmissionWizardAction.UpdatePromoCode(it)) },
+                onPromoCodeChange = { onAction(PromocodeSubmissionAction.UpdatePromoCode(it)) },
                 focusRequester = focusRequester,
                 keyboardController = keyboardController,
-                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            SubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
+            PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
                 promoCodeType = wizardData.promoCodeType,
                 discountPercentage = wizardData.discountPercentage,
                 discountAmount = wizardData.discountAmount,
-                onDiscountPercentageChange = { onAction(SubmissionWizardAction.UpdateDiscountPercentage(it)) },
-                onDiscountAmountChange = { onAction(SubmissionWizardAction.UpdateDiscountAmount(it)) },
+                onDiscountPercentageChange = { onAction(PromocodeSubmissionAction.UpdateDiscountPercentage(it)) },
+                onDiscountAmountChange = { onAction(PromocodeSubmissionAction.UpdateDiscountAmount(it)) },
                 focusRequester = focusRequester,
-                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            SubmissionStep.MINIMUM_ORDER -> MinimumOrderStepContent(
+            PromocodeSubmissionStep.MINIMUM_ORDER -> MinimumOrderStepContent(
                 minimumOrderAmount = wizardData.minimumOrderAmount,
-                onMinimumOrderAmountChange = { onAction(SubmissionWizardAction.UpdateMinimumOrderAmount(it)) },
+                onMinimumOrderAmountChange = { onAction(PromocodeSubmissionAction.UpdateMinimumOrderAmount(it)) },
                 focusRequester = focusRequester,
                 wizardData = wizardData,
-                onNextStep = { onAction(SubmissionWizardAction.NextProgressiveStep) },
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            SubmissionStep.ELIGIBILITY -> EligibilityStepContent(
+            PromocodeSubmissionStep.ELIGIBILITY -> EligibilityStepContent(
                 isFirstUserOnly = wizardData.isFirstUserOnly,
                 isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
-                onFirstUserOnlyChange = { onAction(SubmissionWizardAction.UpdateFirstUserOnly(it)) },
-                onOneTimeUseOnlyChange = { onAction(SubmissionWizardAction.UpdateOneTimeUseOnly(it)) },
+                onFirstUserOnlyChange = { onAction(PromocodeSubmissionAction.UpdateFirstUserOnly(it)) },
+                onOneTimeUseOnlyChange = { onAction(PromocodeSubmissionAction.UpdateOneTimeUseOnly(it)) },
                 focusRequester = focusRequester,
             )
 
-            SubmissionStep.DESCRIPTION -> DescriptionStepContent(
+            PromocodeSubmissionStep.DESCRIPTION -> DescriptionStepContent(
                 description = wizardData.description,
-                onDescriptionChange = { onAction(SubmissionWizardAction.UpdateDescription(it)) },
+                onDescriptionChange = { onAction(PromocodeSubmissionAction.UpdateDescription(it)) },
                 focusRequester = focusRequester,
-                onNextStep = { onAction(SubmissionWizardAction.SubmitPromoCode) },
+                onNextStep = { onAction(PromocodeSubmissionAction.SubmitPromoCode) },
             )
 
-            SubmissionStep.START_DATE -> StartDateStepContent(
+            PromocodeSubmissionStep.START_DATE -> StartDateStepContent(
                 startDate = wizardData.startDate,
-                onDateSelected = { onAction(SubmissionWizardAction.UpdateStartDate(it)) },
+                onDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
             )
 
-            SubmissionStep.END_DATE -> EndDateStepContent(
+            PromocodeSubmissionStep.END_DATE -> EndDateStepContent(
                 endDate = wizardData.endDate,
                 onDateSelected = { date ->
                     if (date != null) {
-                        onAction(SubmissionWizardAction.UpdateEndDate(date))
+                        onAction(PromocodeSubmissionAction.UpdateEndDate(date))
                     }
                 },
             )
@@ -529,7 +529,7 @@ private fun ServiceStepContentPreview() {
     QodeTheme {
         Column(modifier = Modifier.padding(SpacingTokens.md)) {
             SubmissionWizardStepContent(
-                currentStep = SubmissionStep.SERVICE,
+                currentStep = PromocodeSubmissionStep.SERVICE,
                 wizardData = SubmissionWizardData(),
                 onAction = {},
             )
@@ -543,7 +543,7 @@ private fun PromoCodeStepContentPreview() {
     QodeTheme {
         Column(modifier = Modifier.padding(SpacingTokens.md)) {
             SubmissionWizardStepContent(
-                currentStep = SubmissionStep.PROMO_CODE,
+                currentStep = PromocodeSubmissionStep.PROMO_CODE,
                 wizardData = SubmissionWizardData(promoCode = "SAVE20"),
                 onAction = {},
             )

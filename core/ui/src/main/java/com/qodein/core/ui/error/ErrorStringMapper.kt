@@ -3,11 +3,12 @@ package com.qodein.core.ui.error
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.ui.R
-import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.PostError
 import com.qodein.shared.common.error.PromoCodeError
 import com.qodein.shared.common.error.ServiceError
+import com.qodein.shared.common.error.StorageError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.common.error.UserError
 
@@ -24,7 +25,6 @@ import com.qodein.shared.common.error.UserError
 @Composable
 fun OperationError.asUiText(): String =
     when (this) {
-        // User/Auth errors
         is UserError.AuthenticationFailure.Cancelled -> stringResource(R.string.error_auth_user_cancelled)
         is UserError.AuthenticationFailure.InvalidCredentials -> stringResource(R.string.error_auth_invalid_credentials)
         is UserError.AuthenticationFailure.ServiceUnavailable -> stringResource(R.string.error_auth_service_unavailable)
@@ -35,7 +35,6 @@ fun OperationError.asUiText(): String =
         is UserError.ProfileFailure.DataCorrupted -> stringResource(R.string.error_user_data_corrupted)
         is UserError.ProfileFailure.UpdateFailed -> stringResource(R.string.error_user_update_failed)
 
-        // PromoCode errors
         is PromoCodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
         is PromoCodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_auth_permission_denied)
         is PromoCodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
@@ -44,7 +43,6 @@ fun OperationError.asUiText(): String =
         is PromoCodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
         is PromoCodeError.RetrievalFailure.TooManyResults -> stringResource(R.string.error_too_many_results)
 
-        // Service errors
         is ServiceError.SearchFailure.NoResults -> stringResource(R.string.error_service_no_results)
         is ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)
         is ServiceError.SearchFailure.TooManyResults -> stringResource(R.string.error_service_too_many_results)
@@ -54,7 +52,6 @@ fun OperationError.asUiText(): String =
         is ServiceError.RetrievalFailure.DataCorrupted -> stringResource(R.string.error_service_data_corrupted)
         is ServiceError.RetrievalFailure.CacheExpired -> stringResource(R.string.error_service_cache_expired)
 
-        // Interaction errors
         is InteractionError.VotingFailure.NotAuthorized -> stringResource(R.string.error_auth_permission_denied)
         is InteractionError.VotingFailure.AlreadyVoted -> stringResource(R.string.error_interaction_already_voted)
         is InteractionError.VotingFailure.ContentNotFound -> stringResource(R.string.error_interaction_content_not_found)
@@ -65,18 +62,34 @@ fun OperationError.asUiText(): String =
         is InteractionError.BookmarkFailure.SaveFailed -> stringResource(R.string.error_interaction_save_failed)
         is InteractionError.BookmarkFailure.RemoveFailed -> stringResource(R.string.error_interaction_remove_failed)
 
-        is InteractionError.SystemFailure.Offline -> stringResource(R.string.error_network_no_connection)
-        is InteractionError.SystemFailure.ServiceDown -> stringResource(R.string.error_service_unavailable)
-        is InteractionError.SystemFailure.Unknown -> stringResource(R.string.error_unknown)
-
-        // System errors
         is SystemError.Offline -> stringResource(R.string.error_network_no_connection)
         is SystemError.ServiceDown -> stringResource(R.string.error_service_unavailable)
         is SystemError.Unknown -> stringResource(R.string.error_unknown)
+        is PostError.CreationFailure.ContentTooLong -> stringResource(R.string.error_post_content_too_long)
+        is PostError.CreationFailure.EmptyAuthorName -> stringResource(R.string.error_post_author_missing)
+        is PostError.CreationFailure.EmptyContent -> stringResource(R.string.error_post_content_empty)
+        is PostError.CreationFailure.EmptyTitle -> stringResource(R.string.error_post_title_empty)
+        is PostError.CreationFailure.InvalidTagData -> stringResource(R.string.error_post_invalid_tag)
+        is PostError.CreationFailure.TitleTooLong -> stringResource(R.string.error_post_title_too_long)
+        is PostError.CreationFailure.TooManyImages -> stringResource(R.string.error_post_too_many_images)
+        is PostError.CreationFailure.TooManyTags -> stringResource(R.string.error_post_too_many_tags)
+        is PostError.RetrievalFailure.AccessDenied -> stringResource(R.string.error_post_access_denied)
+        is PostError.RetrievalFailure.NoResults -> stringResource(R.string.error_post_no_results)
+        is PostError.RetrievalFailure.NotFound -> stringResource(R.string.error_post_not_found)
+        is PostError.SubmissionFailure.InvalidData -> "Invalid Data"
+        is PostError.SubmissionFailure.NotAuthorized -> "Authorize to post"
+        is SystemError.PermissionDenied -> "Permission Denied"
+        StorageError.DeletionFailure.FileNotFound -> stringResource(R.string.error_storage_file_not_found)
+        StorageError.RetrievalFailure.FileNotFound -> stringResource(R.string.error_storage_file_not_found)
+        StorageError.UploadFailure.CorruptedFile -> stringResource(R.string.error_storage_upload_corrupted_file)
+        StorageError.UploadFailure.FileTooLarge -> stringResource(R.string.error_storage_upload_file_too_large)
+        StorageError.UploadFailure.InvalidFileType -> stringResource(R.string.error_storage_upload_invalid_file_type)
+        StorageError.UploadFailure.NotAuthenticated -> stringResource(R.string.error_storage_upload_not_authenticated)
+        StorageError.UploadFailure.QuotaExceeded -> stringResource(R.string.error_storage_upload_quota_exceeded)
+        StorageError.UploadFailure.UploadCancelled -> stringResource(R.string.error_storage_upload_cancelled)
+        StorageError.CompressionFailure.CannotReadImage -> stringResource(R.string.error_storage_compression_cannot_read)
+        StorageError.CompressionFailure.InvalidImageFormat -> stringResource(R.string.error_storage_compression_invalid_format)
+        StorageError.CompressionFailure.OutOfMemory -> stringResource(R.string.error_storage_compression_out_of_memory)
+        StorageError.CompressionFailure.CompressionFailed -> stringResource(R.string.error_storage_compression_failed)
+        SystemError.Unauthorized -> stringResource(R.string.error_auth_unauthorized)
     }
-
-/**
- * Convenience extension for Result.Error to get UI text directly.
- */
-@Composable
-fun <T> Result.Error<OperationError>.asErrorUiText(): String = error.asUiText()

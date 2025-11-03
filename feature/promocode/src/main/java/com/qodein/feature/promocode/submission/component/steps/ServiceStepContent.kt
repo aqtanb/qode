@@ -25,19 +25,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -48,7 +48,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.SubmissionStep
+import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.SubmissionTextField
@@ -188,7 +188,7 @@ fun ServiceSelector(
                 indication = ripple(),
                 onClick = onServiceSelectorClick,
             ),
-        color = animatedBackgroundColor,
+        color = Color.Transparent,
         shape = RoundedCornerShape(SizeTokens.Selector.shape),
         tonalElevation = if (hasSelection) ElevationTokens.none else ElevationTokens.none,
         shadowElevation = ElevationTokens.none,
@@ -258,25 +258,25 @@ fun ServiceSelector(
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ServiceSelectorPreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.SERVICE,
+            currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             onAction = {},
         )
     }
 }
 
-@PreviewLightDark
+@ThemePreviews
 @Composable
 private fun ServiceManualPreview() {
     QodeTheme {
         SubmissionStepCard(
-            currentStep = SubmissionStep.SERVICE,
-            wizardData = SubmissionWizardData(),
+            currentStep = PromocodeSubmissionStep.SERVICE,
+            wizardData = SubmissionWizardData(isManualServiceEntry = true),
             onAction = {},
         )
     }

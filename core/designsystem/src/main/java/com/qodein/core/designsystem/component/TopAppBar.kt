@@ -16,31 +16,24 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
@@ -55,7 +48,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
  */
 enum class QodeTopAppBarVariant {
     CenterAligned,
-    Large,
     Transparent
 }
 
@@ -100,24 +92,6 @@ fun QodeTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     colors: TopAppBarColors? = null
 ) {
-    // Handle transparent variant differently
-    if (variant == QodeTopAppBarVariant.Transparent) {
-        QodeTransparentTopAppBarImpl(
-            modifier = modifier,
-            title = title,
-            titleComposable = titleComposable,
-            navigationIcon = navigationIcon,
-            onNavigationClick = onNavigationClick,
-            actions = actions,
-            customActions = customActions,
-            navigationIconTint = navigationIconTint,
-            titleColor = titleColor,
-            actionIconTint = actionIconTint,
-            statusBarPadding = statusBarPadding,
-        )
-        return
-    }
-
     val finalColors = colors ?: TopAppBarDefaults.topAppBarColors(
         containerColor = backgroundColor,
         navigationIconContentColor = navigationIconTint,
@@ -167,7 +141,6 @@ fun QodeTopAppBar(
 
     val actionsContent: @Composable RowScope.() -> Unit = {
         val visibleActions = actions.filter { it.showAsAction }
-        val overflowActions = actions.filter { !it.showAsAction }
 
         visibleActions.forEach { action ->
             IconButton(
@@ -184,10 +157,6 @@ fun QodeTopAppBar(
 
         // Custom actions
         customActions?.invoke(this)
-
-        if (overflowActions.isNotEmpty()) {
-            OverflowMenu(actions = overflowActions)
-        }
     }
 
     when (variant) {
@@ -201,18 +170,20 @@ fun QodeTopAppBar(
                 scrollBehavior = scrollBehavior,
             )
         }
-        QodeTopAppBarVariant.Large -> {
-            LargeTopAppBar(
-                title = titleContent,
-                modifier = finalModifier,
-                navigationIcon = navigationContent,
-                actions = actionsContent,
-                colors = finalColors,
-                scrollBehavior = scrollBehavior,
-            )
-        }
         QodeTopAppBarVariant.Transparent -> {
-            // Already handled above
+            QodeTransparentTopAppBar(
+                modifier = modifier,
+                title = title,
+                titleComposable = titleComposable,
+                navigationIcon = navigationIcon,
+                onNavigationClick = onNavigationClick,
+                actions = actions,
+                customActions = customActions,
+                navigationIconTint = navigationIconTint,
+                titleColor = titleColor,
+                actionIconTint = actionIconTint,
+                statusBarPadding = statusBarPadding,
+            )
         }
     }
 }
@@ -228,54 +199,13 @@ data class TopAppBarAction(
     val showAsAction: Boolean = true
 )
 
-/**
- * Overflow menu for additional actions
- */
-@Composable
-private fun OverflowMenu(actions: List<TopAppBarAction>) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box {
-        IconButton(onClick = { expanded = true }) {
-            Icon(
-                imageVector = QodeNavigationIcons.More,
-                contentDescription = "More options",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            actions.forEach { action ->
-                DropdownMenuItem(
-                    text = { Text(action.contentDescription) },
-                    onClick = {
-                        action.onClick()
-                        expanded = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = action.icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                    enabled = action.enabled,
-                )
-            }
-        }
-    }
-}
-
 // MARK: - Transparent Implementation
 
 /**
  * Internal implementation for transparent variant that integrates with QodeTopAppBar
  */
 @Composable
-private fun QodeTransparentTopAppBarImpl(
+private fun QodeTransparentTopAppBar(
     modifier: Modifier = Modifier,
     title: String? = null,
     titleComposable: (@Composable () -> Unit)? = null,
@@ -377,103 +307,16 @@ private fun QodeTransparentTopAppBarImpl(
 
             // Custom actions
             customActions?.invoke(this)
-
-            // Overflow menu for non-icon actions
-            val overflowActions = actions.filter { !it.showAsAction }
-            if (overflowActions.isNotEmpty()) {
-                OverflowMenu(actions = overflowActions)
-            }
-        }
-    }
-}
-
-// Previews
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "TopAppBar Variants", showBackground = true)
-@Composable
-private fun QodeTopAppBarPreview() {
-    QodeTheme {
-        Column {
-            // Default variant with navigation and actions
-            QodeTopAppBar(
-                title = "Qode",
-                navigationIcon = QodeUIIcons.Menu,
-                onNavigationClick = {},
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Search,
-                        contentDescription = "Search",
-                        onClick = {},
-                    ),
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Notifications,
-                        contentDescription = "Notifications",
-                        onClick = {},
-                    ),
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Center aligned variant with back navigation
-            QodeTopAppBar(
-                title = "Store Details",
-                variant = QodeTopAppBarVariant.CenterAligned,
-                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-                onNavigationClick = {},
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeActionIcons.Share,
-                        contentDescription = "Share",
-                        onClick = {},
-                    ),
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Favorites,
-                        contentDescription = "Add to favorites",
-                        onClick = {},
-                    ),
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // Large variant for primary screens
-            QodeTopAppBar(
-                title = "Promo Codes",
-                variant = QodeTopAppBarVariant.Large,
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeActionIcons.Add,
-                        contentDescription = "Add promo code",
-                        onClick = {},
-                    ),
-                ),
-            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "TopAppBar States", showBackground = true)
+@ThemePreviews
 @Composable
 private fun QodeTopAppBarStatesPreview() {
     QodeTheme {
         Column {
-            // No navigation icon
-            QodeTopAppBar(
-                title = "Settings",
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Settings,
-                        contentDescription = "Settings",
-                        onClick = {},
-                    ),
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(SpacingTokens.sm))
-
-            // With overflow menu
             QodeTopAppBar(
                 title = "Store Details",
                 variant = QodeTopAppBarVariant.CenterAligned,
@@ -516,33 +359,6 @@ private fun QodeTopAppBarStatesPreview() {
                         contentDescription = "Edit profile",
                         onClick = {},
                         enabled = false,
-                    ),
-                ),
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "TopAppBar Dark Theme", showBackground = true)
-@Composable
-private fun QodeTopAppBarDarkPreview() {
-    QodeTheme(darkTheme = true) {
-        Column {
-            QodeTopAppBar(
-                title = "Dark Theme",
-                navigationIcon = QodeUIIcons.Menu,
-                onNavigationClick = {},
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Search,
-                        contentDescription = "Search",
-                        onClick = {},
-                    ),
-                    TopAppBarAction(
-                        icon = QodeNavigationIcons.Notifications,
-                        contentDescription = "Notifications",
-                        onClick = {},
                     ),
                 ),
             )

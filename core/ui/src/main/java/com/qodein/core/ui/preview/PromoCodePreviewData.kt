@@ -1,5 +1,6 @@
 package com.qodein.core.ui.preview
 
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.ServiceId
@@ -17,15 +18,15 @@ object PromoCodePreviewData {
     /**
      * Sample percentage promo code with typical values
      */
-    val percentagePromoCode = PromoCode.PercentagePromoCode(
+    val percentagePromoCode = PromoCode(
         id = PromoCodeId("glovo_save25"),
         code = "SAVE25",
+        discount = Discount.Percentage(25.0),
         serviceId = ServiceId("glovo_kz"),
         serviceName = "Glovo",
         category = "Food Delivery",
         description = "Get 25% off your next order with minimum 5000 KZT purchaseGet 25% off your next order with mini" +
             "mum 5000 KZT purchaseGet 25% off your next order with minimum 5000 KZT purchase",
-        discountPercentage = 25.0,
         minimumOrderAmount = 5000.0,
         startDate = Clock.System.now().minus(1.days),
         endDate = Clock.System.now().plus(7.days),
@@ -45,14 +46,14 @@ object PromoCodePreviewData {
     /**
      * Sample fixed amount promo code with typical values
      */
-    val fixedAmountPromoCode = PromoCode.FixedAmountPromoCode(
+    val fixedAmountPromoCode = PromoCode(
         id = PromoCodeId("kaspi_new1000"),
         code = "NEW1000",
+        discount = Discount.FixedAmount(1000.0),
         serviceId = ServiceId("kaspi_kz"),
         serviceName = "Kaspi.kz",
         category = "Marketplace",
         description = "1000 KZT discount for new users on first purchase above 10000 KZT",
-        discountAmount = 1000.0,
         minimumOrderAmount = 10000.0,
         startDate = Clock.System.now(),
         endDate = Clock.System.now().plus(30.days),
@@ -72,14 +73,14 @@ object PromoCodePreviewData {
     /**
      * Sample promo code that's expiring soon (within 24 hours)
      */
-    val expiringSoonPromoCode = PromoCode.PercentagePromoCode(
+    val expiringSoonPromoCode = PromoCode(
         id = PromoCodeId("wolt_flash15"),
         code = "FLASH15",
+        discount = Discount.Percentage(15.0),
         serviceId = ServiceId("wolt_kz"),
         serviceName = "Wolt",
         category = "Food Delivery",
         description = "Flash sale! 15% off all restaurants for limited time",
-        discountPercentage = 15.0,
         minimumOrderAmount = 2000.0,
         startDate = Clock.System.now().minus(2.days),
         endDate = Clock.System.now().plus(12.hours), // Expiring in 12 hours
@@ -99,14 +100,14 @@ object PromoCodePreviewData {
     /**
      * Sample promo code that's not active yet (starts in future)
      */
-    val notYetActivePromoCode = PromoCode.FixedAmountPromoCode(
+    val notYetActivePromoCode = PromoCode(
         id = PromoCodeId("technodom_summer500"),
         code = "SUMMER500",
+        discount = Discount.FixedAmount(500.0),
         serviceId = ServiceId("technodom_kz"),
         serviceName = "Technodom",
         category = "Electronics",
         description = "Summer sale! 500 KZT off electronics purchases over 50000 KZT",
-        discountAmount = 500.0,
         minimumOrderAmount = 50000.0,
         startDate = Clock.System.now().plus(3.days), // Starts in 3 days
         endDate = Clock.System.now().plus(33.days),
@@ -126,14 +127,14 @@ object PromoCodePreviewData {
     /**
      * Sample high-value promo code with many votes
      */
-    val highValuePromoCode = PromoCode.PercentagePromoCode(
+    val highValuePromoCode = PromoCode(
         id = PromoCodeId("sulpak_mega50"),
         code = "MEGA50",
+        discount = Discount.Percentage(50.0),
         serviceId = ServiceId("sulpak_kz"),
         serviceName = "Sulpak",
         category = "Electronics",
         description = "Mega discount! 50% off selected electronics and appliances",
-        discountPercentage = 50.0,
         minimumOrderAmount = 20000.0,
         startDate = Clock.System.now().minus(3.days),
         endDate = Clock.System.now().plus(4.days),
@@ -153,14 +154,14 @@ object PromoCodePreviewData {
     /**
      * Sample promo code with minimal engagement
      */
-    val lowEngagementPromoCode = PromoCode.FixedAmountPromoCode(
+    val lowEngagementPromoCode = PromoCode(
         id = PromoCodeId("small_shop_save100"),
         code = "SAVE100",
+        discount = Discount.FixedAmount(100.0),
         serviceId = null, // No service association
         serviceName = "Local Coffee Shop",
         category = "Food & Beverage",
         description = "100 KZT off your coffee order",
-        discountAmount = 100.0,
         minimumOrderAmount = 500.0,
         startDate = Clock.System.now().minus(1.days),
         endDate = Clock.System.now().plus(14.days),

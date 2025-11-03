@@ -42,7 +42,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -204,7 +204,7 @@ private fun HomeContent(
                             topEnd = SHEET_CORNER_RADIUS_DP.dp,
                         ),
                     )
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(MaterialTheme.colorScheme.background),
             ) {
                 BottomSheetContent(
                     uiState = uiState,
@@ -216,7 +216,7 @@ private fun HomeContent(
         },
         sheetPeekHeight = peekHeight,
         sheetDragHandle = null, // We'll add custom drag handle
-        sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        sheetContentColor = MaterialTheme.colorScheme.onBackground,
         modifier = modifier,
     ) {
         // Main content - animated banner that responds to sheet drag
