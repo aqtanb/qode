@@ -38,6 +38,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeGoogleSignInButton
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.auth.component.AuthTopAppBar
+import com.qodein.feature.auth.component.LegalDocumentBottomSheet
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.DocumentType
@@ -120,12 +121,11 @@ private fun AuthScreen(
             }
         }
 
-        when (legalDocumentState) {
-            LegalDocumentUiState.Closed -> {}
-            is LegalDocumentUiState.Content -> {}
-            is LegalDocumentUiState.Error -> {}
-            is LegalDocumentUiState.Loading -> {}
-        }
+        LegalDocumentBottomSheet(
+            onDismiss = { onAction(AuthAction.LegalDocumentDismissed) },
+            onRetry = { documentType -> onAction(AuthAction.LegalDocumentRetryClicked(documentType)) },
+            state = legalDocumentState,
+        )
     }
 }
 

@@ -100,4 +100,8 @@
     <!-- Success -->
     <string name="auth_success">Welcome! Your account is ready.</string>
     <string name="search_bar_title">Choose a country</string>
+
+    <!-- Legal Documents -->
+    <string name="legal_document_error_title">Failed to Load Document</string>
+    <string name="action_retry">Retry</string>
 </resources>

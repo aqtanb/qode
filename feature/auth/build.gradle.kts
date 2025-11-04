@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.koin)
+    implementation(libs.compose.markdown)
 
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)
