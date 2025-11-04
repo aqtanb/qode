@@ -9,23 +9,7 @@ import com.qodein.shared.model.LegalDocument
  *
  * Used by AuthScreen to manage sign-in UI states and navigation events.
  */
-sealed interface AuthUiState {
-
-    /**
-     * Initial state - ready for user interaction
-     */
-    data object Idle : AuthUiState
-
-    /**
-     * Sign-in operation in progress
-     */
-    data object Loading : AuthUiState
-
-    /**
-     * Sign-in failed with error
-     */
-    data class Error(val errorType: OperationError) : AuthUiState
-}
+data class AuthUiState(val isSigningIn: Boolean = false, val error: OperationError? = null)
 
 /**
  * UI state for legal document bottom sheets (Terms of Service, Privacy Policy).

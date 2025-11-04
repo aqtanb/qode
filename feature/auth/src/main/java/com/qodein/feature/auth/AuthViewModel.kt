@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -28,7 +29,7 @@ class AuthViewModel(
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _authState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    private val _authState = MutableStateFlow<AuthUiState>(AuthUiState())
     val authState = _authState.asStateFlow()
 
     private val _legalDocumentState = MutableStateFlow<LegalDocumentUiState>(LegalDocumentUiState.Closed)
@@ -40,8 +41,7 @@ class AuthViewModel(
     fun handleAction(action: AuthAction) {
         when (action) {
             is AuthAction.AuthWithGoogleClicked -> signInWithGoogle()
-            is AuthAction.AuthRetryClicked -> signInWithGoogle()
-            is AuthAction.AuthErrorDismissed -> clearError()
+            is AuthAction.AuthErrorDismissed -> dismissError()
 
             is AuthAction.LegalDocumentClicked -> getLegalDocument(type = action.documentType)
             is AuthAction.LegalDocumentRetryClicked -> getLegalDocument(type = action.documentType)
@@ -52,19 +52,19 @@ class AuthViewModel(
     }
 
     private fun signInWithGoogle() {
-        _authState.value = AuthUiState.Loading
+        _authState.update { it.copy(isSigningIn = true, error = null) }
 
         signInWithGoogleUseCase()
             .onEach { result ->
-                _authState.value = when (result) {
+                _authState.update { it.copy(isSigningIn = false) }
+                when (result) {
                     is Result.Success -> {
                         analyticsHelper.logLogin(method = "google", success = true)
                         emitEvent(AuthEvent.SignedIn)
-                        AuthUiState.Idle
                     }
                     is Result.Error -> {
                         analyticsHelper.logLogin(method = "google", success = false)
-                        AuthUiState.Error(errorType = result.error)
+                        _authState.update { it.copy(error = result.error) }
                     }
                 }
             }
@@ -98,7 +98,7 @@ class AuthViewModel(
         }
     }
 
-    private fun clearError() {
-        _authState.value = AuthUiState.Idle
+    private fun dismissError() {
+        _authState.update { it.copy(error = null) }
     }
 }

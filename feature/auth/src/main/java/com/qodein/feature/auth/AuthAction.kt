@@ -9,7 +9,6 @@ import com.qodein.shared.model.DocumentType
  */
 sealed interface AuthAction {
     data object AuthWithGoogleClicked : AuthAction
-    data object AuthRetryClicked : AuthAction
     data object AuthErrorDismissed : AuthAction
 
     data class LegalDocumentClicked(val documentType: DocumentType) : AuthAction
