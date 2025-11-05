@@ -1,5 +1,6 @@
 package com.qodein.qode
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,11 +41,12 @@ class MainActivity : ComponentActivity() {
 
             val darkTheme = uiState.shouldUseDarkTheme(isSystemInDarkTheme())
 
-            // Apply language changes immediately when state changes
             LaunchedEffect(uiState) {
                 val currentState = uiState
                 if (currentState is MainActivityUiState.Success) {
-                    LocaleManager.setAppLocale(this@MainActivity, currentState.language)
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                        LocaleManager.setAppLocale(this@MainActivity, currentState.language)
+                    }
                 }
             }
 

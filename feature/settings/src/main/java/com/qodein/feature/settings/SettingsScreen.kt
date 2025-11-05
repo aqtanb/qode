@@ -1,5 +1,8 @@
 package com.qodein.feature.settings
 
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +40,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.settings.component.LanguageBottomSheet
 
 @Composable
 fun SettingsRoute(
@@ -58,8 +63,10 @@ fun SettingsRoute(
 private fun SettingsScreen(
     onAction: (SettingsAction) -> Unit,
     onBackClick: () -> Unit,
-    uiState: SettingsUiState,
+    uiState: SettingsUiState
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             QodeTopAppBar(
@@ -75,11 +82,22 @@ private fun SettingsScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
         ) {
+            HorizontalDivider()
+
             SettingsItem(
                 title = stringResource(R.string.settings_language_title),
                 leadingIcon = QodeCategoryIcons.Language,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = { },
+                onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                            data = android.net.Uri.fromParts("package", context.packageName, null)
+                        }
+                        context.startActivity(intent)
+                    } else {
+                        onAction(SettingsAction.ShowLanguageBottomSheet)
+                    }
+                },
             )
 
             SettingsItem(
@@ -126,6 +144,16 @@ private fun SettingsScreen(
                 leadingIcon = QodeNavigationIcons.Info,
                 trailingIcon = QodeActionIcons.Next,
                 onClick = {},
+            )
+        }
+
+        if (uiState.showLanguageBottomSheet) {
+            LanguageBottomSheet(
+                selectedLanguage = uiState.language,
+                onLanguageSelected = { language ->
+                    onAction(SettingsAction.LanguageChanged(language))
+                },
+                onDismiss = { onAction(SettingsAction.HideLanguageBottomSheet) },
             )
         }
     }
@@ -186,7 +214,7 @@ private fun SettingsContentPreview() {
         SettingsScreen(
             onAction = {},
             onBackClick = {},
-            uiState = SettingsUiState()
+            uiState = SettingsUiState(),
         )
     }
 }

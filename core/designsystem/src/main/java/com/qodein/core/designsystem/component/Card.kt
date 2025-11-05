@@ -151,6 +151,7 @@ fun QodeinCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+    border: BorderStroke? = null,
     enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -165,6 +166,7 @@ fun QodeinCard(
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = OpacityTokens.DISABLED),
             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.DISABLED),
         ),
+        border = border,
     ) {
         content()
     }

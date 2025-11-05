@@ -10,6 +10,9 @@
 
     <!-- Language Settings -->
     <string name="settings_language_title">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_kazakh">Kazakh</string>
 
     <!-- Settings Items -->
     <string name="settings_notifications_title">Notifications</string>
