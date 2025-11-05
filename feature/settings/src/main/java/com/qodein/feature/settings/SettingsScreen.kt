@@ -1,230 +1,192 @@
 package com.qodein.feature.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.component.QodeinCard
+import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeinElevatedCard
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.shared.model.Language
-import com.qodein.shared.model.Theme
 
 @Composable
-fun SettingsScreen(
+fun SettingsRoute(
     onBackClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Settings")
 
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    SettingsContent(
-        selectedTheme = state.theme,
-        selectedLanguage = state.language,
-        onThemeSelected = { theme ->
-            viewModel.handleAction(SettingsAction.ThemeChanged(theme))
-        },
-        onLanguageSelected = { language ->
-            viewModel.handleAction(SettingsAction.LanguageChanged(language))
-        },
+    SettingsScreen(
+        onAction = viewModel::onAction,
+        onBackClick = onBackClick,
+        uiState = uiState,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsContent(
-    selectedTheme: Theme,
-    selectedLanguage: Language,
-    onThemeSelected: (Theme) -> Unit,
-    onLanguageSelected: (Language) -> Unit
+private fun SettingsScreen(
+    onAction: (SettingsAction) -> Unit,
+    onBackClick: () -> Unit,
+    uiState: SettingsUiState,
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
+    Scaffold(
+        topBar = {
+            QodeTopAppBar(
+                title = stringResource(R.string.settings_title),
+                navigationIcon = QodeActionIcons.Back,
+                onNavigationClick = onBackClick,
+            )
+        },
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(SpacingTokens.xl)
+                .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            SettingsSection(
-                title = "Theme",
-                icon = QodeNavigationIcons.Settings,
-            ) {
-                ThemeSelector(
-                    selectedTheme = selectedTheme,
-                    onThemeSelected = onThemeSelected,
-                )
-            }
+            SettingsItem(
+                title = stringResource(R.string.settings_language_title),
+                leadingIcon = QodeCategoryIcons.Language,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = { },
+            )
 
-            SettingsSection(
-                title = "Language",
-                icon = QodeCategoryIcons.Language,
-            ) {
-                LanguageSelector(
-                    selectedLanguage = selectedLanguage,
-                    onLanguageSelected = onLanguageSelected,
-                )
-            }
+            SettingsItem(
+                title = stringResource(R.string.settings_theme_title),
+                leadingIcon = QodeinIcons.DarkMode,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
 
-            Spacer(modifier = Modifier.height(SpacingTokens.lg))
+            SettingsItem(
+                title = stringResource(R.string.settings_notifications_title),
+                leadingIcon = QodeNavigationIcons.Notifications,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
+
+            HorizontalDivider()
+
+            SettingsItem(
+                title = stringResource(R.string.settings_source_code_title),
+                leadingIcon = QodeCategoryIcons.Tech,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
+
+            SettingsItem(
+                title = stringResource(R.string.settings_open_source_licences_title),
+                leadingIcon = QodeCategoryIcons.Certification,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
+
+            HorizontalDivider()
+
+            SettingsItem(
+                title = stringResource(R.string.settings_feedback_title),
+                leadingIcon = QodeNavigationIcons.Feedback,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
+
+            SettingsItem(
+                title = stringResource(R.string.settings_about_title),
+                leadingIcon = QodeNavigationIcons.Info,
+                trailingIcon = QodeActionIcons.Next,
+                onClick = {},
+            )
         }
     }
 }
 
 @Composable
-private fun SettingsSection(
+private fun SettingsItem(
+    onClick: () -> Unit,
     title: String,
-    icon: ImageVector,
-    content: @Composable () -> Unit
+    leadingIcon: ImageVector,
+    modifier: Modifier = Modifier,
+    trailingIcon: ImageVector? = null
 ) {
-    QodeinCard {
-        Column(
+    QodeinElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ShapeTokens.Corner.small),
+        onClick = onClick,
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingTokens.xs),
+                .padding(SpacingTokens.lg),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+            )
 
-            Spacer(modifier = Modifier.height(SpacingTokens.md))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
 
-            content()
-        }
-    }
-}
-
-@Composable
-private fun ThemeSelector(
-    selectedTheme: Theme,
-    onThemeSelected: (Theme) -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-    ) {
-        Theme.entries.forEach { theme ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onThemeSelected(theme) }
-                    .padding(vertical = SpacingTokens.xs),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                RadioButton(
-                    selected = selectedTheme == theme,
-                    onClick = { onThemeSelected(theme) },
-                )
-                Text(
-                    text = stringResource(theme.displayNameResId),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+            if (trailingIcon != null) {
+                Icon(
+                    imageVector = trailingIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                 )
             }
         }
     }
 }
 
-@Composable
-private fun LanguageSelector(
-    selectedLanguage: Language,
-    onLanguageSelected: (Language) -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-    ) {
-        Language.entries.forEach { language ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onLanguageSelected(language) }
-                    .padding(vertical = SpacingTokens.xs),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                RadioButton(
-                    selected = selectedLanguage == language,
-                    onClick = { onLanguageSelected(language) },
-                )
-                Text(
-                    text = language.displayName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-        }
-    }
-}
-
-// Extension property to get display name resource ID for themes
-private val Theme.displayNameResId: Int
-    get() = when (this) {
-        Theme.SYSTEM -> R.string.theme_system
-        Theme.LIGHT -> R.string.theme_light
-        Theme.DARK -> R.string.theme_dark
-    }
+// MARK: Previews
 
 @ThemePreviews
 @Composable
 private fun SettingsContentPreview() {
     QodeTheme {
-        SettingsContent(
-            selectedTheme = Theme.SYSTEM,
-            selectedLanguage = Language.ENGLISH,
-            onThemeSelected = {},
-            onLanguageSelected = {},
+        SettingsScreen(
+            onAction = {},
+            onBackClick = {},
+            uiState = SettingsUiState()
         )
     }
 }

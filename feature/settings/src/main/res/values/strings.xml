@@ -1,13 +1,21 @@
 <resources>
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
-    
+
     <!-- Theme Settings -->
     <string name="settings_theme_title">Theme</string>
     <string name="theme_system">System Default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    
+
     <!-- Language Settings -->
     <string name="settings_language_title">Language</string>
+
+    <!-- Settings Items -->
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_source_code_title">Source Code</string>
+    <string name="settings_open_source_licences_title">Open Source Licences</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_feedback_title">Feedback</string>
+    <string name="settings_rate_title">Rate App</string>
 </resources>

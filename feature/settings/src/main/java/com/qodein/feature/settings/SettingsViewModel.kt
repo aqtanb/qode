@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,8 +31,8 @@ class SettingsViewModel @Inject constructor(
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SettingsUiState())
-    val state = _state.asStateFlow()
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events = _events.asSharedFlow()
@@ -40,10 +41,19 @@ class SettingsViewModel @Inject constructor(
         observePreferences()
     }
 
-    fun handleAction(action: SettingsAction) {
+    fun onAction(action: SettingsAction) {
         when (action) {
-            is SettingsAction.ThemeChanged -> setTheme(action.theme)
+            SettingsAction.ShowLanguageBottomSheet -> _uiState.update { it.copy(showLanguageBottomSheet = true) }
+            SettingsAction.HideLanguageBottomSheet -> _uiState.update { it.copy(showLanguageBottomSheet = false) }
             is SettingsAction.LanguageChanged -> setLanguage(action.language)
+
+            is SettingsAction.ThemeChanged -> setTheme(action.theme)
+            SettingsAction.AboutAppClicked -> TODO()
+            SettingsAction.FeedbackClicked -> TODO()
+            SettingsAction.NotificationsClicked -> TODO()
+            SettingsAction.OpenSourceLicencesClicked -> TODO()
+            SettingsAction.RateAppClicked -> TODO()
+            SettingsAction.SourceCodeClicked -> TODO()
         }
     }
 
@@ -68,7 +78,7 @@ class SettingsViewModel @Inject constructor(
                 else -> null
             }
 
-            _state.value = _state.value.copy(
+            _uiState.value = _uiState.value.copy(
                 theme = theme,
                 language = language,
                 error = error,
@@ -77,10 +87,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setTheme(theme: Theme) {
-        val previousTheme = _state.value.theme
+        val previousTheme = _uiState.value.theme
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             setThemeUseCase(theme).collect { result ->
                 when (result) {
@@ -95,11 +105,10 @@ class SettingsViewModel @Inject constructor(
                                 ),
                             ),
                         )
-                        _state.value = _state.value.copy(isLoading = false, error = null)
-                        emitEvent(SettingsEvent.ThemeChanged)
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = null)
                     }
                     is Result.Error -> {
-                        _state.value = _state.value.copy(isLoading = false, error = result.error)
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = result.error)
                     }
                 }
             }
@@ -107,10 +116,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun setLanguage(language: Language) {
-        val previousLanguage = _state.value.language
+        val previousLanguage = _uiState.value.language
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             setLanguageUseCase(language).collect { result ->
                 when (result) {
@@ -125,11 +134,10 @@ class SettingsViewModel @Inject constructor(
                                 ),
                             ),
                         )
-                        _state.value = _state.value.copy(isLoading = false, error = null)
-                        emitEvent(SettingsEvent.LanguageChanged)
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = null)
                     }
                     is Result.Error -> {
-                        _state.value = _state.value.copy(isLoading = false, error = result.error)
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = result.error)
                     }
                 }
             }
@@ -143,6 +151,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _state.value = _state.value.copy(error = null)
+        _uiState.value = _uiState.value.copy(error = null)
     }
 }

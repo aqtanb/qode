@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.qodein.feature.settings.SettingsScreen
+import com.qodein.feature.settings.SettingsRoute
 import kotlinx.serialization.Serializable
 
 @Serializable object SettingsRoute // screen
@@ -17,7 +17,7 @@ fun NavController.navigateToSettings(navOptions: NavOptions? = null) = navigate(
 fun NavGraphBuilder.settingsSection(onBackClick: () -> Unit = {}) {
     navigation<SettingsBaseRoute>(startDestination = SettingsRoute) {
         composable<SettingsRoute> {
-            SettingsScreen(
+            SettingsRoute(
                 onBackClick = onBackClick,
             )
         }
