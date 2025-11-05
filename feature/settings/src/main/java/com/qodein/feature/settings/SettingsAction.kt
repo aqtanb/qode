@@ -8,7 +8,10 @@ sealed interface SettingsAction {
     data object HideLanguageBottomSheet : SettingsAction
     data class LanguageChanged(val language: Language) : SettingsAction
 
+    data object ShowThemeBottomSheet : SettingsAction
+    data object HideThemeBottomSheet : SettingsAction
     data class ThemeChanged(val theme: Theme) : SettingsAction
+
     data object NotificationsClicked : SettingsAction
     data object SourceCodeClicked : SettingsAction
     data object OpenSourceLicencesClicked : SettingsAction

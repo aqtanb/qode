@@ -15,14 +15,13 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.settings.R
-import com.qodein.shared.model.Language
+import com.qodein.shared.model.Theme
 
-// For Android 13 > phones
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun LanguageBottomSheet(
-    selectedLanguage: Language,
-    onLanguageSelected: (Language) -> Unit,
+internal fun ThemeBottomSheet(
+    selectedTheme: Theme,
+    onThemeSelected: (Theme) -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -32,17 +31,17 @@ internal fun LanguageBottomSheet(
             topEnd = ShapeTokens.Corner.extraLarge,
         ),
     ) {
-        LanguageBottomSheetContent(
-            selectedLanguage = selectedLanguage,
-            onLanguageSelected = onLanguageSelected,
+        ThemeBottomSheetContent(
+            selectedTheme = selectedTheme,
+            onThemeSelected = onThemeSelected,
         )
     }
 }
 
 @Composable
-private fun LanguageBottomSheetContent(
-    selectedLanguage: Language,
-    onLanguageSelected: (Language) -> Unit,
+private fun ThemeBottomSheetContent(
+    selectedTheme: Theme,
+    onThemeSelected: (Theme) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -53,32 +52,32 @@ private fun LanguageBottomSheetContent(
             .selectableGroup(),
     ) {
         BottomSheetRadioItem(
-            label = stringResource(R.string.language_english),
-            isSelected = selectedLanguage == Language.ENGLISH,
-            onClick = { onLanguageSelected(Language.ENGLISH) },
+            label = stringResource(R.string.theme_system),
+            isSelected = selectedTheme == Theme.SYSTEM,
+            onClick = { onThemeSelected(Theme.SYSTEM) },
         )
 
         BottomSheetRadioItem(
-            label = stringResource(R.string.language_russian),
-            isSelected = selectedLanguage == Language.RUSSIAN,
-            onClick = { onLanguageSelected(Language.RUSSIAN) },
+            label = stringResource(R.string.theme_light),
+            isSelected = selectedTheme == Theme.LIGHT,
+            onClick = { onThemeSelected(Theme.LIGHT) },
         )
 
         BottomSheetRadioItem(
-            label = stringResource(R.string.language_kazakh),
-            isSelected = selectedLanguage == Language.KAZAKH,
-            onClick = { onLanguageSelected(Language.KAZAKH) },
+            label = stringResource(R.string.theme_dark),
+            isSelected = selectedTheme == Theme.DARK,
+            onClick = { onThemeSelected(Theme.DARK) },
         )
     }
 }
 
 @ThemePreviews
 @Composable
-private fun LanguageBottomSheetContentPreview() {
+private fun ThemeBottomSheetContentPreview() {
     QodeTheme {
-        LanguageBottomSheetContent(
-            selectedLanguage = Language.ENGLISH,
-            onLanguageSelected = {},
+        ThemeBottomSheetContent(
+            selectedTheme = Theme.SYSTEM,
+            onThemeSelected = {},
         )
     }
 }

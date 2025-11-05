@@ -41,6 +41,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.settings.component.LanguageBottomSheet
+import com.qodein.feature.settings.component.ThemeBottomSheet
 
 @Composable
 fun SettingsRoute(
@@ -104,7 +105,7 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_theme_title),
                 leadingIcon = QodeinIcons.DarkMode,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {},
+                onClick = { onAction(SettingsAction.ShowThemeBottomSheet) },
             )
 
             SettingsItem(
@@ -154,6 +155,16 @@ private fun SettingsScreen(
                     onAction(SettingsAction.LanguageChanged(language))
                 },
                 onDismiss = { onAction(SettingsAction.HideLanguageBottomSheet) },
+            )
+        }
+
+        if (uiState.showThemeBottomSheet) {
+            ThemeBottomSheet(
+                selectedTheme = uiState.theme,
+                onThemeSelected = { theme ->
+                    onAction(SettingsAction.ThemeChanged(theme))
+                },
+                onDismiss = { onAction(SettingsAction.HideThemeBottomSheet) },
             )
         }
     }

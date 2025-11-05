@@ -47,7 +47,10 @@ class SettingsViewModel @Inject constructor(
             SettingsAction.HideLanguageBottomSheet -> _uiState.update { it.copy(showLanguageBottomSheet = false) }
             is SettingsAction.LanguageChanged -> setLanguage(action.language)
 
+            SettingsAction.ShowThemeBottomSheet -> _uiState.update { it.copy(showThemeBottomSheet = true) }
+            SettingsAction.HideThemeBottomSheet -> _uiState.update { it.copy(showThemeBottomSheet = false) }
             is SettingsAction.ThemeChanged -> setTheme(action.theme)
+
             SettingsAction.AboutAppClicked -> TODO()
             SettingsAction.FeedbackClicked -> TODO()
             SettingsAction.NotificationsClicked -> TODO()
