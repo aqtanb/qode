@@ -1,6 +1,7 @@
 package com.qodein.feature.settings
 
 import android.content.Intent
+import android.net.Uri.encode
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -42,6 +44,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.settings.component.LanguageBottomSheet
 import com.qodein.feature.settings.component.ThemeBottomSheet
+import com.qodein.shared.common.AppConstants
 
 @Composable
 fun SettingsRoute(
@@ -112,7 +115,12 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_notifications_title),
                 leadingIcon = QodeNavigationIcons.Notifications,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {},
+                onClick = {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    }
+                    context.startActivity(intent)
+                },
             )
 
             HorizontalDivider()
@@ -121,7 +129,10 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_source_code_title),
                 leadingIcon = QodeCategoryIcons.Tech,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {},
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, AppConstants.GITHUB_URL.toUri())
+                    context.startActivity(intent)
+                },
             )
 
             SettingsItem(
@@ -137,7 +148,12 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_feedback_title),
                 leadingIcon = QodeNavigationIcons.Feedback,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {},
+                onClick = {
+                    val subject = encode(context.getString(R.string.settings_feedback_title))
+                    val uri = "mailto:${AppConstants.FEEDBACK_EMAIL}?subject=$subject".toUri()
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    context.startActivity(intent)
+                },
             )
 
             SettingsItem(

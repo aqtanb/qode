@@ -8,43 +8,52 @@ import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
 import kotlinx.coroutines.flow.Flow
-import java.io.IOException
+import kotlinx.coroutines.flow.map
+import java.util.Locale
 
-class DevicePreferencesRepositoryImpl constructor(private val dataSource: DevicePreferencesDataSource) : DevicePreferencesRepository {
+class DevicePreferencesRepositoryImpl(private val dataSource: DevicePreferencesDataSource) : DevicePreferencesRepository {
 
-    // Getters don't fail, so no Result wrapper needed
-    override fun getTheme(): Flow<Theme> = dataSource.getTheme()
+    override fun getTheme(): Flow<Theme> =
+        dataSource.getTheme().map { themeString ->
+            themeString?.let {
+                try {
+                    Theme.valueOf(it)
+                } catch (_: Exception) {
+                    Theme.SYSTEM
+                }
+            } ?: Theme.SYSTEM
+        }
 
-    override fun getLanguage(): Flow<Language> = dataSource.getLanguage()
+    override fun getLanguage(): Flow<Language> =
+        dataSource.getLanguage().map { languageCode ->
+            languageCode?.let {
+                Language.entries.find { lang -> lang.code == it }
+            } ?: getSystemLanguage()
+        }
 
-    // Setters can fail, so wrap in Result
+    private fun getSystemLanguage(): Language {
+        val systemLocale = Locale.getDefault().language
+        return when (systemLocale) {
+            "en" -> Language.ENGLISH
+            "kk" -> Language.KAZAKH
+            "ru" -> Language.RUSSIAN
+            else -> Language.ENGLISH
+        }
+    }
+
     override suspend fun setTheme(theme: Theme): Result<Unit, OperationError> =
         try {
-            dataSource.setTheme(theme)
+            dataSource.setTheme(theme.name)
             Result.Success(Unit)
-        } catch (e: IOException) {
-            Result.Error(SystemError.Unknown)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Result.Error(SystemError.Unknown)
         }
 
     override suspend fun setLanguage(language: Language): Result<Unit, OperationError> =
         try {
-            dataSource.setLanguage(language)
+            dataSource.setLanguage(language.code)
             Result.Success(Unit)
-        } catch (e: IOException) {
-            Result.Error(SystemError.Unknown)
-        } catch (e: Exception) {
-            Result.Error(SystemError.Unknown)
-        }
-
-    override suspend fun clearPreferences(): Result<Unit, OperationError> =
-        try {
-            dataSource.clear()
-            Result.Success(Unit)
-        } catch (e: IOException) {
-            Result.Error(SystemError.Unknown)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Result.Error(SystemError.Unknown)
         }
 }

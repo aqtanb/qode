@@ -152,8 +152,4 @@ class SettingsViewModel @Inject constructor(
             _events.emit(event)
         }
     }
-
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
-    }
 }
