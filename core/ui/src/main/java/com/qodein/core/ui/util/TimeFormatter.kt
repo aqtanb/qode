@@ -13,7 +13,7 @@ object TimeFormatter {
             time,
             now,
             DateUtils.MINUTE_IN_MILLIS,
-            DateUtils.FORMAT_ABBREV_RELATIVE,
+            DateUtils.FORMAT_ABBREV_RELATIVE or DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_NO_YEAR,
         ).toString()
     }
 }

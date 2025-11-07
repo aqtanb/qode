@@ -50,7 +50,6 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.core.ui.util.CustomTabsUtils
-import com.qodein.feature.home.ui.component.CouponPromoCodeCard
 import com.qodein.feature.home.ui.component.DialogCoordinator
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
@@ -59,6 +58,7 @@ import com.qodein.feature.home.ui.component.PromoCodesEmptyState
 import com.qodein.feature.home.ui.component.PromoCodesErrorState
 import com.qodein.feature.home.ui.component.PromoCodesLoadingState
 import com.qodein.feature.home.ui.component.PromoCodesSectionHeader
+import com.qodein.feature.home.ui.component.PromocodeCard
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
@@ -303,7 +303,7 @@ private fun BottomSheetContent(
                     items = promoState.promoCodes,
                     key = { promoCode -> promoCode.id.value },
                 ) { promoCode ->
-                    CouponPromoCodeCard(
+                    PromocodeCard(
                         promoCode = promoCode,
                         onCardClick = {
                             onAction(HomeAction.PromoCodeClicked(promoCode))
@@ -376,7 +376,7 @@ private const val HOME_SCREEN_NAME = "Home"
 private const val PAGINATION_LOAD_THRESHOLD = 1
 
 // Bottom Sheet Configuration
-private const val SHEET_PEEK_HEIGHT_PERCENTAGE = 0.3f
+private const val SHEET_PEEK_HEIGHT_PERCENTAGE = 0.5f
 private const val DRAG_HANDLE_WIDTH_DP = 40
 private const val DRAG_HANDLE_HEIGHT_DP = 4
 private const val DRAG_HANDLE_CORNER_RADIUS_DP = 2

@@ -88,11 +88,6 @@ object SizeTokens {
     }
 
     @Immutable
-    object Card {
-        val minHeight = 72.dp
-    }
-
-    @Immutable
     object Chip {
         val height = 32.dp
         val sizeSmall = 16.dp
@@ -112,15 +107,6 @@ object SizeTokens {
         val sizeMedium = 48.dp
         val sizeLarge = 72.dp
         val sizeXLarge = 120.dp
-    }
-
-    @Immutable
-    object Decoration {
-        val sizeXSmall = 8.dp
-        val sizeSmall = 12.dp
-        val sizeMedium = 16.dp
-        val sizeLarge = 24.dp
-        val sizeXLarge = 32.dp
     }
 
     @Immutable

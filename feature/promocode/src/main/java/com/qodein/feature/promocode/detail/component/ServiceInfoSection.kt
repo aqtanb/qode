@@ -15,24 +15,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.component.QodeinAssistChip
+import com.qodein.core.designsystem.icon.PromocodeStatusIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeLocationIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeSecurityIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.component.getPromoCodeStatus
 import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.feature.promocode.R
 import com.qodein.shared.model.PromoCode
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
 // MARK: - Main Component
 
@@ -133,122 +134,49 @@ fun ServiceInfoSection(
             }
         }
 
-        // Status chips row - full width, centered
+        // Status chips row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm, Alignment.Start),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // First User Only chip
-            Surface(
-                color = if (promoCode.isFirstUserOnly) {
-                    MaterialTheme.colorScheme.primaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                },
-                shape = RoundedCornerShape(50),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                ) {
-                    Icon(
-                        imageVector = if (promoCode.isFirstUserOnly) QodeNavigationIcons.Popular else QodeNavigationIcons.Team,
-                        contentDescription = if (promoCode.isFirstUserOnly) "First user only" else "All users",
-                        tint = if (promoCode.isFirstUserOnly) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(12.dp),
-                    )
-
-                    Text(
-                        text = if (promoCode.isFirstUserOnly) "First User Only" else "All Users",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = if (promoCode.isFirstUserOnly) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
-            }
-
-            // Status chip
             val now = Clock.System.now()
-            val statusInfo = getPromoCodeStatus(promoCode, now)
-            val statusIcon = when {
-                statusInfo.text == "Active" -> QodeActionIcons.Play
-                statusInfo.text == "Expiring Soon" -> QodeNavigationIcons.Warning
-                statusInfo.text == "Expired" -> QodeActionIcons.Block
-                statusInfo.text == "Not Active" -> QodeNavigationIcons.Calendar
-                else -> QodeNavigationIcons.Help
+
+            if (promoCode.isFirstUserOnly) {
+                QodeinAssistChip(
+                    label = stringResource(R.string.cd_first_user_only),
+                    onClick = {},
+                    leadingIcon = PromocodeStatusIcons.FirstTimeUsers,
+                    enabled = false,
+                )
             }
 
-            Surface(
-                color = statusInfo.backgroundColor,
-                shape = RoundedCornerShape(50),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                ) {
-                    Icon(
-                        imageVector = statusIcon,
-                        contentDescription = statusInfo.text,
-                        tint = statusInfo.contentColor,
-                        modifier = Modifier.size(12.dp),
-                    )
-
-                    Text(
-                        text = statusInfo.text,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = statusInfo.contentColor,
-                    )
-                }
+            if (promoCode.isOneTimeUseOnly) {
+                QodeinAssistChip(
+                    label = stringResource(R.string.cd_one_time_use),
+                    onClick = {},
+                    leadingIcon = PromocodeStatusIcons.OneTimeUse,
+                    enabled = false,
+                )
             }
 
-            // Verified badge
-            Surface(
-                color = if (promoCode.isVerified) {
-                    MaterialTheme.extendedColorScheme.successContainer
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                },
-                shape = RoundedCornerShape(50),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                ) {
-                    Icon(
-                        imageVector = if (promoCode.isVerified) QodeActionIcons.Check else QodeSecurityIcons.Secure,
-                        contentDescription = if (promoCode.isVerified) "Verified" else "Unverified",
-                        tint = if (promoCode.isVerified) {
-                            MaterialTheme.extendedColorScheme.onSuccessContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(12.dp),
-                    )
+            val isExpiringSoon = promoCode.endDate < now.plus(3.days)
+            if (isExpiringSoon) {
+                QodeinAssistChip(
+                    label = stringResource(R.string.cd_expiring_soon),
+                    onClick = {},
+                    leadingIcon = PromocodeStatusIcons.ExpiringSoon,
+                    enabled = false,
+                )
+            }
 
-                    Text(
-                        text = if (promoCode.isVerified) "Verified" else "Unverified",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = if (promoCode.isVerified) {
-                            MaterialTheme.extendedColorScheme.onSuccessContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
+            if (promoCode.isVerified) {
+                QodeinAssistChip(
+                    label = stringResource(R.string.cd_verified),
+                    onClick = {},
+                    leadingIcon = PromocodeStatusIcons.Verified,
+                    enabled = false,
+                )
             }
         }
     }

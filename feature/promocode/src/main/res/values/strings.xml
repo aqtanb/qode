@@ -72,4 +72,10 @@
     <!-- Promo Code Types -->
     <string name="promo_type_percentage_title">Percentage</string>
     <string name="promo_type_fixed_amount_title">Fixed Amount</string>
+
+    <!-- Status Badges -->
+    <string name="cd_first_user_only">First user only</string>
+    <string name="cd_one_time_use">One time use</string>
+    <string name="cd_expiring_soon">Expiring soon</string>
+    <string name="cd_verified">Verified</string>
 </resources>

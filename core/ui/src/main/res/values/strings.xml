@@ -28,6 +28,10 @@
 
     <!-- Promo Code Card Strings -->
     <string name="copy_code">Copy code</string>
+    <string name="cd_first_user_only">First user only</string>
+    <string name="cd_one_time_use">One time use</string>
+    <string name="cd_expiring_soon">Expiring soon</string>
+    <string name="cd_verified">Verified</string>
 
     <!-- Home Screen Strings -->
 

@@ -5,23 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,14 +35,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeDivider
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.BackdropBlurOverlay
-import com.qodein.core.ui.component.ComingSoonDialog
 import com.qodein.core.ui.component.rememberBackdropBlurState
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.R
@@ -64,16 +58,14 @@ private val LOADING_STROKE_WIDTH = 3.dp
 private val BLUR_RADIUS = 16.dp
 private const val ERROR_ICON_ALPHA = 0.6f
 private const val EMPTY_ICON_ALPHA = 0.6f
-private const val BANNER_HEIGHT_PERCENTAGE = 0.7f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.5f
 private const val TEXT_BACKGROUND_TOP_ALPHA = 0.6f
 private const val TEXT_BACKGROUND_BOTTOM_ALPHA = 0.8f
 private const val INDICATOR_INACTIVE_ALPHA = 0.3f
 
 // MARK: - Layout Proportions
-
-private const val COUNTRY_PICKER_WEIGHT = 0.1f
-private const val CLEAR_IMAGE_WEIGHT = 0.75f
-private const val CTA_AREA_WEIGHT = 0.15f
+private const val CLEAR_IMAGE_WEIGHT = 0.8f
+private const val CTA_AREA_WEIGHT = 0.2f
 
 // MARK: - Main Component
 
@@ -248,7 +240,6 @@ private fun BannerItem(
             topAlpha = TEXT_BACKGROUND_TOP_ALPHA,
             bottomAlpha = TEXT_BACKGROUND_BOTTOM_ALPHA,
             blurRadius = BLUR_RADIUS,
-            topAreaWeight = COUNTRY_PICKER_WEIGHT,
             middleAreaWeight = CLEAR_IMAGE_WEIGHT,
             bottomAreaWeight = CTA_AREA_WEIGHT,
             overlayAlpha = 0f, // No black overlay here since we added it separately
@@ -259,20 +250,7 @@ private fun BannerItem(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
         ) {
-            // CountryPicker area
-            Box(
-                modifier = Modifier
-                    .weight(COUNTRY_PICKER_WEIGHT)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CountryPicker(modifier = Modifier.fillMaxSize())
-            }
-
-            // Clear image space
             Spacer(modifier = Modifier.weight(CLEAR_IMAGE_WEIGHT))
-
-            // BannerCallToAction area
             Box(
                 modifier = Modifier
                     .weight(CTA_AREA_WEIGHT)
@@ -322,8 +300,6 @@ private fun BannerStructure(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            CountryPicker()
-
             BannerCallToAction(
                 ctaTitle = ctaTitle,
                 ctaDescription = ctaDescription,
@@ -331,51 +307,6 @@ private fun BannerStructure(
                 totalPages = 1,
             )
         }
-    }
-}
-
-// MARK: - Shared Components
-
-@Composable
-private fun CountryPicker(
-    textColor: Color = Color.White,
-    modifier: Modifier = Modifier
-) {
-    var showComingSoonDialog by remember { mutableStateOf(false) }
-
-    Surface(
-        modifier = modifier,
-        color = Color.Black.copy(alpha = 0.01f),
-    ) {
-        Row(
-            modifier = modifier
-                .statusBarsPadding()
-                .background(Color.Black.copy(alpha = 0.1f))
-                .padding(horizontal = SpacingTokens.xs, vertical = SpacingTokens.xxxs),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            QodeDivider(modifier = Modifier.weight(1f))
-            Text(
-                text = stringResource(R.string.country_kazakhstan),
-                style = MaterialTheme.typography.labelSmall,
-                color = textColor,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .clickable { showComingSoonDialog = true }
-                    .padding(horizontal = SpacingTokens.xs),
-            )
-            QodeDivider(modifier = Modifier.weight(1f))
-        }
-    }
-
-    if (showComingSoonDialog) {
-        ComingSoonDialog(
-            title = stringResource(R.string.coming_soon_title),
-            description = stringResource(R.string.coming_soon_country_description),
-            onDismiss = { showComingSoonDialog = false },
-            onTelegramClick = { showComingSoonDialog = false },
-        )
     }
 }
 

@@ -45,7 +45,6 @@ fun BackdropBlurOverlay(
     topAlpha: Float = 0.4f,
     bottomAlpha: Float = 0.8f,
     blurRadius: Dp = 8.dp,
-    topAreaWeight: Float = 0.1f,
     middleAreaWeight: Float = 0.75f,
     bottomAreaWeight: Float = 0.15f,
     overlayAlpha: Float = 0.7f,
@@ -56,7 +55,6 @@ fun BackdropBlurOverlay(
         topAlpha = topAlpha,
         bottomAlpha = bottomAlpha,
         blurRadius = blurRadius,
-        topAreaWeight = topAreaWeight,
         middleAreaWeight = middleAreaWeight,
         bottomAreaWeight = bottomAreaWeight,
         overlayAlpha = overlayAlpha,
@@ -70,7 +68,6 @@ private fun BlurOverlayContent(
     topAlpha: Float,
     bottomAlpha: Float,
     blurRadius: Dp,
-    topAreaWeight: Float,
     middleAreaWeight: Float,
     bottomAreaWeight: Float,
     overlayAlpha: Float = 0f,
@@ -80,37 +77,6 @@ private fun BlurOverlayContent(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        // Top blurred section for content readability
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(topAreaWeight),
-        ) {
-            // Subtle black overlay for text contrast
-            if (overlayAlpha > 0f) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = overlayAlpha)),
-                )
-            }
-
-            // Blur overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .hazeChild(
-                        state = hazeState,
-                        style = HazeStyle(
-                            backgroundColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.05f),
-                            tint = null,
-                            blurRadius = blurRadius,
-                        ),
-                    ),
-            )
-        }
-
-        // Middle area - crystal clear content visibility
         Spacer(modifier = Modifier.weight(middleAreaWeight))
 
         // Bottom blurred section for content readability
