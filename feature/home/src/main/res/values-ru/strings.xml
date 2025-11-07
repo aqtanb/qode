@@ -3,50 +3,16 @@
     <string name="feature_home_title">Главная</string>
 
     <!-- Home Screen Strings -->
-    <string name="home_welcome_title">Откройте для себя удивительные предложения</string>
-    <string name="home_welcome_subtitle">Экономьте деньги с лучшими промо-кодами от топовых брендов</string>
-    <string name="home_section_title">Трендовые предложения</string>
-    <string name="home_section_subtitle">Самые популярные промо-коды сегодня</string>
-    
+
     <!-- Dynamic Section Titles -->
-    <string name="home_section_title_popularity">Трендовые предложения</string>
-    <string name="home_section_title_newest">Новые предложения</string>
-    <string name="home_section_title_oldest">Старые предложения</string>
-    <string name="home_section_title_expiring">Истекающие предложения</string>
-    <string name="home_section_title_alphabetical">Все предложения</string>
-    <string name="home_quick_filters">Быстрые фильтры</string>
-    <string name="home_trending_badge">Сейчас в тренде</string>
-    <string name="home_featured_deals">Рекомендуемые предложения</string>
-    <string name="home_featured_subtitle">Эксклюзивные предложения, отобранные вручную специально для вас</string>
 
     <!-- Banner Carousel -->
-    <string name="banner_featured_title">Показанная сделка</string>
-    <string name="banner_up_to">До</string>
-    <string name="banner_off">ВЫКЛЮЧЕННЫЙ</string>
-    <string name="banner_claim_now">Утверждать сейчас</string>
-    <string name="banner_limited_time">Ограниченное время</string>
-    <string name="banner_country_picker_title">Ваша страна</string>
-    <string name="banner_default_description">Эксклюзивные предложения и премиальные предложения</string>
-    <string name="banner_explore_deals">Изучите сделки</string>
-    <string name="banner_loading_fallback">Загрузка удивительных предложений для вас …</string>
 
     <!-- Stats Section -->
-    <string name="stats_active_deals">500+</string>
-    <string name="stats_active_deals_label">Активные предложения</string>
-    <string name="stats_happy_users">50K+</string>
-    <string name="stats_happy_users_label">Счастливые пользователи</string>
-    <string name="stats_total_saved">₸ 2m+</string>
-    <string name="stats_total_saved_label">Всего сохранено</string>
 
     <!-- Filter Categories -->
-    <string name="filter_top_rated">Верхний рейтинг</string>
-    <string name="filter_latest">Последний</string>
-    <string name="filter_food">Еда</string>
-    <string name="filter_fashion">Мода</string>
-    <string name="filter_tech">Технический</string>
 
     <!-- Error Messages -->
-    <string name="error_something_went_wrong">Что -то пошло не так</string>
     <string name="error_retry">Попробуйте еще раз</string>
     <string name="error_image_not_available">Изображение недоступно</string>
 
@@ -59,42 +25,25 @@
 
     <!-- Actions -->
     <string name="action_close">Закрыть</string>
-    <string name="action_reset">Сбросить</string>
 
     <!-- Filter Chips -->
-    <string name="filter_chip_type">Тип</string>
     <string name="filter_chip_category">Категория</string>
     <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировать</string>
 
     <!-- Filter Dialog Titles -->
-    <string name="filter_dialog_type_title">Тип промо-кода</string>
-    <string name="filter_dialog_category_title">Категория</string>
-    <string name="filter_dialog_service_title">Сервис</string>
-    <string name="filter_dialog_sort_title">Сортировать по</string>
 
     <!-- Filter Options - Type -->
-    <string name="filter_type_all">Все типы</string>
-    <string name="filter_type_percentage">Процентная скидка</string>
-    <string name="filter_type_fixed_amount">Фиксированная сумма</string>
 
     <!-- Filter Options - Category -->
     <string name="filter_category_all">Все категории</string>
 
     <!-- Filter Options - Service -->
-    <string name="filter_service_all">Все сервисы</string>
-    <string name="filter_search_services">Поиск сервисов…</string>
 
     <!-- Filter Options - Sort -->
-    <string name="filter_sort_popularity">Самые популярные</string>
-    <string name="filter_sort_newest">Сначала новые</string>
-    <string name="filter_sort_expiry_soon">Скоро истекают</string>
-    <string name="filter_sort_alphabetical">А-Я по бренду</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>
     <string name="empty_check_back_later">Позже проверьте удивительные предложения и скидки!</string>
-    <string name="empty_no_banners_title">Нет баннеров</string>
-    <string name="empty_no_banners_description">Вы можете связаться с нами, чтобы продвигать свой бренд</string>
 </resources>
 

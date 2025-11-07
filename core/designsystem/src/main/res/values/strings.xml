@@ -1,37 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Design System Components -->
-    <string name="google_logo_content_desc">Google logo</string>
 
     <!-- Button Components -->
-    <string name="button_loading">Loading…</string>
-    <string name="button_disabled">Button is disabled</string>
 
     <!-- Logo Components -->
-    <string name="qode_logo_content_desc">Qode app logo</string>
-    <string name="app_icon_content_desc">Qode app icon</string>
 
     <!-- Common Actions -->
     <string name="close">Close</string>
-    <string name="back">Back</string>
-    <string name="menu">Menu</string>
-    <string name="search">Search</string>
-    <string name="filter">Filter</string>
-    <string name="sort">Sort</string>
-    <string name="refresh">Refresh</string>
-    <string name="retry">Retry</string>
 
 
     <!-- Accessibility -->
-    <string name="expand">Expand</string>
-    <string name="collapse">Collapse</string>
-    <string name="show_more">Show more</string>
-    <string name="show_less">Show less</string>
 
     <!-- SearchableTopAppBar Component -->
-    <string name="search_placeholder">Search</string>
-    <string name="clear_search">Clear search</string>
-    <string name="navigate_back">Navigate back</string>
 
     <!-- Avatar -->
     <string name="profile_picture_description">Profile Picture</string>

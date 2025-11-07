@@ -1,6 +1,7 @@
 package com.qodein.feature.settings
 
 import android.content.Intent
+import android.net.Uri
 import android.net.Uri.encode
 import android.os.Build
 import android.provider.Settings
@@ -101,7 +102,7 @@ private fun SettingsScreen(
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-                            data = android.net.Uri.fromParts("package", context.packageName, null)
+                            data = Uri.fromParts("package", context.packageName, null)
                         }
                         context.startActivity(intent)
                     } else {

@@ -5,9 +5,6 @@ plugins {
 }
 
 kotlin {
-    // JVM target for backend support
-    jvm()
-
     androidLibrary {
         namespace = "com.qodein.shared"
         compileSdk =
@@ -18,27 +15,6 @@ kotlin {
             libs.versions.minSdk
                 .get()
                 .toInt()
-    }
-
-    // iOS targets for future multiplatform support
-    val xcfName = "sharedKit"
-
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
-
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
-
-    iosSimulatorArm64 {
-        binaries.framework {
-            baseName = xcfName
-        }
     }
 
     sourceSets {
@@ -59,12 +35,6 @@ kotlin {
             }
         }
 
-        jvmMain {
-            dependencies {
-                // JVM-specific dependencies for backend
-            }
-        }
-
         androidMain {
             dependencies {
                 // Firebase BOM for version management
@@ -73,13 +43,6 @@ kotlin {
                 implementation(libs.firebase.firestore)
                 // Ktor Android engine
                 implementation(libs.ktor.client.okhttp)
-            }
-        }
-
-        iosMain {
-            dependencies {
-                // Ktor iOS engine
-                implementation(libs.ktor.client.darwin)
             }
         }
     }

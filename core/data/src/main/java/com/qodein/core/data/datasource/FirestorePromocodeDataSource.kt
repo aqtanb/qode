@@ -27,22 +27,17 @@ class FirestorePromocodeDataSource constructor(private val firestore: FirebaseFi
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
         Logger.d(TAG) { "Creating promo code: ${promoCode.code} for service: ${promoCode.serviceName}" }
 
-        try {
-            val dto = PromoCodeMapper.toDto(promoCode)
-            Logger.d(TAG) { "Mapped to DTO with documentId: ${dto.documentId}" }
-            Logger.d(TAG) { "DTO data: serviceId=${dto.serviceId}, serviceName=${dto.serviceName}, type=${dto.type}" }
+        val dto = PromoCodeMapper.toDto(promoCode)
+        Logger.d(TAG) { "Mapped to DTO with documentId: ${dto.documentId}" }
+        Logger.d(TAG) { "DTO data: serviceId=${dto.serviceId}, serviceName=${dto.serviceName}, type=${dto.type}" }
 
-            firestore.collection(PROMOCODES_COLLECTION)
-                .document(dto.documentId)
-                .set(dto)
-                .await()
+        firestore.collection(PROMOCODES_COLLECTION)
+            .document(dto.documentId)
+            .set(dto)
+            .await()
 
-            Logger.i(TAG) { "Successfully created promo code document: ${dto.documentId}" }
-            return promoCode
-        } catch (e: Exception) {
-            Logger.e(TAG, e) { "Failed to create promo code: ${promoCode.code}" }
-            throw java.io.IOException("Failed to create promo code: ${e.message}", e)
-        }
+        Logger.i(TAG) { "Successfully created promo code document: ${dto.documentId}" }
+        return promoCode
     }
 
     suspend fun getPromoCodes(

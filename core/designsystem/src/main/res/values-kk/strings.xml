@@ -1,36 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Design System Components -->
-    <string name="google_logo_content_desc">Google логотипі</string>
 
     <!-- Button Components -->
-    <string name="button_loading">Жүктелуде…</string>
-    <string name="button_disabled">Батырма өшірілген</string>
 
     <!-- Logo Components -->
-    <string name="qode_logo_content_desc">Qode қосымшасының логотипі</string>
-    <string name="app_icon_content_desc">Qode қосымшасының белгішесі</string>
 
     <!-- Common Actions -->
     <string name="close">Жабу</string>
-    <string name="back">Артқа</string>
-    <string name="menu">Мәзір</string>
-    <string name="search">Іздеу</string>
-    <string name="filter">Сүзгі</string>
-    <string name="sort">Сұрыптау</string>
-    <string name="refresh">Жаңарту</string>
-    <string name="retry">Қайталау</string>
 
     <!-- Accessibility -->
-    <string name="expand">Кеңейту</string>
-    <string name="collapse">Жинау</string>
-    <string name="show_more">Көбірек көрсету</string>
-    <string name="show_less">Азырақ көрсету</string>
 
     <!-- SearchableTopAppBar Component -->
-    <string name="search_placeholder">Іздеу</string>
-    <string name="clear_search">Іздеуді тазалау</string>
-    <string name="navigate_back">Артқа қайту</string>
 
     <!-- Avatar -->
     <string name="profile_picture_description">Профиль суреті</string>

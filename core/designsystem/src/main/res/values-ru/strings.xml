@@ -1,36 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Design System Components -->
-    <string name="google_logo_content_desc">Логотип Google</string>
 
     <!-- Button Components -->
-    <string name="button_loading">Загрузка…</string>
-    <string name="button_disabled">Кнопка отключена</string>
 
     <!-- Logo Components -->
-    <string name="qode_logo_content_desc">Логотип приложения Qode</string>
-    <string name="app_icon_content_desc">Иконка приложения Qode</string>
 
     <!-- Common Actions -->
     <string name="close">Закрыть</string>
-    <string name="back">Назад</string>
-    <string name="menu">Меню</string>
-    <string name="search">Поиск</string>
-    <string name="filter">Фильтр</string>
-    <string name="sort">Сортировка</string>
-    <string name="refresh">Обновить</string>
-    <string name="retry">Повторить</string>
 
     <!-- Accessibility -->
-    <string name="expand">Развернуть</string>
-    <string name="collapse">Свернуть</string>
-    <string name="show_more">Показать больше</string>
-    <string name="show_less">Показать меньше</string>
 
     <!-- SearchableTopAppBar Component -->
-    <string name="search_placeholder">Поиск</string>
-    <string name="clear_search">Очистить поиск</string>
-    <string name="navigate_back">Назад</string>
 
     <!-- Avatar -->
     <string name="profile_picture_description">Фото профиля</string>

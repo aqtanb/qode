@@ -50,7 +50,7 @@ internal fun ActionButton(
                 } else {
                     MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 },
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(ShapeTokens.Corner.large),
+                shape = RoundedCornerShape(ShapeTokens.Corner.large),
             )
             .clickable(onClick = onClick)
             .padding(SpacingTokens.md),

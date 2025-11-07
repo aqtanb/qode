@@ -2,6 +2,7 @@ package com.qodein.core.data.datasource
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.model.UserInteractionDto
 import com.qodein.shared.model.UserInteraction
@@ -62,7 +63,7 @@ class FirestoreUnifiedUserInteractionDataSource constructor(private val firestor
         )
 
         // Use set with merge to create or update
-        docRef.set(dataMap, com.google.firebase.firestore.SetOptions.merge()).await()
+        docRef.set(dataMap, SetOptions.merge()).await()
 
         // Return the updated document to ensure consistency
         val updatedDoc = docRef.get().await()

@@ -20,7 +20,6 @@
     <string name="settings_open_source_licences_title">Open Source Licences</string>
     <string name="settings_about_title">About</string>
     <string name="settings_feedback_title">Feedback</string>
-    <string name="settings_rate_title">Rate App</string>
 
     <!-- About Screen -->
     <string name="about_app_name">Qode</string>

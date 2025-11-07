@@ -1,148 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Phone Input Component -->
-    <string name="phone_input_label">Телефон нөмірі</string>
-    <string name="phone_input_placeholder">Телефон нөмірін енгізіңіз</string>
-    <string name="phone_input_too_short">Телефон нөмірі тым қысқа</string>
-    <string name="phone_input_too_long">Телефон нөмірі тым ұзын</string>
-    <string name="phone_input_required">Телефон нөмірі қажет</string>
-    <string name="phone_input_validating">Тексеру…</string>
-    <string name="phone_input_valid">Жарамды нөмір</string>
-    <string name="phone_number_invalid_format">Жарамды телефон нөмірін енгізіңіз</string>
 
     <!-- Country Picker -->
-    <string name="select_country">Елді таңдаңыз</string>
-    <string name="search_countries">Елдерді іздеу</string>
-    <string name="no_countries_found">Елдер табылмады</string>
-    <string name="country_selected">Ел таңдалды</string>
 
     <!-- Navigation -->
-    <string name="navigate_back">Артқа қайту</string>
     <string name="close">Жабу</string>
-    <string name="clear_search">Іздеуді тазалау</string>
-    <string name="clear_phone_number">Телефон нөмірін тазалау</string>
 
     <!-- Social Sign-In Components -->
     <string name="continue_with_google">Google арқылы жалғастыру</string>
 
     <!-- Error Handling -->
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
-    <string name="error_retry_button">Қайтадан байқап көру</string>
 
     <!-- Coming Soon Dialog -->
     <string name="coming_soon_title">Біз осы функцияда жұмыс істеп жатырмыз</string>
     <string name="coming_soon_description">Бізбен байланысып, Telegram арнасындағы прогрессімізді көре аласыз.</string>
     <string name="coming_soon_telegram_button">Telegram-да жазылу</string>
-    <string name="coming_soon_dialog_description">Жаңа функциялар үшін жақында диалогы</string>
 
     <!-- Accessibility -->
-    <string name="phone_input_content_desc">Телефон нөмірі енгізу өрісі</string>
-    <string name="phone_input_flag_content_desc">%s үшін ел туы</string>
-    <string name="phone_input_dropdown_content_desc">Ел таңдаушысын ашу</string>
-    <string name="phone_input_error_content_desc">Телефон нөмірі қатесі</string>
-    <string name="phone_input_success_content_desc">Телефон нөмірі жарамды</string>
 
     <!-- Common Input States -->
-    <string name="field_required">Бұл өріс қажет</string>
-    <string name="field_invalid">Жарамсыз енгізу</string>
-    <string name="field_success">Жарамды енгізу</string>
 
     <!-- Promo Code Card Strings -->
-    <string name="promo_code_label">ПРОМО КОД</string>
     <string name="copy_code">Кодты көшіру</string>
-    <string name="upvotes">Оң дауыстар</string>
-    <string name="downvotes">Теріс дауыстар</string>
-    <string name="updated_format">%s жаңартылды</string>
-    <string name="percentage_discount">%d%%</string>
-    <string name="fixed_amount_discount">%d₸</string>
-    <string name="promo_type">ПРОМО</string>
-    <string name="percentage_off_order">%d₸-тен %d%% жеңілдік</string>
-    <string name="amount_off_order">%d₸-тен %d₸ жеңілдік</string>
 
     <!-- Home Screen Strings -->
-    <string name="home_welcome_title">Таңғажайып мәмілелерді ашыңыз</string>
-    <string name="home_welcome_subtitle">Үздік брендтерден ең жақсы промо кодтармен ақша үнемдеңіз</string>
-    <string name="home_section_title">Трендтегі ұсыныстар</string>
-    <string name="home_section_subtitle">Бүгін ең танымал промо кодтар</string>
-    <string name="home_trending_badge">ҚАЗІР ТРЕНД</string>
-    <string name="home_browse_categories">Санаттарды шолу</string>
-    <string name="home_featured_deals">Таңдаулы мәмілелер</string>
-    <string name="home_featured_subtitle">Тек сіз үшін қолмен таңдалған эксклюзивті ұсыныстар</string>
-    
+
     <!-- Stats Section -->
-    <string name="stats_active_deals">500+</string>
-    <string name="stats_active_deals_label">Белсенді мәмілелер</string>
-    <string name="stats_happy_users">50K+</string>
-    <string name="stats_happy_users_label">Бақытты пайдаланушылар</string>
-    <string name="stats_total_saved">₸2M+</string>
-    <string name="stats_total_saved_label">Барлығы сақталды</string>
-    
+
     <!-- Filter Categories -->
-    <string name="filter_top_rated">Жоғары бағаланған</string>
-    <string name="filter_latest">Ең соңғы</string>
-    <string name="filter_food">Тамақ</string>
-    <string name="filter_fashion">Сән</string>
-    <string name="filter_tech">Технология</string>
-    
+
     <!-- Legacy strings that might be used elsewhere -->
-    <string name="phone_number">Телефон нөмірі</string>
-    <string name="enter_phone_number">Телефон нөміріңізді енгізіңіз</string>
-    <string name="invalid_phone_number">Жарамсыз телефон нөмірі</string>
-    <string name="phone_number_required">Телефон нөмірі қажет</string>
-    <string name="phone_number_too_short">Телефон нөмірі тым қысқа</string>
-    <string name="phone_number_too_long">Телефон нөмірі тым ұзын</string>
-    <string name="country_picker_title">Елді таңдаңыз</string>
 
     <!-- Error Messages -->
     <!-- Network Errors -->
-    <string name="error_network_timeout">Күту уақыты аяқталды. Қосылымыңызды тексеріп, қайтадан көріңіз.</string>
     <string name="error_network_no_connection">Интернет қосылымы жоқ. Желіні тексеріңіз.</string>
-    <string name="error_network_host_unreachable">Серверге қосыла алмайды. Кейінірек көріңіз.</string>
-    <string name="error_network_general">Қосылым қатесі. Интернетті тексеріп, қайтадан көріңіз.</string>
 
     <!-- Authentication Errors -->
     <string name="error_auth_permission_denied">Сізде бұл әрекетті орындауға рұқсат жоқ.</string>
     <string name="error_auth_user_cancelled">Кіру болдырылмады.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
-    <string name="error_auth_user_not_found">Пайдаланушы тіркелгісі табылмады.</string>
     <string name="error_auth_unauthorized">Қол жетімділік рұқсат етілмеген. Жүйеге кіріп, қайтадан көріңіз.</string>
 
     <!-- Promo Code Errors -->
     <string name="error_promo_code_not_found">Промо код табылмады. Кодты тексеріп, қайтадан көріңіз.</string>
-    <string name="error_promo_code_expired">Бұл промо кодтың мерзімі аяқталған.</string>
-    <string name="error_promo_code_inactive">Бұл промо код енді қолжетімді емес.</string>
-    <string name="error_promo_code_invalid">Жарамсыз промо код. Тексеріп, қайтадан көріңіз.</string>
     <string name="error_promo_code_already_exists">Бұл промо код әлдеқашан бар.</string>
-    <string name="error_promo_code_already_used">Бұл промо код әлдеқашан пайдаланылған.</string>
-    <string name="error_promo_code_minimum_order_not_met">Тапсырыс бұл промо кодқа минимум талаптарға сай келмейді.</string>
 
     <!-- User Errors -->
     <string name="error_user_not_found">Пайдаланушы тіркелгісі табылмады.</string>
-    <string name="error_user_banned">Тіркелгі уақытша бұғатталған.</string>
-    <string name="error_user_suspended">Тіркелгі уақытша тоқтатылған.</string>
 
     <!-- Service Errors -->
     <string name="error_service_not_found">Қызмет табылмады. Қайтадан көріңіз.</string>
     <string name="error_service_unavailable">Қызмет уақытша қолжетімді емес.</string>
 
     <!-- Validation Errors -->
-    <string name="error_validation_required_field">Барлық міндетті өрістерді толтырыңыз.</string>
     <string name="error_validation_invalid_format">Жарамсыз пішім. Енгізгеніңізді тексеріңіз.</string>
-    <string name="error_validation_too_short">Енгізу тым қысқа. Көбірек таңба енгізіңіз.</string>
-    <string name="error_validation_too_long">Енгізу тым ұзын. Азырақ таңба енгізіңіз.</string>
 
     <!-- System Errors -->
-    <string name="error_service_unavailable_general">Қызмет уақытша қолжетімді емес. Қайтадан көріңіз.</string>
-    <string name="error_service_configuration_error">Жүйе конфигурациясы қатесі. Қайтадан көріңіз.</string>
-    <string name="error_service_initialization_error">Жүйе іске қосылуда. Сәл күтіп, қайтадан көріңіз.</string>
 
     <!-- General Error -->
     <string name="error_unknown">Бірдеңе дұрыс болмады. Қайтадан көріңіз.</string>
 
     <!-- Error Actions -->
     <string name="action_retry">Қайталау</string>
-    <string name="action_sign_in">Кіру</string>
-    <string name="action_check_network">Желіні тексеру</string>
-    <string name="action_contact_support">Қолдау қызметіне хабарласу</string>
-    <string name="action_dismiss">Жабу</string>
 </resources>
