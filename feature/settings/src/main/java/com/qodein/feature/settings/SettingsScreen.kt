@@ -48,7 +48,8 @@ import com.qodein.shared.common.AppConstants
 
 @Composable
 fun SettingsRoute(
-    onBackClick: () -> Unit = {},
+    onBackClick: () -> Unit,
+    onNavigateToLicenses: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Settings")
@@ -58,6 +59,7 @@ fun SettingsRoute(
     SettingsScreen(
         onAction = viewModel::onAction,
         onBackClick = onBackClick,
+        onNavigateToLicenses = onNavigateToLicenses,
         uiState = uiState,
     )
 }
@@ -67,6 +69,7 @@ fun SettingsRoute(
 private fun SettingsScreen(
     onAction: (SettingsAction) -> Unit,
     onBackClick: () -> Unit,
+    onNavigateToLicenses: () -> Unit,
     uiState: SettingsUiState
 ) {
     val context = LocalContext.current
@@ -139,7 +142,7 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_open_source_licences_title),
                 leadingIcon = QodeCategoryIcons.Certification,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {},
+                onClick = onNavigateToLicenses,
             )
 
             HorizontalDivider()
@@ -241,6 +244,7 @@ private fun SettingsContentPreview() {
         SettingsScreen(
             onAction = {},
             onBackClick = {},
+            onNavigateToLicenses = {},
             uiState = SettingsUiState(),
         )
     }

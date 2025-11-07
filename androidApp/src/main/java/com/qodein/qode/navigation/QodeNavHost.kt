@@ -17,6 +17,7 @@ import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
+import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
@@ -104,6 +105,9 @@ fun QodeNavHost(
         settingsSection(
             onBackClick = {
                 navController.popBackStack()
+            },
+            onNavigateToLicenses = {
+                navController.navigateToLicenses()
             },
         )
 

@@ -21,7 +21,7 @@ appcompat = "1.7.1"
 startup = "1.2.0"
 
 
-composeBom = "2025.10.00"
+composeBom = "2025.11.00"
 material = "1.13.0"
 
 
@@ -31,28 +31,28 @@ kotlinxSerializationJson = "1.9.0"
 
 hilt = "2.57.2"
 hiltNavigationCompose = "1.3.0"
-koin = "4.0.1"
+koin = "4.1.1"
 
 
-firebaseBom = "34.4.0"
+firebaseBom = "34.5.0"
 googleServices = "4.4.4"
 
 
 retrofit = "3.0.0"
-okhttp = "5.2.1"
+okhttp = "5.3.0"
 ktor = "3.0.2"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
 
 
-room = "2.8.2"
+room = "2.8.3"
 datastore = "1.1.7"
-workManager = "2.10.0"
+workManager = "2.11.0"
 
 
 coil = "2.7.0"
 palette = "1.0.0"
-exifinterface = "1.3.7"
+exifinterface = "1.4.1"
 
 
 googleSignin = "21.4.0"
@@ -64,7 +64,7 @@ googleid = "1.1.1"
 composeIcons = "1.1.1"
 browser = "1.9.0"
 haze = "1.6.10"
-multiplatformMarkdown = "0.28.0"
+multiplatformMarkdown = "0.38.1"
 
 
 kermit = "2.0.8"
@@ -73,6 +73,7 @@ timber = "5.0.1"
 
 spotless = "8.0.0"
 detekt = "1.23.8"
+aboutlibraries = "13.1.0"
 
 
 junit = "4.13.2"
@@ -87,7 +88,7 @@ leakcanary = "2.14"
 kotlinTest = "2.2.0"
 runner = "1.7.0"
 core = "1.7.0"
-animationCore = "1.9.3"
+animationCore = "1.9.4"
 
 [libraries]
 
@@ -175,6 +176,9 @@ haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 
 compose-markdown = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdown" }
+
+aboutlibraries-core = { group = "com.mikepenz", name = "aboutlibraries-core", version.ref = "aboutlibraries" }
+aboutlibraries-compose-m3 = { group = "com.mikepenz", name = "aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 compose-icons-feather = { group = "br.com.devsrsouza.compose.icons", name = "feather", version.ref = "composeIcons" }
 compose-icons-tabler = { group = "br.com.devsrsouza.compose.icons", name = "tabler-icons", version.ref = "composeIcons" }
@@ -324,6 +328,11 @@ work = [
     "work-hilt"
 ]
 
+aboutlibraries = [
+    "aboutlibraries-core",
+    "aboutlibraries-compose-m3"
+]
+
 
 testing-unit = [
     "junit",
@@ -379,5 +388,6 @@ google-services = { id = "com.google.gms.google-services", version.ref = "google
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
