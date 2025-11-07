@@ -26,6 +26,12 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    defaultConfig {
+        buildConfigField("String", "VERSION_NAME", "\"${libs.versions.versionName.get()}\"")
+        buildConfigField("int", "VERSION_CODE", libs.versions.versionCode.get())
     }
 }
 
