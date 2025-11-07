@@ -6,7 +6,7 @@ import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.Flow
 
-class SignInWithGoogleUseCase constructor(private val authRepository: AuthRepository) {
-
+// TODO: Make it suspend
+class SignInWithGoogleUseCase(private val authRepository: AuthRepository) {
     operator fun invoke(): Flow<Result<User, OperationError>> = authRepository.signInWithGoogle()
 }

@@ -18,8 +18,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Production implementation of ServiceSearchManager.
@@ -30,8 +28,7 @@ import javax.inject.Singleton
  * Uses 300ms debouncing as per existing codebase standards.
  */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-@Singleton
-class ServiceSearchManagerImpl @Inject constructor(
+class ServiceSearchManagerImpl constructor(
     private val searchServicesUseCase: SearchServicesUseCase,
     private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val serviceCache: ServiceCache

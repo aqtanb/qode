@@ -3,8 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -33,30 +31,21 @@ kotlin {
 }
 
 dependencies {
-    // Shared multiplatform module
     implementation(projects.shared)
-
-    // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.data)
     implementation(projects.core.analytics)
 
-    // Core Android & Compose
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
+    implementation(libs.bundles.koin)
+    implementation(libs.compose.markdown)
 
-    // Dependency Injection
-    implementation(libs.bundles.hilt)
-    ksp(libs.hilt.compiler)
-
-    // Testing
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)
-
-    // Debug Tools
     debugImplementation(libs.bundles.debug)
 }

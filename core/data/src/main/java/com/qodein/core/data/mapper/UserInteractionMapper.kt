@@ -6,7 +6,6 @@ import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
-import javax.inject.Inject
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
 
@@ -14,7 +13,7 @@ import kotlin.time.toKotlinInstant
  * Mapper between UserInteraction domain model and UserInteractionDto data model.
  * Handles conversion between Kotlin types and Firestore-compatible types.
  */
-class UserInteractionMapper @Inject constructor() {
+class UserInteractionMapper constructor() {
 
     /**
      * Convert domain model to DTO for Firestore storage

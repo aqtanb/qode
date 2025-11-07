@@ -13,19 +13,15 @@ import com.qodein.shared.model.PostSortBy
 import com.qodein.shared.model.Tag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Implementation of PostRepository using Firestore as the data source.
  * DataSource already returns Result, so repository simply wraps in Flow.
  * Orchestrates multiple data sources for complex operations.
  */
-@Singleton
-class PostRepositoryImpl @Inject constructor(
-    private val dataSource: FirestorePostDataSource,
-    private val userDataSource: FirestoreUserDataSource
-) : PostRepository {
+
+class PostRepositoryImpl constructor(private val dataSource: FirestorePostDataSource, private val userDataSource: FirestoreUserDataSource) :
+    PostRepository {
 
     override suspend fun createPost(post: Post): Result<Post, OperationError> {
         val result = dataSource.createPost(post)

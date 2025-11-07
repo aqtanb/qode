@@ -1,93 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Wizard Screen -->
-    <string name="wizard_loading">Настройка мастера…</string>
 
     <!-- Error Messages -->
-    <string name="error_something_went_wrong">Что-то пошло не так</string>
-    <string name="error_unexpected">Произошла неожиданная ошибка</string>
 
     <!-- Actions -->
     <string name="action_back">Назад</string>
-    <string name="action_try_again">Попробовать снова</string>
     <string name="action_submit">Отправить</string>
     <string name="action_continue">Продолжить</string>
 
     <!-- Wizard Steps -->
-    <string name="wizard_step_service_type">Сервис и тип</string>
-    <string name="wizard_step_details">Детали промо-кода</string>
-    <string name="wizard_step_dates">Настройки даты</string>
-    <string name="wizard_step_optional">Дополнительные детали</string>
 
     <!-- Progress -->
-    <string name="wizard_step_progress">Шаг %1$d из %2$d</string>
 
     <!-- Promocode Detail Screen -->
-    <string name="promocode_details">Детали промо-кода</string>
-    <string name="loading_promocode_details">Загрузка деталей промо-кода…</string>
-    <string name="failed_to_load_promocode">Не удалось загрузить детали промо-кода. Попробуйте снова.</string>
 
     <!-- Service Info Section -->
-    <string name="service_provider">Поставщик услуг</string>
-    <string name="category">Категория</string>
-    <string name="available_in">Доступно в</string>
-    <string name="verified_promocode">Проверенный промо-код</string>
-    <string name="follow_service">Подписаться на сервис</string>
-    <string name="unfollow_service">Отписаться от сервиса</string>
-    <string name="follow_category">Подписаться на категорию</string>
-    <string name="unfollow_category">Отписаться от категории</string>
 
     <!-- Statistics Section -->
-    <string name="statistics">Статистика</string>
-    <string name="views">Просмотры</string>
-    <string name="score">Рейтинг</string>
-    <string name="upvotes">Положительные</string>
-    <string name="downvotes">Отрицательные</string>
-    <string name="shares">Поделились</string>
 
     <!-- Details Section -->
-    <string name="minimum_order">Минимальный заказ</string>
-    <string name="valid_from">Действителен с</string>
-    <string name="valid_until">Действителен до</string>
-    <string name="availability">Доступность</string>
-    <string name="first_time_users_only">Только для новых пользователей</string>
-    <string name="created">Создан</string>
 
     <!-- Status Messages -->
-    <string name="promocode_expired">Этот промо-код истёк</string>
-    <string name="promocode_not_active">Этот промо-код ещё не активен</string>
-    <string name="promocode_expires_soon">Срок действия промо-кода скоро истекает</string>
-    <string name="promocode_active">Этот промо-код активен</string>
 
     <!-- Actions -->
-    <string name="copy_promo_code">Скопировать промо-код</string>
-    <string name="upvote">Положительный голос</string>
-    <string name="downvote">Отрицательный голос</string>
-    <string name="share_promocode">Поделиться промо-кодом</string>
-    <string name="comments">Комментарии</string>
-    <string name="bookmark">Закладка</string>
-    <string name="remove_bookmark">Удалить закладку</string>
-    <string name="add_bookmark">Добавить закладку</string>
 
     <!-- Feedback Messages -->
-    <string name="code_copied_to_clipboard">Код скопирован в буфер обмена!</string>
-    <string name="bookmarked">Добавлено в закладки!</string>
-    <string name="bookmark_removed">Закладка удалена</string>
-    <string name="thanks_for_upvote">Спасибо за положительный голос!</string>
-    <string name="thanks_for_feedback">Спасибо за отзыв!</string>
-    <string name="failed_to_vote">Не удалось проголосовать. Попробуйте снова.</string>
-    <string name="voting_failed_connection">Голосование не удалось. Проверьте подключение.</string>
 
     <!-- TODO Messages -->
-    <string name="follow_service_todo">ПЛАНЫ: Подписка на %1$s скоро появится!</string>
-    <string name="follow_category_todo">ПЛАНЫ: Подписка на категорию %1$s скоро появится!</string>
 
     <!-- Community Rating -->
-    <string name="community_rating">Рейтинг сообщества</string>
 
     <!-- Share Template -->
-    <string name="share_template_title">Отличное предложение: %1$s</string>
-    <string name="share_via_qode">Поделились через приложение Qode</string>
 
     <!-- Filter Components -->
     <string name="filter_chip_category">Категория</string>

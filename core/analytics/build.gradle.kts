@@ -2,8 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -32,25 +30,14 @@ kotlin {
 }
 
 dependencies {
-    // Firebase Analytics
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-
-    // Hilt DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
-    // Compose for CompositionLocal
+    implementation(libs.bundles.koin)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
-
-    // Logging
     implementation(libs.kermit)
-
-    // Core Android
     implementation(libs.androidx.core.ktx)
 
-    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

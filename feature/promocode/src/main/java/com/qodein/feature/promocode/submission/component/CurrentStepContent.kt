@@ -42,6 +42,7 @@ import com.qodein.feature.promocode.submission.component.steps.ServiceStepConten
 import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
 import com.qodein.feature.promocode.submission.validation.getPromoCodeValidationError
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 
 // Simple UI validation states for field feedback
 private enum class FieldValidationState {
@@ -497,8 +498,8 @@ private fun DescriptionStepContent(
 
 @Composable
 private fun StartDateStepContent(
-    startDate: java.time.LocalDate,
-    onDateSelected: (java.time.LocalDate) -> Unit
+    startDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit
 ) {
     DateSelector(
         label = "Start Date",
@@ -511,8 +512,8 @@ private fun StartDateStepContent(
 
 @Composable
 private fun EndDateStepContent(
-    endDate: java.time.LocalDate?,
-    onDateSelected: (java.time.LocalDate?) -> Unit
+    endDate: LocalDate?,
+    onDateSelected: (LocalDate?) -> Unit
 ) {
     DateSelector(
         label = "End Date",

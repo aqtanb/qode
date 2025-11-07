@@ -5,6 +5,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
+import com.qodein.shared.model.VoteState
 
 /**
  * Repository interface for unified user interactions (votes + bookmarks).
@@ -51,7 +52,7 @@ interface UnifiedUserInteractionRepository {
         itemId: String,
         itemType: ContentType,
         userId: UserId,
-        newVoteState: com.qodein.shared.model.VoteState
+        newVoteState: VoteState
     ): Result<UserInteraction, OperationError>
 
     /**

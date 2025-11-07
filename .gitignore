@@ -16,6 +16,9 @@ gen/
 out/
 release/
 
+# AboutLibraries generated files
+**/res/raw/aboutlibraries.json
+
 # Gradle files
 .gradle/
 build/

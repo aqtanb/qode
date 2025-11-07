@@ -10,4 +10,7 @@
     
     <!-- Language Settings -->
     <string name="settings_language_title">Язык</string>
+    <string name="language_english">Английский</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_kazakh">Казахский</string>
 </resources>

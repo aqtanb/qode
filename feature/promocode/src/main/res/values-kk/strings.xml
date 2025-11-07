@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Wizard Screen -->
-    <string name="wizard_loading">Сиқыршыңыз орнатылуда…</string>
 
     <!-- Error Messages -->
-    <string name="error_something_went_wrong">Бірдеңе дұрыс болмады</string>
-    <string name="error_unexpected">Күтпеген қате орын алды</string>
 
     <!-- Actions -->
     <string name="action_back">Артқа</string>
-    <string name="action_try_again">Қайтадан байқап көру</string>
     <string name="action_submit">Жіберу</string>
     <string name="action_continue">Жалғастыру</string>
 
     <!-- Wizard Steps -->
-    <string name="wizard_step_service_type">Қызмет және түрі</string>
-    <string name="wizard_step_details">Промо мәліметтері</string>
-    <string name="wizard_step_dates">Күн параметрлері</string>
-    <string name="wizard_step_optional">Қосымша мәліметтер</string>
 
     <!-- Progress -->
-    <string name="wizard_step_progress">%2$d-дан %1$d қадам</string>
 </resources>

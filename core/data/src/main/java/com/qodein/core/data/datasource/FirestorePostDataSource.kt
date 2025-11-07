@@ -21,11 +21,8 @@ import com.qodein.shared.model.PostSortBy
 import com.qodein.shared.model.Tag
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirestorePostDataSource @Inject constructor(
+class FirestorePostDataSource constructor(
     private val firestore: FirebaseFirestore
     // TODO: add caching
 ) {

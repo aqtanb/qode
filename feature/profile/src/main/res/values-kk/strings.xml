@@ -1,31 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Profile Screen -->
-    <string name="profile_screen_title">Профиль</string>
     <string name="profile_sign_out_button">Шығу</string>
-    <string name="profile_error_title">Бірдеңе дұрыс болмады</string>
-    <string name="profile_retry_button">Қайталау</string>
     <string name="profile_loading_description">Профиль жүктелуде</string>
     <string name="profile_error_unknown">Белгісіз қате</string>
-    
+
     <!-- Profile Header -->
     <string name="profile_picture_description">Профиль суреті</string>
     <string name="edit_profile_button">Профильді өңдеу</string>
-    <string name="profile_username_format">\@%1$s</string>
     <string name="profile_full_name_format">%1$s %2$s</string>
-    
+
     <!-- Profile Stats -->
     <string name="profile_stats_title">Сіздің статистикаңыз</string>
-    <string name="profile_comments_label">Пікірлер</string>
     <string name="profile_promocodes_label">Промокодтар</string>
     <string name="profile_upvotes_label">Қолдау дауыстары</string>
     <string name="profile_downvotes_label">Қарсы дауыстар</string>
-    <string name="profile_achievements_label">Жетістіктер</string>
-    
+
     <!-- Profile Activity -->
     <string name="profile_activity_title">Соңғы белсенділік</string>
     <string name="profile_achievements_title">Жетістіктер</string>
-    <string name="profile_achievements_empty">Әлі жетістіктер жоқ. Алғашқы белгіңізді алу үшін зерттеуді бастаңыз!</string>
     <string name="profile_user_journey_title">Сіздің саяхатыңыз</string>
-    <string name="profile_user_journey_empty">Сіздің серуеніңіз осында басталады. Промокодтарды жіберіңіз және қауымдастықпен айналысыңыз!</string>
 </resources>

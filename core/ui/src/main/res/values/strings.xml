@@ -1,120 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Phone Input Component -->
-    <string name="phone_input_label">Phone Number</string>
-    <string name="phone_input_placeholder">Enter phone number</string>
-    <string name="phone_input_too_short">Phone number too short</string>
-    <string name="phone_input_too_long">Phone number too long</string>
-    <string name="phone_input_required">Phone number is required</string>
-    <string name="phone_input_validating">Validating…</string>
-    <string name="phone_input_valid">Valid number</string>
-    <string name="phone_number_invalid_format">Please enter a valid phone number</string>
 
     <!-- Country Picker -->
-    <string name="select_country">Select Country</string>
-    <string name="search_countries">Search countries</string>
-    <string name="no_countries_found">No countries found</string>
-    <string name="country_selected">Country selected</string>
 
     <!-- Navigation -->
-    <string name="navigate_back">Navigate back</string>
     <string name="close">Close</string>
     <string name="cd_close">Close button</string>
-    <string name="clear_search">Clear search</string>
-    <string name="clear_phone_number">Clear phone number</string>
 
     <!-- Social Sign-In Components -->
     <string name="continue_with_google">Continue with Google</string>
 
     <!-- Error Handling -->
     <string name="error_default_title">Something went wrong</string>
-    <string name="error_retry_button">Try again</string>
 
     <!-- Coming Soon Dialog -->
     <string name="coming_soon_title">We\'re working on this feature</string>
     <string name="coming_soon_description">You can link with us and watch our progression in the Telegram channel.</string>
     <string name="coming_soon_telegram_button">Follow on Telegram</string>
-    <string name="coming_soon_dialog_description">Coming soon dialog for new features</string>
 
 
     <!-- Accessibility -->
-    <string name="phone_input_content_desc">Phone number input field</string>
-    <string name="phone_input_flag_content_desc">Country flag for %s</string>
-    <string name="phone_input_dropdown_content_desc">Open country picker</string>
-    <string name="phone_input_error_content_desc">Phone number error</string>
-    <string name="phone_input_success_content_desc">Phone number valid</string>
 
     <!-- Common Input States -->
-    <string name="field_required">This field is required</string>
-    <string name="field_invalid">Invalid input</string>
-    <string name="field_success">Valid input</string>
 
     <!-- Service Selection -->
-    <string name="service_name_label">Service name</string>
-    <string name="service_name_placeholder">Enter service name…</string>
-    <string name="cant_find_service_hint">Can\'t find it? </string>
-    <string name="type_manually_action">Type manually</string>
-    <string name="browse_services_action">Browse services instead</string>
 
     <!-- Promo Code Card Strings -->
-    <string name="promo_code_label">PROMO CODE</string>
     <string name="copy_code">Copy code</string>
-    <string name="upvotes">Upvotes</string>
-    <string name="downvotes">Downvotes</string>
-    <string name="updated_format">Updated %s</string>
-    <string name="percentage_discount">%d%%</string>
-    <string name="fixed_amount_discount">%d₸</string>
-    <string name="promo_type">PROMO</string>
-    <string name="percentage_off_order">%d%% off from %d₸</string>
-    <string name="amount_off_order">%d₸ off from %d₸</string>
 
     <!-- Home Screen Strings -->
-    <string name="home_welcome_title">Discover Amazing Deals</string>
-    <string name="home_welcome_subtitle">Save money with the best promo codes from top brands</string>
-    <string name="home_section_title">Trending Offers</string>
-    <string name="home_section_subtitle">Most popular promo codes today</string>
-    <string name="home_trending_badge">TRENDING NOW</string>
-    <string name="home_browse_categories">Browse Categories</string>
-    <string name="home_featured_deals">Featured Deals</string>
-    <string name="home_featured_subtitle">Hand-picked exclusive offers just for you</string>
 
     <!-- Stats Section -->
-    <string name="stats_active_deals">500+</string>
-    <string name="stats_active_deals_label">Active Deals</string>
-    <string name="stats_happy_users">50K+</string>
-    <string name="stats_happy_users_label">Happy Users</string>
-    <string name="stats_total_saved">₸2M+</string>
-    <string name="stats_total_saved_label">Total Saved</string>
 
     <!-- Filter Categories -->
-    <string name="filter_kaspi" translatable="false">Kaspi</string>
-    <string name="filter_top_rated">Top Rated</string>
-    <string name="filter_latest">Latest</string>
-    <string name="filter_food">Food</string>
-    <string name="filter_fashion">Fashion</string>
-    <string name="filter_tech">Tech</string>
 
     <!-- Legacy strings that might be used elsewhere -->
-    <string name="phone_number">Phone Number</string>
-    <string name="enter_phone_number">Enter your phone number</string>
-    <string name="invalid_phone_number">Invalid phone number</string>
-    <string name="phone_number_required">Phone number is required</string>
-    <string name="phone_number_too_short">Phone number is too short</string>
-    <string name="phone_number_too_long">Phone number is too long</string>
-    <string name="country_picker_title">Choose a country</string>
 
     <!-- Error Messages -->
     <!-- Network Errors -->
-    <string name="error_network_timeout">Request timed out. Please check your connection and try again.</string>
     <string name="error_network_no_connection">No internet connection. Please check your network.</string>
-    <string name="error_network_host_unreachable">Cannot reach server. Please try again later.</string>
-    <string name="error_network_general">Connection error. Please check your internet and try again.</string>
 
     <!-- Authentication Errors -->
     <string name="error_auth_permission_denied">You don\'t have permission to perform this action.</string>
     <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
     <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
-    <string name="error_auth_user_not_found">User account not found.</string>
     <string name="error_auth_unauthorized">Access denied. Please sign in and try again.</string>
     <string name="error_auth_service_unavailable">Authentication service is temporarily unavailable.</string>
     <string name="error_auth_too_many_attempts">Too many sign-in attempts. Please try again later.</string>
@@ -125,17 +55,10 @@
 
     <!-- Promo Code Errors -->
     <string name="error_promo_code_not_found">Promo code not found. Please check the code and try again.</string>
-    <string name="error_promo_code_expired">This promo code has expired.</string>
-    <string name="error_promo_code_inactive">This promo code is no longer available.</string>
-    <string name="error_promo_code_invalid">Invalid promo code. Please check and try again.</string>
     <string name="error_promo_code_already_exists">This promo code already exists.</string>
-    <string name="error_promo_code_already_used">This promo code has already been used.</string>
-    <string name="error_promo_code_minimum_order_not_met">Order doesn\'t meet minimum requirements for this promo code.</string>
 
     <!-- User Errors -->
     <string name="error_user_not_found">User account not found.</string>
-    <string name="error_user_banned">Account is temporarily suspended.</string>
-    <string name="error_user_suspended">Account is temporarily suspended.</string>
 
     <!-- Service Errors -->
     <string name="error_service_not_found">Service not found. Please try again.</string>
@@ -148,15 +71,9 @@
     <string name="error_service_cache_expired">Service data is outdated. Please refresh and try again.</string>
 
     <!-- Validation Errors -->
-    <string name="error_validation_required_field">Please fill in all required fields.</string>
     <string name="error_validation_invalid_format">Invalid format. Please check your input.</string>
-    <string name="error_validation_too_short">Input is too short. Please enter more characters.</string>
-    <string name="error_validation_too_long">Input is too long. Please enter fewer characters.</string>
 
     <!-- System Errors -->
-    <string name="error_service_unavailable_general">Service temporarily unavailable. Please try again.</string>
-    <string name="error_service_configuration_error">System configuration error. Please try again.</string>
-    <string name="error_service_initialization_error">System is starting up. Please wait a moment and try again.</string>
 
     <!-- Interaction Errors -->
     <string name="error_interaction_already_voted">You have already voted on this content.</string>
@@ -199,23 +116,17 @@
 
     <!-- Error Actions -->
     <string name="action_retry">Retry</string>
-    <string name="action_sign_in">Sign In</string>
-    <string name="action_check_network">Check Network</string>
-    <string name="action_contact_support">Contact Support</string>
-    <string name="action_dismiss">Dismiss</string>
     <string name="action_close">Close</string>
 
     <!-- Filter Components -->
     <string name="filter_category_title">Filter by Category</string>
     <string name="filter_category_all">All Categories</string>
-    <string name="filter_service_title">Filter by Service</string>
     <string name="filter_sort_title">Sort Options</string>
     <string name="filter_tag_title">Filter by Tags</string>
     <string name="filter_tag_all">All Tags</string>
 
     <!-- Service Selector -->
     <string name="select_service_title">Select Service</string>
-    <string name="search_services_title">Search Services</string>
     <string name="search_services_label">Search services</string>
     <string name="search_services_placeholder">Search services...</string>
     <string name="popular_services_title">Popular Services</string>
@@ -261,14 +172,10 @@
     <string name="step_promo_code_short">Code</string>
     <string name="step_discount_value_title">Discount Value</string>
     <string name="step_discount_value_short">Value</string>
-    <string name="step_options_title">Options</string>
-    <string name="step_options_short">Options</string>
     <string name="step_start_date_title">Start Date</string>
     <string name="step_start_date_short">Start</string>
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
-    <string name="sign_in_to_upvote_the_post">Sign in to upvote the post</string>
-    <string name="help_the_community_by_upvoting_this_post">Help the community by upvoting this post.</string>
 </resources>

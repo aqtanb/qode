@@ -34,9 +34,4 @@ interface DevicePreferencesRepository {
      * Updates the language preference.
      */
     suspend fun setLanguage(language: Language): Result<Unit, OperationError>
-
-    /**
-     * Clears all device preferences.
-     */
-    suspend fun clearPreferences(): Result<Unit, OperationError>
 }

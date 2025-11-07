@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,35 +21,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeinElevatedCard
+import com.qodein.core.designsystem.component.QodeinIconButton
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.QodeGoogleSignInButton
+import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.auth.component.AuthTopAppBar
+import com.qodein.feature.auth.component.LegalDocumentBottomSheet
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.DocumentType
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthRoute(
     isDarkTheme: Boolean,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Auth")
 
-    val uiState by viewModel.authState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val legalDocumentState by viewModel.legalDocumentState.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
@@ -59,9 +65,10 @@ fun AuthRoute(
     }
 
     AuthScreen(
-        onBackClick = onNavigateToHome,
-        state = uiState,
         onAction = viewModel::handleAction,
+        onBackClick = onNavigateToHome,
+        authState = authState,
+        legalDocumentState = legalDocumentState,
         isDarkTheme = isDarkTheme,
         modifier = modifier,
     )
@@ -70,8 +77,9 @@ fun AuthRoute(
 @Composable
 private fun AuthScreen(
     onBackClick: () -> Unit,
-    state: AuthUiState,
     onAction: (AuthAction) -> Unit,
+    authState: AuthUiState,
+    legalDocumentState: LegalDocumentUiState,
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -95,79 +103,33 @@ private fun AuthScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            when (state) {
-                is AuthUiState.Idle -> {
-                    AuthIdleState(
-                        onAction = onAction,
-                        isDarkTheme = isDarkTheme,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+            AuthSignInCard(
+                onAction = onAction,
+                isDarkTheme = isDarkTheme,
+                isLoading = authState.isSigningIn,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-                is AuthUiState.Loading -> {
-                    AuthLoadingState(
-                        onAction = onAction,
-                        isDarkTheme = isDarkTheme,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                is AuthUiState.Error -> {
-                    AuthErrorState(
-                        error = state.errorType,
-                        onAction = onAction,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+            if (authState.error != null) {
+                AuthErrorMessage(
+                    error = authState.error,
+                    onDismiss = { onAction(AuthAction.AuthErrorDismissed) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SpacingTokens.md),
+                )
             }
         }
+
+        LegalDocumentBottomSheet(
+            onDismiss = { onAction(AuthAction.LegalDocumentDismissed) },
+            onRetry = { documentType -> onAction(AuthAction.LegalDocumentRetryClicked(documentType)) },
+            state = legalDocumentState,
+        )
     }
 }
 
-// MARK: - State Composables
-
-@Composable
-private fun AuthIdleState(
-    onAction: (AuthAction) -> Unit,
-    isDarkTheme: Boolean,
-    modifier: Modifier = Modifier
-) {
-    AuthSignInCard(
-        onAction = onAction,
-        isDarkTheme = isDarkTheme,
-        isLoading = false,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun AuthLoadingState(
-    onAction: (AuthAction) -> Unit,
-    isDarkTheme: Boolean,
-    modifier: Modifier = Modifier
-) {
-    AuthSignInCard(
-        onAction = onAction,
-        isDarkTheme = isDarkTheme,
-        isLoading = true,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun AuthErrorState(
-    error: OperationError,
-    onAction: (AuthAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    QodeErrorCard(
-        error = error,
-        onRetry = { onAction(AuthAction.AuthRetryClicked) },
-        onDismiss = { onAction(AuthAction.AuthErrorDismissed) },
-        modifier = modifier,
-    )
-}
-
+// MARK: - Components
 @Composable
 private fun AuthSignInCard(
     onAction: (AuthAction) -> Unit,
@@ -262,6 +224,44 @@ private fun AuthSignInCard(
     }
 }
 
+@Composable
+private fun AuthErrorMessage(
+    error: OperationError,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    QodeinElevatedCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingTokens.sm),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = error.asUiText(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.weight(1f),
+            )
+
+            QodeinIconButton(
+                onClick = onDismiss,
+                icon = QodeActionIcons.Close,
+                contentDescription = stringResource(R.string.cd_close),
+                size = ButtonSize.Small,
+            )
+        }
+    }
+}
+
 // MARK: - Previews
 
 @ThemePreviews
@@ -270,7 +270,8 @@ private fun AuthIdleStatePreview() {
     QodeTheme {
         AuthScreen(
             onBackClick = {},
-            state = AuthUiState.Idle,
+            authState = AuthUiState(),
+            legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
             isDarkTheme = false,
         )
@@ -283,7 +284,8 @@ private fun AuthLoadingStatePreview() {
     QodeTheme {
         AuthScreen(
             onBackClick = {},
-            state = AuthUiState.Loading,
+            authState = AuthUiState(isSigningIn = true),
+            legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
             isDarkTheme = false,
         )
@@ -296,9 +298,8 @@ private fun AuthErrorStatePreview() {
     QodeTheme {
         AuthScreen(
             onBackClick = {},
-            state = AuthUiState.Error(
-                errorType = SystemError.Offline,
-            ),
+            authState = AuthUiState(error = SystemError.Offline),
+            legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
             isDarkTheme = false,
         )

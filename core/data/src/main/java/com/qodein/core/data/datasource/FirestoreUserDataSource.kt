@@ -5,17 +5,16 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.qodein.core.data.mapper.UserMapper
+import com.qodein.core.data.model.UserDto
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirestoreUserDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestoreUserDataSource constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val TAG = "FirestoreUserDS"
         private const val USERS_COLLECTION = "users"
@@ -103,12 +102,12 @@ class FirestoreUserDataSource @Inject constructor(private val firestore: Firebas
                 Logger.w(TAG) { "User not found in Firestore: $userId" }
                 Result.Error(SystemError.Unknown)
             } else {
-                val userDto = snapshot.toObject(com.qodein.core.data.model.UserDto::class.java)
+                val userDto = snapshot.toObject(UserDto::class.java)
                 if (userDto == null) {
                     Logger.e(TAG) { "Failed to parse user document: $userId" }
                     Result.Error(SystemError.Unknown)
                 } else {
-                    val user = UserMapper.toDomain(userDto, com.qodein.shared.model.UserId(userId))
+                    val user = UserMapper.toDomain(userDto, UserId(userId))
                     Logger.i(TAG) { "Fetched user from Firestore: $userId" }
                     Result.Success(user)
                 }

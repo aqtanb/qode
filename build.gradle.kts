@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
 }
@@ -65,13 +66,16 @@ subprojects {
             sourceFiles.forEach { file ->
                 val lines = file.readLines()
                 lines.forEachIndexed { index, line ->
-                    // Skip import statements and comments
+                    // Skip import statements, comments, and string literals
                     if (!line.trimStart().startsWith("import ") &&
                         !line.trimStart().startsWith("//") &&
                         !line.trimStart().startsWith("*") &&
                         !line.contains("@file:")) {
 
-                        fullyQualifiedPattern.findAll(line).forEach { match ->
+                        // Remove string literals from the line before checking
+                        val lineWithoutStrings = line.replace(Regex("\"[^\"]*\""), "")
+
+                        fullyQualifiedPattern.findAll(lineWithoutStrings).forEach { match ->
                             println("ERROR: Fully qualified class name found in ${file.relativeTo(rootDir)}:${index + 1}")
                             println("   Line: ${line.trim()}")
                             println("   Found: ${match.value}")

@@ -3,50 +3,16 @@
     <string name="feature_home_title">Үй</string>
 
     <!-- Home Screen Strings -->
-    <string name="home_welcome_title">Таңғажайып келісімдерді ашыңыз</string>
-    <string name="home_welcome_subtitle">Үздік брендтерден ең жақсы жарнамалық кодтармен ақша үнемдеңіз</string>
-    <string name="home_section_title">Тринг ұсыныстары</string>
-    <string name="home_section_subtitle">Бүгін ең танымал промо-кодтар</string>
-    
+
     <!-- Dynamic Section Titles -->
-    <string name="home_section_title_popularity">Тринг ұсыныстары</string>
-    <string name="home_section_title_newest">Жаңа ұсыныстар</string>
-    <string name="home_section_title_oldest">Ескі ұсыныстар</string>
-    <string name="home_section_title_expiring">Мерзімі аяқталатын ұсыныстар</string>
-    <string name="home_section_title_alphabetical">Барлық ұсыныстар</string>
-    <string name="home_quick_filters">Жылдам сүзгілер</string>
-    <string name="home_trending_badge">Қазір трейдер</string>
-    <string name="home_featured_deals">Таңдаулы мәмілелер</string>
-    <string name="home_featured_subtitle">Тек сіз үшін қолмен таңдалған эксклюзивті ұсыныстар</string>
 
     <!-- Banner Carousel -->
-    <string name="banner_featured_title">Таңдаулы мәміле</string>
-    <string name="banner_up_to">Дейін</string>
-    <string name="banner_off">Ажыратылған</string>
-    <string name="banner_claim_now">Қазір талап</string>
-    <string name="banner_limited_time">Шектеулі уақыт</string>
-    <string name="banner_country_picker_title">Сіздің еліңіз</string>
-    <string name="banner_default_description">Ерекше мәмілелер және сыйлықақы ұсыныстары</string>
-    <string name="banner_explore_deals">Мәмілелерді зерттеңіз</string>
-    <string name="banner_loading_fallback">Сіздерге таңғажайып келісімдерді жүктеудеміз …</string>
 
     <!-- Stats Section -->
-    <string name="stats_active_deals">500+</string>
-    <string name="stats_active_deals_label">Белсенді мәмілелер</string>
-    <string name="stats_happy_users">50K +</string>
-    <string name="stats_happy_users_label">Бақытты пайдаланушылар</string>
-    <string name="stats_total_saved">₸ 2M +</string>
-    <string name="stats_total_saved_label">Барлығы сақталды</string>
 
     <!-- Filter Categories -->
-    <string name="filter_top_rated">Жоғары бағаланған</string>
-    <string name="filter_latest">Ең соңғы</string>
-    <string name="filter_food">Ас</string>
-    <string name="filter_fashion">Мода</string>
-    <string name="filter_tech">Аспап</string>
 
     <!-- Error Messages -->
-    <string name="error_something_went_wrong">Бірдеңе дұрыс болмады</string>
     <string name="error_retry">Қайтадан байқап көріңіз</string>
     <string name="error_image_not_available">Сурет қол жетімді емес</string>
 
@@ -59,42 +25,25 @@
 
     <!-- Actions -->
     <string name="action_close">Жабу</string>
-    <string name="action_reset">Қайта орнату</string>
 
     <!-- Filter Chips -->
-    <string name="filter_chip_type">Түрі</string>
     <string name="filter_chip_category">Санат</string>
     <string name="filter_chip_service">Қызмет</string>
     <string name="filter_chip_sort">Сұрыптау</string>
 
     <!-- Filter Dialog Titles -->
-    <string name="filter_dialog_type_title">Промо-код түрі</string>
-    <string name="filter_dialog_category_title">Санат</string>
-    <string name="filter_dialog_service_title">Қызмет</string>
-    <string name="filter_dialog_sort_title">Бойынша сұрыптау</string>
 
     <!-- Filter Options - Type -->
-    <string name="filter_type_all">Барлық түрлері</string>
-    <string name="filter_type_percentage">Пайыздық жеңілдік</string>
-    <string name="filter_type_fixed_amount">Бекітілген соmá</string>
 
     <!-- Filter Options - Category -->
     <string name="filter_category_all">Барлық санаттар</string>
 
     <!-- Filter Options - Service -->
-    <string name="filter_service_all">Барлық қызметтер</string>
-    <string name="filter_search_services">Қызметтерді іздеу…</string>
 
     <!-- Filter Options - Sort -->
-    <string name="filter_sort_popularity">Ең танымал</string>
-    <string name="filter_sort_newest">Алдымен жаңа</string>
-    <string name="filter_sort_expiry_soon">Жақында аяқталады</string>
-    <string name="filter_sort_alphabetical">А-Я бренд бойынша</string>
 
     <!-- Empty State -->
     <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>
     <string name="empty_check_back_later">Кейінірек таңғажайып мәмілелер мен жеңілдіктер үшін тексеріңіз!</string>
-    <string name="empty_no_banners_title">Баннерлер жоқ</string>
-    <string name="empty_no_banners_description">Брендті жарнамалау үшін бізбен байланысуға болады</string>
 </resources>
 

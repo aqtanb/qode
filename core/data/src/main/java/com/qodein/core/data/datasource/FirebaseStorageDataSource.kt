@@ -12,15 +12,13 @@ import com.qodein.shared.model.StoragePath
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Data source for uploading files to Firebase Storage.
  * Handles image uploads with comprehensive error handling.
  */
-@Singleton
-internal class FirebaseStorageDataSource @Inject constructor(private val storage: FirebaseStorage) {
+
+internal class FirebaseStorageDataSource constructor(private val storage: FirebaseStorage) {
     companion object {
         private const val TAG = "FirebaseStorageDS"
     }

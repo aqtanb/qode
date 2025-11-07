@@ -12,8 +12,10 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Qode">
+        android:theme="@style/Theme.Qode"
+        tools:targetApi="tiramisu">
 
         <!-- Startup Initializer Configuration -->
         <provider

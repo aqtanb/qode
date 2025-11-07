@@ -10,4 +10,7 @@
     
     <!-- Language Settings -->
     <string name="settings_language_title">Тіл</string>
+    <string name="language_english">Ағылшын</string>
+    <string name="language_russian">Орыс</string>
+    <string name="language_kazakh">Қазақ</string>
 </resources>

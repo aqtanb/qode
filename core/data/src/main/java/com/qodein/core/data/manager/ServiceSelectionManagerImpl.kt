@@ -11,15 +11,13 @@ import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.ServiceId
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Pure domain implementation of service selection business logic.
  * No UI state, no flows, no lifecycle - just business rules.
  */
-@Singleton
-class ServiceSelectionManagerImpl @Inject constructor() : ServiceSelectionManager {
+
+class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
 
     override fun applyAction(
         state: ServiceSelectionState,

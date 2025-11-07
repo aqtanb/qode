@@ -15,13 +15,10 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
 
-@Singleton
-class FirestorePromocodeDataSource @Inject constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
+class FirestorePromocodeDataSource constructor(private val firestore: FirebaseFirestore, private val queryCache: QueryCache) {
     companion object {
         private const val TAG = "FirestorePromoCodeDS"
         private const val PROMOCODES_COLLECTION = "promocodes"
@@ -30,22 +27,17 @@ class FirestorePromocodeDataSource @Inject constructor(private val firestore: Fi
     suspend fun createPromoCode(promoCode: PromoCode): PromoCode {
         Logger.d(TAG) { "Creating promo code: ${promoCode.code} for service: ${promoCode.serviceName}" }
 
-        try {
-            val dto = PromoCodeMapper.toDto(promoCode)
-            Logger.d(TAG) { "Mapped to DTO with documentId: ${dto.documentId}" }
-            Logger.d(TAG) { "DTO data: serviceId=${dto.serviceId}, serviceName=${dto.serviceName}, type=${dto.type}" }
+        val dto = PromoCodeMapper.toDto(promoCode)
+        Logger.d(TAG) { "Mapped to DTO with documentId: ${dto.documentId}" }
+        Logger.d(TAG) { "DTO data: serviceId=${dto.serviceId}, serviceName=${dto.serviceName}, type=${dto.type}" }
 
-            firestore.collection(PROMOCODES_COLLECTION)
-                .document(dto.documentId)
-                .set(dto)
-                .await()
+        firestore.collection(PROMOCODES_COLLECTION)
+            .document(dto.documentId)
+            .set(dto)
+            .await()
 
-            Logger.i(TAG) { "Successfully created promo code document: ${dto.documentId}" }
-            return promoCode
-        } catch (e: Exception) {
-            Logger.e(TAG, e) { "Failed to create promo code: ${promoCode.code}" }
-            throw java.io.IOException("Failed to create promo code: ${e.message}", e)
-        }
+        Logger.i(TAG) { "Successfully created promo code document: ${dto.documentId}" }
+        return promoCode
     }
 
     suspend fun getPromoCodes(

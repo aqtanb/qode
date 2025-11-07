@@ -6,15 +6,13 @@ import com.qodein.shared.model.PromoCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Simple in-memory cache for promo code queries to reduce Firebase read costs.
  * Caches first page results for popular query patterns.
  */
-@Singleton
-class QueryCache @Inject constructor() {
+
+class QueryCache constructor() {
     companion object {
         private const val TAG = "QueryCache"
         private const val CACHE_TTL_MS = 5 * 60 * 1000L // 5 minutes

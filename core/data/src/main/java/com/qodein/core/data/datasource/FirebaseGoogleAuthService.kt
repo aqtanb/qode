@@ -31,11 +31,8 @@ import com.qodein.shared.model.UserProfile
 import com.qodein.shared.model.UserStats
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirebaseGoogleAuthService @Inject constructor(@ApplicationContext private val context: Context) {
+class FirebaseGoogleAuthService constructor(@ApplicationContext private val context: Context) {
     private val auth = Firebase.auth
     private val credentialManager = CredentialManager.create(context)
 

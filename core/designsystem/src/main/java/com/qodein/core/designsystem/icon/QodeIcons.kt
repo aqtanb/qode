@@ -6,7 +6,9 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -321,6 +323,8 @@ object QodeinIcons {
     val Post: ImageVector = Icons.AutoMirrored.Outlined.TextSnippet
     val Promocode: ImageVector = Icons.Outlined.ConfirmationNumber
     val Leaderboard: ImageVector = Icons.Outlined.Leaderboard
+    val DarkMode: ImageVector = Icons.Outlined.DarkMode
+    val LightMode: ImageVector = Icons.Outlined.LightMode
 }
 
 object QodeCommerceIcons {

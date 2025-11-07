@@ -8,11 +8,8 @@ import com.qodein.core.data.mapper.ServiceMapper
 import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FirestoreServiceDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+class FirestoreServiceDataSource constructor(private val firestore: FirebaseFirestore) {
     companion object {
         private const val SERVICES_COLLECTION = "services"
         private const val CACHE_DURATION_MS = 30_000L // 30 seconds
