@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -48,27 +47,17 @@ fun PromoCodesSectionHeader(
 @Composable
 fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        modifier = modifier,
     ) {
-        Text(
-            text = stringResource(R.string.promocodes_loading_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = stringResource(R.string.promocodes_loading_description),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-        CircularProgressIndicator(
-            modifier = modifier.size(20.dp),
-            strokeWidth = 2.dp,
-            color = MaterialTheme.colorScheme.primary,
-        )
+        repeat(3) {
+            PromocodeCardSkeleton(
+                modifier = Modifier.padding(
+                    horizontal = SpacingTokens.lg,
+                    vertical = SpacingTokens.xs,
+                ),
+            )
+        }
     }
 }
 
@@ -126,11 +115,10 @@ private fun ErrorCard(
 }
 
 @Composable
-fun PromoCodesEmptyState(modifier: Modifier = Modifier) {
+fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(SpacingTokens.xl),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

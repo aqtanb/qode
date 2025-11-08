@@ -50,6 +50,8 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
+import com.qodein.core.designsystem.component.ShimmerCircle
+import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.PromocodeStatusIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
@@ -375,6 +377,89 @@ fun CouponPromoCodeCardPreview() {
                 onCopyCodeClick = {},
                 modifier = Modifier.padding(16.dp),
             )
+        }
+    }
+}
+
+@Composable
+fun PromocodeCardSkeleton(modifier: Modifier = Modifier) {
+    val density = LocalDensity.current
+    val couponShape = remember {
+        CouponShape(
+            cornerRadius = with(density) { ShapeTokens.Corner.extraLarge.toPx() },
+            cutoutRadius = with(density) { CouponTokens.cutoutRadius.toPx() },
+            stubWidthPx = with(density) { CouponTokens.stubWidth.toPx() },
+        )
+    }
+
+    Card(
+        modifier = modifier,
+        shape = couponShape,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = ElevationTokens.medium,
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(ElevationTokens.small),
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(CouponTokens.cardHeight),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(SpacingTokens.md),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column {
+                        ShimmerLine(width = 120.dp, height = 16.dp)
+                        Spacer(modifier = Modifier.height(SpacingTokens.xs))
+                        ShimmerLine(width = 80.dp, height = 12.dp)
+                    }
+
+                    Spacer(modifier = Modifier.height(SpacingTokens.md))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    ) {
+                        ShimmerLine(width = 100.dp, height = 14.dp)
+                        ShimmerCircle(size = 20.dp)
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .width(CouponTokens.stubWidth)
+                        .fillMaxHeight()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                bottomStart = 0.dp,
+                                topEnd = ShapeTokens.Corner.large,
+                                bottomEnd = ShapeTokens.Corner.large,
+                            ),
+                        )
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        ShimmerLine(width = 40.dp, height = 24.dp)
+                        Spacer(modifier = Modifier.height(SpacingTokens.xs))
+                        ShimmerLine(width = 30.dp, height = 10.dp)
+                    }
+                }
+            }
         }
     }
 }
