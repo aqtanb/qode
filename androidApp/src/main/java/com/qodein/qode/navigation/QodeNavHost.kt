@@ -51,6 +51,7 @@ fun QodeNavHost(
         )
 
         promocodeDetailSection(
+            onNavigateBack = { navController.popBackStack() },
             isDarkTheme = isDarkTheme,
         )
 
