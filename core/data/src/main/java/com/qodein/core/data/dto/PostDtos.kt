@@ -1,4 +1,4 @@
-package com.qodein.core.data.model
+package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId

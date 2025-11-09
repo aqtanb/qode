@@ -4,8 +4,8 @@ import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.qodein.core.data.dto.ServiceDto
 import com.qodein.core.data.mapper.ServiceMapper
-import com.qodein.core.data.model.ServiceDto
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.tasks.await
 

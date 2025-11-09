@@ -29,10 +29,10 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
@@ -144,7 +144,7 @@ fun HeroBannerSection(
                     }
                 },
                 ctaTitle = stringResource(R.string.banner_error_title),
-                ctaDescription = bannerState.errorType.asUiText(),
+                ctaDescription = bannerState.error.asUiText(),
                 modifier = modifier,
             )
         }
@@ -359,12 +359,25 @@ private fun BannerCallToAction(
 
 // MARK: - Previews
 
-@Preview(name = "Hero Banner Loading", showBackground = true, heightDp = 400)
+@ThemePreviews
 @Composable
 private fun HeroBannerLoadingPreview() {
     QodeTheme {
         HeroBannerSection(
             bannerState = BannerState.Loading,
+            userLanguage = Language.ENGLISH,
+            onBannerClick = { },
+            onRetryBanners = { },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun BannerErrorStatePreview() {
+    QodeTheme {
+        HeroBannerSection(
+            bannerState = BannerState.Error(),
             userLanguage = Language.ENGLISH,
             onBannerClick = { },
             onRetryBanners = { },

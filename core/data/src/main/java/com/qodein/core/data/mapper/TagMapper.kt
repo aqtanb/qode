@@ -1,7 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.TagDto
+import com.qodein.core.data.dto.TagDto
 import com.qodein.shared.model.Tag
 import kotlin.time.Clock
 import kotlin.time.toKotlinInstant

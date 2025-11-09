@@ -1,7 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.ServiceDto
+import com.qodein.core.data.dto.ServiceDto
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 import kotlin.time.Instant

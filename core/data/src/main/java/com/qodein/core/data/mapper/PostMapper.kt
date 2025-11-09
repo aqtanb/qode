@@ -1,10 +1,10 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.PostDto
-import com.qodein.core.data.model.PostSummaryDto
-import com.qodein.core.data.model.PostWithInteractionDto
-import com.qodein.core.data.model.UserInteractionDto
+import com.qodein.core.data.dto.PostDto
+import com.qodein.core.data.dto.PostSummaryDto
+import com.qodein.core.data.dto.PostWithInteractionDto
+import com.qodein.core.data.dto.UserInteractionDto
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Tag

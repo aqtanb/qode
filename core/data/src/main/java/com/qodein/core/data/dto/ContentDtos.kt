@@ -1,4 +1,4 @@
-package com.qodein.core.data.model
+package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
@@ -88,43 +88,5 @@ data class PromoCodeDto(
         createdByUsername = null,
         createdByAvatarUrl = null,
         serviceLogoUrl = null,
-    )
-}
-
-/*
- * Data Transfer Object for Banner entities in Firestore.
- * Follows Firebase naming conventions and supports automatic serialization.
-*/
-data class BannerDto(
-    @DocumentId
-    val documentId: String = "",
-    val imageUrl: String = "",
-    val targetCountries: List<String> = emptyList(),
-    val brandName: String = "",
-    val ctaTitle: Map<String, String> = emptyMap(),
-    val ctaDescription: Map<String, String> = emptyMap(),
-    val ctaUrl: String? = null,
-    @get:PropertyName("isActive")
-    val isActive: Boolean = true,
-    val priority: Int = 0,
-    val createdAt: Timestamp? = null,
-    val updatedAt: Timestamp? = null,
-    val expiresAt: Timestamp? = null
-
-) {
-    // Required no-argument constructor for Firestore
-    constructor() : this(
-        documentId = "",
-        imageUrl = "",
-        targetCountries = emptyList(),
-        brandName = "",
-        ctaTitle = emptyMap(),
-        ctaDescription = emptyMap(),
-        ctaUrl = null,
-        isActive = true,
-        priority = 0,
-        createdAt = null,
-        updatedAt = null,
-        expiresAt = null,
     )
 }

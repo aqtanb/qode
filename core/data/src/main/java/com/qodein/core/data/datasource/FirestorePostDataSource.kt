@@ -6,8 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.qodein.core.data.dto.PostDto
 import com.qodein.core.data.mapper.PostMapper
-import com.qodein.core.data.model.PostDto
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PostError

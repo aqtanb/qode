@@ -1,7 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.PromoCodeDto
+import com.qodein.core.data.dto.PromoCodeDto
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeId

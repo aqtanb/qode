@@ -1,9 +1,9 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.UserDto
-import com.qodein.core.data.model.UserProfileDto
-import com.qodein.core.data.model.UserStatsDto
+import com.qodein.core.data.dto.UserDto
+import com.qodein.core.data.dto.UserProfileDto
+import com.qodein.core.data.dto.UserStatsDto
 import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId

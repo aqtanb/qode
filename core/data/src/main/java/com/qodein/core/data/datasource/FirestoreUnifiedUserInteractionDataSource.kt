@@ -4,7 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
-import com.qodein.core.data.model.UserInteractionDto
+import com.qodein.core.data.dto.UserInteractionDto
 import com.qodein.shared.model.UserInteraction
 import kotlinx.coroutines.tasks.await
 

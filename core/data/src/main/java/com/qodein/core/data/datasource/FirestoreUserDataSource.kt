@@ -4,8 +4,8 @@ import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.qodein.core.data.dto.UserDto
 import com.qodein.core.data.mapper.UserMapper
-import com.qodein.core.data.model.UserDto
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError

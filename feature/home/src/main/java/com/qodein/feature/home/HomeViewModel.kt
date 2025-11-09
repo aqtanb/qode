@@ -110,7 +110,7 @@ class HomeViewModel @Inject constructor(
                         bannerState = when (result) {
                             is Result.Success -> BannerState.Success(result.data)
                             is Result.Error -> BannerState.Error(
-                                errorType = result.error,
+                                error = result.error,
                                 isRetryable = true,
                                 shouldShowSnackbar = false,
                                 errorCode = null,
