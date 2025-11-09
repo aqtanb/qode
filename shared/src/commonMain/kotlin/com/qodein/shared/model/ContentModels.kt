@@ -12,7 +12,7 @@ import kotlin.time.Instant
 
 @Serializable
 @JvmInline
-value class PromoCodeId(val value: String) {
+value class PromocodeId(val value: String) {
     init {
         require(value.isNotBlank()) { "PromoCode ID cannot be blank" }
     }
@@ -45,7 +45,7 @@ sealed interface Discount {
 
 @Serializable
 data class PromoCode(
-    val id: PromoCodeId,
+    val id: PromocodeId,
     val code: String,
     val discount: Discount,
     val serviceId: ServiceId? = null,
@@ -120,7 +120,7 @@ data class PromoCode(
                 val cleanCode = code.uppercase().trim()
                 val cleanServiceName = serviceName.trim()
                 PromoCode(
-                    id = PromoCodeId(generateCompositeId(cleanCode, cleanServiceName)),
+                    id = PromocodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     discount = discount,
                     serviceName = cleanServiceName,

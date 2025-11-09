@@ -14,7 +14,7 @@ import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -84,7 +84,7 @@ class PromocodeRepositoryImpl constructor(
             }
         }
 
-    override suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError> =
+    override suspend fun getPromoCodeById(id: PromocodeId): Result<PromoCode, OperationError> =
         try {
             val promoCode = promoCodeDataSource.getPromoCodeById(id)
             if (promoCode != null) {

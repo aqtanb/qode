@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.Result
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.model.Language
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val getThemeUseCase: GetThemeUseCase,
     private val setThemeUseCase: SetThemeUseCase,
-    private val getLanguageUseCase: GetLanguageUseCase,
+    private val observeLanguageUseCase: ObserveLanguageUseCase,
     private val setLanguageUseCase: SetLanguageUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -63,7 +63,7 @@ class SettingsViewModel @Inject constructor(
     private fun observePreferences() {
         combine(
             getThemeUseCase(),
-            getLanguageUseCase(),
+            observeLanguageUseCase(),
         ) { themeResult, languageResult ->
             val theme = when (themeResult) {
                 is Result.Success -> themeResult.data

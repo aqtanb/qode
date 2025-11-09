@@ -13,7 +13,7 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import kotlinx.coroutines.tasks.await
 
 private inline fun <reified T : Any, R> DocumentSnapshot.toDomainModel(mapper: (T) -> R): R? = toObject<T>()?.let(mapper)
@@ -164,7 +164,7 @@ class FirestorePromocodeDataSource constructor(private val firestore: FirebaseFi
         return result
     }
 
-    suspend fun getPromoCodeById(id: PromoCodeId): PromoCode? {
+    suspend fun getPromoCodeById(id: PromocodeId): PromoCode? {
         val document = firestore.collection(PROMOCODES_COLLECTION)
             .document(id.value)
             .get()

@@ -15,10 +15,11 @@ import kotlinx.coroutines.flow.map
  * Wraps DevicePreferencesRepository with Result pattern for proper error handling.
  */
 
-class GetLanguageUseCase(private val devicePreferencesRepository: DevicePreferencesRepository) {
-
+class ObserveLanguageUseCase(private val devicePreferencesRepository: DevicePreferencesRepository) {
     operator fun invoke(): Flow<Result<Language, OperationError>> =
         devicePreferencesRepository.getLanguage()
             .map<Language, Result<Language, OperationError>> { language -> Result.Success(language) }
-            .catch { emit(Result.Error(SystemError.Unknown)) }
+            .catch {
+                emit(Result.Error(SystemError.Unknown))
+            }
 }

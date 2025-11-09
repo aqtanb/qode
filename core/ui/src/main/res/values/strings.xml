@@ -57,7 +57,7 @@
     <!-- User Profile Errors -->
     <string name="error_user_data_corrupted">User profile data is corrupted. Please try again.</string>
     <string name="error_user_update_failed">Failed to update user profile. Please try again.</string>
-    <string name="error_user_profile_access_denied">You don&#39;t have permission to update this profile.</string>
+    <string name="error_user_profile_access_denied">You don\'t have permission to update this profile.</string>
 
     <!-- Promo Code Errors -->
     <string name="error_promo_code_not_found">Promo code not found. Please check the code and try again.</string>
@@ -102,10 +102,10 @@
     <string name="error_interaction_remove_failed">Failed to remove. Please try again.</string>
     <string name="error_interaction_vote_not_authorized">You must be signed in to vote on this content.</string>
     <string name="error_interaction_vote_content_not_found">The item you tried to vote on could not be found.</string>
-    <string name="error_interaction_vote_save_failed">We couldn&#39;t record your vote. Please try again.</string>
+    <string name="error_interaction_vote_save_failed">We couldn\'t record your vote. Please try again.</string>
     <string name="error_interaction_bookmark_not_authorized">You must be signed in to bookmark this content.</string>
     <string name="error_interaction_bookmark_content_not_found">The item you tried to bookmark could not be found.</string>
-    <string name="error_interaction_bookmark_save_failed">We couldn&#39;t update your bookmark. Please try again.</string>
+    <string name="error_interaction_bookmark_save_failed">We couldn\'t update your bookmark. Please try again.</string>
 
     <!-- General Errors -->
     <string name="error_no_results">No results found.</string>
@@ -125,7 +125,7 @@
     <string name="error_post_invalid_tag">Invalid tag format</string>
     <string name="error_post_not_found">Post not found or may have been deleted</string>
     <string name="error_post_no_results">No posts found</string>
-    <string name="error_post_access_denied">You don&#39;t have permission to access this post</string>
+    <string name="error_post_access_denied">You don\'t have permission to access this post</string>
     <string name="error_post_submission_invalid_data">Post submission includes invalid data.</string>
     <string name="error_post_submission_not_authorized">You must be signed in to submit posts.</string>
 
@@ -138,7 +138,7 @@
     <string name="error_storage_upload_corrupted_file">File appears to be corrupted</string>
     <string name="error_storage_file_not_found">File not found</string>
     <string name="error_storage_delete_file_not_found">The file you tried to delete no longer exists.</string>
-    <string name="error_storage_retrieve_file_not_found">We couldn&#39;t find the requested file.</string>
+    <string name="error_storage_retrieve_file_not_found">We couldn\'t find the requested file.</string>
     <string name="error_storage_compression_cannot_read">Cannot read image file</string>
     <string name="error_storage_compression_invalid_format">Invalid or unsupported image format</string>
     <string name="error_storage_compression_out_of_memory">Image is too large to process</string>

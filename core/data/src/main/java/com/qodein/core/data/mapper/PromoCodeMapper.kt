@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 import com.qodein.core.data.dto.PromoCodeDto
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlin.time.Clock
@@ -32,7 +32,7 @@ object PromoCodeMapper {
             throw IllegalArgumentException("PromoCode type cannot be blank")
         }
 
-        val promoCodeId = PromoCodeId(dto.documentId)
+        val promoCodeId = PromocodeId(dto.documentId)
         val createdBy = if (dto.createdBy.isBlank()) {
             throw IllegalArgumentException("PromoCode createdBy cannot be blank")
         } else {

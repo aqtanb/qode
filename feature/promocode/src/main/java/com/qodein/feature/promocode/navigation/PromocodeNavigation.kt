@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.qodein.feature.promocode.detail.PromocodeDetailScreen
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import kotlinx.serialization.Serializable
 
 @Serializable object PromocodeSubmissionRoute
@@ -18,7 +18,7 @@ fun NavController.navigateToPromocodeSubmission(navOptions: NavOptions? = null) 
     navigate(route = PromocodeSubmissionRoute, navOptions = navOptions)
 
 fun NavController.navigateToPromocodeDetail(
-    promoCodeId: PromoCodeId,
+    promoCodeId: PromocodeId,
     navOptions: NavOptions? = null
 ) = navigate(route = PromocodeDetailRoute(promoCodeId.value), navOptions = navOptions)
 
@@ -32,11 +32,16 @@ fun NavGraphBuilder.promocodeSubmissionSection(
             isDarkTheme = isDarkTheme,
         )
     }
+}
 
+fun NavGraphBuilder.promocodeDetailSection(
+    onNavigateBack: () -> Unit,
+    isDarkTheme: Boolean
+) {
     composable<PromocodeDetailRoute> { backStackEntry ->
         val args = backStackEntry.toRoute<PromocodeDetailRoute>()
         PromocodeDetailScreen(
-            promoCodeId = PromoCodeId(args.promoCodeId),
+            promoCodeId = PromocodeId(args.promoCodeId),
             onNavigateBack = onNavigateBack,
             onNavigateToComments = { promoCodeId ->
                 // TODO: Navigate to comments
@@ -44,24 +49,6 @@ fun NavGraphBuilder.promocodeSubmissionSection(
             onNavigateToService = { serviceName ->
                 // TODO: Navigate to service
             },
-            isDarkTheme = isDarkTheme,
-        )
-    }
-}
-
-fun NavGraphBuilder.promocodeDetailSection(
-    onNavigateBack: () -> Unit = {},
-    onNavigateToComments: (PromoCodeId) -> Unit = {},
-    onNavigateToService: (String) -> Unit = {},
-    isDarkTheme: Boolean
-) {
-    composable<PromocodeDetailRoute> { backStackEntry ->
-        val route = backStackEntry.toRoute<PromocodeDetailRoute>()
-        PromocodeDetailScreen(
-            promoCodeId = PromoCodeId(route.promoCodeId),
-            onNavigateBack = onNavigateBack,
-            onNavigateToComments = onNavigateToComments,
-            onNavigateToService = onNavigateToService,
             isDarkTheme = isDarkTheme,
         )
     }

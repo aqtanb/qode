@@ -14,8 +14,8 @@ import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
@@ -148,8 +148,8 @@ object KoinBridgeModule : KoinComponent {
 
     @Provides
     @Singleton
-    fun provideGetLanguageUseCase(): GetLanguageUseCase {
-        val useCase: GetLanguageUseCase by inject()
+    fun provideGetLanguageUseCase(): ObserveLanguageUseCase {
+        val useCase: ObserveLanguageUseCase by inject()
         return useCase
     }
 

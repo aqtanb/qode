@@ -57,8 +57,8 @@ import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
@@ -110,7 +110,7 @@ val coreDataModule = module {
     single { SignOutUseCase(get()) }
     single { GetBannersUseCase(get()) }
     single { GetThemeUseCase(get()) }
-    single { GetLanguageUseCase(get()) }
+    single { ObserveLanguageUseCase(get()) }
     single { SetThemeUseCase(get()) }
     single { SetLanguageUseCase(get()) }
     single { GetPromocodesUseCase(get()) }

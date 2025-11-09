@@ -2,7 +2,7 @@ package com.qodein.core.ui.preview
 
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlin.time.Clock
@@ -19,7 +19,7 @@ object PromoCodePreviewData {
      * Sample percentage promo code with typical values
      */
     val percentagePromoCode = PromoCode(
-        id = PromoCodeId("glovo_save25"),
+        id = PromocodeId("glovo_save25"),
         code = "SAVE25",
         discount = Discount.Percentage(25.0),
         serviceId = ServiceId("glovo_kz"),
@@ -47,7 +47,7 @@ object PromoCodePreviewData {
      * Sample fixed amount promo code with typical values
      */
     val fixedAmountPromoCode = PromoCode(
-        id = PromoCodeId("kaspi_new1000"),
+        id = PromocodeId("kaspi_new1000"),
         code = "NEW1000",
         discount = Discount.FixedAmount(1000.0),
         serviceId = ServiceId("kaspi_kz"),
@@ -74,7 +74,7 @@ object PromoCodePreviewData {
      * Sample promo code that's expiring soon (within 24 hours)
      */
     val expiringSoonPromoCode = PromoCode(
-        id = PromoCodeId("wolt_flash15"),
+        id = PromocodeId("wolt_flash15"),
         code = "FLASH15",
         discount = Discount.Percentage(15.0),
         serviceId = ServiceId("wolt_kz"),
@@ -101,7 +101,7 @@ object PromoCodePreviewData {
      * Sample promo code that's not active yet (starts in future)
      */
     val notYetActivePromoCode = PromoCode(
-        id = PromoCodeId("technodom_summer500"),
+        id = PromocodeId("technodom_summer500"),
         code = "SUMMER500",
         discount = Discount.FixedAmount(500.0),
         serviceId = ServiceId("technodom_kz"),
@@ -128,7 +128,7 @@ object PromoCodePreviewData {
      * Sample high-value promo code with many votes
      */
     val highValuePromoCode = PromoCode(
-        id = PromoCodeId("sulpak_mega50"),
+        id = PromocodeId("sulpak_mega50"),
         code = "MEGA50",
         discount = Discount.Percentage(50.0),
         serviceId = ServiceId("sulpak_kz"),
@@ -155,7 +155,7 @@ object PromoCodePreviewData {
      * Sample promo code with minimal engagement
      */
     val lowEngagementPromoCode = PromoCode(
-        id = PromoCodeId("small_shop_save100"),
+        id = PromocodeId("small_shop_save100"),
         code = "SAVE100",
         discount = Discount.FixedAmount(100.0),
         serviceId = null, // No service association

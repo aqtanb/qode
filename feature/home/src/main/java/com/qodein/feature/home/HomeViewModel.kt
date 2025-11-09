@@ -13,6 +13,7 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
@@ -23,6 +24,7 @@ import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -38,9 +40,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    // Single-responsibility use cases
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromoCodesUseCase: GetPromocodesUseCase,
+    private val observeLanguageUseCase: ObserveLanguageUseCase,
+
     // Service selection coordinator
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     // Analytics
@@ -65,14 +68,19 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
+        observeLanguage()
         loadHomeData()
     }
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.RefreshData -> loadHomeData()
+            is HomeAction.RefreshData -> {
+                _uiState.update { it.copy(isRefreshing = true) }
+                loadHomeData()
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
             is HomeAction.BannerClicked -> onBannerClicked(action.banner)
-            is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promoCode)
+            is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promocodeId)
             is HomeAction.CopyPromoCode -> onCopyPromoCode(action.promoCode)
             is HomeAction.LoadMorePromoCodes -> loadNextPage()
             is HomeAction.ErrorDismissed -> dismissError()
@@ -97,26 +105,32 @@ class HomeViewModel @Inject constructor(
         loadInitialPage()
     }
 
-    private fun loadBanners(userLanguage: Language? = null) {
-        // Set loading state before starting operation
-        _uiState.update { state ->
-            state.copy(bannerState = BannerState.Loading)
-        }
-
+    private fun observeLanguage() {
         viewModelScope.launch {
-            getBannersUseCase.getBanners(userLanguage = userLanguage, limit = DEFAULT_PAGE_SIZE).collect { result ->
-                _uiState.update { state ->
-                    state.copy(
-                        bannerState = when (result) {
-                            is Result.Success -> BannerState.Success(result.data)
-                            is Result.Error -> BannerState.Error(
-                                error = result.error,
-                                isRetryable = true,
-                                shouldShowSnackbar = false,
-                                errorCode = null,
-                            )
-                        },
-                    )
+            observeLanguageUseCase().collect { result ->
+                when (result) {
+                    is Result.Error -> {
+                        _uiState.update { it.copy(userLanguage = Language.ENGLISH) }
+                    }
+                    is Result.Success -> {
+                        _uiState.update { it.copy(userLanguage = result.data) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadBanners() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(bannerState = BannerState.Loading) }
+
+            val bannersResult = getBannersUseCase()
+            when (bannersResult) {
+                is Result.Error -> {
+                    _uiState.update { it.copy(bannerState = BannerState.Error(bannersResult.error)) }
+                }
+                is Result.Success -> {
+                    _uiState.update { it.copy(bannerState = BannerState.Success(bannersResult.data)) }
                 }
             }
         }
@@ -242,9 +256,8 @@ class HomeViewModel @Inject constructor(
         emitEvent(HomeEvent.BannerDetailRequested(banner))
     }
 
-    private fun onPromoCodeClicked(promoCode: PromoCode) {
-        logPromoCodeViewAnalytics(promoCode)
-        emitEvent(HomeEvent.PromoCodeDetailRequested(promoCode))
+    private fun onPromoCodeClicked(promocodeId: PromocodeId) {
+        emitEvent(HomeEvent.PromoCodeDetailRequested(promocodeId))
     }
 
     private fun onCopyPromoCode(promoCode: PromoCode) {

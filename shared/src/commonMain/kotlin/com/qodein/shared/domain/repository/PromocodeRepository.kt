@@ -6,7 +6,7 @@ import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 
@@ -37,7 +37,7 @@ interface PromocodeRepository {
      * Get a specific promo code by ID.
      * Returns NotFound error if promo code doesn't exist.
      */
-    suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError>
+    suspend fun getPromoCodeById(id: PromocodeId): Result<PromoCode, OperationError>
 
     // Service-related methods
 

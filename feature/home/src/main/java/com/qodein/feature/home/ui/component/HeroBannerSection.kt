@@ -1,5 +1,6 @@
 package com.qodein.feature.home.ui.component
 
+import android.R.attr.textColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import com.qodein.core.ui.component.rememberBackdropBlurState
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.BannerState
+import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.getTranslatedCtaDescription
@@ -133,14 +135,12 @@ fun HeroBannerSection(
                             tint = Color.White.copy(alpha = ERROR_ICON_ALPHA),
                         )
 
-                        if (bannerState.isRetryable) {
-                            QodeButton(
-                                onClick = onRetryBanners,
-                                text = stringResource(R.string.error_retry),
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            )
-                        }
+                        QodeButton(
+                            onClick = onRetryBanners,
+                            text = stringResource(R.string.error_retry),
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
                     }
                 },
                 ctaTitle = stringResource(R.string.banner_error_title),
@@ -316,7 +316,6 @@ private fun BannerCallToAction(
     ctaDescription: String,
     currentPage: Int,
     totalPages: Int,
-    textColor: Color = Color.White,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -331,8 +330,8 @@ private fun BannerCallToAction(
             PageIndicator(
                 currentIndex = currentPage,
                 totalPages = totalPages,
-                inactiveColor = textColor.copy(alpha = INDICATOR_INACTIVE_ALPHA),
-                activeColor = textColor,
+                inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = INDICATOR_INACTIVE_ALPHA),
+                activeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = SpacingTokens.xs),
             )
         }
@@ -341,7 +340,7 @@ private fun BannerCallToAction(
             text = ctaTitle,
             style = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.5.sp),
             fontWeight = FontWeight.ExtraBold,
-            color = textColor,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
         )
@@ -350,7 +349,7 @@ private fun BannerCallToAction(
             text = ctaDescription,
             style = MaterialTheme.typography.bodyMedium.copy(letterSpacing = 0.25.sp),
             fontWeight = FontWeight.Medium,
-            color = textColor,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 2,
         )
@@ -377,10 +376,20 @@ private fun HeroBannerLoadingPreview() {
 private fun BannerErrorStatePreview() {
     QodeTheme {
         HeroBannerSection(
-            bannerState = BannerState.Error(),
+            bannerState = BannerState.Error(
+                error = FirestoreError.PermissionDenied,
+            ),
             userLanguage = Language.ENGLISH,
             onBannerClick = { },
             onRetryBanners = { },
         )
     }
+}
+
+@ThemePreviews
+@Composable
+private fun BannerEmptyStatePreview() {
+    QodeTheme {
+        HeroBannerSection(
+            bannerState = BannerState.Success(emptyList()),
 }

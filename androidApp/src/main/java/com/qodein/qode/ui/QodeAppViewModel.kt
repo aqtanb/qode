@@ -7,8 +7,8 @@ import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +37,7 @@ import javax.inject.Inject
 class QodeAppViewModel @Inject constructor(
     getAuthStateUseCase: GetAuthStateUseCase,
     getThemeUseCase: GetThemeUseCase,
-    getLanguageUseCase: GetLanguageUseCase
+    observeLanguageUseCase: ObserveLanguageUseCase
 ) : ViewModel() {
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
         .map { user ->
@@ -70,7 +70,7 @@ class QodeAppViewModel @Inject constructor(
         )
 
     // Language state from domain layer with proper error handling
-    val languageState: StateFlow<Language> = getLanguageUseCase()
+    val languageState: StateFlow<Language> = observeLanguageUseCase()
         .map { result ->
             when (result) {
                 is Result.Success -> result.data

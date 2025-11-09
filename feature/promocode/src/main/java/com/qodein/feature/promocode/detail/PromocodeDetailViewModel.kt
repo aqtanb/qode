@@ -18,8 +18,8 @@ import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
 import com.qodein.shared.domain.userIdOrNull
 import com.qodein.shared.model.ContentType
-import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
@@ -54,7 +54,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
-    private val promoCodeId = PromoCodeId(promoCodeIdString)
+    private val promoCodeId = PromocodeId(promoCodeIdString)
 
     @AssistedFactory
     interface Factory {
@@ -106,7 +106,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     }
 
     private suspend fun loadPromocode(
-        promoCodeId: PromoCodeId,
+        promoCodeId: PromocodeId,
         authState: AuthState
     ) {
         _uiState.update { it.copy(isLoading = true, errorType = null) }

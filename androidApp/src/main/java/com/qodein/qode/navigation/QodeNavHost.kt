@@ -16,6 +16,7 @@ import com.qodein.feature.profile.navigation.ProfileBaseRoute
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
+import com.qodein.feature.promocode.navigation.promocodeDetailSection
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
 import com.qodein.feature.settings.navigation.navigateToAbout
 import com.qodein.feature.settings.navigation.navigateToLicenses
@@ -43,14 +44,14 @@ fun QodeNavHost(
         modifier = modifier,
     ) {
         homeSection(
-            userLanguage = userLanguage,
-            onPromoCodeClick = { promoCode ->
-                navController.navigateToPromocodeDetail(promoCode.id)
-            },
-            promoCodeDetail = { promoCodeId ->
-                navController.navigateToPromocodeDetail(promoCodeId)
+            onPromoCodeClick = { promocodeId ->
+                navController.navigateToPromocodeDetail(promocodeId)
             },
             scrollStateRegistry = appState,
+        )
+
+        promocodeDetailSection(
+            isDarkTheme = isDarkTheme,
         )
 
         feedSection(

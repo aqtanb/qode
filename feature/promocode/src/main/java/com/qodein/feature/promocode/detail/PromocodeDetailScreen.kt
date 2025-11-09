@@ -50,15 +50,15 @@ import com.qodein.feature.promocode.detail.component.ServiceInfoSection
 import com.qodein.shared.common.error.PromoCodeError
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.PromocodeId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeDetailScreen(
-    promoCodeId: PromoCodeId,
+    promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
-    onNavigateToComments: (PromoCodeId) -> Unit = {},
+    onNavigateToComments: (PromocodeId) -> Unit = {},
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,

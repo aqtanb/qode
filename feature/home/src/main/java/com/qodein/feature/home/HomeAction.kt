@@ -3,6 +3,7 @@ package com.qodein.feature.home
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -13,7 +14,7 @@ sealed interface HomeAction {
 
     data class BannerClicked(val banner: Banner) : HomeAction
 
-    data class PromoCodeClicked(val promoCode: PromoCode) : HomeAction
+    data class PromoCodeClicked(val promocodeId: PromocodeId) : HomeAction
     data class CopyPromoCode(val promoCode: PromoCode) : HomeAction
 
     data object LoadMorePromoCodes : HomeAction

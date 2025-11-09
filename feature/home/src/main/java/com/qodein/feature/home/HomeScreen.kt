@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,9 +36,7 @@ import com.qodein.feature.home.ui.component.PromoCodesSectionHeader
 import com.qodein.feature.home.ui.component.PromocodeCard
 import com.qodein.feature.home.ui.component.PromocodeSectionEmptyState
 import com.qodein.feature.home.ui.state.PromoCodeState
-import com.qodein.shared.model.Banner
-import com.qodein.shared.model.Language
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.PromocodeId
 
 /**
  * Clean, modular HomeScreen following modern Compose patterns
@@ -46,18 +45,18 @@ import com.qodein.shared.model.PromoCode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    userLanguage: Language,
+    onNavigateToPromoCodeDetail: (PromocodeId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    onNavigateToPromoCodeDetail: (PromoCode) -> Unit = {},
-    onNavigateToBannerDetail: (Banner) -> Unit = {},
-    onShowPromoCodeCopied: (PromoCode) -> Unit = {},
     scrollStateRegistry: ScrollStateRegistry? = null
 ) {
     TrackScreenViewEvent(screenName = HOME_SCREEN_NAME)
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val pullToRefreshState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
+
     val context = LocalContext.current
     scrollStateRegistry?.RegisterScrollState(listState)
 
@@ -65,14 +64,14 @@ fun HomeScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is HomeEvent.PromoCodeDetailRequested ->
-                    onNavigateToPromoCodeDetail(event.promoCode)
+                    onNavigateToPromoCodeDetail(event.promocodeId)
                 is HomeEvent.BannerDetailRequested -> {
                     event.banner.ctaUrl?.takeIf { it.isNotBlank() }?.let { url ->
                         CustomTabsUtils.launchCustomTab(context, url)
-                    } ?: onNavigateToBannerDetail(event.banner)
+                    }
                 }
                 is HomeEvent.PromoCodeCopied ->
-                    onShowPromoCodeCopied(event.promoCode)
+                    {}
             }
         }
     }
@@ -99,7 +98,6 @@ fun HomeScreen(
     HomeContent(
         uiState = uiState,
         listState = listState,
-        userLanguage = userLanguage,
         onAction = viewModel::onAction,
         modifier = modifier,
     )
@@ -109,7 +107,6 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState,
     listState: LazyListState,
-    userLanguage: Language,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -123,7 +120,7 @@ private fun HomeContent(
             item(key = BANNER_SECTION_KEY) {
                 HeroBannerSection(
                     bannerState = uiState.bannerState,
-                    userLanguage = userLanguage,
+                    userLanguage = uiState.userLanguage,
                     onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
                     onRetryBanners = { onAction(HomeAction.RetryBannersClicked) },
                 )
@@ -165,14 +162,14 @@ private fun HomeContent(
                     items(
                         items = promoState.promoCodes,
                         key = { promoCode -> promoCode.id.value },
-                    ) { promoCode ->
+                    ) { promocode ->
                         PromocodeCard(
-                            promoCode = promoCode,
+                            promoCode = promocode,
                             onCardClick = {
-                                onAction(HomeAction.PromoCodeClicked(promoCode))
+                                onAction(HomeAction.PromoCodeClicked(promocode.id))
                             },
                             onCopyCodeClick = {
-                                onAction(HomeAction.CopyPromoCode(promoCode))
+                                onAction(HomeAction.CopyPromoCode(promocode))
                             },
                             modifier = Modifier.padding(
                                 horizontal = SpacingTokens.lg,
@@ -237,7 +234,6 @@ private fun HomeScreenPreview() {
         HomeContent(
             uiState = HomeUiState(),
             listState = rememberLazyListState(),
-            userLanguage = Language.ENGLISH,
             onAction = {},
         )
     }
