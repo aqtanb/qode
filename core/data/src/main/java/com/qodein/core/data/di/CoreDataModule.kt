@@ -94,7 +94,7 @@ val coreDataModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<PromocodeRepository> { PromocodeRepositoryImpl(get(), get(), get()) }
-    single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(get()) }
+    single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(androidContext(), get()) }
     single<BannerRepository> { BannerRepositoryImpl(get()) }
     single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get(), get()) }
     single<PostRepository> { PostRepositoryImpl(get(), get()) }

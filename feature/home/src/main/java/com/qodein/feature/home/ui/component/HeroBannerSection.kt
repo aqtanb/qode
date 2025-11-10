@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Logger
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
@@ -168,18 +170,21 @@ private fun BannerContent(
                 totalPages = total
             }
         },
+        key = { banner -> "${banner.id}-${userLanguage.code}" },
         modifier = modifier
             .fillMaxWidth()
             .height(screenHeight * BANNER_HEIGHT_PERCENTAGE),
     ) { banner, _ ->
-        BannerItem(
-            banner = banner,
-            onBannerClick = onBannerClick,
-            currentPage = currentPage,
-            totalPages = totalPages,
-            userLanguage = userLanguage,
-            modifier = modifier.fillMaxSize(),
-        )
+        key(userLanguage) {
+            BannerItem(
+                banner = banner,
+                onBannerClick = onBannerClick,
+                currentPage = currentPage,
+                totalPages = totalPages,
+                userLanguage = userLanguage,
+                modifier = modifier.fillMaxSize(),
+            )
+        }
     }
 }
 
@@ -192,7 +197,14 @@ private fun BannerItem(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
+    Logger.d("BannerItem") { "Composing for banner ${banner.id} with language ${userLanguage.code}" }
     val hazeState = rememberBackdropBlurState()
+    val ctaTitle = remember(userLanguage) {
+        val title = banner.getTranslatedCtaTitle(userLanguage)
+        Logger.d("BannerItem") { "Computed ctaTitle: $title for language ${userLanguage.code}" }
+        title
+    }
+    val ctaDescription = remember(userLanguage) { banner.getTranslatedCtaDescription(userLanguage) }
 
     Box(
         modifier = modifier
@@ -215,7 +227,7 @@ private fun BannerItem(
             } else {
                 AsyncImage(
                     model = banner.imageUrl,
-                    contentDescription = banner.getTranslatedCtaTitle(userLanguage),
+                    contentDescription = ctaTitle,
                     modifier = modifier
                         .fillMaxSize()
                         .haze(hazeState),
@@ -246,8 +258,8 @@ private fun BannerItem(
                 contentAlignment = Alignment.Center,
             ) {
                 BannerCallToAction(
-                    ctaTitle = banner.getTranslatedCtaTitle(userLanguage),
-                    ctaDescription = banner.getTranslatedCtaDescription(userLanguage),
+                    ctaTitle = ctaTitle,
+                    ctaDescription = ctaDescription,
                     currentPage = currentPage,
                     totalPages = totalPages,
                     modifier = Modifier.fillMaxSize(),

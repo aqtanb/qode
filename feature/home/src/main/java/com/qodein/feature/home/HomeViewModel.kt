@@ -106,14 +106,20 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeLanguage() {
+        Logger.d("HomeViewModel") { "observeLanguage() called" }
         viewModelScope.launch {
+            Logger.d("HomeViewModel") { "Starting to collect language flow" }
             observeLanguageUseCase().collect { result ->
+                Logger.d("HomeViewModel") { "Received language result: $result" }
                 when (result) {
                     is Result.Error -> {
+                        Logger.d("HomeViewModel") { "Language error, defaulting to English" }
                         _uiState.update { it.copy(userLanguage = Language.ENGLISH) }
                     }
                     is Result.Success -> {
+                        Logger.d("HomeViewModel") { "Language changed to: ${result.data}" }
                         _uiState.update { it.copy(userLanguage = result.data) }
+                        Logger.d("HomeViewModel") { "UI state updated, new language: ${_uiState.value.userLanguage}" }
                     }
                 }
             }

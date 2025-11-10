@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.image.loading)
     implementation(libs.bundles.aboutlibraries)
+    implementation(libs.kermit)
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
