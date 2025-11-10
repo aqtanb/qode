@@ -7,8 +7,8 @@
 
     <string name="banner_loading_title">Loading Deals</string>
     <string name="banner_loading_description">Getting the best offers for you…</string>
-    <string name="banner_empty_title">No Banners Available</string>
-    <string name="banner_empty_description">Check back later for exciting deals</string>
+    <string name="banner_empty_title">No Active Banners</string>
+    <string name="banner_empty_description">Your ad could go here :)</string>
     <string name="banner_error_title">Failed to Load Banners</string>
 
     <string name="promocode_label">PROMOCODE</string>

@@ -12,7 +12,7 @@ data class BannerDto(
     val ctaUrl: String? = null,
     val isActive: Boolean = true,
     val priority: Int = 0,
-    val expiresAt: Timestamp? = null
+    val expiresAt: Timestamp
 ) {
     companion object {
         const val COLLECTION_NAME = "banners"
