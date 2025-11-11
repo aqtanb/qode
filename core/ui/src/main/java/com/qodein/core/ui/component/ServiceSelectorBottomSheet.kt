@@ -30,14 +30,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
@@ -292,15 +290,6 @@ private fun ServiceItem(
             )
 
             Text(
-                text = service.category,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-
-            Text(
                 text = "${service.promoCodeCount} codes",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
@@ -349,58 +338,4 @@ private fun ServiceChip(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
     )
-}
-
-// Preview for the ServiceItem
-@Preview(showBackground = true)
-@Composable
-private fun ServiceItemPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                "Service Items Preview",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-
-            // Popular service with logo and high promo count
-            ServiceItem(
-                service = Service.create(
-                    name = "Netflix",
-                    category = "Streaming",
-                    logoUrl = "https://logo.url/netflix.png",
-                    promoCodeCount = 25,
-                ),
-                isSelected = false,
-                onClick = {},
-            )
-
-            // Selected service
-            ServiceItem(
-                service = Service.create(
-                    name = "Uber Eats",
-                    category = "Food",
-                    logoUrl = null, // No logo - will show first letter
-                    promoCodeCount = 12,
-                ),
-                isSelected = true,
-                onClick = {},
-            )
-
-            // Service without promo codes
-            ServiceItem(
-                service = Service.create(
-                    name = "Spotify Premium",
-                    category = "Music",
-                    logoUrl = "https://logo.url/spotify.png",
-                    promoCodeCount = 0,
-                ),
-                isSelected = false,
-                onClick = {},
-            )
-        }
-    }
 }

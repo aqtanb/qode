@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.CategoryIconHelper
 import com.qodein.core.ui.preview.PromoCodePreviewData
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
@@ -41,9 +36,6 @@ fun GradientBannerSection(
     onCopyClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Get category icon from centralized helper
-    val categoryIcon = CategoryIconHelper.getCategoryIcon(promoCode.category)
-
     // Calculate discount display text using proper localization
     val discountDisplay = when (promoCode.discount) {
         is Discount.Percentage -> "${promoCode.discount.value.toInt()}% OFF FROM ${promoCode.minimumOrderAmount.toInt()}₸"
@@ -63,32 +55,6 @@ fun GradientBannerSection(
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             modifier = Modifier.padding(SpacingTokens.xl),
         ) {
-            // Category pill with proper circular background and spacing
-            Row(
-                modifier = Modifier
-                    .background(
-                        Color.White.copy(alpha = 0.2f),
-                        CircleShape,
-                    )
-                    .padding(SpacingTokens.sm),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm), // Proper spacing
-            ) {
-                Icon(
-                    imageVector = categoryIcon,
-                    contentDescription = promoCode.category,
-                    tint = Color.White,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall), // Proper size
-                )
-
-                Text(
-                    text = promoCode.category?.replaceFirstChar { it.uppercase() } ?: "Food",
-                    style = MaterialTheme.typography.labelSmall, // Bigger text
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
-                )
-            }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),

@@ -30,13 +30,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Logger
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.theme.OpacityTokens.OVERLAY_LIGHT
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -197,11 +197,9 @@ private fun BannerItem(
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
-    Logger.d("BannerItem") { "Composing for banner ${banner.id} with language ${userLanguage.code}" }
     val hazeState = rememberBackdropBlurState()
     val ctaTitle = remember(userLanguage) {
         val title = banner.getTranslatedCtaTitle(userLanguage)
-        Logger.d("BannerItem") { "Computed ctaTitle: $title for language ${userLanguage.code}" }
         title
     }
     val ctaDescription = remember(userLanguage) { banner.getTranslatedCtaDescription(userLanguage) }
@@ -330,7 +328,7 @@ private fun BannerCallToAction(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_LIGHT))
             .padding(SpacingTokens.sm),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

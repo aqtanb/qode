@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.mapper.UserInteractionMapper
+import com.qodein.core.data.util.ErrorMapper
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
@@ -30,10 +31,12 @@ class UnifiedUserInteractionRepositoryImpl constructor(
     }
 
     /**
-     * Maps FirebaseFirestoreException to domain-specific OperationError for voting operations
+     * Maps FirebaseFirestoreException to domain-specific OperationError for voting operations.
+     * Uses shared ErrorMapper for logging, then maps to voting-specific errors.
      */
-    private fun mapFirestoreErrorForVoting(e: FirebaseFirestoreException): OperationError =
-        when (e.code) {
+    private fun mapFirestoreErrorForVoting(e: FirebaseFirestoreException): OperationError {
+        ErrorMapper.mapFirestoreException(e, TAG)
+        return when (e.code) {
             FirebaseFirestoreException.Code.PERMISSION_DENIED ->
                 InteractionError.VotingFailure.NotAuthorized
             FirebaseFirestoreException.Code.NOT_FOUND ->
@@ -45,12 +48,15 @@ class UnifiedUserInteractionRepositoryImpl constructor(
             else ->
                 SystemError.Unknown
         }
+    }
 
     /**
-     * Maps FirebaseFirestoreException to domain-specific OperationError for bookmark operations
+     * Maps FirebaseFirestoreException to domain-specific OperationError for bookmark operations.
+     * Uses shared ErrorMapper for logging, then maps to bookmark-specific errors.
      */
-    private fun mapFirestoreErrorForBookmark(e: FirebaseFirestoreException): OperationError =
-        when (e.code) {
+    private fun mapFirestoreErrorForBookmark(e: FirebaseFirestoreException): OperationError {
+        ErrorMapper.mapFirestoreException(e, TAG)
+        return when (e.code) {
             FirebaseFirestoreException.Code.PERMISSION_DENIED ->
                 InteractionError.BookmarkFailure.NotAuthorized
             FirebaseFirestoreException.Code.NOT_FOUND ->
@@ -62,6 +68,7 @@ class UnifiedUserInteractionRepositoryImpl constructor(
             else ->
                 SystemError.Unknown
         }
+    }
 
     override suspend fun getUserInteraction(
         itemId: String,

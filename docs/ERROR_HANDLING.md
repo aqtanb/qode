@@ -16,20 +16,6 @@ Qode uses `Result<Data, OperationError>` for type-safe error handling across all
 
 **UI** displays errors using error mapping extensions
 
-## Error Types
-
-### SystemError (Infrastructure)
-- `Offline` - Network failures (IOException)
-- `Unauthorized` - Not authenticated (HTTP 401)
-- `PermissionDenied` - Lacks permissions (HTTP 403)
-- `ServiceDown` - Backend unavailable (HTTP 503)
-- `Unknown` - Unexpected errors
-
-### Domain Errors
-- `PostError` - Post validation/submission failures
-- `StorageError` - Upload/quota/file issues
-- `PromoCodeError` - Promo code validation
-
 ## Patterns
 
 **Data Source:**
@@ -45,5 +31,3 @@ when (result) {
     is Result.Error -> handle error
 }
 ```
-
-See existing code for complete examples.

@@ -30,7 +30,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.CategoryIconHelper
 import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CategoryFilter
@@ -61,26 +60,6 @@ fun FiltersSection(
             contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            // Category Filter
-            item(key = FilterChipType.Category.key) {
-                FilterChip(
-                    nameRes = R.string.filter_chip_category,
-                    icon = when (val filter = currentFilters.categoryFilter) {
-                        CategoryFilter.All -> QodeNavigationIcons.Categories
-                        is CategoryFilter.Selected -> {
-                            when (filter.categories.size) {
-                                0 -> QodeNavigationIcons.Categories
-                                1 -> CategoryIconHelper.getCategoryIcon(filter.categories.first())
-                                else -> QodeNavigationIcons.More
-                            }
-                        }
-                    },
-                    onClick = { onFilterSelected(FilterDialogType.Category) },
-                    isSelected = currentFilters.categoryFilter !is CategoryFilter.All,
-                )
-            }
-
-            // Service Filter
             item(key = FilterChipType.Service.key) {
                 val (icon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
                     ServiceFilter.All -> Triple(QodeCommerceIcons.Store, null, null)

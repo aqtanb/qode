@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import java.util.Locale
 
 class DevicePreferencesRepositoryImpl(private val context: Context, private val dataSource: DevicePreferencesDataSource) :
@@ -82,17 +83,29 @@ class DevicePreferencesRepositoryImpl(private val context: Context, private val 
 
     override suspend fun setTheme(theme: Theme): Result<Unit, OperationError> =
         try {
+            Logger.d("DevicePreferencesRepo") { "Setting theme: $theme" }
             dataSource.setTheme(theme.name)
+            Logger.i("DevicePreferencesRepo") { "Theme set successfully: $theme" }
             Result.Success(Unit)
-        } catch (_: Exception) {
+        } catch (e: IOException) {
+            Logger.e("DevicePreferencesRepo", e) { "I/O error setting theme: ${e.message}" }
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Logger.e("DevicePreferencesRepo", e) { "Unexpected error setting theme: ${e::class.simpleName} - ${e.message}" }
             Result.Error(SystemError.Unknown)
         }
 
     override suspend fun setLanguage(language: Language): Result<Unit, OperationError> =
         try {
+            Logger.d("DevicePreferencesRepo") { "Setting language: $language" }
             dataSource.setLanguage(language.code)
+            Logger.i("DevicePreferencesRepo") { "Language set successfully: $language" }
             Result.Success(Unit)
-        } catch (_: Exception) {
+        } catch (e: IOException) {
+            Logger.e("DevicePreferencesRepo", e) { "I/O error setting language: ${e.message}" }
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Logger.e("DevicePreferencesRepo", e) { "Unexpected error setting language: ${e::class.simpleName} - ${e.message}" }
             Result.Error(SystemError.Unknown)
         }
 }

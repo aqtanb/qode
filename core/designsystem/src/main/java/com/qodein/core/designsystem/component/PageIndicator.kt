@@ -33,7 +33,7 @@ fun PageIndicator(
     currentIndex: Int,
     totalPages: Int,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface.copy(alpha = OpacityTokens.OVERLAY_LIGHT),
     inactiveColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.OVERLAY_DARK),
     activeColor: Color = MaterialTheme.colorScheme.onSurface
 ) {

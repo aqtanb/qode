@@ -3,6 +3,7 @@ package com.qodein.core.ui.error
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.ui.R
+import com.qodein.shared.common.error.AlgoliaError
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
@@ -30,7 +31,6 @@ fun OperationError.asUiText(): String =
         UserError.AuthenticationFailure.InvalidCredentials -> stringResource(R.string.error_auth_invalid_credentials)
         UserError.AuthenticationFailure.ServiceUnavailable -> stringResource(R.string.error_auth_service_unavailable)
         UserError.AuthenticationFailure.TooManyAttempts -> stringResource(R.string.error_auth_too_many_attempts)
-
         UserError.ProfileFailure.NotFound -> stringResource(R.string.error_user_not_found)
         UserError.ProfileFailure.AccessDenied -> stringResource(R.string.error_user_profile_access_denied)
         UserError.ProfileFailure.DataCorrupted -> stringResource(R.string.error_user_data_corrupted)
@@ -39,7 +39,6 @@ fun OperationError.asUiText(): String =
         PromoCodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
         PromoCodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_promo_code_submission_not_authorized)
         PromoCodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
-
         PromoCodeError.RetrievalFailure.NotFound -> stringResource(R.string.error_promo_code_not_found)
         PromoCodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
         PromoCodeError.RetrievalFailure.TooManyResults -> stringResource(R.string.error_too_many_results)
@@ -48,7 +47,6 @@ fun OperationError.asUiText(): String =
         ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)
         ServiceError.SearchFailure.TooManyResults -> stringResource(R.string.error_service_too_many_results)
         ServiceError.SearchFailure.InvalidQuery -> stringResource(R.string.error_service_invalid_query)
-
         ServiceError.RetrievalFailure.NotFound -> stringResource(R.string.error_service_not_found)
         ServiceError.RetrievalFailure.DataCorrupted -> stringResource(R.string.error_service_data_corrupted)
         ServiceError.RetrievalFailure.CacheExpired -> stringResource(R.string.error_service_cache_expired)
@@ -57,7 +55,6 @@ fun OperationError.asUiText(): String =
         InteractionError.VotingFailure.AlreadyVoted -> stringResource(R.string.error_interaction_already_voted)
         InteractionError.VotingFailure.ContentNotFound -> stringResource(R.string.error_interaction_vote_content_not_found)
         InteractionError.VotingFailure.SaveFailed -> stringResource(R.string.error_interaction_vote_save_failed)
-
         InteractionError.BookmarkFailure.NotAuthorized -> stringResource(R.string.error_interaction_bookmark_not_authorized)
         InteractionError.BookmarkFailure.ContentNotFound -> stringResource(R.string.error_interaction_bookmark_content_not_found)
         InteractionError.BookmarkFailure.SaveFailed -> stringResource(R.string.error_interaction_bookmark_save_failed)
@@ -66,6 +63,7 @@ fun OperationError.asUiText(): String =
         SystemError.Offline -> stringResource(R.string.error_network_no_connection)
         SystemError.ServiceDown -> stringResource(R.string.error_system_service_down)
         SystemError.Unknown -> stringResource(R.string.error_unknown)
+
         PostError.CreationFailure.ContentTooLong -> stringResource(R.string.error_post_content_too_long)
         PostError.CreationFailure.EmptyAuthorName -> stringResource(R.string.error_post_author_missing)
         PostError.CreationFailure.EmptyContent -> stringResource(R.string.error_post_content_empty)
@@ -79,7 +77,9 @@ fun OperationError.asUiText(): String =
         PostError.RetrievalFailure.NotFound -> stringResource(R.string.error_post_not_found)
         PostError.SubmissionFailure.InvalidData -> stringResource(R.string.error_post_submission_invalid_data)
         PostError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_post_submission_not_authorized)
+
         SystemError.PermissionDenied -> stringResource(R.string.error_system_permission_denied)
+
         StorageError.DeletionFailure.FileNotFound -> stringResource(R.string.error_storage_delete_file_not_found)
         StorageError.RetrievalFailure.FileNotFound -> stringResource(R.string.error_storage_retrieve_file_not_found)
         StorageError.UploadFailure.CorruptedFile -> stringResource(R.string.error_storage_upload_corrupted_file)
@@ -92,7 +92,9 @@ fun OperationError.asUiText(): String =
         StorageError.CompressionFailure.InvalidImageFormat -> stringResource(R.string.error_storage_compression_invalid_format)
         StorageError.CompressionFailure.OutOfMemory -> stringResource(R.string.error_storage_compression_out_of_memory)
         StorageError.CompressionFailure.CompressionFailed -> stringResource(R.string.error_storage_compression_failed)
+
         SystemError.Unauthorized -> stringResource(R.string.error_auth_unauthorized)
+
         FirestoreError.Cancelled -> stringResource(R.string.error_operation_cancelled)
         FirestoreError.InvalidArgument -> stringResource(R.string.error_firestore_invalid_argument)
         FirestoreError.DeadlineExceeded -> stringResource(R.string.error_request_timeout)
@@ -108,4 +110,15 @@ fun OperationError.asUiText(): String =
         FirestoreError.Unavailable -> stringResource(R.string.error_firestore_unavailable)
         FirestoreError.DataLoss -> stringResource(R.string.error_data_corrupted)
         FirestoreError.Unauthenticated -> stringResource(R.string.error_auth_required)
+
+        AlgoliaError.IndexNotFound -> stringResource(R.string.error_algolia_index_not_found)
+        AlgoliaError.InsufficientPermissions -> stringResource(R.string.error_algolia_insufficient_permissions)
+        AlgoliaError.InvalidCredentials -> stringResource(R.string.error_algolia_invalid_credentials)
+        AlgoliaError.InvalidQuery -> stringResource(R.string.error_algolia_invalid_query)
+        AlgoliaError.NetworkError -> stringResource(R.string.error_algolia_network_error)
+        AlgoliaError.RateLimitExceeded -> stringResource(R.string.error_algolia_rate_limit_exceeded)
+        AlgoliaError.RequestTooLarge -> stringResource(R.string.error_algolia_request_too_large)
+        AlgoliaError.ServerError -> stringResource(R.string.error_algolia_server_error)
+        AlgoliaError.ServiceUnavailable -> stringResource(R.string.error_algolia_service_unavailable)
+        AlgoliaError.Timeout -> stringResource(R.string.error_algolia_timeout)
     }

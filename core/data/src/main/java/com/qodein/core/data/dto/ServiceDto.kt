@@ -1,8 +1,6 @@
 package com.qodein.core.data.dto
 
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.PropertyName
 
 // MARK: - SERVICE DTOs
 
@@ -13,35 +11,13 @@ import com.google.firebase.firestore.PropertyName
 data class ServiceDto(
     @DocumentId
     val documentId: String = "",
-
-    @PropertyName("name")
     val name: String = "",
-
-    @PropertyName("category")
-    val category: String = "",
-
-    @PropertyName("logoUrl")
     val logoUrl: String? = null,
-
-    @get:PropertyName("isPopular")
-    val isPopular: Boolean = false,
-
-    @PropertyName("promoCodeCount")
-    val promoCodeCount: Int = 0,
-
-    @PropertyName("createdAt")
-    val createdAt: Timestamp? = null,
-
-    // Add these missing fields
-    @PropertyName("updatedAt")
-    val updatedAt: Timestamp? = null,
-
-    @PropertyName("domain")
-    val domain: String? = null,
-
-    @PropertyName("countsUpdatedAt")
-    val countsUpdatedAt: Timestamp? = null
+    val promoCodeCount: Int = 0
 ) {
-    // No-args constructor required for Firestore deserialization
-    constructor() : this("", "", "", null, false, 0, null, null, null, null)
+    companion object {
+        const val COLLECTION_NAME = "services"
+        const val FIELD_NAME = "name"
+        const val FIELD_PROMO_CODE_COUNT = "promoCodeCount"
+    }
 }

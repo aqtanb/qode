@@ -7,7 +7,6 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
-import com.qodein.shared.model.Service
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -38,19 +37,4 @@ interface PromocodeRepository {
      * Returns NotFound error if promo code doesn't exist.
      */
     suspend fun getPromoCodeById(id: PromocodeId): Result<PromoCode, OperationError>
-
-    // Service-related methods
-
-    /**
-     * Search for services by name or category.
-     */
-    fun searchServices(
-        query: String,
-        limit: Int = 20
-    ): Flow<Result<List<Service>, OperationError>>
-
-    /**
-     * Get popular services for quick selection.
-     */
-    fun getPopularServices(limit: Int = 10): Flow<Result<List<Service>, OperationError>>
 }

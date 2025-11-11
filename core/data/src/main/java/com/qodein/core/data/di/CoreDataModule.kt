@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.algolia.client.api.SearchClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -13,6 +14,7 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.functions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import com.qodein.core.data.BuildConfig
 import com.qodein.core.data.cache.QueryCache
 import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
@@ -32,6 +34,7 @@ import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PostRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
+import com.qodein.core.data.repository.ServiceRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.core.data.repository.UserRepositoryImpl
@@ -42,6 +45,7 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.domain.repository.UserRepository
@@ -80,6 +84,12 @@ val coreDataModule = module {
     single<DataStore<Preferences>> { androidContext().dataStore }
     single { QueryCache() }
     single { UserInteractionMapper() }
+    single {
+        SearchClient(
+            appId = BuildConfig.ALGOLIA_APP_ID,
+            apiKey = BuildConfig.ALGOLIA_SEARCH_API_KEY,
+        )
+    }
 
     single { DevicePreferencesDataSource(get()) }
     single { FirebaseGoogleAuthService(get()) }
@@ -87,13 +97,14 @@ val coreDataModule = module {
     single { FirestoreBannerDataSource(get()) }
     single { FirestorePostDataSource(get()) }
     single { FirestorePromocodeDataSource(get(), get()) }
-    single { FirestoreServiceDataSource(get()) }
+    single { FirestoreServiceDataSource(get(), get()) }
     single { FirestoreUnifiedUserInteractionDataSource(get()) }
     single { FirestoreUserDataSource(get()) }
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
-    single<PromocodeRepository> { PromocodeRepositoryImpl(get(), get(), get()) }
+    single<PromocodeRepository> { PromocodeRepositoryImpl(get(), get()) }
+    single<ServiceRepository> { ServiceRepositoryImpl(get()) }
     single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(androidContext(), get()) }
     single<BannerRepository> { BannerRepositoryImpl(get()) }
     single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get(), get()) }

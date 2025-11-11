@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.qodein.core.ui.component.CategoryFilterBottomSheet
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.core.ui.state.ServiceSelectionUiAction
@@ -38,20 +37,6 @@ fun DialogCoordinator(
 ) {
     activeDialog?.let { dialogType ->
         when (dialogType) {
-            FilterDialogType.Category -> {
-                val sheetState = rememberModalBottomSheetState()
-                CategoryFilterBottomSheet(
-                    isVisible = true,
-                    currentFilter = currentFilters.categoryFilter,
-                    onFilterSelected = { filter ->
-                        onAction(HomeAction.ApplyCategoryFilter(filter))
-                        onAction(HomeAction.DismissFilterDialog)
-                    },
-                    onDismiss = { onAction(HomeAction.DismissFilterDialog) },
-                    sheetState = sheetState,
-                )
-            }
-
             FilterDialogType.Service -> {
                 var isSearchFocused by remember { mutableStateOf(false) }
                 val isSearching = serviceSelectionState.search.isSearching
@@ -126,11 +111,6 @@ fun DialogCoordinator(
                     onDismiss = { onAction(HomeAction.DismissFilterDialog) },
                     sheetState = sheetState,
                 )
-            }
-
-            FilterDialogType.Tag -> {
-                // Home doesn't use tag filters, but we handle it for completeness
-                onAction(HomeAction.DismissFilterDialog)
             }
         }
     }

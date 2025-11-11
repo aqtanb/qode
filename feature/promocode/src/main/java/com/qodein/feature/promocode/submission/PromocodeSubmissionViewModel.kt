@@ -485,7 +485,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
         user: User
     ): Result<PromoCode, SystemError> {
         val serviceLogoUrl = wizardData.selectedService?.logoUrl
-        val category = wizardData.selectedService?.category ?: "Unspecified"
 
         return try {
             when (wizardData.promoCodeType) {
@@ -505,7 +504,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         createdByAvatarUrl = user.profile.photoUrl,
                         serviceLogoUrl = serviceLogoUrl,
                         targetCountries = listOf("KZ"), // Kazakhstan market
-                        category = category,
                     ).getOrThrow(),
                 )
 
@@ -525,7 +523,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         createdByAvatarUrl = user.profile.photoUrl,
                         serviceLogoUrl = serviceLogoUrl,
                         targetCountries = listOf("KZ"), // Kazakhstan market
-                        category = category,
                     ).getOrThrow(),
                 )
 

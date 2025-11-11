@@ -15,7 +15,6 @@ object ServicePreviewData {
     val netflix = Service(
         id = ServiceId("netflix_entertainment"),
         name = "Netflix",
-        category = "Entertainment",
         logoUrl = "https://logo.clearbit.com/netflix.com",
         promoCodeCount = 45,
     )
@@ -26,7 +25,6 @@ object ServicePreviewData {
     val kaspi = Service(
         id = ServiceId("kaspi_shopping"),
         name = "Kaspi.kz",
-        category = "Shopping",
         logoUrl = "https://logo.clearbit.com/kaspi.kz",
         promoCodeCount = 128,
     )
@@ -37,7 +35,6 @@ object ServicePreviewData {
     val glovo = Service(
         id = ServiceId("glovo_food"),
         name = "Glovo",
-        category = "Food",
         logoUrl = "https://logo.clearbit.com/glovo.com",
         promoCodeCount = 32,
     )
@@ -48,7 +45,6 @@ object ServicePreviewData {
     val yandex = Service(
         id = ServiceId("yandex_transport"),
         name = "Яндекс Go",
-        category = "Transport",
         logoUrl = "https://logo.clearbit.com/go.yandex.kz",
         promoCodeCount = 67,
     )
@@ -59,7 +55,6 @@ object ServicePreviewData {
     val technodom = Service(
         id = ServiceId("technodom_electronics"),
         name = "Technodom",
-        category = "Electronics",
         logoUrl = "https://logo.clearbit.com/technodom.kz",
         promoCodeCount = 89,
     )
@@ -70,7 +65,6 @@ object ServicePreviewData {
     val localCoffeeShop = Service(
         id = ServiceId("local_coffee_food"),
         name = "Local Coffee Shop",
-        category = "Food",
         logoUrl = null,
         promoCodeCount = 3,
     )
@@ -86,27 +80,4 @@ object ServicePreviewData {
         technodom,
         localCoffeeShop,
     )
-
-    /**
-     * Get a sample service by category for specific testing scenarios
-     */
-    fun getSampleByCategory(category: String): Service =
-        when (category.lowercase()) {
-            "entertainment" -> netflix
-            "shopping" -> kaspi
-            "food" -> glovo
-            "transport" -> yandex
-            "electronics" -> technodom
-            else -> localCoffeeShop
-        }
-
-    /**
-     * Get a sample service with high promo code count
-     */
-    val highVolumeService = kaspi
-
-    /**
-     * Get a sample service with low promo code count
-     */
-    val lowVolumeService = localCoffeeShop
 }
