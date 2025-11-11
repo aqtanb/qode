@@ -1,5 +1,6 @@
 package com.qodein.core.ui.component
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,10 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -31,18 +32,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinCard
+import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
+import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
+import com.qodein.shared.domain.service.selection.PopularServices
 import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchStatus
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.delay
 
@@ -59,10 +66,8 @@ fun ServiceSelectorBottomSheet(
     modifier: Modifier = Modifier
 ) {
     if (state.isVisible) {
-        SharedFilterBottomSheet(
-            isVisible = state.isVisible,
-            title = stringResource(R.string.select_service_title),
-            onDismiss = { onAction(ServiceSelectionUiAction.Dismiss) },
+        ModalBottomSheet(
+            onDismissRequest = { onAction(ServiceSelectionUiAction.Dismiss) },
             sheetState = sheetState,
             modifier = modifier,
         ) {
@@ -94,7 +99,9 @@ private fun ServiceSelectorContent(
     }
 
     Column(
-        modifier = if (isSearchMode) Modifier.fillMaxWidth().padding(SpacingTokens.lg) else Modifier,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(SpacingTokens.lg),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         // No extra header in search mode - keep it clean
@@ -169,9 +176,20 @@ private fun ServiceSelectorContent(
                             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                         ) {
                             state.popularServices.take(20).forEach { service ->
-                                ServiceChip(
-                                    service = service,
-                                    isSelected = state.selectedServices.any { it.id == service.id },
+                                QodeinFilterChip(
+                                    label = service.name,
+                                    leadingIcon = {
+                                        CircularImage(
+                                            imageUrl = service.logoUrl,
+                                            fallbackText = service.name,
+                                            fallbackIcon = QodeCommerceIcons.Store,
+                                            size = SizeTokens.Icon.sizeSmall,
+                                            backgroundColor = MaterialTheme.colorScheme.surface,
+                                            contentColor = MaterialTheme.colorScheme.onSurface,
+                                            contentDescription = service.name,
+                                        )
+                                    },
+                                    selected = state.selectedServices.any { it.id == service.id },
                                     onClick = { onAction(ServiceSelectionUiAction.SelectService(service)) },
                                 )
                             }
@@ -302,40 +320,22 @@ private fun ServiceItem(
     }
 }
 
+@ThemePreviews
 @Composable
-private fun ServiceChip(
-    service: Service,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    FilterChip(
-        selected = isSelected,
-        onClick = onClick,
-        label = {
-            Text(
-                text = service.name,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-            )
-        },
-        leadingIcon = if (service.logoUrl != null) {
-            {
-                CircularImage(
-                    imageUrl = service.logoUrl,
-                    fallbackText = service.name,
-                    fallbackIcon = QodeCommerceIcons.Store,
-                    size = SizeTokens.Icon.sizeSmall,
-                    backgroundColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    contentDescription = service.name,
-                )
-            }
-        } else {
-            null
-        },
-        modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-    )
+private fun ServiceSelectorContentPreview() {
+    QodeTheme {
+        ServiceSelectorContent(
+            state = ServiceSelectionUiState(
+                allServices = ServicePreviewData.allSamples.associateBy { it.id.value },
+                domainState = ServiceSelectionState(
+                    popular = PopularServices(
+                        status = PopularStatus.Idle,
+                        ids = ServicePreviewData.allSamples.map { it.id },
+                    ),
+                ),
+            ),
+            onAction = { },
+            isSearchMode = false,
+        )
+    }
 }

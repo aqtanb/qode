@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -33,48 +35,57 @@ fun SortFilterBottomSheet(
     sheetState: SheetState,
     modifier: Modifier = Modifier
 ) {
-    SharedFilterBottomSheet(
-        isVisible = isVisible,
-        title = stringResource(R.string.filter_sort_title),
-        onDismiss = onDismiss,
-        sheetState = sheetState,
-        modifier = modifier,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+    if (isVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            modifier = modifier,
         ) {
-            // Popular sort option
-            SortOption(
-                sortBy = ContentSortBy.POPULARITY,
-                text = stringResource(R.string.sort_popularity),
-                isSelected = currentSortBy == ContentSortBy.POPULARITY,
-                onClick = {
-                    onSortBySelected(ContentSortBy.POPULARITY)
-                    onDismiss()
-                },
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(SpacingTokens.lg),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            ) {
+                Text(
+                    text = stringResource(R.string.filter_sort_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
 
-            // Newest sort option
-            SortOption(
-                sortBy = ContentSortBy.NEWEST,
-                text = stringResource(R.string.sort_newest),
-                isSelected = currentSortBy == ContentSortBy.NEWEST,
-                onClick = {
-                    onSortBySelected(ContentSortBy.NEWEST)
-                    onDismiss()
-                },
-            )
+                // Popular sort option
+                SortOption(
+                    sortBy = ContentSortBy.POPULARITY,
+                    text = stringResource(R.string.sort_popularity),
+                    isSelected = currentSortBy == ContentSortBy.POPULARITY,
+                    onClick = {
+                        onSortBySelected(ContentSortBy.POPULARITY)
+                        onDismiss()
+                    },
+                )
 
-            // Expiring soon sort option
-            SortOption(
-                sortBy = ContentSortBy.EXPIRING_SOON,
-                text = stringResource(R.string.sort_expiring_soon),
-                isSelected = currentSortBy == ContentSortBy.EXPIRING_SOON,
-                onClick = {
-                    onSortBySelected(ContentSortBy.EXPIRING_SOON)
-                    onDismiss()
-                },
-            )
+                // Newest sort option
+                SortOption(
+                    sortBy = ContentSortBy.NEWEST,
+                    text = stringResource(R.string.sort_newest),
+                    isSelected = currentSortBy == ContentSortBy.NEWEST,
+                    onClick = {
+                        onSortBySelected(ContentSortBy.NEWEST)
+                        onDismiss()
+                    },
+                )
+
+                // Expiring soon sort option
+                SortOption(
+                    sortBy = ContentSortBy.EXPIRING_SOON,
+                    text = stringResource(R.string.sort_expiring_soon),
+                    isSelected = currentSortBy == ContentSortBy.EXPIRING_SOON,
+                    onClick = {
+                        onSortBySelected(ContentSortBy.EXPIRING_SOON)
+                        onDismiss()
+                    },
+                )
+            }
         }
     }
 }
