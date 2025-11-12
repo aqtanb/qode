@@ -37,6 +37,8 @@ class ServiceSearchManagerImpl constructor(
     private val _searchQuery = MutableStateFlow("")
     override val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    override val cachedServices: StateFlow<Map<String, Service>> = serviceCache.services
+
     private val isActive = MutableStateFlow(false)
 
     override val searchResult: Flow<Result<List<Service>, OperationError>> = combine(
@@ -46,26 +48,21 @@ class ServiceSearchManagerImpl constructor(
     ) { query, isActive, cachedServices ->
         Triple(query, isActive, cachedServices)
     }
-        .debounce(300) // 300ms debounce as per existing codebase standards
+        .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest { (query, isActive, cachedServices) ->
             when {
                 !isActive -> flowOf(Result.Success(emptyList()))
                 query.isBlank() -> {
-                    // Check cache for popular services first
                     val cachedPopularServices = cachedServices.values.toList()
-                    if (cachedPopularServices.size >= 10) {
-                        // Have enough cached services, use cache
+                    if (cachedPopularServices.size >= 20) {
                         flowOf(Result.Success(cachedPopularServices.take(20)))
                     } else {
-                        // Need to fetch from network
-                        getPopularServicesUseCase(limit = 20)
+                        getPopularServicesUseCase()
                     }
                 }
                 else -> {
-                    // For search, we could implement cache search here in the future
-                    // For now, always search from network to get fresh results
-                    searchServicesUseCase(query = query, limit = 5)
+                    searchServicesUseCase(query = query)
                 }
             }
         }

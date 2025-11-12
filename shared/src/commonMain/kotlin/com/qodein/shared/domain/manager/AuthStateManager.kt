@@ -1,4 +1,4 @@
-package com.qodein.shared.domain.auth
+package com.qodein.shared.domain.manager
 
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.repository.AuthRepository

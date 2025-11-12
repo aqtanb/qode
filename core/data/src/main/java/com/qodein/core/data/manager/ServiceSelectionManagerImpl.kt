@@ -17,7 +17,7 @@ import com.qodein.shared.model.ServiceId
  * No UI state, no flows, no lifecycle - just business rules.
  */
 
-class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
+class ServiceSelectionManagerImpl : ServiceSelectionManager {
 
     override fun applyAction(
         state: ServiceSelectionState,
@@ -91,12 +91,12 @@ class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
         )
 
     private fun applyRetrySearch(state: ServiceSelectionState): ServiceSelectionState =
-        if (state.search.isSearching) {
+        if (state.search.status !is SearchStatus.Idle) {
             state.copy(
                 search = state.search.copy(status = SearchStatus.Loading),
             )
         } else {
-            state // No change if not in search mode
+            state
         }
 
     private fun applySelectService(
@@ -156,7 +156,7 @@ class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
         state.copy(
             popular = PopularServices(
                 ids = ids,
-                status = PopularStatus.Idle,
+                status = PopularStatus.Success,
             ),
         )
 

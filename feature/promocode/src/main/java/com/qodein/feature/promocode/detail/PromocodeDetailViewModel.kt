@@ -10,7 +10,7 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase

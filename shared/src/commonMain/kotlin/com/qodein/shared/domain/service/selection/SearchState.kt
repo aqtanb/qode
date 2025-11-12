@@ -7,9 +7,7 @@ import com.qodein.shared.model.ServiceId
  * Domain state for service search functionality.
  * Encapsulates results and status fully in the sealed class to avoid contradictions.
  */
-data class SearchState(val query: String = "", val status: SearchStatus = SearchStatus.Idle) {
-    val isSearching: Boolean get() = query.length >= 2
-}
+data class SearchState(val query: String = "", val status: SearchStatus = SearchStatus.Idle)
 
 /**
  * Search status for service search

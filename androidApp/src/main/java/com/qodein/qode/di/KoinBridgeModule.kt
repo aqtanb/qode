@@ -1,8 +1,8 @@
 package com.qodein.qode.di
 
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase

@@ -6,7 +6,7 @@ import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

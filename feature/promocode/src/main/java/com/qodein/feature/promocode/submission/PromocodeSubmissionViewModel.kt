@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState

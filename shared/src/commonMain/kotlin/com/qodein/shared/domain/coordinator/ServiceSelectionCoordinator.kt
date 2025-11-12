@@ -1,9 +1,9 @@
-package com.qodein.core.data.coordinator
+package com.qodein.shared.domain.coordinator
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.manager.ServiceSearchManager
-import com.qodein.shared.domain.service.ServiceCache
+import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
@@ -19,46 +19,44 @@ import kotlinx.coroutines.launch
  * Eliminates code duplication between ViewModels and centralizes complex state management.
  */
 
-class ServiceSelectionCoordinator constructor(
+class ServiceSelectionCoordinator(
     private val serviceSearchManager: ServiceSearchManager,
-    private val serviceSelectionManager: ServiceSelectionManager,
-    private val serviceCache: ServiceCache
+    private val serviceSelectionManager: ServiceSelectionManager
 ) {
+    private var cachedPopularServices: List<Service>? = null
+    private var isLoadingPopularServices = false
+
+    /**
+     * Exposes cached services from ServiceSearchManager.
+     * Contains all services that have been fetched (popular + search results).
+     */
+    val cachedServices: StateFlow<Map<String, Service>>
+        get() = serviceSearchManager.cachedServices
 
     /**
      * Sets up service selection coordination with state updates callback.
      * Handles the complex logic of combining search results, popular services, and caching.
+     * Automatically loads popular services if not already cached.
      */
     fun setupServiceSelection(
         scope: CoroutineScope,
         getCurrentState: () -> ServiceSelectionState,
-        onStateUpdate: (ServiceSelectionState) -> Unit,
-        onCachedServicesUpdate: ((Map<String, Service>) -> Unit)? = null
+        onStateUpdate: (ServiceSelectionState) -> Unit
     ) {
         serviceSearchManager.activate()
 
-        scope.launch {
-            // Combine all relevant flows
-            val flows = if (onCachedServicesUpdate != null) {
-                // Include cached services for ViewModels that need them (like HomeViewModel)
-                combine(
-                    serviceSearchManager.searchQuery,
-                    serviceSearchManager.searchResult,
-                    serviceCache.services,
-                ) { query, searchResult, cachedServices ->
-                    Triple(query, searchResult, cachedServices)
-                }
-            } else {
-                // Simple version for ViewModels that don't need cached services in UI state
-                combine(
-                    serviceSearchManager.searchQuery,
-                    serviceSearchManager.searchResult,
-                ) { query, searchResult ->
-                    Triple(query, searchResult, emptyMap<String, Service>())
-                }
-            }
+        if (cachedPopularServices == null && !isLoadingPopularServices) {
+            isLoadingPopularServices = true
+            serviceSearchManager.clearQuery()
+        }
 
-            flows.collect { (query, searchResult, cachedServices) ->
+        scope.launch {
+            combine(
+                serviceSearchManager.searchQuery,
+                serviceSearchManager.searchResult,
+            ) { query, searchResult ->
+                Pair(query, searchResult)
+            }.collect { (query, searchResult) ->
                 val currentState = getCurrentState()
                 val updatedState = processServiceSelectionUpdate(
                     currentState = currentState,
@@ -67,9 +65,6 @@ class ServiceSelectionCoordinator constructor(
                 )
 
                 onStateUpdate(updatedState)
-
-                // Update cached services if callback provided
-                onCachedServicesUpdate?.invoke(cachedServices)
             }
         }
     }
@@ -88,11 +83,6 @@ class ServiceSelectionCoordinator constructor(
 
         return newState
     }
-
-    /**
-     * Exposes the service cache for UI components that need direct access to cached services.
-     */
-    val cachedServices: StateFlow<Map<String, Service>> get() = serviceCache.services
 
     /**
      * Deactivates the service search manager.
@@ -116,36 +106,33 @@ class ServiceSelectionCoordinator constructor(
             currentState
         }
 
-        // Process search results
         return when (searchResult) {
             is Result.Success -> {
-                // Cache the services for lookup
-                serviceCache.addServices(searchResult.data)
+                val serviceIds = searchResult.data.map { it.id }
 
                 if (query.isBlank()) {
-                    // Popular services loaded
-                    serviceSelectionManager.applyAction(
-                        updatedState,
-                        ServiceSelectionAction.SetPopularServices(searchResult.data.map { it.id }),
+                    updatedState.copy(
+                        popular = updatedState.popular.copy(
+                            ids = serviceIds,
+                            status = PopularStatus.Success,
+                        ),
                     )
                 } else {
-                    // Search results loaded
                     updatedState.copy(
                         search = updatedState.search.copy(
-                            status = SearchStatus.Success(searchResult.data.map { it.id }),
+                            status = SearchStatus.Success(serviceIds),
                         ),
                     )
                 }
             }
             is Result.Error -> {
                 if (query.isBlank()) {
-                    // Popular services error
-                    serviceSelectionManager.applyAction(
-                        updatedState,
-                        ServiceSelectionAction.SetPopularServicesError(searchResult.error),
+                    updatedState.copy(
+                        popular = updatedState.popular.copy(
+                            status = PopularStatus.Error(searchResult.error),
+                        ),
                     )
                 } else {
-                    // Search error
                     updatedState.copy(
                         search = updatedState.search.copy(
                             status = SearchStatus.Error(searchResult.error),
@@ -164,17 +151,11 @@ class ServiceSelectionCoordinator constructor(
             is ServiceSelectionAction.UpdateQuery -> {
                 serviceSearchManager.updateQuery(action.query)
             }
-            ServiceSelectionAction.LoadPopularServices,
-            ServiceSelectionAction.RetryPopularServices -> {
-                serviceSearchManager.clearQuery() // Load popular services
+            ServiceSelectionAction.ClearSelection,
+            is ServiceSelectionAction.SelectService,
+            is ServiceSelectionAction.UnselectService -> {
+                // No side effects
             }
-            ServiceSelectionAction.RetrySearch -> {
-                if (newState.search.isSearching) {
-                    serviceSearchManager.updateQuery(newState.search.query)
-                }
-            }
-            // Other actions are pure state changes, no side effects needed
-            else -> { /* No side effects needed */ }
         }
     }
 }

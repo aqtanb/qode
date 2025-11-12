@@ -184,7 +184,8 @@
     <string name="action_back">Back</string>
     <string name="action_clear">Clear</string>
     <string name="search_icon_description">Search</string>
-    <string name="loading_popular_services">Loading popular services...</string>
+    <string name="loading_popular_services">Loading popular services…</string>
+    <string name="error_loading_popular_services">Failed to load popular services</string>
     <string name="search_error_message">Failed to search services. Please try again.</string>
 
     <!-- Sort Options -->

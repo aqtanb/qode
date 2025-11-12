@@ -6,11 +6,13 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
+import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
@@ -31,9 +33,12 @@ import com.qodein.shared.ui.FilterDialogType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,12 +60,26 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
 
+    // Expose cached services StateFlow for direct collection in UI
+    val cachedServices get() = serviceSelectionCoordinator.cachedServices
+
+    val serviceSelectionUiState: StateFlow<ServiceSelectionUiState> = combine(
+        uiState,
+        cachedServices,
+    ) { state, services ->
+        ServiceSelectionUiState(
+            domainState = state.serviceSelectionState,
+            allServices = services,
+            isVisible = true,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ServiceSelectionUiState(),
+    )
+
     companion object {
         private const val DEFAULT_PAGE_SIZE = 20
-        private const val SEARCH_DEBOUNCE_MILLIS = 300L
-        private const val MIN_SEARCH_QUERY_LENGTH = 2
-
-        // Analytics constants
         private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
         private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
         private const val CONTENT_TYPE_BANNER = "banner"
@@ -86,17 +105,62 @@ class HomeViewModel @Inject constructor(
             is HomeAction.ErrorDismissed -> dismissError()
             is HomeAction.RetryBannersClicked -> retryBanners()
             is HomeAction.RetryPromoCodesClicked -> retryPromoCodes()
-            is HomeAction.RetryServicesClicked -> retryServices()
 
-            // Filter Actions
             is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
             is HomeAction.DismissFilterDialog -> dismissFilterDialog()
-            is HomeAction.ApplyCategoryFilter -> applyCategoryFilter(action.categoryFilter)
             is HomeAction.ApplyServiceFilter -> applyServiceFilter(action.serviceFilter)
             is HomeAction.ApplySortFilter -> applySortFilter(action.sortFilter)
             is HomeAction.ResetFilters -> resetFilters()
-            is HomeAction.SearchServices -> searchServices(action.query)
         }
+    }
+
+    fun onServiceSelectionAction(action: ServiceSelectionAction) {
+        // Coordinator handles all action processing (state + side effects)
+        handleServiceSelectionAction(action)
+
+        // Home-specific: sync filters after selection changes
+        when (action) {
+            is ServiceSelectionAction.SelectService,
+            is ServiceSelectionAction.UnselectService,
+            ServiceSelectionAction.ClearSelection -> {
+                syncServiceFilterFromSelection()
+            }
+            is ServiceSelectionAction.UpdateQuery -> {
+                // No Home-specific logic needed
+            }
+        }
+    }
+
+    /**
+     * Derives ServiceFilter from serviceSelectionState (single source of truth)
+     * and updates currentFilters to keep them in sync
+     */
+    private fun syncServiceFilterFromSelection() {
+        val selectionState = _uiState.value.serviceSelectionState
+        val cachedServicesMap = serviceSelectionCoordinator.cachedServices.value
+
+        val serviceFilter = when (val selection = selectionState.selection) {
+            is SelectionState.Multi -> {
+                if (selection.selectedIds.isEmpty()) {
+                    ServiceFilter.All
+                } else {
+                    val services = selection.selectedIds.mapNotNull { serviceId ->
+                        cachedServicesMap[serviceId.value]
+                    }.toSet()
+                    ServiceFilter.Selected(services)
+                }
+            }
+            is SelectionState.Single -> {
+                selection.selectedId?.let { serviceId ->
+                    cachedServicesMap[serviceId.value]?.let { service ->
+                        ServiceFilter.Selected(setOf(service))
+                    }
+                } ?: ServiceFilter.All
+            }
+        }
+
+        // Update the filter (which triggers promo code reload)
+        onAction(HomeAction.ApplyServiceFilter(serviceFilter))
     }
 
     // MARK: Loading and Error Handling
@@ -327,11 +391,6 @@ class HomeViewModel @Inject constructor(
         loadInitialPage()
     }
 
-    private fun retryServices() {
-        Logger.d("HomeViewModel: Retrying services load")
-        handleServiceSelectionAction(ServiceSelectionAction.RetryPopularServices)
-    }
-
     // MARK: - Filter Actions
 
     private fun showFilterDialog(type: FilterDialogType) {
@@ -342,7 +401,42 @@ class HomeViewModel @Inject constructor(
         // Activate and load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
             setupServiceSelection()
-            handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
+
+            // Initialize selection state from current filter
+            syncSelectionFromFilter()
+
+            handleServiceSelectionAction(LoadPopularServices)
+        }
+    }
+
+    /**
+     * Initializes serviceSelectionState from currentFilters when opening dialog
+     * This ensures the selection UI shows what's currently filtered
+     */
+    private fun syncSelectionFromFilter() {
+        val currentFilter = _uiState.value.currentFilters.serviceFilter
+        when (currentFilter) {
+            ServiceFilter.All -> {
+                // Clear selection
+                _uiState.update { state ->
+                    state.copy(
+                        serviceSelectionState = state.serviceSelectionState.copy(
+                            selection = SelectionState.Multi(selectedIds = emptySet()),
+                        ),
+                    )
+                }
+            }
+            is ServiceFilter.Selected -> {
+                // Set selection from filter
+                val selectedIds = currentFilter.services.map { it.id }.toSet()
+                _uiState.update { state ->
+                    state.copy(
+                        serviceSelectionState = state.serviceSelectionState.copy(
+                            selection = SelectionState.Multi(selectedIds = selectedIds),
+                        ),
+                    )
+                }
+            }
         }
     }
 
@@ -404,11 +498,7 @@ class HomeViewModel @Inject constructor(
                     state.copy(serviceSelectionState = newState)
                 }
             },
-            onCachedServicesUpdate = { cachedServices ->
-                _uiState.update { state ->
-                    state.copy(cachedServices = cachedServices)
-                }
-            },
+            onCachedServicesUpdate = { /* No longer needed - UI collects StateFlow directly */ },
         )
     }
 

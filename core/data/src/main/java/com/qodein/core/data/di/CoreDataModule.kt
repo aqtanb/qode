@@ -16,7 +16,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.qodein.core.data.BuildConfig
 import com.qodein.core.data.cache.QueryCache
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
 import com.qodein.core.data.datasource.FirebaseGoogleAuthService
 import com.qodein.core.data.datasource.FirebaseStorageDataSource
@@ -38,7 +37,8 @@ import com.qodein.core.data.repository.ServiceRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.core.data.repository.UserRepositoryImpl
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository

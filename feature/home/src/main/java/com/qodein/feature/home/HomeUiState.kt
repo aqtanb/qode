@@ -6,7 +6,6 @@ import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.Language
-import com.qodein.shared.model.Service
 import com.qodein.shared.ui.FilterDialogType
 
 /**
@@ -24,7 +23,6 @@ data class HomeUiState(
     val serviceSelectionState: ServiceSelectionState = ServiceSelectionState(
         selection = SelectionState.Multi(),
     ),
-    val cachedServices: Map<String, Service> = emptyMap(),
     val isLoadingMore: Boolean = false,
     val isRefreshing: Boolean = false
 )

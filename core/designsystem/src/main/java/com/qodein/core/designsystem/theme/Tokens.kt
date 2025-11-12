@@ -128,7 +128,7 @@ object SizeTokens {
 
     @Immutable
     object Selector {
-        val height = 72.dp
+        val height = 64.dp
         val padding = SpacingTokens.lg
         val shape = ShapeTokens.Corner.full
     }

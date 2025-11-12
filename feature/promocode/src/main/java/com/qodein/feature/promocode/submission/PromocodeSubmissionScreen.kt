@@ -42,13 +42,14 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.core.ui.state.ServiceSelectionUiAction
+import com.qodein.core.ui.state.ServiceSelectionAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 
 // MARK: - Constants
@@ -144,7 +145,7 @@ fun PromocodeSubmissionScreen(
 
                             // Use different sheet state based on focus/search mode
                             val adjustedSheetState = rememberModalBottomSheetState(
-                                skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.isSearching,
+                                skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.status !is SearchStatus.Idle,
                             )
 
                             // Update selection state with current wizard selection
@@ -156,7 +157,6 @@ fun PromocodeSubmissionScreen(
                                 domainState = updatedSelectionState,
                                 allServices = cachedServices,
                                 isVisible = true,
-                                isSearchFocused = isSearchFocused,
                             )
 
                             ServiceSelectorBottomSheet(
@@ -164,20 +164,17 @@ fun PromocodeSubmissionScreen(
                                 sheetState = adjustedSheetState,
                                 onAction = { uiAction ->
                                     when (uiAction) {
-                                        is ServiceSelectionUiAction.UpdateQuery -> {
+                                        is ServiceSelectionAction.UpdateQuery -> {
                                             viewModel.onAction(PromocodeSubmissionAction.SearchServices(uiAction.query))
                                         }
-                                        ServiceSelectionUiAction.ClearQuery -> {
+                                        ServiceSelectionAction.ClearQuery -> {
                                             viewModel.onAction(PromocodeSubmissionAction.SearchServices(""))
                                         }
-                                        is ServiceSelectionUiAction.SelectService -> {
+                                        is ServiceSelectionAction.SelectService -> {
                                             viewModel.onAction(PromocodeSubmissionAction.SelectService(uiAction.service))
                                             viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
                                         }
-                                        is ServiceSelectionUiAction.SetSearchFocus -> {
-                                            isSearchFocused = uiAction.focused
-                                        }
-                                        ServiceSelectionUiAction.Dismiss -> {
+                                        ServiceSelectionAction.Dismiss -> {
                                             viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
                                         }
                                         else -> {

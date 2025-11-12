@@ -47,13 +47,6 @@ fun SortFilterBottomSheet(
                     .padding(SpacingTokens.lg),
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
-                Text(
-                    text = stringResource(R.string.filter_sort_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                // Popular sort option
                 SortOption(
                     sortBy = ContentSortBy.POPULARITY,
                     text = stringResource(R.string.sort_popularity),

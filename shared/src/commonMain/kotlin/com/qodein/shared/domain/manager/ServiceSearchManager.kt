@@ -27,6 +27,12 @@ interface ServiceSearchManager {
     val searchResult: Flow<Result<List<Service>, OperationError>>
 
     /**
+     * Cached services map (serviceId -> Service) for lookup.
+     * Contains all services that have been fetched (popular + search results).
+     */
+    val cachedServices: StateFlow<Map<String, Service>>
+
+    /**
      * Update the search query. Triggers debounced search.
      * Empty or blank query will load popular services.
      */

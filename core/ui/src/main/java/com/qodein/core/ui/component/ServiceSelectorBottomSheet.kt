@@ -1,6 +1,5 @@
 package com.qodein.core.ui.component
 
-import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,17 +15,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,22 +30,26 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.component.QodeinTextField
+import com.qodein.core.designsystem.component.ShimmerBox
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
+import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.core.ui.state.ServiceSelectionUiAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.service.selection.PopularServices
 import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchStatus
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.Service
-import kotlinx.coroutines.delay
+import com.qodein.shared.model.ServiceId
 
 /**
  * Centralized service selector bottom sheet component.
@@ -62,19 +60,19 @@ import kotlinx.coroutines.delay
 fun ServiceSelectorBottomSheet(
     state: ServiceSelectionUiState,
     sheetState: SheetState,
-    onAction: (ServiceSelectionUiAction) -> Unit,
+    onAction: (ServiceSelectionAction) -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (state.isVisible) {
         ModalBottomSheet(
-            onDismissRequest = { onAction(ServiceSelectionUiAction.Dismiss) },
+            onDismissRequest = { onDismiss },
             sheetState = sheetState,
             modifier = modifier,
         ) {
             ServiceSelectorContent(
                 state = state,
                 onAction = onAction,
-                isSearchMode = state.shouldAutoExpand,
             )
         }
     }
@@ -84,19 +82,9 @@ fun ServiceSelectorBottomSheet(
 @Composable
 private fun ServiceSelectorContent(
     state: ServiceSelectionUiState,
-    onAction: (ServiceSelectionUiAction) -> Unit,
-    isSearchMode: Boolean
+    onAction: (ServiceSelectionAction) -> Unit
 ) {
     val searchQuery = state.domainState.search.query
-    val isSearching = state.domainState.search.isSearching
-
-    // Debounced search
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.length >= 2) {
-            delay(300)
-            // Search is handled by the domain manager automatically
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -104,160 +92,189 @@ private fun ServiceSelectorContent(
             .padding(SpacingTokens.lg),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // No extra header in search mode - keep it clean
-
-        // Search field
-        OutlinedTextField(
+        QodeinTextField(
             value = searchQuery,
-            onValueChange = { query -> onAction(ServiceSelectionUiAction.UpdateQuery(query)) },
-            label = { Text(stringResource(R.string.search_services_label)) },
-            placeholder = { Text(stringResource(R.string.search_services_placeholder)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = QodeNavigationIcons.Search,
-                    contentDescription = stringResource(R.string.search_icon_description),
-                )
-            },
-            trailingIcon = if (searchQuery.isNotEmpty()) {
-                {
-                    IconButton(onClick = { onAction(ServiceSelectionUiAction.ClearQuery) }) {
-                        Icon(
-                            imageVector = QodeActionIcons.Close,
-                            contentDescription = stringResource(R.string.action_clear),
-                        )
-                    }
-                }
-            } else {
-                null
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    onAction(ServiceSelectionUiAction.SetSearchFocus(focusState.isFocused))
-                },
-            shape = RoundedCornerShape(28.dp),
+            onValueChange = { query -> onAction(ServiceSelectionAction.UpdateQuery(query)) },
+            placeholder = stringResource(R.string.search_services_placeholder),
+            leadingIcon = QodeNavigationIcons.Search,
+            modifier = Modifier.fillMaxWidth(),
         )
 
-        // Popular services chips (when search query is empty)
         if (searchQuery.isEmpty()) {
-            Text(
-                text = stringResource(R.string.popular_services_title),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            PopularServicesSection(
+                popularStatus = state.domainState.popular.status,
+                popularServices = state.popularServices,
+                selectedServices = state.selectedServices,
+                onServiceClick = { service -> onAction(ServiceSelectionAction.SelectService(service)) },
             )
+        } else {
+            SearchResultsSection(
+                searchStatus = state.domainState.search.status,
+                displayServices = state.displayServices,
+                selectedServices = state.selectedServices,
+                onServiceClick = { service -> onAction(ServiceSelectionAction.SelectService(service)) },
+            )
+        }
+    }
+}
 
-            when (state.domainState.popular.status) {
-                PopularStatus.Loading -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(SpacingTokens.lg),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.size(SpacingTokens.sm))
-                        Text(
-                            text = stringResource(R.string.loading_popular_services),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PopularServicesSection(
+    popularStatus: PopularStatus,
+    popularServices: List<Service>,
+    selectedServices: List<Service>,
+    onServiceClick: (ServiceId) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        Text(
+            text = stringResource(R.string.popular_services_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        when (popularStatus) {
+            PopularStatus.Loading -> {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                ) {
+                    repeat(20) {
+                        ShimmerBox(
+                            width = 100.dp,
+                            height = 32.dp,
+                            shape = RoundedCornerShape(16.dp),
                         )
                     }
                 }
-                is PopularStatus.Error -> {
-                    // Could show error state here
+            }
+            is PopularStatus.Error -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(SpacingTokens.lg),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = QodeUIIcons.Error,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                    )
+                    Text(
+                        text = stringResource(R.string.error_loading_popular_services),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Text(
+                        text = popularStatus.error.asUiText(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
-                PopularStatus.Idle -> {
-                    if (state.popularServices.isNotEmpty()) {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                        ) {
-                            state.popularServices.take(20).forEach { service ->
-                                QodeinFilterChip(
-                                    label = service.name,
-                                    leadingIcon = {
-                                        CircularImage(
-                                            imageUrl = service.logoUrl,
-                                            fallbackText = service.name,
-                                            fallbackIcon = QodeCommerceIcons.Store,
-                                            size = SizeTokens.Icon.sizeSmall,
-                                            backgroundColor = MaterialTheme.colorScheme.surface,
-                                            contentColor = MaterialTheme.colorScheme.onSurface,
-                                            contentDescription = service.name,
-                                        )
-                                    },
-                                    selected = state.selectedServices.any { it.id == service.id },
-                                    onClick = { onAction(ServiceSelectionUiAction.SelectService(service)) },
-                                )
-                            }
+            }
+            PopularStatus.Success -> {
+                if (popularServices.isNotEmpty()) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                    ) {
+                        popularServices.take(20).forEach { service ->
+                            QodeinFilterChip(
+                                label = service.name,
+                                leadingIcon = {
+                                    CircularImage(
+                                        imageUrl = service.logoUrl,
+                                        fallbackText = service.name,
+                                        fallbackIcon = QodeCommerceIcons.Store,
+                                        size = SizeTokens.Icon.sizeSmall,
+                                        backgroundColor = MaterialTheme.colorScheme.surface,
+                                        contentColor = MaterialTheme.colorScheme.onSurface,
+                                        contentDescription = service.name,
+                                    )
+                                },
+                                selected = selectedServices.any { it.id == service.id },
+                                onClick = { onServiceClick(service.id) },
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
 
-        // Search results (only when searching)
-        if (isSearching) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                modifier = Modifier.height(if (isSearchMode) 600.dp else 400.dp),
-            ) {
-                when (val searchStatus = state.domainState.search.status) {
-                    SearchStatus.Loading -> {
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(SpacingTokens.xl),
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                                Spacer(modifier = Modifier.size(SpacingTokens.md))
-                                Text(
-                                    text = stringResource(R.string.searching_message),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                    is SearchStatus.Success -> {
-                        if (state.displayServices.isNotEmpty()) {
-                            items(state.displayServices) { service ->
-                                ServiceItem(
-                                    service = service,
-                                    isSelected = state.selectedServices.any { it.id == service.id },
-                                    onClick = { onAction(ServiceSelectionUiAction.SelectService(service)) },
-                                )
-                            }
-                        } else {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.no_services_found_message),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(SpacingTokens.xl),
-                                )
-                            }
-                        }
-                    }
-                    is SearchStatus.Error -> {
-                        item {
-                            Text(
-                                text = stringResource(R.string.search_error_message),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(SpacingTokens.xl),
-                            )
-                        }
-                    }
-                    SearchStatus.Idle -> {
-                        // No search results to show
+@Composable
+private fun SearchResultsSection(
+    searchStatus: SearchStatus,
+    displayServices: List<Service>,
+    selectedServices: List<Service>,
+    onServiceClick: (ServiceId) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        modifier = modifier,
+    ) {
+        when (searchStatus) {
+            SearchStatus.Loading -> {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpacingTokens.xl),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.size(SpacingTokens.md))
+                        Text(
+                            text = stringResource(R.string.searching_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
+            }
+            is SearchStatus.Success -> {
+                if (displayServices.isNotEmpty()) {
+                    items(displayServices) { service ->
+                        ServiceItem(
+                            service = service,
+                            isSelected = selectedServices.any { it.id == service.id },
+                            onClick = { onServiceClick(service.id) },
+                        )
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_services_found_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(SpacingTokens.xl),
+                        )
+                    }
+                }
+            }
+            is SearchStatus.Error -> {
+                item {
+                    Text(
+                        text = stringResource(R.string.search_error_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(SpacingTokens.xl),
+                    )
+                }
+            }
+
+            SearchStatus.Idle -> {
             }
         }
     }
@@ -277,7 +294,7 @@ private fun ServiceItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-            modifier = modifier.fillMaxWidth(),
+            modifier = Modifier.padding(SpacingTokens.md),
         ) {
             CircularImage(
                 imageUrl = service.logoUrl,
@@ -329,13 +346,63 @@ private fun ServiceSelectorContentPreview() {
                 allServices = ServicePreviewData.allSamples.associateBy { it.id.value },
                 domainState = ServiceSelectionState(
                     popular = PopularServices(
-                        status = PopularStatus.Idle,
+                        status = PopularStatus.Success,
                         ids = ServicePreviewData.allSamples.map { it.id },
                     ),
                 ),
             ),
             onAction = { },
-            isSearchMode = false,
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PopularServicesSectionLoadingPreview() {
+    QodeTheme {
+        PopularServicesSection(
+            popularStatus = PopularStatus.Loading,
+            popularServices = emptyList(),
+            selectedServices = emptyList(),
+            onServiceClick = {},
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PopularServicesSectionIdlePreview() {
+    QodeTheme {
+        PopularServicesSection(
+            popularStatus = PopularStatus.Success,
+            popularServices = ServicePreviewData.allSamples,
+            selectedServices = listOf(ServicePreviewData.yandex),
+            onServiceClick = {},
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PopularServicesSectionErrorPreview() {
+    QodeTheme {
+        PopularServicesSection(
+            popularStatus = PopularStatus.Error(SystemError.ServiceDown),
+            popularServices = emptyList(),
+            selectedServices = emptyList(),
+            onServiceClick = {},
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun ServiceItemPreview() {
+    QodeTheme {
+        ServiceItem(
+            service = ServicePreviewData.yandex,
+            isSelected = true,
+            onClick = {},
         )
     }
 }

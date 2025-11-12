@@ -8,7 +8,7 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
