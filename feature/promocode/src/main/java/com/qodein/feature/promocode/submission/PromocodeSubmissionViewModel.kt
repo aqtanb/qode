@@ -8,6 +8,7 @@ import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
@@ -16,7 +17,6 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.Service
 import com.qodein.shared.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -132,9 +132,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
         ServiceSelectionState(selection = SelectionState.Single()), // Submission allows only single service selection
     )
     val serviceSelectionState = _serviceSelectionState.asStateFlow()
-
-    // Expose ServiceCache for UI components that need service lookup
-    val cachedServices: StateFlow<Map<String, Service>> get() = serviceSelectionCoordinator.cachedServices
 
     // MARK: - Service Selection
 
@@ -381,8 +378,14 @@ class PromocodeSubmissionViewModel @Inject constructor(
         _serviceSelectionState.update { newState }
 
         when (action) {
-            is ServiceSelectionAction.SelectService -> {
-                val service = serviceSelectionCoordinator.cachedServices.value[action.id.value]
+            is ServiceSelectionAction.ToggleService -> {
+                // Get service from domain state (popular or search results)
+                val allServices = (
+                    newState.popular.services +
+                        (newState.search.status as? SearchStatus.Success)?.services.orEmpty()
+                    ).associateBy { it.id }
+
+                val service = allServices[action.id]
                 service?.let {
                     updateWizardData { wizardData -> wizardData.copy(selectedService = it) }
                     onAction(PromocodeSubmissionAction.HideServiceSelector)

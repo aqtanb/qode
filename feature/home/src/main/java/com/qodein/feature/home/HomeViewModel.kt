@@ -18,7 +18,6 @@ import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.model.Banner
-import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.Discount
@@ -37,7 +36,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -60,16 +59,9 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
 
-    // Expose cached services StateFlow for direct collection in UI
-    val cachedServices get() = serviceSelectionCoordinator.cachedServices
-
-    val serviceSelectionUiState: StateFlow<ServiceSelectionUiState> = combine(
-        uiState,
-        cachedServices,
-    ) { state, services ->
+    val serviceSelectionUiState: StateFlow<ServiceSelectionUiState> = uiState.map { state ->
         ServiceSelectionUiState(
             domainState = state.serviceSelectionState,
-            allServices = services,
             isVisible = true,
         )
     }.stateIn(
@@ -121,6 +113,10 @@ class HomeViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(serviceSelectionState = newState)
         }
+
+        if (action is ServiceSelectionAction.ToggleService) {
+            syncServiceFilterFromSelection()
+        }
     }
 
     /**
@@ -129,7 +125,10 @@ class HomeViewModel @Inject constructor(
      */
     private fun syncServiceFilterFromSelection() {
         val selectionState = _uiState.value.serviceSelectionState
-        val cachedServicesMap = serviceSelectionCoordinator.cachedServices.value
+        val allServices = (
+            selectionState.popular.services +
+                (selectionState.search.status as? com.qodein.shared.domain.service.selection.SearchStatus.Success)?.services.orEmpty()
+            ).associateBy { it.id }
 
         val serviceFilter = when (val selection = selectionState.selection) {
             is SelectionState.Multi -> {
@@ -137,14 +136,14 @@ class HomeViewModel @Inject constructor(
                     ServiceFilter.All
                 } else {
                     val services = selection.selectedIds.mapNotNull { serviceId ->
-                        cachedServicesMap[serviceId.value]
+                        allServices[serviceId]
                     }.toSet()
                     ServiceFilter.Selected(services)
                 }
             }
             is SelectionState.Single -> {
                 selection.selectedId?.let { serviceId ->
-                    cachedServicesMap[serviceId.value]?.let { service ->
+                    allServices[serviceId]?.let { service ->
                         ServiceFilter.Selected(setOf(service))
                     }
                 } ?: ServiceFilter.All
@@ -216,10 +215,6 @@ class HomeViewModel @Inject constructor(
 
             getPromoCodesUseCase(
                 sortBy = filters.sortFilter.sortBy,
-                filterByCategories = when (val categoryFilter = filters.categoryFilter) {
-                    CategoryFilter.All -> null
-                    is CategoryFilter.Selected -> categoryFilter.categories.toList()
-                },
                 filterByServices = when (val serviceFilter = filters.serviceFilter) {
                     ServiceFilter.All -> null
                     is ServiceFilter.Selected -> serviceFilter.services.map { it.name }
@@ -290,7 +285,6 @@ class HomeViewModel @Inject constructor(
         currentState: HomeUiState
     ): HomeUiState =
         if (isLoadMore) {
-            // For load more errors, keep existing data but stop loading
             currentState
         } else {
             currentState.copy(
@@ -306,7 +300,6 @@ class HomeViewModel @Inject constructor(
     private fun emitEvent(event: HomeEvent) {
         val success = _events.tryEmit(event)
         if (!success) {
-            // Fallback to coroutine if buffer is full (unlikely but safer)
             viewModelScope.launch {
                 _events.emit(event)
             }
@@ -323,7 +316,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onCopyPromoCode(promoCode: PromoCode) {
-        // Note: Clipboard functionality not yet implemented
         logPromoCodeCopyAnalytics(promoCode)
         emitEvent(HomeEvent.PromoCodeCopied(promoCode))
     }
@@ -428,14 +420,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun dismissFilterDialog() {
+        val currentDialog = _uiState.value.activeFilterDialog
+        if (currentDialog == FilterDialogType.Service) {
+            serviceSelectionCoordinator.deactivate()
+        }
         _uiState.update { state ->
             state.copy(activeFilterDialog = null)
-        }
-    }
-
-    private fun applyCategoryFilter(categoryFilter: CategoryFilter) {
-        applyFilterChange { currentFilters ->
-            currentFilters.applyCategoryFilter(categoryFilter)
         }
     }
 
@@ -486,10 +476,6 @@ class HomeViewModel @Inject constructor(
                 }
             },
         )
-    }
-
-    private fun searchServices(query: String) {
-        onServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     override fun onCleared() {

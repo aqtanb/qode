@@ -14,14 +14,12 @@ class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository)
         query: String? = null,
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
     ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
         promoCodeRepository.getPromoCodes(
             query = query,
             sortBy = sortBy,
             filterByServices = filterByServices,
-            filterByCategories = filterByCategories,
             paginationRequest = paginationRequest,
         )
 }

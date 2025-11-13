@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeOutlinedButton
 import com.qodein.core.designsystem.component.QodeinCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
@@ -66,7 +67,7 @@ fun ServiceSelectorBottomSheet(
 ) {
     if (state.isVisible) {
         ModalBottomSheet(
-            onDismissRequest = { onDismiss },
+            onDismissRequest = onDismiss,
             sheetState = sheetState,
             modifier = modifier,
         ) {
@@ -105,14 +106,14 @@ private fun ServiceSelectorContent(
                 popularStatus = state.domainState.popular.status,
                 popularServices = state.popularServices,
                 selectedServices = state.selectedServices,
-                onServiceClick = { service -> onAction(ServiceSelectionAction.SelectService(service)) },
+                onAction = { action -> onAction(action) },
             )
         } else {
             SearchResultsSection(
                 searchStatus = state.domainState.search.status,
                 displayServices = state.displayServices,
                 selectedServices = state.selectedServices,
-                onServiceClick = { service -> onAction(ServiceSelectionAction.SelectService(service)) },
+                onServiceClick = { service -> onAction(ServiceSelectionAction.ToggleService(service)) },
             )
         }
     }
@@ -124,7 +125,7 @@ private fun PopularServicesSection(
     popularStatus: PopularStatus,
     popularServices: List<Service>,
     selectedServices: List<Service>,
-    onServiceClick: (ServiceId) -> Unit,
+    onAction: (ServiceSelectionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -158,25 +159,28 @@ private fun PopularServicesSection(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(SpacingTokens.lg),
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                        .padding(SpacingTokens.xl),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
                         imageVector = QodeUIIcons.Error,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                    )
-                    Text(
-                        text = stringResource(R.string.error_loading_popular_services),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                     )
                     Text(
                         text = popularStatus.error.asUiText(),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
+                    )
+
+                    Spacer(modifier = Modifier.size(SpacingTokens.sm))
+
+                    QodeOutlinedButton(
+                        onClick = { onAction(ServiceSelectionAction.UpdateQuery("")) },
+                        text = stringResource(R.string.action_retry),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -202,9 +206,29 @@ private fun PopularServicesSection(
                                     )
                                 },
                                 selected = selectedServices.any { it.id == service.id },
-                                onClick = { onServiceClick(service.id) },
+                                onClick = { onAction(ServiceSelectionAction.ToggleService(service.id)) },
                             )
                         }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpacingTokens.lg),
+                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            imageVector = QodeUIIcons.Empty,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                        )
+                        Text(
+                            text = stringResource(R.string.no_services_found_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -343,11 +367,9 @@ private fun ServiceSelectorContentPreview() {
     QodeTheme {
         ServiceSelectorContent(
             state = ServiceSelectionUiState(
-                allServices = ServicePreviewData.allSamples.associateBy { it.id.value },
                 domainState = ServiceSelectionState(
                     popular = PopularServices(
                         status = PopularStatus.Success,
-                        ids = ServicePreviewData.allSamples.map { it.id },
                     ),
                 ),
             ),
@@ -364,7 +386,7 @@ private fun PopularServicesSectionLoadingPreview() {
             popularStatus = PopularStatus.Loading,
             popularServices = emptyList(),
             selectedServices = emptyList(),
-            onServiceClick = {},
+            onAction = {},
         )
     }
 }
@@ -377,7 +399,7 @@ private fun PopularServicesSectionIdlePreview() {
             popularStatus = PopularStatus.Success,
             popularServices = ServicePreviewData.allSamples,
             selectedServices = listOf(ServicePreviewData.yandex),
-            onServiceClick = {},
+            onAction = {},
         )
     }
 }
@@ -390,7 +412,7 @@ private fun PopularServicesSectionErrorPreview() {
             popularStatus = PopularStatus.Error(SystemError.ServiceDown),
             popularServices = emptyList(),
             selectedServices = emptyList(),
-            onServiceClick = {},
+            onAction = {},
         )
     }
 }

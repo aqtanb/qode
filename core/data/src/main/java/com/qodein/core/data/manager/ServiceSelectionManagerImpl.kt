@@ -21,9 +21,7 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
     ): ServiceSelectionState =
         when (action) {
             is ServiceSelectionAction.UpdateQuery -> applyUpdateQuery(state, action.query)
-
-            is ServiceSelectionAction.SelectService -> applySelectService(state, action.id)
-            is ServiceSelectionAction.UnselectService -> applyUnselectService(state, action.id)
+            is ServiceSelectionAction.ToggleService -> applyToggleService(state, action.id)
             ServiceSelectionAction.ClearSelection -> applyClearSelection(state)
         }
 
@@ -68,34 +66,25 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
         )
     }
 
-    private fun applySelectService(
-        state: ServiceSelectionState,
-        serviceId: ServiceId
-    ): ServiceSelectionState {
-        val newSelection = when (val selection = state.selection) {
-            is SelectionState.Single -> SelectionState.Single(selectedId = serviceId)
-            is SelectionState.Multi -> SelectionState.Multi(
-                selectedIds = selection.selectedIds + serviceId,
-            )
-        }
-        return state.copy(selection = newSelection)
-    }
-
-    private fun applyUnselectService(
+    private fun applyToggleService(
         state: ServiceSelectionState,
         serviceId: ServiceId
     ): ServiceSelectionState {
         val newSelection = when (val selection = state.selection) {
             is SelectionState.Single -> {
                 if (selection.selectedId == serviceId) {
-                    SelectionState.Single(selectedId = null)
+                    SelectionState.Single(selectedId = null) // Unselect if already selected
                 } else {
-                    selection // No change if different service
+                    SelectionState.Single(selectedId = serviceId) // Select if not selected
                 }
             }
-            is SelectionState.Multi -> SelectionState.Multi(
-                selectedIds = selection.selectedIds - serviceId,
-            )
+            is SelectionState.Multi -> {
+                if (serviceId in selection.selectedIds) {
+                    SelectionState.Multi(selectedIds = selection.selectedIds - serviceId) // Remove if already selected
+                } else {
+                    SelectionState.Multi(selectedIds = selection.selectedIds + serviceId) // Add if not selected
+                }
+            }
         }
         return state.copy(selection = newSelection)
     }

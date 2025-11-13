@@ -139,8 +139,6 @@ fun PromocodeSubmissionScreen(
 
                             // Get unified service selection state from ViewModel
                             val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
-                            // Get cached services from coordinator
-                            val cachedServices by viewModel.cachedServices.collectAsStateWithLifecycle()
 
                             // Use different sheet state based on focus/search mode
                             val adjustedSheetState = rememberModalBottomSheetState(
@@ -154,7 +152,6 @@ fun PromocodeSubmissionScreen(
 
                             val uiState = ServiceSelectionUiState(
                                 domainState = updatedSelectionState,
-                                allServices = cachedServices,
                                 isVisible = true,
                             )
 

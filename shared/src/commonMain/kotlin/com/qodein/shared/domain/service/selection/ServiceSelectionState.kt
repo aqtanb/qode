@@ -1,9 +1,9 @@
 package com.qodein.shared.domain.service.selection
 
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.model.ServiceId
+import com.qodein.shared.model.Service
 
-data class PopularServices(val ids: List<ServiceId> = emptyList(), val status: PopularStatus = PopularStatus.Success)
+data class PopularServices(val services: List<Service> = emptyList(), val status: PopularStatus = PopularStatus.Success)
 
 sealed class PopularStatus {
     data object Success : PopularStatus()

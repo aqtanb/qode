@@ -32,7 +32,6 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.feature.home.R
-import com.qodein.shared.model.CategoryFilter
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.ServiceFilter
@@ -97,8 +96,7 @@ fun FiltersSection(
             }
 
             // Reset Filter - only show when any filters are applied
-            val hasActiveFilters = currentFilters.categoryFilter !is CategoryFilter.All ||
-                currentFilters.serviceFilter !is ServiceFilter.All ||
+            val hasActiveFilters = currentFilters.serviceFilter !is ServiceFilter.All ||
                 currentFilters.sortFilter.sortBy != ContentSortBy.POPULARITY
 
             if (hasActiveFilters) {

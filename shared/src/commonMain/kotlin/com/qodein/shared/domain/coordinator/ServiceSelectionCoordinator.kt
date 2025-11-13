@@ -3,63 +3,83 @@ package com.qodein.shared.domain.coordinator
 import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.domain.manager.ServiceSearchManager
 import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
+import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 /**
- * Coordinates service selection between ServiceSearchManager and ServiceSelectionManager.
- * Eliminates code duplication between ViewModels and centralizes complex state management.
+ * Coordinates service selection and search.
+ * Handles debounced search, popular services fallback, and selection state management.
+ * Eliminates code duplication between ViewModels.
  */
-
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ServiceSelectionCoordinator(
-    private val serviceSearchManager: ServiceSearchManager,
+    private val searchServicesUseCase: SearchServicesUseCase,
+    private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val serviceSelectionManager: ServiceSelectionManager
 ) {
-    /**
-     * Exposes cached services from ServiceSearchManager.
-     * Contains all services that have been fetched (popular + search results).
-     */
-    val cachedServices: StateFlow<Map<String, Service>>
-        get() = serviceSearchManager.cachedServices
+    private var collectionJob: Job? = null
+    private val searchQuery = MutableStateFlow("")
+    private val isActive = MutableStateFlow(false)
 
     /**
      * Sets up service selection coordination with state updates callback.
-     * Handles the complex logic of combining search results, popular services, and caching.
-     * Automatically loads popular services if not already cached.
+     * Handles debounced search, popular services fallback, and state updates.
      */
     fun setupServiceSelection(
         scope: CoroutineScope,
         getCurrentState: () -> ServiceSelectionState,
         onStateUpdate: (ServiceSelectionState) -> Unit
     ) {
-        serviceSearchManager.activate()
-        serviceSearchManager.clearQuery()
+        collectionJob?.cancel()
 
-        scope.launch {
-            combine(
-                serviceSearchManager.searchQuery,
-                serviceSearchManager.searchResult,
-            ) { query, searchResult ->
-                Pair(query, searchResult)
-            }.collect { (query, searchResult) ->
-                val currentState = getCurrentState()
-                val updatedState = processServiceSelectionUpdate(
-                    currentState = currentState,
-                    query = query,
-                    searchResult = searchResult,
-                )
+        isActive.value = true
+        searchQuery.value = ""
 
-                onStateUpdate(updatedState)
-            }
+        val initialState = getCurrentState().copy(
+            popular = getCurrentState().popular.copy(
+                status = PopularStatus.Loading,
+            ),
+        )
+        onStateUpdate(initialState)
+        collectionJob = scope.launch {
+            searchQuery
+                .debounce(300)
+                .distinctUntilChanged()
+                .flatMapLatest { query ->
+                    when {
+                        !isActive.value -> flowOf(Result.Success(emptyList()))
+                        query.isBlank() -> getPopularServicesUseCase()
+                        else -> searchServicesUseCase(query)
+                    }
+                }
+                .collect { searchResult ->
+                    val currentState = getCurrentState()
+                    val query = searchQuery.value
+
+                    val updatedState = processServiceSelectionUpdate(
+                        currentState = currentState,
+                        query = query,
+                        searchResult = searchResult,
+                    )
+
+                    onStateUpdate(updatedState)
+                }
         }
     }
 
@@ -72,16 +92,21 @@ class ServiceSelectionCoordinator(
     ): ServiceSelectionState {
         val newState = serviceSelectionManager.applyAction(currentState, action)
 
-        handleSideEffects(action, newState)
+        if (action is ServiceSelectionAction.UpdateQuery) {
+            searchQuery.value = action.query
+        }
 
         return newState
     }
 
     /**
-     * Deactivates the service search manager.
+     * Deactivates search and cancels any running collection jobs.
      */
     fun deactivate() {
-        serviceSearchManager.deactivate()
+        collectionJob?.cancel()
+        collectionJob = null
+        isActive.value = false
+        searchQuery.value = ""
     }
 
     private fun processServiceSelectionUpdate(
@@ -101,25 +126,23 @@ class ServiceSelectionCoordinator(
 
         return when (searchResult) {
             is Result.Success -> {
-                val serviceIds = searchResult.data.map { it.id }
                 Logger.d("ServiceSelectionCoordinator") {
                     "processServiceSelectionUpdate: Success with ${searchResult.data.size} services, query='$query'"
                 }
-                Logger.d("ServiceSelectionCoordinator") { "cachedServices.size=${cachedServices.value.size}" }
 
                 if (query.isBlank()) {
-                    Logger.d("ServiceSelectionCoordinator") { "Setting popular services: ${serviceIds.size} services" }
+                    Logger.d("ServiceSelectionCoordinator") { "Setting popular services: ${searchResult.data.size} services" }
                     updatedState.copy(
                         popular = updatedState.popular.copy(
-                            ids = serviceIds,
+                            services = searchResult.data,
                             status = PopularStatus.Success,
                         ),
                     )
                 } else {
-                    Logger.d("ServiceSelectionCoordinator") { "Setting search results: ${serviceIds.size} services" }
+                    Logger.d("ServiceSelectionCoordinator") { "Setting search results: ${searchResult.data.size} services" }
                     updatedState.copy(
                         search = updatedState.search.copy(
-                            status = SearchStatus.Success(serviceIds),
+                            status = SearchStatus.Success(searchResult.data),
                         ),
                     )
                 }
@@ -138,22 +161,6 @@ class ServiceSelectionCoordinator(
                         ),
                     )
                 }
-            }
-        }
-    }
-
-    private fun handleSideEffects(
-        action: ServiceSelectionAction,
-        newState: ServiceSelectionState
-    ) {
-        when (action) {
-            is ServiceSelectionAction.UpdateQuery -> {
-                serviceSearchManager.updateQuery(action.query)
-            }
-            ServiceSelectionAction.ClearSelection,
-            is ServiceSelectionAction.SelectService,
-            is ServiceSelectionAction.UnselectService -> {
-                // No side effects
             }
         }
     }
