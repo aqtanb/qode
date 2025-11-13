@@ -1,5 +1,6 @@
 package com.qodein.core.ui.state
 
+import co.touchlab.kermit.Logger
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
@@ -26,8 +27,19 @@ data class ServiceSelectionUiState(
     /**
      * Popular services to display
      */
-    val popularServices: List<Service> get() = domainState.popular.ids.mapNotNull {
-        allServices[it.value]
+    val popularServices: List<Service> get() {
+        Logger.d("ServiceSelectionUiState") {
+            "popularServices: popular.ids.size=${domainState.popular.ids.size}, allServices.size=${allServices.size}, popular.status=${domainState.popular.status}"
+        }
+        val services = domainState.popular.ids.mapNotNull { serviceId ->
+            val service = allServices[serviceId.value]
+            if (service == null) {
+                Logger.w("ServiceSelectionUiState") { "Service not found in cache: ${serviceId.value}" }
+            }
+            service
+        }
+        Logger.d("ServiceSelectionUiState") { "popularServices: returning ${services.size} services" }
+        return services
     }
 
     /**

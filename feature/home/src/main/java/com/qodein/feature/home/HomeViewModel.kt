@@ -115,19 +115,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onServiceSelectionAction(action: ServiceSelectionAction) {
-        // Coordinator handles all action processing (state + side effects)
-        handleServiceSelectionAction(action)
+        val currentState = _uiState.value.serviceSelectionState
+        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
 
-        // Home-specific: sync filters after selection changes
-        when (action) {
-            is ServiceSelectionAction.SelectService,
-            is ServiceSelectionAction.UnselectService,
-            ServiceSelectionAction.ClearSelection -> {
-                syncServiceFilterFromSelection()
-            }
-            is ServiceSelectionAction.UpdateQuery -> {
-                // No Home-specific logic needed
-            }
+        _uiState.update { state ->
+            state.copy(serviceSelectionState = newState)
         }
     }
 
@@ -398,14 +390,9 @@ class HomeViewModel @Inject constructor(
             state.copy(activeFilterDialog = type)
         }
 
-        // Activate and load popular services when service dialog is opened
         if (type == FilterDialogType.Service) {
             setupServiceSelection()
-
-            // Initialize selection state from current filter
             syncSelectionFromFilter()
-
-            handleServiceSelectionAction(LoadPopularServices)
         }
     }
 
@@ -498,21 +485,11 @@ class HomeViewModel @Inject constructor(
                     state.copy(serviceSelectionState = newState)
                 }
             },
-            onCachedServicesUpdate = { /* No longer needed - UI collects StateFlow directly */ },
         )
     }
 
-    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
-        val currentState = _uiState.value.serviceSelectionState
-        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
-
-        _uiState.update { state ->
-            state.copy(serviceSelectionState = newState)
-        }
-    }
-
     private fun searchServices(query: String) {
-        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
+        onServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     override fun onCleared() {

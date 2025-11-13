@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.shared.model.Service
 import com.qodein.shared.model.User
 import java.time.LocalDate
 
@@ -16,10 +15,8 @@ sealed interface PromocodeSubmissionAction {
     data object ToggleManualEntry : PromocodeSubmissionAction
 
     // Step 1: Core Details actions
-    data class SelectService(val service: Service) : PromocodeSubmissionAction
     data class UpdateServiceName(val serviceName: String) : PromocodeSubmissionAction // For manual entry
     data class UpdatePromoCodeType(val type: PromoCodeType) : PromocodeSubmissionAction
-    data class SearchServices(val query: String) : PromocodeSubmissionAction
     data class UpdatePromoCode(val promoCode: String) : PromocodeSubmissionAction
     data class UpdateDiscountPercentage(val percentage: String) : PromocodeSubmissionAction
     data class UpdateDiscountAmount(val amount: String) : PromocodeSubmissionAction

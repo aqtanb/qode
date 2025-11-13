@@ -42,7 +42,6 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.core.ui.state.ServiceSelectionAction
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
@@ -162,25 +161,9 @@ fun PromocodeSubmissionScreen(
                             ServiceSelectorBottomSheet(
                                 state = uiState,
                                 sheetState = adjustedSheetState,
-                                onAction = { uiAction ->
-                                    when (uiAction) {
-                                        is ServiceSelectionAction.UpdateQuery -> {
-                                            viewModel.onAction(PromocodeSubmissionAction.SearchServices(uiAction.query))
-                                        }
-                                        ServiceSelectionAction.ClearQuery -> {
-                                            viewModel.onAction(PromocodeSubmissionAction.SearchServices(""))
-                                        }
-                                        is ServiceSelectionAction.SelectService -> {
-                                            viewModel.onAction(PromocodeSubmissionAction.SelectService(uiAction.service))
-                                            viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
-                                        }
-                                        ServiceSelectionAction.Dismiss -> {
-                                            viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
-                                        }
-                                        else -> {
-                                            // Handle other UI actions if needed
-                                        }
-                                    }
+                                onAction = viewModel::onServiceSelectionAction,
+                                onDismiss = {
+                                    viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
                                 },
                             )
                         }

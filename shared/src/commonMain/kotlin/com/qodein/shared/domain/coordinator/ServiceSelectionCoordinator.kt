@@ -1,5 +1,6 @@
 package com.qodein.shared.domain.coordinator
 
+import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.manager.ServiceSearchManager
@@ -23,9 +24,6 @@ class ServiceSelectionCoordinator(
     private val serviceSearchManager: ServiceSearchManager,
     private val serviceSelectionManager: ServiceSelectionManager
 ) {
-    private var cachedPopularServices: List<Service>? = null
-    private var isLoadingPopularServices = false
-
     /**
      * Exposes cached services from ServiceSearchManager.
      * Contains all services that have been fetched (popular + search results).
@@ -44,11 +42,7 @@ class ServiceSelectionCoordinator(
         onStateUpdate: (ServiceSelectionState) -> Unit
     ) {
         serviceSearchManager.activate()
-
-        if (cachedPopularServices == null && !isLoadingPopularServices) {
-            isLoadingPopularServices = true
-            serviceSearchManager.clearQuery()
-        }
+        serviceSearchManager.clearQuery()
 
         scope.launch {
             combine(
@@ -78,7 +72,6 @@ class ServiceSelectionCoordinator(
     ): ServiceSelectionState {
         val newState = serviceSelectionManager.applyAction(currentState, action)
 
-        // Handle side effects
         handleSideEffects(action, newState)
 
         return newState
@@ -109,8 +102,13 @@ class ServiceSelectionCoordinator(
         return when (searchResult) {
             is Result.Success -> {
                 val serviceIds = searchResult.data.map { it.id }
+                Logger.d("ServiceSelectionCoordinator") {
+                    "processServiceSelectionUpdate: Success with ${searchResult.data.size} services, query='$query'"
+                }
+                Logger.d("ServiceSelectionCoordinator") { "cachedServices.size=${cachedServices.value.size}" }
 
                 if (query.isBlank()) {
+                    Logger.d("ServiceSelectionCoordinator") { "Setting popular services: ${serviceIds.size} services" }
                     updatedState.copy(
                         popular = updatedState.popular.copy(
                             ids = serviceIds,
@@ -118,6 +116,7 @@ class ServiceSelectionCoordinator(
                         ),
                     )
                 } else {
+                    Logger.d("ServiceSelectionCoordinator") { "Setting search results: ${serviceIds.size} services" }
                     updatedState.copy(
                         search = updatedState.search.copy(
                             status = SearchStatus.Success(serviceIds),

@@ -113,6 +113,7 @@ fun HomeScreen(
                     onAction = { action ->
                         viewModel.onServiceSelectionAction(action)
                     },
+                    onDismiss = { viewModel.onAction(HomeAction.DismissFilterDialog) },
                 )
             }
 

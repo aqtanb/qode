@@ -1,9 +1,5 @@
 package com.qodein.core.data.manager
 
-import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.domain.service.selection.PopularServices
-import com.qodein.shared.domain.service.selection.PopularStatus
-import com.qodein.shared.domain.service.selection.SearchState
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.SelectionValidationResult
@@ -24,24 +20,11 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
         action: ServiceSelectionAction
     ): ServiceSelectionState =
         when (action) {
-            // Search actions
             is ServiceSelectionAction.UpdateQuery -> applyUpdateQuery(state, action.query)
-            ServiceSelectionAction.ClearQuery -> applyClearQuery(state)
-            ServiceSelectionAction.RetrySearch -> applyRetrySearch(state)
 
-            // Selection actions
             is ServiceSelectionAction.SelectService -> applySelectService(state, action.id)
             is ServiceSelectionAction.UnselectService -> applyUnselectService(state, action.id)
             ServiceSelectionAction.ClearSelection -> applyClearSelection(state)
-
-            // Popular services actions
-            ServiceSelectionAction.LoadPopularServices -> applyLoadPopularServices(state)
-            ServiceSelectionAction.RetryPopularServices -> applyRetryPopularServices(state)
-            is ServiceSelectionAction.SetPopularServices -> applySetPopularServices(state, action.ids)
-            is ServiceSelectionAction.SetPopularServicesError -> applySetPopularServicesError(state, action.error)
-
-            // Focus actions - pure UI concern, no domain state change
-            is ServiceSelectionAction.SetSearchFocus -> state
         }
 
     override fun validateSelection(selection: SelectionState): SelectionValidationResult =
@@ -85,20 +68,6 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
         )
     }
 
-    private fun applyClearQuery(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            search = SearchState(query = "", status = SearchStatus.Idle),
-        )
-
-    private fun applyRetrySearch(state: ServiceSelectionState): ServiceSelectionState =
-        if (state.search.status !is SearchStatus.Idle) {
-            state.copy(
-                search = state.search.copy(status = SearchStatus.Loading),
-            )
-        } else {
-            state
-        }
-
     private fun applySelectService(
         state: ServiceSelectionState,
         serviceId: ServiceId
@@ -138,33 +107,4 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
         }
         return state.copy(selection = newSelection)
     }
-
-    private fun applyLoadPopularServices(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Loading),
-        )
-
-    private fun applyRetryPopularServices(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Loading),
-        )
-
-    private fun applySetPopularServices(
-        state: ServiceSelectionState,
-        ids: List<ServiceId>
-    ): ServiceSelectionState =
-        state.copy(
-            popular = PopularServices(
-                ids = ids,
-                status = PopularStatus.Success,
-            ),
-        )
-
-    private fun applySetPopularServicesError(
-        state: ServiceSelectionState,
-        error: OperationError
-    ): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Error(error)),
-        )
 }

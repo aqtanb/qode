@@ -93,10 +93,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
             PromocodeSubmissionAction.ToggleManualEntry -> toggleManualEntry()
 
             // Step 1: Core Details
-            is PromocodeSubmissionAction.SelectService -> selectService(action.service)
             is PromocodeSubmissionAction.UpdateServiceName -> updateServiceName(action.serviceName)
             is PromocodeSubmissionAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
-            is PromocodeSubmissionAction.SearchServices -> searchServices(action.query)
             is PromocodeSubmissionAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
             is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
             is PromocodeSubmissionAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
@@ -142,9 +140,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     private fun showServiceSelector() {
         updateSuccessState { it.showServiceSelector() }
-        // Setup service selection and load popular services when showing the selector
+        // Setup service selection when showing the selector
         setupServiceSelection()
-        handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
     }
 
     private fun hideServiceSelector() {
@@ -315,10 +312,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     // MARK: - Data Updates (Step 1: Core Details)
 
-    private fun selectService(service: Service) {
-        updateWizardData { it.copy(selectedService = service) }
-    }
-
     private fun updateServiceName(serviceName: String) {
         // Update the manual service name field
         updateWizardData { it.copy(serviceName = serviceName) }
@@ -326,10 +319,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     private fun updatePromoCodeType(type: PromoCodeType) {
         updateWizardData { it.copy(promoCodeType = type) }
-    }
-
-    private fun searchServices(query: String) {
-        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     private fun updatePromoCode(promoCode: String) {
@@ -385,11 +374,22 @@ class PromocodeSubmissionViewModel @Inject constructor(
         )
     }
 
-    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+    fun onServiceSelectionAction(action: ServiceSelectionAction) {
         val currentState = _serviceSelectionState.value
         val newState = serviceSelectionCoordinator.handleAction(currentState, action)
 
         _serviceSelectionState.update { newState }
+
+        when (action) {
+            is ServiceSelectionAction.SelectService -> {
+                val service = serviceSelectionCoordinator.cachedServices.value[action.id.value]
+                service?.let {
+                    updateWizardData { wizardData -> wizardData.copy(selectedService = it) }
+                    onAction(PromocodeSubmissionAction.HideServiceSelector)
+                }
+            }
+            else -> { /* Other actions don't need additional handling */ }
+        }
     }
 
     private fun handleBack() {

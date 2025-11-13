@@ -114,7 +114,7 @@ val coreDataModule = module {
     single<ServiceSearchManager> { ServiceSearchManagerImpl(get(), get(), get()) }
     single<ServiceSelectionManager> { ServiceSelectionManagerImpl() }
     single { ServiceCache.getInstance() }
-    single { ServiceSelectionCoordinator(get<ServiceSearchManager>(), get<ServiceSelectionManager>(), get()) }
+    single { ServiceSelectionCoordinator(get<ServiceSearchManager>(), get<ServiceSelectionManager>()) }
 
     single { AuthStateManager(get()) }
     single { GetAuthStateUseCase(get()) }
