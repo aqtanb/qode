@@ -47,7 +47,7 @@ import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeWithUserState
@@ -210,7 +210,7 @@ private fun PromocodeDetailContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     QodeErrorCard(
-                        error = PromoCodeError.RetrievalFailure.NotFound,
+                        error = PromocodeError.RetrievalFailure.NotFound,
                         onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
                         onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
                     )
@@ -270,8 +270,8 @@ private fun PromocodeDetailContent(
                     )
 
                     FooterSection(
-                        username = promoCode.createdByUsername,
-                        avatarUrl = promoCode.createdByAvatarUrl,
+                        username = promoCode.authorUsername,
+                        avatarUrl = promoCode.authorAvatarUrl,
                         createdAt = promoCode.createdAt,
                         modifier = Modifier.padding(horizontal = SpacingTokens.md),
                     )

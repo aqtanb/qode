@@ -8,7 +8,7 @@ import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PostError
-import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.common.error.ServiceError
 import com.qodein.shared.common.error.StorageError
 import com.qodein.shared.common.error.SystemError
@@ -36,12 +36,12 @@ fun OperationError.asUiText(): String =
         UserError.ProfileFailure.DataCorrupted -> stringResource(R.string.error_user_data_corrupted)
         UserError.ProfileFailure.UpdateFailed -> stringResource(R.string.error_user_update_failed)
 
-        PromoCodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
-        PromoCodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_promo_code_submission_not_authorized)
-        PromoCodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
-        PromoCodeError.RetrievalFailure.NotFound -> stringResource(R.string.error_promo_code_not_found)
-        PromoCodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
-        PromoCodeError.RetrievalFailure.TooManyResults -> stringResource(R.string.error_too_many_results)
+        PromocodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
+        PromocodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_promo_code_submission_not_authorized)
+        PromocodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
+        PromocodeError.RetrievalFailure.NotFound -> stringResource(R.string.error_promo_code_not_found)
+        PromocodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
+        PromocodeError.RetrievalFailure.TooManyResults -> stringResource(R.string.error_too_many_results)
 
         ServiceError.SearchFailure.NoResults -> stringResource(R.string.error_service_no_results)
         ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)

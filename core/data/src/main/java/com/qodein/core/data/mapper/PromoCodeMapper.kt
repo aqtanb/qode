@@ -1,7 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.dto.PromoCodeDto
+import com.qodein.core.data.dto.PromocodeDto
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
@@ -17,7 +17,7 @@ import kotlin.time.toKotlinInstant
  */
 object PromoCodeMapper {
 
-    fun toDomain(dto: PromoCodeDto): PromoCode {
+    fun toDomain(dto: PromocodeDto): PromoCode {
         // Validate required fields first
         if (dto.documentId.isBlank()) {
             throw IllegalArgumentException("PromoCode documentId cannot be blank")
@@ -71,20 +71,20 @@ object PromoCodeMapper {
             targetCountries = dto.targetCountries,
             isVerified = dto.isVerified,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
-            createdBy = createdBy,
-            createdByUsername = dto.createdByUsername,
-            createdByAvatarUrl = dto.createdByAvatarUrl,
+            authorId = createdBy,
+            authorUsername = dto.authorUsername,
+            authorAvatarUrl = dto.authorAvatarUrl,
             serviceLogoUrl = dto.serviceLogoUrl,
         )
     }
 
-    fun toDto(domain: PromoCode): PromoCodeDto {
+    fun toDto(domain: PromoCode): PromocodeDto {
         val (type, discountPercentage, discountAmount) = when (domain.discount) {
             is Discount.Percentage -> Triple("percentage", domain.discount.value, null)
             is Discount.FixedAmount -> Triple("fixed", null, domain.discount.value)
         }
 
-        return PromoCodeDto(
+        return PromocodeDto(
             documentId = domain.id.value,
             code = domain.code,
             serviceId = domain.serviceId?.value,
@@ -106,9 +106,9 @@ object PromoCodeMapper {
             startDate = Timestamp(domain.startDate.toJavaInstant()),
             endDate = Timestamp(domain.endDate.toJavaInstant()),
             createdAt = Timestamp(domain.createdAt.toJavaInstant()),
-            createdBy = domain.createdBy.value,
-            createdByUsername = domain.createdByUsername,
-            createdByAvatarUrl = domain.createdByAvatarUrl,
+            createdBy = domain.authorId.value,
+            authorUsername = domain.authorUsername,
+            authorAvatarUrl = domain.authorAvatarUrl,
             serviceLogoUrl = domain.serviceLogoUrl,
         )
     }

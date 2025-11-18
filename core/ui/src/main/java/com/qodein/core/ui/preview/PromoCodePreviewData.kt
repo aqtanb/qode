@@ -37,9 +37,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = true,
         createdAt = Clock.System.now().minus(2.days),
-        createdBy = UserId("user123"),
-        createdByUsername = "Алина Жунусова",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user123"),
+        authorUsername = "Алина Жунусова",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = "https://logo.clearbit.com/glovo.com",
     )
 
@@ -64,9 +64,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = true,
         createdAt = Clock.System.now().minus(5.days),
-        createdBy = UserId("user456"),
-        createdByUsername = "Арман Нурланов",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user456"),
+        authorUsername = "Арман Нурланов",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = "https://logo.clearbit.com/kaspi.kz",
     )
 
@@ -91,9 +91,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = false,
         createdAt = Clock.System.now().minus(2.days),
-        createdBy = UserId("user789"),
-        createdByUsername = "Жанар Токтарбекова",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user789"),
+        authorUsername = "Жанар Токтарбекова",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = "https://logo.clearbit.com/wolt.com",
     )
 
@@ -118,9 +118,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = false,
         createdAt = Clock.System.now().minus(1.days),
-        createdBy = UserId("user101"),
-        createdByUsername = "Ерлан Жұмабайұлы",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user101"),
+        authorUsername = "Ерлан Жұмабайұлы",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = "https://logo.clearbit.com/technodom.kz",
     )
 
@@ -145,9 +145,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = true,
         createdAt = Clock.System.now().minus(4.days),
-        createdBy = UserId("user202"),
-        createdByUsername = "Айгерим Смағұлова",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user202"),
+        authorUsername = "Айгерим Смағұлова",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = "https://logo.clearbit.com/sulpak.kz",
     )
 
@@ -172,9 +172,9 @@ object PromoCodePreviewData {
         targetCountries = listOf("KZ"),
         isVerified = false,
         createdAt = Clock.System.now().minus(1.days),
-        createdBy = UserId("user303"),
-        createdByUsername = "Дарын Көшербаев",
-        createdByAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
+        authorId = UserId("user303"),
+        authorUsername = "Дарын Көшербаев",
+        authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         serviceLogoUrl = null, // No logo available
     )
 

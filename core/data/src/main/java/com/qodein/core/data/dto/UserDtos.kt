@@ -2,6 +2,7 @@ package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
+import com.google.firebase.firestore.ServerTimestamp
 
 /**
  * Firestore DTO for user profile data.
@@ -21,8 +22,10 @@ data class UserProfileDto(
     val photoUrl: String? = null,
 
     @PropertyName("createdAt")
+    @ServerTimestamp
     val createdAt: Timestamp? = null,
 
+    @ServerTimestamp
     @PropertyName("updatedAt")
     val updatedAt: Timestamp? = null
 ) {

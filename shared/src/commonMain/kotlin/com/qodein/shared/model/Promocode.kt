@@ -1,20 +1,22 @@
-@file:UseContextualSerialization(Instant::class) // This line is conceptual, you typically add @Contextual per property
+@file:UseContextualSerialization(Instant::class)
 
 package com.qodein.shared.model
 
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.PromocodeError
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-// MARK: - Promocode
-
 @Serializable
 @JvmInline
 value class PromocodeId(val value: String) {
     init {
-        require(value.isNotBlank()) { "PromoCode ID cannot be blank" }
+        require(value.isNotBlank()) { "Post ID cannot be blank" }
+        require(value.length == 32) { "Post ID must be 32 characters (UUID without hyphens)" }
+        require(value.matches(Regex("^[a-f0-9]+$"))) { "Post ID must be lowercase hex (UUID format)" }
     }
 
     override fun toString(): String = value
@@ -48,25 +50,27 @@ data class PromoCode(
     val id: PromocodeId,
     val code: String,
     val discount: Discount,
-    val serviceId: ServiceId? = null,
-    val serviceName: String,
-    val category: String = "Unspecified",
-    val description: String? = null,
     val minimumOrderAmount: Double,
     val startDate: Instant,
     val endDate: Instant,
+    val authorId: UserId,
+    val serviceName: String,
+
+    val description: String? = null,
+
     val isFirstUserOnly: Boolean = false,
     val isOneTimeUseOnly: Boolean = false,
     val upvotes: Int = 0,
     val downvotes: Int = 0,
-    val shares: Int = 0,
-    val targetCountries: List<String> = emptyList(),
     val isVerified: Boolean = false,
+
+    val serviceId: ServiceId? = null,
+    val serviceLogoUrl: String? = null,
+
+    val authorUsername: String? = null,
+    val authorAvatarUrl: String? = null,
+
     val createdAt: Instant = Clock.System.now(),
-    val createdBy: UserId,
-    val createdByUsername: String? = null,
-    val createdByAvatarUrl: String? = null,
-    val serviceLogoUrl: String? = null
 ) {
     init {
         require(code.isNotBlank()) { "PromoCode code cannot be blank" }
@@ -74,7 +78,6 @@ data class PromoCode(
         require(minimumOrderAmount > 0) { "Minimum order amount must be positive" }
         require(upvotes >= 0) { "Upvotes cannot be negative" }
         require(downvotes >= 0) { "Downvotes cannot be negative" }
-        require(shares >= 0) { "Shares cannot be negative" }
         require(endDate > startDate) { "End date must be after start date" }
     }
 
@@ -103,42 +106,63 @@ data class PromoCode(
             code: String,
             serviceName: String,
             discount: Discount,
-            serviceId: ServiceId? = null,
-            category: String = "Unspecified",
-            description: String? = null,
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
-            isFirstUserOnly: Boolean = false,
-            targetCountries: List<String> = emptyList(),
-            createdBy: UserId,
-            createdByUsername: String? = null,
-            createdByAvatarUrl: String? = null,
+            isFirstUserOnly: Boolean,
+            isOneTimeUseOnly: Boolean,
+            isVerified: Boolean,
+            authorId: UserId,
+            description: String? = null,
+            authorUsername: String? = null,
+            authorAvatarUrl: String? = null,
+            serviceId: ServiceId? = null,
             serviceLogoUrl: String? = null
-        ): Result<PromoCode> =
-            runCatching {
-                val cleanCode = code.uppercase().trim()
-                val cleanServiceName = serviceName.trim()
+        ): Result<PromoCode, PromocodeError.CreationFailure> {
+            val cleanCode = code.uppercase().trim()
+            val cleanServiceName = serviceName.trim()
+            val cleanDescription = description?.trim()
+
+            // Validate inputs
+            if (cleanCode.isBlank()) {
+                return Result.Error(PromocodeError.CreationFailure.EmptyCode)
+            }
+            if (cleanServiceName.isBlank()) {
+                return Result.Error(PromocodeError.CreationFailure.EmptyServiceName)
+            }
+            if (minimumOrderAmount <= 0) {
+                return Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
+            }
+            if (endDate <= startDate) {
+                return Result.Error(PromocodeError.CreationFailure.InvalidDateRange)
+            }
+
+            // Discount validation happens in Discount.Percentage/FixedAmount init blocks
+            // No additional validation needed here
+
+            return Result.Success(
                 PromoCode(
                     id = PromocodeId(generateCompositeId(cleanCode, cleanServiceName)),
                     code = cleanCode,
                     discount = discount,
-                    serviceName = cleanServiceName,
-                    serviceId = serviceId,
-                    category = category.trim(),
-                    description = description?.trim(),
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
                     endDate = endDate,
+                    authorId = authorId,
+                    serviceName = cleanServiceName,
+                    description = cleanDescription,
                     isFirstUserOnly = isFirstUserOnly,
-                    targetCountries = targetCountries.map { it.uppercase() },
-                    createdBy = createdBy,
-                    createdByUsername = createdByUsername,
-                    createdByAvatarUrl = createdByAvatarUrl,
-                    serviceLogoUrl = serviceLogoUrl,
+                    isOneTimeUseOnly = isOneTimeUseOnly,
+                    upvotes = 0,
+                    downvotes = 0,
+                    isVerified = isVerified,
+                    serviceId = serviceId,
+                    serviceLogoUrl = serviceLogoUrl?.trim(),
+                    authorUsername = authorUsername?.trim(),
+                    authorAvatarUrl = authorAvatarUrl?.trim(),
+                    createdAt = Clock.System.now()
                 )
-            }
+            )
+        }
     }
 }
-
-// MARK: - Banner

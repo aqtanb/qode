@@ -7,7 +7,7 @@ import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.util.ErrorMapper
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.common.error.PromoCodeError
+import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.ContentSortBy
@@ -37,10 +37,10 @@ class PromocodeRepositoryImpl constructor(
 
                 // Side effect: increment user's promocode count
                 try {
-                    userDataSource.incrementPromocodeCount(promoCode.createdBy.value)
-                    Logger.d(TAG) { "Incremented promocode count for user: ${promoCode.createdBy.value}" }
+                    userDataSource.incrementPromocodeCount(promoCode.authorId.value)
+                    Logger.d(TAG) { "Incremented promocode count for user: ${promoCode.authorId.value}" }
                 } catch (e: Exception) {
-                    Logger.w(TAG, e) { "Failed to increment promocode count for user: ${promoCode.createdBy.value} - ${e.message}" }
+                    Logger.w(TAG, e) { "Failed to increment promocode count for user: ${promoCode.authorId.value} - ${e.message}" }
                     // Don't fail the main operation if side effect fails
                 }
 
@@ -49,10 +49,10 @@ class PromocodeRepositoryImpl constructor(
                 emit(Result.Error(ErrorMapper.mapFirestoreException(e, TAG)))
             } catch (e: SecurityException) {
                 Logger.e(TAG, e) { "Repository failed to create promo code - unauthorized: ${promoCode.code}" }
-                emit(Result.Error(PromoCodeError.SubmissionFailure.NotAuthorized))
+                emit(Result.Error(PromocodeError.SubmissionFailure.NotAuthorized))
             } catch (e: IllegalArgumentException) {
                 Logger.e(TAG, e) { "Repository failed to create promo code - invalid data: ${promoCode.code}" }
-                emit(Result.Error(PromoCodeError.SubmissionFailure.InvalidData))
+                emit(Result.Error(PromocodeError.SubmissionFailure.InvalidData))
             } catch (e: IOException) {
                 Logger.e(TAG, e) { "Repository failed to create promo code - network: ${promoCode.code}" }
                 emit(Result.Error(SystemError.Offline))
@@ -94,7 +94,7 @@ class PromocodeRepositoryImpl constructor(
                 emit(Result.Error(SystemError.ServiceDown))
             } catch (e: Exception) {
                 Logger.e(TAG, e) { "Unknown error getting promocodes: ${e::class.simpleName} - ${e.message}" }
-                emit(Result.Error(PromoCodeError.RetrievalFailure.NotFound))
+                emit(Result.Error(PromocodeError.RetrievalFailure.NotFound))
             }
         }
 
@@ -107,14 +107,14 @@ class PromocodeRepositoryImpl constructor(
                 Result.Success(promoCode)
             } else {
                 Logger.w(TAG) { "PromoCode not found: ${id.value}" }
-                Result.Error(PromoCodeError.RetrievalFailure.NotFound)
+                Result.Error(PromocodeError.RetrievalFailure.NotFound)
             }
         } catch (e: FirebaseFirestoreException) {
             ErrorMapper.mapFirestoreException(e, TAG)
-            Result.Error(PromoCodeError.RetrievalFailure.NotFound)
+            Result.Error(PromocodeError.RetrievalFailure.NotFound)
         } catch (e: IllegalArgumentException) {
             Logger.e(TAG, e) { "Invalid PromoCode data for id: ${id.value}" }
-            Result.Error(PromoCodeError.RetrievalFailure.NotFound)
+            Result.Error(PromocodeError.RetrievalFailure.NotFound)
         } catch (e: IOException) {
             Logger.e(TAG, e) { "Network error getting PromoCode: ${id.value}" }
             Result.Error(SystemError.Offline)

@@ -3,6 +3,7 @@ package com.qodein.core.data.dto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
+import com.google.firebase.firestore.ServerTimestamp
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.VoteState
 
@@ -21,7 +22,9 @@ data class UserInteractionDto(
     val voteState: String = "NONE", // VoteState as string
     @PropertyName("bookmarked")
     val isBookmarked: Boolean = false, // Whether user has bookmarked this content
+    @ServerTimestamp
     val createdAt: Timestamp = Timestamp.now(),
+    @ServerTimestamp
     val updatedAt: Timestamp = Timestamp.now()
 ) {
     companion object {

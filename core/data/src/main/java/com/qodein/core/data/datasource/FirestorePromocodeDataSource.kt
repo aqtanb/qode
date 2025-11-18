@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.cache.QueryCache
-import com.qodein.core.data.dto.PromoCodeDto
+import com.qodein.core.data.dto.PromocodeDto
 import com.qodein.core.data.mapper.PromoCodeMapper
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
@@ -122,7 +122,7 @@ class FirestorePromocodeDataSource constructor(private val firestore: FirebaseFi
 
         val results = documents.mapNotNull { document ->
             try {
-                val dto = document.toObject<PromoCodeDto>()
+                val dto = document.toObject<PromocodeDto>()
                 if (dto == null) {
                     Logger.w { "Document ${document.id} failed to convert to DTO" }
                     return@mapNotNull null
@@ -170,6 +170,6 @@ class FirestorePromocodeDataSource constructor(private val firestore: FirebaseFi
             .get()
             .await()
 
-        return document.toDomainModel<PromoCodeDto, PromoCode>(PromoCodeMapper::toDomain)
+        return document.toDomainModel<PromocodeDto, PromoCode>(PromoCodeMapper::toDomain)
     }
 }
