@@ -11,10 +11,15 @@ sealed interface PromocodeError : OperationError {
      */
     sealed interface CreationFailure : PromocodeError {
         data object EmptyCode : CreationFailure
-        data object EmptyServiceName : CreationFailure
-        data object InvalidDiscount : CreationFailure
+        data object CodeTooShort : CreationFailure
+        data object CodeTooLong : CreationFailure
+        data object InvalidPercentageDiscount : CreationFailure
+        data object InvalidFixedAmountDiscount : CreationFailure
+        data object DiscountExceedsMinimumAmount : CreationFailure
         data object InvalidMinimumAmount : CreationFailure
+        data object DescriptionTooLong : CreationFailure
         data object InvalidDateRange : CreationFailure
+        data object InvalidPromocodeId : CreationFailure
     }
 
     /**

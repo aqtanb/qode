@@ -89,7 +89,7 @@ fun DetailsSection(
                 icon = QodeActionIcons.Play,
                 label = "Valid From",
                 value = formatDate(promoCode.startDate),
-                valueColor = if (promoCode.isNotStarted) {
+                valueColor = if (promoCode.hasNotStarted) {
                     MaterialTheme.colorScheme.tertiary // Orange for not yet started
                 } else {
                     MaterialTheme.colorScheme.onSurface

@@ -9,8 +9,6 @@ import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-// MARK:
-
 @Serializable
 @JvmInline
 value class UserId(val value: String) {
@@ -67,65 +65,6 @@ enum class Theme {
     DARK,
     SYSTEM
 }
-
-enum class ProfileVisibility {
-    PUBLIC,
-    PRIVATE
-}
-
-// MARK:
-
-data class NotificationSettings(
-    val newCodesFromFollowedStores: Boolean = true,
-    val codeExpiringSoon: Boolean = false,
-    val weeklyDigest: Boolean = true,
-    val comments: Boolean = true,
-    val marketing: Boolean = false
-) {
-    companion object {
-        fun default() = NotificationSettings()
-        fun minimal() =
-            NotificationSettings(
-                newCodesFromFollowedStores = false,
-                codeExpiringSoon = false,
-                weeklyDigest = false,
-                comments = false,
-                marketing = false,
-            )
-    }
-}
-
-data class PrivacySettings(
-    val profileVisibility: ProfileVisibility = ProfileVisibility.PUBLIC,
-    val showEmail: Boolean = false,
-    val allowAnalytics: Boolean = true
-) {
-    companion object {
-        fun default() = PrivacySettings()
-        fun private() =
-            PrivacySettings(
-                profileVisibility = ProfileVisibility.PRIVATE,
-                showEmail = false,
-                allowAnalytics = false,
-            )
-    }
-}
-
-data class UserPreferences(
-    val userId: UserId,
-    val privacy: PrivacySettings = PrivacySettings.default(),
-    val updatedAt: Long = Clock.System.now().toEpochMilliseconds()
-) {
-    init {
-        require(updatedAt > 0) { "UpdatedAt must be positive" }
-    }
-
-    companion object {
-        fun default(userId: UserId): UserPreferences = UserPreferences(userId = userId)
-    }
-}
-
-// MARK:
 
 data class UserProfile(
     val firstName: String,
@@ -245,28 +184,15 @@ data class UserStats(
     }
 }
 
-// MARK:
-
-data class User(
-    val id: UserId,
-    val email: Email,
-    val profile: UserProfile,
-    val stats: UserStats,
-    val country: String? = null // ISO country code for content filtering
-) {
-    init {
-        require(stats.userId == id) { "UserStats userId must match User id" }
-        country?.let { require(it.length == 2) { "Country must be 2-letter ISO code" } }
-    }
-
+@ConsistentCopyVisibility
+data class User private constructor(val id: UserId, val email: Email, val profile: UserProfile, val stats: UserStats) {
     val displayName: String get() = profile.displayName
 
     companion object {
         fun create(
             id: String,
             email: String,
-            profile: UserProfile,
-            country: String? = null
+            profile: UserProfile
         ): Result<User> =
             runCatching {
                 val userId = UserId(id)
@@ -275,23 +201,24 @@ data class User(
                     email = Email(email),
                     profile = profile,
                     stats = UserStats.initial(userId),
-                    country = country?.uppercase()?.trim(),
                 )
             }
 
-        fun createWithStats(
+        /**
+         * Reconstruct a User from storage/DTO (for mappers/repositories only).
+         * Assumes data is already validated. No sanitization performed.
+         */
+        fun fromDto(
             id: UserId,
             email: Email,
             profile: UserProfile,
             stats: UserStats
-        ): Result<User> =
-            runCatching {
-                User(
-                    id = id,
-                    email = email,
-                    profile = profile,
-                    stats = stats,
-                )
-            }
+        ): User =
+            User(
+                id = id,
+                email = email,
+                profile = profile,
+                stats = stats,
+            )
     }
 }
