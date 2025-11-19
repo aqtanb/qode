@@ -1,6 +1,7 @@
 package com.qodein.core.data.di
 
 import android.content.Context
+import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -15,7 +16,6 @@ import com.google.firebase.functions.functions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.qodein.core.data.BuildConfig
-import com.qodein.core.data.cache.QueryCache
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
 import com.qodein.core.data.datasource.FirebaseGoogleAuthService
 import com.qodein.core.data.datasource.FirebaseStorageDataSource
@@ -78,8 +78,8 @@ val coreDataModule = module {
     single<FirebaseFirestore> { Firebase.firestore }
     single<FirebaseFunctions> { Firebase.functions }
     single<FirebaseStorage> { Firebase.storage }
+    single<CredentialManager> { CredentialManager.create(androidContext()) }
     single<DataStore<Preferences>> { androidContext().dataStore }
-    single { QueryCache() }
     single { UserInteractionMapper() }
     single {
         SearchClient(
@@ -89,11 +89,11 @@ val coreDataModule = module {
     }
 
     single { DevicePreferencesDataSource(get()) }
-    single { FirebaseGoogleAuthService(get()) }
+    single { FirebaseGoogleAuthService(androidContext(), get(), get()) }
     single { FirebaseStorageDataSource(get()) }
     single { FirestoreBannerDataSource(get()) }
     single { FirestorePostDataSource(get()) }
-    single { FirestorePromocodeDataSource(get(), get()) }
+    single { FirestorePromocodeDataSource(get()) }
     single { FirestoreServiceDataSource(get(), get()) }
     single { FirestoreUnifiedUserInteractionDataSource(get()) }
     single { FirestoreUserDataSource(get()) }
@@ -121,7 +121,7 @@ val coreDataModule = module {
     single { SetLanguageUseCase(get()) }
     single { GetPromocodesUseCase(get()) }
     single { GetPromocodeByIdUseCase(get()) }
-    single { SubmitPromocodeUseCase(get()) }
+    single { SubmitPromocodeUseCase(get(), get()) }
     single { ToggleVoteUseCase(get()) }
     single { ToggleBookmarkUseCase(get()) }
     single { GetUserBookmarksUseCase(get()) }

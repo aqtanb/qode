@@ -41,7 +41,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
@@ -339,7 +339,7 @@ private fun copyToClipboard(
 @Composable
 private fun PromocodeDetailScreenPreview() {
     QodeTheme(darkTheme = false) {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromoCode
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(

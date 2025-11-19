@@ -1,6 +1,5 @@
 package com.qodein.core.data.datasource
 
-import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -40,19 +39,14 @@ class FirestorePostDataSource constructor(
                 .set(dto)
                 .await()
 
-            Logger.i(TAG) { "Successfully created post document: ${dto.id}" }
             Result.Success(post)
         } catch (e: SecurityException) {
-            Logger.e(TAG, e) { "Unauthorized to create post: ${post.title}" }
             Result.Error(PostError.SubmissionFailure.NotAuthorized)
         } catch (e: IllegalArgumentException) {
-            Logger.e(TAG, e) { "Invalid post data: ${post.title}" }
             Result.Error(PostError.SubmissionFailure.InvalidData)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error creating post: ${post.title}" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Failed to create post: ${post.title}" }
             Result.Error(SystemError.Unknown)
         }
 
@@ -91,7 +85,6 @@ class FirestorePostDataSource constructor(
                 try {
                     document.toObject<PostDto>()?.let { PostMapper.toDomain(it) }
                 } catch (e: Exception) {
-                    Logger.e(TAG, e) { "Failed to parse document ${document.id}" }
                     null
                 }
             }
@@ -112,19 +105,14 @@ class FirestorePostDataSource constructor(
                 hasMore = nextCursor != null,
             )
 
-            Logger.d(TAG) { "Fetched ${results.size} posts, hasMore: ${paginatedResult.hasMore}" }
             Result.Success(paginatedResult)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error fetching posts" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Failed to fetch posts" }
             Result.Error(SystemError.Unknown)
         }
 
     suspend fun getPostById(id: PostId): Result<Post, OperationError> {
-        Logger.d(TAG) { "Fetching post by ID: ${id.value}" }
-
         return try {
             val docSnapshot = firestore.collection(POSTS_COLLECTION)
                 .document(id.value)
@@ -132,20 +120,16 @@ class FirestorePostDataSource constructor(
                 .await()
 
             if (!docSnapshot.exists()) {
-                Logger.w(TAG) { "Post not found: ${id.value}" }
                 return Result.Error(PostError.RetrievalFailure.NotFound)
             }
 
             val dto = docSnapshot.toObject<PostDto>()
             if (dto == null) {
-                Logger.e(TAG) { "Failed to convert post document to DTO: ${id.value}" }
                 return Result.Error(PostError.RetrievalFailure.NotFound)
             }
 
-            Logger.i(TAG) { "Successfully fetched post: ${id.value}" }
             Result.Success(PostMapper.toDomain(dto))
         } catch (e: FirebaseFirestoreException) {
-            Logger.e(TAG, e) { "Firestore exception: code=${e.code}" }
             val error = when (e.code) {
                 FirebaseFirestoreException.Code.PERMISSION_DENIED -> PostError.RetrievalFailure.AccessDenied
                 FirebaseFirestoreException.Code.UNAUTHENTICATED -> SystemError.Unauthorized
@@ -156,10 +140,8 @@ class FirestorePostDataSource constructor(
             }
             Result.Error(error)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error fetching post: ${id.value}" }
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unexpected error fetching post: ${id.value}" }
             Result.Error(SystemError.Unknown)
         }
     }

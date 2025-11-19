@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.detail.component
 
-import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +28,7 @@ import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.R
 import com.qodein.shared.model.PromoCode
 import kotlin.time.Clock
@@ -188,7 +187,7 @@ fun ServiceInfoSection(
 @Composable
 private fun ServiceInfoSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromoCode
 
         Surface {
             ServiceInfoSection(

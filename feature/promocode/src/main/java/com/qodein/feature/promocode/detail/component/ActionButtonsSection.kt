@@ -35,7 +35,7 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.VoteState
 
@@ -262,7 +262,7 @@ private fun formatCount(count: Int): String =
 @Composable
 private fun ActionButtonsPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromoCode
 
         Column(
             modifier = Modifier.padding(SpacingTokens.lg),

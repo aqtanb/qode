@@ -7,17 +7,14 @@ import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
-import kotlinx.coroutines.flow.Flow
 
 class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository) {
-    operator fun invoke(
-        query: String? = null,
+    suspend operator fun invoke(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
         paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
-        promoCodeRepository.getPromoCodes(
-            query = query,
+    ): Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError> =
+        promoCodeRepository.getPromocodes(
             sortBy = sortBy,
             filterByServices = filterByServices,
             paginationRequest = paginationRequest,

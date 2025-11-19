@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 
@@ -107,7 +104,7 @@ fun GradientBannerSection(
 @Composable
 private fun GradientBannerSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromoCode
 
         GradientBannerSection(
             promoCode = samplePromoCode,

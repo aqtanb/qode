@@ -62,7 +62,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.feature.home.R
 import com.qodein.shared.model.Discount
@@ -372,7 +372,7 @@ fun CouponPromoCodeCardPreview() {
     QodeTheme {
         Surface {
             PromocodeCard(
-                promoCode = PromoCodePreviewData.percentagePromoCode,
+                promoCode = PromocodePreviewData.percentagePromoCode,
                 onCardClick = {},
                 onCopyCodeClick = {},
                 modifier = Modifier.padding(16.dp),
@@ -470,7 +470,7 @@ fun CouponPromoCodeCardFixedAmountPreview() {
     QodeTheme {
         Surface {
             PromocodeCard(
-                promoCode = PromoCodePreviewData.fixedAmountPromoCode,
+                promoCode = PromocodePreviewData.fixedAmountPromoCode,
                 onCardClick = {},
                 onCopyCodeClick = {},
                 modifier = Modifier.padding(16.dp),
@@ -485,7 +485,7 @@ fun CouponPromoCodeCardExpiringSoonPreview() {
     QodeTheme {
         Surface {
             PromocodeCard(
-                promoCode = PromoCodePreviewData.expiringSoonPromoCode,
+                promoCode = PromocodePreviewData.expiringSoonPromoCode,
                 onCardClick = {},
                 onCopyCodeClick = {},
                 modifier = Modifier.padding(16.dp),

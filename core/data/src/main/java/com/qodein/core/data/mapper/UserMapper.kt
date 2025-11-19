@@ -16,12 +16,11 @@ object UserMapper {
         dto: UserDto,
         userId: UserId
     ): User =
-        User(
+        User.fromDto(
             id = userId,
             email = Email(dto.email),
             profile = profileToDomain(dto.profile),
             stats = statsToDomain(dto.stats, userId),
-            country = dto.country,
         )
 
     fun toDto(user: User): UserDto =
@@ -29,7 +28,6 @@ object UserMapper {
             email = user.email.value,
             profile = profileToDto(user.profile),
             stats = statsToDto(user.stats),
-            country = user.country,
         )
 
     private fun profileToDomain(dto: UserProfileDto): UserProfile =

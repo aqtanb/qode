@@ -1,55 +1,78 @@
 package com.qodein.shared.domain.usecase.promocode
 
-import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
-import kotlinx.coroutines.flow.Flow
+import com.qodein.shared.model.ServiceRef
+import com.qodein.shared.model.User
+import kotlin.time.Instant
+
+data class SubmitPromocodeRequest(
+    val code: String,
+    val service: ServiceRef,
+    val currentUser: User,
+    val discount: Discount,
+    val minimumOrderAmount: Double,
+    val startDate: Instant,
+    val endDate: Instant,
+    val description: String?,
+    val isFirstUserOnly: Boolean,
+    val isOneTimeUseOnly: Boolean,
+    val isVerified: Boolean
+)
 
 /**
- * Use case for submitting promo codes with domain logic.
- *
- * Pure domain logic without presentation concerns.
+ * Use case for submitting promo codes.
+ * Handles:
+ * - Getting or creating service
+ * - Duplicate checking
+ * - Domain object creation and validation
+ * - Submission to repository
  */
-class SubmitPromocodeUseCase(private val promoCodeRepository: PromocodeRepository) {
-
-    companion object {
-        private const val TAG = "SubmitPromocodeUseCase"
-    }
-
-    operator fun invoke(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>> {
-        Logger.i(TAG) { "Creating promo code: ${promoCode.code} for service: ${promoCode.serviceName}" }
-        Logger.d(TAG) { "PromoCode details: id=${promoCode.id.value}, type=${promoCode::class.simpleName}" }
-
-        // Domain-level validation
-        try {
-            validatePromoCode(promoCode)
-            Logger.d(TAG) { "Domain validation passed" }
-        } catch (e: Exception) {
-            Logger.e(TAG, e) { "Domain validation failed for promo code: ${promoCode.code}" }
-            throw IllegalArgumentException("Invalid promo code: ${e.message}", e)
+class SubmitPromocodeUseCase(private val repo: PromocodeRepository, private val resolveService: GetOrCreateServiceUseCase) {
+    suspend operator fun invoke(req: SubmitPromocodeRequest): Result<Unit, OperationError> {
+        val service = when (val result = resolveService(req.service)) {
+            is Result.Success -> result.data
+            is Result.Error -> return Result.Error(result.error)
         }
 
-        return promoCodeRepository.createPromoCode(promoCode)
-    }
+        // Create and validate promocode
+        val promoCode = when (
+            val result = PromoCode.create(
+                code = req.code,
+                service = service,
+                author = req.currentUser,
+                discount = req.discount,
+                minimumOrderAmount = req.minimumOrderAmount,
+                startDate = req.startDate,
+                endDate = req.endDate,
+                isFirstUserOnly = req.isFirstUserOnly,
+                isOneTimeUseOnly = req.isOneTimeUseOnly,
+                isVerified = req.isVerified,
+                description = req.description,
+            )
+        ) {
+            is Result.Success -> result.data
+            is Result.Error -> return Result.Error(result.error)
+        }
 
-    private fun validatePromoCode(promoCode: PromoCode) {
-        require(promoCode.code.isNotBlank()) { "Promo code cannot be blank" }
-        require(promoCode.serviceName.isNotBlank()) { "Service name cannot be blank" }
-        require(promoCode.endDate > promoCode.startDate) { "End date must be after start date" }
-
-        when (promoCode.discount) {
-            is Discount.Percentage -> {
-                require(promoCode.discount.value > 0) { "Discount percentage must be positive" }
-                require(promoCode.discount.value <= 100) { "Discount percentage cannot exceed 100%" }
-            }
-            is Discount.FixedAmount -> {
-                require(promoCode.discount.value > 0) { "Discount amount must be positive" }
+        // Check for duplicate promocode - fail if already exists
+        when (val result = repo.getPromocodeById(promoCode.id)) {
+            is Result.Success -> return Result.Error(PromocodeError.SubmissionFailure.DuplicateCode)
+            is Result.Error -> {
+                // Only proceed if specifically not found - other errors should fail the operation
+                if (result.error !is FirestoreError.NotFound) {
+                    return Result.Error(result.error)
+                }
             }
         }
 
-        require(promoCode.minimumOrderAmount >= 0) { "Minimum order amount cannot be negative" }
+        // Submit to repository
+        return repo.createPromocode(promoCode)
     }
 }

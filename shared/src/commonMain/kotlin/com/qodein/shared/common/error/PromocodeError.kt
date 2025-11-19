@@ -2,12 +2,13 @@ package com.qodein.shared.common.error
 
 /**
  * Domain errors for PromoCode operations.
- * User-focused hierarchical errors that abstract away implementation details.
+ * Only contains business logic errors. Infrastructure errors (NotFound, PermissionDenied, etc.)
+ * should use FirestoreError or SystemError directly.
  */
 sealed interface PromocodeError : OperationError {
 
     /**
-     * Failures when user tries to create a promo code (client-side validation).
+     * Failures when user tries to create a promo code (domain validation).
      */
     sealed interface CreationFailure : PromocodeError {
         data object EmptyCode : CreationFailure
@@ -23,19 +24,9 @@ sealed interface PromocodeError : OperationError {
     }
 
     /**
-     * Failures when submitting a promo code to the backend (server-side rejection).
+     * Failures when submitting a promo code (business logic errors).
      */
     sealed interface SubmissionFailure : PromocodeError {
         data object DuplicateCode : SubmissionFailure
-        data object NotAuthorized : SubmissionFailure
-        data object InvalidData : SubmissionFailure
-    }
-
-    /**
-     * Failures when user tries to get/view promo codes.
-     */
-    sealed interface RetrievalFailure : PromocodeError {
-        data object NotFound : RetrievalFailure
-        data object NoResults : RetrievalFailure
     }
 }

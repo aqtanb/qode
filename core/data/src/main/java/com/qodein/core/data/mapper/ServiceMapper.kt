@@ -6,7 +6,7 @@ import com.qodein.shared.model.ServiceId
 
 object ServiceMapper {
     fun toDomain(dto: ServiceDto): Service =
-        Service(
+        Service.fromDto(
             id = ServiceId(dto.documentId),
             name = dto.name,
             logoUrl = dto.logoUrl,

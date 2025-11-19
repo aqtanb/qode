@@ -8,7 +8,7 @@ import com.qodein.shared.model.UserStats
 
 object UserPreviewData {
 
-    val newUser = User(
+    val newUser = User.fromDto(
         id = UserId("user123"),
         email = Email("john.doe@example.com"),
         profile = UserProfile(
@@ -22,10 +22,9 @@ object UserPreviewData {
             submittedPromocodesCount = 0,
             submittedPostsCount = 0,
         ),
-        country = "KZ",
     )
 
-    val activeContributor = User(
+    val activeContributor = User.fromDto(
         id = UserId("user456"),
         email = Email("sarah.smith@example.com"),
         profile = UserProfile(
@@ -39,10 +38,9 @@ object UserPreviewData {
             submittedPromocodesCount = 47,
             submittedPostsCount = 23,
         ),
-        country = "KZ",
     )
 
-    val powerUser = User(
+    val powerUser = User.fromDto(
         id = UserId("user789"),
         email = Email("alex.chen@example.com"),
         profile = UserProfile(
@@ -56,10 +54,9 @@ object UserPreviewData {
             submittedPromocodesCount = 156,
             submittedPostsCount = 89,
         ),
-        country = "KZ",
     )
 
-    val userWithoutAvatar = User(
+    val userWithoutAvatar = User.fromDto(
         id = UserId("user999"),
         email = Email("maria.garcia@example.com"),
         profile = UserProfile(
@@ -73,10 +70,9 @@ object UserPreviewData {
             submittedPromocodesCount = 12,
             submittedPostsCount = 5,
         ),
-        country = "RU",
     )
 
-    val userWithLongName = User(
+    val userWithLongName = User.fromDto(
         id = UserId("user888"),
         email = Email("alexandra.rodriguez@example.com"),
         profile = UserProfile(
@@ -90,6 +86,5 @@ object UserPreviewData {
             submittedPromocodesCount = 8,
             submittedPostsCount = 15,
         ),
-        country = "KZ",
     )
 }

@@ -12,7 +12,7 @@ import kotlin.time.Clock
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 
-object PromoCodeMapper {
+object PromocodeMapper {
 
     fun toDomain(dto: PromocodeDto): PromoCode {
         val discount = when (dto.discount) {

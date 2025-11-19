@@ -7,5 +7,5 @@ import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
 
 class GetPromocodeByIdUseCase(private val promoCodeRepository: PromocodeRepository) {
-    suspend operator fun invoke(id: PromocodeId): Result<PromoCode, OperationError> = promoCodeRepository.getPromoCodeById(id)
+    suspend operator fun invoke(id: PromocodeId): Result<PromoCode, OperationError> = promoCodeRepository.getPromocodeById(id)
 }

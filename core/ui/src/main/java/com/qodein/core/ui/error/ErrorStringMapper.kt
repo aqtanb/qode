@@ -37,10 +37,6 @@ fun OperationError.asUiText(): String =
         UserError.ProfileFailure.UpdateFailed -> stringResource(R.string.error_user_update_failed)
 
         PromocodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
-        PromocodeError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_promo_code_submission_not_authorized)
-        PromocodeError.SubmissionFailure.InvalidData -> stringResource(R.string.error_validation_invalid_format)
-        PromocodeError.RetrievalFailure.NotFound -> stringResource(R.string.error_promo_code_not_found)
-        PromocodeError.RetrievalFailure.NoResults -> stringResource(R.string.error_no_results)
 
         ServiceError.SearchFailure.NoResults -> stringResource(R.string.error_service_no_results)
         ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)

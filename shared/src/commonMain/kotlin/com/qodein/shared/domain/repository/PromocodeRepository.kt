@@ -7,7 +7,6 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for PromoCode operations.
@@ -19,22 +18,20 @@ interface PromocodeRepository {
     /**
      * Create a new promo code.
      */
-    fun createPromoCode(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>>
+    suspend fun createPromocode(promocode: PromoCode): Result<Unit, OperationError>
 
     /**
      * Get promo codes with filtering and sorting using cursor-based pagination.
      */
-    fun getPromoCodes(
-        query: String? = null,
+    suspend fun getPromocodes(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        filterByCategories: List<String>? = null,
         paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>>
+    ): Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>
 
     /**
      * Get a specific promo code by ID.
      * Returns NotFound error if promo code doesn't exist.
      */
-    suspend fun getPromoCodeById(id: PromocodeId): Result<PromoCode, OperationError>
+    suspend fun getPromocodeById(id: PromocodeId): Result<PromoCode, OperationError>
 }

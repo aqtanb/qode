@@ -18,6 +18,21 @@ import kotlin.time.Instant
 @JvmInline
 value class PromocodeId(val value: String) {
     override fun toString(): String = value
+
+    companion object {
+        /**
+         * Creates a composite ID from service name and code.
+         * Normalizes inputs by lowercasing and replacing spaces with underscores.
+         */
+        fun create(
+            serviceName: String,
+            code: String
+        ): PromocodeId {
+            val cleanCode = code.lowercase().trim().replace(Regex("\\s+"), "_")
+            val cleanService = serviceName.lowercase().trim().replace(Regex("\\s+"), "_")
+            return PromocodeId("${cleanService}_$cleanCode")
+        }
+    }
 }
 
 /**
