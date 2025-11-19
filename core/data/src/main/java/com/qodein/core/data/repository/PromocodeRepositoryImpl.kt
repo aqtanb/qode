@@ -32,7 +32,7 @@ class PromocodeRepositoryImpl constructor(
         flow {
             Logger.i(TAG) { "Repository creating promo code: ${promoCode.code}" }
             try {
-                val result = promoCodeDataSource.createPromoCode(promoCode)
+                val result = promoCodeDataSource.createPromocode(promoCode)
                 Logger.i(TAG) { "Repository successfully created promo code: ${result.id.value}" }
 
                 // Side effect: increment user's promocode count
@@ -101,7 +101,7 @@ class PromocodeRepositoryImpl constructor(
     override suspend fun getPromoCodeById(id: PromocodeId): Result<PromoCode, OperationError> =
         try {
             Logger.d(TAG) { "Getting promocode by id: ${id.value}" }
-            val promoCode = promoCodeDataSource.getPromoCodeById(id)
+            val promoCode = promoCodeDataSource.getPromocodeById(id)
             if (promoCode != null) {
                 Logger.i(TAG) { "Found promocode: ${id.value}" }
                 Result.Success(promoCode)
