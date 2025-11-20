@@ -12,20 +12,7 @@ import kotlin.time.Instant
 @Serializable
 @JvmInline
 value class UserId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "UserId cannot be blank" }
-        require(value.length <= 128) { "UserId too long (max 128 characters)" }
-        require(value.matches(USER_ID_REGEX)) { "UserId contains invalid characters" }
-    }
-
-    companion object {
-        private val USER_ID_REGEX = "^[a-zA-Z0-9_-]+$".toRegex()
-
-        fun createSafe(value: String): Result<UserId> =
-            runCatching {
-                UserId(value.trim())
-            }
-    }
+    override fun toString(): String = value
 }
 
 @Serializable
@@ -39,25 +26,16 @@ value class Email(val value: String) {
     }
 
     val domain: String get() = value.substringAfter("@")
-    val localPart: String get() = value.substringBefore("@")
-    val normalized: String get() = value.trim().lowercase()
 
     companion object {
         private val EMAIL_REGEX = """^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$""".toRegex()
-
-        fun createSafe(value: String): Result<Email> =
-            runCatching {
-                Email(value.trim().lowercase())
-            }
-
-        fun isValid(value: String): Boolean = value.trim().lowercase().matches(EMAIL_REGEX)
     }
 }
 
-enum class Language(val code: String, val displayName: String) {
-    ENGLISH("en", "English"),
-    KAZAKH("kk", "Қазақша"),
-    RUSSIAN("ru", "Русский")
+enum class Language(val code: String) {
+    ENGLISH("en"),
+    KAZAKH("kk"),
+    RUSSIAN("ru")
 }
 
 enum class Theme {
@@ -83,10 +61,6 @@ data class UserProfile(
         require(updatedAt >= createdAt) { "UpdatedAt cannot be before createdAt" }
     }
     val displayName: String get() = listOfNotNull(firstName, lastName).joinToString(" ")
-    val initials: String get() = listOfNotNull(
-        firstName.firstOrNull()?.toString(),
-        lastName?.firstOrNull()?.toString(),
-    ).joinToString("")
 
     companion object {
         const val MIN_FIRST_NAME_LENGTH = 1
@@ -95,22 +69,6 @@ data class UserProfile(
         const val MAX_BIO_LENGTH = 500
         private val NAME_REGEX = "^[a-zA-ZÀ-ÿА-я\\s'-]+$".toRegex()
         private val URL_REGEX = "^https?://.*".toRegex()
-
-        fun createSafe(
-            firstName: String,
-            lastName: String? = null,
-            bio: String? = null,
-            photoUrl: String? = null,
-            isGenerated: Boolean = false
-        ): Result<UserProfile> =
-            runCatching {
-                UserProfile(
-                    firstName = firstName.trim(),
-                    lastName = lastName?.trim()?.takeIf { it.isNotBlank() },
-                    bio = bio?.trim()?.takeIf { it.isNotBlank() },
-                    photoUrl = photoUrl?.trim()?.takeIf { it.isNotBlank() },
-                )
-            }
 
         private fun validateFirstName(firstName: String) {
             require(firstName.isNotBlank()) { "First name cannot be blank" }
@@ -163,24 +121,9 @@ data class UserStats(
         require(createdAt > 0) { "Created time must be positive" }
     }
 
-    val totalSubmissions: Int get() = submittedPromocodesCount + submittedPostsCount
-
     companion object {
 
         fun initial(userId: UserId): UserStats = UserStats(userId = userId)
-
-        fun createSafe(
-            userId: UserId,
-            submittedPromocodesCount: Int = 0,
-            submittedPostsCount: Int = 0
-        ): Result<UserStats> =
-            runCatching {
-                UserStats(
-                    userId = userId,
-                    submittedPromocodesCount = submittedPromocodesCount,
-                    submittedPostsCount = submittedPostsCount,
-                )
-            }
     }
 }
 
@@ -193,16 +136,13 @@ data class User private constructor(val id: UserId, val email: Email, val profil
             id: String,
             email: String,
             profile: UserProfile
-        ): Result<User> =
-            runCatching {
-                val userId = UserId(id)
-                User(
-                    id = userId,
-                    email = Email(email),
-                    profile = profile,
-                    stats = UserStats.initial(userId),
-                )
-            }
+        ): User =
+            User(
+                id = UserId(id),
+                email = Email(email),
+                profile = profile,
+                stats = UserStats.initial(UserId(id)),
+            )
 
         /**
          * Reconstruct a User from storage/DTO (for mappers/repositories only).

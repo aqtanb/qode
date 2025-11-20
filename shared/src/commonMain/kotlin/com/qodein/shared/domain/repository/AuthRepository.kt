@@ -15,12 +15,12 @@ interface AuthRepository {
     /**
      * Sign in with Google authentication.
      */
-    fun signInWithGoogle(): Flow<Result<User, OperationError>>
+    suspend fun signInWithGoogle(): Result<User, OperationError>
 
     /**
      * Sign out the current user.
      */
-    fun signOut(): Flow<Result<Unit, OperationError>>
+    suspend fun signOut(): Result<Unit, OperationError>
 
     /**
      * Observe authentication state changes.

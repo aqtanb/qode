@@ -1,6 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseUser
 import com.qodein.core.data.dto.UserDto
 import com.qodein.core.data.dto.UserProfileDto
 import com.qodein.core.data.dto.UserStatsDto
@@ -11,6 +12,13 @@ import com.qodein.shared.model.UserProfile
 import com.qodein.shared.model.UserStats
 
 object UserMapper {
+
+    fun fromFirebaseUser(user: FirebaseUser): User =
+        User.create(
+            id = user.uid,
+            email = user.email,
+            profile = TODO(),
+        )
 
     fun toDomain(
         dto: UserDto,

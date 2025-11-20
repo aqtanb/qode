@@ -1,6 +1,6 @@
 package com.qodein.core.data.repository
 
-import co.touchlab.kermit.Logger
+import timber.log.Timber
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -15,50 +15,28 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 
-class AuthRepositoryImpl constructor(
+class AuthRepositoryImpl(
     private val firebaseGoogleAuthService: FirebaseGoogleAuthService,
-    private val userRepository: UserRepository
 ) : AuthRepository {
 
     companion object {
         private const val TAG = "AuthRepository"
     }
 
-    override fun signInWithGoogle(): Flow<Result<User, OperationError>> =
-        flow {
-            Logger.d(TAG) { "Signing in with Google" }
-            val result = firebaseGoogleAuthService.signIn()
-
-            when (result) {
-                is Result.Success -> {
-                    val user = result.data
-                    Logger.d(TAG) { "Syncing user to Firestore: ${user.id.value}" }
-
-                    userRepository.createUserIfNew(user).collect { syncResult ->
-                        when (syncResult) {
-                            is Result.Success -> {
-                                Logger.i(TAG) { "User synced successfully to Firestore" }
-                            }
-                            is Result.Error -> {
-                                Logger.w(TAG) { "Failed to sync user to Firestore: ${syncResult.error}" }
-                            }
-                        }
-                    }
-
-                    emit(result)
-                }
-                is Result.Error -> {
-                    emit(result)
-                }
-            }
+    override suspend fun signInWithGoogle(): Result<User, OperationError> {
+        try {
+            val firebaseUser = firebaseGoogleAuthService.signIn()
+            return Result.Success(result)
+        } catch (e: Exception) {
+            Timber.e(e)
+            return Result.Error(OperationError.UnknownError)
         }
+    }
 
-    override fun signOut(): Flow<Result<Unit, OperationError>> =
-        flow {
-            Logger.d(TAG) { "Signing out" }
-            val result = firebaseGoogleAuthService.signOut()
-            emit(result)
-        }
+
+    override suspend fun signOut(): Result<Unit, OperationError> {
+
+    }
 
     override fun getAuthStateFlow(): Flow<User?> =
         callbackFlow {
