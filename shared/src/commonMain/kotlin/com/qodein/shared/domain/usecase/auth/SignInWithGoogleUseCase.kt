@@ -17,7 +17,7 @@ class SignInWithGoogleUseCase(private val authRepository: AuthRepository, privat
             is Result.Success -> {
                 val user = authResult.data
                 // Wait for user creation to complete
-                val createResult = userRepository.createUserIfNew(user).first()
+                val createResult = userRepository.createUser(user).first()
                 when (createResult) {
                     is Result.Success -> authResult // Return original auth result with user
                     is Result.Error -> Result.Error(createResult.error) // Propagate creation error

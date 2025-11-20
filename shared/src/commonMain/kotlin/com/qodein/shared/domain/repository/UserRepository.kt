@@ -20,7 +20,7 @@ interface UserRepository {
      * Create user document in Firestore if it doesn't exist.
      * If user already exists, this is a no-op.
      */
-    fun createUserIfNew(user: User): Flow<Result<Unit, OperationError>>
+    fun createUser(user: User): Flow<Result<Unit, OperationError>>
 
     /**
      * Increment the user's submitted promocodes count by 1.

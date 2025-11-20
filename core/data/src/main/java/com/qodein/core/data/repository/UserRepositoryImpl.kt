@@ -20,7 +20,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
             emit(dataSource.getUserById(userId))
         }
 
-    override fun createUserIfNew(user: User): Flow<Result<Unit, OperationError>> =
+    override fun createUser(user: User): Flow<Result<Unit, OperationError>> =
         flow {
             emit(dataSource.createUserIfNew(user))
         }

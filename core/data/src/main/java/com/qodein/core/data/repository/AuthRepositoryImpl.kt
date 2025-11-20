@@ -18,6 +18,11 @@ class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthR
     override suspend fun signInWithGoogle(): Result<User, OperationError> {
         try {
             val firebaseUser = dataSource.signIn()
+            val user = User.create(
+                id = firebaseUser?.uid,
+                email = TODO(),
+                profile = TODO(),
+            )
             return Result.Success(result)
         } catch (e: Exception) {
             Timber.e(e)

@@ -28,8 +28,14 @@ sealed interface UserError : OperationError {
     sealed interface AuthenticationFailure : UserError {
         data object Cancelled : AuthenticationFailure
         data object InvalidCredentials : AuthenticationFailure
+        data object NoCredentialsAvailable : AuthenticationFailure
         data object ServiceUnavailable : AuthenticationFailure
+        data object ConfigurationError : AuthenticationFailure
+        data object UnsupportedCredential : AuthenticationFailure
         data object TooManyAttempts : AuthenticationFailure
+        data object AccountDisabled : AuthenticationFailure
+        data object AccountConflict : AuthenticationFailure
+        data object Unknown : AuthenticationFailure
     }
 
     /**

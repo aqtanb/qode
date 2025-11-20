@@ -1,7 +1,6 @@
 package com.qodein.qode
 
 import android.app.Application
-import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import co.touchlab.kermit.Logger
@@ -9,6 +8,7 @@ import co.touchlab.kermit.Severity
 import com.qodein.core.analytics.di.analyticsModule
 import com.qodein.core.data.di.coreDataModule
 import com.qodein.feature.auth.di.authModule
+import com.qodein.qode.logging.CrashlyticsTree
 import com.qodein.qode.logging.KermitTimberWriter
 import com.qodein.shared.data.di.sharedDataModule
 import dagger.hilt.android.HiltAndroidApp
@@ -72,21 +72,8 @@ class QodeApplication :
                 }
             })
         } else {
-            // Release builds: Only plant trees for crashes/errors
-            // TODO: Add Crashlytics logging tree when Firebase Analytics is added
-            Timber.plant(object : Timber.Tree() {
-                override fun log(
-                    priority: Int,
-                    tag: String?,
-                    message: String,
-                    t: Throwable?
-                ) {
-                    // In release builds, only log errors and crashes
-                    if (priority >= Log.ERROR) {
-                        // TODO: Send to Crashlytics
-                    }
-                }
-            })
+            // Release builds: Send logs to Crashlytics for production monitoring
+            Timber.plant(CrashlyticsTree())
         }
 
         // Configure Kermit for shared module logging, bridged to Timber
