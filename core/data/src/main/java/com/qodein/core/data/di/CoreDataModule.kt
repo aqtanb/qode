@@ -17,7 +17,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.qodein.core.data.BuildConfig
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
-import com.qodein.core.data.datasource.FirebaseGoogleAuthService
+import com.qodein.core.data.datasource.FirebaseAuthDataSource
 import com.qodein.core.data.datasource.FirebaseStorageDataSource
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
 import com.qodein.core.data.datasource.FirestorePostDataSource
@@ -89,7 +89,7 @@ val coreDataModule = module {
     }
 
     single { DevicePreferencesDataSource(get()) }
-    single { FirebaseGoogleAuthService(androidContext(), get(), get()) }
+    single { FirebaseAuthDataSource(androidContext(), get(), get()) }
     single { FirebaseStorageDataSource(get()) }
     single { FirestoreBannerDataSource(get()) }
     single { FirestorePostDataSource(get()) }

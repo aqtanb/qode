@@ -28,5 +28,5 @@ interface AuthRepository {
      * This method doesn't return errors - authentication state changes
      * are delivered as Flow emissions.
      */
-    fun getAuthStateFlow(): Flow<User?>
+    suspend fun getAuthStateFlow(): Flow<User?>
 }

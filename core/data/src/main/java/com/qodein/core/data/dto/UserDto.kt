@@ -1,6 +1,7 @@
 package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 
@@ -48,16 +49,12 @@ data class UserStatsDto(
     val submittedPromocodesCount: Int = 0,
 
     @PropertyName("submittedPostsCount")
-    val submittedPostsCount: Int = 0,
-
-    @PropertyName("createdAt")
-    val createdAt: Timestamp? = null
+    val submittedPostsCount: Int = 0
 ) {
-    constructor() : this(
-        submittedPromocodesCount = 0,
-        submittedPostsCount = 0,
-        createdAt = null,
-    )
+    companion object {
+        const val FIELD_SUBMITTED_PROMOCODES_COUNT = "submittedPromocodesCount"
+        const val FIELD_SUBMITTED_POSTS_COUNT = "submittedPostsCount"
+    }
 }
 
 /**
@@ -65,6 +62,8 @@ data class UserStatsDto(
  * Maps to the "users/{userId}" collection.
  */
 data class UserDto(
+    @DocumentId
+    val documentId: String = "",
     @PropertyName("email")
     val email: String = "",
 
@@ -72,15 +71,12 @@ data class UserDto(
     val profile: UserProfileDto = UserProfileDto(),
 
     @PropertyName("stats")
-    val stats: UserStatsDto = UserStatsDto(),
-
-    @PropertyName("country")
-    val country: String? = null
+    val stats: UserStatsDto = UserStatsDto()
 ) {
-    constructor() : this(
-        email = "",
-        profile = UserProfileDto(),
-        stats = UserStatsDto(),
-        country = null,
-    )
+    companion object {
+        const val COLLECTION_NAME = "users"
+        const val FIELD_EMAIL = "email"
+        const val FIELD_PROFILE = "profile"
+        const val FIELD_STATS = "stats"
+    }
 }

@@ -11,9 +11,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.qodein.core.data.R
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FirebaseGoogleAuthService(
+class FirebaseAuthDataSource(
     private val context: Context,
     private val auth: FirebaseAuth,
     private val credentialManager: CredentialManager
@@ -46,4 +49,11 @@ class FirebaseGoogleAuthService(
         credentialManager.clearCredentialState(clearRequest)
         auth.signOut()
     }
+
+    fun getAuthStateFlow(): Flow<FirebaseUser?> =
+        callbackFlow {
+            val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth -> trySend(firebaseAuth.currentUser) }
+            auth.addAuthStateListener(authStateListener)
+            awaitClose { auth.removeAuthStateListener(authStateListener) }
+        }
 }

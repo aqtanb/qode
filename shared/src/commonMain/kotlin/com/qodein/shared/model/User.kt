@@ -3,6 +3,7 @@
 
 package com.qodein.shared.model
 
+import com.qodein.shared.common.error.UserError
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
@@ -134,15 +135,18 @@ data class User private constructor(val id: UserId, val email: Email, val profil
     companion object {
         fun create(
             id: String,
-            email: String,
+            email: String?,
             profile: UserProfile
-        ): User =
+        ): Result<User, UserError.CreationFailure> {
+            if (email.isNullOrBlank()) return UserError.CreationFailure.InvalidEmail
+
             User(
                 id = UserId(id),
                 email = Email(email),
                 profile = profile,
                 stats = UserStats.initial(UserId(id)),
             )
+        }
 
         /**
          * Reconstruct a User from storage/DTO (for mappers/repositories only).

@@ -1,23 +1,15 @@
 package com.qodein.core.data.repository
 
-import timber.log.Timber
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.qodein.core.data.datasource.FirebaseGoogleAuthService
+import com.qodein.core.data.datasource.FirebaseAuthDataSource
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.AuthRepository
-import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.model.User
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
-class AuthRepositoryImpl(
-    private val firebaseGoogleAuthService: FirebaseGoogleAuthService,
-) : AuthRepository {
+class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthRepository {
 
     companion object {
         private const val TAG = "AuthRepository"
@@ -25,7 +17,7 @@ class AuthRepositoryImpl(
 
     override suspend fun signInWithGoogle(): Result<User, OperationError> {
         try {
-            val firebaseUser = firebaseGoogleAuthService.signIn()
+            val firebaseUser = dataSource.signIn()
             return Result.Success(result)
         } catch (e: Exception) {
             Timber.e(e)
@@ -33,27 +25,18 @@ class AuthRepositoryImpl(
         }
     }
 
-
     override suspend fun signOut(): Result<Unit, OperationError> {
-
     }
 
-    override fun getAuthStateFlow(): Flow<User?> =
-        callbackFlow {
-            val auth = Firebase.auth
-
-            val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-                val firebaseUser = firebaseAuth.currentUser
-                val user = firebaseUser?.let { firebaseGoogleAuthService.createUserFromFirebaseUser(it) }
-                trySend(user)
-            }
-
-            // Add listener and send initial state
-            auth.addAuthStateListener(authStateListener)
-
-            // Remove listener when Flow is cancelled
-            awaitClose {
-                auth.removeAuthStateListener(authStateListener)
+    override suspend fun getAuthStateFlow(): Flow<User?> {
+        dataSource.getAuthStateFlow().map { firebaseUser ->
+            firebaseUser?.let { user ->
+                User.create(
+                    id = user.uid,
+                    email = user.email,
+                    profile = TODO(),
+                )
             }
         }
+    }
 }

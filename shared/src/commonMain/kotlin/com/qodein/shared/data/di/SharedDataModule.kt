@@ -24,5 +24,5 @@ val sharedDataModule = module {
     single<LegalDocumentRepository> { LegalDocumentRepositoryImpl(get()) }
 
     single { GetLegalDocumentUseCase(get()) }
-    single { SignInWithGoogleUseCase(get()) }
+    single { SignInWithGoogleUseCase(get(), get()) }
 }

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
  * DataSource already returns Result, so repository simply wraps in Flow.
  */
 
-class UserRepositoryImpl constructor(private val dataSource: FirestoreUserDataSource) : UserRepository {
+class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : UserRepository {
 
     override fun getUserById(userId: String): Flow<Result<User, OperationError>> =
         flow {
