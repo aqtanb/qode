@@ -1,37 +1,79 @@
 package com.qodein.core.data.repository
 
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreUserDataSource
+import com.qodein.core.data.mapper.toUser
+import com.qodein.core.data.mapper.toUserDto
+import com.qodein.core.data.util.ErrorMapper
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.model.User
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-
-/**
- * Implementation of UserRepository using Firestore as the data source.
- * DataSource already returns Result, so repository simply wraps in Flow.
- */
+import timber.log.Timber
+import java.io.IOException
 
 class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : UserRepository {
 
-    override fun getUserById(userId: String): Flow<Result<User, OperationError>> =
-        flow {
-            emit(dataSource.getUserById(userId))
+    override suspend fun getUserById(userId: String): Result<User, OperationError> =
+        try {
+            val dto = dataSource.getUserById(userId)
+            dto?.let { Result.Success(it.toUser()) }
+                ?: Result.Error(UserError.ProfileFailure.NotFound)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error getting user: $userId")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error getting user: $userId")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error getting user: $userId")
+            Result.Error(SystemError.Unknown)
         }
 
-    override fun createUser(user: User): Flow<Result<Unit, OperationError>> =
-        flow {
-            emit(dataSource.createUserIfNew(user))
+    override suspend fun createUser(user: User): Result<Unit, OperationError> =
+        try {
+            dataSource.createUser(user.toUserDto())
+            Result.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error creating user: ${user.id}")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error creating user: ${user.id}")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error creating user: ${user.id}")
+            Result.Error(SystemError.Unknown)
         }
 
-    override fun incrementPromocodeCount(userId: String): Flow<Result<Unit, OperationError>> =
-        flow {
-            emit(dataSource.incrementPromocodeCount(userId))
+    override suspend fun incrementPromocodeCount(userId: String): Result<Unit, OperationError> =
+        try {
+            dataSource.incrementPromocodeCount(userId)
+            Result.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error incrementing promocode count: $userId")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error incrementing promocode count: $userId")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error incrementing promocode count: $userId")
+            Result.Error(SystemError.Unknown)
         }
 
-    override fun incrementPostCount(userId: String): Flow<Result<Unit, OperationError>> =
-        flow {
-            emit(dataSource.incrementPostCount(userId))
+    override suspend fun incrementPostCount(userId: String): Result<Unit, OperationError> =
+        try {
+            dataSource.incrementPostCount(userId)
+            Result.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error incrementing post count: $userId")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error incrementing post count: $userId")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error incrementing post count: $userId")
+            Result.Error(SystemError.Unknown)
         }
 }

@@ -3,6 +3,7 @@
 
 package com.qodein.shared.model
 
+import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.UserError
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
@@ -45,65 +46,37 @@ enum class Theme {
     SYSTEM
 }
 
-data class UserProfile(
-    val firstName: String,
-    val lastName: String?,
-    val bio: String?,
-    val photoUrl: String?,
-    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
-    val updatedAt: Long = Clock.System.now().toEpochMilliseconds()
-) {
-    init {
-        validateFirstName(firstName)
-        lastName?.let { validateLastName(it) }
-        bio?.let { validateBio(it) }
-        photoUrl?.let { validatePhotoUrl(it) }
-        require(createdAt > 0) { "CreatedAt must be positive" }
-        require(updatedAt >= createdAt) { "UpdatedAt cannot be before createdAt" }
-    }
-    val displayName: String get() = listOfNotNull(firstName, lastName).joinToString(" ")
-
+@ConsistentCopyVisibility
+data class UserProfile private constructor(val displayName: String?, val photoUrl: String?) {
     companion object {
-        const val MIN_FIRST_NAME_LENGTH = 1
-        const val MAX_FIRST_NAME_LENGTH = 50
-        const val MAX_LAST_NAME_LENGTH = 50
-        const val MAX_BIO_LENGTH = 500
-        private val NAME_REGEX = "^[a-zA-ZÀ-ÿА-я\\s'-]+$".toRegex()
+        const val MAX_DISPLAY_NAME_LENGTH = 100
         private val URL_REGEX = "^https?://.*".toRegex()
 
-        private fun validateFirstName(firstName: String) {
-            require(firstName.isNotBlank()) { "First name cannot be blank" }
-            require(firstName.length >= MIN_FIRST_NAME_LENGTH) {
-                "First name too short"
-            }
-            require(firstName.length <= MAX_FIRST_NAME_LENGTH) {
-                "First name too long (max $MAX_FIRST_NAME_LENGTH characters)"
-            }
-            require(firstName.matches(NAME_REGEX)) {
-                "First name contains invalid characters"
-            }
-        }
+        fun create(
+            displayName: String?,
+            photoUrl: String? = null
+        ): Result<UserProfile, UserError.CreationFailure> {
+            val cleanDisplayName = displayName?.trim()?.takeIf { it.isNotBlank() }
+            val cleanPhotoUrl = photoUrl?.trim()?.takeIf { it.isNotBlank() }
 
-        private fun validateLastName(lastName: String) {
-            require(lastName.length <= MAX_LAST_NAME_LENGTH) {
-                "Last name too long (max $MAX_LAST_NAME_LENGTH characters)"
+            cleanDisplayName?.let {
+                if (it.length > MAX_DISPLAY_NAME_LENGTH) {
+                    return Result.Error(UserError.CreationFailure.DisplayNameTooLong)
+                }
             }
-            require(lastName.matches(NAME_REGEX)) {
-                "Last name contains invalid characters"
-            }
-        }
 
-        private fun validateBio(bio: String) {
-            require(bio.length <= MAX_BIO_LENGTH) {
-                "Bio too long (max $MAX_BIO_LENGTH characters)"
+            cleanPhotoUrl?.let {
+                if (!it.matches(URL_REGEX)) {
+                    return Result.Error(UserError.CreationFailure.InvalidPhotoUrl)
+                }
             }
-        }
 
-        private fun validatePhotoUrl(photoUrl: String) {
-            require(photoUrl.matches(URL_REGEX)) {
-                "Photo URL must be a valid HTTP/HTTPS URL"
-            }
-            require(photoUrl.length <= 2048) { "Photo URL too long" }
+            return Result.Success(
+                UserProfile(
+                    displayName = cleanDisplayName,
+                    photoUrl = cleanPhotoUrl,
+                ),
+            )
         }
     }
 }
@@ -130,7 +103,7 @@ data class UserStats(
 
 @ConsistentCopyVisibility
 data class User private constructor(val id: UserId, val email: Email, val profile: UserProfile, val stats: UserStats) {
-    val displayName: String get() = profile.displayName
+    val displayName: String? get() = profile.displayName
 
     companion object {
         fun create(
@@ -138,13 +111,16 @@ data class User private constructor(val id: UserId, val email: Email, val profil
             email: String?,
             profile: UserProfile
         ): Result<User, UserError.CreationFailure> {
-            if (email.isNullOrBlank()) return UserError.CreationFailure.InvalidEmail
+            if (id.isBlank()) return Result.Error(UserError.CreationFailure.InvalidUserId)
+            if (email.isNullOrBlank()) return Result.Error(UserError.CreationFailure.InvalidEmail)
 
-            User(
-                id = UserId(id),
-                email = Email(email),
-                profile = profile,
-                stats = UserStats.initial(UserId(id)),
+            return Result.Success(
+                User(
+                    id = UserId(id),
+                    email = Email(email),
+                    profile = profile,
+                    stats = UserStats.initial(UserId(id)),
+                ),
             )
         }
 

@@ -96,7 +96,7 @@ val coreDataModule = module {
     single { FirestoreUnifiedUserInteractionDataSource(get()) }
     single { FirestoreUserDataSource(get()) }
 
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<PromocodeRepository> { PromocodeRepositoryImpl(get(), get()) }
     single<ServiceRepository> { ServiceRepositoryImpl(get()) }

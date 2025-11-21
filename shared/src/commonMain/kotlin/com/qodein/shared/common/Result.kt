@@ -22,23 +22,3 @@ sealed interface Result<out D, out E : RootError> {
      */
     data class Error<out E : RootError>(val error: E) : Result<Nothing, E>
 }
-
-/**
- * Returns the success data or null if the result is an error.
- */
-fun <D, E : RootError> Result<D, E>.getOrNull(): D? =
-    when (this) {
-        is Result.Success -> data
-        is Result.Error -> null
-    }
-
-/**
- * Returns the success data or the result of fallback function if error.
- * Note: The fallback lambda cannot use `return` to exit the outer function.
- * For early returns, use a when expression instead.
- */
-fun <D, E : RootError> Result<D, E>.getOrElse(fallback: (E) -> D): D =
-    when (this) {
-        is Result.Success -> data
-        is Result.Error -> fallback(error)
-    }

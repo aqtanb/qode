@@ -12,13 +12,7 @@ sealed interface UserError : OperationError {
     sealed interface CreationFailure : UserError {
         data object InvalidUserId : CreationFailure
         data object InvalidEmail : CreationFailure
-        data object EmptyFirstName : CreationFailure
-        data object FirstNameTooShort : CreationFailure
-        data object FirstNameTooLong : CreationFailure
-        data object FirstNameInvalidCharacters : CreationFailure
-        data object LastNameTooLong : CreationFailure
-        data object LastNameInvalidCharacters : CreationFailure
-        data object BioTooLong : CreationFailure
+        data object DisplayNameTooLong : CreationFailure
         data object InvalidPhotoUrl : CreationFailure
     }
 
