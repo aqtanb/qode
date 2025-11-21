@@ -1,7 +1,6 @@
 package com.qodein.core.data.di
 
 import android.content.Context
-import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -78,7 +77,6 @@ val coreDataModule = module {
     single<FirebaseFirestore> { Firebase.firestore }
     single<FirebaseFunctions> { Firebase.functions }
     single<FirebaseStorage> { Firebase.storage }
-    single<CredentialManager> { CredentialManager.create(androidContext()) }
     single<DataStore<Preferences>> { androidContext().dataStore }
     single { UserInteractionMapper() }
     single {
@@ -89,7 +87,7 @@ val coreDataModule = module {
     }
 
     single { DevicePreferencesDataSource(get()) }
-    single { FirebaseAuthDataSource(androidContext(), get(), get()) }
+    single { FirebaseAuthDataSource(get()) }
     single { FirebaseStorageDataSource(get()) }
     single { FirestoreBannerDataSource(get()) }
     single { FirestorePostDataSource(get()) }

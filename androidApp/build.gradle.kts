@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -37,6 +39,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties =
+            Properties().apply {
+                load(rootProject.file("local.properties").inputStream())
+            }
+        resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
     }
 
     buildFeatures {
@@ -100,12 +108,12 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.work)
+    implementation(libs.bundles.authentication)
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
-
     implementation(libs.androidx.startup)
     implementation(libs.kermit)
     implementation(libs.timber)

@@ -8,6 +8,7 @@ import co.touchlab.kermit.Severity
 import com.qodein.core.analytics.di.analyticsModule
 import com.qodein.core.data.di.coreDataModule
 import com.qodein.feature.auth.di.authModule
+import com.qodein.qode.di.appModule
 import com.qodein.qode.logging.CrashlyticsTree
 import com.qodein.qode.logging.KermitTimberWriter
 import com.qodein.shared.data.di.sharedDataModule
@@ -50,6 +51,7 @@ class QodeApplication :
             androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.ERROR)
             androidContext(this@QodeApplication)
             modules(
+                appModule,
                 coreDataModule,
                 analyticsModule,
                 sharedDataModule,

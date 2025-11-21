@@ -21,8 +21,6 @@ android {
             Properties().apply {
                 load(rootProject.file("local.properties").inputStream())
             }
-        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID")}\"")
-        resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
         buildConfigField("String", "ALGOLIA_APP_ID", "\"${properties.getProperty("ALGOLIA_APP_ID")}\"")
         buildConfigField("String", "ALGOLIA_SEARCH_API_KEY", "\"${properties.getProperty("ALGOLIA_SEARCH_API_KEY")}\"")
     }
