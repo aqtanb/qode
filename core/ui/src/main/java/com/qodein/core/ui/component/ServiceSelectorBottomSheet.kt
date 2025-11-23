@@ -409,7 +409,7 @@ private fun PopularServicesSectionIdlePreview() {
 private fun PopularServicesSectionErrorPreview() {
     QodeTheme {
         PopularServicesSection(
-            popularStatus = PopularStatus.Error(SystemError.ServiceDown),
+            popularStatus = PopularStatus.Error(SystemError.Unknown),
             popularServices = emptyList(),
             selectedServices = emptyList(),
             onAction = {},

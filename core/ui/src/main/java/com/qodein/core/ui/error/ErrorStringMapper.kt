@@ -6,6 +6,7 @@ import com.qodein.core.ui.R
 import com.qodein.shared.common.error.AlgoliaError
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.common.error.InteractionError
+import com.qodein.shared.common.error.LegalDocumentError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PostError
 import com.qodein.shared.common.error.PromocodeError
@@ -36,8 +37,6 @@ fun OperationError.asUiText(): String =
         UserError.ProfileFailure.DataCorrupted -> stringResource(R.string.error_user_data_corrupted)
         UserError.ProfileFailure.UpdateFailed -> stringResource(R.string.error_user_update_failed)
 
-        PromocodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
-
         ServiceError.SearchFailure.NoResults -> stringResource(R.string.error_service_no_results)
         ServiceError.SearchFailure.QueryTooShort -> stringResource(R.string.error_service_query_too_short)
         ServiceError.SearchFailure.TooManyResults -> stringResource(R.string.error_service_too_many_results)
@@ -45,6 +44,9 @@ fun OperationError.asUiText(): String =
         ServiceError.RetrievalFailure.NotFound -> stringResource(R.string.error_service_not_found)
         ServiceError.RetrievalFailure.DataCorrupted -> stringResource(R.string.error_service_data_corrupted)
         ServiceError.RetrievalFailure.CacheExpired -> stringResource(R.string.error_service_cache_expired)
+
+        LegalDocumentError.NotFound -> stringResource(R.string.error_legal_document_not_found)
+        LegalDocumentError.Unavailable -> stringResource(R.string.error_legal_document_unavailable)
 
         InteractionError.VotingFailure.NotAuthorized -> stringResource(R.string.error_interaction_vote_not_authorized)
         InteractionError.VotingFailure.AlreadyVoted -> stringResource(R.string.error_interaction_already_voted)
@@ -56,7 +58,6 @@ fun OperationError.asUiText(): String =
         InteractionError.BookmarkFailure.RemoveFailed -> stringResource(R.string.error_interaction_remove_failed)
 
         SystemError.Offline -> stringResource(R.string.error_network_no_connection)
-        SystemError.ServiceDown -> stringResource(R.string.error_system_service_down)
         SystemError.Unknown -> stringResource(R.string.error_unknown)
 
         PostError.CreationFailure.ContentTooLong -> stringResource(R.string.error_post_content_too_long)
@@ -73,8 +74,6 @@ fun OperationError.asUiText(): String =
         PostError.SubmissionFailure.InvalidData -> stringResource(R.string.error_post_submission_invalid_data)
         PostError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_post_submission_not_authorized)
 
-        SystemError.PermissionDenied -> stringResource(R.string.error_system_permission_denied)
-
         StorageError.DeletionFailure.FileNotFound -> stringResource(R.string.error_storage_delete_file_not_found)
         StorageError.RetrievalFailure.FileNotFound -> stringResource(R.string.error_storage_retrieve_file_not_found)
         StorageError.UploadFailure.CorruptedFile -> stringResource(R.string.error_storage_upload_corrupted_file)
@@ -87,8 +86,6 @@ fun OperationError.asUiText(): String =
         StorageError.CompressionFailure.InvalidImageFormat -> stringResource(R.string.error_storage_compression_invalid_format)
         StorageError.CompressionFailure.OutOfMemory -> stringResource(R.string.error_storage_compression_out_of_memory)
         StorageError.CompressionFailure.CompressionFailed -> stringResource(R.string.error_storage_compression_failed)
-
-        SystemError.Unauthorized -> stringResource(R.string.error_auth_unauthorized)
 
         FirestoreError.Cancelled -> stringResource(R.string.error_operation_cancelled)
         FirestoreError.InvalidArgument -> stringResource(R.string.error_firestore_invalid_argument)
@@ -127,6 +124,7 @@ fun OperationError.asUiText(): String =
         PromocodeError.CreationFailure.InvalidMinimumAmount -> stringResource(R.string.error_promo_invalid_minimum_amount)
         PromocodeError.CreationFailure.InvalidPercentageDiscount -> stringResource(R.string.error_promo_invalid_percentage)
         PromocodeError.CreationFailure.InvalidPromocodeId -> stringResource(R.string.error_promo_invalid_id)
+        PromocodeError.SubmissionFailure.DuplicateCode -> stringResource(R.string.error_promo_code_already_exists)
 
         ServiceError.CreationFailure.EmptyName -> stringResource(R.string.error_service_name_empty)
         ServiceError.CreationFailure.InvalidServiceId -> stringResource(R.string.error_service_invalid_id)
@@ -136,14 +134,14 @@ fun OperationError.asUiText(): String =
         ServiceError.SubmissionFailure.InvalidData -> stringResource(R.string.error_service_submission_invalid_data)
         ServiceError.SubmissionFailure.NotAuthorized -> stringResource(R.string.error_service_submission_not_authorized)
 
-        UserError.CreationFailure.BioTooLong -> stringResource(R.string.error_user_bio_too_long)
-        UserError.CreationFailure.EmptyFirstName -> stringResource(R.string.error_user_first_name_empty)
-        UserError.CreationFailure.FirstNameInvalidCharacters -> stringResource(R.string.error_user_first_name_invalid_characters)
-        UserError.CreationFailure.FirstNameTooLong -> stringResource(R.string.error_user_first_name_too_long)
-        UserError.CreationFailure.FirstNameTooShort -> stringResource(R.string.error_user_first_name_too_short)
         UserError.CreationFailure.InvalidEmail -> stringResource(R.string.error_user_invalid_email)
         UserError.CreationFailure.InvalidPhotoUrl -> stringResource(R.string.error_user_invalid_photo_url)
         UserError.CreationFailure.InvalidUserId -> stringResource(R.string.error_user_invalid_id)
-        UserError.CreationFailure.LastNameInvalidCharacters -> stringResource(R.string.error_user_last_name_invalid_characters)
-        UserError.CreationFailure.LastNameTooLong -> stringResource(R.string.error_user_last_name_too_long)
+        UserError.AuthenticationFailure.AccountConflict -> TODO()
+        UserError.AuthenticationFailure.AccountDisabled -> TODO()
+        UserError.AuthenticationFailure.ConfigurationError -> TODO()
+        UserError.AuthenticationFailure.NoCredentialsAvailable -> TODO()
+        UserError.AuthenticationFailure.Unknown -> TODO()
+        UserError.AuthenticationFailure.UnsupportedCredential -> TODO()
+        UserError.CreationFailure.DisplayNameTooLong -> TODO()
     }

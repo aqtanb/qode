@@ -46,8 +46,7 @@ internal class FirebaseStorageDataSource constructor(private val storage: Fireba
             Result.Success(downloadUrl)
         } catch (e: StorageException) {
             val error = when (e.errorCode) {
-                StorageException.ERROR_NOT_AUTHENTICATED -> SystemError.Unauthorized
-                StorageException.ERROR_NOT_AUTHORIZED -> SystemError.PermissionDenied
+                StorageException.ERROR_NOT_AUTHENTICATED -> StorageError.UploadFailure.NotAuthenticated
                 StorageException.ERROR_QUOTA_EXCEEDED -> StorageError.UploadFailure.QuotaExceeded
                 StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> SystemError.Offline
                 StorageException.ERROR_INVALID_CHECKSUM -> StorageError.UploadFailure.CorruptedFile

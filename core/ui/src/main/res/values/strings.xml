@@ -52,11 +52,11 @@
     <string name="error_auth_unauthorized">Access denied. Please sign in and try again.</string>
     <string name="error_auth_required">Please sign in to continue.</string>
     <string name="error_auth_service_unavailable">Authentication service is temporarily unavailable.</string>
-    <string name="error_auth_too_many_attempts">Too many sign-in attempts. Please try again.</string>
+    <string name="error_auth_too_many_attempts">Too many sign-in attempts. </string>
 
     <!-- User Profile Errors -->
-    <string name="error_user_data_corrupted">User profile data is corrupted. Please try again.</string>
-    <string name="error_user_update_failed">Failed to update user profile. Please try again.</string>
+    <string name="error_user_data_corrupted">User profile data is corrupted.</string>
+    <string name="error_user_update_failed">Failed to update user profile.</string>
     <string name="error_user_profile_access_denied">You don\'t have permission to update this profile.</string>
 
     <!-- Promo Code Errors -->
@@ -74,7 +74,7 @@
     <string name="error_promo_invalid_fixed_amount">Fixed discount amount must be greater than zero.</string>
     <string name="error_promo_invalid_minimum_amount">Minimum purchase amount must be greater than zero.</string>
     <string name="error_promo_discount_exceeds_minimum">Discount amount cannot exceed the minimum purchase amount.</string>
-    <string name="error_promo_invalid_id">Invalid promo code identifier. Please try again.</string>
+    <string name="error_promo_invalid_id">Invalid promo code identifier.</string>
 
     <!-- User Errors -->
     <string name="error_user_not_found">User account not found.</string>
@@ -89,10 +89,10 @@
     <string name="error_user_bio_too_long">Bio is too long. Maximum 500 characters allowed.</string>
     <string name="error_user_invalid_email">Email address is invalid. Please enter a valid email.</string>
     <string name="error_user_invalid_photo_url">Profile photo URL is invalid. Must be a valid HTTP/HTTPS link.</string>
-    <string name="error_user_invalid_id">Invalid user identifier. Please try again.</string>
+    <string name="error_user_invalid_id">Invalid user identifier.</string>
 
     <!-- Service Errors -->
-    <string name="error_service_not_found">Service not found. Please try again.</string>
+    <string name="error_service_not_found">Service not found.</string>
     <string name="error_service_unavailable">Service is temporarily unavailable.</string>
     <string name="error_service_no_results">No services found for your search.</string>
     <string name="error_service_query_too_short">Search query is too short. Please enter at least 2 characters.</string>
@@ -112,42 +112,46 @@
     <string name="error_service_submission_invalid_data">Service data is invalid. Please check your input.</string>
     <string name="error_service_submission_not_authorized">You must be signed in to submit services.</string>
 
+    <!-- Legal Document Errors -->
+    <string name="error_legal_document_not_found">The requested document could not be found.</string>
+    <string name="error_legal_document_unavailable">Legal documents are unavailable right now.later.</string>
+
     <!-- Validation Errors -->
     <string name="error_validation_invalid_format">Invalid format. Please check your input.</string>
 
     <!-- System Errors -->
-    <string name="error_system_service_down">Our services are temporarily down. Please try again.</string>
+    <string name="error_system_service_down">Our services are temporarily down.</string>
     <string name="error_system_permission_denied">System permissions are blocking this action. Check your device settings and try again.</string>
 
     <!-- Operation Errors -->
     <string name="error_operation_cancelled">The operation was cancelled.</string>
-    <string name="error_request_timeout">The request timed out. Please try again.</string>
+    <string name="error_request_timeout">The request timed out.</string>
     <string name="error_not_found">Requested resource was not found.</string>
     <string name="error_already_exists">The resource already exists.</string>
     <string name="error_quota_exceeded">The quota for this action has been exceeded.</string>
     <string name="error_operation_failed">The operation could not be completed.</string>
-    <string name="error_operation_aborted">The operation was aborted. Please try again.</string>
+    <string name="error_operation_aborted">The operation was aborted.</string>
     <string name="error_not_supported">This action is not supported.</string>
-    <string name="error_data_corrupted">Data appears to be corrupted. Please try again.</string>
+    <string name="error_data_corrupted">Data appears to be corrupted.</string>
 
     <!-- Interaction Errors -->
     <string name="error_interaction_already_voted">You have already voted on this content.</string>
     <string name="error_interaction_content_not_found">Content not found. It may have been deleted.</string>
-    <string name="error_interaction_save_failed">Failed to save your action. Please try again.</string>
-    <string name="error_interaction_remove_failed">Failed to remove. Please try again.</string>
+    <string name="error_interaction_save_failed">Failed to save your action.</string>
+    <string name="error_interaction_remove_failed">Failed to remove.</string>
     <string name="error_interaction_vote_not_authorized">You must be signed in to vote on this content.</string>
     <string name="error_interaction_vote_content_not_found">The item you tried to vote on could not be found.</string>
-    <string name="error_interaction_vote_save_failed">We couldn\'t record your vote. Please try again.</string>
+    <string name="error_interaction_vote_save_failed">We couldn\'t record your vote.</string>
     <string name="error_interaction_bookmark_not_authorized">You must be signed in to bookmark this content.</string>
     <string name="error_interaction_bookmark_content_not_found">The item you tried to bookmark could not be found.</string>
-    <string name="error_interaction_bookmark_save_failed">We couldn\'t update your bookmark. Please try again.</string>
+    <string name="error_interaction_bookmark_save_failed">We couldn\'t update your bookmark.</string>
 
     <!-- General Errors -->
     <string name="error_no_results">No results found.</string>
     <string name="error_too_many_results">Too many results found.</string>
 
     <!-- General Error -->
-    <string name="error_unknown">Something went wrong. Please try again.</string>
+    <string name="error_unknown">Something went wrong.</string>
 
     <!-- Post Errors -->
     <string name="error_post_title_empty">Post title is required</string>
@@ -166,7 +170,7 @@
 
     <!-- Storage Errors -->
     <string name="error_storage_upload_not_authenticated">You must be signed in to upload files</string>
-    <string name="error_storage_upload_quota_exceeded">Storage quota exceeded. Please try again.</string>
+    <string name="error_storage_upload_quota_exceeded">Storage quota exceeded.</string>
     <string name="error_storage_upload_file_too_large">File is too large to upload</string>
     <string name="error_storage_upload_invalid_file_type">Invalid file type</string>
     <string name="error_storage_upload_cancelled">Upload was cancelled</string>
@@ -183,8 +187,8 @@
     <string name="error_firestore_invalid_argument">Firestore request contained invalid data.</string>
     <string name="error_firestore_out_of_range">Firestore request contained values outside the allowed range.</string>
     <string name="error_firestore_permission_denied">Firestore rejected the request because of missing permissions.</string>
-    <string name="error_firestore_internal">Firestore encountered an internal error. Please try again.</string>
-    <string name="error_firestore_unavailable">Firestore is unavailable right now. Please try again.</string>
+    <string name="error_firestore_internal">Firestore encountered an internal error.</string>
+    <string name="error_firestore_unavailable">Firestore is unavailable right now.</string>
 
     <!-- Algolia Search Errors -->
     <string name="error_algolia_index_not_found">Search index not found. Please contact support.</string>
@@ -194,9 +198,9 @@
     <string name="error_algolia_network_error">Unable to connect to search service. Please check your connection.</string>
     <string name="error_algolia_rate_limit_exceeded">Too many searches. Please wait a moment and try again.</string>
     <string name="error_algolia_request_too_large">Search query is too complex. Please simplify your search.</string>
-    <string name="error_algolia_server_error">Search service is experiencing issues. Please try again.</string>
-    <string name="error_algolia_service_unavailable">Search service is temporarily unavailable. Please try again.</string>
-    <string name="error_algolia_timeout">Search request timed out. Please try again.</string>
+    <string name="error_algolia_server_error">Search service is experiencing issues.</string>
+    <string name="error_algolia_service_unavailable">Search service is temporarily unavailable.</string>
+    <string name="error_algolia_timeout">Search request timed out.</string>
 
     <!-- Error Actions -->
     <string name="action_retry">Retry</string>
@@ -221,7 +225,7 @@
     <string name="search_icon_description">Search</string>
     <string name="loading_popular_services">Loading popular services…</string>
     <string name="error_loading_popular_services">Failed to load popular services</string>
-    <string name="search_error_message">Failed to search services. Please try again.</string>
+    <string name="search_error_message">Failed to search services.</string>
 
     <!-- Sort Options -->
     <string name="sort_popularity">Most Popular</string>

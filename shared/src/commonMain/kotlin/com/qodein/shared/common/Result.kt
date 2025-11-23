@@ -22,3 +22,13 @@ sealed interface Result<out D, out E : RootError> {
      */
     data class Error<out E : RootError>(val error: E) : Result<Nothing, E>
 }
+
+/**
+ * Unwrap a Result, throwing if it contains an error.
+ * Useful in previews/tests where failure should crash fast.
+ */
+inline fun <reified D, reified E : RootError> Result<D, E>.requireSuccess(message: String? = null): D =
+    when (this) {
+        is Result.Success -> data
+        is Result.Error -> throw IllegalStateException(message ?: "Expected Success but got Error: ${error::class.simpleName}")
+    }

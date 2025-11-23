@@ -65,7 +65,7 @@ class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthR
         dataSource.signOut()
     }
 
-    override fun getAuthStateFlow(): Flow<User?> =
+    override fun getAuthStateFlow(): Flow<GoogleAuthResult?> =
         dataSource.getAuthStateFlow().map { firebaseUser ->
             firebaseUser?.let { User(id = UserId(it.uid)) }
         }

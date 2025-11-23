@@ -7,6 +7,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.dto.PostDto
 import com.qodein.core.data.mapper.PostMapper
+import com.qodein.core.data.util.ErrorMapper.mapFirestoreException
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PostError
@@ -130,14 +131,7 @@ class FirestorePostDataSource constructor(
 
             Result.Success(PostMapper.toDomain(dto))
         } catch (e: FirebaseFirestoreException) {
-            val error = when (e.code) {
-                FirebaseFirestoreException.Code.PERMISSION_DENIED -> PostError.RetrievalFailure.AccessDenied
-                FirebaseFirestoreException.Code.UNAUTHENTICATED -> SystemError.Unauthorized
-                FirebaseFirestoreException.Code.UNAVAILABLE -> SystemError.ServiceDown
-                FirebaseFirestoreException.Code.DEADLINE_EXCEEDED -> SystemError.Offline
-                FirebaseFirestoreException.Code.RESOURCE_EXHAUSTED -> SystemError.ServiceDown
-                else -> SystemError.Unknown
-            }
+            val error = mapFirestoreException(e)
             Result.Error(error)
         } catch (e: IOException) {
             Result.Error(SystemError.Offline)

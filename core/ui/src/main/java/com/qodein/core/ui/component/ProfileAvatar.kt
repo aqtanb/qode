@@ -26,7 +26,7 @@ fun ProfileAvatar(
 ) {
     CircularImage(
         imageUrl = optimizeImageUrl(user?.profile?.photoUrl),
-        fallbackText = user?.let { extractInitials("${it.profile.firstName} ${it.profile.lastName ?: ""}".trim()) },
+        fallbackText = user?.profile?.displayName,
         fallbackIcon = QodeNavigationIcons.Profile,
         modifier = modifier,
         size = size,
@@ -35,15 +35,6 @@ fun ProfileAvatar(
         contentDescription = contentDescription,
     )
 }
-
-fun extractInitials(fullName: String?): String? =
-    fullName?.trim()?.takeIf { it.isNotBlank() }?.let { name ->
-        name.split("\\s+".toRegex())
-            .mapNotNull { it.firstOrNull()?.uppercase() }
-            .take(2)
-            .joinToString("")
-            .takeIf { it.isNotEmpty() }
-    }
 
 /**
  * Optimizes image URLs for high quality display, specifically Google Photos URLs
