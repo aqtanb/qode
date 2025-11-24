@@ -65,12 +65,15 @@ class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthR
 
     override fun observeAuthState(): Flow<GoogleAuthResult?> =
         dataSource.observeAuthState().map { firebaseUser ->
-            if (firebaseUser == null) null
-            else GoogleAuthResult(
-                uid = firebaseUser.uid,
-                email = firebaseUser.email,
-                displayName = firebaseUser.displayName,
-                photoUrl = firebaseUser.photoUrl?.toString(),
-            )
+            if (firebaseUser == null) {
+                null
+            } else {
+                GoogleAuthResult(
+                    uid = firebaseUser.uid,
+                    email = firebaseUser.email,
+                    displayName = firebaseUser.displayName,
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                )
+            }
         }
 }

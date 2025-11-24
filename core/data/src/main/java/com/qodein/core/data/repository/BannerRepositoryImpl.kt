@@ -1,6 +1,5 @@
 package com.qodein.core.data.repository
 
-import co.touchlab.kermit.Logger
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
@@ -12,6 +11,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.model.Banner
+import timber.log.Timber
 
 class BannerRepositoryImpl(private val dataSource: FirestoreBannerDataSource) : BannerRepository {
 
@@ -23,15 +23,15 @@ class BannerRepositoryImpl(private val dataSource: FirestoreBannerDataSource) : 
         try {
             val rawBanners = dataSource.getBanners(limit)
             val domainBanners = rawBanners.map { BannerMapper.toDomain(it) }
-            Logger.d(TAG) { "Successfully fetched ${domainBanners.size} banners" }
+            Timber.d("Successfully fetched %d banners", domainBanners.size)
             Result.Success(domainBanners)
         } catch (e: FirebaseFirestoreException) {
-            Result.Error(ErrorMapper.mapFirestoreException(e, TAG))
+            Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: FirebaseNetworkException) {
-            Logger.e(TAG, e) { "Network error - no internet connection" }
+            Timber.e(e, "Network error - no internet connection")
             Result.Error(FirestoreError.Unavailable)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unexpected error fetching banners: ${e.javaClass.simpleName}" }
+            Timber.e(e, "Unexpected error fetching banners: %s", e.javaClass.simpleName)
             Result.Error(SystemError.Unknown)
         }
 }

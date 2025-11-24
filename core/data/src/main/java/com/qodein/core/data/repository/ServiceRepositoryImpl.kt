@@ -1,6 +1,5 @@
 package com.qodein.core.data.repository
 
-import co.touchlab.kermit.Logger
 import com.algolia.client.exception.AlgoliaRuntimeException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
@@ -12,14 +11,27 @@ import com.qodein.shared.common.error.ServiceError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.model.Service
+import com.qodein.shared.model.ServiceId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerializationException
+import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class ServiceRepositoryImpl(private val serviceDataSource: FirestoreServiceDataSource) : ServiceRepository {
+    override suspend fun getById(id: ServiceId): Result<Service, OperationError> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun findByName(name: String): Result<Service, OperationError> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun create(service: Service): Result<Service, OperationError> {
+        TODO("Not yet implemented")
+    }
 
     companion object {
         private const val TAG = "ServiceRepository"
@@ -31,29 +43,29 @@ class ServiceRepositoryImpl(private val serviceDataSource: FirestoreServiceDataS
     ): Flow<Result<List<Service>, OperationError>> =
         flow {
             try {
-                Logger.i(TAG) { "Searching services: query='$query', limit=$limit" }
+                Timber.tag(TAG).i("Searching services: query='%s', limit=%d", query, limit)
                 val dtos = serviceDataSource.searchServices(query, limit)
                 val services = dtos.map { ServiceMapper.toDomain(it) }
-                Logger.i(TAG) { "Found ${services.size} services" }
+                Timber.tag(TAG).i("Found %d services", services.size)
                 emit(Result.Success(services))
             } catch (e: AlgoliaRuntimeException) {
-                emit(Result.Error(ErrorMapper.mapAlgoliaException(e, TAG)))
+                emit(Result.Error(ErrorMapper.mapAlgoliaException(e)))
             } catch (e: FirebaseFirestoreException) {
-                emit(Result.Error(ErrorMapper.mapFirestoreException(e, TAG)))
+                emit(Result.Error(ErrorMapper.mapFirestoreException(e)))
             } catch (e: SerializationException) {
-                Logger.e(TAG, e) { "Serialization error mapping service data: ${e.message}" }
+                Timber.tag(TAG).e(e, "Serialization error mapping service data: %s", e.message)
                 emit(Result.Error(ServiceError.RetrievalFailure.DataCorrupted))
             } catch (e: UnknownHostException) {
-                Logger.e(TAG, e) { "No internet connection: ${e.message}" }
+                Timber.tag(TAG).e(e, "No internet connection: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: SocketTimeoutException) {
-                Logger.e(TAG, e) { "Request timeout: ${e.message}" }
+                Timber.tag(TAG).e(e, "Request timeout: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: IOException) {
-                Logger.e(TAG, e) { "Network I/O error: ${e.message}" }
+                Timber.tag(TAG).e(e, "Network I/O error: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: Exception) {
-                Logger.e(TAG, e) { "Unexpected error searching services: ${e::class.simpleName} - ${e.message}" }
+                Timber.tag(TAG).e(e, "Unexpected error searching services: %s - %s", e::class.simpleName, e.message)
                 emit(Result.Error(ServiceError.SearchFailure.NoResults))
             }
         }
@@ -61,27 +73,27 @@ class ServiceRepositoryImpl(private val serviceDataSource: FirestoreServiceDataS
     override fun getPopularServices(limit: Long): Flow<Result<List<Service>, OperationError>> =
         flow {
             try {
-                Logger.i(TAG) { "Fetching popular services: limit=$limit" }
+                Timber.tag(TAG).i("Fetching popular services: limit=%d", limit)
                 val dtos = serviceDataSource.getPopularServices(limit)
                 val services = dtos.map { ServiceMapper.toDomain(it) }
-                Logger.i(TAG) { "Retrieved ${services.size} popular services" }
+                Timber.tag(TAG).i("Retrieved %d popular services", services.size)
                 emit(Result.Success(services))
             } catch (e: FirebaseFirestoreException) {
-                emit(Result.Error(ErrorMapper.mapFirestoreException(e, TAG)))
+                emit(Result.Error(ErrorMapper.mapFirestoreException(e)))
             } catch (e: SerializationException) {
-                Logger.e(TAG, e) { "Serialization error mapping service data: ${e.message}" }
+                Timber.tag(TAG).e(e, "Serialization error mapping service data: %s", e.message)
                 emit(Result.Error(ServiceError.RetrievalFailure.DataCorrupted))
             } catch (e: UnknownHostException) {
-                Logger.e(TAG, e) { "No internet connection: ${e.message}" }
+                Timber.tag(TAG).e(e, "No internet connection: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: SocketTimeoutException) {
-                Logger.e(TAG, e) { "Request timeout: ${e.message}" }
+                Timber.tag(TAG).e(e, "Request timeout: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: IOException) {
-                Logger.e(TAG, e) { "Network I/O error: ${e.message}" }
+                Timber.tag(TAG).e(e, "Network I/O error: %s", e.message)
                 emit(Result.Error(SystemError.Offline))
             } catch (e: Exception) {
-                Logger.e(TAG, e) { "Unexpected error fetching popular services: ${e::class.simpleName} - ${e.message}" }
+                Timber.tag(TAG).e(e, "Unexpected error fetching popular services: %s - %s", e::class.simpleName, e.message)
                 emit(Result.Error(ServiceError.RetrievalFailure.NotFound))
             }
         }

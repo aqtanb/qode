@@ -1,44 +1,13 @@
 package com.qodein.core.data.dto
 
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.PropertyName
-import com.google.firebase.firestore.ServerTimestamp
 
 /**
  * Firestore DTO for user profile data.
  * Embedded inside UserDto as a nested field.
  */
-data class UserProfileDto(
-    @PropertyName("firstName")
-    val firstName: String = "",
-
-    @PropertyName("lastName")
-    val lastName: String? = null,
-
-    @PropertyName("bio")
-    val bio: String? = null,
-
-    @PropertyName("photoUrl")
-    val photoUrl: String? = null,
-
-    @PropertyName("createdAt")
-    @ServerTimestamp
-    val createdAt: Timestamp? = null,
-
-    @ServerTimestamp
-    @PropertyName("updatedAt")
-    val updatedAt: Timestamp? = null
-) {
-    constructor() : this(
-        firstName = "",
-        lastName = null,
-        bio = null,
-        photoUrl = null,
-        createdAt = null,
-        updatedAt = null,
-    )
-}
+data class UserProfileDto(val displayName: String = "", val photoUrl: String? = null)
 
 /**
  * Firestore DTO for user statistics.

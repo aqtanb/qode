@@ -78,6 +78,11 @@ data class UserProfile private constructor(val displayName: String?, val photoUr
                 ),
             )
         }
+
+        fun fromDto(
+            displayName: String?,
+            photoUrl: String?
+        ) = UserProfile(displayName, photoUrl)
     }
 }
 

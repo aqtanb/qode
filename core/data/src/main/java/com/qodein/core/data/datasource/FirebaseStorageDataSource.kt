@@ -17,7 +17,7 @@ import java.util.UUID
  * Handles image uploads with comprehensive error handling.
  */
 
-internal class FirebaseStorageDataSource constructor(private val storage: FirebaseStorage) {
+internal class FirebaseStorageDataSource(private val storage: FirebaseStorage) {
     companion object {
         private const val TAG = "FirebaseStorageDS"
     }
@@ -56,8 +56,6 @@ internal class FirebaseStorageDataSource constructor(private val storage: Fireba
             Result.Error(error)
         } catch (e: IOException) {
             Result.Error(SystemError.Offline)
-        } catch (e: SecurityException) {
-            Result.Error(SystemError.PermissionDenied)
         } catch (e: Exception) {
             Result.Error(SystemError.Unknown)
         }

@@ -1,6 +1,5 @@
 package com.qodein.core.data.repository
 
-import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
@@ -21,6 +20,7 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
 import kotlinx.io.IOException
+import timber.log.Timber
 
 class PromocodeRepositoryImpl(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
@@ -33,37 +33,34 @@ class PromocodeRepositoryImpl(
 
     override suspend fun createPromocode(promocode: PromoCode): Result<Unit, OperationError> =
         try {
-            Logger.i(TAG) { "Creating promocode: ${promocode.code}" }
+            Timber.i("Creating promocode: %s", promocode.code)
 
             val dto = PromocodeMapper.toDto(promocode)
             promoCodeDataSource.createPromocode(dto)
 
-            Logger.i(TAG) { "Successfully created promocode: ${promocode.id.value}" }
+            Timber.i("Successfully created promocode: %s", promocode.id.value)
 
             try {
                 userDataSource.incrementPromocodeCount(promocode.authorId.value)
-                Logger.d(TAG) { "Incremented promocode count for user: ${promocode.authorId.value}" }
+                Timber.d("Incremented promocode count for user: %s", promocode.authorId.value)
             } catch (e: Exception) {
-                Logger.w(TAG, e) { "Failed to increment promocode count: ${e.message}" }
+                Timber.w(e, "Failed to increment promocode count: %s", e.message)
             }
 
             Result.Success(Unit)
         } catch (e: FirebaseFirestoreException) {
-            Result.Error(ErrorMapper.mapFirestoreException(e, TAG))
+            Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: SecurityException) {
-            Logger.e(TAG, e) { "Security error creating promocode: ${promocode.code}" }
+            Timber.e(e, "Security error creating promocode: %s", promocode.code)
             Result.Error(FirestoreError.PermissionDenied)
         } catch (e: IllegalArgumentException) {
-            Logger.e(TAG, e) { "Invalid data creating promocode: ${promocode.code}" }
+            Timber.e(e, "Invalid data creating promocode: %s", promocode.code)
             Result.Error(FirestoreError.InvalidArgument)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error creating promocode: ${promocode.code}" }
+            Timber.e(e, "Network error creating promocode: %s", promocode.code)
             Result.Error(SystemError.Offline)
-        } catch (e: IllegalStateException) {
-            Logger.e(TAG, e) { "Service down creating promocode: ${promocode.code}" }
-            Result.Error(SystemError.ServiceDown)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unknown error creating promocode: ${e::class.simpleName}" }
+            Timber.e(e, "Unknown error creating promocode: %s", e::class.simpleName)
             Result.Error(SystemError.Unknown)
         }
 
@@ -73,7 +70,7 @@ class PromocodeRepositoryImpl(
         paginationRequest: PaginationRequest<ContentSortBy>
     ): Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError> =
         try {
-            Logger.d(TAG) { "Getting promocodes: sortBy=$sortBy, services=${filterByServices?.size}" }
+            Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
 
             val (sortByField, sortDirection) = mapSortBy(sortBy)
             val cursor = paginationRequest.cursor?.documentSnapshot as? DocumentSnapshot
@@ -103,19 +100,16 @@ class PromocodeRepositoryImpl(
                 hasMore = pagedDto.hasMore,
             )
 
-            Logger.i(TAG) { "Retrieved ${promocodes.size} promocodes, hasMore=${pagedDto.hasMore}" }
+            Timber.i("Retrieved %d promocodes, hasMore=%s", promocodes.size, pagedDto.hasMore)
             Result.Success(result)
         } catch (e: FirebaseFirestoreException) {
-            Logger.e(TAG, e) { "Firestore error getting promocodes [${e.code.name}]" }
-            Result.Error(ErrorMapper.mapFirestoreException(e, TAG))
+            Timber.e(e, "Firestore error getting promocodes [%s]", e.code.name)
+            Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error getting promocodes" }
+            Timber.e(e, "Network error getting promocodes")
             Result.Error(SystemError.Offline)
-        } catch (e: IllegalStateException) {
-            Logger.e(TAG, e) { "Service down getting promocodes" }
-            Result.Error(SystemError.ServiceDown)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unknown error getting promocodes: ${e::class.simpleName}" }
+            Timber.e(e, "Unknown error getting promocodes: %s", e::class.simpleName)
             Result.Error(SystemError.Unknown)
         }
 
@@ -133,22 +127,19 @@ class PromocodeRepositoryImpl(
                 val promocode = PromocodeMapper.toDomain(dto)
                 Result.Success(promocode)
             } else {
-                Logger.w(TAG) { "PromoCode not found: ${id.value}" }
+                Timber.w("PromoCode not found: %s", id.value)
                 Result.Error(FirestoreError.NotFound)
             }
         } catch (e: FirebaseFirestoreException) {
-            Result.Error(ErrorMapper.mapFirestoreException(e, TAG))
+            Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: IllegalArgumentException) {
-            Logger.e(TAG, e) { "Invalid PromoCode data for id: ${id.value}" }
+            Timber.e(e, "Invalid PromoCode data for id: %s", id.value)
             Result.Error(FirestoreError.NotFound)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error getting PromoCode: ${id.value}" }
+            Timber.e(e, "Network error getting PromoCode: %s", id.value)
             Result.Error(SystemError.Offline)
-        } catch (e: IllegalStateException) {
-            Logger.e(TAG, e) { "Service down getting PromoCode: ${id.value}" }
-            Result.Error(SystemError.ServiceDown)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unknown error getting PromoCode: ${id.value} - ${e::class.simpleName}" }
+            Timber.e(e, "Unknown error getting PromoCode: %s - %s", id.value, e::class.simpleName)
             Result.Error(SystemError.Unknown)
         }
 }

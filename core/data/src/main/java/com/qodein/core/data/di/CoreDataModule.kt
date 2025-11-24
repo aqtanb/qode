@@ -36,7 +36,6 @@ import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.core.data.repository.UserRepositoryImpl
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
@@ -67,6 +66,7 @@ import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.domain.usecase.user.ResolveUserUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -109,8 +109,8 @@ val coreDataModule = module {
     single<ServiceSelectionManager> { ServiceSelectionManagerImpl() }
     single { ServiceSelectionCoordinator(get(), get(), get()) }
 
-    single { AuthStateManager(get()) }
-    single { GetAuthStateUseCase(get()) }
+    single { ResolveUserUseCase(get()) }
+    single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { GetBannersUseCase(get()) }
     single { GetThemeUseCase(get()) }

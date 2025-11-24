@@ -12,7 +12,7 @@ import kotlin.time.Instant
 
 /**
  * Promocode ID - composite key format: {serviceName}_{code}
- * Validation is done in PromoCode.create() for rich error handling.
+ * Validation is handled in PromocodeId.create() to keep rules centralized.
  */
 @Serializable
 @JvmInline
@@ -20,6 +20,9 @@ value class PromocodeId(val value: String) {
     override fun toString(): String = value
 
     companion object {
+        private val WHITESPACE_REGEX = Regex("\\s+")
+        private const val MAX_ID_LENGTH = 200
+
         /**
          * Creates a composite ID from service name and code.
          * Normalizes inputs by lowercasing and replacing spaces with underscores.
@@ -27,10 +30,16 @@ value class PromocodeId(val value: String) {
         fun create(
             serviceName: String,
             code: String
-        ): PromocodeId {
-            val cleanCode = code.lowercase().trim().replace(Regex("\\s+"), "_")
-            val cleanService = serviceName.lowercase().trim().replace(Regex("\\s+"), "_")
-            return PromocodeId("${cleanService}_$cleanCode")
+        ): Result<PromocodeId, PromocodeError.CreationFailure> {
+            val cleanCode = code.lowercase().trim().replace(WHITESPACE_REGEX, "_")
+            val cleanService = serviceName.lowercase().trim().replace(WHITESPACE_REGEX, "_")
+            val compositeId = "${cleanService}_$cleanCode"
+
+            if (compositeId.isBlank() || compositeId.length > MAX_ID_LENGTH) {
+                return Result.Error(PromocodeError.CreationFailure.InvalidPromocodeId)
+            }
+
+            return Result.Success(PromocodeId(compositeId))
         }
     }
 }
@@ -43,6 +52,26 @@ value class PromocodeId(val value: String) {
 @Serializable
 sealed interface Discount {
     val value: Double
+
+    fun validate(minimumOrderAmount: Double): Result<Unit, PromocodeError.CreationFailure> =
+        when (this) {
+            is Percentage -> {
+                if (value <= 0 || value > 100) {
+                    Result.Error(PromocodeError.CreationFailure.InvalidPercentageDiscount)
+                } else {
+                    Result.Success(Unit)
+                }
+            }
+            is FixedAmount -> {
+                if (value <= 0) {
+                    Result.Error(PromocodeError.CreationFailure.InvalidFixedAmountDiscount)
+                } else if (value > minimumOrderAmount) {
+                    Result.Error(PromocodeError.CreationFailure.DiscountExceedsMinimumAmount)
+                } else {
+                    Result.Success(Unit)
+                }
+            }
+        }
 
     @Serializable
     data class Percentage(override val value: Double) : Discount
@@ -115,20 +144,9 @@ data class PromoCode private constructor(
                 return Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
             }
 
-            when (discount) {
-                is Discount.Percentage -> {
-                    if (discount.value <= 0 || discount.value > 100) {
-                        return Result.Error(PromocodeError.CreationFailure.InvalidPercentageDiscount)
-                    }
-                }
-                is Discount.FixedAmount -> {
-                    if (discount.value <= 0) {
-                        return Result.Error(PromocodeError.CreationFailure.InvalidFixedAmountDiscount)
-                    }
-                    if (discount.value > minimumOrderAmount) {
-                        return Result.Error(PromocodeError.CreationFailure.DiscountExceedsMinimumAmount)
-                    }
-                }
+            when (val validation = discount.validate(minimumOrderAmount)) {
+                is Result.Error -> return Result.Error(validation.error)
+                is Result.Success -> Unit
             }
 
             cleanDescription?.let {
@@ -141,14 +159,19 @@ data class PromoCode private constructor(
                 return Result.Error(PromocodeError.CreationFailure.InvalidDateRange)
             }
 
-            val compositeId = generateCompositeId(cleanCode, service.name)
-            if (compositeId.isBlank() || compositeId.length > 200) {
-                return Result.Error(PromocodeError.CreationFailure.InvalidPromocodeId)
+            val promoId = when (
+                val idResult = PromocodeId.create(
+                    serviceName = service.name,
+                    code = cleanCode,
+                )
+            ) {
+                is Result.Error -> return Result.Error(idResult.error)
+                is Result.Success -> idResult.data
             }
 
             return Result.Success(
                 PromoCode(
-                    id = PromocodeId(compositeId),
+                    id = promoId,
                     code = cleanCode,
                     discount = discount,
                     minimumOrderAmount = minimumOrderAmount,
@@ -218,13 +241,4 @@ data class PromoCode private constructor(
                 createdAt = createdAt,
             )
     }
-}
-
-private fun generateCompositeId(
-    code: String,
-    serviceName: String
-): String {
-    val cleanCode = code.lowercase().trim().replace(Regex("\\s+"), "_")
-    val cleanService = serviceName.lowercase().trim().replace(Regex("\\s+"), "_")
-    return "${cleanService}_$cleanCode"
 }

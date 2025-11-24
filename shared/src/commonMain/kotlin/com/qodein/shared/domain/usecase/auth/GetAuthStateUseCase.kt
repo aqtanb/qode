@@ -9,13 +9,15 @@ import kotlinx.coroutines.flow.map
 
 class GetAuthStateUseCase(private val authRepository: AuthRepository, private val resolveUserUseCase: ResolveUserUseCase) {
 
-    operator fun invoke(): Flow<AuthState> = authRepository.observeAuthState().map { googleUser ->
-        if (googleUser == null) AuthState.Unauthenticated else {
-            val user = resolveUserUseCase(googleUser)
-             when (user) {
-                is Result.Error -> AuthState.Unauthenticated
-                is Result.Success -> AuthState.Authenticated(user.data)
+    operator fun invoke(): Flow<AuthState> =
+        authRepository.observeAuthState().map { googleUser ->
+            if (googleUser == null) {
+                AuthState.Unauthenticated
+            } else {
+                when (val user = resolveUserUseCase(googleUser)) {
+                    is Result.Error -> AuthState.Unauthenticated
+                    is Result.Success -> AuthState.Authenticated(user.data)
+                }
             }
         }
-    }
 }
