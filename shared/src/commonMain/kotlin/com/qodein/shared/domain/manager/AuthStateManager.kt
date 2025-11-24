@@ -32,7 +32,7 @@ class AuthStateManager(private val authRepository: AuthRepository) {
      * @return Flow of AuthState with proper domain models
      */
     fun getAuthState(): Flow<AuthState> =
-        authRepository.getAuthStateFlow()
+        authRepository.observeAuthState()
             .map { user ->
                 when (user) {
                     null -> AuthState.Unauthenticated

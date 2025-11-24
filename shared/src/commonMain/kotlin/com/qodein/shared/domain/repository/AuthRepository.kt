@@ -22,5 +22,5 @@ interface AuthRepository {
      * Observe authentication state changes.
      * Emits User when signed in, null when signed out.
      */
-    fun getAuthStateFlow(): Flow<GoogleAuthResult?>
+    fun observeAuthState(): Flow<GoogleAuthResult?>
 }

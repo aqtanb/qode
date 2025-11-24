@@ -12,8 +12,6 @@ import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.model.GoogleAuthResult
-import com.qodein.shared.model.User
-import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -65,8 +63,14 @@ class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthR
         dataSource.signOut()
     }
 
-    override fun getAuthStateFlow(): Flow<GoogleAuthResult?> =
-        dataSource.getAuthStateFlow().map { firebaseUser ->
-            firebaseUser?.let { User(id = UserId(it.uid)) }
+    override fun observeAuthState(): Flow<GoogleAuthResult?> =
+        dataSource.observeAuthState().map { firebaseUser ->
+            if (firebaseUser == null) null
+            else GoogleAuthResult(
+                uid = firebaseUser.uid,
+                email = firebaseUser.email,
+                displayName = firebaseUser.displayName,
+                photoUrl = firebaseUser.photoUrl?.toString(),
+            )
         }
 }

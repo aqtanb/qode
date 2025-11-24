@@ -20,7 +20,7 @@ class FirebaseAuthDataSource(private val auth: FirebaseAuth) {
         auth.signOut()
     }
 
-    fun getAuthStateFlow(): Flow<FirebaseUser?> =
+    fun observeAuthState(): Flow<FirebaseUser?> =
         callbackFlow {
             val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
                 trySend(firebaseAuth.currentUser)
