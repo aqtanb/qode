@@ -40,12 +40,12 @@ sealed interface DiscountDto {
 
 data class PromocodeDto(
     @DocumentId val documentId: String = "",
-    val code: String,
-    val startDate: Timestamp,
-    val endDate: Timestamp,
-    val serviceName: String,
-    val discount: DiscountDto,
-    val minimumOrderAmount: Double,
+    val code: String = "",
+    val startDate: Timestamp = Timestamp.now(),
+    val endDate: Timestamp = Timestamp.now(),
+    val serviceName: String = "",
+    val discount: DiscountDto = DiscountDto.Percentage(0.0),
+    val minimumOrderAmount: Double = 0.0,
 
     val description: String? = null,
 
@@ -59,7 +59,7 @@ data class PromocodeDto(
     val upvotes: Int = 0,
     val downvotes: Int = 0,
 
-    val authorId: String,
+    val authorId: String = "",
     val authorUsername: String? = null,
     val authorAvatarUrl: String? = null,
 

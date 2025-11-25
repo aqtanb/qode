@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.component.SortFilterBottomSheet
@@ -154,6 +156,10 @@ private fun HomeContent(
                 onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
                 onRetryBanners = { onAction(HomeAction.RetryBannersClicked) },
             )
+        }
+
+        item {
+            HorizontalDivider(thickness = ShapeTokens.Border.thick)
         }
 
         // Filters Section

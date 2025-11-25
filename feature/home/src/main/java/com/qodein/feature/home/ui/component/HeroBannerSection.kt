@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -36,8 +38,8 @@ import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
-import com.qodein.core.designsystem.theme.OpacityTokens.OVERLAY_LIGHT
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AutoScrollingBanner
@@ -236,12 +238,10 @@ private fun BannerItem(
 
         BackdropBlurOverlay(
             hazeState = hazeState,
-            topAlpha = TEXT_BACKGROUND_TOP_ALPHA,
             bottomAlpha = TEXT_BACKGROUND_BOTTOM_ALPHA,
             blurRadius = BLUR_RADIUS,
-            middleAreaWeight = CLEAR_IMAGE_WEIGHT,
-            bottomAreaWeight = CTA_AREA_WEIGHT,
-            overlayAlpha = 0f,
+            unblurredAreaWeight = 0.85f,
+            bottomBlurAreaWeight = 0.15f,
         )
 
         Column(
@@ -327,9 +327,7 @@ private fun BannerCallToAction(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_LIGHT))
-            .padding(SpacingTokens.sm),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -343,23 +341,37 @@ private fun BannerCallToAction(
             )
         }
 
-        Text(
-            text = ctaTitle,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(
+                    RoundedCornerShape(
+                        topStart = ShapeTokens.Corner.full,
+                        topEnd = ShapeTokens.Corner.full,
+                    ),
+                )
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = ctaTitle,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
 
-        Text(
-            text = ctaDescription,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-        )
+            Text(
+                text = ctaDescription,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
+        }
     }
 }
 
