@@ -1,5 +1,7 @@
 package com.qodein.feature.promocode.detail
 
+import android.content.Context
+
 sealed class PromocodeDetailAction {
 
     // Data Loading Actions
@@ -23,7 +25,7 @@ sealed class PromocodeDetailAction {
     data object ServiceClicked : PromocodeDetailAction()
 
     // Authentication Actions
-    data object SignInWithGoogleClicked : PromocodeDetailAction()
+    data class SignInWithGoogleClicked(val context: Context) : PromocodeDetailAction()
     data object DismissAuthSheet : PromocodeDetailAction()
 
     // Error Handling Actions

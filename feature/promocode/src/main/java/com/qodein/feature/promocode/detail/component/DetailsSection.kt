@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCommerceIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -84,37 +83,10 @@ fun DetailsSection(
                 thickness = 1.dp,
             )
 
-            // Valid From
-            DetailRow(
-                icon = QodeActionIcons.Play,
-                label = "Valid From",
-                value = formatDate(promoCode.startDate),
-                valueColor = if (promoCode.hasNotStarted) {
-                    MaterialTheme.colorScheme.tertiary // Orange for not yet started
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                 thickness = 1.dp,
             )
-
-            // Valid Until
-            DetailRow(
-                icon = QodeActionIcons.Stop,
-                label = "Valid Until",
-                value = formatDate(promoCode.endDate),
-                valueColor = if (promoCode.isExpired) {
-                    MaterialTheme.colorScheme.error // Red for expired
-                } else if (isExpiringWithinWeek(promoCode.endDate)) {
-                    MaterialTheme.colorScheme.tertiary // Orange for expiring soon
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-
             // Created date
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),

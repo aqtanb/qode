@@ -40,13 +40,6 @@ class QodeAppViewModel @Inject constructor(
     observeLanguageUseCase: ObserveLanguageUseCase
 ) : ViewModel() {
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
-        .map { user ->
-            if (user != null) {
-                AuthState.Authenticated(user)
-            } else {
-                AuthState.Unauthenticated
-            }
-        }
         .catch { emit(AuthState.Unauthenticated) }
         .stateIn(
             scope = viewModelScope,

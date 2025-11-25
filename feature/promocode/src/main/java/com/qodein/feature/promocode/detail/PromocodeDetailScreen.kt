@@ -67,7 +67,7 @@ fun PromocodeDetailScreen(
     )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val localContext = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Authentication-protected bookmark action
@@ -83,8 +83,8 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
                 is PromocodeDetailEvent.NavigateToComments -> onNavigateToComments(event.promoCodeId)
                 is PromocodeDetailEvent.NavigateToService -> onNavigateToService(event.serviceName)
-                is PromocodeDetailEvent.SharePromocode -> sharePromocode(context, event.promoCode)
-                is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(context, event.code)
+                is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
+                is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(
                         message = event.message,
@@ -175,6 +175,8 @@ private fun PromocodeDetailContent(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -269,7 +271,7 @@ private fun PromocodeDetailContent(
             AuthenticationBottomSheet(
                 authPromptAction = authSheetState.action,
                 isLoading = authSheetState.isLoading,
-                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
+                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
                 onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
                 isDarkTheme = isDarkTheme,
             )

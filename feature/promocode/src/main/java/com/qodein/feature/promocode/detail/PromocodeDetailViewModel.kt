@@ -1,15 +1,18 @@
 package com.qodein.feature.promocode.detail
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logVote
+import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
@@ -49,6 +52,8 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private val toggleVoteUseCase: ToggleVoteUseCase,
     private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
     private val analyticsHelper: AnalyticsHelper,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val idTokenProvider: IdTokenProvider,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
@@ -73,7 +78,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     init {
         // Load promocode on creation and reload when auth state changes
         viewModelScope.launch {
-            authStateManager.getAuthState()
+            getAuthStateUseCase()
                 .distinctUntilChanged()
                 .collect { authState ->
                     Logger.d("PromocodeDetailViewModel") {
@@ -96,7 +101,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             is PromocodeDetailAction.FollowServiceClicked -> handleFollowService()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.ServiceClicked -> handleServiceClick()
-            is PromocodeDetailAction.SignInWithGoogleClicked -> handleSignInWithGoogle()
+            is PromocodeDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
             is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> reloadPromocode()
             is PromocodeDetailAction.ErrorDismissed -> dismissError()
@@ -172,7 +177,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 
     private fun reloadPromocode() {
         viewModelScope.launch {
-            val authState = authStateManager.getAuthState().first()
+            val authState = getAuthStateUseCase().first()
             loadPromocode(promoCodeId, authState)
         }
     }
@@ -199,10 +204,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 targetVoteState = targetVoteState,
             )
 
-            val updatedPromoCode = currentPromoCode.copy(
-                upvotes = voteUpdate.newUpvotes,
-                downvotes = voteUpdate.newDownvotes,
-            )
+//            val updatedPromoCode = currentPromoCode.copy(
+//                upvotes = voteUpdate.newUpvotes,
+//                downvotes = voteUpdate.newDownvotes,
+//            )
 
             val updatedInteraction = InteractionStateHandler.createOrUpdateVoteInteraction(
                 currentInteraction = currentUserState,
@@ -216,7 +221,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             _uiState.update { currentState ->
                 currentState.copy(
                     promoCodeWithUserState = PromoCodeWithUserState(
-                        promoCode = updatedPromoCode,
+                        promoCode = currentPromoCode,
                         userInteraction = updatedInteraction,
                     ),
                     showVoteAnimation = true,
@@ -352,26 +357,36 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handleSignInWithGoogle() {
+    private fun signInWithGoogle(context: Context) {
         val currentAuthSheet = _uiState.value.authBottomSheet
         if (currentAuthSheet != null) {
             _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
 
             viewModelScope.launch {
-                signInWithGoogleUseCase().collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            _uiState.update { it.copy(authBottomSheet = null) }
-                            // Screen auto-reloads with user data via auth state listener in init
-                        }
-                        is Result.Error -> {
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                                )
+                when (val tokenResult = idTokenProvider.getIdToken(context)) {
+                    is Result.Success -> {
+                        when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
+                            is Result.Success -> {
+                                _uiState.update { it.copy(authBottomSheet = null) }
+                                // Screen auto-reloads with user data via auth state listener in init
                             }
-                            _events.emit(PromocodeDetailEvent.ShowError(result.error))
+                            is Result.Error -> {
+                                _uiState.update { currentState ->
+                                    currentState.copy(
+                                        authBottomSheet = currentAuthSheet.copy(isLoading = false),
+                                    )
+                                }
+                                _events.emit(PromocodeDetailEvent.ShowError(signInResult.error))
+                            }
                         }
+                    }
+                    is Result.Error -> {
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                authBottomSheet = currentAuthSheet.copy(isLoading = false),
+                            )
+                        }
+                        _events.emit(PromocodeDetailEvent.ShowError(tokenResult.error))
                     }
                 }
             }
@@ -391,7 +406,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     }
 
     private suspend fun requireAuth(action: AuthPromptAction): AuthState.Authenticated? {
-        val authState = authStateManager.getAuthState().first()
+        val authState = getAuthStateUseCase().first()
         return if (authState is AuthState.Authenticated) {
             authState
         } else {

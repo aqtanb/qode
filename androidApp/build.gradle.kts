@@ -47,6 +47,10 @@ android {
         resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         debug {
             isDebuggable = true

@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ fun PromocodeSubmissionScreen(
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
 
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -110,7 +112,7 @@ fun PromocodeSubmissionScreen(
 
                         AuthenticationBottomSheet(
                             authPromptAction = AuthPromptAction.SubmitPromoCode,
-                            onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle) },
+                            onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle(context)) },
                             onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
                             isLoading = isSigningIn,
                             isDarkTheme = isDarkTheme,

@@ -3,7 +3,6 @@ package com.qodein.qode.di
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
@@ -110,13 +109,6 @@ object KoinBridgeModule : KoinComponent {
     fun provideSignInWithGoogleUseCase(): SignInWithGoogleUseCase {
         val useCase: SignInWithGoogleUseCase by inject()
         return useCase
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthStateManager(): AuthStateManager {
-        val manager: AuthStateManager by inject()
-        return manager
     }
 
     @Provides
