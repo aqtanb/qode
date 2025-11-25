@@ -1,6 +1,7 @@
 package com.qodein.feature.home.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,6 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AutoScrollingBanner
-import com.qodein.core.ui.component.BackdropBlurOverlay
 import com.qodein.core.ui.component.rememberBackdropBlurState
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.BannerPreviewData
@@ -54,7 +54,11 @@ import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.getTranslatedCtaDescription
 import com.qodein.shared.model.getTranslatedCtaTitle
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeEffect
 import kotlin.time.Duration.Companion.seconds
 
 // MARK: - Constants
@@ -236,14 +240,6 @@ private fun BannerItem(
             }
         }
 
-        BackdropBlurOverlay(
-            hazeState = hazeState,
-            bottomAlpha = TEXT_BACKGROUND_BOTTOM_ALPHA,
-            blurRadius = BLUR_RADIUS,
-            unblurredAreaWeight = 0.85f,
-            bottomBlurAreaWeight = 0.15f,
-        )
-
         Column(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -260,6 +256,7 @@ private fun BannerItem(
                     ctaDescription = ctaDescription,
                     currentPage = currentPage,
                     totalPages = totalPages,
+                    hazeState = hazeState,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -323,6 +320,7 @@ private fun BannerCallToAction(
     ctaDescription: String,
     currentPage: Int,
     totalPages: Int,
+    hazeState: HazeState? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -350,7 +348,28 @@ private fun BannerCallToAction(
                         topEnd = ShapeTokens.Corner.full,
                     ),
                 )
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+                .border(
+                    width = ShapeTokens.Border.medium,
+                    color = MaterialTheme.colorScheme.background,
+                    shape = RoundedCornerShape(
+                        topStart = ShapeTokens.Corner.full,
+                        topEnd = ShapeTokens.Corner.full,
+                        bottomEnd = 0.dp,
+                        bottomStart = 0.dp,
+                    ),
+                )
+                .let { base ->
+                    hazeState?.let {
+                        base.hazeEffect(
+                            state = it,
+                            style = HazeStyle(
+                                backgroundColor = MaterialTheme.colorScheme.background,
+                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
+                                blurRadius = BLUR_RADIUS,
+                            ),
+                        )
+                    } ?: base
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -358,7 +377,7 @@ private fun BannerCallToAction(
                 text = ctaTitle,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -367,7 +386,7 @@ private fun BannerCallToAction(
                 text = ctaDescription,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
             )
