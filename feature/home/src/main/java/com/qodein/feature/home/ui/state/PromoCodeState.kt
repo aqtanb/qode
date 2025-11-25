@@ -16,6 +16,5 @@ sealed class PromoCodeState {
         val nextCursor: PaginationCursor<ContentSortBy>? = null
     ) : PromoCodeState()
     data object Empty : PromoCodeState()
-    data class Error(val errorType: OperationError, val isRetryable: Boolean, val shouldShowSnackbar: Boolean, val errorCode: String?) :
-        PromoCodeState()
+    data class Error(val error: OperationError) : PromoCodeState()
 }

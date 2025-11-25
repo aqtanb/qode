@@ -2,7 +2,7 @@ package com.qodein.core.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.qodein.core.data.datasource.FirestoreUserDataSource
-import com.qodein.core.data.mapper.toUserDto
+import com.qodein.core.data.mapper.UserMapper
 import com.qodein.core.data.util.ErrorMapper
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
@@ -18,7 +18,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
     override suspend fun getUserById(userId: String): Result<User, OperationError> =
         try {
             val dto = dataSource.getUserById(userId)
-            dto?.let { Result.Success(it.toDom()) }
+            dto?.let { Result.Success(UserMapper.toDomain(dto)) }
                 ?: Result.Error(UserError.ProfileFailure.NotFound)
         } catch (e: FirebaseFirestoreException) {
             Timber.e(e, "Firestore error getting user: $userId")
@@ -33,7 +33,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
 
     override suspend fun createUser(user: User): Result<Unit, OperationError> =
         try {
-            dataSource.createUser(user.toUserDto())
+            dataSource.createUser(UserMapper.toDto(user))
             Result.Success(Unit)
         } catch (e: FirebaseFirestoreException) {
             Timber.e(e, "Firestore error creating user: ${user.id}")

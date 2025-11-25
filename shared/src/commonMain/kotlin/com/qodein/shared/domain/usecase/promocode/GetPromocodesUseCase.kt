@@ -9,10 +9,13 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 
 class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository) {
+    companion object {
+        private const val DEFAULT_LIMIT = 20
+    }
     suspend operator fun invoke(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
+        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage(DEFAULT_LIMIT)
     ): Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError> =
         promoCodeRepository.getPromocodes(
             sortBy = sortBy,

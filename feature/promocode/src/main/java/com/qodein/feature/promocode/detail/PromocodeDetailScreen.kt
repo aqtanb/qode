@@ -40,14 +40,12 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
-import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeWithUserState
@@ -198,22 +196,6 @@ private fun PromocodeDetailContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }
-            }
-
-            uiState.hasError && !uiState.hasData -> {
-                // Error state
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(SpacingTokens.md),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    QodeErrorCard(
-                        error = PromocodeError.RetrievalFailure.NotFound,
-                        onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
-                        onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
-                    )
                 }
             }
 

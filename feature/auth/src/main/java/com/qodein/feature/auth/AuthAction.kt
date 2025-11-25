@@ -1,5 +1,6 @@
 package com.qodein.feature.auth
 
+import android.content.Context
 import com.qodein.shared.model.DocumentType
 
 /**
@@ -8,7 +9,7 @@ import com.qodein.shared.model.DocumentType
  * Handles screen-specific user interactions and navigation actions.
  */
 sealed interface AuthAction {
-    data object AuthWithGoogleClicked : AuthAction
+    data class AuthWithGoogleClicked(val activityContext: Context) : AuthAction
     data object AuthErrorDismissed : AuthAction
 
     data class LegalDocumentClicked(val documentType: DocumentType) : AuthAction

@@ -23,11 +23,13 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         limit: Int,
         startAfter: DocumentSnapshot? = null
     ): PagedPromocodesDto {
+        // Fetch one extra to determine if there's another page.
+        val fetchLimit = limit + 1
         val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
             .applyServiceFilter(filterByServices)
             .orderBy(sortByField, sortDirection)
             .applyPaginationCursor(startAfter)
-            .limit(limit.toLong())
+            .limit(fetchLimit.toLong())
             .get()
             .await()
             .documents
@@ -48,9 +50,10 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
     private fun Query.applyPaginationCursor(cursor: DocumentSnapshot?): Query = cursor?.let { startAfter(it) } ?: this
 
     private fun List<DocumentSnapshot>.toPagedResult(limit: Int): PagedPromocodesDto {
-        val items = mapNotNull { it.toObject<PromocodeDto>() }
-        val lastDocument = lastOrNull()
-        val hasMore = size == limit
+        val hasMore = size > limit
+        val pagedDocuments = take(limit)
+        val items = pagedDocuments.mapNotNull { it.toObject<PromocodeDto>() }
+        val lastDocument = pagedDocuments.lastOrNull()
 
         return PagedPromocodesDto(
             items = items,

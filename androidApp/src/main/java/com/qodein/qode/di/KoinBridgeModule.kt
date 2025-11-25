@@ -1,6 +1,7 @@
 package com.qodein.qode.di
 
 import com.qodein.core.analytics.AnalyticsHelper
+import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.manager.AuthStateManager
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
@@ -39,6 +40,13 @@ object KoinBridgeModule : KoinComponent {
     fun provideAnalyticsHelper(): AnalyticsHelper {
         val helper: AnalyticsHelper by inject()
         return helper
+    }
+
+    @Provides
+    @Singleton
+    fun provideIdTokenProvider(): IdTokenProvider {
+        val provider: IdTokenProvider by inject()
+        return provider
     }
 
     @Provides

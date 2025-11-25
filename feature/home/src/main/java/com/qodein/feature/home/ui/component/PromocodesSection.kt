@@ -68,8 +68,8 @@ fun PromoCodesErrorState(
     modifier: Modifier = Modifier
 ) {
     ErrorCard(
-        message = errorState.errorType.asUiText(),
-        isRetryable = errorState.isRetryable,
+        message = errorState.error.asUiText(),
+        isRetryable = true,
         onRetry = onRetry,
         modifier = modifier,
     )

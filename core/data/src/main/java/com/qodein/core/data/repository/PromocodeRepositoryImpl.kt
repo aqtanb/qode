@@ -1,6 +1,5 @@
 package com.qodein.core.data.repository
 
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
@@ -19,8 +18,8 @@ import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
-import kotlinx.io.IOException
 import timber.log.Timber
+import java.io.IOException
 
 class PromocodeRepositoryImpl(
     private val promoCodeDataSource: FirestorePromocodeDataSource,
@@ -73,7 +72,7 @@ class PromocodeRepositoryImpl(
             Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
 
             val (sortByField, sortDirection) = mapSortBy(sortBy)
-            val cursor = paginationRequest.cursor?.documentSnapshot as? DocumentSnapshot
+            val cursor = paginationRequest.cursor?.documentSnapshot
 
             val pagedDto = promoCodeDataSource.getPromoCodes(
                 sortByField = sortByField,

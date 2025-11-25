@@ -191,7 +191,7 @@ fun PostSubmissionScreen(
                             val isSigningIn = currentState.authentication is PostAuthenticationState.Loading
                             AuthenticationBottomSheet(
                                 authPromptAction = AuthPromptAction.CreatePost,
-                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle) },
+                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle(context)) },
                                 onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
                                 isDarkTheme = isDarkTheme,
                                 isLoading = isSigningIn,

@@ -12,19 +12,19 @@ data class PaginationCursor<out S : SortBy>(val documentSnapshot: FirestoreDocum
 /**
  * Represents a pagination request with cursor-based parameters.
  */
-data class PaginationRequest<out S : SortBy>(val limit: Int = 20, val cursor: PaginationCursor<S>? = null) {
+data class PaginationRequest<out S : SortBy>(val limit: Int, val cursor: PaginationCursor<S>? = null) {
     companion object {
         /**
          * Create a request for the first page.
          */
-        fun <S : SortBy> firstPage(limit: Int = 20): PaginationRequest<S> = PaginationRequest(limit = limit, cursor = null)
+        fun <S : SortBy> firstPage(limit: Int): PaginationRequest<S> = PaginationRequest(limit = limit, cursor = null)
 
         /**
          * Create a request for the next page using a cursor.
          */
         fun <S : SortBy> nextPage(
             cursor: PaginationCursor<S>,
-            limit: Int = 20
+            limit: Int
         ): PaginationRequest<S> = PaginationRequest(limit = limit, cursor = cursor)
     }
 }

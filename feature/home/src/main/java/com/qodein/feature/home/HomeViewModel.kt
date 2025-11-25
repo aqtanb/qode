@@ -45,7 +45,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getBannersUseCase: GetBannersUseCase,
-    private val getPromoCodesUseCase: GetPromocodesUseCase,
+    private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
 
     // Service selection coordinator
@@ -197,7 +197,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadPromoCodes(paginationRequest: PaginationRequest<ContentSortBy>) {
+    private fun loadPromocodes(paginationRequest: PaginationRequest<ContentSortBy>) {
         viewModelScope.launch {
             val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
@@ -213,31 +213,28 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            getPromoCodesUseCase(
+            val promocodeResult = getPromocodesUseCase(
                 sortBy = filters.sortFilter.sortBy,
                 filterByServices = when (val serviceFilter = filters.serviceFilter) {
                     ServiceFilter.All -> null
                     is ServiceFilter.Selected -> serviceFilter.services.map { it.name }
                 },
                 paginationRequest = paginationRequest,
-            ).collect { result ->
-                _uiState.update { state ->
-                    when (result) {
-                        is Result.Success -> {
-                            val updatedState = handlePromoCodesSuccess(result.data, isLoadMore, state)
-                            updatedState.copy(isLoadingMore = false)
-                        }
-                        is Result.Error -> {
-                            val updatedState = handlePromoCodesError(result, isLoadMore, state)
-                            updatedState.copy(isLoadingMore = false)
-                        }
+            )
+
+            _uiState.update { state ->
+                val updatedState =
+                    when (promocodeResult) {
+                        is Result.Error -> handlePromoCodesError(promocodeResult, isLoadMore, state)
+                        is Result.Success -> handlePromoCodesSuccess(promocodeResult.data, isLoadMore, state)
                     }
-                }
+
+                updatedState.copy(isLoadingMore = false)
             }
         }
     }
     private fun loadInitialPage() {
-        loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
     private fun loadNextPage() {
@@ -248,7 +245,7 @@ class HomeViewModel @Inject constructor(
         }
 
         val cursor = promoState.nextCursor ?: return
-        loadPromoCodes(PaginationRequest.nextPage(cursor, DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.nextPage(cursor, DEFAULT_PAGE_SIZE))
     }
 
     private fun handlePromoCodesSuccess(
@@ -288,12 +285,7 @@ class HomeViewModel @Inject constructor(
             currentState
         } else {
             currentState.copy(
-                promoCodeState = PromoCodeState.Error(
-                    errorType = result.error,
-                    isRetryable = true,
-                    shouldShowSnackbar = false,
-                    errorCode = null,
-                ),
+                promoCodeState = PromoCodeState.Error(error = result.error),
             )
         }
 
@@ -461,7 +453,7 @@ class HomeViewModel @Inject constructor(
             )
         }
 
-        loadPromoCodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
     }
 
     // MARK: - Service Selection

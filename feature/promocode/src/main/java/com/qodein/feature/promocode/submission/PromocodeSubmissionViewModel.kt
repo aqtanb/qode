@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
+import kotlin.getOrThrow
 import kotlin.time.toKotlinInstant
 
 /**
@@ -257,11 +258,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                     _uiState.update { currentState ->
                         when (currentState) {
                             is PromocodeSubmissionUiState.Success -> {
-                                val newAuthState = if (user != null) {
-                                    PromocodeSubmissionAuthenticationState.Authenticated(user)
-                                } else {
-                                    PromocodeSubmissionAuthenticationState.Unauthenticated
-                                }
+                                val newAuthState = PromocodeSubmissionAuthenticationState.Authenticated(user)
                                 currentState.updateAuthentication(newAuthState)
                             }
                             is PromocodeSubmissionUiState.Loading,

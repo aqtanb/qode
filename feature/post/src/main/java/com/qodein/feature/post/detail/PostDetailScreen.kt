@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -41,6 +42,7 @@ internal fun PostDetailRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     var authPromptAction by remember { mutableStateOf<AuthPromptAction?>(null) }
     var errorToShow by remember { mutableStateOf<OperationError?>(null) }
@@ -82,7 +84,7 @@ internal fun PostDetailRoute(
         AuthenticationBottomSheet(
             authPromptAction = action,
             onSignInClick = {
-                viewModel.onAction(PostDetailAction.SignInWithGoogleClicked)
+                viewModel.onAction(PostDetailAction.SignInWithGoogleClicked(context))
             },
             onDismiss = {
                 authPromptAction = null

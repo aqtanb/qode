@@ -1,8 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+private val localProperties =
+    Properties().apply {
+        load(rootProject.file("local.properties").inputStream())
+    }
 
 android {
     namespace = "com.qodein.core.ui"
@@ -18,10 +25,17 @@ android {
                 .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        resValue(
+            "string",
+            "web_client_id",
+            localProperties.getProperty("WEB_CLIENT_ID") ?: "",
+        )
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -34,6 +48,9 @@ dependencies {
     implementation(projects.shared)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.kotlinx.datetime)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)

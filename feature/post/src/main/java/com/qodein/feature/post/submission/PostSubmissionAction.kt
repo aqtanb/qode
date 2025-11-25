@@ -1,5 +1,6 @@
 package com.qodein.feature.post.submission
 
+import android.content.Context
 import com.qodein.shared.model.Tag
 
 sealed interface PostSubmissionAction {
@@ -22,7 +23,7 @@ sealed interface PostSubmissionAction {
     data object NavigateBack : PostSubmissionAction
 
     // Auth actions
-    data object SignInWithGoogle : PostSubmissionAction
+    data class SignInWithGoogle(val context: Context) : PostSubmissionAction
     data object DismissAuthSheet : PostSubmissionAction
 
     // Error handling

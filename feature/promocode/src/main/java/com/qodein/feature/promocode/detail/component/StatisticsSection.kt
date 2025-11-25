@@ -73,12 +73,6 @@ fun StatisticsSection(
             value = formatNumber(animatedDownvotes),
             label = "Downvotes",
         )
-
-        // Shares
-        StatColumn(
-            value = formatNumber(promoCode.shares),
-            label = "Shares",
-        )
     }
 }
 
