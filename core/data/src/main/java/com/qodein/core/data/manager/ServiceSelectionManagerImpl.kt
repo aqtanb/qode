@@ -57,7 +57,7 @@ class ServiceSelectionManagerImpl : ServiceSelectionManager {
         state: ServiceSelectionState,
         query: String
     ): ServiceSelectionState {
-        val newStatus = if (query.length >= 2) SearchStatus.Loading else SearchStatus.Idle
+        val newStatus = if (query.isNotEmpty()) SearchStatus.Loading else SearchStatus.Idle
         return state.copy(
             search = state.search.copy(
                 query = query,

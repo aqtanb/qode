@@ -54,7 +54,7 @@ import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.PromocodeStatusIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.shape.CouponShape
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
@@ -213,7 +213,7 @@ private fun CouponHeader(
     ) {
         CircularImage(
             imageUrl = promoCode.serviceLogoUrl,
-            fallbackIcon = QodeCommerceIcons.Store,
+            fallbackIcon = QodeEssentialIcons.Store,
             contentDescription = stringResource(R.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
             modifier = Modifier

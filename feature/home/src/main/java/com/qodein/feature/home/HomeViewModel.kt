@@ -14,6 +14,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
@@ -27,7 +28,6 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceFilter
-import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -71,7 +71,6 @@ class HomeViewModel @Inject constructor(
     )
 
     companion object {
-        private const val DEFAULT_PAGE_SIZE = 20
         private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
         private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
         private const val CONTENT_TYPE_BANNER = "banner"
@@ -100,8 +99,10 @@ class HomeViewModel @Inject constructor(
 
             is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
             is HomeAction.DismissFilterDialog -> dismissFilterDialog()
-            is HomeAction.ApplyServiceFilter -> applyServiceFilter(action.serviceFilter)
-            is HomeAction.ApplySortFilter -> applySortFilter(action.sortFilter)
+            is HomeAction.ApplyServiceFilter -> {
+                applyFilters(_uiState.value.currentFilters.applyServiceFilter(action.serviceFilter))
+            }
+            is HomeAction.ApplySortFilter -> applyFilters(_uiState.value.currentFilters.applySortFilter(action.sortFilter))
             is HomeAction.ResetFilters -> resetFilters()
         }
     }
@@ -116,6 +117,7 @@ class HomeViewModel @Inject constructor(
 
         if (action is ServiceSelectionAction.ToggleService) {
             syncServiceFilterFromSelection()
+            dismissFilterDialog()
         }
     }
 
@@ -234,7 +236,7 @@ class HomeViewModel @Inject constructor(
         }
     }
     private fun loadInitialPage() {
-        loadPromocodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.firstPage(GetPromocodesUseCase.DEFAULT_LIMIT))
     }
 
     private fun loadNextPage() {
@@ -245,7 +247,7 @@ class HomeViewModel @Inject constructor(
         }
 
         val cursor = promoState.nextCursor ?: return
-        loadPromocodes(PaginationRequest.nextPage(cursor, DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.nextPage(cursor, GetPromocodesUseCase.DEFAULT_LIMIT))
     }
 
     private fun handlePromoCodesSuccess(
@@ -385,8 +387,7 @@ class HomeViewModel @Inject constructor(
      * This ensures the selection UI shows what's currently filtered
      */
     private fun syncSelectionFromFilter() {
-        val currentFilter = _uiState.value.currentFilters.serviceFilter
-        when (currentFilter) {
+        when (val currentFilter = _uiState.value.currentFilters.serviceFilter) {
             ServiceFilter.All -> {
                 // Clear selection
                 _uiState.update { state ->
@@ -417,26 +418,14 @@ class HomeViewModel @Inject constructor(
             serviceSelectionCoordinator.deactivate()
         }
         _uiState.update { state ->
-            state.copy(activeFilterDialog = null)
+            state.copy(
+                activeFilterDialog = null,
+                // Reset selection state so a fresh sheet starts from defaults
+                serviceSelectionState = ServiceSelectionState(
+                    selection = SelectionState.Multi(),
+                ),
+            )
         }
-    }
-
-    private fun applyServiceFilter(serviceFilter: ServiceFilter) {
-        applyFilterChange { currentFilters ->
-            currentFilters.applyServiceFilter(serviceFilter)
-        }
-    }
-
-    private fun applySortFilter(sortFilter: SortFilter) {
-        applyFilterChange { currentFilters ->
-            currentFilters.applySortFilter(sortFilter)
-        }
-    }
-
-    private inline fun applyFilterChange(filterChange: (CompleteFilterState) -> CompleteFilterState) {
-        val currentFilters = _uiState.value.currentFilters
-        val newFilters = filterChange(currentFilters)
-        applyFilters(newFilters)
     }
 
     private fun resetFilters() {
@@ -453,7 +442,7 @@ class HomeViewModel @Inject constructor(
             )
         }
 
-        loadPromocodes(PaginationRequest.firstPage(DEFAULT_PAGE_SIZE))
+        loadPromocodes(PaginationRequest.firstPage(GetPromocodesUseCase.DEFAULT_LIMIT))
     }
 
     // MARK: - Service Selection

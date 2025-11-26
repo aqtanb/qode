@@ -12,13 +12,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,14 +28,15 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeOutlinedButton
-import com.qodein.core.designsystem.component.QodeinCard
+import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.component.ShimmerBox
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
@@ -49,6 +49,7 @@ import com.qodein.shared.domain.service.selection.PopularStatus
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 
@@ -60,11 +61,11 @@ import com.qodein.shared.model.ServiceId
 @Composable
 fun ServiceSelectorBottomSheet(
     state: ServiceSelectionUiState,
-    sheetState: SheetState,
     onAction: (ServiceSelectionAction) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (state.isVisible) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
@@ -146,7 +147,7 @@ private fun PopularServicesSection(
                     horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                     verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
-                    repeat(20) {
+                    repeat(GetPopularServicesUseCase.DEFAULT_LIMIT.toInt()) {
                         ShimmerBox(
                             width = 100.dp,
                             height = 32.dp,
@@ -198,7 +199,7 @@ private fun PopularServicesSection(
                                     CircularImage(
                                         imageUrl = service.logoUrl,
                                         fallbackText = service.name,
-                                        fallbackIcon = QodeCommerceIcons.Store,
+                                        fallbackIcon = QodeEssentialIcons.Store,
                                         size = SizeTokens.Icon.sizeSmall,
                                         backgroundColor = MaterialTheme.colorScheme.surface,
                                         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -250,21 +251,10 @@ private fun SearchResultsSection(
     ) {
         when (searchStatus) {
             SearchStatus.Loading -> {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(SpacingTokens.xl),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        Spacer(modifier = Modifier.size(SpacingTokens.md))
-                        Text(
-                            text = stringResource(R.string.searching_message),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                items(1) {
+                    ServiceItemPlaceholder(
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
             is SearchStatus.Success -> {
@@ -311,7 +301,7 @@ private fun ServiceItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    QodeinCard(
+    QodeinElevatedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
     ) {
@@ -323,7 +313,7 @@ private fun ServiceItem(
             CircularImage(
                 imageUrl = service.logoUrl,
                 fallbackText = service.name,
-                fallbackIcon = QodeCommerceIcons.Store,
+                fallbackIcon = QodeEssentialIcons.Store,
                 size = SizeTokens.Icon.sizeMedium,
                 backgroundColor = if (isSelected) {
                     MaterialTheme.colorScheme.primaryContainer
@@ -349,13 +339,46 @@ private fun ServiceItem(
             )
 
             Text(
-                text = "${service.promoCodeCount} codes",
+                text = "${service.promoCodeCount}",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ServiceItemPlaceholder(modifier: Modifier = Modifier) {
+    QodeinElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            modifier = Modifier.padding(SpacingTokens.md),
+        ) {
+            ShimmerBox(
+                width = SizeTokens.Icon.sizeMedium,
+                height = SizeTokens.Icon.sizeMedium,
+                shape = RoundedCornerShape(ShapeTokens.Corner.full),
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                modifier = Modifier.weight(3f),
+            ) {
+                ShimmerBox(
+                    width = 160.dp,
+                    height = 16.dp,
+                    shape = RoundedCornerShape(ShapeTokens.Corner.medium),
+                )
+            }
+            ShimmerBox(
+                width = 50.dp,
+                height = 14.dp,
+                shape = RoundedCornerShape(ShapeTokens.Corner.small),
             )
         }
     }
@@ -425,6 +448,19 @@ private fun ServiceItemPreview() {
             service = ServicePreviewData.yandex,
             isSelected = true,
             onClick = {},
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun SearchResultsSectionLoadingPreview() {
+    QodeTheme {
+        SearchResultsSection(
+            searchStatus = SearchStatus.Loading,
+            displayServices = emptyList(),
+            selectedServices = emptyList(),
+            onServiceClick = {},
         )
     }
 }

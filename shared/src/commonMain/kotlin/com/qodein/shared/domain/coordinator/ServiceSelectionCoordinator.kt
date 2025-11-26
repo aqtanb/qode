@@ -8,7 +8,6 @@ import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionManager
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
-import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Service
 import kotlinx.coroutines.CoroutineScope
@@ -16,10 +15,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +25,6 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ServiceSelectionCoordinator(
     private val searchServicesUseCase: SearchServicesUseCase,
-    private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val serviceSelectionManager: ServiceSelectionManager
 ) {
     private var collectionJob: Job? = null
@@ -58,16 +52,7 @@ class ServiceSelectionCoordinator(
         )
         onStateUpdate(initialState)
         collectionJob = scope.launch {
-            searchQuery
-                .debounce(300)
-                .distinctUntilChanged()
-                .flatMapLatest { query ->
-                    when {
-                        !isActive.value -> flowOf(Result.Success(emptyList()))
-                        query.isBlank() -> getPopularServicesUseCase()
-                        else -> searchServicesUseCase(query)
-                    }
-                }
+            searchServicesUseCase(searchQuery)
                 .collect { searchResult ->
                     val currentState = getCurrentState()
                     val query = searchQuery.value

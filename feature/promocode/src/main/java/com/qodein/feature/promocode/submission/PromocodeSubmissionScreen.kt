@@ -49,7 +49,6 @@ import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 
 // MARK: - Constants
@@ -142,11 +141,6 @@ fun PromocodeSubmissionScreen(
                             // Get unified service selection state from ViewModel
                             val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
 
-                            // Use different sheet state based on focus/search mode
-                            val adjustedSheetState = rememberModalBottomSheetState(
-                                skipPartiallyExpanded = isSearchFocused || serviceSelectionState.search.status !is SearchStatus.Idle,
-                            )
-
                             // Update selection state with current wizard selection
                             val updatedSelectionState = serviceSelectionState.copy(
                                 selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
@@ -159,7 +153,6 @@ fun PromocodeSubmissionScreen(
 
                             ServiceSelectorBottomSheet(
                                 state = uiState,
-                                sheetState = adjustedSheetState,
                                 onAction = viewModel::onServiceSelectionAction,
                                 onDismiss = {
                                     viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)

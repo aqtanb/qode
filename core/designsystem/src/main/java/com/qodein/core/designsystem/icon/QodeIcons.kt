@@ -3,6 +3,10 @@ package com.qodein.core.designsystem.icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.FiberNew
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
@@ -11,6 +15,7 @@ import androidx.compose.material.icons.outlined.HowToReg
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -69,7 +74,6 @@ import compose.icons.simpleicons.Discord
 import compose.icons.simpleicons.Google
 import compose.icons.simpleicons.Telegram
 import compose.icons.simpleicons.Twitter
-import compose.icons.tablericons.BuildingStore
 import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.CurrencyDollar
 import compose.icons.tablericons.Discount2
@@ -92,14 +96,15 @@ object PromocodeStatusIcons {
     val FirstTimeUsers: ImageVector = Icons.Outlined.HowToReg
 }
 
-object QodeCommerceIcons {
+object QodeEssentialIcons {
     val PromoCode: ImageVector = TablerIcons.Tag
     val Discount: ImageVector = TablerIcons.Discount2
     val Sale: ImageVector = FeatherIcons.Percent
     val Coupon: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
     val Cost: ImageVector = FeatherIcons.DollarSign
-    val Store: ImageVector = TablerIcons.BuildingStore
+    val Store: ImageVector = Icons.Outlined.Store
+    val StoreFilled: ImageVector = Icons.Filled.Store
 }
 
 object QodeCategoryIcons {
@@ -175,6 +180,10 @@ object QodeSocialIcons {
 }
 
 object QodeUIIcons {
+    val Popular: ImageVector = Icons.Filled.Diamond
+    val Newest: ImageVector = Icons.Filled.FiberNew
+    val Expiring: ImageVector = Icons.Filled.Timelapse
+
     val Empty: ImageVector = FeatherIcons.Coffee
     val Datepicker: ImageVector = FeatherIcons.Calendar
     val Tag: ImageVector = FeatherIcons.Tag

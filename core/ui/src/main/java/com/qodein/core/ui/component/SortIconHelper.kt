@@ -2,7 +2,7 @@ package com.qodein.core.ui.component
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.ui.R
 import com.qodein.shared.model.ContentSortBy
 
@@ -17,9 +17,9 @@ object SortIconHelper {
      */
     fun getSortIcon(sortBy: ContentSortBy): ImageVector =
         when (sortBy) {
-            ContentSortBy.POPULARITY -> QodeNavigationIcons.Trending
-            ContentSortBy.NEWEST -> QodeNavigationIcons.History
-            ContentSortBy.EXPIRING_SOON -> QodeNavigationIcons.Calendar
+            ContentSortBy.POPULARITY -> QodeUIIcons.Popular
+            ContentSortBy.NEWEST -> QodeUIIcons.Newest
+            ContentSortBy.EXPIRING_SOON -> QodeUIIcons.Expiring
         }
 
     /**

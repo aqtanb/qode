@@ -349,7 +349,7 @@ private fun BannerCallToAction(
                     ),
                 )
                 .border(
-                    width = ShapeTokens.Border.medium,
+                    width = ShapeTokens.Border.thin,
                     color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(
                         topStart = ShapeTokens.Corner.full,

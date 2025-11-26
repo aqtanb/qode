@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -62,7 +62,7 @@ fun DetailsSection(
             when (promoCode.discount) {
                 is Discount.Percentage -> {
                     DetailRow(
-                        icon = QodeCommerceIcons.Cost,
+                        icon = QodeEssentialIcons.Cost,
                         label = "Minimum Order",
                         value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
                         valueColor = MaterialTheme.colorScheme.primary,
@@ -70,7 +70,7 @@ fun DetailsSection(
                 }
                 is Discount.FixedAmount -> {
                     DetailRow(
-                        icon = QodeCommerceIcons.Cost,
+                        icon = QodeEssentialIcons.Cost,
                         label = "Minimum Order",
                         value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
                         valueColor = MaterialTheme.colorScheme.primary,

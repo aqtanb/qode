@@ -12,8 +12,6 @@ import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerializationException
 import timber.log.Timber
 import java.io.IOException
@@ -33,68 +31,63 @@ class ServiceRepositoryImpl(private val serviceDataSource: FirestoreServiceDataS
         TODO("Not yet implemented")
     }
 
-    companion object {
-        private const val TAG = "ServiceRepository"
-    }
-
-    override fun searchServices(
+    override suspend fun searchServices(
         query: String,
         limit: Int
-    ): Flow<Result<List<Service>, OperationError>> =
-        flow {
-            try {
-                Timber.tag(TAG).i("Searching services: query='%s', limit=%d", query, limit)
-                val dtos = serviceDataSource.searchServices(query, limit)
-                val services = dtos.map { ServiceMapper.toDomain(it) }
-                Timber.tag(TAG).i("Found %d services", services.size)
-                emit(Result.Success(services))
-            } catch (e: AlgoliaRuntimeException) {
-                emit(Result.Error(ErrorMapper.mapAlgoliaException(e)))
-            } catch (e: FirebaseFirestoreException) {
-                emit(Result.Error(ErrorMapper.mapFirestoreException(e)))
-            } catch (e: SerializationException) {
-                Timber.tag(TAG).e(e, "Serialization error mapping service data: %s", e.message)
-                emit(Result.Error(ServiceError.RetrievalFailure.DataCorrupted))
-            } catch (e: UnknownHostException) {
-                Timber.tag(TAG).e(e, "No internet connection: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: SocketTimeoutException) {
-                Timber.tag(TAG).e(e, "Request timeout: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: IOException) {
-                Timber.tag(TAG).e(e, "Network I/O error: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Unexpected error searching services: %s - %s", e::class.simpleName, e.message)
-                emit(Result.Error(ServiceError.SearchFailure.NoResults))
-            }
+    ): Result<List<Service>, OperationError> =
+        try {
+            Timber.d("Searching services: query='%s', limit=%d", query, limit)
+            val dtos = serviceDataSource.searchServices(query, limit)
+            val services = dtos.map { ServiceMapper.toDomain(it) }
+            Timber.d("Found %d services", services.size)
+            Result.Success(services)
+        } catch (e: AlgoliaRuntimeException) {
+            Timber.w(e, "Algolia error searching services")
+            Result.Error(ErrorMapper.mapAlgoliaException(e))
+        } catch (e: FirebaseFirestoreException) {
+            Timber.w(e, "Firestore error searching services")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: SerializationException) {
+            Timber.e(e, "Serialization error mapping service data")
+            Result.Error(ServiceError.RetrievalFailure.DataCorrupted)
+        } catch (e: UnknownHostException) {
+            Timber.w(e, "No internet connection")
+            Result.Error(SystemError.Offline)
+        } catch (e: SocketTimeoutException) {
+            Timber.w(e, "Request timeout")
+            Result.Error(SystemError.Offline)
+        } catch (e: IOException) {
+            Timber.w(e, "Network I/O error")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unexpected error searching services")
+            Result.Error(ServiceError.SearchFailure.NoResults)
         }
 
-    override fun getPopularServices(limit: Long): Flow<Result<List<Service>, OperationError>> =
-        flow {
-            try {
-                Timber.tag(TAG).i("Fetching popular services: limit=%d", limit)
-                val dtos = serviceDataSource.getPopularServices(limit)
-                val services = dtos.map { ServiceMapper.toDomain(it) }
-                Timber.tag(TAG).i("Retrieved %d popular services", services.size)
-                emit(Result.Success(services))
-            } catch (e: FirebaseFirestoreException) {
-                emit(Result.Error(ErrorMapper.mapFirestoreException(e)))
-            } catch (e: SerializationException) {
-                Timber.tag(TAG).e(e, "Serialization error mapping service data: %s", e.message)
-                emit(Result.Error(ServiceError.RetrievalFailure.DataCorrupted))
-            } catch (e: UnknownHostException) {
-                Timber.tag(TAG).e(e, "No internet connection: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: SocketTimeoutException) {
-                Timber.tag(TAG).e(e, "Request timeout: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: IOException) {
-                Timber.tag(TAG).e(e, "Network I/O error: %s", e.message)
-                emit(Result.Error(SystemError.Offline))
-            } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Unexpected error fetching popular services: %s - %s", e::class.simpleName, e.message)
-                emit(Result.Error(ServiceError.RetrievalFailure.NotFound))
-            }
+    override suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError> =
+        try {
+            Timber.d("Fetching popular services: limit=%d", limit)
+            val dtos = serviceDataSource.getPopularServices(limit)
+            val services = dtos.map { ServiceMapper.toDomain(it) }
+            Timber.d("Retrieved %d popular services", services.size)
+            Result.Success(services)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.w(e, "Firestore error fetching popular services")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: SerializationException) {
+            Timber.e(e, "Serialization error mapping service data")
+            Result.Error(ServiceError.RetrievalFailure.DataCorrupted)
+        } catch (e: UnknownHostException) {
+            Timber.w(e, "No internet connection")
+            Result.Error(SystemError.Offline)
+        } catch (e: SocketTimeoutException) {
+            Timber.w(e, "Request timeout")
+            Result.Error(SystemError.Offline)
+        } catch (e: IOException) {
+            Timber.w(e, "Network I/O error")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unexpected error fetching popular services")
+            Result.Error(ServiceError.RetrievalFailure.NotFound)
         }
 }

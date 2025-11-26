@@ -12,6 +12,7 @@ import com.qodein.qode.di.appModule
 import com.qodein.qode.logging.CrashlyticsTree
 import com.qodein.qode.logging.KermitTimberWriter
 import com.qodein.shared.data.di.sharedDataModule
+import com.qodein.shared.domain.di.domainModule
 import dagger.hilt.android.HiltAndroidApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -55,6 +56,7 @@ class QodeApplication :
                 coreDataModule,
                 analyticsModule,
                 sharedDataModule,
+                domainModule,
                 authModule,
             )
         }

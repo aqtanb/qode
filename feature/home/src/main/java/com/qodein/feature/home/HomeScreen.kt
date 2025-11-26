@@ -103,13 +103,8 @@ fun HomeScreen(
     uiState.activeFilterDialog?.let { dialogType ->
         when (dialogType) {
             FilterDialogType.Service -> {
-                val sheetState = rememberModalBottomSheetState(
-                    skipPartiallyExpanded = true,
-                )
-
                 ServiceSelectorBottomSheet(
                     state = serviceUiState,
-                    sheetState = sheetState,
                     onAction = { action ->
                         viewModel.onServiceSelectionAction(action)
                     },

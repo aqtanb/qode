@@ -5,12 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -33,9 +32,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
-import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.ServiceFilter
-import com.qodein.shared.ui.FilterChipType
 import com.qodein.shared.ui.FilterDialogType
 
 /**
@@ -49,66 +46,57 @@ fun FiltersSection(
     onResetFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = SpacingTokens.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(
+                vertical = SpacingTokens.md,
+                horizontal = SpacingTokens.lg,
+            ),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = SpacingTokens.lg,
+            alignment = Alignment.CenterHorizontally,
+        ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = SpacingTokens.lg),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        ) {
-            item(key = FilterChipType.Service.key) {
-                val (icon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
-                    ServiceFilter.All -> Triple(QodeCommerceIcons.Store, null, null)
-                    is ServiceFilter.Selected -> {
-                        when (filter.services.size) {
-                            0 -> Triple(QodeCommerceIcons.Store, null, null)
-                            1 -> {
-                                val service = filter.services.first()
-                                Triple(QodeCommerceIcons.Store, service.logoUrl, service.name)
-                            }
-                            else -> Triple(QodeNavigationIcons.More, null, null)
-                        }
+        val (serviceIcon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
+            ServiceFilter.All -> Triple(QodeEssentialIcons.Store, null, null)
+            is ServiceFilter.Selected -> {
+                when (filter.services.size) {
+                    1 -> {
+                        val service = filter.services.first()
+                        Triple(QodeEssentialIcons.Store, service.logoUrl, service.name)
                     }
-                }
-
-                FilterChip(
-                    nameRes = R.string.filter_chip_service,
-                    icon = icon,
-                    logoUrl = logoUrl,
-                    fallbackText = fallbackText,
-                    onClick = { onFilterSelected(FilterDialogType.Service) },
-                    isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
-                )
-            }
-
-            // Sort Filter
-            item(key = FilterChipType.Sort.key) {
-                val currentSortBy = currentFilters.sortFilter.sortBy
-                FilterChip(
-                    nameRes = R.string.filter_chip_sort,
-                    icon = SortIconHelper.getSortIcon(currentSortBy),
-                    onClick = { onFilterSelected(FilterDialogType.Sort) },
-                    isSelected = currentSortBy != ContentSortBy.POPULARITY,
-                )
-            }
-
-            // Reset Filter - only show when any filters are applied
-            val hasActiveFilters = currentFilters.serviceFilter !is ServiceFilter.All ||
-                currentFilters.sortFilter.sortBy != ContentSortBy.POPULARITY
-
-            if (hasActiveFilters) {
-                item(key = "reset") {
-                    FilterChip(
-                        nameRes = R.string.filter_chip_reset,
-                        icon = QodeNavigationIcons.Refresh,
-                        onClick = onResetFilters,
-                        isSelected = false,
-                    )
+                    else -> Triple(QodeEssentialIcons.StoreFilled, null, null)
                 }
             }
+        }
+
+        FilterChip(
+            nameRes = R.string.filter_chip_service,
+            icon = serviceIcon,
+            logoUrl = logoUrl,
+            fallbackText = fallbackText,
+            onClick = { onFilterSelected(FilterDialogType.Service) },
+            isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
+        )
+
+        val currentSortBy = currentFilters.sortFilter.sortBy
+        FilterChip(
+            nameRes = R.string.filter_chip_sort,
+            icon = SortIconHelper.getSortIcon(currentSortBy),
+            onClick = { onFilterSelected(FilterDialogType.Sort) },
+            isSelected = false,
+        )
+
+        val hasActiveFilters = currentFilters.serviceFilter !is ServiceFilter.All
+        if (hasActiveFilters) {
+            FilterChip(
+                nameRes = R.string.filter_chip_reset,
+                icon = QodeNavigationIcons.Refresh,
+                onClick = onResetFilters,
+                isSelected = false,
+            )
         }
     }
 }

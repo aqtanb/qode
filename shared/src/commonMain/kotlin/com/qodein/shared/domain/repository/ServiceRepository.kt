@@ -4,7 +4,6 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for Service operations.
@@ -30,13 +29,13 @@ interface ServiceRepository {
     /**
      * Search for services by query string.
      */
-    fun searchServices(
+    suspend fun searchServices(
         query: String,
         limit: Int
-    ): Flow<Result<List<Service>, OperationError>>
+    ): Result<List<Service>, OperationError>
 
     /**
      * Get popular services sorted by promo code count.
      */
-    fun getPopularServices(limit: Long): Flow<Result<List<Service>, OperationError>>
+    suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError>
 }

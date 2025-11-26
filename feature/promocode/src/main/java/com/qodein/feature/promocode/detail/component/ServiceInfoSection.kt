@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinAssistChip
 import com.qodein.core.designsystem.icon.PromocodeStatusIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
@@ -59,7 +57,7 @@ fun ServiceInfoSection(
                 CircularImage(
                     imageUrl = promoCode.serviceLogoUrl,
                     fallbackText = promoCode.serviceName,
-                    fallbackIcon = QodeCommerceIcons.Store,
+                    fallbackIcon = QodeEssentialIcons.Store,
                     size = SizeTokens.Icon.sizeLarge,
                     contentDescription = "Logo of ${promoCode.serviceName}",
                 )
