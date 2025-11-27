@@ -36,7 +36,6 @@ import com.qodein.shared.model.VoteState
 @Composable
 internal fun PostDetailRoute(
     onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean,
     modifier: Modifier = Modifier,
     viewModel: PostDetailViewModel = hiltViewModel()
 ) {
@@ -90,7 +89,6 @@ internal fun PostDetailRoute(
                 authPromptAction = null
             },
             isLoading = uiState.isSigningIn,
-            isDarkTheme = isDarkTheme,
         )
     }
 }

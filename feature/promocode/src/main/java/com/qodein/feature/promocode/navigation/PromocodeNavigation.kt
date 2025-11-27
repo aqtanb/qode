@@ -22,22 +22,15 @@ fun NavController.navigateToPromocodeDetail(
     navOptions: NavOptions? = null
 ) = navigate(route = PromocodeDetailRoute(promoCodeId.value), navOptions = navOptions)
 
-fun NavGraphBuilder.promocodeSubmissionSection(
-    onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean
-) {
+fun NavGraphBuilder.promocodeSubmissionSection(onNavigateBack: () -> Unit) {
     composable<PromocodeSubmissionRoute> {
         PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
-            isDarkTheme = isDarkTheme,
         )
     }
 }
 
-fun NavGraphBuilder.promocodeDetailSection(
-    onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean
-) {
+fun NavGraphBuilder.promocodeDetailSection(onNavigateBack: () -> Unit) {
     composable<PromocodeDetailRoute> { backStackEntry ->
         val args = backStackEntry.toRoute<PromocodeDetailRoute>()
         PromocodeDetailScreen(
@@ -49,7 +42,6 @@ fun NavGraphBuilder.promocodeDetailSection(
             onNavigateToService = { serviceName ->
                 // TODO: Navigate to service
             },
-            isDarkTheme = isDarkTheme,
         )
     }
 }

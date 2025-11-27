@@ -70,7 +70,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostSubmissionScreen(
     onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean,
     viewModel: PostSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
@@ -193,7 +192,6 @@ fun PostSubmissionScreen(
                                 authPromptAction = AuthPromptAction.CreatePost,
                                 onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle(context)) },
                                 onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
-                                isDarkTheme = isDarkTheme,
                                 isLoading = isSigningIn,
                             )
                         } else {

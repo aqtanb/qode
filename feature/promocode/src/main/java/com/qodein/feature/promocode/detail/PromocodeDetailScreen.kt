@@ -59,7 +59,6 @@ fun PromocodeDetailScreen(
     onNavigateToComments: (PromocodeId) -> Unit = {},
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
-    isDarkTheme: Boolean,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -123,8 +122,6 @@ fun PromocodeDetailScreen(
         }
     }
 
-    // Screen-level scaffold with own top bar to avoid app-level coupling
-    // TODO: Make it have positive UI
     Scaffold(
         topBar = {
             QodeTopAppBar(
@@ -162,7 +159,6 @@ fun PromocodeDetailScreen(
             uiState = uiState,
             onAction = viewModel::onAction,
             modifier = Modifier.padding(paddingValues),
-            isDarkTheme = isDarkTheme,
         )
     }
 }
@@ -172,8 +168,7 @@ fun PromocodeDetailScreen(
 private fun PromocodeDetailContent(
     uiState: PromocodeDetailUiState,
     onAction: (PromocodeDetailAction) -> Unit,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
@@ -233,7 +228,6 @@ private fun PromocodeDetailContent(
                         isFollowingService = uiState.isFollowingService,
                         onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
                         onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
-                        isDarkTheme = isDarkTheme,
                     )
 
                     // Details Section
@@ -273,7 +267,6 @@ private fun PromocodeDetailContent(
                 isLoading = authSheetState.isLoading,
                 onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
                 onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
-                isDarkTheme = isDarkTheme,
             )
         }
     }
@@ -335,7 +328,6 @@ private fun PromocodeDetailScreenPreview() {
                 isLoading = false,
             ),
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }

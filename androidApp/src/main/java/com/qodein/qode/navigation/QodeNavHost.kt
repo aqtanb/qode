@@ -23,16 +23,13 @@ import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
-import com.qodein.shared.model.Language
 import com.qodein.shared.model.User
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
-    userLanguage: Language,
     user: User?,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
     // Capture the selectedTabDestination at composable level
@@ -52,7 +49,6 @@ fun QodeNavHost(
 
         promocodeDetailSection(
             onNavigateBack = { navController.popBackStack() },
-            isDarkTheme = isDarkTheme,
         )
 
         feedSection(
@@ -90,19 +86,16 @@ fun QodeNavHost(
             onNavigateBack = {
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
-            isDarkTheme = isDarkTheme,
         )
 
         promocodeSubmissionSection(
             onNavigateBack = {
                 navController.popBackStack()
             },
-            isDarkTheme = isDarkTheme,
         )
 
         postSubmissionSection(
             onNavigateBack = navController::popBackStack,
-            isDarkTheme = isDarkTheme,
         )
 
         settingsSection(
@@ -119,7 +112,6 @@ fun QodeNavHost(
 
         postDetailSection(
             onNavigateBack = { navController.popBackStack() },
-            isDarkTheme = isDarkTheme,
         )
     }
 }

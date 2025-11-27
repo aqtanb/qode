@@ -131,6 +131,8 @@ val LocalExtendedColorScheme = staticCompositionLocalOf {
     )
 }
 
+val LocalDarkTheme = staticCompositionLocalOf { false }
+
 @Composable
 fun QodeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -150,6 +152,7 @@ fun QodeTheme(
 
     CompositionLocalProvider(
         LocalExtendedColorScheme provides extendedColorScheme,
+        LocalDarkTheme provides darkTheme,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

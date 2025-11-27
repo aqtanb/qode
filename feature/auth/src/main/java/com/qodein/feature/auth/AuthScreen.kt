@@ -48,7 +48,6 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthRoute(
-    isDarkTheme: Boolean,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = koinViewModel()
@@ -73,7 +72,6 @@ fun AuthRoute(
         onBackClick = onNavigateToHome,
         authState = authState,
         legalDocumentState = legalDocumentState,
-        isDarkTheme = isDarkTheme,
         modifier = modifier,
     )
 }
@@ -85,7 +83,6 @@ private fun AuthScreen(
     onAction: (AuthAction) -> Unit,
     authState: AuthUiState,
     legalDocumentState: LegalDocumentUiState,
-    isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -111,7 +108,6 @@ private fun AuthScreen(
             AuthSignInCard(
                 context = context,
                 onAction = onAction,
-                isDarkTheme = isDarkTheme,
                 isLoading = authState.isSigningIn,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -140,7 +136,6 @@ private fun AuthScreen(
 private fun AuthSignInCard(
     context: Context,
     onAction: (AuthAction) -> Unit,
-    isDarkTheme: Boolean,
     isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -185,7 +180,6 @@ private fun AuthSignInCard(
                     .fillMaxWidth()
                     .padding(vertical = SpacingTokens.md),
                 isLoading = isLoading,
-                isDarkTheme = isDarkTheme,
             )
 
             Column(
@@ -281,7 +275,6 @@ private fun AuthIdleStatePreview() {
             authState = AuthUiState(),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }
@@ -296,7 +289,6 @@ private fun AuthLoadingStatePreview() {
             authState = AuthUiState(isSigningIn = true),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }
@@ -311,7 +303,6 @@ private fun AuthErrorStatePreview() {
             authState = AuthUiState(error = SystemError.Offline),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }

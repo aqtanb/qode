@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -20,17 +18,12 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -51,21 +44,12 @@ import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.SelectionState
 
-// MARK: - Constants
-
-private object ScreenConstants {
-    val LARGE_SCREEN_THRESHOLD = 800.dp
-    val MEDIUM_SCREEN_THRESHOLD = 600.dp
-    const val BACKGROUND_ALPHA = 0.3f
-}
-
 // MARK: - Main Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean,
     viewModel: PromocodeSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
@@ -96,7 +80,6 @@ fun PromocodeSubmissionScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent,
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (val currentState = uiState) {
@@ -114,7 +97,6 @@ fun PromocodeSubmissionScreen(
                             onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle(context)) },
                             onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
                             isLoading = isSigningIn,
-                            isDarkTheme = isDarkTheme,
                         )
                     } else {
                         val serviceSelectorSheetState = rememberModalBottomSheetState()
@@ -131,13 +113,10 @@ fun PromocodeSubmissionScreen(
                         SubmissionContent(
                             uiState = currentState,
                             onAction = viewModel::onAction,
-                            snackbarHostState = snackbarHostState,
                         )
 
                         // Always render the bottom sheet, visibility controlled by sheetState
                         if (currentState.showServiceSelector) {
-                            var isSearchFocused by remember { mutableStateOf(false) }
-
                             // Get unified service selection state from ViewModel
                             val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
 
@@ -177,46 +156,23 @@ fun PromocodeSubmissionScreen(
 private fun SubmissionContent(
     uiState: PromocodeSubmissionUiState.Success,
     onAction: (PromocodeSubmissionAction) -> Unit,
-    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    val configuration = LocalConfiguration.current
-
-    // Track keyboard visibility by detecting IME padding changes
-    var isKeyboardVisible by remember { mutableStateOf(false) }
-
-    // Responsive spacing based on screen height
-    val screenHeightDp = configuration.screenHeightDp.dp
-    val adaptiveSpacing = when {
-        screenHeightDp > ScreenConstants.LARGE_SCREEN_THRESHOLD -> SpacingTokens.xl // Large screens: generous spacing
-        screenHeightDp > ScreenConstants.MEDIUM_SCREEN_THRESHOLD -> SpacingTokens.lg // Medium screens: standard spacing
-        else -> SpacingTokens.md // Small screens: compact spacing
-    }
-
-    val verticalSpacing = when {
-        screenHeightDp > ScreenConstants.LARGE_SCREEN_THRESHOLD -> SpacingTokens.lg // More space between components on large screens
-        else -> SpacingTokens.md // Compact spacing on smaller screens
-    }
 
     // Clean, single-layer design with floating controller overlay
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = ScreenConstants.BACKGROUND_ALPHA),
-            ),
+            .fillMaxSize(),
     ) {
         // Main content - no bottom padding reserved for controller
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = adaptiveSpacing)
-                .padding(vertical = verticalSpacing)
-                .padding(bottom = 100.dp) // Account for floating controller height + extra breathing room
+                .padding(bottom = SpacingTokens.gigantic)
                 .imePadding(), // Apply IME padding to the content area
-            verticalArrangement = Arrangement.spacedBy(verticalSpacing, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             ProgressIndicator(
@@ -303,7 +259,6 @@ private fun ProgressiveSubmissionContentServicePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
-            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }
@@ -324,7 +279,6 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
-            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }
@@ -353,7 +307,6 @@ private fun SubmissionContentDarkThemePreview() {
                 authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
             ),
             onAction = {},
-            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }

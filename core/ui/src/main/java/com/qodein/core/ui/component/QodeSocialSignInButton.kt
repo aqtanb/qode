@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeSocialIcons
+import com.qodein.core.designsystem.theme.LocalDarkTheme
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -44,16 +45,15 @@ import com.qodein.core.ui.R
  * @param modifier Modifier to be applied to the button
  * @param enabled Whether the button is enabled
  * @param isLoading Whether the button is in loading state
- * @param isDarkTheme Whether to use dark theme styling (from app preferences, not system)
  */
 @Composable
 fun QodeGoogleSignInButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isLoading: Boolean = false,
-    isDarkTheme: Boolean
+    isLoading: Boolean = false
 ) {
+    val isDarkTheme = LocalDarkTheme.current
     val isLight = !isDarkTheme
 
     // Google brand colors and styles following their guidelines
@@ -280,19 +280,16 @@ private fun QodeGoogleSignInButtonLightPreview() {
         ) {
             QodeGoogleSignInButton(
                 onClick = {},
-                isDarkTheme = false,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 enabled = false,
-                isDarkTheme = false,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 isLoading = true,
-                isDarkTheme = false,
             )
         }
     }
@@ -309,19 +306,16 @@ private fun QodeGoogleSignInButtonDarkPreview() {
         ) {
             QodeGoogleSignInButton(
                 onClick = {},
-                isDarkTheme = true,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 enabled = false,
-                isDarkTheme = true,
             )
 
             QodeGoogleSignInButton(
                 onClick = {},
                 isLoading = true,
-                isDarkTheme = true,
             )
         }
     }
@@ -340,7 +334,6 @@ private fun QodeGoogleSignInButtonInFormPreview() {
             QodeGoogleSignInButton(
                 onClick = {},
                 modifier = Modifier.fillMaxWidth(), // This will center it in the full width
-                isDarkTheme = false,
             )
         }
     }
@@ -417,7 +410,6 @@ private fun AllSocialButtonsPreview() {
 
             QodeGoogleSignInButton(
                 onClick = {},
-                isDarkTheme = false,
             )
 
             QodeTelegramFollowButton(onClick = {})

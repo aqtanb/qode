@@ -100,7 +100,6 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
  * @param isLoading Whether the sign-in process is currently loading
  * @param errorType Optional error to show in snackbar
  * @param onErrorDismissed Called when error snackbar is dismissed
- * @param isDarkTheme Whether to use dark theme styling (from app preferences)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,8 +111,7 @@ fun AuthenticationBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     isLoading: Boolean = false,
     error: OperationError? = null,
-    onErrorDismissed: () -> Unit = {},
-    isDarkTheme: Boolean
+    onErrorDismissed: () -> Unit = {}
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -164,7 +162,6 @@ fun AuthenticationBottomSheet(
                 onSignInClick = onSignInClick,
                 onDismiss = onDismiss,
                 isLoading = isLoading,
-                isDarkTheme = isDarkTheme,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingTokens.lg)
@@ -187,7 +184,6 @@ private fun AuthenticationBottomSheetContent(
     onSignInClick: () -> Unit,
     onDismiss: () -> Unit,
     isLoading: Boolean,
-    isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -255,7 +251,6 @@ private fun AuthenticationBottomSheetContent(
             onClick = onSignInClick,
             isLoading = isLoading,
             modifier = Modifier.fillMaxWidth(),
-            isDarkTheme = isDarkTheme,
         )
 
         // Footer text - tighter to button
@@ -281,7 +276,6 @@ private fun AuthenticationBottomSheetSubmitPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -297,7 +291,6 @@ private fun AuthenticationBottomSheetUpvotePreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -313,7 +306,6 @@ private fun AuthenticationBottomSheetCommentPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -329,7 +321,6 @@ private fun AuthenticationBottomSheetBookmarkPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -345,7 +336,6 @@ private fun AuthenticationBottomSheetLoadingPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = true,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -363,7 +353,6 @@ private fun AuthenticationBottomSheetErrorPreview() {
             isLoading = false,
             error = UserError.AuthenticationFailure.Cancelled,
             onErrorDismissed = {},
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -379,7 +368,6 @@ private fun AuthenticationBottomSheetPostSubmissionPreview() {
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
-            isDarkTheme = false,
             modifier = Modifier.fillMaxWidth(),
         )
     }

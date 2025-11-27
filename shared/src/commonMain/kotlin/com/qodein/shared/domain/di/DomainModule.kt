@@ -19,6 +19,7 @@ import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
@@ -57,6 +58,7 @@ val domainModule = module {
 
     single { GetPopularServicesUseCase(get()) }
     single { SearchServicesUseCase(get(), get()) }
+    single { GetOrCreateServiceUseCase(get()) }
 
     single { GetLegalDocumentUseCase(get()) }
 }

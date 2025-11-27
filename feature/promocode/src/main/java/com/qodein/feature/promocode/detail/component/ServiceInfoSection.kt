@@ -32,8 +32,7 @@ fun ServiceInfoSection(
     isFollowingService: Boolean,
     onServiceClicked: () -> Unit,
     onFollowServiceClicked: () -> Unit,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
     // Follow service action - auth checking handled at parent level
     Column(

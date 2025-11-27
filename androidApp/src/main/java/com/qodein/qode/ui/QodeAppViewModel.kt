@@ -4,13 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.ui.state.AppUiEvents
-import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
-import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
-import com.qodein.shared.model.Language
-import com.qodein.shared.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,11 +29,7 @@ import javax.inject.Inject
  * Following enterprise patterns with proper separation of concerns.
  */
 @HiltViewModel
-class QodeAppViewModel @Inject constructor(
-    getAuthStateUseCase: GetAuthStateUseCase,
-    getThemeUseCase: GetThemeUseCase,
-    observeLanguageUseCase: ObserveLanguageUseCase
-) : ViewModel() {
+class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase, getThemeUseCase: GetThemeUseCase) : ViewModel() {
     val authState: StateFlow<AuthState> = getAuthStateUseCase()
         .catch { emit(AuthState.Unauthenticated) }
         .stateIn(
@@ -47,41 +38,9 @@ class QodeAppViewModel @Inject constructor(
             initialValue = AuthState.Unauthenticated,
         )
 
-    // Theme state from domain layer with proper error handling
-    val themeState: StateFlow<Theme> = getThemeUseCase()
-        .map { result ->
-            when (result) {
-                is Result.Success -> result.data
-                is Result.Error -> Theme.SYSTEM
-            }
-        }
-        .catch { emit(Theme.SYSTEM) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Theme.SYSTEM,
-        )
-
-    // Language state from domain layer with proper error handling
-    val languageState: StateFlow<Language> = observeLanguageUseCase()
-        .map { result ->
-            when (result) {
-                is Result.Success -> result.data
-                is Result.Error -> Language.ENGLISH
-            }
-        }
-        .catch { emit(Language.ENGLISH) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Language.ENGLISH,
-        )
-
-    // Navigation events flow
     private val _navigationEvents = MutableSharedFlow<NavigationActions>()
     val navigationEvents: SharedFlow<NavigationActions> = _navigationEvents.asSharedFlow()
 
-    // UI events flow for app-level UI events (dialogs, etc.)
     private val _uiEvents = MutableSharedFlow<AppUiEvents>()
     val uiEvents: SharedFlow<AppUiEvents> = _uiEvents.asSharedFlow()
 

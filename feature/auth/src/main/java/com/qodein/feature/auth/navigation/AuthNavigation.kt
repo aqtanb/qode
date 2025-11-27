@@ -16,15 +16,11 @@ fun NavController.navigateToAuth(navOptions: NavOptions? = null) {
     navigate(route = AuthRoute, navOptions = navOptions)
 }
 
-fun NavGraphBuilder.authSection(
-    onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean
-) {
+fun NavGraphBuilder.authSection(onNavigateBack: () -> Unit) {
     navigation<AuthBaseRoute>(startDestination = AuthRoute) {
         composable<AuthRoute> {
             AuthRoute(
                 onNavigateToHome = onNavigateBack,
-                isDarkTheme = isDarkTheme,
             )
         }
     }
