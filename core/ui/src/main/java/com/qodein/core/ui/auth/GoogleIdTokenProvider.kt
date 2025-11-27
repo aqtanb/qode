@@ -15,6 +15,7 @@ class GoogleIdTokenProvider(private val manager: CredentialManager) : IdTokenPro
         try {
             val option = GetGoogleIdOption.Builder()
                 .setServerClientId(activityContext.getString(R.string.web_client_id))
+                .setFilterByAuthorizedAccounts(false)
                 .build()
 
             val request = GetCredentialRequest.Builder()

@@ -161,7 +161,7 @@ private fun HomeContent(
                 onResetFilters = {
                     onAction(HomeAction.ResetFilters)
                 },
-                modifier = Modifier.padding(vertical = SpacingTokens.md),
+                modifier = Modifier.padding(SpacingTokens.sm),
             )
         }
 
@@ -169,7 +169,7 @@ private fun HomeContent(
         item(key = PROMO_CODES_HEADER_KEY) {
             PromoCodesSectionHeader(
                 currentFilters = uiState.currentFilters,
-                modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                modifier = Modifier.padding(SpacingTokens.sm),
             )
         }
 

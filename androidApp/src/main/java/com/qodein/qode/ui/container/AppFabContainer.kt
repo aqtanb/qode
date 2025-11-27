@@ -1,5 +1,6 @@
 package com.qodein.qode.ui.container
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
@@ -11,11 +12,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
+import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
@@ -67,7 +70,7 @@ fun AppFabContainer(
 
     // Only show FAB for top-level destinations (Home and Feed)
     val currentTopLevelDestination = appState.currentTopLevelDestination
-    if (currentTopLevelDestination != null) {
+    if (currentTopLevelDestination != null && currentTopLevelDestination != TopLevelDestination.FEED) {
         // Capture delegated property for smart casting
         val currentFabState = fabAutoHidingState
         if (currentFabState != null) {
@@ -83,10 +86,11 @@ fun AppFabContainer(
                             onEvent = onEvent,
                         )
                     },
-                    modifier = Modifier.size(SizeTokens.Fab.sizeSmall),
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(
+                        SizeTokens.Fab.sizeSmall,
+                    ).clip(CircleShape).border(ShapeTokens.Border.medium, MaterialTheme.colorScheme.secondary, CircleShape),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     elevation = FloatingActionButtonDefaults.elevation(
                         defaultElevation = ElevationTokens.large,
                         pressedElevation = ElevationTokens.extraLarge,
