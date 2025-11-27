@@ -28,7 +28,7 @@ import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.CompleteFilterState
 
 @Composable
-fun PromoCodesSectionHeader(
+fun PromocodeSectionHeader(
     currentFilters: CompleteFilterState,
     modifier: Modifier = Modifier
 ) {
@@ -36,8 +36,8 @@ fun PromoCodesSectionHeader(
 
     Text(
         text = stringResource(titleRes),
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.ExtraBold,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.Center,
         modifier = modifier.fillMaxWidth(),

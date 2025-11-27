@@ -32,9 +32,9 @@ import com.qodein.feature.home.ui.component.HeroBannerSection
 import com.qodein.feature.home.ui.component.LoadingMoreIndicator
 import com.qodein.feature.home.ui.component.PromoCodesErrorState
 import com.qodein.feature.home.ui.component.PromoCodesLoadingState
-import com.qodein.feature.home.ui.component.PromoCodesSectionHeader
 import com.qodein.feature.home.ui.component.PromocodeCard
 import com.qodein.feature.home.ui.component.PromocodeSectionEmptyState
+import com.qodein.feature.home.ui.component.PromocodeSectionHeader
 import com.qodein.feature.home.ui.state.PromoCodeState
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.SortFilter
@@ -172,7 +172,7 @@ private fun HomeContent(
 
         // Promo Codes Section Header
         item(key = PROMO_CODES_HEADER_KEY) {
-            PromoCodesSectionHeader(
+            PromocodeSectionHeader(
                 currentFilters = uiState.currentFilters,
                 modifier = Modifier.padding(SpacingTokens.xs),
             )

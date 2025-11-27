@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -59,7 +58,7 @@ fun SubmissionStepCard(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize(),
-        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+        shape = RoundedCornerShape(ShapeTokens.Corner.small),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -96,7 +95,7 @@ fun SubmissionStepCard(
                     step = currentStep,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = SpacingTokens.lg),
+                        .padding(top = SpacingTokens.sm),
                 )
             }
 
@@ -135,11 +134,10 @@ private fun StepHeader(
         Text(
             text = stringResource(step.titleRes),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = SpacingTokens.sm),
+                .padding(horizontal = SpacingTokens.sm),
         )
 
         IconButton(
@@ -147,10 +145,14 @@ private fun StepHeader(
             modifier = Modifier.size(SizeTokens.IconButton.sizeSmall),
         ) {
             Icon(
-                imageVector = QodeUIIcons.Info,
+                imageVector = if (isHintExpanded) {
+                    QodeUIIcons.HintFilled
+                } else {
+                    QodeUIIcons.Hint
+                },
                 contentDescription = "Toggle helpful tips",
                 tint = if (isHintExpanded) {
-                    MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.tertiary
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
                 },
@@ -169,26 +171,26 @@ private fun HintCard(
         modifier = modifier,
         shape = RoundedCornerShape(ShapeTokens.Corner.large),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingTokens.md),
+                .padding(SpacingTokens.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             Icon(
                 imageVector = QodeUIIcons.Info,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
             )
 
             Text(
                 text = stringResource(step.hintRes),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

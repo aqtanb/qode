@@ -181,7 +181,7 @@ private fun SubmissionContent(
                 .verticalScroll(scrollState)
                 .padding(bottom = SpacingTokens.gigantic)
                 .imePadding(), // Apply IME padding to the content area
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             ProgressIndicator(

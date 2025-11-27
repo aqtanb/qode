@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.FiberNew
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.BookmarkAdd
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.HowToReg
 import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Store
@@ -183,6 +185,9 @@ object QodeUIIcons {
     val Popular: ImageVector = Icons.Filled.Diamond
     val Newest: ImageVector = Icons.Filled.FiberNew
     val Expiring: ImageVector = Icons.Filled.Timelapse
+
+    val Hint: ImageVector = Icons.Outlined.Lightbulb
+    val HintFilled: ImageVector = Icons.Filled.Lightbulb
 
     val Empty: ImageVector = FeatherIcons.Coffee
     val Datepicker: ImageVector = FeatherIcons.Calendar
