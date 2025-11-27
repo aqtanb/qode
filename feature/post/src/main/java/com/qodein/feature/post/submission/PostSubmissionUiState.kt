@@ -1,9 +1,9 @@
 package com.qodein.feature.post.submission
 
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
-import com.qodein.shared.model.User
 
 /**
  * Top-level UI state for Post Submission screen.
@@ -29,7 +29,7 @@ sealed interface PostSubmissionUiState {
         val availableTags: List<Tag> = emptyList(),
 
         // Auth state
-        val authentication: PostAuthenticationState = PostAuthenticationState.Loading,
+        val authentication: UiAuthState = UiAuthState.Loading,
 
         // Submission state
         val submission: PostSubmissionState = PostSubmissionState.Idle,
@@ -55,7 +55,7 @@ sealed interface PostSubmissionUiState {
                 areImagesValid &&
                 submission is PostSubmissionState.Idle &&
                 compression is ImageCompressionState.Idle &&
-                authentication is PostAuthenticationState.Authenticated
+                authentication is UiAuthState.Authenticated
 
         companion object {
             fun initial() = Success()
@@ -66,16 +66,6 @@ sealed interface PostSubmissionUiState {
      * Error state when initial loading fails.
      */
     data class Error(val errorType: OperationError) : PostSubmissionUiState
-}
-
-/**
- * Authentication state for post submission.
- * Errors are handled via events, not stored in state.
- */
-sealed interface PostAuthenticationState {
-    data object Loading : PostAuthenticationState
-    data object Unauthenticated : PostAuthenticationState
-    data class Authenticated(val user: User) : PostAuthenticationState
 }
 
 /**

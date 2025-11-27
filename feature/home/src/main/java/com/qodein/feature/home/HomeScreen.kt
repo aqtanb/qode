@@ -139,7 +139,7 @@ private fun HomeContent(
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = SpacingTokens.xl),
+        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
     ) {
         // Hero Banner
         item(key = BANNER_SECTION_KEY) {
@@ -161,7 +161,12 @@ private fun HomeContent(
                 onResetFilters = {
                     onAction(HomeAction.ResetFilters)
                 },
-                modifier = Modifier.padding(SpacingTokens.sm),
+                modifier = Modifier.padding(
+                    top = SpacingTokens.lg,
+                    bottom = SpacingTokens.md,
+                    start = SpacingTokens.sm,
+                    end = SpacingTokens.sm,
+                ),
             )
         }
 
@@ -169,7 +174,7 @@ private fun HomeContent(
         item(key = PROMO_CODES_HEADER_KEY) {
             PromoCodesSectionHeader(
                 currentFilters = uiState.currentFilters,
-                modifier = Modifier.padding(SpacingTokens.sm),
+                modifier = Modifier.padding(SpacingTokens.xs),
             )
         }
 
@@ -196,10 +201,7 @@ private fun HomeContent(
                         onCopyCodeClick = {
                             onAction(HomeAction.CopyPromoCode(promocode))
                         },
-                        modifier = Modifier.padding(
-                            horizontal = SpacingTokens.lg,
-                            vertical = SpacingTokens.xs,
-                        ),
+                        modifier = Modifier.padding(SpacingTokens.sm),
                     )
                 }
 

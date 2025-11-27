@@ -52,10 +52,7 @@ fun PromoCodesLoadingState(modifier: Modifier = Modifier) {
     ) {
         repeat(3) {
             PromocodeCardSkeleton(
-                modifier = Modifier.padding(
-                    horizontal = SpacingTokens.lg,
-                    vertical = SpacingTokens.xs,
-                ),
+                modifier = Modifier.padding(SpacingTokens.sm),
             )
         }
     }

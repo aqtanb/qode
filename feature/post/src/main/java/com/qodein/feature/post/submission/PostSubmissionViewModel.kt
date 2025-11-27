@@ -9,6 +9,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.data.worker.UploadPostWorker
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
@@ -98,8 +99,8 @@ class PostSubmissionViewModel @Inject constructor(
             getAuthStateUseCase().collect { authState ->
                 updateSuccessState { state ->
                     val mapped = when (authState) {
-                        is AuthState.Authenticated -> PostAuthenticationState.Authenticated(authState.user)
-                        AuthState.Unauthenticated -> PostAuthenticationState.Unauthenticated
+                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                     }
                     state.copy(authentication = mapped)
                 }
@@ -256,7 +257,7 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun signInWithGoogle(activityContext: Context) {
-        updateSuccessState { it.copy(authentication = PostAuthenticationState.Loading) }
+        updateSuccessState { it.copy(authentication = UiAuthState.Loading) }
 
         viewModelScope.launch {
             when (val tokenResult = idTokenProvider.getIdToken(activityContext)) {
@@ -268,14 +269,14 @@ class PostSubmissionViewModel @Inject constructor(
                         }
                         is Result.Error -> {
                             Logger.w(TAG) { "Sign in failed: ${signInResult.error}" }
-                            updateSuccessState { it.copy(authentication = PostAuthenticationState.Unauthenticated) }
+                            updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
                             _events.emit(PostSubmissionEvent.ShowError(signInResult.error))
                         }
                     }
                 }
                 is Result.Error -> {
                     Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
-                    updateSuccessState { it.copy(authentication = PostAuthenticationState.Unauthenticated) }
+                    updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
                     _events.emit(PostSubmissionEvent.ShowError(tokenResult.error))
                 }
             }

@@ -28,6 +28,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthPromptAction
@@ -37,6 +39,7 @@ import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiState
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
@@ -80,6 +83,13 @@ fun PromocodeSubmissionScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            QodeTopAppBar(
+                title = "Submit Promo Code",
+                navigationIcon = QodeActionIcons.Back,
+                onNavigationClick = onNavigateBack,
+            )
+        },
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (val currentState = uiState) {
@@ -87,10 +97,9 @@ fun PromocodeSubmissionScreen(
                     LoadingState()
                 }
                 is PromocodeSubmissionUiState.Success -> {
-                    // MARK: Authentication check
-                    val showAuthSheet = currentState.authentication !is PromocodeSubmissionAuthenticationState.Authenticated
+                    val showAuthSheet = currentState.authentication !is UiAuthState.Authenticated
                     if (showAuthSheet) {
-                        val isSigningIn = currentState.authentication is PromocodeSubmissionAuthenticationState.Loading
+                        val isSigningIn = currentState.authentication is UiAuthState.Loading
 
                         AuthenticationBottomSheet(
                             authPromptAction = AuthPromptAction.SubmitPromoCode,
@@ -142,7 +151,7 @@ fun PromocodeSubmissionScreen(
                 }
                 is PromocodeSubmissionUiState.Error -> {
                     ErrorState(
-                        error = currentState.errorType,
+                        error = currentState.error,
                         onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
                     )
                 }
@@ -256,7 +265,7 @@ private fun ProgressiveSubmissionContentServicePreview() {
                     wizardData = SubmissionWizardData(),
                     currentStep = PromocodeSubmissionStep.SERVICE,
                 ),
-                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
+                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -276,7 +285,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                     ),
                     currentStep = PromocodeSubmissionStep.PROMO_CODE,
                 ),
-                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
+                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -304,7 +313,7 @@ private fun SubmissionContentDarkThemePreview() {
                     ),
                     currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
                 ),
-                authentication = PromocodeSubmissionAuthenticationState.Unauthenticated,
+                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )

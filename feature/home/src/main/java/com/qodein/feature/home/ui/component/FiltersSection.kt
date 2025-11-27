@@ -47,12 +47,7 @@ fun FiltersSection(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                vertical = SpacingTokens.md,
-                horizontal = SpacingTokens.lg,
-            ),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(
             space = SpacingTokens.lg,
             alignment = Alignment.CenterHorizontally,
@@ -114,7 +109,7 @@ private fun FilterChip(
     Column(
         modifier = modifier.clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
     ) {
         // Circular container with borders
         Box(

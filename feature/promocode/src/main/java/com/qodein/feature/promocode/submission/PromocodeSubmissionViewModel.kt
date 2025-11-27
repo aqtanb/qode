@@ -7,6 +7,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
@@ -262,8 +263,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
                             is PromocodeSubmissionUiState.Success -> {
                                 val newAuthState =
                                     when (authState) {
-                                        is AuthState.Authenticated -> PromocodeSubmissionAuthenticationState.Authenticated(authState.user)
-                                        AuthState.Unauthenticated -> PromocodeSubmissionAuthenticationState.Unauthenticated
+                                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                                     }
                                 currentState.updateAuthentication(newAuthState)
                             }
@@ -280,7 +281,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
         _uiState.update { currentState ->
             when (currentState) {
-                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Loading)
+                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(UiAuthState.Loading)
                 else -> currentState
             }
         }
@@ -298,7 +299,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 when (currentState) {
                                     is PromocodeSubmissionUiState.Success ->
-                                        currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Unauthenticated)
+                                        currentState.updateAuthentication(UiAuthState.Unauthenticated)
                                     else -> currentState
                                 }
                             }
@@ -311,7 +312,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                     _uiState.update { currentState ->
                         when (currentState) {
                             is PromocodeSubmissionUiState.Success ->
-                                currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Unauthenticated)
+                                currentState.updateAuthentication(UiAuthState.Unauthenticated)
                             else -> currentState
                         }
                     }
@@ -436,7 +437,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
             return
         }
 
-        val authenticatedUser = (currentState.authentication as? PromocodeSubmissionAuthenticationState.Authenticated)?.user
+        val authenticatedUser = (currentState.authentication as? UiAuthState.Authenticated)?.user
         if (authenticatedUser == null) {
             Logger.w(TAG) { "Cannot submit: user is not authenticated" }
             return
