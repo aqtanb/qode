@@ -63,7 +63,8 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 enum class ButtonSize {
     Small,
     Medium,
-    Large
+    Large,
+    XL
 }
 
 /**
@@ -83,6 +84,7 @@ private fun ButtonSize.toConfig(): ButtonConfig {
         ButtonSize.Small -> MaterialTheme.typography.labelSmall
         ButtonSize.Medium -> MaterialTheme.typography.labelLarge
         ButtonSize.Large -> MaterialTheme.typography.titleMedium
+        ButtonSize.XL -> MaterialTheme.typography.titleLarge
     }
 
     return ButtonConfig(
@@ -90,22 +92,26 @@ private fun ButtonSize.toConfig(): ButtonConfig {
             ButtonSize.Small -> SizeTokens.Button.heightSmall
             ButtonSize.Medium -> SizeTokens.Button.heightMedium
             ButtonSize.Large -> SizeTokens.Button.heightLarge
+            ButtonSize.XL -> SizeTokens.Button.heightXL
         },
         horizontalPadding = when (this) {
             ButtonSize.Small -> SpacingTokens.xs
             ButtonSize.Medium -> SpacingTokens.md
             ButtonSize.Large -> SpacingTokens.lg
+            ButtonSize.XL -> SpacingTokens.xl
         },
         verticalPadding = when (this) {
             ButtonSize.Small -> SpacingTokens.none
             ButtonSize.Medium -> SpacingTokens.xxxs
             ButtonSize.Large -> SpacingTokens.xxs
+            ButtonSize.XL -> SpacingTokens.xs
         },
         textStyle = textStyle,
         iconSize = when (this) {
             ButtonSize.Small -> SizeTokens.Icon.sizeSmall
-            ButtonSize.Medium -> SizeTokens.Icon.sizeLarge
+            ButtonSize.Medium -> SizeTokens.Icon.sizeMedium
             ButtonSize.Large -> SizeTokens.Icon.sizeLarge
+            ButtonSize.XL -> SizeTokens.Icon.sizeXLarge
         },
     )
 }
@@ -359,11 +365,13 @@ private fun ButtonSize.toIconButtonConfig(): IconButtonConfig =
             ButtonSize.Small -> SizeTokens.IconButton.sizeSmall
             ButtonSize.Medium -> SizeTokens.IconButton.sizeMedium
             ButtonSize.Large -> SizeTokens.IconButton.sizeLarge
+            ButtonSize.XL -> SizeTokens.IconButton.sizeXL
         },
         iconSize = when (this) {
             ButtonSize.Small -> SizeTokens.Icon.sizeSmall
-            ButtonSize.Medium -> SizeTokens.Icon.sizeLarge
-            ButtonSize.Large -> SizeTokens.Icon.sizeXLarge
+            ButtonSize.Medium -> SizeTokens.Icon.sizeMedium
+            ButtonSize.Large -> SizeTokens.Icon.sizeLarge
+            ButtonSize.XL -> SizeTokens.Icon.sizeXLarge
         },
     )
 
@@ -402,34 +410,31 @@ fun QodeinIconButton(
         label = "icon_button_scale",
     )
 
-    Box(
+    IconButton(
+        onClick = onClick,
         modifier = modifier
             .size(config.buttonSize)
             .scale(scale),
+        enabled = enabled && !loading,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = if (containerColor == Color.Transparent) {
+                Color.Transparent
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
+            },
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
+        ),
+        interactionSource = interactionSource,
     ) {
-        IconButton(
-            onClick = onClick,
-            enabled = enabled && !loading,
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
-                disabledContainerColor = if (containerColor == Color.Transparent) {
-                    Color.Transparent
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
-                },
-                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
-            ),
-            interactionSource = interactionSource,
-        ) {
-            IconButtonContent(
-                icon = icon,
-                contentDescription = contentDescription,
-                loading = loading,
-                iconSize = config.iconSize,
-                contentColor = contentColor,
-            )
-        }
+        IconButtonContent(
+            icon = icon,
+            contentDescription = contentDescription,
+            loading = loading,
+            iconSize = config.iconSize,
+            contentColor = contentColor,
+        )
     }
 }
 
@@ -444,20 +449,29 @@ fun QodeinIconButton(
  * @param enabled Whether the button is enabled
  * @param loading Whether the button is in loading state
  * @param contentColor Color of the icon
- * @param borderColor Color of the border
+ * @param border Border to apply around the button
+ * @param content Optional custom composable to render instead of the default icon
  */
 @Composable
 fun QodeinOutlinedIconButton(
     onClick: () -> Unit,
-    icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
     size: ButtonSize = ButtonSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
     contentColor: Color = MaterialTheme.colorScheme.primary,
-    borderColor: Color = MaterialTheme.colorScheme.outline
+    border: BorderStroke = BorderStroke(
+        width = ShapeTokens.Border.thin,
+        color = MaterialTheme.colorScheme.outline,
+    ),
+    content: (@Composable () -> Unit)? = null
 ) {
+    require(icon != null || content != null) {
+        "QodeinOutlinedIconButton requires either an icon or custom content."
+    }
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val config = size.toIconButtonConfig()
@@ -468,32 +482,39 @@ fun QodeinOutlinedIconButton(
         label = "icon_button_scale",
     )
 
-    Box(
+    OutlinedIconButton(
+        onClick = onClick,
         modifier = modifier
             .size(config.buttonSize)
             .scale(scale),
+        enabled = enabled && !loading,
+        colors = IconButtonDefaults.outlinedIconButtonColors(
+            contentColor = contentColor,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
+        ),
+        border = if (enabled && !loading) {
+            border
+        } else {
+            BorderStroke(
+                width = border.width,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER),
+            )
+        },
+        interactionSource = interactionSource,
     ) {
-        OutlinedIconButton(
-            onClick = onClick,
-            enabled = enabled && !loading,
-            colors = IconButtonDefaults.outlinedIconButtonColors(
-                contentColor = contentColor,
-                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED),
-            ),
-            border = BorderStroke(
-                width = ShapeTokens.Border.thin,
-                color = if (enabled && !loading) {
-                    borderColor
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = OpacityTokens.DISABLED_CONTAINER)
-                },
-            ),
-            interactionSource = interactionSource,
-        ) {
-            IconButtonContent(
-                icon = icon,
+        when {
+            loading -> IconButtonContent(
+                icon = icon ?: Icons.Filled.Favorite,
                 contentDescription = contentDescription,
-                loading = loading,
+                loading = true,
+                iconSize = config.iconSize,
+                contentColor = contentColor,
+            )
+            content != null -> content()
+            else -> IconButtonContent(
+                icon = icon!!,
+                contentDescription = contentDescription,
+                loading = false,
                 iconSize = config.iconSize,
                 contentColor = contentColor,
             )
@@ -756,11 +777,46 @@ private fun QodeinIconButtonPreview() {
                 contentDescription = "Favorite",
                 size = ButtonSize.Large,
             )
+            QodeinIconButton(
+                onClick = {},
+                icon = Icons.Default.Favorite,
+                contentDescription = "Favorite",
+                size = ButtonSize.XL,
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun QodeinOutlinedIconButtonPreview() {
+    QodeTheme {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        ) {
+            QodeinOutlinedIconButton(
+                onClick = {},
+                icon = Icons.Default.Favorite,
+                contentDescription = "Favorite",
+                size = ButtonSize.Small,
+            )
             QodeinOutlinedIconButton(
                 onClick = {},
                 icon = Icons.Default.Favorite,
                 contentDescription = "Favorite",
                 size = ButtonSize.Medium,
+            )
+            QodeinOutlinedIconButton(
+                onClick = {},
+                icon = Icons.Default.Favorite,
+                contentDescription = "Favorite",
+                size = ButtonSize.Large,
+            )
+            QodeinOutlinedIconButton(
+                onClick = {},
+                icon = Icons.Default.Favorite,
+                contentDescription = "Favorite",
+                size = ButtonSize.XL,
             )
         }
     }

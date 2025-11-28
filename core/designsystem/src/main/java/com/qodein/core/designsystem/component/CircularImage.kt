@@ -42,13 +42,13 @@ import com.qodein.core.designsystem.theme.SizeTokens
  */
 @Composable
 fun CircularImage(
-    imageUrl: String? = null,
-    fallbackText: String? = null,
     fallbackIcon: ImageVector,
     modifier: Modifier = Modifier,
+    imageUrl: String? = null,
+    fallbackText: String? = null,
     size: Dp = SizeTokens.Avatar.sizeLarge,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String? = null
 ) {
     val density = LocalDensity.current
@@ -114,8 +114,7 @@ private fun CircularImageFallback(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.size(size),
-        shape = CircleShape,
+        modifier = modifier.size(size).clip(CircleShape),
         color = backgroundColor,
     ) {
         Box(

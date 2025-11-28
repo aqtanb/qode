@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.icon.QodeCalendarIcons
 import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -182,7 +183,7 @@ private fun HintCard(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             Icon(
-                imageVector = QodeUIIcons.Info,
+                imageVector = QodeCalendarIcons.Info,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(SizeTokens.Icon.sizeSmall),

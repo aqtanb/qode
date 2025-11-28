@@ -2,9 +2,9 @@ package com.qodein.feature.promocode.submission
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.QodeCalendarIcons
 import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
 import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
@@ -86,8 +86,8 @@ fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector 
             PromocodeSubmissionStep.DISCOUNT_VALUE -> QodeEssentialIcons.Dollar
             PromocodeSubmissionStep.MINIMUM_ORDER -> QodeEssentialIcons.Dollar
             PromocodeSubmissionStep.ELIGIBILITY -> QodeNavigationIcons.Settings
-            PromocodeSubmissionStep.DESCRIPTION -> QodeUIIcons.Info
-            PromocodeSubmissionStep.START_DATE, PromocodeSubmissionStep.END_DATE -> QodeUIIcons.Datepicker
+            PromocodeSubmissionStep.DESCRIPTION -> QodeCalendarIcons.Info
+            PromocodeSubmissionStep.START_DATE, PromocodeSubmissionStep.END_DATE -> QodeCalendarIcons.Datepicker
         }
     }
 

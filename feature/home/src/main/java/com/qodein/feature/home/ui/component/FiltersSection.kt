@@ -1,38 +1,36 @@
 package com.qodein.feature.home.ui.component
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
 import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortIconHelper
+import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.ui.FilterDialogType
 
@@ -61,9 +59,33 @@ fun FiltersSection(
                 when (filter.services.size) {
                     1 -> {
                         val service = filter.services.first()
-                        Triple(QodeEssentialIcons.Store, service.logoUrl, service.name)
+                        Triple(QodeUIIcons.Filter1, service.logoUrl, service.name)
                     }
-                    else -> Triple(QodeEssentialIcons.StoreFilled, null, null)
+                    2 -> {
+                        Triple(QodeUIIcons.Filter2, null, null)
+                    }
+                    3 -> {
+                        Triple(QodeUIIcons.Filter3, null, null)
+                    }
+                    4 -> {
+                        Triple(QodeUIIcons.Filter4, null, null)
+                    }
+                    5 -> {
+                        Triple(QodeUIIcons.Filter5, null, null)
+                    }
+                    6 -> {
+                        Triple(QodeUIIcons.Filter6, null, null)
+                    }
+                    7 -> {
+                        Triple(QodeUIIcons.Filter7, null, null)
+                    }
+                    8 -> {
+                        Triple(QodeUIIcons.Filter8, null, null)
+                    }
+                    9 -> {
+                        Triple(QodeUIIcons.Filter9, null, null)
+                    }
+                    else -> Triple(QodeUIIcons.Filter9Plus, null, null)
                 }
             }
         }
@@ -107,66 +129,47 @@ private fun FilterChip(
     logoUrl: String? = null,
     fallbackText: String? = null
 ) {
+    val logoUrlOrNull = logoUrl?.takeIf { it.isNotBlank() }
+    val buttonIcon = if (logoUrlOrNull != null) null else icon
     Column(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
     ) {
-        // Circular container with borders
-        Box(
-            modifier = modifier.size(SizeTokens.Avatar.sizeMedium + SpacingTokens.sm),
-            contentAlignment = Alignment.Center,
-        ) {
-            // Outer surface
-            Surface(
-                modifier = modifier.fillMaxSize().clip(CircleShape),
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.surface
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                },
-            ) {
-                // Inner surface with border
-                Surface(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(ShapeTokens.Border.thick)
-                        .clip(CircleShape),
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.primaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    },
-                    border = BorderStroke(
-                        width = ShapeTokens.Border.thin,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        },
-                    ),
-                ) {
+        val border = BorderStroke(
+            width = ShapeTokens.Border.medium,
+            color = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
+        )
+        val contentColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+
+        QodeinOutlinedIconButton(
+            onClick = onClick,
+            icon = buttonIcon,
+            contentDescription = stringResource(nameRes),
+            size = ButtonSize.XL,
+            contentColor = contentColor,
+            border = border,
+            content = logoUrlOrNull?.let {
+                {
                     CircularImage(
-                        imageUrl = logoUrl,
+                        imageUrl = it,
                         fallbackText = fallbackText,
                         fallbackIcon = icon,
-                        size = SizeTokens.Avatar.sizeMedium,
-                        backgroundColor = if (isSelected) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        },
+                        size = SizeTokens.IconButton.sizeXL,
                         contentColor = if (isSelected) {
                             MaterialTheme.colorScheme.onPrimaryContainer
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
                         contentDescription = stringResource(nameRes),
-                        modifier = modifier.fillMaxSize(),
                     )
                 }
-            }
-        }
+            },
+        )
 
         // Filter name
         Text(
@@ -174,9 +177,9 @@ private fun FilterChip(
             style = MaterialTheme.typography.labelMedium,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             color = if (isSelected) {
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.primary
             } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+                MaterialTheme.colorScheme.onSurface
             },
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -184,12 +187,14 @@ private fun FilterChip(
     }
 }
 
-@Preview(name = "FiltersSection", showBackground = true)
+@ThemePreviews
 @Composable
 private fun FiltersSectionPreview() {
     QodeTheme {
         FiltersSection(
-            currentFilters = CompleteFilterState(),
+            currentFilters = CompleteFilterState(
+                serviceFilter = ServiceFilter.Selected(services = (ServicePreviewData.allSamples.toSet())),
+            ),
             onFilterSelected = { },
             onResetFilters = { },
         )

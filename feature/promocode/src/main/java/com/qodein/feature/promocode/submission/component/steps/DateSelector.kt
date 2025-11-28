@@ -33,7 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.QodeCalendarIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -110,7 +110,7 @@ fun DateSelector(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = QodeUIIcons.Datepicker,
+                    imageVector = QodeCalendarIcons.Datepicker,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                     tint = if (hasSelection) {

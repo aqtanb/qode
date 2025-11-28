@@ -64,6 +64,7 @@ object SizeTokens {
         val heightSmall = 32.dp
         val heightMedium = 40.dp
         val heightLarge = 48.dp
+        val heightXL = 56.dp
     }
 
     @Immutable
@@ -71,6 +72,7 @@ object SizeTokens {
         val sizeSmall = 32.dp
         val sizeMedium = 40.dp
         val sizeLarge = 48.dp
+        val sizeXL = 56.dp
     }
 
     @Immutable
@@ -78,7 +80,7 @@ object SizeTokens {
         val sizeSmall = 16.dp
         val sizeMedium = 20.dp
         val sizeLarge = 24.dp
-        val sizeXLarge = 32.dp
+        val sizeXLarge = 28.dp
     }
 
     @Immutable

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -129,7 +128,6 @@ fun QodeTopAppBar(
                     imageVector = icon,
                     contentDescription = when (icon) {
                         QodeActionIcons.Back -> "Navigate back"
-                        QodeUIIcons.Menu -> "Open menu"
                         QodeActionIcons.Close -> "Close"
                         else -> "Navigation"
                     },
@@ -265,7 +263,6 @@ private fun QodeTransparentTopAppBar(
                         imageVector = icon,
                         contentDescription = when (icon) {
                             QodeActionIcons.Back -> "Navigate back"
-                            QodeUIIcons.Menu -> "Open menu"
                             QodeActionIcons.Close -> "Close"
                             else -> "Navigation"
                         },
