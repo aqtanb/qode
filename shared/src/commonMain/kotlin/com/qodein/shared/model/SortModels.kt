@@ -8,7 +8,7 @@ sealed interface SortBy
 
 /**
  * Generic sorting options for content
- * Can be used across different content types (PromoCode, Promos, etc.)
+ * Can be used across different content types (Promocode, Promos, etc.)
  */
 enum class ContentSortBy : SortBy {
     /**

@@ -16,26 +16,19 @@ import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import timber.log.Timber
 import java.io.IOException
 
-class PromocodeRepositoryImpl(
-    private val promoCodeDataSource: FirestorePromocodeDataSource,
-    private val userDataSource: FirestoreUserDataSource
-) : PromocodeRepository {
-
-    companion object {
-        private const val TAG = "PromocodeRepository"
-    }
-
-    override suspend fun createPromocode(promocode: PromoCode): Result<Unit, OperationError> =
+class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSource, private val userDataSource: FirestoreUserDataSource) :
+    PromocodeRepository {
+    override suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError> =
         try {
             Timber.i("Creating promocode: %s", promocode.code)
 
             val dto = PromocodeMapper.toDto(promocode)
-            promoCodeDataSource.createPromocode(dto)
+            dataSource.createPromocode(dto)
 
             Timber.i("Successfully created promocode: %s", promocode.id.value)
 
@@ -67,14 +60,14 @@ class PromocodeRepositoryImpl(
         sortBy: ContentSortBy,
         filterByServices: List<String>?,
         paginationRequest: PaginationRequest<ContentSortBy>
-    ): Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError> =
+    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
         try {
             Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
 
             val (sortByField, sortDirection) = mapSortBy(sortBy)
             val cursor = paginationRequest.cursor?.documentSnapshot
 
-            val pagedDto = promoCodeDataSource.getPromoCodes(
+            val pagedDto = dataSource.getPromoCodes(
                 sortByField = sortByField,
                 sortDirection = sortDirection,
                 filterByServices = filterByServices,
@@ -119,26 +112,26 @@ class PromocodeRepositoryImpl(
             ContentSortBy.EXPIRING_SOON -> PromocodeDto.FIELD_END_DATE to Query.Direction.ASCENDING
         }
 
-    override suspend fun getPromocodeById(id: PromocodeId): Result<PromoCode, OperationError> =
+    override suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError> =
         try {
-            val dto = promoCodeDataSource.getPromocodeById(id.value)
+            val dto = dataSource.getPromocodeById(id.value)
             if (dto != null) {
                 val promocode = PromocodeMapper.toDomain(dto)
                 Result.Success(promocode)
             } else {
-                Timber.w("PromoCode not found: %s", id.value)
+                Timber.w("Promocode not found: %s", id.value)
                 Result.Error(FirestoreError.NotFound)
             }
         } catch (e: FirebaseFirestoreException) {
             Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: IllegalArgumentException) {
-            Timber.e(e, "Invalid PromoCode data for id: %s", id.value)
+            Timber.e(e, "Invalid Promocode data for id: %s", id.value)
             Result.Error(FirestoreError.NotFound)
         } catch (e: IOException) {
-            Timber.e(e, "Network error getting PromoCode: %s", id.value)
+            Timber.e(e, "Network error getting Promocode: %s", id.value)
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
-            Timber.e(e, "Unknown error getting PromoCode: %s - %s", id.value, e::class.simpleName)
+            Timber.e(e, "Unknown error getting Promocode: %s - %s", id.value, e::class.simpleName)
             Result.Error(SystemError.Unknown)
         }
 }

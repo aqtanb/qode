@@ -190,11 +190,11 @@ private fun HomeContent(
             }
             is PromocodeUiState.Success -> {
                 items(
-                    items = promoState.promoCodes,
+                    items = promoState.promocodes,
                     key = { promoCode -> promoCode.id.value },
                 ) { promocode ->
                     PromocodeCard(
-                        promoCode = promocode,
+                        promocode = promocode,
                         onCardClick = {
                             onAction(HomeAction.PromoCodeClicked(promocode.id))
                         },

@@ -7,7 +7,7 @@ import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.User
 import kotlin.time.Instant
@@ -43,7 +43,7 @@ class SubmitPromocodeUseCase(private val repo: PromocodeRepository, private val 
 
         // Create and validate promocode
         val promoCode = when (
-            val result = PromoCode.create(
+            val result = Promocode.create(
                 code = req.code,
                 service = service,
                 author = req.currentUser,

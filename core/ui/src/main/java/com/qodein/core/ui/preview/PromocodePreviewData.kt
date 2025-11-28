@@ -1,7 +1,7 @@
 package com.qodein.core.ui.preview
 
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 /**
- * Centralized sample data for PromoCode previews.
+ * Centralized sample data for Promocode previews.
  * Provides consistent test data across all preview functions.
  */
 object PromocodePreviewData {
@@ -18,7 +18,7 @@ object PromocodePreviewData {
     /**
      * Sample percentage promo code with typical values
      */
-    val percentagePromoCode = PromoCode.fromDto(
+    val percentagePromocode = Promocode.fromDto(
         id = PromocodeId("glovo_save25"),
         code = "SAVE25",
         discount = Discount.Percentage(25.0),
@@ -43,7 +43,7 @@ object PromocodePreviewData {
     /**
      * Sample fixed amount promo code with typical values
      */
-    val fixedAmountPromoCode = PromoCode.fromDto(
+    val fixedAmountPromocode = Promocode.fromDto(
         id = PromocodeId("kaspi_new1000"),
         code = "NEW1000",
         discount = Discount.FixedAmount(1000.0),
@@ -67,7 +67,7 @@ object PromocodePreviewData {
     /**
      * Sample promo code that's expiring soon (within 24 hours)
      */
-    val expiringSoonPromoCode = PromoCode.fromDto(
+    val expiringSoonPromocode = Promocode.fromDto(
         id = PromocodeId("wolt_flash15"),
         code = "FLASH15",
         discount = Discount.Percentage(15.0),
@@ -91,7 +91,7 @@ object PromocodePreviewData {
     /**
      * Sample promo code that's not active yet (starts in future)
      */
-    val notYetActivePromoCode = PromoCode.fromDto(
+    val notYetActivePromocode = Promocode.fromDto(
         id = PromocodeId("technodom_summer500"),
         code = "SUMMER500",
         discount = Discount.FixedAmount(500.0),
@@ -115,7 +115,7 @@ object PromocodePreviewData {
     /**
      * Sample high-value promo code with many votes
      */
-    val highValuePromoCode = PromoCode.fromDto(
+    val highValuePromocode = Promocode.fromDto(
         id = PromocodeId("sulpak_mega50"),
         code = "MEGA50",
         discount = Discount.Percentage(50.0),
@@ -139,7 +139,7 @@ object PromocodePreviewData {
     /**
      * Sample promo code with minimal engagement
      */
-    val lowEngagementPromoCode = PromoCode.fromDto(
+    val lowEngagementPromocode = Promocode.fromDto(
         id = PromocodeId("small_shop_save100"),
         code = "SAVE100",
         discount = Discount.FixedAmount(100.0),
@@ -164,11 +164,11 @@ object PromocodePreviewData {
      * List of all sample promo codes for testing various scenarios
      */
     val allSamples = listOf(
-        percentagePromoCode,
-        fixedAmountPromoCode,
-        expiringSoonPromoCode,
-        notYetActivePromoCode,
-        highValuePromoCode,
-        lowEngagementPromoCode,
+        percentagePromocode,
+        fixedAmountPromocode,
+        expiringSoonPromocode,
+        notYetActivePromocode,
+        highValuePromocode,
+        lowEngagementPromocode,
     )
 }

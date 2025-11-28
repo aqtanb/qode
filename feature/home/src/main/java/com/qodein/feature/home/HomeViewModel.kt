@@ -25,7 +25,7 @@ import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -251,15 +251,15 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handlePromoCodesSuccess(
-        paginatedResult: PaginatedResult<PromoCode, ContentSortBy>,
+        paginatedResult: PaginatedResult<Promocode, ContentSortBy>,
         isLoadMore: Boolean,
         currentState: HomeUiState
     ): HomeUiState =
         if (isLoadMore) {
-            val currentPromoCodes = (currentState.promocodeUiState as? PromocodeUiState.Success)?.promoCodes ?: emptyList()
+            val currentPromoCodes = (currentState.promocodeUiState as? PromocodeUiState.Success)?.promocodes ?: emptyList()
             currentState.copy(
                 promocodeUiState = PromocodeUiState.Success(
-                    promoCodes = currentPromoCodes + paginatedResult.data,
+                    promocodes = currentPromoCodes + paginatedResult.data,
                     hasMore = paginatedResult.hasMore,
                     nextCursor = paginatedResult.nextCursor,
                 ),
@@ -268,7 +268,7 @@ class HomeViewModel @Inject constructor(
             currentState.copy(
                 promocodeUiState = if (paginatedResult.data.isNotEmpty()) {
                     PromocodeUiState.Success(
-                        promoCodes = paginatedResult.data,
+                        promocodes = paginatedResult.data,
                         hasMore = paginatedResult.hasMore,
                         nextCursor = paginatedResult.nextCursor,
                     )
@@ -309,7 +309,7 @@ class HomeViewModel @Inject constructor(
         emitEvent(HomeEvent.PromoCodeDetailRequested(promocodeId))
     }
 
-    private fun onCopyPromoCode(promoCode: PromoCode) {
+    private fun onCopyPromoCode(promoCode: Promocode) {
         logPromoCodeCopyAnalytics(promoCode)
         emitEvent(HomeEvent.PromoCodeCopied(promoCode))
     }
@@ -328,14 +328,14 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun logPromoCodeViewAnalytics(promoCode: PromoCode) {
+    private fun logPromoCodeViewAnalytics(promoCode: Promocode) {
         analyticsHelper.logPromoCodeView(
             promocodeId = promoCode.id.value,
             promocodeType = promoCode.getAnalyticsType(),
         )
     }
 
-    private fun logPromoCodeCopyAnalytics(promoCode: PromoCode) {
+    private fun logPromoCodeCopyAnalytics(promoCode: Promocode) {
         analyticsHelper.logEvent(
             AnalyticsEvent(
                 type = EVENT_COPY_PROMOCODE,
@@ -347,7 +347,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun PromoCode.getAnalyticsType(): String =
+    private fun Promocode.getAnalyticsType(): String =
         when (this.discount) {
             is Discount.Percentage -> PROMO_CODE_TYPE_PERCENTAGE
             is Discount.FixedAmount -> PROMO_CODE_TYPE_FIXED_AMOUNT

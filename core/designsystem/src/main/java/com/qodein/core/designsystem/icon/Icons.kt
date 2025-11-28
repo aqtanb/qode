@@ -21,15 +21,15 @@ import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.HowToReg
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
@@ -48,7 +48,6 @@ import compose.icons.feathericons.ChevronRight
 import compose.icons.feathericons.Clock
 import compose.icons.feathericons.Code
 import compose.icons.feathericons.Coffee
-import compose.icons.feathericons.Copy
 import compose.icons.feathericons.DollarSign
 import compose.icons.feathericons.Download
 import compose.icons.feathericons.Edit3
@@ -67,7 +66,6 @@ import compose.icons.feathericons.RefreshCw
 import compose.icons.feathericons.Search
 import compose.icons.feathericons.Settings
 import compose.icons.feathericons.Share2
-import compose.icons.feathericons.Tag
 import compose.icons.feathericons.ThumbsDown
 import compose.icons.feathericons.ThumbsUp
 import compose.icons.feathericons.Trash2
@@ -83,6 +81,7 @@ import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.CurrencyDollar
 import compose.icons.tablericons.Discount2
 import compose.icons.tablericons.Language
+import compose.icons.tablericons.Seeding
 import compose.icons.tablericons.Tag
 import compose.icons.tablericons.Ticket
 
@@ -94,11 +93,10 @@ object QodeinIcons {
     val DarkMode: ImageVector = Icons.Outlined.DarkMode
 }
 
-object PromocodeStatusIcons {
-    val Verified: ImageVector = Icons.Outlined.Check
-    val ExpiringSoon: ImageVector = Icons.Outlined.Warning
+object PromocodeIcons {
+    val Verified: ImageVector = Icons.Outlined.Verified
     val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
-    val FirstTimeUsers: ImageVector = Icons.Outlined.HowToReg
+    val FirstUseOnly: ImageVector = TablerIcons.Seeding
 }
 
 object QodeEssentialIcons {
@@ -127,7 +125,7 @@ object QodeActionIcons {
     val Edit: ImageVector = FeatherIcons.Edit3
     val Check: ImageVector = FeatherIcons.Check
     val ClearCircled: ImageVector = FeatherIcons.XCircle
-    val Copy: ImageVector = FeatherIcons.Copy
+    val Copy: ImageVector = Icons.Outlined.ContentCopy
     val Back: ImageVector = FeatherIcons.ArrowLeft
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown

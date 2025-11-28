@@ -21,11 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 
 @Composable
 fun StatisticsSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     showVoteAnimation: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -120,7 +120,7 @@ private fun formatNumber(number: Int): String =
 @Composable
 private fun StatisticsSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromocodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
 
         Surface {
             StatisticsSection(

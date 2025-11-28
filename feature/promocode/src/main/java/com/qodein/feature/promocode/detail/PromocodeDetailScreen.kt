@@ -47,8 +47,8 @@ import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
 import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -275,7 +275,7 @@ private fun PromocodeDetailContent(
 // Helper functions
 private fun sharePromocode(
     context: Context,
-    promoCode: PromoCode
+    promoCode: Promocode
 ) {
     val shareText = buildString {
         append("🎉 Check out this amazing deal!\n\n")
@@ -316,7 +316,7 @@ private fun copyToClipboard(
 @Composable
 private fun PromocodeDetailScreenPreview() {
     QodeTheme(darkTheme = false) {
-        val samplePromoCode = PromocodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(

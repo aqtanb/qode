@@ -1,5 +1,6 @@
 package com.qodein.core.data.datasource
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -23,9 +24,11 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         limit: Int,
         startAfter: DocumentSnapshot? = null
     ): PagedPromocodesDto {
+        val now = Timestamp.now()
         // Fetch one extra to determine if there's another page.
         val fetchLimit = limit + 1
         val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
+            .whereGreaterThanOrEqualTo(PromocodeDto.FIELD_END_DATE, now)
             .applyServiceFilter(filterByServices)
             .orderBy(sortByField, sortDirection)
             .applyPaginationCursor(startAfter)

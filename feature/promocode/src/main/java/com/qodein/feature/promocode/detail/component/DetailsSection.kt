@@ -25,7 +25,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
@@ -35,7 +35,7 @@ import kotlin.time.toJavaInstant
 
 @Composable
 fun DetailsSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -167,7 +167,7 @@ private fun isExpiringWithinWeek(endDate: Instant): Boolean {
 private fun DetailsSectionPreview() {
     QodeTheme {
         Surface {
-            DetailsSection(promoCode = PromocodePreviewData.percentagePromoCode)
+            DetailsSection(promoCode = PromocodePreviewData.percentagePromocode)
         }
     }
 }

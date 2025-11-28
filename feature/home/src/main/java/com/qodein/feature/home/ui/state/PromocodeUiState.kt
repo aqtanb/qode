@@ -3,7 +3,7 @@ package com.qodein.feature.home.ui.state
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginationCursor
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 
 /**
  * Independent promo code state for home screen
@@ -11,7 +11,7 @@ import com.qodein.shared.model.PromoCode
 sealed class PromocodeUiState {
     data object Loading : PromocodeUiState()
     data class Success(
-        val promoCodes: List<PromoCode>,
+        val promocodes: List<Promocode>,
         val hasMore: Boolean = false,
         val nextCursor: PaginationCursor<ContentSortBy>? = null
     ) : PromocodeUiState()

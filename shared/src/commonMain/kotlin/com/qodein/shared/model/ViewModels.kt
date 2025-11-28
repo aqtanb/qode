@@ -17,10 +17,10 @@ import kotlin.time.Instant
  */
 
 /**
- * PromoCode combined with user interaction state for UI display
+ * Promocode combined with user interaction state for UI display
  */
 @Serializable
-data class PromoCodeWithUserState(val promoCode: PromoCode, val userInteraction: UserInteraction?) {
+data class PromoCodeWithUserState(val promoCode: Promocode, val userInteraction: UserInteraction?) {
     /**
      * Whether the current user has upvoted this promo code
      */
@@ -62,7 +62,7 @@ data class PromoCodeWithUserState(val promoCode: PromoCode, val userInteraction:
          * Create view model from separate content and user interaction
          */
         fun create(
-            promoCode: PromoCode,
+            promoCode: Promocode,
             userInteraction: UserInteraction?
         ): PromoCodeWithUserState {
             // Validate that user interaction matches the content ID
@@ -84,7 +84,7 @@ data class PromoCodeWithUserState(val promoCode: PromoCode, val userInteraction:
         /**
          * Create view model with no user interaction (anonymous/guest user)
          */
-        fun withoutUserState(promoCode: PromoCode): PromoCodeWithUserState =
+        fun withoutUserState(promoCode: Promocode): PromoCodeWithUserState =
             PromoCodeWithUserState(
                 promoCode = promoCode,
                 userInteraction = null,

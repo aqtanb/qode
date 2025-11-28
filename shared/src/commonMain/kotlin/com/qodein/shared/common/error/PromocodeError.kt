@@ -1,7 +1,7 @@
 package com.qodein.shared.common.error
 
 /**
- * Domain errors for PromoCode operations.
+ * Domain errors for Promocode operations.
  * Only contains business logic errors. Infrastructure errors (NotFound, PermissionDenied, etc.)
  * should use FirestoreError or SystemError directly.
  */

@@ -24,11 +24,11 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 
 @Composable
 fun GradientBannerSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     isCopying: Boolean,
     onCopyClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -104,7 +104,7 @@ fun GradientBannerSection(
 @Composable
 private fun GradientBannerSectionPreview() {
     QodeTheme {
-        val samplePromoCode = PromocodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
 
         GradientBannerSection(
             promoCode = samplePromoCode,

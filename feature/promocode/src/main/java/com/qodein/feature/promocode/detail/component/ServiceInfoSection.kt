@@ -15,12 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinAssistChip
-import com.qodein.core.designsystem.icon.PromocodeStatusIcons
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeUIIcons
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -28,7 +29,7 @@ import kotlin.time.Duration.Companion.days
 
 @Composable
 fun ServiceInfoSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     isFollowingService: Boolean,
     onServiceClicked: () -> Unit,
     onFollowServiceClicked: () -> Unit,
@@ -79,11 +80,11 @@ fun ServiceInfoSection(
             ) {
                 val now = Clock.System.now()
 
-                if (promoCode.isFirstUserOnly) {
+                if (promoCode.isFirstUseOnly) {
                     QodeinAssistChip(
                         label = stringResource(R.string.cd_first_user_only),
                         onClick = {},
-                        leadingIcon = PromocodeStatusIcons.FirstTimeUsers,
+                        leadingIcon = PromocodeIcons.FirstUseOnly,
                         enabled = false,
                     )
                 }
@@ -92,7 +93,7 @@ fun ServiceInfoSection(
                     QodeinAssistChip(
                         label = stringResource(R.string.cd_one_time_use),
                         onClick = {},
-                        leadingIcon = PromocodeStatusIcons.OneTimeUse,
+                        leadingIcon = PromocodeIcons.OneTimeUse,
                         enabled = false,
                     )
                 }
@@ -102,7 +103,7 @@ fun ServiceInfoSection(
                     QodeinAssistChip(
                         label = stringResource(R.string.cd_expiring_soon),
                         onClick = {},
-                        leadingIcon = PromocodeStatusIcons.ExpiringSoon,
+                        leadingIcon = QodeUIIcons.Expiring,
                         enabled = false,
                     )
                 }
@@ -111,7 +112,7 @@ fun ServiceInfoSection(
                     QodeinAssistChip(
                         label = stringResource(R.string.cd_verified),
                         onClick = {},
-                        leadingIcon = PromocodeStatusIcons.Verified,
+                        leadingIcon = PromocodeIcons.Verified,
                         enabled = false,
                     )
                 }

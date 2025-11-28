@@ -2,7 +2,7 @@ package com.qodein.feature.promocode.detail
 
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 
 sealed class PromocodeDetailEvent {
@@ -13,7 +13,7 @@ sealed class PromocodeDetailEvent {
     data class NavigateToService(val serviceName: String) : PromocodeDetailEvent()
 
     // System Events
-    data class SharePromocode(val promoCode: PromoCode) : PromocodeDetailEvent()
+    data class SharePromocode(val promoCode: Promocode) : PromocodeDetailEvent()
     data class CopyCodeToClipboard(val code: String) : PromocodeDetailEvent()
 
     // UI Feedback Events

@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.VoteState
 
 @Composable
 fun ActionButtonsSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     isUpvotedByCurrentUser: Boolean,
     isDownvotedByCurrentUser: Boolean,
     showVoteAnimation: Boolean,

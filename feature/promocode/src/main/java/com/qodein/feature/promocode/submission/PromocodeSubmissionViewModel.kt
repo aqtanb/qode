@@ -41,11 +41,11 @@ import kotlin.time.toKotlinInstant
  * Manages the multi-step submission flow with clean separation of concerns:
  * - UI state management and wizard navigation
  * - Authentication state and service selection
- * - Form validation and PromoCode creation (UI → Domain mapping)
+ * - Form validation and Promocode creation (UI → Domain mapping)
  * - Delegates business logic and analytics to SubmitPromocodeUseCase
  *
  * Architecture:
- * - ViewModel: UI state, navigation, form data → PromoCode mapping
+ * - ViewModel: UI state, navigation, form data → Promocode mapping
  * - SubmitPromocodeUseCase: Business logic, validation, persistence, analytics
  * - Clean dependency flow: UI → ViewModel → Use Case → Repository
  */
@@ -447,7 +447,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
     }
 
     /**
-     * Core submission logic - creates PromoCode and delegates to use case
+     * Core submission logic - creates Promocode and delegates to use case
      */
     private fun performSubmission(user: User) {
         val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
@@ -515,7 +515,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
     }
 
     /**
-     * Convert LocalDate to Instant for PromoCode creation
+     * Convert LocalDate to Instant for Promocode creation
      */
     private fun LocalDate.toInstant() = this.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant()
 

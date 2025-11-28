@@ -47,7 +47,7 @@ value class PromocodeId(val value: String) {
 /**
  * Discount type for promocodes.
  * Sealed interface ensures type safety while avoiding boilerplate.
- * Validation is done in PromoCode.create() for rich error handling.
+ * Validation is done in Promocode.create() for rich error handling.
  */
 @Serializable
 sealed interface Discount {
@@ -82,7 +82,7 @@ sealed interface Discount {
 
 @ConsistentCopyVisibility
 @Serializable
-data class PromoCode private constructor(
+data class Promocode private constructor(
     val id: PromocodeId,
     val code: String,
     val discount: Discount,
@@ -93,7 +93,7 @@ data class PromoCode private constructor(
     val serviceName: String,
     val description: String? = null,
 
-    val isFirstUserOnly: Boolean = false,
+    val isFirstUseOnly: Boolean = false,
     val isOneTimeUseOnly: Boolean = false,
     val upvotes: Int = 0,
     val downvotes: Int = 0,
@@ -126,7 +126,7 @@ data class PromoCode private constructor(
             isOneTimeUseOnly: Boolean,
             isVerified: Boolean,
             description: String? = null
-        ): Result<PromoCode, PromocodeError.CreationFailure> {
+        ): Result<Promocode, PromocodeError.CreationFailure> {
             val cleanCode = code.uppercase().trim()
             val cleanDescription = description?.trim()
 
@@ -170,7 +170,7 @@ data class PromoCode private constructor(
             }
 
             return Result.Success(
-                PromoCode(
+                Promocode(
                     id = promoId,
                     code = cleanCode,
                     discount = discount,
@@ -180,7 +180,7 @@ data class PromoCode private constructor(
                     authorId = author.id,
                     serviceName = service.name,
                     description = cleanDescription,
-                    isFirstUserOnly = isFirstUserOnly,
+                    isFirstUseOnly = isFirstUserOnly,
                     isOneTimeUseOnly = isOneTimeUseOnly,
                     upvotes = 0,
                     downvotes = 0,
@@ -195,7 +195,7 @@ data class PromoCode private constructor(
         }
 
         /**
-         * Reconstruct a PromoCode from storage/DTO (for mappers/repositories only).
+         * Reconstruct a Promocode from storage/DTO (for mappers/repositories only).
          * Assumes data is already validated. No sanitization performed.
          */
         fun fromDto(
@@ -218,8 +218,8 @@ data class PromoCode private constructor(
             authorUsername: String? = null,
             authorAvatarUrl: String? = null,
             createdAt: Instant
-        ): PromoCode =
-            PromoCode(
+        ): Promocode =
+            Promocode(
                 id = id,
                 code = code,
                 discount = discount,
@@ -229,7 +229,7 @@ data class PromoCode private constructor(
                 authorId = authorId,
                 serviceName = serviceName,
                 description = description,
-                isFirstUserOnly = isFirstUserOnly,
+                isFirstUseOnly = isFirstUserOnly,
                 isOneTimeUseOnly = isOneTimeUseOnly,
                 upvotes = upvotes,
                 downvotes = downvotes,

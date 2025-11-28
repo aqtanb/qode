@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 import com.qodein.core.data.dto.DiscountDto
 import com.qodein.core.data.dto.PromocodeDto
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
@@ -14,13 +14,13 @@ import kotlin.time.toKotlinInstant
 
 object PromocodeMapper {
 
-    fun toDomain(dto: PromocodeDto): PromoCode {
+    fun toDomain(dto: PromocodeDto): Promocode {
         val discount = when (dto.discount) {
             is DiscountDto.Percentage -> Discount.Percentage(dto.discount.value)
             is DiscountDto.FixedAmount -> Discount.FixedAmount(dto.discount.value)
         }
 
-        return PromoCode.fromDto(
+        return Promocode.fromDto(
             id = PromocodeId(dto.documentId),
             code = dto.code,
             discount = discount,
@@ -43,7 +43,7 @@ object PromocodeMapper {
         )
     }
 
-    fun toDto(domain: PromoCode): PromocodeDto {
+    fun toDto(domain: Promocode): PromocodeDto {
         val discountDto = when (domain.discount) {
             is Discount.Percentage -> DiscountDto.Percentage(domain.discount.value)
             is Discount.FixedAmount -> DiscountDto.FixedAmount(domain.discount.value)
@@ -60,7 +60,7 @@ object PromocodeMapper {
             description = domain.description,
             serviceId = domain.serviceId?.value,
             serviceLogoUrl = domain.serviceLogoUrl,
-            isFirstUserOnly = domain.isFirstUserOnly,
+            isFirstUserOnly = domain.isFirstUseOnly,
             isOneTimeUseOnly = domain.isOneTimeUseOnly,
             isVerified = domain.isVerified,
             upvotes = domain.upvotes,
