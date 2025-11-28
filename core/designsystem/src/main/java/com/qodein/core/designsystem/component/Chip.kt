@@ -43,7 +43,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
  * @param selected Whether the chip is selected/active
  * @param enabled Whether the chip is enabled
  * @param filled Whether to use filled style (true) or outlined style (false)
- * @param leadingIcon Optional icon to display before the label
+ * @param leadingIcon Optional composable to display before the label
  * @param trailingIcon Optional icon to display after the label
  * @param onClose Called when close button is clicked (shows close icon when provided)
  * @param shape Shape of the chip
@@ -56,7 +56,7 @@ fun QodeinFilterChip(
     selected: Boolean = false,
     enabled: Boolean = true,
     filled: Boolean = false,
-    leadingIcon: ImageVector? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: ImageVector? = null,
     onClose: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.full)
@@ -72,15 +72,7 @@ fun QodeinFilterChip(
         selected = selected,
         enabled = enabled,
         modifier = modifier,
-        leadingIcon = leadingIcon?.let { icon ->
-            {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            }
-        },
+        leadingIcon = leadingIcon,
         trailingIcon = when {
             onClose != null -> {
                 {
@@ -218,7 +210,7 @@ fun QodeinAssistChip(
  * @param modifier Modifier to be applied to the chip
  * @param selected Whether the chip is selected/active
  * @param enabled Whether the chip is enabled
- * @param leadingIcon Optional icon to display before the label
+ * @param leadingIcon Optional composable to display before the label
  * @param onClose Called when close button is clicked (shows close icon when provided)
  * @param shape Shape of the chip
  */
@@ -229,7 +221,7 @@ fun QodeinInputChip(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     enabled: Boolean = true,
-    leadingIcon: ImageVector? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
     onClose: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.full)
 ) {
@@ -244,15 +236,7 @@ fun QodeinInputChip(
         selected = selected,
         enabled = enabled,
         modifier = modifier,
-        leadingIcon = leadingIcon?.let { icon ->
-            {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            }
-        },
+        leadingIcon = leadingIcon,
         trailingIcon = onClose?.let {
             {
                 Icon(
@@ -374,7 +358,13 @@ private fun QodeinChipPreview() {
                 QodeinFilterChip(
                     label = "With Icon",
                     onClick = {},
-                    leadingIcon = QodeStatusIcons.Trending,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = QodeStatusIcons.Trending,
+                            contentDescription = null,
+                            modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                        )
+                    },
                 )
                 QodeinFilterChip(
                     label = "With Close",

@@ -1,9 +1,9 @@
 package com.qodein.feature.settings
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.net.Uri.encode
-import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ import com.qodein.feature.settings.component.LanguageBottomSheet
 import com.qodein.feature.settings.component.ThemeBottomSheet
 import com.qodein.shared.common.AppConstants
 
+@SuppressLint("InlinedApi")
 @Composable
 fun SettingsRoute(
     onBackClick: () -> Unit,
@@ -56,7 +58,23 @@ fun SettingsRoute(
 ) {
     TrackScreenViewEvent(screenName = "Settings")
 
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Observe events
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                SettingsEvent.NavigateBack -> onBackClick()
+                SettingsEvent.OpenSystemLanguageSettings -> {
+                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }
+            }
+        }
+    }
 
     SettingsScreen(
         onAction = viewModel::onAction,
@@ -99,16 +117,7 @@ private fun SettingsScreen(
                 title = stringResource(R.string.settings_language_title),
                 leadingIcon = QodeCategoryIcons.Language,
                 trailingIcon = QodeActionIcons.Next,
-                onClick = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-                            data = Uri.fromParts("package", context.packageName, null)
-                        }
-                        context.startActivity(intent)
-                    } else {
-                        onAction(SettingsAction.ShowLanguageBottomSheet)
-                    }
-                },
+                onClick = { onAction(SettingsAction.ShowLanguageBottomSheet) },
             )
 
             SettingsItem(

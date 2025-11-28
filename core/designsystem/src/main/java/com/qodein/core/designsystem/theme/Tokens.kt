@@ -64,6 +64,7 @@ object SizeTokens {
         val heightSmall = 32.dp
         val heightMedium = 40.dp
         val heightLarge = 48.dp
+        val heightXL = 56.dp
     }
 
     @Immutable
@@ -71,6 +72,7 @@ object SizeTokens {
         val sizeSmall = 32.dp
         val sizeMedium = 40.dp
         val sizeLarge = 48.dp
+        val sizeXL = 56.dp
     }
 
     @Immutable
@@ -78,18 +80,13 @@ object SizeTokens {
         val sizeSmall = 16.dp
         val sizeMedium = 20.dp
         val sizeLarge = 24.dp
-        val sizeXLarge = 32.dp
+        val sizeXLarge = 28.dp
     }
 
     @Immutable
     object TextField {
         val height = 56.dp
         val heightSmall = 40.dp
-    }
-
-    @Immutable
-    object Card {
-        val minHeight = 72.dp
     }
 
     @Immutable
@@ -115,15 +112,6 @@ object SizeTokens {
     }
 
     @Immutable
-    object Decoration {
-        val sizeXSmall = 8.dp
-        val sizeSmall = 12.dp
-        val sizeMedium = 16.dp
-        val sizeLarge = 24.dp
-        val sizeXLarge = 32.dp
-    }
-
-    @Immutable
     object Controller {
         val pillWidth = 220.dp
         val pillHeight = 80.dp
@@ -142,7 +130,7 @@ object SizeTokens {
 
     @Immutable
     object Selector {
-        val height = 72.dp
+        val height = 64.dp
         val padding = SpacingTokens.lg
         val shape = ShapeTokens.Corner.full
     }

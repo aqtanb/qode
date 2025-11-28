@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.R
@@ -92,7 +95,13 @@ private fun PostInteractionsRow(
                 )
             },
             selected = userVoteState == VoteState.UPVOTE,
-            leadingIcon = QodeActionIcons.Up,
+            leadingIcon = {
+                Icon(
+                    imageVector = QodeActionIcons.Up,
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            },
             modifier = Modifier
                 .semantics {
                     contentDescription = upvoteContentDescription
@@ -111,7 +120,13 @@ private fun PostInteractionsRow(
                 )
             },
             selected = userVoteState == VoteState.DOWNVOTE,
-            leadingIcon = QodeActionIcons.Down,
+            leadingIcon = {
+                Icon(
+                    imageVector = QodeActionIcons.Down,
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            },
             modifier = Modifier.semantics {
                 contentDescription = downvoteContentDescription
             },
@@ -121,7 +136,13 @@ private fun PostInteractionsRow(
             label = commentCount.toString(),
             onClick = {},
             selected = false,
-            leadingIcon = QodeActionIcons.Comment,
+            leadingIcon = {
+                Icon(
+                    imageVector = QodeActionIcons.Comment,
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            },
             modifier = Modifier.semantics {
                 contentDescription = commentsContentDescription
             },
@@ -133,7 +154,13 @@ private fun PostInteractionsRow(
             label = "Share",
             onClick = {},
             selected = false,
-            leadingIcon = QodeActionIcons.Share,
+            leadingIcon = {
+                Icon(
+                    imageVector = QodeActionIcons.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                )
+            },
             modifier = Modifier.semantics {
                 contentDescription = shareContentDescription
             },

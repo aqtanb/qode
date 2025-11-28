@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
-import coil.util.CoilUtils.result
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.data.worker.UploadPostWorker
+import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
+import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.model.Tag
@@ -33,6 +35,7 @@ class PostSubmissionViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val idTokenProvider: IdTokenProvider,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
@@ -82,7 +85,7 @@ class PostSubmissionViewModel @Inject constructor(
             PostSubmissionAction.NavigateBack -> navigateBack()
 
             // Auth
-            PostSubmissionAction.SignInWithGoogle -> signInWithGoogle()
+            is PostSubmissionAction.SignInWithGoogle -> signInWithGoogle(action.context)
             PostSubmissionAction.DismissAuthSheet -> navigateBack()
 
             // Error handling
@@ -93,13 +96,13 @@ class PostSubmissionViewModel @Inject constructor(
 
     private fun observeAuthState() {
         viewModelScope.launch {
-            getAuthStateUseCase().collect { user ->
+            getAuthStateUseCase().collect { authState ->
                 updateSuccessState { state ->
-                    val authState = when (user) {
-                        null -> PostAuthenticationState.Unauthenticated
-                        else -> PostAuthenticationState.Authenticated(user)
+                    val mapped = when (authState) {
+                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                     }
-                    state.copy(authentication = authState)
+                    state.copy(authentication = mapped)
                 }
             }
         }
@@ -188,10 +191,12 @@ class PostSubmissionViewModel @Inject constructor(
         viewModelScope.launch {
             val currentState = uiState.value
             if (currentState !is PostSubmissionUiState.Success) return@launch
-            val authState = getAuthStateUseCase().firstOrNull()
-            val user = authState ?: run {
-                _uiState.update { PostSubmissionUiState.Error(PostError.SubmissionFailure.NotAuthorized) }
-                return@launch
+            val user = when (val authState = getAuthStateUseCase().firstOrNull()) {
+                is AuthState.Authenticated -> authState.user
+                else -> {
+                    _uiState.update { PostSubmissionUiState.Error(PostError.SubmissionFailure.NotAuthorized) }
+                    return@launch
+                }
             }
             _uiState.update { PostSubmissionUiState.Loading }
 
@@ -201,7 +206,7 @@ class PostSubmissionViewModel @Inject constructor(
                 tags = currentState.tags.map { it.value },
                 imageUris = currentState.imageUris,
                 authorId = user.id.value,
-                authorUsername = user.displayName,
+                authorUsername = user.displayName.orEmpty(),
                 authorAvatarUrl = user.profile.photoUrl,
             )
             WorkManager.getInstance(context).enqueue(workRequest)
@@ -251,23 +256,28 @@ class PostSubmissionViewModel @Inject constructor(
         }
     }
 
-    private fun signInWithGoogle() {
-        updateSuccessState { it.copy(authentication = PostAuthenticationState.Loading) }
+    private fun signInWithGoogle(activityContext: Context) {
+        updateSuccessState { it.copy(authentication = UiAuthState.Loading) }
 
         viewModelScope.launch {
-            signInWithGoogleUseCase().collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        Logger.i(TAG) { "Sign in successful" }
-                        // Auth state will be updated via observeAuthState()
+            when (val tokenResult = idTokenProvider.getIdToken(activityContext)) {
+                is Result.Success -> {
+                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
+                        is Result.Success -> {
+                            Logger.i(TAG) { "Sign in successful" }
+                            // Auth state will update via observeAuthState()
+                        }
+                        is Result.Error -> {
+                            Logger.w(TAG) { "Sign in failed: ${signInResult.error}" }
+                            updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
+                            _events.emit(PostSubmissionEvent.ShowError(signInResult.error))
+                        }
                     }
-                    is Result.Error -> {
-                        Logger.w(TAG) { "Sign in failed: ${result.error}" }
-                        // Reset to unauthenticated
-                        updateSuccessState { it.copy(authentication = PostAuthenticationState.Unauthenticated) }
-                        // Show error snackbar
-                        _events.emit(PostSubmissionEvent.ShowError(result.error))
-                    }
+                }
+                is Result.Error -> {
+                    Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
+                    updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
+                    _events.emit(PostSubmissionEvent.ShowError(tokenResult.error))
                 }
             }
         }

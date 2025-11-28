@@ -32,8 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -56,7 +56,7 @@ fun ProgressIndicator(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
+        shape = RoundedCornerShape(ShapeTokens.Corner.small),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -245,24 +245,12 @@ private fun StepLabel(
     )
 }
 
-@Preview(name = "Progress Indicator - Current Step", showBackground = true)
+@ThemePreviews
 @Composable
 private fun ProgressIndicatorPreview() {
     QodeTheme {
         ProgressIndicator(
             currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
-            modifier = Modifier.padding(SpacingTokens.md),
-        )
-    }
-}
-
-@Preview(name = "Progress Indicator - Interactive", showBackground = true)
-@Composable
-private fun ProgressIndicatorInteractivePreview() {
-    QodeTheme {
-        ProgressIndicator(
-            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
-            onStepClick = { /* Handle step click */ },
             modifier = Modifier.padding(SpacingTokens.md),
         )
     }

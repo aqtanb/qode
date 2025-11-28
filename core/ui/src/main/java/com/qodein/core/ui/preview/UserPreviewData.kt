@@ -1,5 +1,6 @@
 package com.qodein.core.ui.preview
 
+import com.qodein.shared.common.requireSuccess
 import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
@@ -8,88 +9,70 @@ import com.qodein.shared.model.UserStats
 
 object UserPreviewData {
 
-    val newUser = User(
-        id = UserId("user123"),
-        email = Email("john.doe@example.com"),
-        profile = UserProfile(
-            firstName = "John",
-            lastName = "Doe",
-            bio = "New to the community, excited to share and discover great deals!",
-            photoUrl = "https://picsum.photos/200/200?random=1",
-        ),
-        stats = UserStats(
-            userId = UserId("user123"),
-            submittedPromocodesCount = 0,
-            submittedPostsCount = 0,
-        ),
-        country = "KZ",
+    private fun buildUser(
+        id: String,
+        email: String,
+        displayName: String?,
+        photoUrl: String?,
+        submittedPromocodes: Int,
+        submittedPosts: Int
+    ): User =
+        User.fromDto(
+            id = UserId(id),
+            email = Email(email),
+            profile = UserProfile.create(
+                displayName = displayName,
+                photoUrl = photoUrl,
+            ).requireSuccess(),
+            stats = UserStats(
+                userId = UserId(id),
+                submittedPromocodesCount = submittedPromocodes,
+                submittedPostsCount = submittedPosts,
+            ),
+        )
+
+    val newUser = buildUser(
+        id = "user123",
+        email = "john.doe@example.com",
+        displayName = "John",
+        photoUrl = "https://picsum.photos/200/200?random=1",
+        submittedPromocodes = 0,
+        submittedPosts = 0,
     )
 
-    val activeContributor = User(
-        id = UserId("user456"),
-        email = Email("sarah.smith@example.com"),
-        profile = UserProfile(
-            firstName = "Sarah",
-            lastName = "Smith",
-            bio = "Deal hunter | Sharing the best promo codes and savings tips",
-            photoUrl = "https://picsum.photos/200/200?random=2",
-        ),
-        stats = UserStats(
-            userId = UserId("user456"),
-            submittedPromocodesCount = 47,
-            submittedPostsCount = 23,
-        ),
-        country = "KZ",
+    val activeContributor = buildUser(
+        id = "user456",
+        email = "sarah.smith@example.com",
+        displayName = "Sarah Smith",
+        photoUrl = "https://picsum.photos/200/200?random=2",
+        submittedPromocodes = 47,
+        submittedPosts = 23,
     )
 
-    val powerUser = User(
-        id = UserId("user789"),
-        email = Email("alex.chen@example.com"),
-        profile = UserProfile(
-            firstName = "Alex",
-            lastName = "Chen",
-            bio = "Top contributor | Helping everyone save money 💰",
-            photoUrl = null,
-        ),
-        stats = UserStats(
-            userId = UserId("user789"),
-            submittedPromocodesCount = 156,
-            submittedPostsCount = 89,
-        ),
-        country = "KZ",
+    val powerUser = buildUser(
+        id = "user789",
+        email = "alex.chen@example.com",
+        displayName = "Alex Chen",
+        photoUrl = null,
+        submittedPromocodes = 156,
+        submittedPosts = 89,
     )
 
-    val userWithoutAvatar = User(
-        id = UserId("user999"),
-        email = Email("maria.garcia@example.com"),
-        profile = UserProfile(
-            firstName = "Maria",
-            lastName = "Garcia",
-            bio = null,
-            photoUrl = null,
-        ),
-        stats = UserStats(
-            userId = UserId("user999"),
-            submittedPromocodesCount = 12,
-            submittedPostsCount = 5,
-        ),
-        country = "RU",
+    val userWithoutAvatar = buildUser(
+        id = "user999",
+        email = "maria.garcia@example.com",
+        displayName = "Maria Garcia",
+        photoUrl = null,
+        submittedPromocodes = 12,
+        submittedPosts = 5,
     )
 
-    val userWithLongName = User(
-        id = UserId("user888"),
-        email = Email("alexandra.rodriguez@example.com"),
-        profile = UserProfile(
-            firstName = "Alexandra",
-            lastName = "Rodriguez-Martinez",
-            bio = "Passionate about finding the best deals and sharing them with the community!",
-            photoUrl = "https://picsum.photos/200/200?random=3",
-        ),
-        stats = UserStats(
-            userId = UserId("user888"),
-            submittedPromocodesCount = 8,
-            submittedPostsCount = 15,
-        ),
-        country = "KZ",
+    val userWithLongName = buildUser(
+        id = "user888",
+        email = "alexandra.rodriguez@example.com",
+        displayName = "Alexandra Rodriguez-Martinez",
+        photoUrl = "https://picsum.photos/200/200?random=3",
+        submittedPromocodes = 8,
+        submittedPosts = 15,
     )
 }

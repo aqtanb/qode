@@ -48,6 +48,7 @@ fun <T> AutoScrollingBanner(
     enableInfiniteScroll: Boolean = true,
     pageIndicatorEnabled: Boolean = true,
     onPagerStateChange: ((currentPage: Int, totalPages: Int) -> Unit)? = null,
+    key: ((item: T) -> Any)? = null,
     content: @Composable (item: T, index: Int) -> Unit
 ) {
     // Handle edge cases
@@ -121,6 +122,18 @@ fun <T> AutoScrollingBanner(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
+                key = if (key != null) {
+                    { page ->
+                        val actualIndex = if (enableInfiniteScroll && itemCount > 1) {
+                            page % itemCount
+                        } else {
+                            page.coerceIn(0, itemCount - 1)
+                        }
+                        key(items[actualIndex])
+                    }
+                } else {
+                    null
+                },
             ) { page ->
                 val actualIndex = if (enableInfiniteScroll && itemCount > 1) {
                     page % itemCount

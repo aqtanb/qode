@@ -1,12 +1,14 @@
 package com.qodein.feature.settings
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.Result
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.model.Language
@@ -26,7 +28,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val getThemeUseCase: GetThemeUseCase,
     private val setThemeUseCase: SetThemeUseCase,
-    private val getLanguageUseCase: GetLanguageUseCase,
+    private val observeLanguageUseCase: ObserveLanguageUseCase,
     private val setLanguageUseCase: SetLanguageUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -43,7 +45,7 @@ class SettingsViewModel @Inject constructor(
 
     fun onAction(action: SettingsAction) {
         when (action) {
-            SettingsAction.ShowLanguageBottomSheet -> _uiState.update { it.copy(showLanguageBottomSheet = true) }
+            SettingsAction.ShowLanguageBottomSheet -> handleLanguageSettingClick()
             SettingsAction.HideLanguageBottomSheet -> _uiState.update { it.copy(showLanguageBottomSheet = false) }
             is SettingsAction.LanguageChanged -> setLanguage(action.language)
 
@@ -61,18 +63,27 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun observePreferences() {
+        Logger.d("SettingsViewModel") { "observePreferences() started" }
         combine(
             getThemeUseCase(),
-            getLanguageUseCase(),
+            observeLanguageUseCase(),
         ) { themeResult, languageResult ->
+            Logger.d("SettingsViewModel") { "Received preferences - theme: $themeResult, language: $languageResult" }
+
             val theme = when (themeResult) {
                 is Result.Success -> themeResult.data
                 is Result.Error -> Theme.SYSTEM // Fallback to system theme
             }
 
             val language = when (languageResult) {
-                is Result.Success -> languageResult.data
-                is Result.Error -> Language.ENGLISH // Fallback to English
+                is Result.Success -> {
+                    Logger.d("SettingsViewModel") { "Language received: ${languageResult.data}" }
+                    languageResult.data
+                }
+                is Result.Error -> {
+                    Logger.e("SettingsViewModel") { "Language error: ${languageResult.error}" }
+                    Language.ENGLISH // Fallback to English
+                }
             }
 
             val error = when {
@@ -118,15 +129,28 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private fun handleLanguageSettingClick() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // On Android 13+, open system app-specific language settings
+            emitEvent(SettingsEvent.OpenSystemLanguageSettings)
+        } else {
+            // On Android <13, show in-app language bottom sheet
+            _uiState.update { it.copy(showLanguageBottomSheet = true) }
+        }
+    }
+
     private fun setLanguage(language: Language) {
         val previousLanguage = _uiState.value.language
+        Logger.d("SettingsViewModel") { "setLanguage called: $previousLanguage -> $language" }
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             setLanguageUseCase(language).collect { result ->
+                Logger.d("SettingsViewModel") { "setLanguageUseCase result: $result" }
                 when (result) {
                     is Result.Success -> {
+                        Logger.d("SettingsViewModel") { "Language set successfully to: $language" }
                         // Track language change
                         analyticsHelper.logEvent(
                             AnalyticsEvent(
@@ -140,6 +164,7 @@ class SettingsViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(isLoading = false, error = null)
                     }
                     is Result.Error -> {
+                        Logger.e("SettingsViewModel") { "Failed to set language: ${result.error}" }
                         _uiState.value = _uiState.value.copy(isLoading = false, error = result.error)
                     }
                 }

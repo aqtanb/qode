@@ -1,5 +1,6 @@
 package com.qodein.feature.auth
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +48,6 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthRoute(
-    isDarkTheme: Boolean,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = koinViewModel()
@@ -55,6 +56,7 @@ fun AuthRoute(
 
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val legalDocumentState by viewModel.legalDocumentState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
@@ -65,22 +67,22 @@ fun AuthRoute(
     }
 
     AuthScreen(
+        context = context,
         onAction = viewModel::handleAction,
         onBackClick = onNavigateToHome,
         authState = authState,
         legalDocumentState = legalDocumentState,
-        isDarkTheme = isDarkTheme,
         modifier = modifier,
     )
 }
 
 @Composable
 private fun AuthScreen(
+    context: Context,
     onBackClick: () -> Unit,
     onAction: (AuthAction) -> Unit,
     authState: AuthUiState,
     legalDocumentState: LegalDocumentUiState,
-    isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -104,8 +106,8 @@ private fun AuthScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             AuthSignInCard(
+                context = context,
                 onAction = onAction,
-                isDarkTheme = isDarkTheme,
                 isLoading = authState.isSigningIn,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -132,8 +134,8 @@ private fun AuthScreen(
 // MARK: - Components
 @Composable
 private fun AuthSignInCard(
+    context: Context,
     onAction: (AuthAction) -> Unit,
-    isDarkTheme: Boolean,
     isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -172,13 +174,12 @@ private fun AuthSignInCard(
 
             QodeGoogleSignInButton(
                 onClick = {
-                    onAction(AuthAction.AuthWithGoogleClicked)
+                    onAction(AuthAction.AuthWithGoogleClicked(context))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = SpacingTokens.md),
                 isLoading = isLoading,
-                isDarkTheme = isDarkTheme,
             )
 
             Column(
@@ -269,11 +270,11 @@ private fun AuthErrorMessage(
 private fun AuthIdleStatePreview() {
     QodeTheme {
         AuthScreen(
+            context = LocalContext.current,
             onBackClick = {},
             authState = AuthUiState(),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }
@@ -283,11 +284,11 @@ private fun AuthIdleStatePreview() {
 private fun AuthLoadingStatePreview() {
     QodeTheme {
         AuthScreen(
+            context = LocalContext.current,
             onBackClick = {},
             authState = AuthUiState(isSigningIn = true),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }
@@ -297,11 +298,11 @@ private fun AuthLoadingStatePreview() {
 private fun AuthErrorStatePreview() {
     QodeTheme {
         AuthScreen(
+            context = LocalContext.current,
             onBackClick = {},
             authState = AuthUiState(error = SystemError.Offline),
             legalDocumentState = LegalDocumentUiState.Closed,
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }

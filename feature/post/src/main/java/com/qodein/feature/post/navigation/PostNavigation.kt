@@ -49,23 +49,16 @@ fun NavGraphBuilder.feedSection(
     }
 }
 
-fun NavGraphBuilder.postSubmissionSection(
-    onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean
-) {
+fun NavGraphBuilder.postSubmissionSection(onNavigateBack: () -> Unit) {
     composable<PostSubmissionRoute> {
-        PostSubmissionScreen(onNavigateBack = onNavigateBack, isDarkTheme = isDarkTheme)
+        PostSubmissionScreen(onNavigateBack = onNavigateBack)
     }
 }
 
-fun NavGraphBuilder.postDetailSection(
-    onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean
-) {
+fun NavGraphBuilder.postDetailSection(onNavigateBack: () -> Unit) {
     composable<PostDetailRoute> {
         PostDetailRoute(
             onNavigateBack = onNavigateBack,
-            isDarkTheme = isDarkTheme,
         )
     }
 }

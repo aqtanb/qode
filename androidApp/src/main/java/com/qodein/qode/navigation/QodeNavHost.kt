@@ -16,22 +16,20 @@ import com.qodein.feature.profile.navigation.ProfileBaseRoute
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
+import com.qodein.feature.promocode.navigation.promocodeDetailSection
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
 import com.qodein.feature.settings.navigation.navigateToAbout
 import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
-import com.qodein.shared.model.Language
 import com.qodein.shared.model.User
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
-    userLanguage: Language,
     user: User?,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
     // Capture the selectedTabDestination at composable level
@@ -43,14 +41,14 @@ fun QodeNavHost(
         modifier = modifier,
     ) {
         homeSection(
-            userLanguage = userLanguage,
-            onPromoCodeClick = { promoCode ->
-                navController.navigateToPromocodeDetail(promoCode.id)
-            },
-            promoCodeDetail = { promoCodeId ->
-                navController.navigateToPromocodeDetail(promoCodeId)
+            onPromoCodeClick = { promocodeId ->
+                navController.navigateToPromocodeDetail(promocodeId)
             },
             scrollStateRegistry = appState,
+        )
+
+        promocodeDetailSection(
+            onNavigateBack = { navController.popBackStack() },
         )
 
         feedSection(
@@ -88,19 +86,16 @@ fun QodeNavHost(
             onNavigateBack = {
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
-            isDarkTheme = isDarkTheme,
         )
 
         promocodeSubmissionSection(
             onNavigateBack = {
                 navController.popBackStack()
             },
-            isDarkTheme = isDarkTheme,
         )
 
         postSubmissionSection(
             onNavigateBack = navController::popBackStack,
-            isDarkTheme = isDarkTheme,
         )
 
         settingsSection(
@@ -117,7 +112,6 @@ fun QodeNavHost(
 
         postDetailSection(
             onNavigateBack = { navController.popBackStack() },
-            isDarkTheme = isDarkTheme,
         )
     }
 }

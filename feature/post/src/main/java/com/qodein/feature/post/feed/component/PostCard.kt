@@ -137,7 +137,9 @@ private fun PostHeader(
             PostTagsRow(tags = tags)
         }
 
-        Column {
+        Column(
+            horizontalAlignment = Alignment.End,
+        ) {
             Text(
                 text = if (voteScore > 0) "+$voteScore" else voteScore.toString(),
                 style = MaterialTheme.typography.labelSmall,

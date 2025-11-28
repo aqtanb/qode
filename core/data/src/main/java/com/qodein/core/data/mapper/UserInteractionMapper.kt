@@ -1,7 +1,7 @@
 package com.qodein.core.data.mapper
 
 import com.google.firebase.Timestamp
-import com.qodein.core.data.model.UserInteractionDto
+import com.qodein.core.data.dto.UserInteractionDto
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction

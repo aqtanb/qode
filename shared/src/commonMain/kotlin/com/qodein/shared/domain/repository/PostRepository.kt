@@ -27,7 +27,7 @@ interface PostRepository {
     fun getPosts(
         sortBy: PostSortBy = PostSortBy.POPULARITY,
         filterByTags: List<Tag>? = null,
-        paginationRequest: PaginationRequest<PostSortBy> = PaginationRequest.firstPage()
+        paginationRequest: PaginationRequest<PostSortBy>
     ): Flow<Result<PaginatedResult<Post, PostSortBy>, OperationError>>
 
     /**

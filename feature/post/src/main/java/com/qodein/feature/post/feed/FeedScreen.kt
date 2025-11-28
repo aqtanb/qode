@@ -57,7 +57,8 @@ fun FeedRoute(
             when (event) {
                 FeedEvent.NavigateToProfile -> onProfileClick()
                 FeedEvent.NavigateToSettings -> onSettingsClick()
-                is FeedEvent.NavigateToPost -> onPostClick(event.postId.value)
+                is FeedEvent.NavigateToPost -> {
+                }
             }
         }
     }
@@ -149,7 +150,7 @@ private fun FeedContent(
         items(posts.size) { index ->
             if (index < posts.size) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.md),
+                    modifier = Modifier.padding(horizontal = SpacingTokens.sm),
                     color = MaterialTheme.colorScheme.outlineVariant,
                 )
             }
@@ -158,6 +159,7 @@ private fun FeedContent(
                 post = posts[index],
                 onPostClick = { onPostClick(posts[index].id) },
                 onImageClick = onImageClick,
+                modifier = Modifier.padding(horizontal = SpacingTokens.sm),
             )
         }
     }

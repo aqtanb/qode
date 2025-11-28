@@ -1,5 +1,6 @@
 package com.qodein.feature.promocode.submission
 
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import java.time.LocalDate
@@ -31,20 +32,7 @@ data class SubmissionWizardData(
     val startDate: LocalDate = LocalDate.now(),
     val endDate: LocalDate? = null
 ) {
-    val hasValidService: Boolean get() = selectedService != null || serviceName.isNotBlank()
     val effectiveServiceName: String get() = selectedService?.name ?: serviceName
-
-    val hasValidPromoCode: Boolean get() = promoCode.isNotBlank()
-
-    val hasValidDiscount: Boolean get() = when (promoCodeType) {
-        PromoCodeType.PERCENTAGE -> discountPercentage.isNotBlank()
-        PromoCodeType.FIXED_AMOUNT -> discountAmount.isNotBlank()
-        null -> false
-    }
-
-    val hasValidMinimumOrder: Boolean get() = minimumOrderAmount.isNotBlank()
-
-    fun canProceedFromProgressiveStep(step: PromocodeSubmissionStep): Boolean = step.canProceed(this)
 }
 
 sealed interface PromocodeSubmissionUiState {
@@ -52,10 +40,10 @@ sealed interface PromocodeSubmissionUiState {
 
     data class Success(
         val wizardFlow: WizardFlowState,
-        val authentication: PromocodeSubmissionAuthenticationState,
         val validation: ValidationState,
         val submission: PromocodeSubmissionState,
-        val showServiceSelector: Boolean = false
+        val showServiceSelector: Boolean = false,
+        val authentication: UiAuthState = UiAuthState.Loading
     ) : PromocodeSubmissionUiState {
 
         // Navigation capabilities
@@ -67,17 +55,11 @@ sealed interface PromocodeSubmissionUiState {
             fun initial(): Success =
                 Success(
                     wizardFlow = WizardFlowState.initial(),
-                    authentication = PromocodeSubmissionAuthenticationState.Loading,
                     validation = ValidationState.valid(),
                     submission = PromocodeSubmissionState.Idle,
                 )
         }
     }
 
-    data class Error(
-        val errorType: OperationError,
-        val isRetryable: Boolean,
-        val shouldShowSnackbar: Boolean = true,
-        val errorCode: String? = null
-    ) : PromocodeSubmissionUiState
+    data class Error(val error: OperationError) : PromocodeSubmissionUiState
 }

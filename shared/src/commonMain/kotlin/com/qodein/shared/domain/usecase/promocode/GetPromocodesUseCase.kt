@@ -6,22 +6,20 @@ import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
-import com.qodein.shared.model.PromoCode
-import kotlinx.coroutines.flow.Flow
+import com.qodein.shared.model.Promocode
 
 class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository) {
-    operator fun invoke(
-        query: String? = null,
+    companion object {
+        const val DEFAULT_LIMIT = 20
+    }
+    suspend operator fun invoke(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        filterByCategories: List<String>? = null,
-        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>> =
-        promoCodeRepository.getPromoCodes(
-            query = query,
+        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage(DEFAULT_LIMIT)
+    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
+        promoCodeRepository.getPromocodes(
             sortBy = sortBy,
             filterByServices = filterByServices,
-            filterByCategories = filterByCategories,
             paginationRequest = paginationRequest,
         )
 }

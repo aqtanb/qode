@@ -7,7 +7,7 @@ import com.qodein.shared.model.VoteState
 
 /**
  * Result of vote computation - new counts and vote state.
- * ViewModel applies these to their content type (PromoCode, Post, Comment).
+ * ViewModel applies these to their content type (Promocode, Post, Comment).
  */
 data class VoteUpdate(val newUpvotes: Int, val newDownvotes: Int, val newVoteState: VoteState)
 
@@ -20,7 +20,7 @@ data class VoteUpdate(val newUpvotes: Int, val newDownvotes: Int, val newVoteSta
 object InteractionStateHandler {
 
     /**
-     * Compute vote changes for any content type (PromoCode, Post, Comment).
+     * Compute vote changes for any content type (Promocode, Post, Comment).
      * Returns new vote counts and vote state.
      *
      * @param currentUpvotes Current upvote count on content
@@ -97,7 +97,7 @@ object InteractionStateHandler {
     /**
      * Create or update UserInteraction with toggled bookmark state.
      * Content itself unchanged - only UserInteraction updated.
-     * Works for any content type (PromoCode, Post, Comment).
+     * Works for any content type (Promocode, Post, Comment).
      *
      * @param currentInteraction Existing interaction or null
      * @param contentId ID of content being bookmarked

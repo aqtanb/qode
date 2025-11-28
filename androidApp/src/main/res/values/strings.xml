@@ -7,7 +7,7 @@
     <string name="sign_in_title">Sign In</string>
 
     <!-- Floating Action Button -->
-    <string name="create_promo_code">Create Promo Code</string>
+    <string name="create_promo_code">Create Promocode</string>
     <string name="add_to_feed">Add to Feed</string>
 
     <!-- Promocode Detail Screen -->

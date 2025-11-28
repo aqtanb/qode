@@ -17,10 +17,14 @@ import kotlinx.coroutines.flow.Flow
  */
 class GetPostsUseCase(private val postRepository: PostRepository) {
 
+    companion object {
+        const val DEFAULT_LIMIT = 20
+    }
+
     operator fun invoke(
         sortBy: PostSortBy = PostSortBy.POPULARITY,
         filterByTags: List<Tag>? = null,
-        paginationRequest: PaginationRequest<PostSortBy> = PaginationRequest.firstPage()
+        paginationRequest: PaginationRequest<PostSortBy> = PaginationRequest.firstPage(DEFAULT_LIMIT)
     ): Flow<Result<PaginatedResult<Post, PostSortBy>, OperationError>> =
         postRepository.getPosts(
             sortBy = sortBy,

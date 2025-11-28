@@ -22,7 +22,7 @@ fun LicensesScreen(onBackClick: () -> Unit) {
     TrackScreenViewEvent(screenName = "Licenses")
 
     val listState = rememberLazyListState()
-    val libraries by produceLibraries(R.raw.aboutlibraries)
+    val libraries by produceLibraries()
 
     Scaffold(
         topBar = {

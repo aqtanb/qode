@@ -3,8 +3,6 @@ package com.qodein.shared.data.di
 import com.qodein.shared.data.datasource.GithubMarkdownDataSource
 import com.qodein.shared.data.repository.LegalDocumentRepositoryImpl
 import com.qodein.shared.domain.repository.LegalDocumentRepository
-import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
-import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import org.koin.dsl.module
@@ -22,7 +20,4 @@ val sharedDataModule = module {
     single { GithubMarkdownDataSource(get()) }
 
     single<LegalDocumentRepository> { LegalDocumentRepositoryImpl(get()) }
-
-    single { GetLegalDocumentUseCase(get()) }
-    single { SignInWithGoogleUseCase(get()) }
 }

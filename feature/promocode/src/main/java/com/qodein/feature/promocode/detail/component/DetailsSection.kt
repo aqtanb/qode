@@ -19,14 +19,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
@@ -36,7 +35,7 @@ import kotlin.time.toJavaInstant
 
 @Composable
 fun DetailsSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -63,7 +62,7 @@ fun DetailsSection(
             when (promoCode.discount) {
                 is Discount.Percentage -> {
                     DetailRow(
-                        icon = QodeCommerceIcons.Cost,
+                        icon = QodeEssentialIcons.Cost,
                         label = "Minimum Order",
                         value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
                         valueColor = MaterialTheme.colorScheme.primary,
@@ -71,7 +70,7 @@ fun DetailsSection(
                 }
                 is Discount.FixedAmount -> {
                     DetailRow(
-                        icon = QodeCommerceIcons.Cost,
+                        icon = QodeEssentialIcons.Cost,
                         label = "Minimum Order",
                         value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
                         valueColor = MaterialTheme.colorScheme.primary,
@@ -84,37 +83,10 @@ fun DetailsSection(
                 thickness = 1.dp,
             )
 
-            // Valid From
-            DetailRow(
-                icon = QodeActionIcons.Play,
-                label = "Valid From",
-                value = formatDate(promoCode.startDate),
-                valueColor = if (promoCode.isNotStarted) {
-                    MaterialTheme.colorScheme.tertiary // Orange for not yet started
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                 thickness = 1.dp,
             )
-
-            // Valid Until
-            DetailRow(
-                icon = QodeActionIcons.Stop,
-                label = "Valid Until",
-                value = formatDate(promoCode.endDate),
-                valueColor = if (promoCode.isExpired) {
-                    MaterialTheme.colorScheme.error // Red for expired
-                } else if (isExpiringWithinWeek(promoCode.endDate)) {
-                    MaterialTheme.colorScheme.tertiary // Orange for expiring soon
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-
             // Created date
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
@@ -195,7 +167,7 @@ private fun isExpiringWithinWeek(endDate: Instant): Boolean {
 private fun DetailsSectionPreview() {
     QodeTheme {
         Surface {
-            DetailsSection(promoCode = PromoCodePreviewData.percentagePromoCode)
+            DetailsSection(promoCode = PromocodePreviewData.percentagePromocode)
         }
     }
 }

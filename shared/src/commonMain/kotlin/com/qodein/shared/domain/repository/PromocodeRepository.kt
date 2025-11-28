@@ -5,13 +5,11 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
-import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
-import com.qodein.shared.model.Service
-import kotlinx.coroutines.flow.Flow
+import com.qodein.shared.model.Promocode
+import com.qodein.shared.model.PromocodeId
 
 /**
- * Repository interface for PromoCode operations.
+ * Repository interface for Promocode operations.
  * Returns Result<D, OperationError> for type-safe error handling.
  * Repository implementations handle exception translation to domain errors.
  */
@@ -20,37 +18,20 @@ interface PromocodeRepository {
     /**
      * Create a new promo code.
      */
-    fun createPromoCode(promoCode: PromoCode): Flow<Result<PromoCode, OperationError>>
+    suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError>
 
     /**
      * Get promo codes with filtering and sorting using cursor-based pagination.
      */
-    fun getPromoCodes(
-        query: String? = null,
+    suspend fun getPromocodes(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        filterByCategories: List<String>? = null,
-        paginationRequest: PaginationRequest<ContentSortBy> = PaginationRequest.firstPage()
-    ): Flow<Result<PaginatedResult<PromoCode, ContentSortBy>, OperationError>>
+        paginationRequest: PaginationRequest<ContentSortBy>
+    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError>
 
     /**
      * Get a specific promo code by ID.
      * Returns NotFound error if promo code doesn't exist.
      */
-    suspend fun getPromoCodeById(id: PromoCodeId): Result<PromoCode, OperationError>
-
-    // Service-related methods
-
-    /**
-     * Search for services by name or category.
-     */
-    fun searchServices(
-        query: String,
-        limit: Int = 20
-    ): Flow<Result<List<Service>, OperationError>>
-
-    /**
-     * Get popular services for quick selection.
-     */
-    fun getPopularServices(limit: Int = 10): Flow<Result<List<Service>, OperationError>>
+    suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError>
 }

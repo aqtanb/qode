@@ -1,9 +1,5 @@
 package com.qodein.core.data.manager
 
-import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.domain.service.selection.PopularServices
-import com.qodein.shared.domain.service.selection.PopularStatus
-import com.qodein.shared.domain.service.selection.SearchState
 import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.SelectionValidationResult
@@ -17,31 +13,16 @@ import com.qodein.shared.model.ServiceId
  * No UI state, no flows, no lifecycle - just business rules.
  */
 
-class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
+class ServiceSelectionManagerImpl : ServiceSelectionManager {
 
     override fun applyAction(
         state: ServiceSelectionState,
         action: ServiceSelectionAction
     ): ServiceSelectionState =
         when (action) {
-            // Search actions
             is ServiceSelectionAction.UpdateQuery -> applyUpdateQuery(state, action.query)
-            ServiceSelectionAction.ClearQuery -> applyClearQuery(state)
-            ServiceSelectionAction.RetrySearch -> applyRetrySearch(state)
-
-            // Selection actions
-            is ServiceSelectionAction.SelectService -> applySelectService(state, action.id)
-            is ServiceSelectionAction.UnselectService -> applyUnselectService(state, action.id)
+            is ServiceSelectionAction.ToggleService -> applyToggleService(state, action.id)
             ServiceSelectionAction.ClearSelection -> applyClearSelection(state)
-
-            // Popular services actions
-            ServiceSelectionAction.LoadPopularServices -> applyLoadPopularServices(state)
-            ServiceSelectionAction.RetryPopularServices -> applyRetryPopularServices(state)
-            is ServiceSelectionAction.SetPopularServices -> applySetPopularServices(state, action.ids)
-            is ServiceSelectionAction.SetPopularServicesError -> applySetPopularServicesError(state, action.error)
-
-            // Focus actions - pure UI concern, no domain state change
-            is ServiceSelectionAction.SetSearchFocus -> state
         }
 
     override fun validateSelection(selection: SelectionState): SelectionValidationResult =
@@ -76,7 +57,7 @@ class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
         state: ServiceSelectionState,
         query: String
     ): ServiceSelectionState {
-        val newStatus = if (query.length >= 2) SearchStatus.Loading else SearchStatus.Idle
+        val newStatus = if (query.isNotEmpty()) SearchStatus.Loading else SearchStatus.Idle
         return state.copy(
             search = state.search.copy(
                 query = query,
@@ -85,48 +66,25 @@ class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
         )
     }
 
-    private fun applyClearQuery(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            search = SearchState(query = "", status = SearchStatus.Idle),
-        )
-
-    private fun applyRetrySearch(state: ServiceSelectionState): ServiceSelectionState =
-        if (state.search.isSearching) {
-            state.copy(
-                search = state.search.copy(status = SearchStatus.Loading),
-            )
-        } else {
-            state // No change if not in search mode
-        }
-
-    private fun applySelectService(
-        state: ServiceSelectionState,
-        serviceId: ServiceId
-    ): ServiceSelectionState {
-        val newSelection = when (val selection = state.selection) {
-            is SelectionState.Single -> SelectionState.Single(selectedId = serviceId)
-            is SelectionState.Multi -> SelectionState.Multi(
-                selectedIds = selection.selectedIds + serviceId,
-            )
-        }
-        return state.copy(selection = newSelection)
-    }
-
-    private fun applyUnselectService(
+    private fun applyToggleService(
         state: ServiceSelectionState,
         serviceId: ServiceId
     ): ServiceSelectionState {
         val newSelection = when (val selection = state.selection) {
             is SelectionState.Single -> {
                 if (selection.selectedId == serviceId) {
-                    SelectionState.Single(selectedId = null)
+                    SelectionState.Single(selectedId = null) // Unselect if already selected
                 } else {
-                    selection // No change if different service
+                    SelectionState.Single(selectedId = serviceId) // Select if not selected
                 }
             }
-            is SelectionState.Multi -> SelectionState.Multi(
-                selectedIds = selection.selectedIds - serviceId,
-            )
+            is SelectionState.Multi -> {
+                if (serviceId in selection.selectedIds) {
+                    SelectionState.Multi(selectedIds = selection.selectedIds - serviceId) // Remove if already selected
+                } else {
+                    SelectionState.Multi(selectedIds = selection.selectedIds + serviceId) // Add if not selected
+                }
+            }
         }
         return state.copy(selection = newSelection)
     }
@@ -138,33 +96,4 @@ class ServiceSelectionManagerImpl constructor() : ServiceSelectionManager {
         }
         return state.copy(selection = newSelection)
     }
-
-    private fun applyLoadPopularServices(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Loading),
-        )
-
-    private fun applyRetryPopularServices(state: ServiceSelectionState): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Loading),
-        )
-
-    private fun applySetPopularServices(
-        state: ServiceSelectionState,
-        ids: List<ServiceId>
-    ): ServiceSelectionState =
-        state.copy(
-            popular = PopularServices(
-                ids = ids,
-                status = PopularStatus.Idle,
-            ),
-        )
-
-    private fun applySetPopularServicesError(
-        state: ServiceSelectionState,
-        error: OperationError
-    ): ServiceSelectionState =
-        state.copy(
-            popular = state.popular.copy(status = PopularStatus.Error(error)),
-        )
 }

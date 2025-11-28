@@ -1,81 +1,79 @@
 package com.qodein.core.data.repository
 
-import co.touchlab.kermit.Logger
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.qodein.core.data.datasource.FirebaseGoogleAuthService
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.qodein.core.data.datasource.FirebaseAuthDataSource
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.AuthRepository
-import com.qodein.shared.domain.repository.UserRepository
-import com.qodein.shared.model.User
-import kotlinx.coroutines.channels.awaitClose
+import com.qodein.shared.model.GoogleAuthResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import timber.log.Timber
+import java.io.IOException
 
-class AuthRepositoryImpl constructor(
-    private val firebaseGoogleAuthService: FirebaseGoogleAuthService,
-    private val userRepository: UserRepository
-) : AuthRepository {
+class AuthRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : AuthRepository {
 
-    companion object {
-        private const val TAG = "AuthRepository"
+    override suspend fun signInWithGoogle(idToken: String): Result<GoogleAuthResult, OperationError> =
+        try {
+            val firebaseUser = dataSource.signInWithToken(idToken)
+            Result.Success(
+                GoogleAuthResult(
+                    uid = firebaseUser.uid,
+                    email = firebaseUser.email,
+                    displayName = firebaseUser.displayName,
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                ),
+            )
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Timber.e(e, "Invalid credentials")
+            Result.Error(UserError.AuthenticationFailure.InvalidCredentials)
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Timber.e(e, "Invalid user")
+            when (e.errorCode) {
+                "ERROR_USER_DISABLED" -> Result.Error(UserError.AuthenticationFailure.AccountDisabled)
+                else -> Result.Error(UserError.AuthenticationFailure.InvalidCredentials)
+            }
+        } catch (e: FirebaseAuthUserCollisionException) {
+            Timber.e(e, "Account exists with different credential")
+            Result.Error(UserError.AuthenticationFailure.AccountConflict)
+        } catch (e: FirebaseNetworkException) {
+            Timber.e(e, "Network error during sign-in")
+            Result.Error(SystemError.Offline)
+        } catch (e: FirebaseAuthException) {
+            Timber.e(e, "Firebase auth error")
+            when (e.errorCode) {
+                "ERROR_TOO_MANY_REQUESTS" -> Result.Error(UserError.AuthenticationFailure.TooManyAttempts)
+                else -> Result.Error(UserError.AuthenticationFailure.Unknown)
+            }
+        } catch (e: IOException) {
+            Timber.e(e, "Network error during sign-in")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error during sign-in")
+            Result.Error(SystemError.Unknown)
+        }
+
+    override fun signOut() {
+        dataSource.signOut()
     }
 
-    override fun signInWithGoogle(): Flow<Result<User, OperationError>> =
-        flow {
-            Logger.d(TAG) { "Signing in with Google" }
-            val result = firebaseGoogleAuthService.signIn()
-
-            when (result) {
-                is Result.Success -> {
-                    val user = result.data
-                    Logger.d(TAG) { "Syncing user to Firestore: ${user.id.value}" }
-
-                    userRepository.createUserIfNew(user).collect { syncResult ->
-                        when (syncResult) {
-                            is Result.Success -> {
-                                Logger.i(TAG) { "User synced successfully to Firestore" }
-                            }
-                            is Result.Error -> {
-                                Logger.w(TAG) { "Failed to sync user to Firestore: ${syncResult.error}" }
-                            }
-                        }
-                    }
-
-                    emit(result)
-                }
-                is Result.Error -> {
-                    emit(result)
-                }
-            }
-        }
-
-    override fun signOut(): Flow<Result<Unit, OperationError>> =
-        flow {
-            Logger.d(TAG) { "Signing out" }
-            val result = firebaseGoogleAuthService.signOut()
-            emit(result)
-        }
-
-    override fun getAuthStateFlow(): Flow<User?> =
-        callbackFlow {
-            val auth = Firebase.auth
-
-            val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-                val firebaseUser = firebaseAuth.currentUser
-                val user = firebaseUser?.let { firebaseGoogleAuthService.createUserFromFirebaseUser(it) }
-                trySend(user)
-            }
-
-            // Add listener and send initial state
-            auth.addAuthStateListener(authStateListener)
-
-            // Remove listener when Flow is cancelled
-            awaitClose {
-                auth.removeAuthStateListener(authStateListener)
+    override fun observeAuthState(): Flow<GoogleAuthResult?> =
+        dataSource.observeAuthState().map { firebaseUser ->
+            if (firebaseUser == null) {
+                null
+            } else {
+                GoogleAuthResult(
+                    uid = firebaseUser.uid,
+                    email = firebaseUser.email,
+                    displayName = firebaseUser.displayName,
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                )
             }
         }
 }

@@ -1,14 +1,16 @@
 package com.qodein.feature.post.detail
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
@@ -25,7 +27,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,8 +37,9 @@ class PostDetailViewModel @Inject constructor(
     private val getPostByIdUseCase: GetPostByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
-    private val authStateManager: AuthStateManager
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val idTokenProvider: IdTokenProvider,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState())
     val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
@@ -86,7 +88,7 @@ class PostDetailViewModel @Inject constructor(
                 }
             }
 
-            PostDetailAction.SignInWithGoogleClicked -> signInWithGoogle()
+            is PostDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
         }
     }
 
@@ -144,7 +146,7 @@ class PostDetailViewModel @Inject constructor(
 
     private fun observeAuthState() {
         viewModelScope.launch {
-            authStateManager.getAuthState().distinctUntilChanged().collectLatest { authState ->
+            getAuthStateUseCase().collectLatest { authState ->
                 when (authState) {
                     is AuthState.Authenticated -> {
                         _uiState.update { it.copy(userId = authState.user.id) }
@@ -162,12 +164,24 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-    private fun signInWithGoogle() {
+    private fun signInWithGoogle(context: Context) {
+        _uiState.update { it.copy(isSigningIn = true) }
         viewModelScope.launch {
-            signInWithGoogleUseCase().collect {
-                when (it) {
-                    is Result.Error -> _events.emit(PostDetailEvent.ShowError(it.error))
-                    is Result.Success -> {}
+            when (val tokenResult = idTokenProvider.getIdToken(context)) {
+                is Result.Error -> {
+                    _uiState.update { it.copy(isSigningIn = false) }
+                    _events.emit(PostDetailEvent.ShowError(tokenResult.error))
+                }
+                is Result.Success -> {
+                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
+                        is Result.Success -> {
+                            _uiState.update { it.copy(isSigningIn = false) }
+                        }
+                        is Result.Error -> {
+                            _uiState.update { it.copy(isSigningIn = false) }
+                            _events.emit(PostDetailEvent.ShowError(signInResult.error))
+                        }
+                    }
                 }
             }
         }

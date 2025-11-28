@@ -29,19 +29,16 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.designsystem.theme.extendedColorScheme
-import com.qodein.core.ui.preview.PromoCodePreviewData
-import com.qodein.shared.model.PromoCode
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.VoteState
 
 @Composable
 fun ActionButtonsSection(
-    promoCode: PromoCode,
+    promoCode: Promocode,
     isUpvotedByCurrentUser: Boolean,
     isDownvotedByCurrentUser: Boolean,
     showVoteAnimation: Boolean,
@@ -92,17 +89,6 @@ fun ActionButtonsSection(
                 count = null,
                 activeColor = MaterialTheme.colorScheme.tertiary,
                 onClick = onCommentsClicked,
-                modifier = Modifier.weight(1f),
-            )
-
-            // Share Button
-            ActionButton(
-                type = ActionButtonType.Share,
-                icon = QodeActionIcons.Share,
-                count = promoCode.shares,
-                showPositiveFeedback = isSharing,
-                activeColor = MaterialTheme.colorScheme.primary,
-                onClick = onShareClicked,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -257,76 +243,3 @@ private fun formatCount(count: Int): String =
             }
         }
     }
-
-@Preview(showBackground = true)
-@Composable
-private fun ActionButtonsPreview() {
-    QodeTheme {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
-
-        Column(
-            modifier = Modifier.padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        ) {
-            Text(
-                "Action Buttons Examples",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-            )
-
-            Text(
-                "Upvoted State:",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            ActionButtonsSection(
-                promoCode = samplePromoCode,
-                isUpvotedByCurrentUser = true,
-                isDownvotedByCurrentUser = false,
-                showVoteAnimation = false,
-                lastVoteType = null,
-                isSharing = false,
-                onUpvoteClicked = {},
-                onDownvoteClicked = {},
-                onShareClicked = {},
-                onCommentsClicked = {},
-            )
-
-            Text(
-                "Neutral State:",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            ActionButtonsSection(
-                promoCode = samplePromoCode.copy(
-                    upvotes = 42,
-                    shares = 8,
-                ),
-                isUpvotedByCurrentUser = false,
-                isDownvotedByCurrentUser = false,
-                showVoteAnimation = false,
-                lastVoteType = null,
-                isSharing = false,
-                onUpvoteClicked = {},
-                onDownvoteClicked = {},
-                onShareClicked = {},
-                onCommentsClicked = {},
-            )
-
-            Text(
-                "Positive Feedback:",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            ActionButtonsSection(
-                promoCode = samplePromoCode,
-                isUpvotedByCurrentUser = false,
-                isDownvotedByCurrentUser = false,
-                showVoteAnimation = true,
-                lastVoteType = VoteState.UPVOTE,
-                isSharing = true,
-                onUpvoteClicked = {},
-                onDownvoteClicked = {},
-                onShareClicked = {},
-                onCommentsClicked = {},
-            )
-        }
-    }
-}

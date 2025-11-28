@@ -1,7 +1,6 @@
 package com.qodein.core.data.datasource
 
 import android.net.Uri
-import co.touchlab.kermit.Logger
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.qodein.shared.common.Result
@@ -18,7 +17,7 @@ import java.util.UUID
  * Handles image uploads with comprehensive error handling.
  */
 
-internal class FirebaseStorageDataSource constructor(private val storage: FirebaseStorage) {
+internal class FirebaseStorageDataSource(private val storage: FirebaseStorage) {
     companion object {
         private const val TAG = "FirebaseStorageDS"
     }
@@ -36,8 +35,6 @@ internal class FirebaseStorageDataSource constructor(private val storage: Fireba
         storagePath: StoragePath
     ): Result<String, OperationError> =
         try {
-            Logger.d(TAG) { "Starting upload to ${storagePath.path}" }
-
             val filename = "${UUID.randomUUID()}.jpg"
             val storageReference = storage.reference
                 .child(storagePath.path)
@@ -46,13 +43,10 @@ internal class FirebaseStorageDataSource constructor(private val storage: Fireba
             storageReference.putFile(uri).await()
             val downloadUrl = storageReference.downloadUrl.await().toString()
 
-            Logger.i(TAG) { "Upload successful: $downloadUrl" }
             Result.Success(downloadUrl)
         } catch (e: StorageException) {
-            Logger.e(TAG, e) { "Storage exception: code=${e.errorCode}" }
             val error = when (e.errorCode) {
-                StorageException.ERROR_NOT_AUTHENTICATED -> SystemError.Unauthorized
-                StorageException.ERROR_NOT_AUTHORIZED -> SystemError.PermissionDenied
+                StorageException.ERROR_NOT_AUTHENTICATED -> StorageError.UploadFailure.NotAuthenticated
                 StorageException.ERROR_QUOTA_EXCEEDED -> StorageError.UploadFailure.QuotaExceeded
                 StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> SystemError.Offline
                 StorageException.ERROR_INVALID_CHECKSUM -> StorageError.UploadFailure.CorruptedFile
@@ -61,13 +55,8 @@ internal class FirebaseStorageDataSource constructor(private val storage: Fireba
             }
             Result.Error(error)
         } catch (e: IOException) {
-            Logger.e(TAG, e) { "Network error during upload" }
             Result.Error(SystemError.Offline)
-        } catch (e: SecurityException) {
-            Logger.e(TAG, e) { "Permission denied to read file" }
-            Result.Error(SystemError.PermissionDenied)
         } catch (e: Exception) {
-            Logger.e(TAG, e) { "Unexpected error during upload" }
             Result.Error(SystemError.Unknown)
         }
 }

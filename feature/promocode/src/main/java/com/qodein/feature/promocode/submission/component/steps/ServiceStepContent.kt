@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeCommerceIcons
+import com.qodein.core.designsystem.icon.QodeEssentialIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
@@ -80,7 +80,7 @@ fun ServiceStepContent(
                     onValueChange = onServiceNameChange,
                     label = "Service Name",
                     placeholder = "Type the service name",
-                    leadingIcon = QodeCommerceIcons.Store,
+                    leadingIcon = QodeEssentialIcons.Store,
                     helperText = "Exact service name",
                     focusRequester = focusRequester,
                     isRequired = true,
@@ -204,7 +204,7 @@ fun ServiceSelector(
             if (hasSelection && selectedService.logoUrl != null) {
                 CircularImage(
                     imageUrl = selectedService.logoUrl,
-                    fallbackIcon = QodeCommerceIcons.Store,
+                    fallbackIcon = QodeEssentialIcons.Store,
                     contentDescription = "Service logo",
                     size = SizeTokens.Icon.sizeLarge,
                     modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
@@ -215,7 +215,7 @@ fun ServiceSelector(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = if (hasSelection) QodeCommerceIcons.Store else QodeNavigationIcons.Search,
+                        imageVector = if (hasSelection) QodeEssentialIcons.Store else QodeNavigationIcons.Search,
                         contentDescription = null,
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         tint = if (hasSelection) {

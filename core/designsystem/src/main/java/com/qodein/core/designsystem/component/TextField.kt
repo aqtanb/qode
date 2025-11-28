@@ -52,7 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -179,7 +179,7 @@ fun QodeinTextField(
                     shape = RoundedCornerShape(SizeTokens.Selector.shape),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
                         disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
@@ -331,7 +331,7 @@ private fun QodeTextFieldPreview() {
                 onValueChange = { value = it },
                 placeholder = "Enter text...",
                 helperText = "Helper text",
-                leadingIcon = QodeUIIcons.Tag,
+                leadingIcon = QodeinIcons.Hashtag,
             )
 
             Spacer(modifier = Modifier.height(SpacingTokens.md))
@@ -342,7 +342,7 @@ private fun QodeTextFieldPreview() {
                 onValueChange = { errorValue = it },
                 placeholder = "Enter text...",
                 errorText = "This field has a really looooooooooooooooooooong error message\nType here...",
-                leadingIcon = QodeUIIcons.Tag,
+                leadingIcon = QodeinIcons.Hashtag,
             )
         }
     }

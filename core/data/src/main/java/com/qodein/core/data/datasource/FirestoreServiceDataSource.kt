@@ -1,148 +1,44 @@
 package com.qodein.core.data.datasource
 
-import co.touchlab.kermit.Logger
+import com.algolia.client.api.SearchClient
+import com.algolia.client.model.search.SearchParamsObject
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
-import com.qodein.core.data.mapper.ServiceMapper
-import com.qodein.core.data.model.ServiceDto
-import com.qodein.shared.model.Service
+import com.qodein.core.data.dto.ServiceDto
 import kotlinx.coroutines.tasks.await
 
-class FirestoreServiceDataSource constructor(private val firestore: FirebaseFirestore) {
-    companion object {
-        private const val SERVICES_COLLECTION = "services"
-        private const val CACHE_DURATION_MS = 30_000L // 30 seconds
-    }
-
-    // Simple in-memory cache for popular services
-    private var cachedPopularServices: List<Service>? = null
-    private var lastFetchTime: Long = 0L
-
-    suspend fun createService(service: Service): Service {
-        val dto = ServiceMapper.toDto(service)
-
-        firestore.collection(SERVICES_COLLECTION)
-            .document(dto.documentId)
-            .set(dto)
-            .await()
-
-        return service
-    }
-
+class FirestoreServiceDataSource(private val firestore: FirebaseFirestore, private val searchClient: SearchClient) {
     suspend fun searchServices(
         query: String,
-        limit: Int = 20
-    ): List<Service> {
-        if (query.isBlank()) {
-            return getPopularServices(limit)
-        }
-
-        val queryLower = query.lowercase().trim()
-
-        val allServicesQuery = firestore.collection(SERVICES_COLLECTION)
-            .get()
-            .await()
-
-        val allServices = allServicesQuery.documents.mapNotNull { document ->
-            document.toObject<ServiceDto>()?.let { dto ->
-                ServiceMapper.toDomain(dto)
-            }
-        }
-
-        val searchResults = allServices.filter { service ->
-            val serviceName = service.name.lowercase()
-            val serviceCategory = service.category.lowercase()
-
-            serviceName.contains(queryLower) || serviceCategory.contains(queryLower)
-        }.sortedWith(
-            compareByDescending<Service> { service ->
-                val serviceName = service.name.lowercase()
-                val serviceCategory = service.category.lowercase()
-
-                when {
-                    serviceName == queryLower -> 5
-                    serviceName.startsWith(queryLower) -> 4
-                    serviceName.contains(queryLower) -> 3
-                    serviceCategory == queryLower -> 2
-                    serviceCategory.contains(queryLower) -> 1
-                    else -> 0
-                }
-            }.thenByDescending { service ->
-                service.promoCodeCount
-            },
+        limit: Int
+    ): List<ServiceDto> {
+        val searchResponse = searchClient.searchSingleIndex(
+            indexName = ServiceDto.COLLECTION_NAME,
+            searchParams = SearchParamsObject(
+                query = query,
+                hitsPerPage = limit,
+            ),
         )
 
-        return searchResults.take(limit)
+        val serviceIds = searchResponse.hits.map { it.objectID }
+
+        return serviceIds.mapNotNull { serviceId ->
+            firestore.collection(ServiceDto.COLLECTION_NAME)
+                .document(serviceId)
+                .get()
+                .await()
+                .toObject<ServiceDto>()
+        }
     }
 
-    suspend fun getPopularServices(limit: Int = 20): List<Service> {
-        val currentTime = System.currentTimeMillis()
-
-        // Return cached data if it's still fresh
-        cachedPopularServices?.let { cached ->
-            if (currentTime - lastFetchTime < CACHE_DURATION_MS) {
-                Logger.d { "FirestoreServiceDataSource: Returning cached popular services (${cached.size} items)" }
-                return cached.take(limit)
-            }
-        }
-
-        Logger.i { "FirestoreServiceDataSource: Fetching popular services from Firestore (limit=$limit)" }
-
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .orderBy("promoCodeCount", Query.Direction.DESCENDING)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
+    suspend fun getPopularServices(limit: Long): List<ServiceDto> =
+        firestore.collection(ServiceDto.COLLECTION_NAME)
+            .orderBy(ServiceDto.FIELD_PROMO_CODE_COUNT, Query.Direction.DESCENDING)
+            .orderBy(ServiceDto.FIELD_NAME, Query.Direction.ASCENDING)
+            .limit(limit)
             .get()
             .await()
-
-        val services = querySnapshot.documents.mapNotNull { document ->
-            document.toObject<ServiceDto>()?.let { dto ->
-                ServiceMapper.toDomain(dto)
-            }
-        }
-
-        // Update cache
-        cachedPopularServices = services
-        lastFetchTime = currentTime
-
-        Logger.i { "FirestoreServiceDataSource: Retrieved ${services.size} popular services from Firestore" }
-        services.forEachIndexed { index, service ->
-            Logger.d { "  [$index] ${service.name} (${service.category}) - ${service.promoCodeCount} promos" }
-        }
-
-        return services
-    }
-
-    suspend fun getServicesByCategory(
-        category: String,
-        limit: Int = 20
-    ): List<Service> {
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .whereEqualTo("category", category)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            document.toObject<ServiceDto>()?.let { dto ->
-                ServiceMapper.toDomain(dto)
-            }
-        }
-    }
-
-    suspend fun getAllServices(limit: Int = 100): List<Service> {
-        val querySnapshot = firestore.collection(SERVICES_COLLECTION)
-            .orderBy("name", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
-            .get()
-            .await()
-
-        return querySnapshot.documents.mapNotNull { document ->
-            document.toObject<ServiceDto>()?.let { dto ->
-                ServiceMapper.toDomain(dto)
-            }
-        }
-    }
+            .documents
+            .mapNotNull { it.toObject<ServiceDto>() }
 }

@@ -40,28 +40,25 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
-import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.preview.PromoCodePreviewData
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.FooterSection
 import com.qodein.feature.promocode.detail.component.GradientBannerSection
 import com.qodein.feature.promocode.detail.component.ServiceInfoSection
-import com.qodein.shared.common.error.PromoCodeError
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.PromoCodeId
 import com.qodein.shared.model.PromoCodeWithUserState
+import com.qodein.shared.model.Promocode
+import com.qodein.shared.model.PromocodeId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeDetailScreen(
-    promoCodeId: PromoCodeId,
+    promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
-    onNavigateToComments: (PromoCodeId) -> Unit = {},
+    onNavigateToComments: (PromocodeId) -> Unit = {},
     onNavigateToService: (String) -> Unit = {},
     modifier: Modifier = Modifier,
-    isDarkTheme: Boolean,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -69,7 +66,7 @@ fun PromocodeDetailScreen(
     )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val localContext = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Authentication-protected bookmark action
@@ -85,8 +82,8 @@ fun PromocodeDetailScreen(
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
                 is PromocodeDetailEvent.NavigateToComments -> onNavigateToComments(event.promoCodeId)
                 is PromocodeDetailEvent.NavigateToService -> onNavigateToService(event.serviceName)
-                is PromocodeDetailEvent.SharePromocode -> sharePromocode(context, event.promoCode)
-                is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(context, event.code)
+                is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
+                is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(
                         message = event.message,
@@ -125,8 +122,6 @@ fun PromocodeDetailScreen(
         }
     }
 
-    // Screen-level scaffold with own top bar to avoid app-level coupling
-    // TODO: Make it have positive UI
     Scaffold(
         topBar = {
             QodeTopAppBar(
@@ -164,7 +159,6 @@ fun PromocodeDetailScreen(
             uiState = uiState,
             onAction = viewModel::onAction,
             modifier = Modifier.padding(paddingValues),
-            isDarkTheme = isDarkTheme,
         )
     }
 }
@@ -174,9 +168,10 @@ fun PromocodeDetailScreen(
 private fun PromocodeDetailContent(
     uiState: PromocodeDetailUiState,
     onAction: (PromocodeDetailAction) -> Unit,
-    modifier: Modifier = Modifier,
-    isDarkTheme: Boolean
+    modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -198,22 +193,6 @@ private fun PromocodeDetailContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }
-            }
-
-            uiState.hasError && !uiState.hasData -> {
-                // Error state
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(SpacingTokens.md),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    QodeErrorCard(
-                        error = PromoCodeError.RetrievalFailure.NotFound,
-                        onRetry = { onAction(PromocodeDetailAction.RetryClicked) },
-                        onDismiss = { onAction(PromocodeDetailAction.ErrorDismissed) },
-                    )
                 }
             }
 
@@ -249,7 +228,6 @@ private fun PromocodeDetailContent(
                         isFollowingService = uiState.isFollowingService,
                         onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
                         onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
-                        isDarkTheme = isDarkTheme,
                     )
 
                     // Details Section
@@ -270,8 +248,8 @@ private fun PromocodeDetailContent(
                     )
 
                     FooterSection(
-                        username = promoCode.createdByUsername,
-                        avatarUrl = promoCode.createdByAvatarUrl,
+                        username = promoCode.authorUsername,
+                        avatarUrl = promoCode.authorAvatarUrl,
                         createdAt = promoCode.createdAt,
                         modifier = Modifier.padding(horizontal = SpacingTokens.md),
                     )
@@ -287,9 +265,8 @@ private fun PromocodeDetailContent(
             AuthenticationBottomSheet(
                 authPromptAction = authSheetState.action,
                 isLoading = authSheetState.isLoading,
-                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked) },
+                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
                 onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
-                isDarkTheme = isDarkTheme,
             )
         }
     }
@@ -298,7 +275,7 @@ private fun PromocodeDetailContent(
 // Helper functions
 private fun sharePromocode(
     context: Context,
-    promoCode: PromoCode
+    promoCode: Promocode
 ) {
     val shareText = buildString {
         append("🎉 Check out this amazing deal!\n\n")
@@ -339,7 +316,7 @@ private fun copyToClipboard(
 @Composable
 private fun PromocodeDetailScreenPreview() {
     QodeTheme(darkTheme = false) {
-        val samplePromoCode = PromoCodePreviewData.percentagePromoCode
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
 
         PromocodeDetailContent(
             uiState = PromocodeDetailUiState(
@@ -351,7 +328,6 @@ private fun PromocodeDetailScreenPreview() {
                 isLoading = false,
             ),
             onAction = {},
-            isDarkTheme = false,
         )
     }
 }

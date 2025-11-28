@@ -1,73 +1,88 @@
 package com.qodein.shared.model
 
-import kotlinx.serialization.Contextual
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.ServiceError
 import kotlinx.serialization.Serializable
-import kotlin.time.Clock
-import kotlin.time.Instant
 
+/**
+ * Service ID - format: servicename_category, lowercase, sanitized
+ * Validation is done in Service.create() for rich error handling.
+ */
 @Serializable
-data class ServiceId(val value: String)
+@JvmInline
+value class ServiceId(val value: String) {
+    override fun toString(): String = value
+}
 
+/**
+ * Represents a reference to a service, either by ID or by name.
+ * Used when creating promocodes to allow flexible service resolution.
+ */
+sealed interface ServiceRef {
+    /**
+     * Reference to an existing service by its ID.
+     */
+    data class ById(val id: ServiceId) : ServiceRef
+
+    /**
+     * Reference to a service by name. If service doesn't exist, it will be created.
+     */
+    data class ByName(val name: String) : ServiceRef
+}
+
+@ConsistentCopyVisibility
 @Serializable
-data class Service(
-    val id: ServiceId, // Document ID format: servicename_category, lowercase, sanitized
-    val name: String,
-    val category: String,
-    val logoUrl: String? = null,
-    val promoCodeCount: Int = 0, // Denormalized counter for display
-    @Contextual val createdAt: Instant = Clock.System.now()
-) {
-    init {
-        require(name.isNotBlank()) { "Service name cannot be blank" }
-        require(category.isNotBlank()) { "Service category cannot be blank" }
-    }
-
+data class Service private constructor(val id: ServiceId, val name: String, val logoUrl: String?, val promoCodeCount: Int) {
     companion object {
-        fun create(
+        const val NAME_MIN_LENGTH = 1
+        const val NAME_MAX_LENGTH = 100
+
+        fun create(name: String): Result<Service, ServiceError.CreationFailure> {
+            val cleanName = name.trim()
+
+            if (cleanName.isBlank()) {
+                return Result.Error(ServiceError.CreationFailure.EmptyName)
+            }
+            if (cleanName.length < NAME_MIN_LENGTH) {
+                return Result.Error(ServiceError.CreationFailure.NameTooShort)
+            }
+            if (cleanName.length > NAME_MAX_LENGTH) {
+                return Result.Error(ServiceError.CreationFailure.NameTooLong)
+            }
+
+            val serviceId = generateServiceId(cleanName)
+            if (serviceId.isBlank() || serviceId.length > 200) {
+                return Result.Error(ServiceError.CreationFailure.InvalidServiceId)
+            }
+
+            return Result.Success(
+                Service(
+                    id = ServiceId(serviceId),
+                    name = cleanName,
+                    logoUrl = null,
+                    promoCodeCount = 0,
+                ),
+            )
+        }
+
+        /**
+         * Reconstruct a Service from storage/DTO (for mappers/repositories only).
+         * Assumes data is already validated. No sanitization performed.
+         */
+        fun fromDto(
+            id: ServiceId,
             name: String,
-            category: String,
             logoUrl: String? = null,
             promoCodeCount: Int = 0
-        ): Service {
-            val id = ServiceId(generateServiceId(name, category))
-            return Service(
+        ): Service =
+            Service(
                 id = id,
-                name = name.trim(),
-                category = category.trim(),
+                name = name,
                 logoUrl = logoUrl,
                 promoCodeCount = promoCodeCount,
             )
-        }
 
-        private fun generateServiceId(
-            name: String,
-            category: String
-        ): String {
-            val sanitizedName = name.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
-            val sanitizedCategory = category.trim().lowercase().replace(Regex("[^a-z0-9]"), "_")
-            return "${sanitizedName}_$sanitizedCategory"
-        }
-
-        // Consolidated categories for Kazakhstan market
-        object Categories {
-            const val ENTERTAINMENT = "Entertainment" // STREAMING + GAMING + MUSIC + ENTERTAINMENT
-            const val FOOD = "Food"
-            const val TRANSPORT = "Transport"
-            const val SHOPPING = "Shopping" // SHOPPING + MARKETPLACE
-            const val EDUCATION = "Education"
-            const val FITNESS = "Fitness"
-            const val BEAUTY = "Beauty"
-            const val CLOTHING = "Clothing"
-            const val ELECTRONICS = "Electronics"
-            const val TRAVEL = "Travel"
-            const val JEWELRY = "Jewelry"
-            const val OTHER = "Other"
-            const val UNSPECIFIED = "Unspecified"
-
-            val ALL = listOf(
-                BEAUTY, CLOTHING, EDUCATION, ELECTRONICS, ENTERTAINMENT, FITNESS, FOOD, JEWELRY,
-                SHOPPING, TRANSPORT, TRAVEL, OTHER, UNSPECIFIED,
-            )
-        }
+        private fun generateServiceId(name: String): String =
+            name.lowercase().trim().replace(Regex("\\s+"), "_").replace(Regex("[^a-z0-9_]"), "")
     }
 }

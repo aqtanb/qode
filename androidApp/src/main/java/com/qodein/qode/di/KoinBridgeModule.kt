@@ -1,8 +1,8 @@
 package com.qodein.qode.di
 
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.auth.AuthStateManager
+import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
@@ -14,8 +14,8 @@ import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
-import com.qodein.shared.domain.usecase.preferences.GetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
+import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
@@ -39,6 +39,13 @@ object KoinBridgeModule : KoinComponent {
     fun provideAnalyticsHelper(): AnalyticsHelper {
         val helper: AnalyticsHelper by inject()
         return helper
+    }
+
+    @Provides
+    @Singleton
+    fun provideIdTokenProvider(): IdTokenProvider {
+        val provider: IdTokenProvider by inject()
+        return provider
     }
 
     @Provides
@@ -106,13 +113,6 @@ object KoinBridgeModule : KoinComponent {
 
     @Provides
     @Singleton
-    fun provideAuthStateManager(): AuthStateManager {
-        val manager: AuthStateManager by inject()
-        return manager
-    }
-
-    @Provides
-    @Singleton
     fun provideGetAuthStateUseCase(): GetAuthStateUseCase {
         val useCase: GetAuthStateUseCase by inject()
         return useCase
@@ -148,8 +148,8 @@ object KoinBridgeModule : KoinComponent {
 
     @Provides
     @Singleton
-    fun provideGetLanguageUseCase(): GetLanguageUseCase {
-        val useCase: GetLanguageUseCase by inject()
+    fun provideGetLanguageUseCase(): ObserveLanguageUseCase {
+        val useCase: ObserveLanguageUseCase by inject()
         return useCase
     }
 

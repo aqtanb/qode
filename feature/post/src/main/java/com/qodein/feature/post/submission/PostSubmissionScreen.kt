@@ -54,6 +54,7 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.feature.post.R
 import com.qodein.feature.post.component.FullScreenImageViewer
 import com.qodein.feature.post.component.PostImage
@@ -70,7 +71,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostSubmissionScreen(
     onNavigateBack: () -> Unit,
-    isDarkTheme: Boolean,
     viewModel: PostSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
@@ -154,7 +154,7 @@ fun PostSubmissionScreen(
             },
             bottomBar = {
                 val currentState = uiState as? PostSubmissionUiState.Success
-                if (currentState != null && currentState.authentication is PostAuthenticationState.Authenticated) {
+                if (currentState != null && currentState.authentication is UiAuthState.Authenticated) {
                     PostSubmissionBottomToolbar(
                         isImageLimitReached = currentState.imageUris.size >= 5,
                         onClick = {
@@ -186,14 +186,13 @@ fun PostSubmissionScreen(
                         LoadingState()
                     }
                     is PostSubmissionUiState.Success -> {
-                        val showAuthenticationSheet = currentState.authentication !is PostAuthenticationState.Authenticated
+                        val showAuthenticationSheet = currentState.authentication !is UiAuthState.Authenticated
                         if (showAuthenticationSheet) {
-                            val isSigningIn = currentState.authentication is PostAuthenticationState.Loading
+                            val isSigningIn = currentState.authentication is UiAuthState.Loading
                             AuthenticationBottomSheet(
                                 authPromptAction = AuthPromptAction.CreatePost,
-                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle) },
+                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle(context)) },
                                 onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
-                                isDarkTheme = isDarkTheme,
                                 isLoading = isSigningIn,
                             )
                         } else {

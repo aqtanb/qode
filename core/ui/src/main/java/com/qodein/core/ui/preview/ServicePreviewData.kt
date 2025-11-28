@@ -1,7 +1,7 @@
 package com.qodein.core.ui.preview
 
+import com.qodein.shared.common.Result
 import com.qodein.shared.model.Service
-import com.qodein.shared.model.ServiceId
 
 /**
  * Centralized sample data for Service previews.
@@ -12,68 +12,44 @@ object ServicePreviewData {
     /**
      * Sample Netflix service
      */
-    val netflix = Service(
-        id = ServiceId("netflix_entertainment"),
-        name = "Netflix",
-        category = "Entertainment",
-        logoUrl = "https://logo.clearbit.com/netflix.com",
-        promoCodeCount = 45,
-    )
+    val netflix by lazy {
+        (Service.create(name = "Netflix") as Result.Success).data
+    }
 
     /**
      * Sample Kaspi.kz service
      */
-    val kaspi = Service(
-        id = ServiceId("kaspi_shopping"),
-        name = "Kaspi.kz",
-        category = "Shopping",
-        logoUrl = "https://logo.clearbit.com/kaspi.kz",
-        promoCodeCount = 128,
-    )
+    val kaspi by lazy {
+        (Service.create(name = "Kaspi.kz") as Result.Success).data
+    }
 
     /**
      * Sample Glovo service
      */
-    val glovo = Service(
-        id = ServiceId("glovo_food"),
-        name = "Glovo",
-        category = "Food",
-        logoUrl = "https://logo.clearbit.com/glovo.com",
-        promoCodeCount = 32,
-    )
+    val glovo by lazy {
+        (Service.create(name = "Glovo") as Result.Success).data
+    }
 
     /**
      * Sample Yandex service
      */
-    val yandex = Service(
-        id = ServiceId("yandex_transport"),
-        name = "Яндекс Go",
-        category = "Transport",
-        logoUrl = "https://logo.clearbit.com/go.yandex.kz",
-        promoCodeCount = 67,
-    )
+    val yandex by lazy {
+        (Service.create(name = "Яндекс Go") as Result.Success).data
+    }
 
     /**
      * Sample Technodom service
      */
-    val technodom = Service(
-        id = ServiceId("technodom_electronics"),
-        name = "Technodom",
-        category = "Electronics",
-        logoUrl = "https://logo.clearbit.com/technodom.kz",
-        promoCodeCount = 89,
-    )
+    val technodom by lazy {
+        (Service.create(name = "Technodom") as Result.Success).data
+    }
 
     /**
      * Sample service with no logo
      */
-    val localCoffeeShop = Service(
-        id = ServiceId("local_coffee_food"),
-        name = "Local Coffee Shop",
-        category = "Food",
-        logoUrl = null,
-        promoCodeCount = 3,
-    )
+    val localCoffeeShop by lazy {
+        (Service.create(name = "Local Coffee Shop") as Result.Success).data
+    }
 
     /**
      * List of all sample services for testing various scenarios
@@ -86,27 +62,4 @@ object ServicePreviewData {
         technodom,
         localCoffeeShop,
     )
-
-    /**
-     * Get a sample service by category for specific testing scenarios
-     */
-    fun getSampleByCategory(category: String): Service =
-        when (category.lowercase()) {
-            "entertainment" -> netflix
-            "shopping" -> kaspi
-            "food" -> glovo
-            "transport" -> yandex
-            "electronics" -> technodom
-            else -> localCoffeeShop
-        }
-
-    /**
-     * Get a sample service with high promo code count
-     */
-    val highVolumeService = kaspi
-
-    /**
-     * Get a sample service with low promo code count
-     */
-    val lowVolumeService = localCoffeeShop
 }

@@ -1,22 +1,26 @@
 package com.qodein.feature.promocode.submission
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.data.coordinator.ServiceSelectionCoordinator
+import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.domain.AuthState
+import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
+import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCode
-import com.qodein.shared.model.Service
+import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -38,11 +41,11 @@ import kotlin.time.toKotlinInstant
  * Manages the multi-step submission flow with clean separation of concerns:
  * - UI state management and wizard navigation
  * - Authentication state and service selection
- * - Form validation and PromoCode creation (UI → Domain mapping)
+ * - Form validation and Promocode creation (UI → Domain mapping)
  * - Delegates business logic and analytics to SubmitPromocodeUseCase
  *
  * Architecture:
- * - ViewModel: UI state, navigation, form data → PromoCode mapping
+ * - ViewModel: UI state, navigation, form data → Promocode mapping
  * - SubmitPromocodeUseCase: Business logic, validation, persistence, analytics
  * - Clean dependency flow: UI → ViewModel → Use Case → Repository
  */
@@ -52,7 +55,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val idTokenProvider: IdTokenProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
@@ -93,10 +97,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
             PromocodeSubmissionAction.ToggleManualEntry -> toggleManualEntry()
 
             // Step 1: Core Details
-            is PromocodeSubmissionAction.SelectService -> selectService(action.service)
             is PromocodeSubmissionAction.UpdateServiceName -> updateServiceName(action.serviceName)
             is PromocodeSubmissionAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
-            is PromocodeSubmissionAction.SearchServices -> searchServices(action.query)
             is PromocodeSubmissionAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
             is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
             is PromocodeSubmissionAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
@@ -114,7 +116,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
             PromocodeSubmissionAction.SubmitPromoCode -> submitPromoCode()
 
             // Authentication
-            PromocodeSubmissionAction.SignInWithGoogle -> signInWithGoogle()
+            is PromocodeSubmissionAction.SignInWithGoogle -> signInWithGoogle(action.context)
             PromocodeSubmissionAction.DismissAuthSheet -> handleBack()
 
             // Error handling
@@ -135,16 +137,12 @@ class PromocodeSubmissionViewModel @Inject constructor(
     )
     val serviceSelectionState = _serviceSelectionState.asStateFlow()
 
-    // Expose ServiceCache for UI components that need service lookup
-    val cachedServices: StateFlow<Map<String, Service>> get() = serviceSelectionCoordinator.cachedServices
-
     // MARK: - Service Selection
 
     private fun showServiceSelector() {
         updateSuccessState { it.showServiceSelector() }
-        // Setup service selection and load popular services when showing the selector
+        // Setup service selection when showing the selector
         setupServiceSelection()
-        handleServiceSelectionAction(ServiceSelectionAction.LoadPopularServices)
     }
 
     private fun hideServiceSelector() {
@@ -259,15 +257,15 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private fun setupAuthStateMonitoring() {
         viewModelScope.launch {
             getAuthStateUseCase()
-                .collect { user ->
+                .collect { authState ->
                     _uiState.update { currentState ->
                         when (currentState) {
                             is PromocodeSubmissionUiState.Success -> {
-                                val newAuthState = if (user != null) {
-                                    PromocodeSubmissionAuthenticationState.Authenticated(user)
-                                } else {
-                                    PromocodeSubmissionAuthenticationState.Unauthenticated
-                                }
+                                val newAuthState =
+                                    when (authState) {
+                                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
+                                    }
                                 currentState.updateAuthentication(newAuthState)
                             }
                             is PromocodeSubmissionUiState.Loading,
@@ -278,46 +276,53 @@ class PromocodeSubmissionViewModel @Inject constructor(
         }
     }
 
-    private fun signInWithGoogle() {
+    private fun signInWithGoogle(context: Context) {
         Logger.i(TAG) { "signInWithGoogle() called" }
 
         _uiState.update { currentState ->
             when (currentState) {
-                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Loading)
+                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(UiAuthState.Loading)
                 else -> currentState
             }
         }
 
         viewModelScope.launch {
-            signInWithGoogleUseCase()
-                .collect { result ->
-                    when (result) {
+            when (val tokenResult = idTokenProvider.getIdToken(context)) {
+                is Result.Success -> {
+                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
                         is Result.Success -> {
                             Logger.i(TAG) { "Sign-in successful" }
                             // Auth state will be updated via setupAuthStateMonitoring
                         }
                         is Result.Error -> {
-                            Logger.w(TAG) { "Sign-in failed: ${result.error}" }
-                            // Reset to unauthenticated
+                            Logger.w(TAG) { "Sign-in failed: ${signInResult.error}" }
                             _uiState.update { currentState ->
                                 when (currentState) {
                                     is PromocodeSubmissionUiState.Success ->
-                                        currentState.updateAuthentication(PromocodeSubmissionAuthenticationState.Unauthenticated)
+                                        currentState.updateAuthentication(UiAuthState.Unauthenticated)
                                     else -> currentState
                                 }
                             }
-                            _events.emit(PromocodeSubmissionEvent.ShowError(result.error))
+                            _events.emit(PromocodeSubmissionEvent.ShowError(signInResult.error))
                         }
                     }
                 }
+                is Result.Error -> {
+                    Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
+                    _uiState.update { currentState ->
+                        when (currentState) {
+                            is PromocodeSubmissionUiState.Success ->
+                                currentState.updateAuthentication(UiAuthState.Unauthenticated)
+                            else -> currentState
+                        }
+                    }
+                    _events.emit(PromocodeSubmissionEvent.ShowError(tokenResult.error))
+                }
+            }
         }
     }
 
     // MARK: - Data Updates (Step 1: Core Details)
-
-    private fun selectService(service: Service) {
-        updateWizardData { it.copy(selectedService = service) }
-    }
 
     private fun updateServiceName(serviceName: String) {
         // Update the manual service name field
@@ -326,10 +331,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     private fun updatePromoCodeType(type: PromoCodeType) {
         updateWizardData { it.copy(promoCodeType = type) }
-    }
-
-    private fun searchServices(query: String) {
-        handleServiceSelectionAction(ServiceSelectionAction.UpdateQuery(query))
     }
 
     private fun updatePromoCode(promoCode: String) {
@@ -385,11 +386,28 @@ class PromocodeSubmissionViewModel @Inject constructor(
         )
     }
 
-    private fun handleServiceSelectionAction(action: ServiceSelectionAction) {
+    fun onServiceSelectionAction(action: ServiceSelectionAction) {
         val currentState = _serviceSelectionState.value
         val newState = serviceSelectionCoordinator.handleAction(currentState, action)
 
         _serviceSelectionState.update { newState }
+
+        when (action) {
+            is ServiceSelectionAction.ToggleService -> {
+                // Get service from domain state (popular or search results)
+                val allServices = (
+                    newState.popular.services +
+                        (newState.search.status as? SearchStatus.Success)?.services.orEmpty()
+                    ).associateBy { it.id }
+
+                val service = allServices[action.id]
+                service?.let {
+                    updateWizardData { wizardData -> wizardData.copy(selectedService = it) }
+                    onAction(PromocodeSubmissionAction.HideServiceSelector)
+                }
+            }
+            else -> { /* Other actions don't need additional handling */ }
+        }
     }
 
     private fun handleBack() {
@@ -419,7 +437,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
             return
         }
 
-        val authenticatedUser = (currentState.authentication as? PromocodeSubmissionAuthenticationState.Authenticated)?.user
+        val authenticatedUser = (currentState.authentication as? UiAuthState.Authenticated)?.user
         if (authenticatedUser == null) {
             Logger.w(TAG) { "Cannot submit: user is not authenticated" }
             return
@@ -429,7 +447,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
     }
 
     /**
-     * Core submission logic - creates PromoCode and delegates to use case
+     * Core submission logic - creates Promocode and delegates to use case
      */
     private fun performSubmission(user: User) {
         val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
@@ -445,99 +463,59 @@ class PromocodeSubmissionViewModel @Inject constructor(
         updateSuccessState { it.startSubmission() }
 
         viewModelScope.launch {
-            val promoCodeResult = createPromoCodeFromWizardData(wizardData, user)
+            val request = buildSubmitRequest(wizardData, user) ?: run {
+                updateSuccessState { it.submitError(Exception("Invalid promo code data")) }
+                return@launch
+            }
 
-            when (promoCodeResult) {
+            when (val result = submitPromocodeUseCase(request)) {
                 is Result.Success -> {
-                    submitPromocodeUseCase(promoCodeResult.data)
-                        .catch { exception ->
-                            updateSuccessState { it.submitError(exception) }
-                        }
-                        .collect { result ->
-                            updateSuccessState { state ->
-                                when (result) {
-                                    is Result.Success -> {
-                                        // UI navigation events (not business analytics)
-                                        viewModelScope.launch {
-                                            _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
-                                            _events.emit(PromocodeSubmissionEvent.NavigateBack)
-                                        }
-                                        state.submitSuccess(result.data.id.value)
-                                    }
-                                    is Result.Error -> state.submitError(Exception(result.error.toString()))
-                                }
-                            }
-                        }
+                    viewModelScope.launch {
+                        _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
+                        _events.emit(PromocodeSubmissionEvent.NavigateBack)
+                    }
+                    updateSuccessState { it.submitSuccess(request.code) }
                 }
                 is Result.Error -> {
-                    updateSuccessState { it.submitError(Exception(promoCodeResult.error.toString())) }
+                    updateSuccessState { it.submitError(Exception(result.error.toString())) }
                 }
             }
         }
     }
 
-    /**
-     * Create PromoCode instance from wizard data and user info
-     * (UI → Domain mapping responsibility)
-     */
-    private fun createPromoCodeFromWizardData(
+    private fun buildSubmitRequest(
         wizardData: SubmissionWizardData,
         user: User
-    ): Result<PromoCode, SystemError> {
-        val serviceLogoUrl = wizardData.selectedService?.logoUrl
-        val category = wizardData.selectedService?.category ?: "Unspecified"
-
-        return try {
-            when (wizardData.promoCodeType) {
-                PromoCodeType.PERCENTAGE -> Result.Success(
-                    PromoCode.create(
-                        code = wizardData.promoCode,
-                        serviceName = wizardData.effectiveServiceName,
-                        discount = Discount.Percentage(wizardData.discountPercentage.toDoubleOrNull() ?: 0.0),
-                        serviceId = wizardData.selectedService?.id,
-                        description = wizardData.description.takeIf { it.isNotBlank() },
-                        minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                        startDate = wizardData.startDate.toInstant(),
-                        endDate = wizardData.endDate!!.toInstant(),
-                        isFirstUserOnly = wizardData.isFirstUserOnly,
-                        createdBy = user.id,
-                        createdByUsername = user.profile.displayName,
-                        createdByAvatarUrl = user.profile.photoUrl,
-                        serviceLogoUrl = serviceLogoUrl,
-                        targetCountries = listOf("KZ"), // Kazakhstan market
-                        category = category,
-                    ).getOrThrow(),
-                )
-
-                PromoCodeType.FIXED_AMOUNT -> Result.Success(
-                    PromoCode.create(
-                        code = wizardData.promoCode,
-                        serviceName = wizardData.effectiveServiceName,
-                        discount = Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0),
-                        serviceId = wizardData.selectedService?.id,
-                        description = wizardData.description.takeIf { it.isNotBlank() },
-                        minimumOrderAmount = wizardData.minimumOrderAmount.toDoubleOrNull() ?: 0.0,
-                        startDate = wizardData.startDate.toInstant(),
-                        endDate = wizardData.endDate!!.toInstant(),
-                        isFirstUserOnly = wizardData.isFirstUserOnly,
-                        createdBy = user.id,
-                        createdByUsername = user.profile.displayName,
-                        createdByAvatarUrl = user.profile.photoUrl,
-                        serviceLogoUrl = serviceLogoUrl,
-                        targetCountries = listOf("KZ"), // Kazakhstan market
-                        category = category,
-                    ).getOrThrow(),
-                )
-
-                null -> Result.Error(SystemError.Unknown)
-            }
-        } catch (exception: Exception) {
-            Result.Error(SystemError.Unknown)
+    ): SubmitPromocodeRequest? {
+        val discount = when (wizardData.promoCodeType) {
+            PromoCodeType.PERCENTAGE -> Discount.Percentage(wizardData.discountPercentage.toDoubleOrNull() ?: 0.0)
+            PromoCodeType.FIXED_AMOUNT -> Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0)
+            null -> return null
         }
+
+        val serviceRef = wizardData.selectedService?.id?.let { ServiceRef.ById(it) }
+            ?: ServiceRef.ByName(wizardData.effectiveServiceName)
+
+        val minimumOrder = wizardData.minimumOrderAmount.toDoubleOrNull() ?: return null
+        val endDate = wizardData.endDate ?: return null
+
+        return SubmitPromocodeRequest(
+            code = wizardData.promoCode,
+            service = serviceRef,
+            currentUser = user,
+            discount = discount,
+            minimumOrderAmount = minimumOrder,
+            startDate = wizardData.startDate.toInstant(),
+            endDate = endDate.toInstant(),
+            description = wizardData.description.takeIf { it.isNotBlank() },
+            isFirstUserOnly = wizardData.isFirstUserOnly,
+            isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
+            isVerified = false,
+        )
     }
 
     /**
-     * Convert LocalDate to Instant for PromoCode creation
+     * Convert LocalDate to Instant for Promocode creation
      */
     private fun LocalDate.toInstant() = this.atStartOfDay(ZoneId.systemDefault()).toInstant().toKotlinInstant()
 

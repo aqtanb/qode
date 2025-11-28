@@ -1,5 +1,6 @@
 package com.qodein.feature.profile
 
+import android.R.attr.fontWeight
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -408,24 +409,18 @@ private fun UserInfo(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
         UserName(
-            firstName = user.profile.firstName,
-            lastName = user.profile.lastName,
+            displayName = user.displayName,
         )
     }
 }
 
 @Composable
 private fun UserName(
-    firstName: String,
-    lastName: String?,
+    displayName: String?,
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = if (lastName != null) {
-            stringResource(R.string.profile_full_name_format, firstName, lastName)
-        } else {
-            firstName
-        },
+        text = displayName ?: "",
         style = MaterialTheme.typography.headlineMedium.copy(
             fontWeight = FontWeight.Bold,
         ),

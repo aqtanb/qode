@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
@@ -39,10 +40,12 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 private fun Modifier.conditionalClickable(
     onClick: (() -> Unit)?,
     enabled: Boolean,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource,
+    shape: Shape
 ): Modifier =
     if (onClick != null) {
         this
+            .clip(shape)
             .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,
@@ -82,7 +85,7 @@ fun QodeinElevatedCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     ElevatedCard(
-        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource),
+        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource, shape),
         shape = shape,
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = ElevationTokens.large,
@@ -117,7 +120,7 @@ fun QodeinOutlinedCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     OutlinedCard(
-        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource),
+        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource, shape),
         shape = shape,
         border = BorderStroke(
             width = ShapeTokens.Border.thin,
@@ -158,7 +161,7 @@ fun QodeinCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     Card(
-        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource),
+        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource, shape),
         shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
