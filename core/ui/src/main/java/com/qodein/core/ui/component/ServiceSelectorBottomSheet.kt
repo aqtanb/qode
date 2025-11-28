@@ -32,9 +32,9 @@ import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.component.ShimmerBox
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -165,7 +165,7 @@ private fun PopularServicesSection(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
-                        imageVector = QodeUIIcons.Error,
+                        imageVector = UIIcons.Error,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
@@ -199,7 +199,7 @@ private fun PopularServicesSection(
                                     CircularImage(
                                         imageUrl = service.logoUrl,
                                         fallbackText = service.name,
-                                        fallbackIcon = QodeEssentialIcons.Store,
+                                        fallbackIcon = QodeIcons.Store,
                                         size = SizeTokens.Icon.sizeSmall,
                                         backgroundColor = MaterialTheme.colorScheme.surface,
                                         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -220,7 +220,7 @@ private fun PopularServicesSection(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = QodeUIIcons.Empty,
+                            imageVector = UIIcons.Empty,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
@@ -313,7 +313,7 @@ private fun ServiceItem(
             CircularImage(
                 imageUrl = service.logoUrl,
                 fallbackText = service.name,
-                fallbackIcon = QodeEssentialIcons.Store,
+                fallbackIcon = QodeIcons.Store,
                 size = SizeTokens.Icon.sizeMedium,
                 backgroundColor = if (isSelected) {
                     MaterialTheme.colorScheme.primaryContainer

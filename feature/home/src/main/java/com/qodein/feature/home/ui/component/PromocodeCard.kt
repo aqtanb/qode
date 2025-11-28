@@ -54,8 +54,8 @@ import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.shape.CouponShape
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
@@ -214,7 +214,7 @@ private fun CouponHeader(
     ) {
         CircularImage(
             imageUrl = promocode.serviceLogoUrl,
-            fallbackIcon = QodeEssentialIcons.Store,
+            fallbackIcon = QodeIcons.Store,
             contentDescription = stringResource(R.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
             modifier = Modifier
@@ -262,7 +262,7 @@ private fun CouponHeader(
             val isExpiringSoon = promocode.endDate < now.plus(3.days)
             if (isExpiringSoon) {
                 Icon(
-                    imageVector = QodeUIIcons.Expiring,
+                    imageVector = UIIcons.Expiring,
                     contentDescription = stringResource(R.string.cd_expiring_soon),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),

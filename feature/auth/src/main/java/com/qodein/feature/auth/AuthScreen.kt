@@ -101,7 +101,7 @@ private fun AuthScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(paddingValues)
-                .padding(horizontal = SpacingTokens.lg),
+                .padding(horizontal = SpacingTokens.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

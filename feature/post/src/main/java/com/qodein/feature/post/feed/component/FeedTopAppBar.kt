@@ -1,6 +1,7 @@
 package com.qodein.feature.post.feed.component
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +55,7 @@ private fun RowScope.FeedAppBarActions(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    IconButton(onClick = onProfileClick) {
+    IconButton(onClick = onProfileClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
         ProfileAvatar(
             user = user,
             size = SizeTokens.Icon.sizeXLarge,
@@ -62,11 +63,12 @@ private fun RowScope.FeedAppBarActions(
         )
     }
 
-    IconButton(onClick = onSettingsClick) {
+    IconButton(onClick = onSettingsClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
         Icon(
             imageVector = QodeNavigationIcons.Settings,
             contentDescription = stringResource(R.string.cd_settings),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
         )
     }
 }

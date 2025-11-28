@@ -20,8 +20,8 @@ fun ProfileAvatar(
     user: User?,
     modifier: Modifier = Modifier,
     size: Dp = SizeTokens.Avatar.sizeLarge,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String = stringResource(R.string.profile_picture_description)
 ) {
     CircularImage(

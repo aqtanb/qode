@@ -14,8 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -29,7 +27,7 @@ import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -118,7 +116,7 @@ private fun PostImageErrorStateContent() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
             Icon(
-                imageVector = QodeUIIcons.Error,
+                imageVector = UIIcons.Error,
                 contentDescription = stringResource(R.string.cd_image_load_failed),
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),

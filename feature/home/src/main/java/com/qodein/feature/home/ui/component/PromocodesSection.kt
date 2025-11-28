@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -70,7 +70,7 @@ fun PromocodeSectionErrorState(
 ) {
     StateContainer(modifier = modifier) {
         Icon(
-            imageVector = QodeUIIcons.Error,
+            imageVector = UIIcons.Error,
             contentDescription = null,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             tint = MaterialTheme.colorScheme.error,
@@ -97,7 +97,7 @@ fun PromocodeSectionErrorState(
 fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
     StateContainer(modifier = modifier) {
         Icon(
-            imageVector = QodeUIIcons.Empty,
+            imageVector = UIIcons.Empty,
             contentDescription = null,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,

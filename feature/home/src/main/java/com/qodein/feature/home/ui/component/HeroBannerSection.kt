@@ -38,7 +38,7 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -131,7 +131,7 @@ fun HeroBannerSection(
                         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                     ) {
                         Icon(
-                            imageVector = QodeUIIcons.Error,
+                            imageVector = UIIcons.Error,
                             contentDescription = null,
                             modifier = modifier.size(SizeTokens.Avatar.sizeLarge).padding(bottom = SpacingTokens.md),
                             tint = MaterialTheme.colorScheme.onSurface,

@@ -3,7 +3,7 @@ package com.qodein.feature.promocode.submission
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeCalendarIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
@@ -80,11 +80,11 @@ fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector 
     when {
         isCompleted -> QodeActionIcons.Check
         else -> when (this) {
-            PromocodeSubmissionStep.SERVICE -> QodeEssentialIcons.Store
-            PromocodeSubmissionStep.DISCOUNT_TYPE -> QodeEssentialIcons.Sale
-            PromocodeSubmissionStep.PROMO_CODE -> QodeEssentialIcons.PromoCode
-            PromocodeSubmissionStep.DISCOUNT_VALUE -> QodeEssentialIcons.Dollar
-            PromocodeSubmissionStep.MINIMUM_ORDER -> QodeEssentialIcons.Dollar
+            PromocodeSubmissionStep.SERVICE -> QodeIcons.Store
+            PromocodeSubmissionStep.DISCOUNT_TYPE -> QodeIcons.Sale
+            PromocodeSubmissionStep.PROMO_CODE -> QodeIcons.Promocode
+            PromocodeSubmissionStep.DISCOUNT_VALUE -> QodeIcons.Dollar
+            PromocodeSubmissionStep.MINIMUM_ORDER -> QodeIcons.Dollar
             PromocodeSubmissionStep.ELIGIBILITY -> QodeNavigationIcons.Settings
             PromocodeSubmissionStep.DESCRIPTION -> QodeCalendarIcons.Info
             PromocodeSubmissionStep.START_DATE, PromocodeSubmissionStep.END_DATE -> QodeCalendarIcons.Datepicker

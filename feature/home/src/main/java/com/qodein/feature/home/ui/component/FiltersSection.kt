@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,9 +18,9 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -30,7 +29,6 @@ import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
-import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.ui.FilterDialogType
 
@@ -54,38 +52,38 @@ fun FiltersSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val (serviceIcon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
-            ServiceFilter.All -> Triple(QodeEssentialIcons.Store, null, null)
+            ServiceFilter.All -> Triple(QodeIcons.Store, null, null)
             is ServiceFilter.Selected -> {
                 when (filter.services.size) {
                     1 -> {
                         val service = filter.services.first()
-                        Triple(QodeUIIcons.Filter1, service.logoUrl, service.name)
+                        Triple(UIIcons.Filter1, service.logoUrl, service.name)
                     }
                     2 -> {
-                        Triple(QodeUIIcons.Filter2, null, null)
+                        Triple(UIIcons.Filter2, null, null)
                     }
                     3 -> {
-                        Triple(QodeUIIcons.Filter3, null, null)
+                        Triple(UIIcons.Filter3, null, null)
                     }
                     4 -> {
-                        Triple(QodeUIIcons.Filter4, null, null)
+                        Triple(UIIcons.Filter4, null, null)
                     }
                     5 -> {
-                        Triple(QodeUIIcons.Filter5, null, null)
+                        Triple(UIIcons.Filter5, null, null)
                     }
                     6 -> {
-                        Triple(QodeUIIcons.Filter6, null, null)
+                        Triple(UIIcons.Filter6, null, null)
                     }
                     7 -> {
-                        Triple(QodeUIIcons.Filter7, null, null)
+                        Triple(UIIcons.Filter7, null, null)
                     }
                     8 -> {
-                        Triple(QodeUIIcons.Filter8, null, null)
+                        Triple(UIIcons.Filter8, null, null)
                     }
                     9 -> {
-                        Triple(QodeUIIcons.Filter9, null, null)
+                        Triple(UIIcons.Filter9, null, null)
                     }
-                    else -> Triple(QodeUIIcons.Filter9Plus, null, null)
+                    else -> Triple(UIIcons.Filter9Plus, null, null)
                 }
             }
         }

@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeCalendarIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -147,9 +147,9 @@ private fun StepHeader(
         ) {
             Icon(
                 imageVector = if (isHintExpanded) {
-                    QodeUIIcons.HintFilled
+                    UIIcons.HintFilled
                 } else {
-                    QodeUIIcons.Hint
+                    UIIcons.Hint
                 },
                 contentDescription = "Toggle helpful tips",
                 tint = if (isHintExpanded) {

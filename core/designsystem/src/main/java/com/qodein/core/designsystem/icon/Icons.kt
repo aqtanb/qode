@@ -18,8 +18,8 @@ import androidx.compose.material.icons.filled.Filter9Plus
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkAdd
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
@@ -99,15 +99,14 @@ object PromocodeIcons {
     val FirstUseOnly: ImageVector = TablerIcons.Seeding
 }
 
-object QodeEssentialIcons {
-    val PromoCode: ImageVector = TablerIcons.Tag
+object QodeIcons {
+    val Promocode: ImageVector = TablerIcons.Tag
     val Discount: ImageVector = TablerIcons.Discount2
     val Sale: ImageVector = FeatherIcons.Percent
     val Coupon: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
     val Cost: ImageVector = FeatherIcons.DollarSign
     val Store: ImageVector = Icons.Outlined.Store
-    val StoreFilled: ImageVector = Icons.Filled.Store
 }
 
 object QodeCategoryIcons {
@@ -175,7 +174,9 @@ object QodeSocialIcons {
     val Telegram: ImageVector = SimpleIcons.Telegram
 }
 
-object QodeUIIcons {
+object UIIcons {
+    val AccountCircle: ImageVector = Icons.Outlined.AccountCircle
+
     val Popular: ImageVector = Icons.Filled.Diamond
     val Newest: ImageVector = Icons.Filled.FiberNew
     val Expiring: ImageVector = Icons.Filled.Timelapse

@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinAssistChip
 import com.qodein.core.designsystem.icon.PromocodeIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
@@ -57,7 +57,7 @@ fun ServiceInfoSection(
                 CircularImage(
                     imageUrl = promoCode.serviceLogoUrl,
                     fallbackText = promoCode.serviceName,
-                    fallbackIcon = QodeEssentialIcons.Store,
+                    fallbackIcon = QodeIcons.Store,
                     size = SizeTokens.Icon.sizeLarge,
                     contentDescription = "Logo of ${promoCode.serviceName}",
                 )
@@ -103,7 +103,7 @@ fun ServiceInfoSection(
                     QodeinAssistChip(
                         label = stringResource(R.string.cd_expiring_soon),
                         onClick = {},
-                        leadingIcon = QodeUIIcons.Expiring,
+                        leadingIcon = UIIcons.Expiring,
                         enabled = false,
                     )
                 }

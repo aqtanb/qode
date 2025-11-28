@@ -3,7 +3,7 @@ package com.qodein.qode.navigation
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.post.navigation.FeedRoute
 import com.qodein.qode.R
@@ -19,8 +19,8 @@ enum class TopLevelDestination(
     val baseRoute: KClass<*> = route
 ) {
     HOME(
-        selectedIcon = QodeEssentialIcons.Coupon,
-        unSelectedIcon = QodeEssentialIcons.Coupon,
+        selectedIcon = QodeIcons.Coupon,
+        unSelectedIcon = QodeIcons.Coupon,
         iconTextId = homeR.string.feature_home_title,
         titleTextId = R.string.app_name,
         route = HomeBaseRoute::class,

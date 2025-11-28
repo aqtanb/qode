@@ -25,7 +25,7 @@ import com.mikepenz.markdown.m3.Markdown
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.ShimmerLine
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -152,7 +152,7 @@ private fun LegalDocumentError(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         Icon(
-            imageVector = QodeUIIcons.Error,
+            imageVector = UIIcons.Error,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),

@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromoCodeType
@@ -196,7 +196,7 @@ private fun PromoCodeStepContent(
         },
         label = "Promo Code",
         placeholder = "Enter promo code (e.g., SAVE20)",
-        leadingIcon = QodeEssentialIcons.PromoCode,
+        leadingIcon = QodeIcons.Promocode,
         errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
             getPromoCodeValidationError(promoCode)
         } else {
@@ -238,7 +238,7 @@ private fun DiscountValueStepContent(
                     label = "Discount Percentage",
                     placeholder = "20",
                     fieldType = SubmissionFieldType.PERCENTAGE,
-                    leadingIcon = QodeEssentialIcons.Sale,
+                    leadingIcon = QodeIcons.Sale,
                     helperText = "Enter percentage (1-99%)",
                     isRequired = true,
                     focusRequester = focusRequester,
@@ -272,7 +272,7 @@ private fun DiscountValueStepContent(
                     label = "Discount Amount",
                     placeholder = "500",
                     fieldType = SubmissionFieldType.CURRENCY,
-                    leadingIcon = QodeEssentialIcons.Dollar,
+                    leadingIcon = QodeIcons.Dollar,
                     helperText = "Enter amount in ₸ (tenge)",
                     isRequired = true,
                     focusRequester = focusRequester,
@@ -328,7 +328,7 @@ private fun MinimumOrderStepContent(
             label = "Minimum Order Amount",
             placeholder = "1000",
             fieldType = SubmissionFieldType.CURRENCY,
-            leadingIcon = QodeEssentialIcons.Dollar,
+            leadingIcon = QodeIcons.Dollar,
             helperText = "Minimum order value required to apply this discount",
             errorText = getBusinessLogicValidationError(wizardData),
             isRequired = true,
