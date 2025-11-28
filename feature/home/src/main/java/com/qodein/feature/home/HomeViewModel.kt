@@ -8,7 +8,7 @@ import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logPromoCodeView
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.ui.state.BannerState
-import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
@@ -207,7 +207,7 @@ class HomeViewModel @Inject constructor(
             // Set loading state before starting operation
             if (!isLoadMore) {
                 _uiState.update { state ->
-                    state.copy(promoCodeState = PromoCodeState.Loading)
+                    state.copy(promocodeUiState = PromocodeUiState.Loading)
                 }
             } else {
                 _uiState.update { state ->
@@ -241,8 +241,8 @@ class HomeViewModel @Inject constructor(
 
     private fun loadNextPage() {
         val currentState = _uiState.value
-        val promoState = currentState.promoCodeState
-        if (promoState !is PromoCodeState.Success || !promoState.hasMore || currentState.isLoadingMore) {
+        val promoState = currentState.promocodeUiState
+        if (promoState !is PromocodeUiState.Success || !promoState.hasMore || currentState.isLoadingMore) {
             return
         }
 
@@ -256,9 +256,9 @@ class HomeViewModel @Inject constructor(
         currentState: HomeUiState
     ): HomeUiState =
         if (isLoadMore) {
-            val currentPromoCodes = (currentState.promoCodeState as? PromoCodeState.Success)?.promoCodes ?: emptyList()
+            val currentPromoCodes = (currentState.promocodeUiState as? PromocodeUiState.Success)?.promoCodes ?: emptyList()
             currentState.copy(
-                promoCodeState = PromoCodeState.Success(
+                promocodeUiState = PromocodeUiState.Success(
                     promoCodes = currentPromoCodes + paginatedResult.data,
                     hasMore = paginatedResult.hasMore,
                     nextCursor = paginatedResult.nextCursor,
@@ -266,14 +266,14 @@ class HomeViewModel @Inject constructor(
             )
         } else {
             currentState.copy(
-                promoCodeState = if (paginatedResult.data.isNotEmpty()) {
-                    PromoCodeState.Success(
+                promocodeUiState = if (paginatedResult.data.isNotEmpty()) {
+                    PromocodeUiState.Success(
                         promoCodes = paginatedResult.data,
                         hasMore = paginatedResult.hasMore,
                         nextCursor = paginatedResult.nextCursor,
                     )
                 } else {
-                    PromoCodeState.Empty
+                    PromocodeUiState.Empty
                 },
             )
         }
@@ -287,7 +287,7 @@ class HomeViewModel @Inject constructor(
             currentState
         } else {
             currentState.copy(
-                promoCodeState = PromoCodeState.Error(error = result.error),
+                promocodeUiState = PromocodeUiState.Error(error = result.error),
             )
         }
 
@@ -438,7 +438,7 @@ class HomeViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentFilters = newFilters,
-                promoCodeState = PromoCodeState.Loading,
+                promocodeUiState = PromocodeUiState.Loading,
             )
         }
 

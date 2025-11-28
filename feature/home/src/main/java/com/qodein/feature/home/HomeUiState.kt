@@ -1,7 +1,7 @@
 package com.qodein.feature.home
 
 import com.qodein.feature.home.ui.state.BannerState
-import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.model.CompleteFilterState
@@ -14,7 +14,7 @@ import com.qodein.shared.ui.FilterDialogType
  */
 data class HomeUiState(
     val bannerState: BannerState = BannerState.Loading,
-    val promoCodeState: PromoCodeState = PromoCodeState.Loading,
+    val promocodeUiState: PromocodeUiState = PromocodeUiState.Loading,
 
     val userLanguage: Language = Language.ENGLISH,
 

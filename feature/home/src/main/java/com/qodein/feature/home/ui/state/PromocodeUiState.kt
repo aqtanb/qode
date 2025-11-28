@@ -8,13 +8,13 @@ import com.qodein.shared.model.PromoCode
 /**
  * Independent promo code state for home screen
  */
-sealed class PromoCodeState {
-    data object Loading : PromoCodeState()
+sealed class PromocodeUiState {
+    data object Loading : PromocodeUiState()
     data class Success(
         val promoCodes: List<PromoCode>,
         val hasMore: Boolean = false,
         val nextCursor: PaginationCursor<ContentSortBy>? = null
-    ) : PromoCodeState()
-    data object Empty : PromoCodeState()
-    data class Error(val error: OperationError) : PromoCodeState()
+    ) : PromocodeUiState()
+    data object Empty : PromocodeUiState()
+    data class Error(val error: OperationError) : PromocodeUiState()
 }

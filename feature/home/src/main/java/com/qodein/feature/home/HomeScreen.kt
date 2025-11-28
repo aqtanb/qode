@@ -30,12 +30,12 @@ import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
 import com.qodein.feature.home.ui.component.LoadingMoreIndicator
-import com.qodein.feature.home.ui.component.PromoCodesErrorState
-import com.qodein.feature.home.ui.component.PromoCodesLoadingState
 import com.qodein.feature.home.ui.component.PromocodeCard
 import com.qodein.feature.home.ui.component.PromocodeSectionEmptyState
+import com.qodein.feature.home.ui.component.PromocodeSectionErrorState
 import com.qodein.feature.home.ui.component.PromocodeSectionHeader
-import com.qodein.feature.home.ui.state.PromoCodeState
+import com.qodein.feature.home.ui.component.PromocodeSectionLoadingState
+import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
@@ -74,10 +74,10 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(listState, uiState.promoCodeState, uiState.isLoadingMore) {
+    LaunchedEffect(listState, uiState.promocodeUiState, uiState.isLoadingMore) {
         snapshotFlow {
-            val promoState = uiState.promoCodeState
-            if (promoState is PromoCodeState.Success && promoState.hasMore && !uiState.isLoadingMore) {
+            val promoState = uiState.promocodeUiState
+            if (promoState is PromocodeUiState.Success && promoState.hasMore && !uiState.isLoadingMore) {
                 val layoutInfo = listState.layoutInfo
                 val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
                 val totalItems = layoutInfo.totalItemsCount
@@ -179,16 +179,16 @@ private fun HomeContent(
         }
 
         // Promo Codes Content
-        when (val promoState = uiState.promoCodeState) {
-            PromoCodeState.Loading -> {
+        when (val promoState = uiState.promocodeUiState) {
+            PromocodeUiState.Loading -> {
                 item(key = PROMO_CODES_LOADING_KEY) {
-                    PromoCodesLoadingState(
+                    PromocodeSectionLoadingState(
                         modifier = Modifier
                             .fillMaxWidth(),
                     )
                 }
             }
-            is PromoCodeState.Success -> {
+            is PromocodeUiState.Success -> {
                 items(
                     items = promoState.promoCodes,
                     key = { promoCode -> promoCode.id.value },
@@ -211,19 +211,19 @@ private fun HomeContent(
                     }
                 }
             }
-            PromoCodeState.Empty -> {
+            PromocodeUiState.Empty -> {
                 item(key = PROMO_CODES_EMPTY_KEY) {
                     PromocodeSectionEmptyState(
-                        modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                        modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
                     )
                 }
             }
-            is PromoCodeState.Error -> {
+            is PromocodeUiState.Error -> {
                 item(key = PROMO_CODES_ERROR_KEY) {
-                    PromoCodesErrorState(
+                    PromocodeSectionErrorState(
                         errorState = promoState,
                         onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
-                        modifier = Modifier.padding(horizontal = SpacingTokens.lg),
+                        modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
                     )
                 }
             }
