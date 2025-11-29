@@ -70,7 +70,7 @@
     <string name="error_promo_code_too_long">Promo code is too long. Maximum 50 characters allowed.</string>
     <string name="error_promo_description_too_long">Description is too long. Maximum 1000 characters allowed.</string>
     <string name="error_promo_invalid_date_range">End date must be after the start date.</string>
-    <string name="error_promo_invalid_percentage">Discount percentage must be between 1% and 100%.</string>
+    <string name="error_promo_invalid_percentage" formatted="false">Discount percentage must be between 1% and 100%.</string>
     <string name="error_promo_invalid_fixed_amount">Fixed discount amount must be greater than zero.</string>
     <string name="error_promo_invalid_minimum_amount">Minimum purchase amount must be greater than zero.</string>
     <string name="error_promo_discount_exceeds_minimum">Discount amount cannot exceed the minimum purchase amount.</string>

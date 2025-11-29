@@ -339,7 +339,7 @@ private fun ServiceItem(
             )
 
             Text(
-                text = "${service.promoCodeCount}",
+                text = "${service.promocodeCount}",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,

@@ -193,9 +193,10 @@ object MotionTokens {
  */
 @Immutable
 object OpacityTokens {
-    // Disabled states
     const val DISABLED = 0.38f
     const val DISABLED_CONTAINER = 0.12f
+
+    const val PLACEHOLDER = 0.54f
 
     // Interactive states
     const val HOVER = 0.08f

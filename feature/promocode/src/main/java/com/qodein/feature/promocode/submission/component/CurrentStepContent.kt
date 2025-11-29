@@ -38,7 +38,7 @@ import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.steps.DateSelector
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeSelector
-import com.qodein.feature.promocode.submission.component.steps.ServiceStepContent
+import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
 import com.qodein.feature.promocode.submission.validation.getPromoCodeValidationError
 import kotlinx.coroutines.delay
@@ -73,7 +73,7 @@ fun SubmissionWizardStepContent(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         when (currentStep) {
-            PromocodeSubmissionStep.SERVICE -> ServiceStepContent(
+            PromocodeSubmissionStep.SERVICE -> ServiceStep(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
                 isManualEntry = wizardData.isManualServiceEntry,

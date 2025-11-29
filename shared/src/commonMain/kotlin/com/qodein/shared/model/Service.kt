@@ -32,10 +32,10 @@ sealed interface ServiceRef {
 
 @ConsistentCopyVisibility
 @Serializable
-data class Service private constructor(val id: ServiceId, val name: String, val logoUrl: String?, val promoCodeCount: Int) {
+data class Service private constructor(val id: ServiceId, val name: String, val logoUrl: String?, val promocodeCount: Int) {
     companion object {
         const val NAME_MIN_LENGTH = 1
-        const val NAME_MAX_LENGTH = 100
+        const val NAME_MAX_LENGTH = 40
 
         fun create(name: String): Result<Service, ServiceError.CreationFailure> {
             val cleanName = name.trim()
@@ -60,7 +60,7 @@ data class Service private constructor(val id: ServiceId, val name: String, val 
                     id = ServiceId(serviceId),
                     name = cleanName,
                     logoUrl = null,
-                    promoCodeCount = 0,
+                    promocodeCount = 0,
                 ),
             )
         }
@@ -79,7 +79,7 @@ data class Service private constructor(val id: ServiceId, val name: String, val 
                 id = id,
                 name = name,
                 logoUrl = logoUrl,
-                promoCodeCount = promoCodeCount,
+                promocodeCount = promoCodeCount,
             )
 
         private fun generateServiceId(name: String): String =

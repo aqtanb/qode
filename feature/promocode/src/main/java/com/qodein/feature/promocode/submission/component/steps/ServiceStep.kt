@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,13 +25,16 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -39,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -48,14 +53,14 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.SubmissionStepCard
-import com.qodein.feature.promocode.submission.component.SubmissionTextField
 import com.qodein.shared.model.Service
 
 @Composable
-fun ServiceStepContent(
+fun ServiceStep(
     selectedService: Service?,
     serviceName: String,
     isManualEntry: Boolean,
@@ -65,6 +70,20 @@ fun ServiceStepContent(
     focusRequester: FocusRequester,
     onNextStep: () -> Unit
 ) {
+    val blankErrorText = stringResource(R.string.service_step_error_blank)
+    val maxLengthErrorText = stringResource(
+        R.string.service_step_error_max_length,
+        Service.NAME_MAX_LENGTH,
+    )
+
+    var errorText by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(isManualEntry) {
+        if (!isManualEntry) {
+            errorText = null
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
@@ -75,33 +94,50 @@ fun ServiceStepContent(
                     focusRequester.requestFocus()
                 }
 
-                SubmissionTextField(
+                QodeinTextField(
                     value = serviceName,
-                    onValueChange = onServiceNameChange,
-                    label = "Service Name",
-                    placeholder = "Type the service name",
+                    onValueChange = { newValue ->
+                        val clamped = newValue.take(Service.NAME_MAX_LENGTH)
+                        if (newValue.length >= Service.NAME_MAX_LENGTH) {
+                            errorText = maxLengthErrorText
+                        } else if (clamped.isNotBlank()) {
+                            errorText = null
+                        }
+                        onServiceNameChange(clamped)
+                    },
+                    placeholder = stringResource(R.string.service_step_placeholder_service_name),
                     leadingIcon = QodeIcons.Store,
-                    helperText = "Exact service name",
+                    helperText = stringResource(R.string.service_step_helper_service_name),
+                    errorText = errorText,
                     focusRequester = focusRequester,
-                    isRequired = true,
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Text,
                         capitalization = KeyboardCapitalization.Words,
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { onNextStep() },
+                        onNext = {
+                            if (serviceName.isBlank()) {
+                                errorText = blankErrorText
+                            } else {
+                                errorText = null
+                                onNextStep()
+                            }
+                        },
                     ),
                 )
 
                 Text(
-                    text = "Browse services instead",
+                    text = stringResource(R.string.service_step_browse_services_instead),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onToggleManualEntry() }
+                        .clickable {
+                            errorText = null
+                            onToggleManualEntry()
+                        }
                         .padding(top = SpacingTokens.md),
                 )
             }
@@ -109,23 +145,24 @@ fun ServiceStepContent(
                 // Default mode - show service selector with manual as secondary
                 ServiceSelector(
                     selectedService = selectedService,
-                    placeholder = "Search for the service",
+                    placeholder = stringResource(R.string.service_step_search_placeholder),
                     onServiceSelectorClick = onShowServiceSelector,
                 )
 
+                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingTokens.md))
+
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = SpacingTokens.lg),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "Can't find the service?",
+                        text = stringResource(R.string.service_step_cant_find_service),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "Type manually",
+                        text = stringResource(R.string.service_step_type_manually),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
@@ -152,15 +189,6 @@ fun ServiceSelector(
         targetValue = 1f,
         animationSpec = AnimationTokens.Spec.emphasized(),
         label = "scale",
-    )
-
-    val animatedBackgroundColor by animateColorAsState(
-        targetValue = if (hasSelection) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
-        label = "backgroundColor",
     )
 
     val animatedBorderColor by animateColorAsState(
@@ -205,9 +233,8 @@ fun ServiceSelector(
                 CircularImage(
                     imageUrl = selectedService.logoUrl,
                     fallbackIcon = QodeIcons.Store,
-                    contentDescription = "Service logo",
-                    size = SizeTokens.Icon.sizeLarge,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                    contentDescription = stringResource(R.string.service_step_service_logo_cd),
+                    size = SizeTokens.Icon.sizeMedium,
                 )
             } else {
                 Box(

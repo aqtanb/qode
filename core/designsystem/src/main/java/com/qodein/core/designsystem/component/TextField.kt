@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -74,6 +75,7 @@ import kotlinx.coroutines.launch
  * @param focusRequester Optional focus requester
  * @param singleLine Whether the field is single line (default true)
  * @param minLines Minimum number of lines for multiline text field
+ * @param maxLength Optional maximum character count; input is trimmed to this length when provided
  */
 @Composable
 fun QodeinTextField(
@@ -89,7 +91,8 @@ fun QodeinTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     focusRequester: FocusRequester? = null,
     singleLine: Boolean = true,
-    minLines: Int = 1
+    minLines: Int = 1,
+    maxLength: Int? = null
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
@@ -125,7 +128,10 @@ fun QodeinTextField(
             ) {
                 OutlinedTextField(
                     value = value,
-                    onValueChange = onValueChange,
+                    onValueChange = { newValue ->
+                        val clamped = maxLength?.let { newValue.take(it) } ?: newValue
+                        onValueChange(clamped)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .scale(fieldScale)
@@ -139,7 +145,7 @@ fun QodeinTextField(
                             Text(
                                 text = it,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.PLACEHOLDER),
                                 textAlign = TextAlign.Start,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

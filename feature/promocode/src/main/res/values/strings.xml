@@ -58,6 +58,18 @@
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
 
+    <!-- Service step -->
+    <string name="service_step_label_service_name">Service Name</string>
+    <string name="service_step_placeholder_service_name">Type the service name</string>
+    <string name="service_step_helper_service_name">Exact service name</string>
+    <string name="service_step_browse_services_instead">Browse services instead</string>
+    <string name="service_step_search_placeholder">Search for the service</string>
+    <string name="service_step_cant_find_service">Cannot find the service?</string>
+    <string name="service_step_type_manually">Type manually</string>
+    <string name="service_step_service_logo_cd">Service logo</string>
+    <string name="service_step_error_blank">Service name cannot be blank</string>
+    <string name="service_step_error_max_length">You have reached the maximum length (%1$d characters)</string>
+
     <!-- Step Hints -->
     <string name="step_service_hint">Which service does this promo code work with?</string>
     <string name="step_discount_type_hint">Percentage (%) – the higher the order, the bigger the discount.\nFixed amount ($) – same discount no matter how much you spend.</string>
