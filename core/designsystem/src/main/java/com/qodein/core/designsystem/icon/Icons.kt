@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.EmojiObjects
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.Filter2
@@ -15,16 +16,15 @@ import androidx.compose.material.icons.filled.Filter7
 import androidx.compose.material.icons.filled.Filter8
 import androidx.compose.material.icons.filled.Filter9
 import androidx.compose.material.icons.filled.Filter9Plus
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.EmojiObjects
+import androidx.compose.material.icons.outlined.EmojiSymbols
 import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Store
@@ -79,10 +79,8 @@ import compose.icons.simpleicons.Telegram
 import compose.icons.simpleicons.Twitter
 import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.CurrencyDollar
-import compose.icons.tablericons.Discount2
 import compose.icons.tablericons.Language
 import compose.icons.tablericons.Seeding
-import compose.icons.tablericons.Tag
 import compose.icons.tablericons.Ticket
 
 object QodeinIcons {
@@ -97,13 +95,12 @@ object PromocodeIcons {
     val Verified: ImageVector = Icons.Outlined.Verified
     val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
     val FirstUseOnly: ImageVector = TablerIcons.Seeding
+    val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
 }
 
 object QodeIcons {
-    val Promocode: ImageVector = TablerIcons.Tag
-    val Discount: ImageVector = TablerIcons.Discount2
     val Sale: ImageVector = FeatherIcons.Percent
-    val Coupon: ImageVector = TablerIcons.Ticket
+    val Promocode: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
     val Cost: ImageVector = FeatherIcons.DollarSign
     val Store: ImageVector = Icons.Outlined.Store
@@ -181,8 +178,8 @@ object UIIcons {
     val Newest: ImageVector = Icons.Filled.FiberNew
     val Expiring: ImageVector = Icons.Filled.Timelapse
 
-    val Hint: ImageVector = Icons.Outlined.Lightbulb
-    val HintFilled: ImageVector = Icons.Filled.Lightbulb
+    val Hint: ImageVector = Icons.Outlined.EmojiObjects
+    val HintFilled: ImageVector = Icons.Filled.EmojiObjects
 
     val Empty: ImageVector = FeatherIcons.Coffee
     val Error: ImageVector = FeatherIcons.AlertCircle

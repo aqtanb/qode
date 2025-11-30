@@ -46,7 +46,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateSelector(
+fun PromocodeDatesStep(
     label: String,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
@@ -174,14 +174,14 @@ private fun DatePickerStepPreview() {
             modifier = Modifier.padding(SpacingTokens.lg),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            DateSelector(
+            PromocodeDatesStep(
                 label = "Start Date",
                 selectedDate = LocalDate.now(),
                 onDateSelected = {},
                 placeholder = "Select start date",
             )
 
-            DateSelector(
+            PromocodeDatesStep(
                 label = "End Date",
                 selectedDate = null,
                 onDateSelected = {},

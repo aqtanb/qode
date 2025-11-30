@@ -17,7 +17,7 @@ sealed interface PromocodeSubmissionAction {
 
     // Step 1: Core Details actions
     data class UpdateServiceName(val serviceName: String) : PromocodeSubmissionAction // For manual entry
-    data class UpdatePromoCodeType(val type: PromoCodeType) : PromocodeSubmissionAction
+    data class UpdatePromocodeType(val type: PromoCodeType) : PromocodeSubmissionAction
     data class UpdatePromoCode(val promoCode: String) : PromocodeSubmissionAction
     data class UpdateDiscountPercentage(val percentage: String) : PromocodeSubmissionAction
     data class UpdateDiscountAmount(val amount: String) : PromocodeSubmissionAction

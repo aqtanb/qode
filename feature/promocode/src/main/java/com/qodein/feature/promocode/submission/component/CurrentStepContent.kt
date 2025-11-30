@@ -15,39 +15,32 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.PromoCodeType
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.component.steps.DateSelector
-import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeSelector
+import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
-import com.qodein.feature.promocode.submission.validation.getPromoCodeValidationError
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 // Simple UI validation states for field feedback
-private enum class FieldValidationState {
+internal enum class FieldValidationState {
     IDLE,
-    VALIDATING,
     VALID,
     ERROR
 }
@@ -84,12 +77,12 @@ fun SubmissionWizardStepContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.DISCOUNT_TYPE -> DiscountTypeStepContent(
-                selectedType = wizardData.promoCodeType,
-                onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromoCodeType(it)) },
+            PromocodeSubmissionStep.DISCOUNT_TYPE -> PromocodeTypeStep(
+                selectedType = wizardData.promocodeType,
+                onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromocodeType(it)) },
             )
 
-            PromocodeSubmissionStep.PROMO_CODE -> PromoCodeStepContent(
+            PromocodeSubmissionStep.PROMOCODE -> PromocodeStep(
                 promoCode = wizardData.promoCode,
                 onPromoCodeChange = { onAction(PromocodeSubmissionAction.UpdatePromoCode(it)) },
                 focusRequester = focusRequester,
@@ -97,8 +90,8 @@ fun SubmissionWizardStepContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStepContent(
-                promoCodeType = wizardData.promoCodeType,
+            PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStep(
+                promoCodeType = wizardData.promocodeType,
                 discountPercentage = wizardData.discountPercentage,
                 discountAmount = wizardData.discountAmount,
                 onDiscountPercentageChange = { onAction(PromocodeSubmissionAction.UpdateDiscountPercentage(it)) },
@@ -143,170 +136,6 @@ fun SubmissionWizardStepContent(
                     }
                 },
             )
-        }
-    }
-}
-
-@Composable
-private fun DiscountTypeStepContent(
-    selectedType: PromoCodeType?,
-    onTypeSelected: (PromoCodeType) -> Unit
-) {
-    PromocodeTypeSelector(
-        selectedType = selectedType,
-        onTypeSelected = onTypeSelected,
-    )
-}
-
-// TODO: Add paste button
-@Composable
-private fun PromoCodeStepContent(
-    promoCode: String,
-    onPromoCodeChange: (String) -> Unit,
-    focusRequester: FocusRequester,
-    keyboardController: SoftwareKeyboardController?,
-    onNextStep: () -> Unit
-) {
-    var validationState by remember { mutableStateOf(FieldValidationState.IDLE) }
-
-    // Centralized validation for promo codes
-    LaunchedEffect(promoCode) {
-        if (promoCode.isNotEmpty()) {
-            validationState = FieldValidationState.VALIDATING
-            delay(300) // Simulate validation
-
-            validationState = if (getPromoCodeValidationError(promoCode) == null) {
-                FieldValidationState.VALID
-            } else {
-                FieldValidationState.ERROR
-            }
-        } else {
-            validationState = FieldValidationState.IDLE
-        }
-    }
-
-    SubmissionTextField(
-        value = promoCode,
-        onValueChange = { newValue ->
-            // Smart formatting: default uppercase but allow user control
-            val formatted = newValue
-                .filter { it.isLetterOrDigit() || it == '-' || it == ' ' }
-                .take(50) // Allow up to 50 chars to handle most real promo codes
-            onPromoCodeChange(formatted)
-        },
-        label = "Promo Code",
-        placeholder = "Enter promo code (e.g., SAVE20)",
-        leadingIcon = QodeIcons.Promocode,
-        errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
-            getPromoCodeValidationError(promoCode)
-        } else {
-            null
-        },
-        helperText = "Enter the promo code exactly as shown (2-50 characters)",
-        isRequired = true,
-        focusRequester = focusRequester,
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Companion.Characters,
-            imeAction = ImeAction.Companion.Next,
-            keyboardType = KeyboardType.Companion.Text,
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = { onNextStep() },
-        ),
-    )
-}
-
-@Composable
-private fun DiscountValueStepContent(
-    promoCodeType: PromoCodeType?,
-    discountPercentage: String,
-    discountAmount: String,
-    onDiscountPercentageChange: (String) -> Unit,
-    onDiscountAmountChange: (String) -> Unit,
-    focusRequester: FocusRequester,
-    onNextStep: () -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        // Discount value field (changes based on type)
-        when (promoCodeType) {
-            PromoCodeType.PERCENTAGE -> {
-                SubmissionTextField(
-                    value = discountPercentage,
-                    onValueChange = onDiscountPercentageChange,
-                    label = "Discount Percentage",
-                    placeholder = "20",
-                    fieldType = SubmissionFieldType.PERCENTAGE,
-                    leadingIcon = QodeIcons.Sale,
-                    helperText = "Enter percentage (1-99%)",
-                    isRequired = true,
-                    focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { onNextStep() },
-                    ),
-                    supportingContent = {
-                        if (discountPercentage.isNotEmpty()) {
-                            val percentage = discountPercentage.toIntOrNull() ?: 0
-                            if (percentage > 0) {
-                                Text(
-                                    text = "Customer saves $percentage% on their order",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        }
-                    },
-                )
-            }
-            PromoCodeType.FIXED_AMOUNT -> {
-                SubmissionTextField(
-                    value = discountAmount,
-                    onValueChange = onDiscountAmountChange,
-                    label = "Discount Amount",
-                    placeholder = "500",
-                    fieldType = SubmissionFieldType.CURRENCY,
-                    leadingIcon = QodeIcons.Dollar,
-                    helperText = "Enter amount in ₸ (tenge)",
-                    isRequired = true,
-                    focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { onNextStep() },
-                    ),
-                    supportingContent = {
-                        if (discountAmount.isNotEmpty()) {
-                            val amount = discountAmount.toIntOrNull() ?: 0
-                            if (amount > 0) {
-                                Text(
-                                    text = "Customer saves ₸$amount on their order",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                    },
-                )
-            }
-            null -> {
-                SubmissionTextField(
-                    value = "",
-                    onValueChange = { },
-                    label = "Discount Value",
-                    placeholder = "Select discount type first",
-                    enabled = false,
-                    helperText = "Choose a discount type in the previous step",
-                )
-            }
         }
     }
 }
@@ -501,7 +330,7 @@ private fun StartDateStepContent(
     startDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit
 ) {
-    DateSelector(
+    PromocodeDatesStep(
         label = "Start Date",
         selectedDate = startDate,
         onDateSelected = onDateSelected,
@@ -515,7 +344,7 @@ private fun EndDateStepContent(
     endDate: LocalDate?,
     onDateSelected: (LocalDate?) -> Unit
 ) {
-    DateSelector(
+    PromocodeDatesStep(
         label = "End Date",
         selectedDate = endDate,
         onDateSelected = { date -> onDateSelected(date) },
@@ -544,7 +373,7 @@ private fun PromoCodeStepContentPreview() {
     QodeTheme {
         Column(modifier = Modifier.padding(SpacingTokens.md)) {
             SubmissionWizardStepContent(
-                currentStep = PromocodeSubmissionStep.PROMO_CODE,
+                currentStep = PromocodeSubmissionStep.PROMOCODE,
                 wizardData = SubmissionWizardData(promoCode = "SAVE20"),
                 onAction = {},
             )

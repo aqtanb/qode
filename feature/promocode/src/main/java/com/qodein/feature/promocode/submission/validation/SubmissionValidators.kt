@@ -53,7 +53,7 @@ fun isValidServiceName(name: String): Boolean = name.trim().isNotBlank()
  * Validates discount value based on promo code type.
  */
 fun isValidDiscountValue(data: SubmissionWizardData): Boolean =
-    when (data.promoCodeType) {
+    when (data.promocodeType) {
         PromoCodeType.PERCENTAGE -> isValidDiscountPercentage(data.discountPercentage)
         PromoCodeType.FIXED_AMOUNT -> isValidDiscountAmount(data.discountAmount)
         null -> false
@@ -122,7 +122,7 @@ fun getMinimumOrderAmountValidationError(amount: String): String? {
  */
 fun isValidBusinessLogic(data: SubmissionWizardData): Boolean {
     // For fixed amount discounts, discount cannot exceed minimum order
-    if (data.promoCodeType == PromoCodeType.FIXED_AMOUNT) {
+    if (data.promocodeType == PromoCodeType.FIXED_AMOUNT) {
         val discount = data.discountAmount.toDoubleOrNull() ?: 0.0
         val minOrder = data.minimumOrderAmount.toDoubleOrNull() ?: 0.0
         if (minOrder > 0) { // Only validate if minimum order is set
@@ -136,7 +136,7 @@ fun isValidBusinessLogic(data: SubmissionWizardData): Boolean {
  * Gets business logic validation error message.
  */
 fun getBusinessLogicValidationError(data: SubmissionWizardData): String? {
-    if (data.promoCodeType == PromoCodeType.FIXED_AMOUNT) {
+    if (data.promocodeType == PromoCodeType.FIXED_AMOUNT) {
         val discount = data.discountAmount.toDoubleOrNull() ?: 0.0
         val minOrder = data.minimumOrderAmount.toDoubleOrNull() ?: 0.0
         if (minOrder > 0 && discount > minOrder) {

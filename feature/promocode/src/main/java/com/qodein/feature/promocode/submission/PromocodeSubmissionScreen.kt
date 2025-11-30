@@ -42,7 +42,7 @@ import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
-import com.qodein.feature.promocode.submission.component.SubmissionStepCard
+import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.service.selection.SelectionState
@@ -192,7 +192,7 @@ private fun SubmissionContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            SubmissionStepCard(
+            PromocodeSubmissionCard(
                 currentStep = uiState.wizardFlow.currentStep,
                 wizardData = uiState.wizardFlow.wizardData,
                 onAction = onAction,
@@ -281,9 +281,9 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
-                        promoCodeType = PromoCodeType.PERCENTAGE,
+                        promocodeType = PromoCodeType.PERCENTAGE,
                     ),
-                    currentStep = PromocodeSubmissionStep.PROMO_CODE,
+                    currentStep = PromocodeSubmissionStep.PROMOCODE,
                 ),
                 authentication = UiAuthState.Unauthenticated,
             ),
@@ -309,7 +309,7 @@ private fun SubmissionContentDarkThemePreview() {
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
-                        promoCodeType = PromoCodeType.PERCENTAGE,
+                        promocodeType = PromoCodeType.PERCENTAGE,
                     ),
                     currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
                 ),

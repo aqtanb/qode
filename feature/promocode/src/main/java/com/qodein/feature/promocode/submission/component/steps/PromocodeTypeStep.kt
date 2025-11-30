@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
@@ -51,7 +52,7 @@ val PromoCodeType.icon: ImageVector
     }
 
 @Composable
-fun PromocodeTypeSelector(
+fun PromocodeTypeStep(
     selectedType: PromoCodeType?,
     onTypeSelected: (PromoCodeType) -> Unit,
     modifier: Modifier = Modifier
@@ -150,7 +151,7 @@ private fun TypeToggleButton(
 @Composable
 private fun PromoTypeCardNonePreview() {
     QodeTheme {
-        PromocodeTypeSelector(
+        PromocodeTypeStep(
             selectedType = null,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
@@ -158,11 +159,11 @@ private fun PromoTypeCardNonePreview() {
     }
 }
 
-@Preview(name = "Promo Type Card - Percentage Selected", showBackground = true)
+@ThemePreviews
 @Composable
 private fun PromoTypeCardPercentagePreview() {
     QodeTheme {
-        PromocodeTypeSelector(
+        PromocodeTypeStep(
             selectedType = PromoCodeType.PERCENTAGE,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
@@ -170,11 +171,11 @@ private fun PromoTypeCardPercentagePreview() {
     }
 }
 
-@Preview(name = "Promo Type Card - Fixed Amount Selected", showBackground = true)
+@ThemePreviews
 @Composable
 private fun PromoTypeCardFixedAmountPreview() {
     QodeTheme {
-        PromocodeTypeSelector(
+        PromocodeTypeStep(
             selectedType = PromoCodeType.FIXED_AMOUNT,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),

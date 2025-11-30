@@ -18,7 +18,7 @@ data class SubmissionWizardData(
 
     // Promo Code Details
     val promoCode: String = "",
-    val promoCodeType: PromoCodeType? = null,
+    val promocodeType: PromoCodeType? = null,
     val discountPercentage: String = "",
     val discountAmount: String = "",
     val minimumOrderAmount: String = "",

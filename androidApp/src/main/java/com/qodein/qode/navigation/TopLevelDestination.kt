@@ -19,8 +19,8 @@ enum class TopLevelDestination(
     val baseRoute: KClass<*> = route
 ) {
     HOME(
-        selectedIcon = QodeIcons.Coupon,
-        unSelectedIcon = QodeIcons.Coupon,
+        selectedIcon = QodeIcons.Promocode,
+        unSelectedIcon = QodeIcons.Promocode,
         iconTextId = homeR.string.feature_home_title,
         titleTextId = R.string.app_name,
         route = HomeBaseRoute::class,

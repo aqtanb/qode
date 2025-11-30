@@ -340,8 +340,8 @@ private fun QodeBottomNavigationPreview() {
                     TabItem(
                         route = "home",
                         label = "Home",
-                        selectedIcon = QodeIcons.Coupon,
-                        unselectedIcon = QodeIcons.Coupon,
+                        selectedIcon = QodeIcons.Promocode,
+                        unselectedIcon = QodeIcons.Promocode,
                     ),
                     TabItem(
                         route = "feed",

@@ -47,7 +47,7 @@ import com.qodein.feature.promocode.submission.hintRes
 import com.qodein.feature.promocode.submission.titleRes
 
 @Composable
-fun SubmissionStepCard(
+fun PromocodeSubmissionCard(
     currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
     onAction: (PromocodeSubmissionAction) -> Unit,
@@ -134,7 +134,6 @@ private fun StepHeader(
     ) {
         Text(
             text = stringResource(step.titleRes),
-            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .weight(1f)
@@ -200,9 +199,9 @@ private fun HintCard(
 
 @Preview(name = "Floating Step Card - Service", showBackground = true)
 @Composable
-private fun FloatingStepCardServicePreview() {
+private fun FloatingCardServicePreviewPromocode() {
     QodeTheme {
-        SubmissionStepCard(
+        PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
             onAction = {},
@@ -213,10 +212,10 @@ private fun FloatingStepCardServicePreview() {
 
 @Preview(name = "Floating Step Card - Promo Code", showBackground = true)
 @Composable
-private fun FloatingStepCardPromoCodePreview() {
+private fun FloatingCardPromoCodePreviewPromocode() {
     QodeTheme {
-        SubmissionStepCard(
-            currentStep = PromocodeSubmissionStep.PROMO_CODE,
+        PromocodeSubmissionCard(
+            currentStep = PromocodeSubmissionStep.PROMOCODE,
             wizardData = SubmissionWizardData(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),

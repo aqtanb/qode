@@ -86,40 +86,32 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     fun onAction(action: PromocodeSubmissionAction) {
         when (action) {
-            // Progressive step navigation
             PromocodeSubmissionAction.NextProgressiveStep -> goToNextProgressiveStep()
             PromocodeSubmissionAction.PreviousProgressiveStep -> goToPreviousProgressiveStep()
             is PromocodeSubmissionAction.NavigateToStep -> navigateToStep(action.step)
 
-            // Service selection UI actions
             PromocodeSubmissionAction.ShowServiceSelector -> showServiceSelector()
             PromocodeSubmissionAction.HideServiceSelector -> hideServiceSelector()
             PromocodeSubmissionAction.ToggleManualEntry -> toggleManualEntry()
 
-            // Step 1: Core Details
-            is PromocodeSubmissionAction.UpdateServiceName -> updateServiceName(action.serviceName)
-            is PromocodeSubmissionAction.UpdatePromoCodeType -> updatePromoCodeType(action.type)
-            is PromocodeSubmissionAction.UpdatePromoCode -> updatePromoCode(action.promoCode)
-            is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
-            is PromocodeSubmissionAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
-            is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
-            is PromocodeSubmissionAction.UpdateFirstUserOnly -> updateFirstUserOnly(action.isFirstUserOnly)
-            is PromocodeSubmissionAction.UpdateOneTimeUseOnly -> updateOneTimeUseOnly(action.isOneTimeUseOnly)
-            is PromocodeSubmissionAction.UpdateDescription -> updateDescription(action.description)
+            is PromocodeSubmissionAction.UpdateServiceName -> updateWizardData { it.copy(serviceName = action.serviceName) }
+            is PromocodeSubmissionAction.UpdatePromocodeType -> updateWizardData { it.copy(promocodeType = action.type) }
+            is PromocodeSubmissionAction.UpdatePromoCode -> updateWizardData { it.copy(promoCode = action.promoCode) }
+            is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateWizardData { it.copy(discountPercentage = action.percentage) }
+            is PromocodeSubmissionAction.UpdateDiscountAmount -> updateWizardData { it.copy(discountAmount = action.amount) }
+            is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateWizardData { it.copy(minimumOrderAmount = action.amount) }
+            is PromocodeSubmissionAction.UpdateFirstUserOnly -> updateWizardData { it.copy(isFirstUserOnly = action.isFirstUserOnly) }
+            is PromocodeSubmissionAction.UpdateOneTimeUseOnly -> updateWizardData { it.copy(isOneTimeUseOnly = action.isOneTimeUseOnly) }
+            is PromocodeSubmissionAction.UpdateDescription -> updateWizardData { it.copy(description = action.description) }
+            is PromocodeSubmissionAction.UpdateStartDate -> updateWizardData { it.copy(startDate = action.date) }
+            is PromocodeSubmissionAction.UpdateEndDate -> updateWizardData { it.copy(endDate = action.date) }
 
-            // Step 2: Date Settings
-            is PromocodeSubmissionAction.UpdateStartDate -> updateStartDate(action.date)
-            is PromocodeSubmissionAction.UpdateEndDate -> updateEndDate(action.date)
-
-            // Submission
             is PromocodeSubmissionAction.SubmitPromoCodeWithUser -> submitPromoCode(action.user)
             PromocodeSubmissionAction.SubmitPromoCode -> submitPromoCode()
 
-            // Authentication
             is PromocodeSubmissionAction.SignInWithGoogle -> signInWithGoogle(action.context)
             PromocodeSubmissionAction.DismissAuthSheet -> handleBack()
 
-            // Error handling
             PromocodeSubmissionAction.RetryClicked -> initialize()
             PromocodeSubmissionAction.ClearValidationErrors -> clearValidationErrors()
         }
@@ -322,54 +314,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
         }
     }
 
-    // MARK: - Data Updates (Step 1: Core Details)
-
-    private fun updateServiceName(serviceName: String) {
-        // Update the manual service name field
-        updateWizardData { it.copy(serviceName = serviceName) }
-    }
-
-    private fun updatePromoCodeType(type: PromoCodeType) {
-        updateWizardData { it.copy(promoCodeType = type) }
-    }
-
-    private fun updatePromoCode(promoCode: String) {
-        updateWizardData { it.copy(promoCode = promoCode) }
-    }
-
-    private fun updateDiscountPercentage(percentage: String) {
-        updateWizardData { it.copy(discountPercentage = percentage) }
-    }
-
-    private fun updateDiscountAmount(amount: String) {
-        updateWizardData { it.copy(discountAmount = amount) }
-    }
-
-    private fun updateMinimumOrderAmount(amount: String) {
-        updateWizardData { it.copy(minimumOrderAmount = amount) }
-    }
-
-    private fun updateFirstUserOnly(isFirstUserOnly: Boolean) {
-        updateWizardData { it.copy(isFirstUserOnly = isFirstUserOnly) }
-    }
-
-    private fun updateOneTimeUseOnly(isOneTimeUseOnly: Boolean) {
-        updateWizardData { it.copy(isOneTimeUseOnly = isOneTimeUseOnly) }
-    }
-
-    // MARK: - Data Updates (Step 2: Date Settings)
-    private fun updateStartDate(date: LocalDate) {
-        updateWizardData { it.copy(startDate = date) }
-    }
-
-    private fun updateEndDate(date: LocalDate) {
-        updateWizardData { it.copy(endDate = date) }
-    }
-
-    private fun updateDescription(description: String) {
-        updateWizardData { it.copy(description = description) }
-    }
-
     private fun clearValidationErrors() {
         updateSuccessState { it.clearValidationErrors() }
     }
@@ -487,7 +431,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
         wizardData: SubmissionWizardData,
         user: User
     ): SubmitPromocodeRequest? {
-        val discount = when (wizardData.promoCodeType) {
+        val discount = when (wizardData.promocodeType) {
             PromoCodeType.PERCENTAGE -> Discount.Percentage(wizardData.discountPercentage.toDoubleOrNull() ?: 0.0)
             PromoCodeType.FIXED_AMOUNT -> Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0)
             null -> return null

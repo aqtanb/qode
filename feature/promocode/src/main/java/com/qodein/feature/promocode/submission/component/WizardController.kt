@@ -87,7 +87,7 @@ fun WizardController(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Back button
+                // MARK: - Back button
                 IconButton(
                     onClick = onPrevious,
                     enabled = canGoBack,
@@ -122,8 +122,8 @@ fun WizardController(
                         enabled = (canGoNext || (canSubmit && onSubmit != null)) && !isLoading,
                         modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(2f),
                         colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),

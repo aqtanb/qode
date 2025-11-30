@@ -17,9 +17,9 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
         override fun canProceed(data: SubmissionWizardData): Boolean = isValidServiceName(data.effectiveServiceName)
     },
     DISCOUNT_TYPE(2) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCodeType != null
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null
     },
-    PROMO_CODE(3) {
+    PROMOCODE(3) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCode.isNotBlank() && isValidPromoCodeFormat(data.promoCode)
     },
     DISCOUNT_VALUE(4) {
@@ -51,8 +51,8 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
     fun next(): PromocodeSubmissionStep? =
         when (this) {
             SERVICE -> DISCOUNT_TYPE
-            DISCOUNT_TYPE -> PROMO_CODE
-            PROMO_CODE -> DISCOUNT_VALUE
+            DISCOUNT_TYPE -> PROMOCODE
+            PROMOCODE -> DISCOUNT_VALUE
             DISCOUNT_VALUE -> MINIMUM_ORDER
             MINIMUM_ORDER -> START_DATE
             START_DATE -> END_DATE
@@ -65,8 +65,8 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
         when (this) {
             SERVICE -> null
             DISCOUNT_TYPE -> SERVICE
-            PROMO_CODE -> DISCOUNT_TYPE
-            DISCOUNT_VALUE -> PROMO_CODE
+            PROMOCODE -> DISCOUNT_TYPE
+            DISCOUNT_VALUE -> PROMOCODE
             MINIMUM_ORDER -> DISCOUNT_VALUE
             START_DATE -> MINIMUM_ORDER
             END_DATE -> START_DATE
@@ -82,7 +82,7 @@ fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector 
         else -> when (this) {
             PromocodeSubmissionStep.SERVICE -> QodeIcons.Store
             PromocodeSubmissionStep.DISCOUNT_TYPE -> QodeIcons.Sale
-            PromocodeSubmissionStep.PROMO_CODE -> QodeIcons.Promocode
+            PromocodeSubmissionStep.PROMOCODE -> QodeIcons.Promocode
             PromocodeSubmissionStep.DISCOUNT_VALUE -> QodeIcons.Dollar
             PromocodeSubmissionStep.MINIMUM_ORDER -> QodeIcons.Dollar
             PromocodeSubmissionStep.ELIGIBILITY -> QodeNavigationIcons.Settings
@@ -96,7 +96,7 @@ val PromocodeSubmissionStep.titleRes: Int
     get() = when (this) {
         PromocodeSubmissionStep.SERVICE -> R.string.step_service_title
         PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_title
-        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_title
+        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_title
         PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_title
         PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_title
         PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_title
@@ -109,7 +109,7 @@ val PromocodeSubmissionStep.shortNameRes: Int
     get() = when (this) {
         PromocodeSubmissionStep.SERVICE -> R.string.step_service_short
         PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_short
-        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_short
+        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_short
         PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_short
         PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_short
         PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_short
@@ -122,7 +122,7 @@ val PromocodeSubmissionStep.hintRes: Int
     get() = when (this) {
         PromocodeSubmissionStep.SERVICE -> R.string.step_service_hint
         PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_hint
-        PromocodeSubmissionStep.PROMO_CODE -> R.string.step_promo_code_hint
+        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_hint
         PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_hint
         PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_hint
         PromocodeSubmissionStep.ELIGIBILITY -> R.string.step_eligibility_hint

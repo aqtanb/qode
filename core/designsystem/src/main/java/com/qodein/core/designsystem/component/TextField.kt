@@ -184,7 +184,7 @@ fun QodeinTextField(
                     interactionSource = interactionSource,
                     shape = RoundedCornerShape(SizeTokens.Selector.shape),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
