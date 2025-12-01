@@ -12,4 +12,8 @@
     <!-- Wizard Steps -->
 
     <!-- Progress -->
+
+    <!-- Promocode step -->
+    <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>
+    <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>
 </resources>

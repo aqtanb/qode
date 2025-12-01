@@ -58,7 +58,7 @@ fun GradientBannerSection(
                 modifier = Modifier.padding(top = SpacingTokens.sm),
             ) {
                 Text(
-                    text = promoCode.code,
+                    text = promoCode.code.value,
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Black,
                     color = Color.White,

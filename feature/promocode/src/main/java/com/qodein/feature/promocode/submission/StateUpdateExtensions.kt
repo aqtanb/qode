@@ -16,7 +16,6 @@ fun PromocodeSubmissionUiState.Success.updateWizardData(
     return copy(wizardFlow = wizardFlow.updateData(newData))
 }
 
-
 fun PromocodeSubmissionUiState.Success.moveToNextStep(): PromocodeSubmissionUiState.Success =
     copy(
         wizardFlow = wizardFlow.moveToNext(),

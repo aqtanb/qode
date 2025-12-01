@@ -160,11 +160,11 @@ fun PromocodeCard(
 
                     // Clean promo code section (no ugly background)
                     PromoCodeRow(
-                        code = promocode.code,
+                        code = promocode.code.value,
                         onCopyClick = {
                             // Copy to clipboard using coroutine
                             coroutineScope.launch {
-                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("promo_code", promocode.code)))
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("promo_code", promocode.code.value)))
                             }
                             // Call the provided callback
                             onCopyCodeClick()

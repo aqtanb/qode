@@ -195,6 +195,7 @@ private fun SubmissionContent(
             PromocodeSubmissionCard(
                 currentStep = uiState.wizardFlow.currentStep,
                 wizardData = uiState.wizardFlow.wizardData,
+                validation = uiState.validation,
                 onAction = onAction,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -281,7 +282,7 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
-                        promocodeType = PromoCodeType.PERCENTAGE,
+                        promocodeType = PromocodeType.PERCENTAGE,
                     ),
                     currentStep = PromocodeSubmissionStep.PROMOCODE,
                 ),
@@ -309,7 +310,7 @@ private fun SubmissionContentDarkThemePreview() {
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(
                         selectedService = ServicePreviewData.netflix,
-                        promocodeType = PromoCodeType.PERCENTAGE,
+                        promocodeType = PromocodeType.PERCENTAGE,
                     ),
                     currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
                 ),

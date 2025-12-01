@@ -10,7 +10,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -100,7 +99,6 @@ fun QodeinTextField(
     val coroutineScope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
 
-    // Auto-scroll to bring text field into view when focused
     LaunchedEffect(isFocused) {
         if (isFocused) {
             coroutineScope.launch {
@@ -115,127 +113,117 @@ fun QodeinTextField(
         label = "fieldScale",
     )
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth(),
+    Column(
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            // Main input field
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                OutlinedTextField(
-                    value = value,
-                    onValueChange = { newValue ->
-                        val clamped = maxLength?.let { newValue.take(it) } ?: newValue
-                        onValueChange(clamped)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(fieldScale)
-                        .let { if (singleLine) it.height(SizeTokens.Selector.height) else it }
-                        .bringIntoViewRequester(bringIntoViewRequester)
-                        .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
-                        .onFocusChanged { isFocused = it.isFocused },
-                    isError = errorText != null,
-                    placeholder = placeholder?.let {
-                        {
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.PLACEHOLDER),
-                                textAlign = TextAlign.Start,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    },
-                    leadingIcon = leadingIcon?.let {
-                        {
-                            Icon(
-                                imageVector = it,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                            )
-                        }
-                    },
-                    trailingIcon = if (value.isNotEmpty()) {
-                        {
-                            QodeinOutlinedIconButton(
-                                onClick = {
-                                    onValueChange("")
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                },
-                                icon = QodeActionIcons.Clear,
-                                contentDescription = "Clear text",
-                                size = ButtonSize.Small,
-                                modifier = Modifier.padding(end = SpacingTokens.md),
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                    enabled = enabled,
-                    keyboardOptions = keyboardOptions,
-                    keyboardActions = keyboardActions,
-                    interactionSource = interactionSource,
-                    shape = RoundedCornerShape(SizeTokens.Selector.shape),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        errorBorderColor = MaterialTheme.colorScheme.error,
-                        errorContainerColor = Color.Transparent,
-                    ),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
+        OutlinedTextField(
+            value = value,
+            onValueChange = { newValue ->
+                val clamped = maxLength?.let { newValue.take(it) } ?: newValue
+                onValueChange(clamped)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .scale(fieldScale)
+                .let { if (singleLine) it.height(SizeTokens.Selector.height) else it }
+                .bringIntoViewRequester(bringIntoViewRequester)
+                .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
+                .onFocusChanged { isFocused = it.isFocused },
+            isError = errorText != null,
+            placeholder = placeholder?.let {
+                {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.PLACEHOLDER),
                         textAlign = TextAlign.Start,
-                    ),
-                    singleLine = singleLine,
-                    minLines = minLines,
-                )
-            }
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            },
+            leadingIcon = leadingIcon?.let {
+                {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                    )
+                }
+            },
+            trailingIcon = if (value.isNotEmpty()) {
+                {
+                    QodeinOutlinedIconButton(
+                        onClick = {
+                            onValueChange("")
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        },
+                        icon = QodeActionIcons.Clear,
+                        contentDescription = "Clear text",
+                        size = ButtonSize.Small,
+                        modifier = Modifier.padding(end = SpacingTokens.lg),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            } else {
+                null
+            },
+            enabled = enabled,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            shape = RoundedCornerShape(SizeTokens.Selector.shape),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorContainerColor = Color.Transparent,
+            ),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Start,
+            ),
+            singleLine = singleLine,
+            minLines = minLines,
+        )
 
-            // Supporting content - error has priority over helper
-            AnimatedVisibility(
-                visible = errorText != null || helperText != null,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut(),
+        AnimatedVisibility(
+            visible = errorText != null || helperText != null,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Column(
+                modifier = Modifier.padding(top = SpacingTokens.sm),
             ) {
-                Column(
-                    modifier = Modifier.padding(top = SpacingTokens.sm),
-                ) {
-                    when {
-                        // Error has highest priority
-                        errorText != null -> {
-                            Text(
-                                text = errorText,
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.lg),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                                textAlign = TextAlign.Center,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        // Helper text has medium priority
-                        helperText != null -> {
-                            Text(
-                                text = helperText,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
+                when {
+                    // Error has highest priority
+                    errorText != null -> {
+                        Text(
+                            text = errorText,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.lg),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    // Helper text has medium priority
+                    helperText != null -> {
+                        Text(
+                            text = helperText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
 
-                            )
-                        }
+                        )
                     }
                 }
             }

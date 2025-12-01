@@ -37,31 +37,31 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.submission.PromoCodeType
+import com.qodein.feature.promocode.submission.PromocodeType
 
-val PromoCodeType.titleRes: Int
+val PromocodeType.titleRes: Int
     get() = when (this) {
-        PromoCodeType.PERCENTAGE -> R.string.promo_type_percentage_title
-        PromoCodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
+        PromocodeType.PERCENTAGE -> R.string.promo_type_percentage_title
+        PromocodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
     }
 
-val PromoCodeType.icon: ImageVector
+val PromocodeType.icon: ImageVector
     get() = when (this) {
-        PromoCodeType.PERCENTAGE -> QodeIcons.Sale
-        PromoCodeType.FIXED_AMOUNT -> QodeIcons.Dollar
+        PromocodeType.PERCENTAGE -> QodeIcons.Sale
+        PromocodeType.FIXED_AMOUNT -> QodeIcons.Dollar
     }
 
 @Composable
 fun PromocodeTypeStep(
-    selectedType: PromoCodeType?,
-    onTypeSelected: (PromoCodeType) -> Unit,
+    selectedType: PromocodeType?,
+    onTypeSelected: (PromocodeType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        PromoCodeType.entries.forEach { type ->
+        PromocodeType.entries.forEach { type ->
             TypeToggleButton(
                 title = stringResource(type.titleRes),
                 icon = type.icon,
@@ -164,7 +164,7 @@ private fun PromoTypeCardNonePreview() {
 private fun PromoTypeCardPercentagePreview() {
     QodeTheme {
         PromocodeTypeStep(
-            selectedType = PromoCodeType.PERCENTAGE,
+            selectedType = PromocodeType.PERCENTAGE,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
         )
@@ -176,7 +176,7 @@ private fun PromoTypeCardPercentagePreview() {
 private fun PromoTypeCardFixedAmountPreview() {
     QodeTheme {
         PromocodeTypeStep(
-            selectedType = PromoCodeType.FIXED_AMOUNT,
+            selectedType = PromocodeType.FIXED_AMOUNT,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
         )

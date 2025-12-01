@@ -20,7 +20,7 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null
     },
     PROMOCODE(3) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promoCode.isNotBlank() && isValidPromoCodeFormat(data.promoCode)
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.code.isNotBlank() && isValidPromoCodeFormat(data.code)
     },
     DISCOUNT_VALUE(4) {
         override fun canProceed(data: SubmissionWizardData): Boolean = isValidDiscountValue(data)

@@ -51,7 +51,7 @@ object PromocodeMapper {
 
         return PromocodeDto(
             documentId = domain.id.value,
-            code = domain.code,
+            code = domain.code.value,
             startDate = Timestamp(domain.startDate.toJavaInstant()),
             endDate = Timestamp(domain.endDate.toJavaInstant()),
             serviceName = domain.serviceName,

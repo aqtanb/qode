@@ -8,11 +8,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.SubmissionField
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
 import com.qodein.feature.promocode.submission.component.steps.MinimumOrderAmountStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
@@ -22,20 +23,14 @@ import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 
-internal enum class FieldValidationState {
-    IDLE,
-    VALID,
-    ERROR
-}
-
 @Composable
 fun PromocodeSubmissionCardContent(
     currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
+    validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(currentStep) {
@@ -64,10 +59,11 @@ fun PromocodeSubmissionCardContent(
             )
 
             PromocodeSubmissionStep.PROMOCODE -> PromocodeStep(
-                promoCode = wizardData.promoCode,
-                onPromoCodeChange = { onAction(PromocodeSubmissionAction.UpdatePromoCode(it)) },
+                promocode = wizardData.code,
+                onPromocodeChange = { onAction(PromocodeSubmissionAction.UpdatePromocode(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+                promocodeError = validation.fieldErrors[SubmissionField.PROMO_CODE],
             )
 
             PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStep(

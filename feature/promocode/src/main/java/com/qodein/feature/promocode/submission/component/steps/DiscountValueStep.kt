@@ -1,32 +1,24 @@
 package com.qodein.feature.promocode.submission.component.steps
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.PromoCodeType
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
-import com.qodein.feature.promocode.submission.component.SubmissionFieldType
-import com.qodein.feature.promocode.submission.component.SubmissionTextField
 
 @Composable
 internal fun DiscountValueStep(
-    promoCodeType: PromoCodeType?,
+    promoCodeType: PromocodeType?,
     discountPercentage: String,
     discountAmount: String,
     onDiscountPercentageChange: (String) -> Unit,
@@ -34,100 +26,66 @@ internal fun DiscountValueStep(
     focusRequester: FocusRequester,
     onNextStep: () -> Unit
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        // Discount value field (changes based on type)
-        when (promoCodeType) {
-            PromoCodeType.PERCENTAGE -> {
-                SubmissionTextField(
-                    value = discountPercentage,
-                    onValueChange = onDiscountPercentageChange,
-                    label = "Discount Percentage",
-                    placeholder = "20",
-                    fieldType = SubmissionFieldType.PERCENTAGE,
-                    leadingIcon = QodeIcons.Sale,
-                    helperText = "Enter percentage (1-99%)",
-                    isRequired = true,
-                    focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Companion.Next,
-                        keyboardType = KeyboardType.Companion.Number,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { onNextStep() },
-                    ),
-                    supportingContent = {
-                        if (discountPercentage.isNotEmpty()) {
-                            val percentage = discountPercentage.toIntOrNull() ?: 0
-                            if (percentage > 0) {
-                                Text(
-                                    text = "Customer saves $percentage% on their order",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.Companion.fillMaxWidth(),
-                                    textAlign = TextAlign.Companion.Center,
-                                )
-                            }
-                        }
-                    },
-                )
-            }
+    when (promoCodeType) {
+        PromocodeType.PERCENTAGE -> {
+            QodeinTextField(
+                value = discountPercentage,
+                onValueChange = onDiscountPercentageChange,
+                placeholder = "30",
+                leadingIcon = QodeIcons.Sale,
+                helperText = "Enter the percentage (1-99%)",
+                focusRequester = focusRequester,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Companion.Next,
+                    keyboardType = KeyboardType.Companion.Number,
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { onNextStep() },
+                ),
+            )
+        }
 
-            PromoCodeType.FIXED_AMOUNT -> {
-                SubmissionTextField(
-                    value = discountAmount,
-                    onValueChange = onDiscountAmountChange,
-                    label = "Discount Amount",
-                    placeholder = "500",
-                    fieldType = SubmissionFieldType.CURRENCY,
-                    leadingIcon = QodeIcons.Dollar,
-                    helperText = "Enter amount in ₸ (tenge)",
-                    isRequired = true,
-                    focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Companion.Next,
-                        keyboardType = KeyboardType.Companion.Number,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { onNextStep() },
-                    ),
-                    supportingContent = {
-                        if (discountAmount.isNotEmpty()) {
-                            val amount = discountAmount.toIntOrNull() ?: 0
-                            if (amount > 0) {
-                                Text(
-                                    text = "Customer saves ₸$amount on their order",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                    },
-                )
-            }
-
-            null -> {
-                SubmissionTextField(
-                    value = "",
-                    onValueChange = { },
-                    label = "Discount Value",
-                    placeholder = "Select discount type first",
-                    enabled = false,
-                    helperText = "Choose a discount type in the previous step",
-                )
-            }
+        else -> {
+            QodeinTextField(
+                value = discountAmount,
+                onValueChange = onDiscountAmountChange,
+                placeholder = "2000",
+                leadingIcon = QodeIcons.Dollar,
+                helperText = "Enter in ₸ (tenge)",
+                focusRequester = focusRequester,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Companion.Next,
+                    keyboardType = KeyboardType.Companion.Number,
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { onNextStep() },
+                ),
+            )
         }
     }
 }
 
 @ThemePreviews
 @Composable
-private fun PromocodeStepPreview() {
+private fun FixedDiscountPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
-            wizardData = SubmissionWizardData(),
+            wizardData = SubmissionWizardData(promocodeType = PromocodeType.FIXED_AMOUNT),
+            validation = ValidationState.valid(),
+            onAction = {},
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PercentageDiscountPreview() {
+    QodeTheme {
+        PromocodeSubmissionCard(
+            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
+            wizardData = SubmissionWizardData(promocodeType = PromocodeType.PERCENTAGE),
+            validation = ValidationState.valid(),
             onAction = {},
         )
     }

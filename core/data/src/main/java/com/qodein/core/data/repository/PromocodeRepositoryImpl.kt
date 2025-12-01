@@ -25,7 +25,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
     PromocodeRepository {
     override suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError> =
         try {
-            Timber.i("Creating promocode: %s", promocode.code)
+            Timber.i("Creating promocode: %s", promocode.code.value)
 
             val dto = PromocodeMapper.toDto(promocode)
             dataSource.createPromocode(dto)
@@ -43,13 +43,13 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
         } catch (e: FirebaseFirestoreException) {
             Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: SecurityException) {
-            Timber.e(e, "Security error creating promocode: %s", promocode.code)
+            Timber.e(e, "Security error creating promocode: %s", promocode.code.value)
             Result.Error(FirestoreError.PermissionDenied)
         } catch (e: IllegalArgumentException) {
-            Timber.e(e, "Invalid data creating promocode: %s", promocode.code)
+            Timber.e(e, "Invalid data creating promocode: %s", promocode.code.value)
             Result.Error(FirestoreError.InvalidArgument)
         } catch (e: IOException) {
-            Timber.e(e, "Network error creating promocode: %s", promocode.code)
+            Timber.e(e, "Network error creating promocode: %s", promocode.code.value)
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
             Timber.e(e, "Unknown error creating promocode: %s", e::class.simpleName)

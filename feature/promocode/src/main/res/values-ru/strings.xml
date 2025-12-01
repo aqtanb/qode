@@ -37,4 +37,8 @@
     <string name="filter_chip_category">Категория</string>
     <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировка</string>
+
+    <!-- Promocode step -->
+    <string name="promo_code_step_placeholder">Введите промокод</string>
+    <string name="promo_code_step_helper_text">Соблюдайте точное написание и регистр символов</string>
 </resources>

@@ -57,6 +57,7 @@ import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.shared.model.Service
 
@@ -290,6 +291,7 @@ private fun ServiceSelectorPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
+            validation = ValidationState.valid(),
             onAction = {},
         )
     }
@@ -302,6 +304,7 @@ private fun ServiceSelectedPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(selectedService = ServicePreviewData.yandex),
+            validation = ValidationState.valid(),
             onAction = {},
         )
     }
@@ -314,6 +317,7 @@ private fun ServiceManualPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(isManualServiceEntry = true),
+            validation = ValidationState.valid(),
             onAction = {},
         )
     }

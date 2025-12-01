@@ -43,6 +43,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.hintRes
 import com.qodein.feature.promocode.submission.titleRes
 
@@ -50,6 +51,7 @@ import com.qodein.feature.promocode.submission.titleRes
 fun PromocodeSubmissionCard(
     currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
+    validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -111,6 +113,7 @@ fun PromocodeSubmissionCard(
                 PromocodeSubmissionCardContent(
                     currentStep = step,
                     wizardData = wizardData,
+                    validation = validation,
                     onAction = onAction,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -202,6 +205,7 @@ private fun PromocodeSubmissionCardPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
+            validation = ValidationState.valid(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
         )

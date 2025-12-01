@@ -15,8 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.Role
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.component.SubmissionFieldOption
+
+private data class SubmissionFieldOption(val value: String, val label: String, val description: String? = null)
 
 @Composable
 internal fun PromocodeRulesStep(
@@ -27,114 +30,110 @@ internal fun PromocodeRulesStep(
     focusRequester: FocusRequester
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // First user only toggle
-        val options = listOf(
+        val eligibilityOptions = listOf(
             SubmissionFieldOption(
                 value = "all",
-                label = "All Customers",
+                label = "All customers",
                 description = "Any customer can use this promo code",
             ),
             SubmissionFieldOption(
                 value = "first",
-                label = "First-time Customers Only",
+                label = "First-time customers only",
                 description = "Only new customers can use this code",
             ),
         )
 
-        // Simple toggle for customer eligibility
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            Text(
-                text = "Customer Eligibility",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+        val usageOptions = listOf(
+            SubmissionFieldOption(
+                value = "multiple",
+                label = "Multiple uses",
+                description = "Customers can redeem this code more than once",
+            ),
+            SubmissionFieldOption(
+                value = "oneTime",
+                label = "One-time use",
+                description = "Automatically expires after a single redemption",
+            ),
+        )
 
-            options.forEach { option ->
-                Row(
-                    modifier = Modifier.Companion
-                        .fillMaxWidth()
-                        .clickable {
-                            onFirstUserOnlyChange(option.value == "first")
-                        }
-                        .padding(SpacingTokens.sm),
-                    verticalAlignment = Alignment.Companion.CenterVertically,
-                ) {
-                    RadioButton(
-                        selected = (isFirstUserOnly && option.value == "first") || (!isFirstUserOnly && option.value == "all"),
-                        onClick = { onFirstUserOnlyChange(option.value == "first") },
+        OptionRadioGroup(
+            title = "Customer Eligibility",
+            options = eligibilityOptions,
+            selectedValue = if (isFirstUserOnly) "first" else "all",
+            onOptionSelected = { onFirstUserOnlyChange(it == "first") },
+            focusRequester = focusRequester,
+        )
+
+        OptionRadioGroup(
+            title = "Usage Limitation",
+            options = usageOptions,
+            selectedValue = if (isOneTimeUseOnly) "oneTime" else "multiple",
+            onOptionSelected = { onOneTimeUseOnlyChange(it == "oneTime") },
+        )
+    }
+}
+
+@Composable
+private fun OptionRadioGroup(
+    title: String,
+    options: List<SubmissionFieldOption>,
+    selectedValue: String,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester? = null
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        options.forEachIndexed { index, option ->
+            val optionModifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (index == 0 && focusRequester != null) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    },
+                )
+                .clickable(
+                    role = Role.RadioButton,
+                    onClick = { onOptionSelected(option.value) },
+                )
+                .padding(
+                    horizontal = SpacingTokens.sm,
+                    vertical = SpacingTokens.xs,
+                )
+
+            Row(
+                modifier = optionModifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = option.value == selectedValue,
+                    onClick = { onOptionSelected(option.value) },
+                )
+                Spacer(modifier = Modifier.width(SpacingTokens.sm))
+                Column {
+                    Text(
+                        text = option.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(modifier = Modifier.Companion.width(SpacingTokens.sm))
-                    Column {
+                    option.description?.let { description ->
                         Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        option.description?.let { desc ->
-                            Text(
-                                text = desc,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Usage Limitation Group
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            Text(
-                text = "Usage Limitation",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            val usageOptions = listOf(
-                SubmissionFieldOption(
-                    value = "multiple",
-                    label = "Multiple uses",
-                    description = "Can be used multiple times",
-                ),
-                SubmissionFieldOption(
-                    value = "oneTime",
-                    label = "One-time use only",
-                    description = "Code gets deleted after first use",
-                ),
-            )
-
-            usageOptions.forEach { option ->
-                Row(
-                    modifier = Modifier.Companion
-                        .fillMaxWidth()
-                        .clickable {
-                            onOneTimeUseOnlyChange(option.value == "oneTime")
-                        }
-                        .padding(SpacingTokens.sm),
-                    verticalAlignment = Alignment.Companion.CenterVertically,
-                ) {
-                    RadioButton(
-                        selected = (isOneTimeUseOnly && option.value == "oneTime") || (!isOneTimeUseOnly && option.value == "multiple"),
-                        onClick = { onOneTimeUseOnlyChange(option.value == "oneTime") },
-                    )
-                    Spacer(modifier = Modifier.Companion.width(SpacingTokens.sm))
-                    Column {
-                        Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        option.description?.let { desc ->
-                            Text(
-                                text = desc,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
                     }
                 }
             }

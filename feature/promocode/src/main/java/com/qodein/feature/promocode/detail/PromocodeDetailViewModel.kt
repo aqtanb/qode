@@ -308,7 +308,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             _uiState.update { it.copy(isCopying = true) }
 
             viewModelScope.launch {
-                _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code))
+                _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code.value))
 
                 delay(COPY_FEEDBACK_DURATION)
                 _uiState.update { it.copy(isCopying = false) }

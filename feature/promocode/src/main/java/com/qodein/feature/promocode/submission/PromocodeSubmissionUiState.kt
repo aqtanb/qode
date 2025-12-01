@@ -5,7 +5,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import java.time.LocalDate
 
-enum class PromoCodeType {
+enum class PromocodeType {
     PERCENTAGE,
     FIXED_AMOUNT
 }
@@ -13,12 +13,12 @@ enum class PromoCodeType {
 data class SubmissionWizardData(
     // Service Details
     val selectedService: Service? = null,
-    val serviceName: String = "", // Manual service name entry
-    val isManualServiceEntry: Boolean = false, // Toggle between service selector and manual entry
+    val serviceName: String = "",
+    val isManualServiceEntry: Boolean = false,
 
     // Promo Code Details
-    val promoCode: String = "",
-    val promocodeType: PromoCodeType? = null,
+    val code: String = "",
+    val promocodeType: PromocodeType? = null,
     val discountPercentage: String = "",
     val discountAmount: String = "",
     val minimumOrderAmount: String = "",
