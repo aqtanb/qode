@@ -217,7 +217,6 @@ private fun SubmissionContent(
             onSubmit = {
                 onAction(PromocodeSubmissionAction.SubmitPromoCode)
             },
-            showSubmitAlongside = uiState.wizardFlow.currentStep.isLastRequired && !uiState.wizardFlow.currentStep.isLast,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
     }

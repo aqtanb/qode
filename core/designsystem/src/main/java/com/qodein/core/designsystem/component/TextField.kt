@@ -178,6 +178,7 @@ fun QodeinTextField(
                 focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 focusedContainerColor = Color.Transparent,
+                cursorColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedContainerColor = Color.Transparent,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
