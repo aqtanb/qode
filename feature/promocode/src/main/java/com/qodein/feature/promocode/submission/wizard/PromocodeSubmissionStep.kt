@@ -1,4 +1,4 @@
-package com.qodein.feature.promocode.submission
+package com.qodein.feature.promocode.submission.wizard
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -6,6 +6,7 @@ import com.qodein.core.designsystem.icon.QodeCalendarIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.feature.promocode.R
+import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
 import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
 import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmount

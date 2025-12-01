@@ -10,10 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
-import com.qodein.feature.promocode.submission.SubmissionField
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
 import com.qodein.feature.promocode.submission.component.steps.MinimumOrderAmountStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
@@ -22,6 +19,9 @@ import com.qodein.feature.promocode.submission.component.steps.PromocodeRulesSte
 import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
+import com.qodein.feature.promocode.submission.validation.SubmissionField
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 
 @Composable
 fun PromocodeSubmissionCardContent(

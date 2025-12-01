@@ -41,11 +41,11 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.ValidationState
-import com.qodein.feature.promocode.submission.hintRes
-import com.qodein.feature.promocode.submission.titleRes
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.hintRes
+import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
 fun PromocodeSubmissionCard(

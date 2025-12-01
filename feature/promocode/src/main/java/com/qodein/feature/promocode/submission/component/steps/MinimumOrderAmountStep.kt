@@ -10,11 +10,11 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
+import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 
 @Composable
 internal fun MinimumOrderAmountStep(

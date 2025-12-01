@@ -151,7 +151,7 @@
     <string name="error_too_many_results">Too many results found.</string>
 
     <!-- General Error -->
-    <string name="error_unknown">Something went wrong.</string>
+    <string name="error_unknown">Unknown error occurred</string>
 
     <!-- Post Errors -->
     <string name="error_post_title_empty">Post title is required</string>

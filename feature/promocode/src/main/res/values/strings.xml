@@ -94,4 +94,5 @@
     <string name="cd_one_time_use">One time use</string>
     <string name="cd_expiring_soon">Expiring soon</string>
     <string name="cd_verified">Verified</string>
+    <string name="submit_promocode">Submit Promocode</string>
 </resources>

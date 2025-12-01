@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission.component.steps
 
-import android.R.attr.contentDescription
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
@@ -55,10 +54,10 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.model.Service
 
 @Composable

@@ -8,6 +8,9 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.state.UiAuthState
+import com.qodein.feature.promocode.submission.validation.SubmissionField
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.AuthState
@@ -137,13 +140,13 @@ class PromocodeSubmissionViewModel @Inject constructor(
     // MARK: - Service Selection
 
     private fun showServiceSelector() {
-        updateSuccessState { it.showServiceSelector() }
+        updateSuccessState { it.copy(showServiceSelector = true) }
         // Setup service selection when showing the selector
         setupServiceSelection()
     }
 
     private fun hideServiceSelector() {
-        updateSuccessState { it.hideServiceSelector() }
+        updateSuccessState { it.copy(showServiceSelector = false) }
     }
 
     private fun toggleManualEntry() {
@@ -178,7 +181,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                                     ),
                                 ),
                             )
-                            currentState.moveToNextStep()
+                            currentState.copy(wizardFlow = currentState.wizardFlow.moveToNext())
                         } else {
                             currentState
                         }
@@ -210,7 +213,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                                     ),
                                 ),
                             )
-                            currentState.moveToPreviousStep()
+                            currentState.copy(wizardFlow = currentState.wizardFlow.moveToPrevious())
                         } else {
                             currentState
                         }
@@ -238,11 +241,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                             ),
                         ),
                     )
-                    currentState.copy(
-                        wizardFlow = currentState.wizardFlow.copy(
-                            currentStep = targetStep,
-                        ),
-                    )
+                    currentState.copy(wizardFlow = currentState.wizardFlow.moveToStep(targetStep))
                 }
                 else -> currentState
             }
@@ -295,7 +294,11 @@ class PromocodeSubmissionViewModel @Inject constructor(
     }
 
     private fun clearValidationErrors() {
-        updateSuccessState { it.clearValidationErrors() }
+        updateSuccessState {
+            it.copy(
+                validation = ValidationState.valid(),
+            )
+        }
     }
 
     // MARK: - Service Selection Management
@@ -396,11 +399,15 @@ class PromocodeSubmissionViewModel @Inject constructor(
         val wizardData = currentState.wizardFlow.wizardData
         Logger.d(TAG) { "Submitting: service='${wizardData.effectiveServiceName}', code='${wizardData.code}'" }
 
-        updateSuccessState { it.startSubmission() }
+        updateSuccessState { current ->
+            current.copy(submission = PromocodeSubmissionState.Submitting)
+        }
 
         viewModelScope.launch {
             val request = buildSubmitRequest(wizardData, user) ?: run {
-                updateSuccessState { it.submitError(Exception("Invalid promo code data")) }
+                updateSuccessState { current ->
+                    current.copy(submission = PromocodeSubmissionState.Error(PromocodeError.CreationFailure.InvalidPromocodeId))
+                }
                 return@launch
             }
 
@@ -410,10 +417,14 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
                         _events.emit(PromocodeSubmissionEvent.NavigateBack)
                     }
-                    updateSuccessState { it.submitSuccess(request.code) }
+                    updateSuccessState { current ->
+                        current.copy(submission = PromocodeSubmissionState.Success(request.code))
+                    }
                 }
                 is Result.Error -> {
-                    updateSuccessState { it.submitError(Exception(result.error.toString())) }
+                    updateSuccessState { current ->
+                        current.copy(submission = PromocodeSubmissionState.Error(result.error))
+                    }
                 }
             }
         }
@@ -459,7 +470,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     /**
      * Helper function to update PromocodeSubmissionUiState.Success state safely.
-     * Uses the extension functions from StateUpdateExtensions.kt for ergonomic updates.
      */
     private inline fun updateSuccessState(crossinline update: (PromocodeSubmissionUiState.Success) -> PromocodeSubmissionUiState.Success) {
         _uiState.update { currentState ->
@@ -474,7 +484,10 @@ class PromocodeSubmissionViewModel @Inject constructor(
      * Helper function specifically for wizard data updates using extensions
      */
     private fun updateWizardData(update: (SubmissionWizardData) -> SubmissionWizardData) {
-        updateSuccessState { it.updateWizardData(update) }
+        updateSuccessState { state ->
+            val newData = update(state.wizardFlow.wizardData)
+            state.copy(wizardFlow = state.wizardFlow.updateData(newData))
+        }
     }
 
     private fun updateValidationField(

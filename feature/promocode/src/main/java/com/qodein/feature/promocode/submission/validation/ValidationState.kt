@@ -1,4 +1,4 @@
-package com.qodein.feature.promocode.submission
+package com.qodein.feature.promocode.submission.validation
 
 import com.qodein.shared.common.error.PromocodeError
 

@@ -14,10 +14,10 @@ import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.ValidationState
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.model.PromocodeCode
 

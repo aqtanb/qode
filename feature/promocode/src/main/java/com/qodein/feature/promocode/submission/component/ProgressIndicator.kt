@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,10 +33,10 @@ import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
-import com.qodein.feature.promocode.submission.shortNameRes
-import com.qodein.feature.promocode.submission.stepIcon
-import com.qodein.feature.promocode.submission.titleRes
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.shortNameRes
+import com.qodein.feature.promocode.submission.wizard.stepIcon
+import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
 fun ProgressIndicator(

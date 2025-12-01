@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -45,10 +43,12 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.component.WizardController
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.service.selection.SelectionState
-
-// MARK: - Main Screen
+import com.qodein.shared.domain.service.selection.ServiceSelectionAction
+import com.qodein.shared.domain.service.selection.ServiceSelectionState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +61,7 @@ fun PromocodeSubmissionScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -83,78 +84,93 @@ fun PromocodeSubmissionScreen(
         }
     }
 
+    PromocodeSubmissionScreenContent(
+        uiState = uiState,
+        authState = authState,
+        serviceSelectionState = serviceSelectionState,
+        snackbarHostState = snackbarHostState,
+        onNavigateBack = onNavigateBack,
+        onAction = viewModel::onAction,
+        onServiceSelectionAction = viewModel::onServiceSelectionAction,
+        onSignIn = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle(context)) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PromocodeSubmissionScreenContent(
+    uiState: PromocodeSubmissionUiState,
+    authState: UiAuthState,
+    serviceSelectionState: ServiceSelectionState,
+    snackbarHostState: SnackbarHostState,
+    onNavigateBack: () -> Unit,
+    onAction: (PromocodeSubmissionAction) -> Unit,
+    onServiceSelectionAction: (ServiceSelectionAction) -> Unit,
+    onSignIn: () -> Unit
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             QodeTopAppBar(
-                title = "Submit Promo Code",
+                title = stringResource(R.string.submit_promocode),
                 navigationIcon = QodeActionIcons.Back,
                 onNavigationClick = onNavigateBack,
             )
         },
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            when (val currentState = uiState) {
+            when (uiState) {
                 is PromocodeSubmissionUiState.Loading -> {
                     LoadingState()
                 }
                 is PromocodeSubmissionUiState.Success -> {
-                    val showAuthSheet = authState.shouldShowAuthSheet()
-                    if (showAuthSheet) {
-                        val isSigningIn = authState is UiAuthState.SigningIn
+                    val serviceSelectorSheetState = rememberModalBottomSheetState()
 
+                    LaunchedEffect(uiState.showServiceSelector) {
+                        if (uiState.showServiceSelector) {
+                            serviceSelectorSheetState.show()
+                        } else {
+                            serviceSelectorSheetState.hide()
+                        }
+                    }
+
+                    SuccessState(
+                        uiState = uiState,
+                        onAction = onAction,
+                    )
+
+                    if (authState.shouldShowAuthSheet()) {
                         AuthenticationBottomSheet(
-                            authPromptAction = AuthPromptAction.SubmitPromoCode,
-                            onSignInClick = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle(context)) },
-                            onDismiss = { viewModel.onAction(PromocodeSubmissionAction.DismissAuthSheet) },
-                            isLoading = isSigningIn,
+                            authPromptAction = AuthPromptAction.SubmitPromocode,
+                            onSignInClick = onSignIn,
+                            onDismiss = { onAction(PromocodeSubmissionAction.DismissAuthSheet) },
+                            isLoading = authState is UiAuthState.SigningIn,
                         )
-                    } else {
-                        val serviceSelectorSheetState = rememberModalBottomSheetState()
+                    }
 
-                        // Effect to control bottom sheet visibility based on state
-                        LaunchedEffect(currentState.showServiceSelector) {
-                            if (currentState.showServiceSelector) {
-                                serviceSelectorSheetState.show()
-                            } else {
-                                serviceSelectorSheetState.hide()
-                            }
-                        }
-
-                        SubmissionContent(
-                            uiState = currentState,
-                            onAction = viewModel::onAction,
+                    if (uiState.showServiceSelector) {
+                        val updatedSelectionState = serviceSelectionState.copy(
+                            selection = SelectionState.Single(selectedId = uiState.wizardFlow.wizardData.selectedService?.id),
                         )
 
-                        // Always render the bottom sheet, visibility controlled by sheetState
-                        if (currentState.showServiceSelector) {
-                            // Get unified service selection state from ViewModel
-                            val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
+                        val selectorUiState = ServiceSelectionUiState(
+                            domainState = updatedSelectionState,
+                            isVisible = true,
+                        )
 
-                            // Update selection state with current wizard selection
-                            val updatedSelectionState = serviceSelectionState.copy(
-                                selection = SelectionState.Single(selectedId = currentState.wizardFlow.wizardData.selectedService?.id),
-                            )
-
-                            val uiState = ServiceSelectionUiState(
-                                domainState = updatedSelectionState,
-                                isVisible = true,
-                            )
-
-                            ServiceSelectorBottomSheet(
-                                state = uiState,
-                                onAction = viewModel::onServiceSelectionAction,
-                                onDismiss = {
-                                    viewModel.onAction(PromocodeSubmissionAction.HideServiceSelector)
-                                },
-                            )
-                        }
+                        ServiceSelectorBottomSheet(
+                            state = selectorUiState,
+                            onAction = onServiceSelectionAction,
+                            onDismiss = {
+                                onAction(PromocodeSubmissionAction.HideServiceSelector)
+                            },
+                        )
                     }
                 }
                 is PromocodeSubmissionUiState.Error -> {
                     ErrorState(
-                        error = currentState.error,
-                        onRetry = { viewModel.onAction(PromocodeSubmissionAction.RetryClicked) },
+                        error = uiState.error,
+                        onRetry = { onAction(PromocodeSubmissionAction.RetryClicked) },
                     )
                 }
             }
@@ -164,25 +180,21 @@ fun PromocodeSubmissionScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SubmissionContent(
+private fun SuccessState(
     uiState: PromocodeSubmissionUiState.Success,
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-
-    // Clean, single-layer design with floating controller overlay
     Box(
         modifier = modifier
             .fillMaxSize(),
     ) {
-        // Main content - no bottom padding reserved for controller
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(bottom = SpacingTokens.gigantic)
-                .imePadding(), // Apply IME padding to the content area
+                .padding(bottom = SpacingTokens.gigantic),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -203,7 +215,6 @@ private fun SubmissionContent(
             )
         }
 
-        // Floating controller at bottom - hidden when keyboard is active
         WizardController(
             canGoNext = uiState.canGoNext,
             canGoBack = uiState.canGoPrevious,
@@ -250,51 +261,15 @@ private fun ErrorState(
         QodeErrorCard(
             error = error,
             onRetry = onRetry,
-            onDismiss = {},
         )
     }
 }
 
 // MARK: - Previews
 
-@Preview(name = "Progressive Submission Content - Service Step", showBackground = true)
+@ThemePreviews
 @Composable
-private fun ProgressiveSubmissionContentServicePreview() {
-    QodeTheme {
-        SubmissionContent(
-            uiState = PromocodeSubmissionUiState.Success.initial().copy(
-                wizardFlow = WizardFlowState(
-                    wizardData = SubmissionWizardData(),
-                    currentStep = PromocodeSubmissionStep.SERVICE,
-                ),
-            ),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Progressive Submission Content - Promo Code Step", showBackground = true)
-@Composable
-private fun ProgressiveSubmissionContentPromoCodePreview() {
-    QodeTheme {
-        SubmissionContent(
-            uiState = PromocodeSubmissionUiState.Success.initial().copy(
-                wizardFlow = WizardFlowState(
-                    wizardData = SubmissionWizardData(
-                        selectedService = ServicePreviewData.netflix,
-                        promocodeType = PromocodeType.PERCENTAGE,
-                    ),
-                    currentStep = PromocodeSubmissionStep.PROMOCODE,
-                ),
-            ),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(name = "Submission Screen - Loading", showSystemUi = true)
-@Composable
-private fun SubmissionScreenLoadingPreview() {
+private fun LoadingStatePreview() {
     QodeTheme {
         LoadingState()
     }
@@ -302,9 +277,20 @@ private fun SubmissionScreenLoadingPreview() {
 
 @ThemePreviews
 @Composable
-private fun SubmissionContentDarkThemePreview() {
+private fun ErrorStatePreview() {
     QodeTheme {
-        SubmissionContent(
+        ErrorState(
+            error = SystemError.Unknown,
+            onRetry = { },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun SuccessStatePreview() {
+    QodeTheme {
+        SuccessState(
             uiState = PromocodeSubmissionUiState.Success.initial().copy(
                 wizardFlow = WizardFlowState(
                     wizardData = SubmissionWizardData(

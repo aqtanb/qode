@@ -49,7 +49,7 @@ import com.qodein.shared.common.error.UserError
  * Authentication prompt actions that trigger contextual auth prompts
  */
 enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val iconVector: ImageVector) {
-    SubmitPromoCode(
+    SubmitPromocode(
         titleResId = R.string.auth_submit_promo_title,
         messageResId = R.string.auth_submit_promo_message,
         iconVector = QodeActionIcons.Add,
@@ -272,7 +272,7 @@ private fun AuthenticationBottomSheetContent(
 private fun AuthenticationBottomSheetSubmitPreview() {
     QodeTheme {
         AuthenticationBottomSheetContent(
-            action = AuthPromptAction.SubmitPromoCode,
+            action = AuthPromptAction.SubmitPromocode,
             onSignInClick = {},
             onDismiss = {},
             isLoading = false,
