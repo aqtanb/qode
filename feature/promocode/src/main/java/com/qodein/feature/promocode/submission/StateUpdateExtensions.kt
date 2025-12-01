@@ -1,7 +1,5 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.core.ui.state.UiAuthState
-
 /**
  * Extension functions for ergonomic state updates with the new composed architecture.
  *
@@ -25,10 +23,6 @@ fun PromocodeSubmissionUiState.Success.moveToPreviousStep(): PromocodeSubmission
     copy(
         wizardFlow = wizardFlow.moveToPrevious(),
     )
-
-// Authentication updates
-fun PromocodeSubmissionUiState.Success.updateAuthentication(newAuthState: UiAuthState): PromocodeSubmissionUiState.Success =
-    copy(authentication = newAuthState)
 
 fun PromocodeSubmissionUiState.Success.clearValidationErrors(): PromocodeSubmissionUiState.Success =
     copy(

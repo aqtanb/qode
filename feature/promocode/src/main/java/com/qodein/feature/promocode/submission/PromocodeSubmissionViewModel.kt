@@ -64,6 +64,9 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
     val uiState: StateFlow<PromocodeSubmissionUiState> = _uiState.asStateFlow()
 
+    private val _authState = MutableStateFlow<UiAuthState>(UiAuthState.Uninitialized)
+    val authState: StateFlow<UiAuthState> = _authState.asStateFlow()
+
     private val _events = MutableSharedFlow<PromocodeSubmissionEvent>()
     val events = _events.asSharedFlow()
 
@@ -252,20 +255,12 @@ class PromocodeSubmissionViewModel @Inject constructor(
         viewModelScope.launch {
             getAuthStateUseCase()
                 .collect { authState ->
-                    _uiState.update { currentState ->
-                        when (currentState) {
-                            is PromocodeSubmissionUiState.Success -> {
-                                val newAuthState =
-                                    when (authState) {
-                                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
-                                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
-                                    }
-                                currentState.updateAuthentication(newAuthState)
-                            }
-                            is PromocodeSubmissionUiState.Loading,
-                            is PromocodeSubmissionUiState.Error -> currentState
+                    val newAuthState =
+                        when (authState) {
+                            is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                            AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                         }
-                    }
+                    _authState.update { newAuthState }
                 }
         }
     }
@@ -273,12 +268,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private fun signInWithGoogle(context: Context) {
         Logger.i(TAG) { "signInWithGoogle() called" }
 
-        _uiState.update { currentState ->
-            when (currentState) {
-                is PromocodeSubmissionUiState.Success -> currentState.updateAuthentication(UiAuthState.Loading)
-                else -> currentState
-            }
-        }
+        _authState.update { UiAuthState.SigningIn }
 
         viewModelScope.launch {
             when (val tokenResult = idTokenProvider.getIdToken(context)) {
@@ -290,26 +280,14 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         }
                         is Result.Error -> {
                             Logger.w(TAG) { "Sign-in failed: ${signInResult.error}" }
-                            _uiState.update { currentState ->
-                                when (currentState) {
-                                    is PromocodeSubmissionUiState.Success ->
-                                        currentState.updateAuthentication(UiAuthState.Unauthenticated)
-                                    else -> currentState
-                                }
-                            }
+                            _authState.update { UiAuthState.Unauthenticated }
                             _events.emit(PromocodeSubmissionEvent.ShowError(signInResult.error))
                         }
                     }
                 }
                 is Result.Error -> {
                     Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
-                    _uiState.update { currentState ->
-                        when (currentState) {
-                            is PromocodeSubmissionUiState.Success ->
-                                currentState.updateAuthentication(UiAuthState.Unauthenticated)
-                            else -> currentState
-                        }
-                    }
+                    _authState.update { UiAuthState.Unauthenticated }
                     _events.emit(PromocodeSubmissionEvent.ShowError(tokenResult.error))
                 }
             }
@@ -395,7 +373,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
             return
         }
 
-        val authenticatedUser = (currentState.authentication as? UiAuthState.Authenticated)?.user
+        val authenticatedUser = (authState.value as? UiAuthState.Authenticated)?.user
         if (authenticatedUser == null) {
             Logger.w(TAG) { "Cannot submit: user is not authenticated" }
             return

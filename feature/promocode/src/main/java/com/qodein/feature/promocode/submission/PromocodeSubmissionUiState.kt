@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import java.time.LocalDate
@@ -42,8 +41,7 @@ sealed interface PromocodeSubmissionUiState {
         val wizardFlow: WizardFlowState,
         val validation: ValidationState,
         val submission: PromocodeSubmissionState,
-        val showServiceSelector: Boolean = false,
-        val authentication: UiAuthState = UiAuthState.Loading
+        val showServiceSelector: Boolean = false
     ) : PromocodeSubmissionUiState {
 
         // Navigation capabilities

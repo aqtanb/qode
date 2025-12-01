@@ -40,6 +40,7 @@ import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.core.ui.state.UiAuthState
+import com.qodein.core.ui.state.shouldShowAuthSheet
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
@@ -59,6 +60,7 @@ fun PromocodeSubmissionScreen(
 
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -97,9 +99,9 @@ fun PromocodeSubmissionScreen(
                     LoadingState()
                 }
                 is PromocodeSubmissionUiState.Success -> {
-                    val showAuthSheet = currentState.authentication !is UiAuthState.Authenticated
+                    val showAuthSheet = authState.shouldShowAuthSheet()
                     if (showAuthSheet) {
-                        val isSigningIn = currentState.authentication is UiAuthState.Loading
+                        val isSigningIn = authState is UiAuthState.SigningIn
 
                         AuthenticationBottomSheet(
                             authPromptAction = AuthPromptAction.SubmitPromoCode,
@@ -265,7 +267,6 @@ private fun ProgressiveSubmissionContentServicePreview() {
                     wizardData = SubmissionWizardData(),
                     currentStep = PromocodeSubmissionStep.SERVICE,
                 ),
-                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -285,7 +286,6 @@ private fun ProgressiveSubmissionContentPromoCodePreview() {
                     ),
                     currentStep = PromocodeSubmissionStep.PROMOCODE,
                 ),
-                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )
@@ -313,7 +313,6 @@ private fun SubmissionContentDarkThemePreview() {
                     ),
                     currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
                 ),
-                authentication = UiAuthState.Unauthenticated,
             ),
             onAction = {},
         )

@@ -257,7 +257,7 @@ class PostSubmissionViewModel @Inject constructor(
     }
 
     private fun signInWithGoogle(activityContext: Context) {
-        updateSuccessState { it.copy(authentication = UiAuthState.Loading) }
+        updateSuccessState { it.copy(authentication = UiAuthState.SigningIn) }
 
         viewModelScope.launch {
             when (val tokenResult = idTokenProvider.getIdToken(activityContext)) {
