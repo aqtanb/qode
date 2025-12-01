@@ -9,10 +9,6 @@ import com.qodein.core.ui.state.UiAuthState
  * boilerplate while maintaining immutability.
  */
 
-// Wizard flow updates
-fun PromocodeSubmissionUiState.Success.updateWizardFlow(update: (WizardFlowState) -> WizardFlowState): PromocodeSubmissionUiState.Success =
-    copy(wizardFlow = update(wizardFlow))
-
 fun PromocodeSubmissionUiState.Success.updateWizardData(
     update: (SubmissionWizardData) -> SubmissionWizardData
 ): PromocodeSubmissionUiState.Success {
@@ -20,10 +16,6 @@ fun PromocodeSubmissionUiState.Success.updateWizardData(
     return copy(wizardFlow = wizardFlow.updateData(newData))
 }
 
-fun PromocodeSubmissionUiState.Success.updateStep(newStep: PromocodeSubmissionStep): PromocodeSubmissionUiState.Success =
-    copy(
-        wizardFlow = wizardFlow.moveToStep(newStep),
-    )
 
 fun PromocodeSubmissionUiState.Success.moveToNextStep(): PromocodeSubmissionUiState.Success =
     copy(
@@ -39,24 +31,10 @@ fun PromocodeSubmissionUiState.Success.moveToPreviousStep(): PromocodeSubmission
 fun PromocodeSubmissionUiState.Success.updateAuthentication(newAuthState: UiAuthState): PromocodeSubmissionUiState.Success =
     copy(authentication = newAuthState)
 
-// Validation updates
-fun PromocodeSubmissionUiState.Success.updateValidation(update: (ValidationState) -> ValidationState): PromocodeSubmissionUiState.Success =
-    copy(validation = update(validation))
-
-fun PromocodeSubmissionUiState.Success.setValidationErrors(errors: Map<SubmissionField, Int>): PromocodeSubmissionUiState.Success =
-    copy(
-        validation = ValidationState.invalid(errors),
-    )
-
 fun PromocodeSubmissionUiState.Success.clearValidationErrors(): PromocodeSubmissionUiState.Success =
     copy(
         validation = ValidationState.valid(),
     )
-
-// Submission updates
-fun PromocodeSubmissionUiState.Success.updateSubmission(
-    newPromocodeSubmissionState: PromocodeSubmissionState
-): PromocodeSubmissionUiState.Success = copy(submission = newPromocodeSubmissionState)
 
 fun PromocodeSubmissionUiState.Success.startSubmission(): PromocodeSubmissionUiState.Success =
     copy(
@@ -73,12 +51,6 @@ fun PromocodeSubmissionUiState.Success.submitError(throwable: Throwable): Promoc
         submission = PromocodeSubmissionState.Error(throwable),
     )
 
-fun PromocodeSubmissionUiState.Success.resetSubmission(): PromocodeSubmissionUiState.Success =
-    copy(
-        submission = PromocodeSubmissionState.Idle,
-    )
-
-// Service selection updates (temporary - until extraction)
 fun PromocodeSubmissionUiState.Success.showServiceSelector(): PromocodeSubmissionUiState.Success = copy(showServiceSelector = true)
 
 fun PromocodeSubmissionUiState.Success.hideServiceSelector(): PromocodeSubmissionUiState.Success = copy(showServiceSelector = false)

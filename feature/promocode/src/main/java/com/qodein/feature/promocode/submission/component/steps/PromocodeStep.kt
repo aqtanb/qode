@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
@@ -28,12 +29,10 @@ internal fun PromocodeStep(
     promoCode: String,
     onPromoCodeChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    keyboardController: SoftwareKeyboardController?,
     onNextStep: () -> Unit
 ) {
     var validationState by remember { mutableStateOf(FieldValidationState.IDLE) }
 
-    // Centralized validation for promo codes
     LaunchedEffect(promoCode) {
         validationState = if (promoCode.isNotEmpty()) {
             if (getPromoCodeValidationError(promoCode) == null) {
@@ -46,7 +45,7 @@ internal fun PromocodeStep(
         }
     }
 
-    SubmissionTextField(
+    QodeinTextField(
         value = promoCode,
         onValueChange = { newValue ->
             // Smart formatting: default uppercase but allow user control
@@ -55,7 +54,6 @@ internal fun PromocodeStep(
                 .take(50) // Allow up to 50 chars to handle most real promo codes
             onPromoCodeChange(formatted)
         },
-        label = "Promo Code",
         placeholder = "Enter promo code (e.g., SAVE20)",
         leadingIcon = QodeIcons.Promocode,
         errorText = if (validationState == FieldValidationState.ERROR && promoCode.isNotEmpty()) {
@@ -64,7 +62,6 @@ internal fun PromocodeStep(
             null
         },
         helperText = "Enter the promo code exactly as shown (2-50 characters)",
-        isRequired = true,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Companion.Characters,
