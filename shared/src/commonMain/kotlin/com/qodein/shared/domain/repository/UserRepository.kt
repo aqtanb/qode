@@ -3,6 +3,7 @@ package com.qodein.shared.domain.repository
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.User
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for user operations.
@@ -22,12 +23,7 @@ interface UserRepository {
     suspend fun createUser(user: User): Result<Unit, OperationError>
 
     /**
-     * Increment the user's submitted promocodes count by 1.
+     * Observe user profile changes.
      */
-    suspend fun incrementPromocodeCount(userId: String): Result<Unit, OperationError>
-
-    /**
-     * Increment the user's submitted posts count by 1.
-     */
-    suspend fun incrementPostCount(userId: String): Result<Unit, OperationError>
+    fun observeUser(userId: String): Flow<Result<User, OperationError>>
 }

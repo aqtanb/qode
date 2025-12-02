@@ -1,7 +1,6 @@
 package com.qodein.core.data.repository
 
 import com.qodein.core.data.datasource.FirestorePostDataSource
-import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.PostRepository
@@ -20,16 +19,10 @@ import kotlinx.coroutines.flow.flow
  * Orchestrates multiple data sources for complex operations.
  */
 
-class PostRepositoryImpl constructor(private val dataSource: FirestorePostDataSource, private val userDataSource: FirestoreUserDataSource) :
-    PostRepository {
+class PostRepositoryImpl(private val dataSource: FirestorePostDataSource) : PostRepository {
 
     override suspend fun createPost(post: Post): Result<Post, OperationError> {
         val result = dataSource.createPost(post)
-
-        if (result is Result.Success) {
-            userDataSource.incrementPostCount(post.authorId.value)
-        }
-
         return result
     }
 

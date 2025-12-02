@@ -32,8 +32,7 @@ internal fun QodeApp(
 ) {
     val appViewModel: QodeAppViewModel = hiltViewModel()
     val authState by appViewModel.authState.collectAsStateWithLifecycle()
-
-    val user = (authState as? AuthState.Authenticated)?.user
+    val userId = (authState as? AuthState.Authenticated)?.userId
 
     val navigationHandler = NavigationHandler()
 
@@ -84,14 +83,14 @@ internal fun QodeApp(
             ) { innerPadding ->
                 QodeNavHost(
                     appState = appState,
-                    user = user,
+                    userId = userId,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
         } else {
             QodeNavHost(
                 appState = appState,
-                user = user,
+                userId = userId,
                 modifier = Modifier.fillMaxSize(),
             )
         }

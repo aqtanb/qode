@@ -1,6 +1,6 @@
 package com.qodein.core.ui.state
 
-import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 
 /**
  * Lightweight UI-layer auth state shared across flows.
@@ -13,7 +13,7 @@ sealed interface UiAuthState {
     data object Uninitialized : UiAuthState
     data object SigningIn : UiAuthState
     data object Unauthenticated : UiAuthState
-    data class Authenticated(val user: User) : UiAuthState
+    data class Authenticated(val userId: UserId) : UiAuthState
 }
 
 fun UiAuthState.shouldShowAuthSheet(): Boolean =

@@ -12,6 +12,14 @@ export { cleanupOldStorageFiles } from './scheduledTasks/cleanupOldStorageFiles'
 
 // Export promo triggers
 export { onPromoCreated, onPromoDeleted, onPromoUpdated } from './triggers/promocodeCounts';
+export {
+  onPromocodeCreatedUpdateUserStats,
+  onPromocodeDeletedUpdateUserStats,
+  onPromocodeUpdatedUpdateUserStats,
+  onPostCreatedUpdateUserStats,
+  onPostDeletedUpdateUserStats,
+  onPostUpdatedUpdateUserStats,
+} from './triggers/userStats';
 
 // Initialize Firebase Admin (guarded for unit tests/analyzer).
 if (!admin.apps.length) {

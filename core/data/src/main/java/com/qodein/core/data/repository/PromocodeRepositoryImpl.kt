@@ -3,7 +3,6 @@ package com.qodein.core.data.repository
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
-import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.dto.PromocodeDto
 import com.qodein.core.data.mapper.PromocodeMapper
 import com.qodein.core.data.util.ErrorMapper
@@ -21,8 +20,7 @@ import com.qodein.shared.model.PromocodeId
 import timber.log.Timber
 import java.io.IOException
 
-class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSource, private val userDataSource: FirestoreUserDataSource) :
-    PromocodeRepository {
+class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSource) : PromocodeRepository {
     override suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError> =
         try {
             Timber.i("Creating promocode: %s", promocode.code.value)
@@ -31,13 +29,6 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
             dataSource.createPromocode(dto)
 
             Timber.i("Successfully created promocode: %s", promocode.id.value)
-
-            try {
-                userDataSource.incrementPromocodeCount(promocode.authorId.value)
-                Timber.d("Incremented promocode count for user: %s", promocode.authorId.value)
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to increment promocode count: %s", e.message)
-            }
 
             Result.Success(Unit)
         } catch (e: FirebaseFirestoreException) {

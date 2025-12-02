@@ -2,6 +2,7 @@ package com.qodein.core.data.mapper
 
 import com.qodein.core.data.dto.UserDto
 import com.qodein.core.data.dto.UserProfileDto
+import com.qodein.core.data.dto.UserStatsDto
 import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
@@ -17,7 +18,11 @@ object UserMapper {
                 displayName = dto.profile.displayName,
                 photoUrl = dto.profile.photoUrl,
             ),
-            stats = UserStats.initial(UserId(dto.documentId)),
+            stats = UserStats(
+                userId = UserId(dto.documentId),
+                submittedPromocodesCount = dto.stats.submittedPromocodesCount,
+                submittedPostsCount = dto.stats.submittedPostsCount,
+            ),
         )
 
     fun toDto(user: User): UserDto =
@@ -27,6 +32,10 @@ object UserMapper {
             profile = UserProfileDto(
                 displayName = user.profile.displayName,
                 photoUrl = user.profile.photoUrl,
+            ),
+            stats = UserStatsDto(
+                submittedPromocodesCount = user.stats.submittedPromocodesCount,
+                submittedPostsCount = user.stats.submittedPostsCount,
             ),
         )
 }

@@ -23,12 +23,12 @@ import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
-import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
-    user: User?,
+    userId: UserId?,
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
@@ -52,9 +52,9 @@ fun QodeNavHost(
         )
 
         feedSection(
-            user = user,
+            userId = userId,
             onProfileClick = {
-                if (user != null) {
+                if (userId != null) {
                     navController.navigateToProfile()
                 } else {
                     navController.navigateToAuth()

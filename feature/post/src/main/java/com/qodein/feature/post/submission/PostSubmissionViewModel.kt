@@ -4,10 +4,8 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.data.worker.UploadPostWorker
 import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.util.ImageCompressor
@@ -99,7 +97,7 @@ class PostSubmissionViewModel @Inject constructor(
             getAuthStateUseCase().collect { authState ->
                 updateSuccessState { state ->
                     val mapped = when (authState) {
-                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.userId)
                         AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                     }
                     state.copy(authentication = mapped)
@@ -192,7 +190,7 @@ class PostSubmissionViewModel @Inject constructor(
             val currentState = uiState.value
             if (currentState !is PostSubmissionUiState.Success) return@launch
             val user = when (val authState = getAuthStateUseCase().firstOrNull()) {
-                is AuthState.Authenticated -> authState.user
+                is AuthState.Authenticated -> authState.userId
                 else -> {
                     _uiState.update { PostSubmissionUiState.Error(PostError.SubmissionFailure.NotAuthorized) }
                     return@launch
@@ -200,17 +198,17 @@ class PostSubmissionViewModel @Inject constructor(
             }
             _uiState.update { PostSubmissionUiState.Loading }
 
-            val workRequest = UploadPostWorker.createWorkRequest(
+            /*val workRequest = UploadPostWorker.createWorkRequest(
                 title = currentState.title,
                 content = currentState.content,
                 tags = currentState.tags.map { it.value },
                 imageUris = currentState.imageUris,
-                authorId = user.id.value,
+                authorId = user.value,
                 authorUsername = user.displayName.orEmpty(),
                 authorAvatarUrl = user.profile.photoUrl,
             )
             WorkManager.getInstance(context).enqueue(workRequest)
-            _events.emit(PostSubmissionEvent.PostSubmitted)
+            _events.emit(PostSubmissionEvent.PostSubmitted)*/
         }
     }
 

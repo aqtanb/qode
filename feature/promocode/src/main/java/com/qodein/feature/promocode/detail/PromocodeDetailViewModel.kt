@@ -17,7 +17,6 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
-import com.qodein.shared.domain.userIdOrNull
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.PromocodeInteraction
@@ -96,7 +95,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     ) {
         _uiState.update { it.copy(isLoading = true, errorType = null) }
 
-        val userId = authState.userIdOrNull
+        val userId = when (authState) {
+            is AuthState.Authenticated -> authState.userId
+            AuthState.Unauthenticated -> null
+        }
 
         coroutineScope {
             val promoCodeDeferred = async {
@@ -195,7 +197,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 newVoteState = voteUpdate.newVoteState,
                 contentId = currentPromoCode.id.value,
                 contentType = ContentType.PROMO_CODE,
-                userId = authState.user.id,
+                userId = authState.userId,
             )
 
             // Apply optimistic update to UI
@@ -215,7 +217,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 currentVoteState = currentVoteState,
                 targetVoteState = targetVoteState,
                 contentId = currentPromoCode.id.value,
-                userId = authState.user.id,
+                userId = authState.userId,
             )
 
             when (result) {

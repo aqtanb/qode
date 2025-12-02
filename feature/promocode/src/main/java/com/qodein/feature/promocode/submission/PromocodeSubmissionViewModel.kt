@@ -23,6 +23,7 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
 import com.qodein.shared.model.ServiceRef
@@ -61,6 +62,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
     private val idTokenProvider: IdTokenProvider
 ) : ViewModel() {
 
@@ -256,7 +258,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                 .collect { authState ->
                     val newAuthState =
                         when (authState) {
-                            is AuthState.Authenticated -> UiAuthState.Authenticated(authState.user)
+                            is AuthState.Authenticated -> UiAuthState.Authenticated(authState.userId)
                             AuthState.Unauthenticated -> UiAuthState.Unauthenticated
                         }
                     _authState.update { newAuthState }
@@ -371,18 +373,21 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private fun submitPromoCode() {
         Logger.i(TAG) { "submitPromoCode() called - using authenticated user" }
 
-        val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: run {
-            Logger.w(TAG) { "Cannot submit: currentState is not Success" }
-            return
-        }
-
-        val authenticatedUser = (authState.value as? UiAuthState.Authenticated)?.user
+        val authenticatedUser = (authState.value as? UiAuthState.Authenticated)?.userId
         if (authenticatedUser == null) {
             Logger.w(TAG) { "Cannot submit: user is not authenticated" }
             return
         }
 
-        performSubmission(authenticatedUser)
+        viewModelScope.launch {
+            when (val userResult = getUserByIdUseCase(authenticatedUser.value)) {
+                is Result.Success -> performSubmission(userResult.data)
+                is Result.Error -> {
+                    Logger.w(TAG) { "Cannot submit: failed to load user profile: ${userResult.error}" }
+                    _events.emit(PromocodeSubmissionEvent.ShowError(userResult.error))
+                }
+            }
+        }
     }
 
     /**
