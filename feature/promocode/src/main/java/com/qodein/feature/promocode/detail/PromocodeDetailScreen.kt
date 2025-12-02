@@ -4,12 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,12 +14,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,12 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBarVariant
-import com.qodein.core.designsystem.component.TopAppBarAction
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -43,22 +36,17 @@ import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
-import com.qodein.feature.promocode.detail.component.FooterSection
-import com.qodein.feature.promocode.detail.component.GradientBannerSection
-import com.qodein.feature.promocode.detail.component.ServiceInfoSection
+import com.qodein.feature.promocode.detail.component.PromocodeHeader
 import com.qodein.shared.model.Discount
-import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.PromocodeInteraction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PromocodeDetailScreen(
+fun PromocodeDetailRoute(
     promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
-    onNavigateToComments: (PromocodeId) -> Unit = {},
-    onNavigateToService: (String) -> Unit = {},
-    modifier: Modifier = Modifier,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -69,19 +57,11 @@ fun PromocodeDetailScreen(
     val localContext = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Authentication-protected bookmark action
-    val requireBookmark = {
-        // This will be handled by wrapping the button in AuthenticationGate
-        viewModel.onAction(PromocodeDetailAction.BookmarkToggleClicked)
-    }
-
     // Handle events
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
-                is PromocodeDetailEvent.NavigateToComments -> onNavigateToComments(event.promoCodeId)
-                is PromocodeDetailEvent.NavigateToService -> onNavigateToService(event.serviceName)
                 is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowSnackbar -> {
@@ -103,172 +83,103 @@ fun PromocodeDetailScreen(
                         duration = SnackbarDuration.Short,
                     )
                 }
-                is PromocodeDetailEvent.ShowFollowServiceTodo -> {
-                    snackbarHostState.showSnackbar(
-                        message = "TODO: Follow ${event.serviceName} feature coming soon!",
-                        duration = SnackbarDuration.Short,
-                    )
-                }
-                is PromocodeDetailEvent.ShowFollowCategoryTodo -> {
-                    snackbarHostState.showSnackbar(
-                        message = "TODO: Follow ${event.categoryName} category coming soon!",
-                        duration = SnackbarDuration.Short,
-                    )
-                }
-                is PromocodeDetailEvent.ShowAuthenticationRequired -> {
-                    // This event is no longer used - authentication is handled via UI state
-                }
             }
         }
     }
 
-    Scaffold(
-        topBar = {
-            QodeTopAppBar(
-                title = "Promocode Details",
-                navigationIcon = QodeActionIcons.Back,
-                onNavigationClick = onNavigateBack,
-                variant = QodeTopAppBarVariant.CenterAligned,
-                statusBarPadding = true, // Add status bar padding manually
-                actions = listOf(
-                    TopAppBarAction(
-                        icon = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
-                            QodeActionIcons.BookmarkFilled
-                        } else {
-                            QodeActionIcons.Bookmark
-                        },
-                        contentDescription = if (uiState.promoCodeWithUserState?.isBookmarkedByCurrentUser == true) {
-                            "Remove bookmark"
-                        } else {
-                            "Bookmark promocode"
-                        },
-                        onClick = requireBookmark,
-                    ),
-                ),
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-            )
-        },
-        contentWindowInsets = WindowInsets(0), // Remove automatic window insets
-        modifier = modifier.fillMaxSize(),
-    ) { paddingValues ->
-        PromocodeDetailContent(
-            uiState = uiState,
-            onAction = viewModel::onAction,
-            modifier = Modifier.padding(paddingValues),
-        )
-    }
+    PromocodeDetailScreen(
+        uiState = uiState,
+        onAction = viewModel::onAction,
+        onNavigateBack = onNavigateBack,
+        snackbarHostState = snackbarHostState,
+        modifier = Modifier.fillMaxSize(),
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PromocodeDetailContent(
+fun PromocodeDetailScreen(
     uiState: PromocodeDetailUiState,
     onAction: (PromocodeDetailAction) -> Unit,
+    onNavigateBack: () -> Unit,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        when {
-            uiState.isLoading && !uiState.hasData -> {
-                // Loading state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            QodeTopAppBar(
+                title = uiState.promocodeInteraction?.promocode?.code?.value ?: "",
+                navigationIcon = QodeActionIcons.Back,
+                onNavigationClick = onNavigateBack,
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.padding(paddingValues).padding(horizontal = SpacingTokens.sm),
+        ) {
+            when {
+                uiState.isLoading -> {
+                    LoadingState()
+                }
+
+                uiState.hasData -> {
+                    val promocodeInteraction = uiState.promocodeInteraction!!
+                    val promocode = promocodeInteraction.promocode
+
+                    val requireUpvote = {
+                        onAction(PromocodeDetailAction.UpvoteClicked)
+                    }
+
+                    val requireDownvote = {
+                        onAction(PromocodeDetailAction.DownvoteClicked)
+                    }
+
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
                     ) {
-                        CircularProgressIndicator()
-                        Text(
-                            text = "Loading promocode details...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        PromocodeHeader(
+                            promocode = promocode,
                         )
+
+                        DetailsSection(promoCode = promocode)
+
+                        ActionButtonsSection(
+                            promoCode = promocode,
+                            isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
+                            isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,
+                            onUpvoteClicked = requireUpvote,
+                            onDownvoteClicked = requireDownvote,
+                            onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
+                        )
+
+                        Spacer(modifier = Modifier.height(SpacingTokens.md))
                     }
                 }
             }
 
-            uiState.hasData -> {
-                // Content state
-                val promoCodeWithUserState = uiState.promoCodeWithUserState!!
-                val promoCode = promoCodeWithUserState.promoCode
-
-                // Vote actions - auth checking now handled in ViewModel
-                val requireUpvote = {
-                    onAction(PromocodeDetailAction.UpvoteClicked)
-                }
-
-                val requireDownvote = {
-                    onAction(PromocodeDetailAction.DownvoteClicked)
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                ) {
-                    // Gradient Banner Section
-                    GradientBannerSection(
-                        promoCode = promoCode,
-                        isCopying = uiState.isCopying,
-                        onCopyClicked = { onAction(PromocodeDetailAction.CopyCodeClicked) },
-                    )
-
-                    // Service Information Section
-                    ServiceInfoSection(
-                        promoCode = promoCode,
-                        isFollowingService = uiState.isFollowingService,
-                        onServiceClicked = { onAction(PromocodeDetailAction.ServiceClicked) },
-                        onFollowServiceClicked = { onAction(PromocodeDetailAction.FollowServiceClicked) },
-                    )
-
-                    // Details Section
-                    DetailsSection(promoCode = promoCode)
-
-                    // Action Buttons Section
-                    ActionButtonsSection(
-                        promoCode = promoCode,
-                        isUpvotedByCurrentUser = promoCodeWithUserState.isUpvotedByCurrentUser,
-                        isDownvotedByCurrentUser = promoCodeWithUserState.isDownvotedByCurrentUser,
-                        showVoteAnimation = uiState.showVoteAnimation,
-                        lastVoteType = uiState.lastVoteType,
-                        isSharing = uiState.isSharing,
-                        onUpvoteClicked = requireUpvote,
-                        onDownvoteClicked = requireDownvote,
-                        onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
-                        onCommentsClicked = { onAction(PromocodeDetailAction.CommentsClicked) },
-                    )
-
-                    FooterSection(
-                        username = promoCode.authorUsername,
-                        avatarUrl = promoCode.authorAvatarUrl,
-                        createdAt = promoCode.createdAt,
-                        modifier = Modifier.padding(horizontal = SpacingTokens.md),
-                    )
-
-                    // Bottom spacing - much smaller
-                    Spacer(modifier = Modifier.height(SpacingTokens.md))
-                }
+            uiState.authBottomSheet?.let { authSheetState ->
+                AuthenticationBottomSheet(
+                    authPromptAction = authSheetState.action,
+                    isLoading = authSheetState.isLoading,
+                    onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
+                    onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
+                )
             }
         }
+    }
+}
 
-        // Authentication Bottom Sheet
-        uiState.authBottomSheet?.let { authSheetState ->
-            AuthenticationBottomSheet(
-                authPromptAction = authSheetState.action,
-                isLoading = authSheetState.isLoading,
-                onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
-                onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
-            )
-        }
+// TODO: Make it a skeleton
+@Composable
+private fun LoadingState() {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+        CircularProgressIndicator()
     }
 }
 
@@ -308,26 +219,45 @@ private fun copyToClipboard(
     clipboard.setPrimaryClip(clip)
 }
 
-@Preview(
-    name = "Light Mode",
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    showBackground = true,
-)
+@ThemePreviews
 @Composable
 private fun PromocodeDetailScreenPreview() {
-    QodeTheme(darkTheme = false) {
+    QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
 
-        PromocodeDetailContent(
+        PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
                 promoCodeId = samplePromoCode.id,
-                promoCodeWithUserState = PromoCodeWithUserState(
-                    promoCode = samplePromoCode,
+                promocodeInteraction = PromocodeInteraction(
+                    promocode = samplePromoCode,
                     userInteraction = null,
                 ),
                 isLoading = false,
             ),
             onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun LoadingStatePreview() {
+    QodeTheme {
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promoCodeId = samplePromoCode.id,
+                promocodeInteraction = PromocodeInteraction(
+                    promocode = samplePromoCode,
+                    userInteraction = null,
+                ),
+                isLoading = true,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }

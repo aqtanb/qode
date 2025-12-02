@@ -2,8 +2,8 @@ package com.qodein.feature.promocode.detail
 
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.model.PromoCodeWithUserState
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.PromocodeInteraction
 import com.qodein.shared.model.VoteState
 
 data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boolean = false)
@@ -11,7 +11,7 @@ data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boo
 data class PromocodeDetailUiState(
     // Data State
     val promoCodeId: PromocodeId,
-    val promoCodeWithUserState: PromoCodeWithUserState? = null,
+    val promocodeInteraction: PromocodeInteraction? = null,
     val isLoading: Boolean = false,
     val errorType: OperationError? = null,
 
@@ -28,6 +28,6 @@ data class PromocodeDetailUiState(
     val isFollowingService: Boolean = false
 ) {
     val hasError: Boolean get() = errorType != null
-    val hasData: Boolean get() = promoCodeWithUserState != null
+    val hasData: Boolean get() = promocodeInteraction != null
     val isEmpty: Boolean get() = !isLoading && !hasError && !hasData
 }

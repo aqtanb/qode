@@ -95,4 +95,10 @@
     <string name="cd_expiring_soon">Expiring soon</string>
     <string name="cd_verified">Verified</string>
     <string name="submit_promocode">Submit Promocode</string>
+    <string name="cd_upvote">Upvote, %1$d</string>
+    <string name="cd_downvote">Downvote, %1$d</string>
+    <string name="cd_comments">View comments</string>
+    <string name="cd_share">Share promocode</string>
+    <string name="action_share">Share</string>
+    <string name="action_comments">Comments</string>
 </resources>
