@@ -1,7 +1,6 @@
 package com.qodein.feature.home.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +38,7 @@ import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
 import com.qodein.core.designsystem.icon.UIIcons
+import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -344,18 +344,8 @@ private fun BannerCallToAction(
                 .fillMaxSize()
                 .clip(
                     RoundedCornerShape(
-                        topStart = ShapeTokens.Corner.full,
-                        topEnd = ShapeTokens.Corner.full,
-                    ),
-                )
-                .border(
-                    width = ShapeTokens.Border.thin,
-                    color = MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(
-                        topStart = ShapeTokens.Corner.full,
-                        topEnd = ShapeTokens.Corner.full,
-                        bottomEnd = 0.dp,
-                        bottomStart = 0.dp,
+                        topStart = ShapeTokens.Corner.extraLarge,
+                        topEnd = ShapeTokens.Corner.extraLarge,
                     ),
                 )
                 .let { base ->
@@ -363,8 +353,7 @@ private fun BannerCallToAction(
                         base.hazeEffect(
                             state = it,
                             style = HazeStyle(
-                                backgroundColor = MaterialTheme.colorScheme.background,
-                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
+                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = OpacityTokens.HAZE_BACKGROUND)),
                                 blurRadius = BLUR_RADIUS,
                             ),
                         )

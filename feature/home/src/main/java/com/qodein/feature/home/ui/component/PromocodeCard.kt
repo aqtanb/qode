@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -105,8 +106,6 @@ fun PromocodeCard(
         is Discount.FixedAmount -> "${discount.value.toInt()} ₸"
     }
 
-    val stubColor = MaterialTheme.colorScheme.primaryContainer
-
     // Create custom coupon shape with actual cuts
     val density = LocalDensity.current
     val couponShape = remember {
@@ -176,15 +175,7 @@ fun PromocodeCard(
                     modifier = Modifier
                         .width(CouponTokens.stubWidth)
                         .fillMaxHeight()
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 0.dp,
-                                bottomStart = 0.dp,
-                                topEnd = ShapeTokens.Corner.large,
-                                bottomEnd = ShapeTokens.Corner.large,
-                            ),
-                        )
-                        .background(color = stubColor),
+                        .background(MaterialTheme.colorScheme.tertiaryContainer),
                 ) {
                     StubContent(
                         createdAt = promocode.createdAt,
@@ -217,15 +208,13 @@ private fun CouponHeader(
             fallbackIcon = QodeIcons.Store,
             contentDescription = stringResource(R.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
-            modifier = Modifier
-                .alignByBaseline(),
+            modifier = Modifier.clip(CircleShape),
         )
 
         Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
         Text(
             text = promocode.serviceName,
-            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
@@ -340,7 +329,7 @@ private fun StubContent(
             text = if (netRating > 0) "+$netRating" else "$netRating",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier.align(Alignment.TopCenter),
@@ -350,7 +339,7 @@ private fun StubContent(
             text = discountText,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Black,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.Center),
         )
@@ -360,7 +349,7 @@ private fun StubContent(
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
@@ -448,7 +437,7 @@ fun PromocodeCardSkeleton(modifier: Modifier = Modifier) {
                                 bottomEnd = ShapeTokens.Corner.large,
                             ),
                         )
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.tertiaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(

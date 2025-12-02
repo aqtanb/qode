@@ -65,7 +65,7 @@ fun HomeScreen(
                     onNavigateToPromoCodeDetail(event.promocodeId)
                 is HomeEvent.BannerDetailRequested -> {
                     event.banner.ctaUrl?.takeIf { it.isNotBlank() }?.let { url ->
-                        CustomTabsUtils.launchCustomTab(context, url)
+                        CustomTabsUtils.launchSmartUrl(context, url)
                     }
                 }
                 is HomeEvent.PromoCodeCopied ->

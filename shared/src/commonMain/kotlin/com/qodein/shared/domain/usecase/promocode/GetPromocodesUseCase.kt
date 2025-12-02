@@ -10,7 +10,7 @@ import com.qodein.shared.model.Promocode
 
 class GetPromocodesUseCase(private val promoCodeRepository: PromocodeRepository) {
     companion object {
-        const val DEFAULT_LIMIT = 20
+        const val DEFAULT_LIMIT = 5
     }
     suspend operator fun invoke(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,

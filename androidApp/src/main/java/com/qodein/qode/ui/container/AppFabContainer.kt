@@ -1,6 +1,5 @@
 package com.qodein.qode.ui.container
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
@@ -18,7 +17,6 @@ import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
@@ -88,9 +86,9 @@ fun AppFabContainer(
                     },
                     modifier = Modifier.size(
                         SizeTokens.Fab.sizeSmall,
-                    ).clip(CircleShape).border(ShapeTokens.Border.medium, MaterialTheme.colorScheme.secondary, CircleShape),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ).clip(CircleShape),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     elevation = FloatingActionButtonDefaults.elevation(
                         defaultElevation = ElevationTokens.large,
                         pressedElevation = ElevationTokens.extraLarge,

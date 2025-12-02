@@ -198,6 +198,7 @@ object OpacityTokens {
     const val DISABLED_CONTAINER = 0.12f
 
     const val PLACEHOLDER = 0.54f
+    const val HAZE_BACKGROUND = 0.5f
 
     // Interactive states
     const val HOVER = 0.08f

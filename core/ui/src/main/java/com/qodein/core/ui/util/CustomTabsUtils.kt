@@ -1,5 +1,6 @@
 package com.qodein.core.ui.util
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,10 +9,49 @@ import androidx.browser.customtabs.CustomTabsIntent
 import timber.log.Timber
 
 /**
- * Utility functions for launching Custom Chrome Tabs following NIA patterns.
- * Provides branded browser experience with app theming integration.
+ * Utility functions for launching URLs with deep-link awareness and Custom Tabs.
  */
 object CustomTabsUtils {
+
+    /**
+     * Launches a URL with basic deep-link handling:
+     * - http/https: opens Custom Tab
+     * - other schemes: generic VIEW intent (lets the OS route to installed app or browser)
+     */
+    fun launchSmartUrl(
+        context: Context,
+        url: String,
+        toolbarColor: Int? = null
+    ) {
+        if (url.isBlank()) {
+            Timber.w("Cannot launch with blank URL")
+            return
+        }
+
+        val uri = try {
+            Uri.parse(url)
+        } catch (exception: Exception) {
+            Timber.e(exception, "Failed to parse URL: %s", url)
+            return
+        }
+
+        val scheme = uri.scheme?.lowercase()
+        if (scheme == "http" || scheme == "https") {
+            launchCustomTab(context, uri, toolbarColor)
+        } else {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                    addCategory(Intent.CATEGORY_BROWSABLE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            } catch (exception: ActivityNotFoundException) {
+                Timber.w(exception, "No handler for %s", url)
+            } catch (exception: Exception) {
+                Timber.w(exception, "Failed to launch VIEW intent for %s", url)
+            }
+        }
+    }
 
     /**
      * Launches a Custom Chrome Tab with branded theming.
@@ -73,7 +113,6 @@ object CustomTabsUtils {
     ): CustomTabsIntent {
         val builder = CustomTabsIntent.Builder()
 
-        // Apply toolbar color if provided
         toolbarColor?.let { color ->
             val colorSchemeParams = CustomTabColorSchemeParams.Builder()
                 .setToolbarColor(color)
@@ -81,7 +120,6 @@ object CustomTabsUtils {
             builder.setDefaultColorSchemeParams(colorSchemeParams)
         }
 
-        // Add smooth animations
         builder.setStartAnimations(
             context,
             android.R.anim.fade_in,
@@ -93,15 +131,11 @@ object CustomTabsUtils {
             android.R.anim.fade_out,
         )
 
-        // Show URL bar for transparency
         builder.setShowTitle(true)
 
         return builder.build()
     }
 
-    /**
-     * Fallback to default browser if Custom Tabs not available.
-     */
     private fun launchFallbackBrowser(
         context: Context,
         uri: Uri
@@ -117,8 +151,5 @@ object CustomTabsUtils {
         }
     }
 
-    /**
-     * Validates if the URI has a valid HTTP/HTTPS scheme.
-     */
     private fun isValidHttpUrl(uri: Uri): Boolean = uri.scheme?.lowercase() in listOf("http", "https")
 }
