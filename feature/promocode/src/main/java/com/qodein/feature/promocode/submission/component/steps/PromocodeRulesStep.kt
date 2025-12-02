@@ -17,7 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.Role
+import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 
 private data class SubmissionFieldOption(val value: String, val label: String, val description: String? = null)
 
@@ -85,7 +91,7 @@ private fun OptionRadioGroup(
     focusRequester: FocusRequester? = null
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(horizontal = SpacingTokens.sm),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
         Text(
@@ -138,5 +144,18 @@ private fun OptionRadioGroup(
                 }
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PromocodeRulesStep() {
+    QodeTheme {
+        PromocodeSubmissionCard(
+            currentStep = PromocodeSubmissionStep.RULES,
+            wizardData = SubmissionWizardData(),
+            validation = ValidationState.valid(),
+            onAction = {},
+        )
     }
 }

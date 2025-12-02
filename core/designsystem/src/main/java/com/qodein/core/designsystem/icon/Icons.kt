@@ -19,14 +19,20 @@ import androidx.compose.material.icons.filled.Filter9Plus
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.EmojiObjects
 import androidx.compose.material.icons.outlined.EmojiSymbols
+import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.LooksOne
+import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material.icons.outlined.Radio
+import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material.icons.outlined.Verified
@@ -96,6 +102,12 @@ object PromocodeIcons {
     val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
     val FirstUseOnly: ImageVector = TablerIcons.Seeding
     val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
+    val DiscountValue: ImageVector = Icons.Outlined.Sell
+    val MinimumOrder: ImageVector = Icons.Outlined.Money
+    val StartDate: ImageVector = Icons.Outlined.CalendarToday
+    val EndDate: ImageVector = Icons.Outlined.EventBusy
+    val Rules: ImageVector = Icons.Outlined.Radio
+    val Description: ImageVector = Icons.Outlined.Description
 }
 
 object QodeIcons {

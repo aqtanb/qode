@@ -84,7 +84,7 @@ fun PromocodeSubmissionCardContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.ELIGIBILITY -> PromocodeRulesStep(
+            PromocodeSubmissionStep.RULES -> PromocodeRulesStep(
                 isFirstUserOnly = wizardData.isFirstUserOnly,
                 isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
                 onFirstUserOnlyChange = { onAction(PromocodeSubmissionAction.UpdateFirstUserOnly(it)) },

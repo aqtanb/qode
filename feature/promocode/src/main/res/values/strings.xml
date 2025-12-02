@@ -49,8 +49,8 @@
     <string name="step_discount_value_short">Value</string>
     <string name="step_minimum_order_title">Minimum Order</string>
     <string name="step_minimum_order_short">Minimum</string>
-    <string name="step_eligibility_title">Eligibility</string>
-    <string name="step_eligibility_short">Eligibility</string>
+    <string name="step_eligibility_title">Rules</string>
+    <string name="step_eligibility_short">Rules</string>
     <string name="step_description_title">Description</string>
     <string name="step_description_short">Description</string>
     <string name="step_start_date_title">Start Date</string>

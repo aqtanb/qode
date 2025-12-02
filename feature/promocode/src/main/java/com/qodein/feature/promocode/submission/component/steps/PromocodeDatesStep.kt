@@ -64,7 +64,7 @@ fun PromocodeDatesStep(
         targetValue = if (hasSelection) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.colorScheme.surface
         },
         label = "backgroundColor",
     )
@@ -73,7 +73,7 @@ fun PromocodeDatesStep(
         targetValue = if (hasSelection) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.outline
         },
         label = "borderColor",
     )
@@ -122,7 +122,6 @@ fun PromocodeDatesStep(
 
                 Text(
                     text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
-                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
                     color = if (hasSelection) {
                         MaterialTheme.colorScheme.onPrimaryContainer

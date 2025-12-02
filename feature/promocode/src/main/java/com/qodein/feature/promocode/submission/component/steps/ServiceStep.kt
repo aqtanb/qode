@@ -217,7 +217,7 @@ fun SelectServiceButton(
 
     val animatedBorderColor by animateColorAsState(
         targetValue = if (hasSelection) {
-            MaterialTheme.colorScheme.primaryContainer
+            MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.outline
         },

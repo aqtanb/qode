@@ -18,12 +18,12 @@ internal fun PromocodeDescriptionStep(
     QodeinTextField(
         value = description,
         onValueChange = onDescriptionChange,
-        placeholder = "Brief description of the offer (optional)",
+        placeholder = "Great promocode!",
         helperText = "Add a description to help customers understand the offer better",
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Companion.Done,
-            keyboardType = KeyboardType.Companion.Text,
+            imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Text,
         ),
         keyboardActions = KeyboardActions(
             onDone = { onNextStep() },
