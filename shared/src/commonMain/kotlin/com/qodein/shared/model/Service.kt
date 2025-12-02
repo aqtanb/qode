@@ -3,14 +3,20 @@ package com.qodein.shared.model
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.ServiceError
 import kotlinx.serialization.Serializable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
- * Service ID - format: servicename_category, lowercase, sanitized
+ * Service ID - generated identifier (UUID hex string).
  * Validation is done in Service.create() for rich error handling.
  */
 @Serializable
 @JvmInline
 value class ServiceId(val value: String) {
+    init {
+        require(value.isNotBlank()) { "Service ID cannot be blank" }
+    }
+
     override fun toString(): String = value
 }
 
@@ -50,10 +56,7 @@ data class Service private constructor(val id: ServiceId, val name: String, val 
                 return Result.Error(ServiceError.CreationFailure.NameTooLong)
             }
 
-            val serviceId = generateServiceId(cleanName)
-            if (serviceId.isBlank() || serviceId.length > 200) {
-                return Result.Error(ServiceError.CreationFailure.InvalidServiceId)
-            }
+            val serviceId = generateRandomId()
 
             return Result.Success(
                 Service(
@@ -82,7 +85,7 @@ data class Service private constructor(val id: ServiceId, val name: String, val 
                 promocodeCount = promoCodeCount,
             )
 
-        private fun generateServiceId(name: String): String =
-            name.lowercase().trim().replace(Regex("\\s+"), "_").replace(Regex("[^a-z0-9_]"), "")
+        @OptIn(ExperimentalUuidApi::class)
+        private fun generateRandomId(): String = Uuid.random().toHexString()
     }
 }

@@ -12,4 +12,12 @@ object ServiceMapper {
             logoUrl = dto.logoUrl,
             promoCodeCount = dto.promoCodeCount,
         )
+
+    fun toDto(service: Service): ServiceDto =
+        ServiceDto(
+            documentId = service.id.value,
+            name = service.name,
+            logoUrl = service.logoUrl,
+            promoCodeCount = service.promocodeCount,
+        )
 }

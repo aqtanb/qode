@@ -41,11 +41,6 @@
     <!-- Validation Errors -->
     <string name="error_validation_invalid_format">Invalid format. Please check your input.</string>
 
-    <!-- System Errors -->
-
-    <!-- General Error -->
-    <string name="error_unknown">Something went wrong. Please try again.</string>
-
     <!-- Error Actions -->
     <string name="action_retry">Retry</string>
 </resources>

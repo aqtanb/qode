@@ -115,6 +115,8 @@ private fun ManualServiceEntry(
         focusRequester.requestFocus()
     }
 
+    // TODO: Add an optional field for site entering
+
     QodeinTextField(
         value = serviceName,
         onValueChange = { newValue ->

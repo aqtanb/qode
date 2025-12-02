@@ -3,38 +3,16 @@ package com.qodein.core.data.dto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 
 /**
- * Polymorphic discount representation for Firestore.
- * Stored with discriminator field @type to distinguish between percentage and fixed amount.
+ * Discount representation for Firestore with discriminator.
+ * Plain data class to satisfy Firestore's no-arg constructor requirement.
  */
-sealed interface DiscountDto {
-    val value: Double
-
-    data class Percentage(
-        @get:PropertyName("value")
-        override val value: Double
-    ) : DiscountDto {
-        @get:PropertyName("@type")
-        val type: String = TYPE
-
-        companion object {
-            const val TYPE = "Percentage"
-        }
-    }
-
-    data class FixedAmount(
-        @get:PropertyName("value")
-        override val value: Double
-    ) : DiscountDto {
-        @get:PropertyName("@type")
-        val type: String = TYPE
-
-        companion object {
-            const val TYPE = "FixedAmount"
-        }
+data class DiscountDto(val type: String? = null, val value: Double? = null) {
+    companion object {
+        const val TYPE_PERCENTAGE = "Percentage"
+        const val TYPE_FIXED_AMOUNT = "FixedAmount"
     }
 }
 
@@ -44,7 +22,7 @@ data class PromocodeDto(
     val startDate: Timestamp = Timestamp.now(),
     val endDate: Timestamp = Timestamp.now(),
     val serviceName: String = "",
-    val discount: DiscountDto = DiscountDto.Percentage(0.0),
+    val discount: DiscountDto = DiscountDto(type = DiscountDto.TYPE_PERCENTAGE, value = 0.0),
     val minimumOrderAmount: Double = 0.0,
 
     val description: String? = null,
@@ -70,15 +48,8 @@ data class PromocodeDto(
 ) {
     companion object {
         const val COLLECTION_NAME = "promocodes"
-        const val FIELD_CODE = "code"
-        const val FIELD_SERVICE_ID = "serviceId"
         const val FIELD_SERVICE_NAME = "serviceName"
-        const val FIELD_DESCRIPTION = "description"
-        const val FIELD_DISCOUNT = "discount"
-        const val FIELD_MINIMUM_ORDER_AMOUNT = "minimumOrderAmount"
-        const val FIELD_IS_FIRST_USER_ONLY = "isFirstUserOnly"
         const val FIELD_UPVOTES = "upvotes"
-        const val FIELD_DOWNVOTES = "downvotes"
         const val FIELD_CREATED_AT = "createdAt"
         const val FIELD_END_DATE = "endDate"
     }

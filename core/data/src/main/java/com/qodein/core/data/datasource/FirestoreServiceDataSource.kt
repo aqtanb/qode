@@ -9,6 +9,24 @@ import com.qodein.core.data.dto.ServiceDto
 import kotlinx.coroutines.tasks.await
 
 class FirestoreServiceDataSource(private val firestore: FirebaseFirestore, private val searchClient: SearchClient) {
+    suspend fun getById(id: String): ServiceDto? = firestore.collection(ServiceDto.COLLECTION_NAME).document(id).get().await().toObject()
+
+    suspend fun findByName(serviceName: String): ServiceDto? =
+        firestore.collection(
+            ServiceDto.COLLECTION_NAME,
+        ).whereEqualTo(ServiceDto.FIELD_NAME, serviceName).limit(1).get().await().documents.firstOrNull()?.toObject()
+
+    suspend fun create(service: ServiceDto): ServiceDto {
+        require(service.documentId.isNotBlank()) { "Service documentId must not be blank" }
+
+        firestore.collection(ServiceDto.COLLECTION_NAME)
+            .document(service.documentId)
+            .set(service)
+            .await()
+
+        return service
+    }
+
     suspend fun searchServices(
         query: String,
         limit: Int
