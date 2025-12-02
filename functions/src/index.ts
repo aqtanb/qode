@@ -7,10 +7,16 @@ import * as admin from 'firebase-admin';
 export { updateContentVotesFromInteractions } from './unifiedInteractionHandler';
 
 // Export scheduled tasks
+// Export scheduled tasks
 export { cleanupOldStorageFiles } from './scheduledTasks/cleanupOldStorageFiles';
 
-// Initialize Firebase Admin
-admin.initializeApp();
+// Export promo triggers
+export { onPromoCreated, onPromoDeleted, onPromoUpdated } from './triggers/promocodeCounts';
+
+// Initialize Firebase Admin (guarded for unit tests/analyzer).
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 const db = admin.firestore();
 
 /**
@@ -130,117 +136,3 @@ export const initializeVoteScores = onCall(async (request) => {
  * Purpose: Clean up old isUpvotedByCurrentUser, isDownvotedByCurrentUser, isBookmarkedByCurrentUser fields
  * Usage: Call once to migrate existing data to unified interaction system
  */
-export const removeLegacyUserFields = onCall(async (request) => {
-  // Security: Require authentication
-  if (!request.auth) {
-    throw new Error('Must be authenticated to run data migration');
-  }
-
-  logger.info('Starting legacy user fields removal', { userId: request.auth.uid });
-
-  try {
-    // Get all promo codes
-    const promoCodesSnapshot = await db.collection('promocodes').get();
-
-    if (promoCodesSnapshot.empty) {
-      return {
-        success: true,
-        message: 'No promo codes found',
-        updated: 0
-      };
-    }
-
-    // Process in batches (Firestore batch limit is 500 operations)
-    const batch = db.batch();
-    let updateCount = 0;
-
-    promoCodesSnapshot.forEach((doc) => {
-      const data = doc.data();
-
-      // Check if document has any of the legacy fields
-      const hasLegacyFields =
-        data.hasOwnProperty('isUpvotedByCurrentUser') ||
-        data.hasOwnProperty('isDownvotedByCurrentUser') ||
-        data.hasOwnProperty('isBookmarkedByCurrentUser') ||
-        data.hasOwnProperty('title');
-
-      if (hasLegacyFields) {
-        // Use FieldValue.delete() to remove the fields
-        batch.update(doc.ref, {
-          isUpvotedByCurrentUser: admin.firestore.FieldValue.delete(),
-          isDownvotedByCurrentUser: admin.firestore.FieldValue.delete(),
-          isBookmarkedByCurrentUser: admin.firestore.FieldValue.delete(),
-          title: admin.firestore.FieldValue.delete(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        updateCount++;
-      }
-    });
-
-    if (updateCount > 0) {
-      await batch.commit();
-      logger.info(`Removed legacy fields from ${updateCount} promo codes`);
-    }
-
-    return {
-      success: true,
-      message: `Cleaned up legacy user fields from ${updateCount} promo codes`,
-      updated: updateCount,
-      total: promoCodesSnapshot.size
-    };
-
-  } catch (error) {
-    logger.error('Error removing legacy user fields:', error);
-    throw new Error('Failed to remove legacy user fields');
-  }
-});
-
-/**
- * Callable Function: Update service promo code counts
- * Purpose: Maintain denormalized counter for services
- */
-export const updateServicePromoCounts = onCall(async (request) => {
-  if (!request.auth) {
-    throw new Error('Authentication required');
-  }
-
-  try {
-    const servicesSnapshot = await db.collection('services').get();
-    const batch = db.batch();
-    let updateCount = 0;
-
-    for (const serviceDoc of servicesSnapshot.docs) {
-      const serviceName = serviceDoc.data().name;
-      
-      // Count promo codes for this service
-      const promoCodesSnapshot = await db.collection('promocodes')
-        .where('serviceName', '==', serviceName)
-        .get();
-      
-      const currentCount = serviceDoc.data().promoCodeCount || 0;
-      const actualCount = promoCodesSnapshot.size;
-      
-      if (currentCount !== actualCount) {
-        batch.update(serviceDoc.ref, {
-          promoCodeCount: actualCount,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        updateCount++;
-      }
-    }
-
-    if (updateCount > 0) {
-      await batch.commit();
-    }
-
-    return {
-      success: true,
-      message: `Updated ${updateCount} services`,
-      updated: updateCount
-    };
-
-  } catch (error) {
-    logger.error('Error updating service counts:', error);
-    throw new Error('Failed to update service counts');
-  }
-});
