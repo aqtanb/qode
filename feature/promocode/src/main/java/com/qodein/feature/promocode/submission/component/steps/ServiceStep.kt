@@ -57,6 +57,8 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.validation.isValidServiceUrl
+import com.qodein.feature.promocode.submission.validation.sanitizeServiceUrl
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.model.Service
 
@@ -64,9 +66,11 @@ import com.qodein.shared.model.Service
 fun ServiceStep(
     selectedService: Service?,
     serviceName: String,
+    serviceUrl: String,
     isManualEntry: Boolean,
     onShowServiceSelector: () -> Unit,
     onServiceNameChange: (String) -> Unit,
+    onServiceUrlChange: (String) -> Unit,
     onToggleManualEntry: () -> Unit,
     focusRequester: FocusRequester,
     onNextStep: () -> Unit
@@ -78,7 +82,9 @@ fun ServiceStep(
             true -> {
                 ManualServiceEntry(
                     serviceName = serviceName,
+                    serviceUrl = serviceUrl,
                     onServiceNameChange = onServiceNameChange,
+                    onServiceUrlChange = onServiceUrlChange,
                     focusRequester = focusRequester,
                     onNextStep = onNextStep,
                     onToggleManualEntry = onToggleManualEntry,
@@ -98,7 +104,9 @@ fun ServiceStep(
 @Composable
 private fun ManualServiceEntry(
     serviceName: String,
+    serviceUrl: String,
     onServiceNameChange: (String) -> Unit,
+    onServiceUrlChange: (String) -> Unit,
     focusRequester: FocusRequester,
     onNextStep: () -> Unit,
     onToggleManualEntry: () -> Unit
@@ -108,14 +116,16 @@ private fun ManualServiceEntry(
         R.string.service_step_error_max_length,
         Service.NAME_MAX_LENGTH,
     )
+    val blankUrlErrorText = stringResource(R.string.service_step_error_url_blank)
+    val invalidUrlErrorText = stringResource(R.string.service_step_error_url_format)
 
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
+    var urlErrorText by rememberSaveable { mutableStateOf<String?>(null) }
+    val urlFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-
-    // TODO: Add an optional field for site entering
 
     QodeinTextField(
         value = serviceName,
@@ -144,7 +154,47 @@ private fun ManualServiceEntry(
                     errorText = blankErrorText
                 } else {
                     errorText = null
-                    onNextStep()
+                    urlFocusRequester.requestFocus()
+                }
+            },
+        ),
+    )
+
+    QodeinTextField(
+        value = serviceUrl,
+        onValueChange = { newValue ->
+            val trimmed = sanitizeServiceUrl(newValue)
+            urlErrorText = null
+            onServiceUrlChange(trimmed)
+        },
+        placeholder = stringResource(R.string.service_step_placeholder_service_url),
+        leadingIcon = QodeActionIcons.Share,
+        helperText = stringResource(R.string.service_step_helper_service_url),
+        errorText = urlErrorText,
+        focusRequester = urlFocusRequester,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Uri,
+            capitalization = KeyboardCapitalization.None,
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = {
+                when {
+                    serviceName.isBlank() -> {
+                        errorText = blankErrorText
+                        focusRequester.requestFocus()
+                    }
+                    serviceUrl.isBlank() -> {
+                        urlErrorText = blankUrlErrorText
+                    }
+                    !isValidServiceUrl(serviceUrl) -> {
+                        urlErrorText = invalidUrlErrorText
+                    }
+                    else -> {
+                        errorText = null
+                        urlErrorText = null
+                        onNextStep()
+                    }
                 }
             },
         ),

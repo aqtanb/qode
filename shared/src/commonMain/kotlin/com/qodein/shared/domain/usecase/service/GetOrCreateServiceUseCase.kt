@@ -15,7 +15,7 @@ class GetOrCreateServiceUseCase(private val repo: ServiceRepository) {
                 when (val result = repo.findByName(ref.name)) {
                     is Result.Success -> result
                     is Result.Error -> {
-                        val newService = when (val createResult = Service.create(name = ref.name)) {
+                        val newService = when (val createResult = Service.create(name = ref.name, siteUrl = ref.siteUrl)) {
                             is Result.Success -> createResult.data
                             is Result.Error -> return Result.Error(createResult.error)
                         }

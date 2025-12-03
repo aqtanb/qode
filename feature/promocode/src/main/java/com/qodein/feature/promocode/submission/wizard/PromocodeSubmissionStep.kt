@@ -11,10 +11,13 @@ import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
 import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmount
 import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
 import com.qodein.feature.promocode.submission.validation.isValidServiceName
+import com.qodein.feature.promocode.submission.validation.isValidServiceUrl
 
 enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
     SERVICE(1) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = isValidServiceName(data.effectiveServiceName)
+        override fun canProceed(data: SubmissionWizardData): Boolean =
+            data.selectedService != null ||
+                (isValidServiceName(data.serviceName) && isValidServiceUrl(data.serviceUrl))
     },
     DISCOUNT_TYPE(2) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null

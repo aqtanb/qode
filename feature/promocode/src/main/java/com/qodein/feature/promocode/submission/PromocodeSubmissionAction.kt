@@ -17,6 +17,7 @@ sealed interface PromocodeSubmissionAction {
     data object ToggleManualEntry : PromocodeSubmissionAction
 
     data class UpdateServiceName(val serviceName: String) : PromocodeSubmissionAction
+    data class UpdateServiceUrl(val serviceUrl: String) : PromocodeSubmissionAction
     data class UpdatePromocodeType(val type: PromocodeType) : PromocodeSubmissionAction
     data class UpdatePromocode(val promocode: String) : PromocodeSubmissionAction
     data class UpdateDiscountPercentage(val percentage: String) : PromocodeSubmissionAction

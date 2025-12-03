@@ -105,6 +105,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
             PromocodeSubmissionAction.ToggleManualEntry -> toggleManualEntry()
 
             is PromocodeSubmissionAction.UpdateServiceName -> updateWizardData { it.copy(serviceName = action.serviceName) }
+            is PromocodeSubmissionAction.UpdateServiceUrl -> updateWizardData { it.copy(serviceUrl = action.serviceUrl) }
             is PromocodeSubmissionAction.UpdatePromocodeType -> updateWizardData { it.copy(promocodeType = action.type) }
             is PromocodeSubmissionAction.UpdatePromocode -> updatePromocode(action.promocode)
             is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateWizardData { it.copy(discountPercentage = action.percentage) }
@@ -158,6 +159,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                 // Clear the other service selection method when toggling
                 selectedService = if (!data.isManualServiceEntry) null else data.selectedService,
                 serviceName = if (data.isManualServiceEntry) "" else data.serviceName,
+                serviceUrl = if (data.isManualServiceEntry) "" else data.serviceUrl,
             )
         }
     }
@@ -446,7 +448,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
         }
 
         val serviceRef = wizardData.selectedService?.id?.let { ServiceRef.ById(it) }
-            ?: ServiceRef.ByName(wizardData.effectiveServiceName)
+            ?: ServiceRef.ByName(wizardData.effectiveServiceName, wizardData.effectiveServiceUrl)
 
         val minimumOrder = wizardData.minimumOrderAmount.toDoubleOrNull() ?: return null
         val endDate = wizardData.endDate ?: return null

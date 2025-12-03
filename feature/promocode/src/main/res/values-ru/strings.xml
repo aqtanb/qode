@@ -81,6 +81,10 @@
     <string name="service_step_service_logo_cd">Логотип сервиса (CD-ссылка)</string>
     <string name="service_step_error_blank">Заполните это поле</string>
     <string name="service_step_error_max_length">Достигнута максимальная длина (%1$d символов)</string>
+    <string name="service_step_placeholder_service_url">example.com</string>
+    <string name="service_step_helper_service_url">Официальный домен (без https://)</string>
+    <string name="service_step_error_url_blank">Ссылка на сервис обязательна</string>
+    <string name="service_step_error_url_format">Введите домен в формате example.com</string>
 
     <!-- Step Hints -->
     <string name="step_service_hint">Выберите или введите сервис</string>

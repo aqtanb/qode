@@ -47,9 +47,11 @@ fun PromocodeSubmissionCardContent(
             PromocodeSubmissionStep.SERVICE -> ServiceStep(
                 selectedService = wizardData.selectedService,
                 serviceName = wizardData.serviceName,
+                serviceUrl = wizardData.serviceUrl,
                 isManualEntry = wizardData.isManualServiceEntry,
                 onShowServiceSelector = { onAction(PromocodeSubmissionAction.ShowServiceSelector) },
                 onServiceNameChange = { onAction(PromocodeSubmissionAction.UpdateServiceName(it)) },
+                onServiceUrlChange = { onAction(PromocodeSubmissionAction.UpdateServiceUrl(it)) },
                 onToggleManualEntry = { onAction(PromocodeSubmissionAction.ToggleManualEntry) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },

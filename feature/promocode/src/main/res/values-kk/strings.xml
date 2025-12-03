@@ -102,6 +102,10 @@
     <string name="service_step_service_logo_cd">Қызмет логотипі (CD сілтемесі)</string>
     <string name="service_step_error_blank">Бұл өрісті толтырыңыз</string>
     <string name="service_step_error_max_length">Максималды ұзындыққа жеттіңіз (%1$d таңба)</string>
+    <string name="service_step_placeholder_service_url">example.com</string>
+    <string name="service_step_helper_service_url">Ресми домен (https:// жазбай)</string>
+    <string name="service_step_error_url_blank">Қызмет сілтемесі міндетті</string>
+    <string name="service_step_error_url_format">Дұрыс домен енгізіңіз (мысалы, example.com)</string>
 
     <!-- Step Hints -->
     <string name="step_service_hint">Қызметті таңдаңыз немесе енгізіңіз</string>

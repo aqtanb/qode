@@ -45,6 +45,27 @@ fun isValidMinimumOrderAmount(amount: String): Boolean {
 fun isValidServiceName(name: String): Boolean = name.trim().isNotBlank()
 
 /**
+ * Validates service URL (basic check for non-blank and a domain-like structure).
+ */
+fun sanitizeServiceUrl(raw: String): String {
+    val trimmed = raw.trim()
+    val withoutScheme = trimmed
+        .removePrefix("https://")
+        .removePrefix("http://")
+        .removePrefix("www.")
+    return withoutScheme
+        .substringBefore('/')
+        .substringBefore('?')
+        .substringBefore('#')
+        .trim()
+}
+
+fun isValidServiceUrl(url: String): Boolean {
+    val value = sanitizeServiceUrl(url)
+    return value.isNotBlank() && value.contains(".") && !value.contains(" ")
+}
+
+/**
  * Validates discount value based on promo code type.
  */
 fun isValidDiscountValue(data: SubmissionWizardData): Boolean =

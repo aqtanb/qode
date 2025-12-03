@@ -15,6 +15,7 @@ data class SubmissionWizardData(
     // Service Details
     val selectedService: Service? = null,
     val serviceName: String = "",
+    val serviceUrl: String = "",
     val isManualServiceEntry: Boolean = false,
 
     // Promo Code Details
@@ -34,6 +35,7 @@ data class SubmissionWizardData(
     val endDate: LocalDate? = null
 ) {
     val effectiveServiceName: String get() = selectedService?.name ?: serviceName
+    val effectiveServiceUrl: String get() = selectedService?.siteUrl ?: serviceUrl
 }
 
 sealed interface PromocodeSubmissionUiState {
