@@ -67,13 +67,14 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
-import com.qodein.feature.home.R
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import com.qodein.core.ui.R as CoreUiR
+import com.qodein.feature.home.R as HomeR
 
 private object CouponTokens {
     val cardHeight = 140.dp
@@ -207,7 +208,7 @@ private fun CouponHeader(
         CircularImage(
             imageUrl = promocode.serviceLogoUrl,
             fallbackIcon = QodeIcons.Store,
-            contentDescription = stringResource(R.string.cd_service_logo),
+            contentDescription = stringResource(CoreUiR.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
             modifier = Modifier.clip(CircleShape),
         )
@@ -234,7 +235,7 @@ private fun CouponHeader(
             if (promocode.isFirstUseOnly) {
                 Icon(
                     imageVector = PromocodeIcons.NewUserOnly,
-                    contentDescription = stringResource(R.string.cd_first_user_only),
+                    contentDescription = stringResource(CoreUiR.string.cd_first_user_only),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -243,7 +244,7 @@ private fun CouponHeader(
             if (promocode.isOneTimeUseOnly) {
                 Icon(
                     imageVector = PromocodeIcons.OneTimeUse,
-                    contentDescription = stringResource(R.string.cd_one_time_use),
+                    contentDescription = stringResource(CoreUiR.string.cd_one_time_use),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -253,7 +254,7 @@ private fun CouponHeader(
             if (isExpiringSoon) {
                 Icon(
                     imageVector = UIIcons.Expiring,
-                    contentDescription = stringResource(R.string.cd_expiring_soon),
+                    contentDescription = stringResource(CoreUiR.string.cd_expiring_soon),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -262,7 +263,7 @@ private fun CouponHeader(
             if (promocode.isVerified) {
                 Icon(
                     imageVector = PromocodeIcons.Verified,
-                    contentDescription = stringResource(R.string.cd_verified),
+                    contentDescription = stringResource(CoreUiR.string.cd_verified),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -286,7 +287,7 @@ private fun PromoCodeRow(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = stringResource(R.string.promocode_label),
+                text = stringResource(HomeR.string.promocode_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 1.sp,
@@ -307,7 +308,7 @@ private fun PromoCodeRow(
         QodeinOutlinedIconButton(
             onClick = onCopyClick,
             icon = QodeActionIcons.Copy,
-            contentDescription = stringResource(R.string.copy_code),
+            contentDescription = stringResource(CoreUiR.string.copy_code),
             size = ButtonSize.Small,
         )
     }

@@ -1,44 +1,6 @@
 <resources>
-    <string name="app_name">Qode</string>
 
-    <string name="feed_title">Арна</string>
-
-    <!-- Navigation and UI -->
-    <string name="sign_in_title">Кіру</string>
-
-    <!-- Floating Action Button -->
     <string name="create_promo_code">Промокод тапсыру</string>
     <string name="add_to_feed">Арнаға қосу</string>
-
-    <!-- Promocode Detail Screen -->
-    <string name="copy_code">Кодты көшіру</string>
-
-    <!-- Coming Soon Dialog -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
-    <string name="error_network_no_connection">Интернет байланысы жоқ. Желіңізді тексеріңіз.</string>
-
-    <!-- Authentication Errors -->
-    <string name="error_auth_user_cancelled">Кіру тоқтатылды.</string>
-    <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Кіруді қайталап көріңіз.</string>
-
-    <!-- Promo Code Errors -->
-    <string name="error_promo_code_already_exists">Бұл промо-код бұрын бар.</string>
-
-    <!-- User Errors -->
-    <string name="error_user_not_found">Пайдаланушы аккаунты табылмады.</string>
-
-    <!-- Service Errors -->
-    <string name="error_service_not_found">Қызмет табылмады. Қайталап көріңіз.</string>
-
-    <!-- Validation Errors -->
-
-    <!-- System Errors -->
-
-    <!-- General Error -->
-    <string name="error_unknown">Бірдеңе дұрыс болмады. Қайталап көріңіз.</string>
-
-    <!-- Error Actions -->
-    <string name="action_retry">Қайталау</string>
+    <string name="navigate_to">%1$s бетіне өту</string>
 </resources>

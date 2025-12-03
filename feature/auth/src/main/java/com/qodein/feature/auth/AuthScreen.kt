@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.DocumentType
 import org.koin.androidx.compose.koinViewModel
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun AuthRoute(
@@ -194,30 +196,26 @@ private fun AuthSignInCard(
                     textAlign = TextAlign.Center,
                 )
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     QodeTextButton(
                         text = stringResource(R.string.terms_of_service),
                         onClick = {
                             onAction(AuthAction.LegalDocumentClicked(DocumentType.TermsOfService))
                         },
-                        showUnderline = true,
+                        showUnderline = false,
                     )
 
-                    Text(
-                        text = " ${stringResource(R.string.and)} ",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    HorizontalDivider()
 
                     QodeTextButton(
                         text = stringResource(R.string.privacy_policy),
                         onClick = {
                             onAction(AuthAction.LegalDocumentClicked(DocumentType.PrivacyPolicy))
                         },
-                        showUnderline = true,
+                        showUnderline = false,
                     )
                 }
             }
@@ -256,7 +254,7 @@ private fun AuthErrorMessage(
             QodeinIconButton(
                 onClick = onDismiss,
                 icon = QodeActionIcons.Close,
-                contentDescription = stringResource(R.string.cd_close),
+                contentDescription = stringResource(CoreUiR.string.cd_close),
                 size = ButtonSize.Small,
             )
         }

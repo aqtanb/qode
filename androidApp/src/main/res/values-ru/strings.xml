@@ -1,44 +1,6 @@
 <resources>
-    <string name="app_name">Qode</string>
 
-    <string name="feed_title">Лента</string>
-
-    <!-- Navigation and UI -->
-    <string name="sign_in_title">Войти</string>
-
-    <!-- Floating Action Button -->
     <string name="create_promo_code">Добавить промокод</string>
     <string name="add_to_feed">Добавить в ленту</string>
-
-    <!-- Promocode Detail Screen -->
-    <string name="copy_code">Скопировать код</string>
-
-    <!-- Coming Soon Dialog -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
-    <string name="error_network_no_connection">Нет интернет-соединения. Проверьте сеть.</string>
-
-    <!-- Authentication Errors -->
-    <string name="error_auth_user_cancelled">Вход был отменён.</string>
-    <string name="error_auth_invalid_credentials">Неверные учётные данные. Попробуйте войти снова.</string>
-
-    <!-- Promo Code Errors -->
-    <string name="error_promo_code_already_exists">Этот промо-код уже существует.</string>
-
-    <!-- User Errors -->
-    <string name="error_user_not_found">Аккаунт пользователя не найден.</string>
-
-    <!-- Service Errors -->
-    <string name="error_service_not_found">Сервис не найден. Попробуйте снова.</string>
-
-    <!-- Validation Errors -->
-
-    <!-- System Errors -->
-
-    <!-- General Error -->
-    <string name="error_unknown">Что-то пошло не так. Попробуйте снова.</string>
-
-    <!-- Error Actions -->
-    <string name="action_retry">Повторить</string>
+    <string name="navigate_to">Перейти к %1$s</string>
 </resources>

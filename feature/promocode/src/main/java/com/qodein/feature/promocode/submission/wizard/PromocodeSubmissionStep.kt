@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
 import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
@@ -12,6 +11,7 @@ import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmo
 import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
 import com.qodein.feature.promocode.submission.validation.isValidServiceName
 import com.qodein.feature.promocode.submission.validation.isValidServiceUrl
+import com.qodein.core.ui.R as CoreUiR
 
 enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
     SERVICE(1) {
@@ -98,39 +98,39 @@ fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector 
 // String resource extensions
 val PromocodeSubmissionStep.titleRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> R.string.step_service_title
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_title
-        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_title
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_title
-        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_title
-        PromocodeSubmissionStep.RULES -> R.string.step_eligibility_title
-        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_title
-        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_title
-        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_title
+        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_title
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_title
+        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_title
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_title
+        PromocodeSubmissionStep.MINIMUM_ORDER -> CoreUiR.string.step_minimum_order_title
+        PromocodeSubmissionStep.RULES -> CoreUiR.string.step_eligibility_title
+        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_title
+        PromocodeSubmissionStep.START_DATE -> CoreUiR.string.step_start_date_title
+        PromocodeSubmissionStep.END_DATE -> CoreUiR.string.step_end_date_title
     }
 
 val PromocodeSubmissionStep.shortNameRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> R.string.step_service_short
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_short
-        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_short
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_short
-        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_short
-        PromocodeSubmissionStep.RULES -> R.string.step_eligibility_short
-        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_short
-        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_short
-        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_short
+        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_short
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short
+        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_short
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_short
+        PromocodeSubmissionStep.MINIMUM_ORDER -> CoreUiR.string.step_minimum_order_short
+        PromocodeSubmissionStep.RULES -> CoreUiR.string.step_eligibility_short
+        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_short
+        PromocodeSubmissionStep.START_DATE -> CoreUiR.string.step_start_date_short
+        PromocodeSubmissionStep.END_DATE -> CoreUiR.string.step_end_date_short
     }
 
 val PromocodeSubmissionStep.hintRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> R.string.step_service_hint
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_hint
-        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_hint
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_hint
-        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_hint
-        PromocodeSubmissionStep.RULES -> R.string.step_eligibility_hint
-        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_hint
-        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_hint
-        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_hint
+        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_hint
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_hint
+        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_hint
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_hint
+        PromocodeSubmissionStep.MINIMUM_ORDER -> CoreUiR.string.step_minimum_order_hint
+        PromocodeSubmissionStep.RULES -> CoreUiR.string.step_eligibility_hint
+        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_hint
+        PromocodeSubmissionStep.START_DATE -> CoreUiR.string.step_start_date_hint
+        PromocodeSubmissionStep.END_DATE -> CoreUiR.string.step_end_date_hint
     }

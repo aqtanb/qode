@@ -1,63 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phone Input Component -->
-
-    <!-- Country Picker -->
-
-    <!-- Navigation -->
     <string name="close">Close</string>
     <string name="cd_close">Close button</string>
-
-    <!-- Social Sign-In Components -->
     <string name="continue_with_google">Continue with Google</string>
-
-    <!-- Error Handling -->
     <string name="error_default_title">Something went wrong</string>
 
-    <!-- Coming Soon Dialog -->
-
-
-    <!-- Accessibility -->
-
-    <!-- Common Input States -->
-
-    <!-- Service Selection -->
-
-    <!-- Promo Code Card Strings -->
     <string name="copy_code">Copy code</string>
     <string name="cd_first_user_only">First user only</string>
     <string name="cd_one_time_use">One time use</string>
     <string name="cd_expiring_soon">Expiring soon</string>
     <string name="cd_verified">Verified</string>
+    <string name="cd_service_logo">Service logo</string>
 
-    <!-- Home Screen Strings -->
-
-    <!-- Stats Section -->
-
-    <!-- Filter Categories -->
-
-    <!-- Legacy strings that might be used elsewhere -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
     <string name="error_network_no_connection">No internet connection. Please check your network.</string>
-
-    <!-- Authentication Errors -->
     <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
     <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
     <string name="error_auth_required">Please sign in to continue.</string>
     <string name="error_auth_service_unavailable">Authentication service is temporarily unavailable.</string>
     <string name="error_auth_too_many_attempts">Too many sign-in attempts. </string>
-
-    <!-- User Profile Errors -->
     <string name="error_user_data_corrupted">User profile data is corrupted.</string>
     <string name="error_user_update_failed">Failed to update user profile.</string>
     <string name="error_user_profile_access_denied">You don\'t have permission to update this profile.</string>
 
-    <!-- Promo Code Errors -->
     <string name="error_promo_code_already_exists">This promo code already exists.</string>
-
-    <!-- Promo Code Creation Errors -->
     <string name="error_promo_code_empty">Promo code cannot be empty. Please enter a code.</string>
     <string name="error_promo_code_too_short">Promo code is too short. Please use at least 2 characters.</string>
     <string name="error_promo_code_too_long">Promo code is too long. Maximum 50 characters allowed.</string>
@@ -69,10 +34,7 @@
     <string name="error_promo_discount_exceeds_minimum">Discount amount cannot exceed the minimum purchase amount.</string>
     <string name="error_promo_invalid_id">Invalid promo code identifier.</string>
 
-    <!-- User Errors -->
     <string name="error_user_not_found">User account not found.</string>
-
-    <!-- User Creation Errors -->
     <string name="error_user_invalid_email">Email address is invalid. Please enter a valid email.</string>
     <string name="error_user_invalid_photo_url">Profile photo URL is invalid. Must be a valid HTTP/HTTPS link.</string>
     <string name="error_user_invalid_id">Invalid user identifier.</string>
@@ -84,7 +46,6 @@
     <string name="error_user_auth_unknown">Could not complete sign-in. Please try again.</string>
     <string name="error_user_auth_unsupported_credential">This sign-in method is not supported.</string>
 
-    <!-- Service Errors -->
     <string name="error_service_not_found">Service not found.</string>
     <string name="error_service_no_results">No services found for your search.</string>
     <string name="error_service_query_too_short">Search query is too short. Please enter at least 2 characters.</string>
@@ -92,28 +53,19 @@
     <string name="error_service_invalid_query">Invalid search query. Please try different keywords.</string>
     <string name="error_service_data_corrupted">Service data is corrupted. Please try refreshing.</string>
     <string name="error_service_cache_expired">Service data is outdated. Please refresh and try again.</string>
-
-    <!-- Service Creation Errors -->
     <string name="error_service_name_empty">Service name cannot be empty.</string>
     <string name="error_service_name_too_short">Service name must be at least 1 character long.</string>
     <string name="error_service_name_too_long">Service name is too long. Maximum 100 characters allowed.</string>
     <string name="error_service_invalid_id">Could not generate a valid service identifier.</string>
     <string name="error_service_site_url_empty">Service website is required.</string>
 
-    <!-- Service Submission Errors -->
     <string name="error_service_duplicate">This service already exists in the system.</string>
     <string name="error_service_submission_invalid_data">Service data is invalid. Please check your input.</string>
     <string name="error_service_submission_not_authorized">You must be signed in to submit services.</string>
 
-    <!-- Legal Document Errors -->
     <string name="error_legal_document_not_found">The requested document could not be found.</string>
     <string name="error_legal_document_unavailable">Legal documents are unavailable right now.later.</string>
 
-    <!-- Validation Errors -->
-
-    <!-- System Errors -->
-
-    <!-- Operation Errors -->
     <string name="error_operation_cancelled">The operation was cancelled.</string>
     <string name="error_request_timeout">The request timed out.</string>
     <string name="error_not_found">Requested resource was not found.</string>
@@ -124,7 +76,6 @@
     <string name="error_not_supported">This action is not supported.</string>
     <string name="error_data_corrupted">Data appears to be corrupted.</string>
 
-    <!-- Interaction Errors -->
     <string name="error_interaction_already_voted">You have already voted on this content.</string>
     <string name="error_interaction_remove_failed">Failed to remove.</string>
     <string name="error_interaction_vote_not_authorized">You must be signed in to vote on this content.</string>
@@ -134,12 +85,8 @@
     <string name="error_interaction_bookmark_content_not_found">The item you tried to bookmark could not be found.</string>
     <string name="error_interaction_bookmark_save_failed">We couldn\'t update your bookmark.</string>
 
-    <!-- General Errors -->
-
-    <!-- General Error -->
     <string name="error_unknown">Unknown error occurred</string>
 
-    <!-- Post Errors -->
     <string name="error_post_title_empty">Post title is required</string>
     <string name="error_post_title_too_long">Post title is too long (max 200 characters)</string>
     <string name="error_post_content_empty">Post content is required</string>
@@ -154,7 +101,6 @@
     <string name="error_post_submission_invalid_data">Post submission includes invalid data.</string>
     <string name="error_post_submission_not_authorized">You must be signed in to submit posts.</string>
 
-    <!-- Storage Errors -->
     <string name="error_storage_upload_not_authenticated">You must be signed in to upload files</string>
     <string name="error_storage_upload_quota_exceeded">Storage quota exceeded.</string>
     <string name="error_storage_upload_file_too_large">File is too large to upload</string>
@@ -168,14 +114,12 @@
     <string name="error_storage_compression_out_of_memory">Image is too large to process</string>
     <string name="error_storage_compression_failed">Failed to compress image. Please try another image.</string>
 
-    <!-- Firestore Errors -->
     <string name="error_firestore_invalid_argument">Firestore request contained invalid data.</string>
     <string name="error_firestore_out_of_range">Firestore request contained values outside the allowed range.</string>
     <string name="error_firestore_permission_denied">Firestore rejected the request because of missing permissions.</string>
     <string name="error_firestore_internal">Firestore encountered an internal error.</string>
     <string name="error_firestore_unavailable">Firestore is unavailable right now.</string>
 
-    <!-- Algolia Search Errors -->
     <string name="error_algolia_index_not_found">Search index not found. Please contact support.</string>
     <string name="error_algolia_insufficient_permissions">Search service denied access. Please contact support.</string>
     <string name="error_algolia_invalid_credentials">Search service authentication failed. Please contact support.</string>
@@ -187,29 +131,28 @@
     <string name="error_algolia_service_unavailable">Search service is temporarily unavailable.</string>
     <string name="error_algolia_timeout">Search request timed out.</string>
 
-    <!-- Error Actions -->
+    <string name="error_retry">Try again</string>
     <string name="action_retry">Retry</string>
+    <string name="common_service">Service</string>
+    <string name="common_promocode">Promocode</string>
 
-    <!-- Filter Components -->
+    <string name="filter_chip_service">Service</string>
+    <string name="filter_chip_sort">Sort</string>
 
-    <!-- Service Selector -->
     <string name="search_services_placeholder">Search services…</string>
     <string name="popular_services_title">Popular Services</string>
     <string name="no_services_found_message">No services found</string>
     <string name="action_back">Back</string>
     <string name="search_error_message">Failed to search services.</string>
 
-    <!-- Sort Options -->
     <string name="sort_popularity">Most Popular</string>
     <string name="sort_newest">Newest First</string>
     <string name="sort_expiring_soon">Expiring Soon</string>
 
-    <!-- Sort Section Titles -->
     <string name="sort_section_title_popularity">Popular Deals</string>
     <string name="sort_section_title_newest">Latest Deals</string>
     <string name="sort_section_title_expiring">Expiring Soon</string>
 
-    <!-- Authentication Bottom Sheet -->
     <string name="auth_submit_promo_title">Sign in to submit promocode</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
     <string name="auth_upvote_title">Sign in to upvote</string>
@@ -223,8 +166,8 @@
     <string name="auth_follow_store_title">Sign in to follow store</string>
     <string name="auth_follow_store_message">Get notified when this store has new deals and promo codes available.</string>
     <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
-
-    <!-- Submission Steps -->
+    <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
+    <string name="auth_create_post_title">Sign in to create a post</string>
     <string name="step_service_title">Select Service</string>
     <string name="step_service_short">Service</string>
     <string name="step_discount_type_title">Discount Type</string>
@@ -233,10 +176,24 @@
     <string name="step_promo_code_short">Code</string>
     <string name="step_discount_value_title">Discount Value</string>
     <string name="step_discount_value_short">Value</string>
+    <string name="step_minimum_order_title">Minimum Order</string>
+    <string name="step_minimum_order_short">Minimum</string>
+    <string name="step_eligibility_title">Rules</string>
+    <string name="step_eligibility_short">Rules</string>
+    <string name="step_description_title">Description</string>
+    <string name="step_description_short">Description</string>
     <string name="step_start_date_title">Start Date</string>
     <string name="step_start_date_short">Start</string>
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
-    <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
-    <string name="auth_create_post_title">Sign in to create a post</string>
+    <string name="step_service_hint">Which service does this promo code work with?</string>
+    <string name="step_discount_type_hint">Percentage – discount rise with the order amount.\nFixed – same discount no matter the order amount.</string>
+    <string name="step_promo_code_hint">Enter the exact promo code as it appears.</string>
+    <string name="step_discount_value_hint">How much discount does this code give?</string>
+    <string name="step_minimum_order_hint">What\'s the minimum order required to use this code?</string>
+    <string name="step_start_date_hint">When does this promo code become active?</string>
+    <string name="step_end_date_hint">When does this promo code expire?</string>
+    <string name="step_eligibility_hint">Who can use this code and how often?</string>
+    <string name="step_description_hint">Add any helpful details about this deal.</string>
+
 </resources>

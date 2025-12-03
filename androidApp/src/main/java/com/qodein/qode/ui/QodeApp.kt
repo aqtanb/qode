@@ -1,5 +1,6 @@
 package com.qodein.qode.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import com.qodein.qode.ui.container.AppFabContainer
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.domain.AuthState
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QodeApp(
@@ -80,7 +82,7 @@ internal fun QodeApp(
                         onEvent = onEvent,
                     )
                 },
-            ) { innerPadding ->
+            ) { _ ->
                 QodeNavHost(
                     appState = appState,
                     userId = userId,

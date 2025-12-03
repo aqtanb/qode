@@ -1,39 +1,6 @@
 <resources>
-    <string name="app_name">Qode</string>
-
-    <string name="feed_title">Feed</string>
-
-    <!-- Navigation and UI -->
-    <string name="sign_in_title">Sign In</string>
-
-    <!-- Floating Action Button -->
+    <string name="app_name" translatable="false">Qode</string>
     <string name="create_promo_code">Create Promocode</string>
     <string name="add_to_feed">Add to Feed</string>
-
-    <!-- Promocode Detail Screen -->
-    <string name="copy_code">Copy Code</string>
-
-    <!-- Coming Soon Dialog -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
-    <string name="error_network_no_connection">No internet connection. Please check your network.</string>
-
-    <!-- Authentication Errors -->
-    <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
-    <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
-
-    <!-- Promo Code Errors -->
-    <string name="error_promo_code_already_exists">This promo code already exists.</string>
-
-    <!-- User Errors -->
-    <string name="error_user_not_found">User account not found.</string>
-
-    <!-- Service Errors -->
-    <string name="error_service_not_found">Service not found. Please try again.</string>
-
-    <!-- Validation Errors -->
-
-    <!-- Error Actions -->
-    <string name="action_retry">Retry</string>
+    <string name="navigate_to">Navigate to %1$s</string>
 </resources>

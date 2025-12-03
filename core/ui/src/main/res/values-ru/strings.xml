@@ -1,63 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phone Input Component -->
-
-    <!-- Country Picker -->
-
-    <!-- Navigation -->
     <string name="close">Закрыть</string>
-
-    <!-- Social Sign-In Components -->
     <string name="continue_with_google">Продолжить с Google</string>
-
-    <!-- Error Handling -->
     <string name="error_default_title">Что-то пошло не так</string>
-
-    <!-- Coming Soon Dialog -->
-
-    <!-- Accessibility -->
-
-    <!-- Common Input States -->
-
-    <!-- Promo Code Card Strings -->
     <string name="copy_code">Копировать код</string>
-
-    <!-- Home Screen Strings -->
-
-    <!-- Stats Section -->
-
-    <!-- Filter Categories -->
-
-    <!-- Legacy strings that might be used elsewhere -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
     <string name="error_network_no_connection">Нет подключения к интернету. Проверьте сеть.</string>
-
-    <!-- Authentication Errors -->
     <string name="error_auth_user_cancelled">Вход был отменен.</string>
     <string name="error_auth_invalid_credentials">Неверные учетные данные. Попробуйте войти снова.</string>
-
-    <!-- Promo Code Errors -->
     <string name="error_promo_code_already_exists">Этот промо-код уже существует.</string>
-
-    <!-- User Errors -->
     <string name="error_user_not_found">Учетная запись пользователя не найдена.</string>
-
-    <!-- Service Errors -->
     <string name="error_service_not_found">Сервис не найден. Попробуйте снова.</string>
-
-    <!-- Validation Errors -->
-
-    <!-- System Errors -->
-
-    <!-- General Error -->
     <string name="error_unknown">Что-то пошло не так. Попробуйте снова.</string>
-
-    <!-- Error Actions -->
+    <string name="error_retry">Попробуйте еще раз</string>
     <string name="action_retry">Повторить</string>
-
-    <!-- User Errors -->
     <string name="error_user_display_name_too_long">Слишком длинное отображаемое имя.</string>
     <string name="error_user_auth_account_conflict">Эти учетные данные уже привязаны к другому аккаунту.</string>
     <string name="error_user_auth_account_disabled">Этот аккаунт отключен.</string>
@@ -65,45 +20,33 @@
     <string name="error_user_auth_no_credentials">Нет доступных учетных данных. Войдите заново.</string>
     <string name="error_user_auth_unknown">Не удалось выполнить вход. Попробуйте ещё раз.</string>
     <string name="error_user_auth_unsupported_credential">Этот способ входа не поддерживается.</string>
-
-    <!-- Service Errors -->
     <string name="error_service_site_url_empty">Требуется адрес сайта сервиса.</string>
-
-    <!-- Promo status badges -->
     <string name="cd_close">Закрыть</string>
     <string name="cd_first_user_only">Только первому пользователю</string>
     <string name="cd_one_time_use">Одноразовое использование</string>
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
-
-    <!-- Authentication Errors Extended -->
+    <string name="cd_service_logo">Логотип сервиса</string>
     <string name="error_auth_required">Требуется вход в систему.</string>
     <string name="error_auth_service_unavailable">Сервис авторизации временно недоступен.</string>
     <string name="error_auth_too_many_attempts">Слишком много попыток входа.</string>
-
-    <!-- User Errors Extended -->
     <string name="error_user_data_corrupted">Данные профиля повреждены.</string>
     <string name="error_user_update_failed">Не удалось обновить профиль пользователя.</string>
     <string name="error_user_profile_access_denied">Нет прав для обновления профиля.</string>
-
-    <!-- Promo code errors -->
     <string name="error_promo_code_empty">Промокод не может быть пустым.</string>
     <string name="error_promo_code_too_short">Промокод слишком короткий. Минимум 2 символа.</string>
     <string name="error_promo_code_too_long">Промокод слишком длинный. Максимум 50 символов.</string>
     <string name="error_promo_description_too_long">Описание слишком длинное. Максимум 1000 символов.</string>
     <string name="error_promo_invalid_date_range">Дата окончания должна быть позже даты начала.</string>
-    <string name="error_promo_invalid_percentage">Процент скидки должен быть от 1% до 100%.</string>
+    <string name="error_promo_invalid_percentage" formatted="false">Процент скидки должен быть от 1% до 100%.</string>
     <string name="error_promo_invalid_fixed_amount">Фиксированная скидка должна быть больше нуля.</string>
     <string name="error_promo_invalid_minimum_amount">Минимальная сумма заказа должна быть больше нуля.</string>
     <string name="error_promo_discount_exceeds_minimum">Скидка не может превышать минимальную сумму заказа.</string>
     <string name="error_promo_invalid_id">Некорректный идентификатор промокода.</string>
-
-    <!-- User creation errors -->
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>
 
-    <!-- Service search/errors -->
     <string name="error_service_no_results">Сервисы не найдены.</string>
     <string name="error_service_query_too_short">Слишком короткий запрос. Введите минимум 2 символа.</string>
     <string name="error_service_too_many_results">Слишком много результатов. Уточните запрос.</string>
@@ -118,11 +61,9 @@
     <string name="error_service_submission_invalid_data">Данные сервиса некорректны.</string>
     <string name="error_service_submission_not_authorized">Нужно войти, чтобы добавлять сервисы.</string>
 
-    <!-- Legal document errors -->
     <string name="error_legal_document_not_found">Документ не найден.</string>
     <string name="error_legal_document_unavailable">Документы сейчас недоступны.</string>
 
-    <!-- System/operation errors -->
     <string name="error_operation_cancelled">Операция отменена.</string>
     <string name="error_request_timeout">Время ожидания истекло.</string>
     <string name="error_not_found">Ресурс не найден.</string>
@@ -133,7 +74,6 @@
     <string name="error_not_supported">Действие не поддерживается.</string>
     <string name="error_data_corrupted">Данные повреждены.</string>
 
-    <!-- Interaction errors -->
     <string name="error_interaction_already_voted">Вы уже проголосовали.</string>
     <string name="error_interaction_remove_failed">Не удалось удалить.</string>
     <string name="error_interaction_vote_not_authorized">Нужно войти, чтобы голосовать.</string>
@@ -143,7 +83,6 @@
     <string name="error_interaction_bookmark_content_not_found">Элемент не найден.</string>
     <string name="error_interaction_bookmark_save_failed">Не удалось обновить закладку.</string>
 
-    <!-- Post errors -->
     <string name="error_post_title_empty">Требуется заголовок.</string>
     <string name="error_post_title_too_long">Заголовок слишком длинный (макс. 200 символов).</string>
     <string name="error_post_content_empty">Требуется содержание.</string>
@@ -158,7 +97,6 @@
     <string name="error_post_submission_invalid_data">В данных поста есть ошибки.</string>
     <string name="error_post_submission_not_authorized">Нужно войти, чтобы публиковать посты.</string>
 
-    <!-- Storage errors -->
     <string name="error_storage_upload_not_authenticated">Нужно войти, чтобы загрузить файл.</string>
     <string name="error_storage_upload_quota_exceeded">Превышена квота хранилища.</string>
     <string name="error_storage_upload_file_too_large">Файл слишком большой.</string>
@@ -172,14 +110,12 @@
     <string name="error_storage_compression_out_of_memory">Изображение слишком большое для обработки.</string>
     <string name="error_storage_compression_failed">Не удалось сжать изображение.</string>
 
-    <!-- Firestore errors -->
     <string name="error_firestore_invalid_argument">Некорректные данные в запросе Firestore.</string>
     <string name="error_firestore_out_of_range">Значения запроса Firestore выходят за допустимые пределы.</string>
     <string name="error_firestore_permission_denied">Недостаточно прав для запроса Firestore.</string>
     <string name="error_firestore_internal">Внутренняя ошибка Firestore.</string>
     <string name="error_firestore_unavailable">Firestore временно недоступен.</string>
 
-    <!-- Algolia errors -->
     <string name="error_algolia_index_not_found">Индекс поиска не найден.</string>
     <string name="error_algolia_insufficient_permissions">Доступ к поиску запрещен.</string>
     <string name="error_algolia_invalid_credentials">Ошибка авторизации в поиске.</string>
@@ -191,8 +127,9 @@
     <string name="error_algolia_service_unavailable">Сервис поиска временно недоступен.</string>
     <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
-    <!-- Filter/search UI -->
-    <string name="search_services_placeholder">Поиск сервисов...</string>
+    <string name="filter_chip_service">Сервис</string>
+    <string name="filter_chip_sort">Сортировка</string>
+    <string name="search_services_placeholder">Поиск сервисов…</string>
     <string name="popular_services_title">Популярные сервисы</string>
     <string name="no_services_found_message">Сервисы не найдены</string>
     <string name="action_back">Назад</string>
@@ -204,7 +141,6 @@
     <string name="sort_section_title_newest">Свежие предложения</string>
     <string name="sort_section_title_expiring">Скоро истекают</string>
 
-    <!-- Auth prompts -->
     <string name="auth_submit_promo_title">Войдите, чтобы добавить промокод</string>
     <string name="auth_submit_promo_message">Присоединяйтесь и делитесь находками промокодов.</string>
     <string name="auth_upvote_title">Войдите, чтобы поставить лайк</string>
@@ -220,8 +156,8 @@
     <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход через Google</string>
     <string name="auth_create_post_message">Делитесь горячими предложениями и общайтесь</string>
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
-
-    <!-- Submission steps (short) -->
+    <string name="common_service">Сервис</string>
+    <string name="common_promocode">Промокод</string>
     <string name="step_service_title">Выберите сервис</string>
     <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
@@ -230,8 +166,23 @@
     <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Размер скидки</string>
     <string name="step_discount_value_short">Размер</string>
+    <string name="step_minimum_order_title">Минимальный заказ</string>
+    <string name="step_minimum_order_short">Мин. заказ</string>
+    <string name="step_eligibility_title">Условия применения</string>
+    <string name="step_eligibility_short">Условия</string>
+    <string name="step_description_title">Описание</string>
+    <string name="step_description_short">Описание</string>
     <string name="step_start_date_title">Дата начала</string>
     <string name="step_start_date_short">Начало</string>
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
+    <string name="step_service_hint">Выберите или введите сервис</string>
+    <string name="step_discount_type_hint">Процентная — растёт вместе с суммой заказа.\nФиксированная — одинаковая скидка вне зависимости от суммы.</string>
+    <string name="step_promo_code_hint">Код, который введет пользователь</string>
+    <string name="step_discount_value_hint">Какую скидку дает этот код?</string>
+    <string name="step_minimum_order_hint">Минимальная сумма для скидки</string>
+    <string name="step_start_date_hint">Скидка стартует в эту дату</string>
+    <string name="step_end_date_hint">Скидка заканчивается в эту дату</string>
+    <string name="step_eligibility_hint">Кому доступно и как часто можно использовать</string>
+    <string name="step_description_hint">Основные правила и детали</string>
 </resources>

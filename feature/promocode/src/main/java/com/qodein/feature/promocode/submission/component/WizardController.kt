@@ -33,6 +33,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun WizardController(
@@ -96,7 +97,7 @@ fun WizardController(
                 ) {
                     Icon(
                         imageVector = QodeActionIcons.Previous,
-                        contentDescription = stringResource(R.string.action_back),
+                        contentDescription = stringResource(CoreUiR.string.action_back),
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     )
                 }

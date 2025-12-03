@@ -1,16 +1,20 @@
 <resources>
-    <!-- Settings Screen -->
     <string name="settings_title">Настройки</string>
-    
-    <!-- Theme Settings -->
     <string name="settings_theme_title">Тема</string>
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
-    
-    <!-- Language Settings -->
     <string name="settings_language_title">Язык</string>
     <string name="language_english">Английский</string>
     <string name="language_russian">Русский</string>
     <string name="language_kazakh">Казахский</string>
+    <string name="settings_notifications_title">Уведомления</string>
+    <string name="settings_source_code_title">Исходный код</string>
+    <string name="settings_open_source_licences_title">Лицензии open source</string>
+    <string name="settings_about_title">О приложении</string>
+    <string name="settings_feedback_title">Обратная связь</string>
+    <string name="about_app_name" translatable="false">Qode</string>
+    <string name="about_version">Версия %s</string>
+    <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
+    <string name="about_join_telegram">Присоединяйтесь к нашему сообществу</string>
 </resources>

@@ -31,6 +31,7 @@ import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.ui.FilterDialogType
+import com.qodein.core.ui.R as CoreUiR
 
 /**
  * Quick filters section with category, service, and sort chips
@@ -89,7 +90,7 @@ fun FiltersSection(
         }
 
         FilterChip(
-            nameRes = R.string.filter_chip_service,
+            nameRes = CoreUiR.string.filter_chip_service,
             icon = serviceIcon,
             logoUrl = logoUrl,
             fallbackText = fallbackText,
@@ -99,7 +100,7 @@ fun FiltersSection(
 
         val currentSortBy = currentFilters.sortFilter.sortBy
         FilterChip(
-            nameRes = R.string.filter_chip_sort,
+            nameRes = CoreUiR.string.filter_chip_sort,
             icon = SortIconHelper.getSortIcon(currentSortBy),
             onClick = { onFilterSelected(FilterDialogType.Sort) },
             isSelected = false,

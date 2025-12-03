@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.BottomNavigation
 import com.qodein.core.designsystem.component.NavigationAction
 import com.qodein.core.designsystem.component.TabItem
+import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
@@ -70,7 +71,7 @@ fun AppBottomBarContainer(
                     label = stringResource(destination.iconTextId),
                     selectedIcon = destination.selectedIcon,
                     unselectedIcon = destination.unSelectedIcon,
-                    contentDescription = "Navigate to ${stringResource(destination.iconTextId)}",
+                    contentDescription = stringResource(R.string.navigate_to, stringResource(destination.iconTextId)),
                 )
             },
             selectedRoute = selectedTabDestination?.route?.simpleName ?: "",

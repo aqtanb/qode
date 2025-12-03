@@ -1,37 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Auth Screen -->
     <string name="sign_in_title">Sign In</string>
     <string name="sign_in_subtitle">Phone sign-in coming soon! Use Google for now.</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="terms_of_service">Terms of Service</string>
     <string name="privacy_policy">Privacy Policy</string>
-
-    <!-- Verification Screen -->
-
-    <!-- Sign Up Screen -->
-
-    <!-- Country Picker Screen -->
-
-    <!-- Accessibility -->
-    <string name="cd_close">Close</string>
-
-    <!-- Error Messages -->
-
-    <!-- Loading States -->
-
-    <!-- Success Messages -->
-    <string name="terms_first_line">By continuing, you agree to our</string>
-    <string name="and">and</string>
-
-    <!-- Phone Authentication -->
-
-    <!-- Auth Flow -->
-
-    <!-- Errors -->
-
-    <!-- Success -->
-
-    <!-- Legal Documents -->
-    <string name="action_retry">Retry</string>
+    <string name="terms_first_line">By continuing, you agree to these documents</string>
 </resources>

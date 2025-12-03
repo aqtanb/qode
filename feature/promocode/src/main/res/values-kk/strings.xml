@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Wizard Screen -->
-
-    <!-- Error Messages -->
-
-    <!-- Actions -->
-    <string name="action_back">Артқа</string>
-    <string name="action_submit">Жіберу</string>
     <string name="action_continue">Жалғастыру</string>
+    <string name="action_share">Бөлісу</string>
+    <string name="action_submit">Жіберу</string>
 
-    <!-- Wizard Steps -->
-
-    <!-- Progress -->
-
-    <!-- Promocode Detail Screen -->
     <string name="promocode_fixed_amount_discount">%2$s₸-ден жоғары тапсырыстарға %1$s₸ жеңілдік алыңыз</string>
     <string name="promocode_percentage_discount">%2$s₸-ден жоғары тапсырыстарға %1$s%% жеңілдік алыңыз</string>
-
-    <!-- Details Section -->
     <string name="promocode_details_title">Промокод деректері</string>
     <string name="promocode_details_service">Сервис</string>
     <string name="promocode_details_discount">Жеңілдік</string>
@@ -29,32 +17,6 @@
     <string name="promocode_details_value_yes">Иә</string>
     <string name="promocode_details_value_no">Жоқ</string>
 
-    <!-- Description step -->
-    <string name="promocode_description_placeholder">Керемет промокод!</string>
-    <string name="promocode_description_helper">Ұсынысты клиенттерге түсінікті ету үшін сипаттама қосыңыз</string>
-
-    <!-- Dates step -->
-    <string name="promocode_dates_placeholder">Күнді таңдаңыз</string>
-    <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
-    <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
-    <string name="promocode_dates_confirm">ОК</string>
-    <string name="promocode_dates_cancel">Бас тарту</string>
-
-    <!-- Discount value step -->
-    <string name="promocode_discount_percentage_placeholder">30</string>
-    <string name="promocode_discount_percentage_helper">Пайызды енгізіңіз (1–99%)</string>
-    <string name="promocode_discount_amount_placeholder">2000</string>
-    <string name="promocode_discount_amount_helper">Соманы ₸ (теңге) түрінде енгізіңіз</string>
-
-    <!-- Minimum order step -->
-    <string name="promocode_minimum_order_placeholder">5000</string>
-    <string name="promocode_minimum_order_helper">Жеңілдік алу үшін тапсырыстың минималды сомасы ₸ (теңге)</string>
-
-    <!-- Submission UI -->
-    <string name="promocode_submission_show_tips">Пайдалы кеңестерді көрсету</string>
-    <string name="promocode_submission_hide_tips">Пайдалы кеңестерді жасыру</string>
-
-    <!-- Rules step -->
     <string name="promocode_rules_customer_eligibility_title">Клиенттердің жарамдылығы</string>
     <string name="promocode_rules_customer_eligibility_all">Барлық клиенттер</string>
     <string name="promocode_rules_customer_eligibility_all_description">Кез келген клиент осы промокодты қолдана алады</string>
@@ -66,31 +28,6 @@
     <string name="promocode_rules_usage_limitation_one_time">Бір рет қолдану</string>
     <string name="promocode_rules_usage_limitation_one_time_description">Кодты бір ғана клиент қолдана алады және кейін өшіріледі</string>
 
-    <!-- Filter Components -->
-    <string name="filter_chip_service">Қызмет</string>
-    <string name="filter_chip_sort">Сұрыптау</string>
-
-    <!-- Submission Steps -->
-    <string name="step_service_title">Қызметті таңдаңыз</string>
-    <string name="step_service_short">Қызмет</string>
-    <string name="step_discount_type_title">Жеңілдік түрі</string>
-    <string name="step_discount_type_short">Түрі</string>
-    <string name="step_promo_code_title">Промокод</string>
-    <string name="step_promo_code_short">Код</string>
-    <string name="step_discount_value_title">Жеңілдік мөлшері</string>
-    <string name="step_discount_value_short">Мөлшері</string>
-    <string name="step_minimum_order_title">Ең төменгі тапсырыс</string>
-    <string name="step_minimum_order_short">Мин. тапсырыс</string>
-    <string name="step_eligibility_title">Қолдану шарттары</string>
-    <string name="step_eligibility_short">Шарттар</string>
-    <string name="step_description_title">Сипаттама</string>
-    <string name="step_description_short">Сипаттама</string>
-    <string name="step_start_date_title">Басталу күні</string>
-    <string name="step_start_date_short">Басталу</string>
-    <string name="step_end_date_title">Аяқталу күні</string>
-    <string name="step_end_date_short">Аяқталу</string>
-
-    <!-- Service step -->
     <string name="service_step_placeholder_service_name">Мысалы: Kaspi</string>
     <string name="service_step_helper_service_name">Тізімнен таңдаңыз немесе атауын жазыңыз</string>
     <string name="service_step_browse_services_instead">Оның орнына қызметтерді қарап шығу</string>
@@ -105,34 +42,34 @@
     <string name="service_step_error_url_blank">Қызмет сілтемесі міндетті</string>
     <string name="service_step_error_url_format">Дұрыс домен енгізіңіз (мысалы, example.com)</string>
 
-    <!-- Step Hints -->
-    <string name="step_service_hint">Қызметті таңдаңыз немесе енгізіңіз</string>
-    <string name="step_discount_type_hint">Пайыздық – тапсырыс сомасына қарай өседі.\nБекітілген – тапсырыс сомасына қарамай бірдей жеңілдік.</string>
-    <string name="step_promo_code_hint">Пайдаланушылар енгізетін код</string>
-    <string name="step_discount_value_hint">Бұл код қанша жеңілдік береді?</string>
-    <string name="step_minimum_order_hint">Жеңілдікке керек ең төменгі сома</string>
-    <string name="step_start_date_hint">Жеңілдік осы күні басталады</string>
-    <string name="step_end_date_hint">Жеңілдік осы күні аяқталады</string>
-    <string name="step_eligibility_hint">Кімдерге және қандай шарттармен қолданылады</string>
-    <string name="step_description_hint">Негізгі ережелер мен егжей-тегжейлер</string>
+    <string name="promocode_description_placeholder">Керемет промокод!</string>
+    <string name="promocode_description_helper">Ұсынысты клиенттерге түсінікті ету үшін сипаттама қосыңыз</string>
 
-    <!-- Promo Code Types -->
+    <string name="promocode_dates_placeholder">Күнді таңдаңыз</string>
+    <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
+    <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
+    <string name="promocode_dates_confirm">ОК</string>
+    <string name="promocode_dates_cancel">Бас тарту</string>
+
+    <string name="promocode_discount_percentage_placeholder">30</string>
+    <string name="promocode_discount_percentage_helper">Пайызды енгізіңіз (1–99%)</string>
+    <string name="promocode_discount_amount_placeholder">2000</string>
+    <string name="promocode_discount_amount_helper">Соманы ₸ (теңге) түрінде енгізіңіз</string>
+
+    <string name="promocode_minimum_order_placeholder">5000</string>
+    <string name="promocode_minimum_order_helper">Жеңілдік алу үшін тапсырыстың минималды сомасы ₸ (теңге)</string>
+
+    <string name="promocode_submission_show_tips">Пайдалы кеңестерді көрсету</string>
+    <string name="promocode_submission_hide_tips">Пайдалы кеңестерді жасыру</string>
+
+    <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>
+    <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>
+
     <string name="promo_type_percentage_title">Пайыздық</string>
     <string name="promo_type_fixed_amount_title">Белгіленген сома</string>
-
-    <!-- Status Badges -->
-    <string name="cd_first_user_only">Тек алғашқы пайдаланушыға</string>
-    <string name="cd_one_time_use">Бір рет қолдану</string>
-    <string name="cd_expiring_soon">Жақында аяқталады</string>
-    <string name="cd_verified">Тексерілді</string>
     <string name="submit_promocode">Промокодты жіберу</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>
     <string name="cd_comments">Пікірлерді көру</string>
     <string name="cd_share">Промокодты бөлісу</string>
-    <string name="action_share">Бөлісу</string>
-
-    <!-- Promocode step -->
-    <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>
-    <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>
 </resources>

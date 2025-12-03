@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Wizard Screen -->
-
-    <!-- Error Messages -->
-
-    <!-- Actions -->
-    <string name="action_back">Назад</string>
-    <string name="action_submit">Отправить</string>
     <string name="action_continue">Продолжить</string>
+    <string name="action_share">Поделиться</string>
+    <string name="action_submit">Отправить</string>
 
-    <!-- Wizard Steps -->
-
-    <!-- Progress -->
-
-    <!-- Promocode Detail Screen -->
     <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
     <string name="promocode_percentage_discount">Получите скидку %1$s%% на заказы от %2$s₸</string>
-
-    <!-- Service Info Section -->
-
-    <!-- Statistics Section -->
-
-    <!-- Details Section -->
     <string name="promocode_details_title">Детали промокода</string>
     <string name="promocode_details_service">Сервис</string>
     <string name="promocode_details_discount">Скидка</string>
@@ -33,43 +17,17 @@
     <string name="promocode_details_value_yes">Да</string>
     <string name="promocode_details_value_no">Нет</string>
 
-    <!-- Status Messages -->
+    <string name="promocode_rules_customer_eligibility_title">Доступность для клиентов</string>
+    <string name="promocode_rules_customer_eligibility_all">Все покупатели</string>
+    <string name="promocode_rules_customer_eligibility_all_description">Любой покупатель может использовать этот промокод</string>
+    <string name="promocode_rules_customer_eligibility_new">Только новые покупатели</string>
+    <string name="promocode_rules_customer_eligibility_new_description">Только новые покупатели могут использовать этот код</string>
+    <string name="promocode_rules_usage_limitation_title">Ограничение использования</string>
+    <string name="promocode_rules_usage_limitation_multiple">Многократное использование</string>
+    <string name="promocode_rules_usage_limitation_multiple_description">Любой покупатель может использовать этот промокод</string>
+    <string name="promocode_rules_usage_limitation_one_time">Одноразовое использование</string>
+    <string name="promocode_rules_usage_limitation_one_time_description">Код может использовать один пользователь, затем он удаляется</string>
 
-    <!-- Actions -->
-
-    <!-- Feedback Messages -->
-
-    <!-- TODO Messages -->
-
-    <!-- Community Rating -->
-
-    <!-- Share Template -->
-
-    <!-- Filter Components -->
-    <string name="filter_chip_service">Сервис</string>
-    <string name="filter_chip_sort">Сортировка</string>
-
-    <!-- Submission Steps -->
-    <string name="step_service_title">Выберите сервис</string>
-    <string name="step_service_short">Сервис</string>
-    <string name="step_discount_type_title">Тип скидки</string>
-    <string name="step_discount_type_short">Тип</string>
-    <string name="step_promo_code_title">Промокод</string>
-    <string name="step_promo_code_short">Код</string>
-    <string name="step_discount_value_title">Размер скидки</string>
-    <string name="step_discount_value_short">Размер</string>
-    <string name="step_minimum_order_title">Минимальный заказ</string>
-    <string name="step_minimum_order_short">Мин. заказ</string>
-    <string name="step_eligibility_title">Условия применения</string>
-    <string name="step_eligibility_short">Условия</string>
-    <string name="step_description_title">Описание</string>
-    <string name="step_description_short">Описание</string>
-    <string name="step_start_date_title">Дата начала</string>
-    <string name="step_start_date_short">Начало</string>
-    <string name="step_end_date_title">Дата окончания</string>
-    <string name="step_end_date_short">Окончание</string>
-
-    <!-- Service step -->
     <string name="service_step_placeholder_service_name">Например: Kaspi</string>
     <string name="service_step_helper_service_name">Выберите из списка или введите название</string>
     <string name="service_step_browse_services_instead">Вместо этого просмотреть сервисы</string>
@@ -84,71 +42,34 @@
     <string name="service_step_error_url_blank">Ссылка на сервис обязательна</string>
     <string name="service_step_error_url_format">Введите домен в формате example.com</string>
 
-    <!-- Step Hints -->
-    <string name="step_service_hint">Выберите или введите сервис</string>
-    <string name="step_discount_type_hint">Процентная — растёт вместе с суммой заказа.\nФиксированная — одинаковая скидка вне зависимости от суммы.</string>
-    <string name="step_promo_code_hint">Код, который введет пользователь</string>
-    <string name="step_discount_value_hint">Какую скидку дает этот код?</string>
-    <string name="step_minimum_order_hint">Минимальная сумма для скидки</string>
-    <string name="step_start_date_hint">Скидка стартует в эту дату</string>
-    <string name="step_end_date_hint">Скидка заканчивается в эту дату</string>
-    <string name="step_eligibility_hint">Кому доступно и как часто можно использовать</string>
-    <string name="step_description_hint">Основные правила и детали</string>
-
-    <!-- Promo Code Types -->
-    <string name="promo_type_percentage_title">Процентная</string>
-    <string name="promo_type_fixed_amount_title">Фиксированная сумма</string>
-
-    <!-- Status Badges -->
-    <string name="cd_first_user_only">Только первому пользователю</string>
-    <string name="cd_one_time_use">Одноразовое использование</string>
-    <string name="cd_expiring_soon">Скоро истекает</string>
-    <string name="cd_verified">Проверено</string>
-    <string name="submit_promocode">Отправить промокод</string>
-    <string name="cd_upvote">Нравится, %1$d</string>
-    <string name="cd_downvote">Не нравится, %1$d</string>
-    <string name="cd_comments">Посмотреть комментарии</string>
-    <string name="cd_share">Поделиться промокодом</string>
-    <string name="action_share">Поделиться</string>
-
-    <!-- Promocode step -->
-    <string name="promo_code_step_placeholder">Введите промокод</string>
-    <string name="promo_code_step_helper_text">Соблюдайте точное написание и регистр символов</string>
-
-    <!-- Description step -->
     <string name="promocode_description_placeholder">Отличный промокод!</string>
     <string name="promocode_description_helper">Добавьте описание, чтобы пользователи лучше поняли предложение</string>
 
-    <!-- Dates step -->
     <string name="promocode_dates_placeholder">Выберите дату</string>
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>
     <string name="promocode_dates_end_placeholder">Выберите дату окончания</string>
     <string name="promocode_dates_confirm">ОК</string>
     <string name="promocode_dates_cancel">Отмена</string>
 
-    <!-- Discount value step -->
     <string name="promocode_discount_percentage_placeholder">30</string>
     <string name="promocode_discount_percentage_helper">Введите процент (1–99%)</string>
     <string name="promocode_discount_amount_placeholder">2000</string>
     <string name="promocode_discount_amount_helper">Введите сумму в ₸ (тенге)</string>
 
-    <!-- Minimum order step -->
     <string name="promocode_minimum_order_placeholder">5000</string>
     <string name="promocode_minimum_order_helper">Минимальная сумма заказа в ₸ (тенге) для получения скидки</string>
 
-    <!-- Submission UI -->
     <string name="promocode_submission_show_tips">Показать подсказки</string>
     <string name="promocode_submission_hide_tips">Скрыть подсказки</string>
 
-    <!-- Rules step -->
-    <string name="promocode_rules_customer_eligibility_title">Доступность для клиентов</string>
-    <string name="promocode_rules_customer_eligibility_all">Все покупатели</string>
-    <string name="promocode_rules_customer_eligibility_all_description">Любой покупатель может использовать этот промокод</string>
-    <string name="promocode_rules_customer_eligibility_new">Только новые покупатели</string>
-    <string name="promocode_rules_customer_eligibility_new_description">Только новые покупатели могут использовать этот код</string>
-    <string name="promocode_rules_usage_limitation_title">Ограничение использования</string>
-    <string name="promocode_rules_usage_limitation_multiple">Многократное использование</string>
-    <string name="promocode_rules_usage_limitation_multiple_description">Любой покупатель может использовать этот промокод</string>
-    <string name="promocode_rules_usage_limitation_one_time">Одноразовое использование</string>
-    <string name="promocode_rules_usage_limitation_one_time_description">Код может использовать один пользователь, затем он удаляется</string>
+    <string name="promo_code_step_placeholder">Введите промокод</string>
+    <string name="promo_code_step_helper_text">Соблюдайте точное написание и регистр символов</string>
+
+    <string name="promo_type_percentage_title">Процентная</string>
+    <string name="promo_type_fixed_amount_title">Фиксированная сумма</string>
+    <string name="submit_promocode">Отправить промокод</string>
+    <string name="cd_upvote">Нравится, %1$d</string>
+    <string name="cd_downvote">Не нравится, %1$d</string>
+    <string name="cd_comments">Посмотреть комментарии</string>
+    <string name="cd_share">Поделиться промокодом</string>
 </resources>

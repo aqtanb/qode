@@ -30,6 +30,7 @@ import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun PromocodeSectionHeader(
@@ -86,7 +87,7 @@ fun PromocodeSectionErrorState(
 
         QodeButton(
             onClick = onRetry,
-            text = stringResource(R.string.error_retry),
+            text = stringResource(CoreUiR.string.error_retry),
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
         )

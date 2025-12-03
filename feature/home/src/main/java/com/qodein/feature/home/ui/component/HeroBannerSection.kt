@@ -60,6 +60,7 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeEffect
 import kotlin.time.Duration.Companion.seconds
+import com.qodein.core.ui.R as CoreUiR
 
 // MARK: - Constants
 
@@ -139,7 +140,7 @@ fun HeroBannerSection(
 
                         QodeButton(
                             onClick = onRetryBanners,
-                            text = stringResource(R.string.error_retry),
+                            text = stringResource(CoreUiR.string.error_retry),
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         )

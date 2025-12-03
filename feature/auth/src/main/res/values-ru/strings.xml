@@ -1,33 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Auth Screen -->
     <string name="sign_in_title">Войти</string>
     <string name="sign_in_subtitle">Вход по телефону скоро появится! Пока используйте Google.</string>
     <string name="continue_with_google">Продолжить с Google</string>
-    <string name="terms_of_service">Условиями предоставления услуг</string>
-    <string name="privacy_policy">Политикой конфиденциальности</string>
-
-    <!-- Verification Screen -->
-
-    <!-- Sign Up Screen -->
-
-    <!-- Country Picker Screen -->
-
-    <!-- Accessibility -->
-
-    <!-- Error Messages -->
-
-    <!-- Loading States -->
-
-    <!-- Success Messages -->
-    <string name="terms_first_line">Продолжая, вы соглашаетесь с нашими</string>
-    <string name="and">и</string>
-
-    <!-- Phone Authentication -->
-
-    <!-- Auth Flow -->
-
-    <!-- Errors -->
-
-    <!-- Success -->
+    <string name="terms_of_service">Условия обслуживания</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="terms_first_line">Жалғастырсаңыз, сіз осы құжаттарға келісесіз</string>
 </resources>

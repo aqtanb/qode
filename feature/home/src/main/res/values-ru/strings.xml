@@ -1,43 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_home_title">Главная</string>
-
-    <!-- Home Screen Strings -->
-
-    <!-- Dynamic Section Titles -->
-
-    <!-- Banner Carousel -->
-
-    <!-- Stats Section -->
-
-    <!-- Filter Categories -->
-
-    <!-- Error Messages -->
-    <string name="error_retry">Попробуйте еще раз</string>
     <string name="error_image_not_available">Изображение недоступно</string>
+    <string name="empty_no_promo_codes">Промокодов нет</string>
+    <string name="empty_check_back_later">Заходите позже ради свежих предложений!</string>
+    <string name="promocode_label">ПРОМОКОД</string>
 
-    <!-- Coming Soon Dialog -->
-
-    <!-- Country -->
-
-    <!-- Actions -->
-
-    <!-- Filter Chips -->
-    <string name="filter_chip_service">Сервис</string>
-    <string name="filter_chip_sort">Сортировать</string>
-
-    <!-- Filter Dialog Titles -->
-
-    <!-- Filter Options - Type -->
-
-    <!-- Filter Options - Category -->
-
-    <!-- Filter Options - Service -->
-
-    <!-- Filter Options - Sort -->
-
-    <!-- Empty State -->
-    <string name="empty_no_promo_codes">Промо -кодов отсутствуют</string>
-    <string name="empty_check_back_later">Позже проверьте удивительные предложения и скидки!</string>
+    <string name="banner_loading_title">Загружаем предложения</string>
+    <string name="banner_loading_description">Подбираем лучшие акции для вас…</string>
+    <string name="banner_empty_title">Активных баннеров нет</string>
+    <string name="banner_empty_description">Здесь может быть ваша реклама :)</string>
+    <string name="banner_error_title">Не удалось загрузить баннеры</string>
+    <string name="filter_chip_reset">Сбросить</string>
 </resources>
-

@@ -1,18 +1,14 @@
 [versions]
-
 agp = "8.13.1"
 kotlin = "2.2.21"
 ksp = "2.3.2"
-
 
 compileSdk = "36"
 minSdk = "29"
 targetSdk = "36"
 
-
 versionCode = "1"
-versionName = "0.4.0"
-
+versionName = "0.5.0"
 
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
@@ -20,60 +16,47 @@ activityCompose = "1.12.0"
 appcompat = "1.7.1"
 startup = "1.2.0"
 
-
 composeBom = "2025.11.01"
 material = "1.13.0"
 
-
 navigation = "2.9.6"
 kotlinxSerializationJson = "1.9.0"
-
 
 hilt = "2.57.2"
 hiltNavigationCompose = "1.3.0"
 koin = "4.1.1"
 
-
 firebaseBom = "34.6.0"
 googleServices = "4.4.4"
 firebaseCrashlytics = "3.0.6"
 
-ktor = "3.3.2"
+ktor = "3.3.3"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
-
-
-room = "2.8.4"
 datastore = "1.2.0"
 workManager = "2.11.0"
-
 
 coil = "2.7.0"
 palette = "1.0.0"
 exifinterface = "1.4.1"
-
 
 googleSignin = "21.4.0"
 credentials = "1.5.0"
 credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
 
-
 composeIcons = "1.1.1"
 browser = "1.9.0"
-haze = "1.7.0"
+haze = "1.7.1"
 multiplatformMarkdown = "0.38.1"
-
 
 kermit = "2.0.8"
 timber = "5.0.1"
 
-algolia = "3.35.0"
-
+algolia = "3.36.0"
 
 spotless = "8.1.0"
 aboutlibraries = "13.1.0"
-
 
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -82,13 +65,11 @@ mockk = "1.14.6"
 turbine = "1.2.1"
 robolectric = "4.16"
 
-
 leakcanary = "2.14"
-kotlinTest = "2.2.0"
+kotlinTest = "2.2.21"
 animationCore = "1.9.5"
 
 [libraries]
-
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
@@ -96,8 +77,6 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup" }
-
-
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -106,17 +85,13 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-
-
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-
 
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
-
 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
@@ -153,15 +128,11 @@ google-signin = { group = "com.google.android.gms", name = "play-services-auth",
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
-
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
-
 
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
-
 compose-markdown = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdown" }
-
 aboutlibraries-core = { group = "com.mikepenz", name = "aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { group = "com.mikepenz", name = "aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
@@ -171,27 +142,18 @@ compose-icons-font-awesome = { group = "br.com.devsrsouza.compose.icons", name =
 compose-icons-simple = { group = "br.com.devsrsouza.compose.icons", name = "simple-icons", version.ref = "composeIcons" }
 compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "octicons", version.ref = "composeIcons" }
 
-
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
-
-
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
-
 algolia-client = { group = "com.algolia", name = "algoliasearch-client-kotlin", version.ref = "algolia" }
-
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
-
-
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-
-
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
@@ -316,25 +278,19 @@ debug = [
 ]
 
 [plugins]
-
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
-
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
-
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }

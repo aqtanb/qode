@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.Diversity1
 import androidx.compose.material.icons.filled.EmojiObjects
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.Filter1
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Filter7
 import androidx.compose.material.icons.filled.Filter8
 import androidx.compose.material.icons.filled.Filter9
 import androidx.compose.material.icons.filled.Filter9Plus
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkAdd
@@ -24,9 +26,11 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Diversity1
 import androidx.compose.material.icons.outlined.EmojiObjects
 import androidx.compose.material.icons.outlined.EmojiSymbols
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.Money
@@ -113,15 +117,17 @@ object PromocodeIcons {
 }
 
 object QodeIcons {
+    val Feed: ImageVector = Icons.Outlined.Diversity1
+    val FeedFilled: ImageVector = Icons.Filled.Diversity1
+    val Home: ImageVector = Icons.Outlined.Home
+    val HomeFilled: ImageVector = Icons.Filled.Home
     val Sale: ImageVector = FeatherIcons.Percent
     val Promocode: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
-    val Cost: ImageVector = FeatherIcons.DollarSign
     val Store: ImageVector = Icons.Outlined.Store
 }
 
 object QodeCategoryIcons {
-    val Home: ImageVector = FeatherIcons.Home
     val Language: ImageVector = TablerIcons.Language
     val Certification: ImageVector = TablerIcons.Certificate
     val Tech: ImageVector = FeatherIcons.Code

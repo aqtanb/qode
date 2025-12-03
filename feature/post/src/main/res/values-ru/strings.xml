@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="post">Пост</string>
+    <string name="select_tags">Выбрать теги</string>
+    <string name="popular_tags">Популярные теги</string>
+    <string name="type_tag">Введите тег</string>
+    <string name="selected_tags_label">Выбрано</string>
+    <string name="max_tags_reached">Максимум %d тегов</string>
+    <string name="tag_helper_text">Используйте строчные буквы, цифры и подчёркивания</string>
+    <string name="tag_too_long">Тег не может быть длиннее 50 символов</string>
+    <string name="tag_invalid_characters">Допустимы только строчные буквы, цифры, дефисы и подчёркивания</string>
+    <string name="tag_already_added">Тег уже добавлен</string>
+    <string name="cd_add_image">Добавить изображение</string>
+    <string name="cd_remove_image">Удалить изображение</string>
+    <string name="cd_post_image">Изображение поста</string>
+    <string name="image_limit_reached">Можно максимум 5 изображений. Удалите лишние.</string>
+    <string name="images_partially_added">Добавлено только %1$d изображений. Максимум 5.</string>
+    <string name="compressing_images">Сжимаем изображения… %1$d/%2$d</string>
+    <string name="placeholder_title">Заголовок</string>
+    <string name="placeholder_description">Описание</string>
+    <string name="feed_title">Лента</string>
+    <string name="cd_profile">Профиль</string>
+    <string name="cd_settings">Настройки</string>
+    <string name="cd_image_load_failed">Не удалось загрузить изображение</string>
+    <string name="image_load_failed">Ошибка загрузки изображения</string>
+    <string name="cd_upvote">Нравится, %1$d</string>
+    <string name="cd_downvote">Не нравится, %1$d</string>
+    <string name="cd_comments">Комментарии, %1$d</string>
+    <string name="cd_share">Поделиться</string>
+</resources>

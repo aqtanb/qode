@@ -31,11 +31,11 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.auth.LegalDocumentUiState
-import com.qodein.feature.auth.R
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.DocumentType
 import com.qodein.shared.model.LegalDocument
+import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,7 +166,7 @@ private fun LegalDocumentError(
         )
 
         QodeButton(
-            text = stringResource(R.string.action_retry),
+            text = stringResource(CoreUiR.string.action_retry),
             onClick = onRetry,
             modifier = Modifier.fillMaxWidth(),
         )
