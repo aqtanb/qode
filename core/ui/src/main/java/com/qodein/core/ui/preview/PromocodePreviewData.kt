@@ -27,8 +27,16 @@ object PromocodePreviewData {
         endDate = Clock.System.now().plus(7.days),
         authorId = UserId("user123"),
         serviceName = "Glovo",
-        description = "Get 25% off your next order with minimum 5000 KZT purchaseGet 25% off your next order with mini" +
-            "mum 5000 KZT purchaseGet 25% off your next order with minimum 5000 KZT purchase",
+        description = "Unleash a fantastic 25% discount on your next culinary adventure with Glovo! " +
+            "Whether you're craving a gourmet burger, a fresh sushi platter, or just your " +
+            "favorite comfort food, this code has you covered.\n\n" +
+            "To activate this amazing offer, simply make sure your order total is 5000 KZT or more. " +
+            "This exclusive deal is valid for the next seven days, giving you a full week to explore " +
+            "the delicious possibilities. It's perfect for treating yourself, sharing a meal with a " +
+            "friend, or even planning a family dinner.\n\n" +
+            "Don't wait! Dive into the world of flavor and enjoy significant savings on us. " +
+            "This is a community-shared code, verified and upvoted by many, so you can be " +
+            "confident it works. Happy eating!",
         isFirstUserOnly = false,
         upvotes = 125,
         downvotes = 12,

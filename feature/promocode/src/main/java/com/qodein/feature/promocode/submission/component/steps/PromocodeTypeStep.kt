@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -47,8 +47,8 @@ val PromocodeType.titleRes: Int
 
 val PromocodeType.icon: ImageVector
     get() = when (this) {
-        PromocodeType.PERCENTAGE -> QodeIcons.Sale
-        PromocodeType.FIXED_AMOUNT -> QodeIcons.Dollar
+        PromocodeType.PERCENTAGE -> PromocodeIcons.Percentage
+        PromocodeType.FIXED_AMOUNT -> PromocodeIcons.FixedAmount
     }
 
 @Composable

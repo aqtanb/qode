@@ -4,11 +4,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +33,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.util.formatNumber
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
 import com.qodein.feature.promocode.detail.component.DetailsSection
 import com.qodein.feature.promocode.detail.component.PromocodeHeader
@@ -138,28 +138,13 @@ fun PromocodeDetailScreen(
                         onAction(PromocodeDetailAction.DownvoteClicked)
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                    ) {
-                        PromocodeHeader(
-                            promocode = promocode,
-                        )
-
-                        DetailsSection(promoCode = promocode)
-
-                        ActionButtonsSection(
-                            promoCode = promocode,
-                            isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
-                            isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,
-                            onUpvoteClicked = requireUpvote,
-                            onDownvoteClicked = requireDownvote,
-                            onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
-                        )
-
-                        Spacer(modifier = Modifier.height(SpacingTokens.md))
-                    }
+                    SuccessState(
+                        promocode = promocode,
+                        promocodeInteraction = promocodeInteraction,
+                        requireUpvote = requireUpvote,
+                        requireDownvote = requireDownvote,
+                        onAction = onAction,
+                    )
                 }
             }
 
@@ -172,6 +157,37 @@ fun PromocodeDetailScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SuccessState(
+    promocode: Promocode,
+    promocodeInteraction: PromocodeInteraction,
+    requireUpvote: () -> Unit,
+    requireDownvote: () -> Unit,
+    onAction: (PromocodeDetailAction) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        PromocodeHeader(
+            promocode = promocode,
+        )
+
+        DetailsSection(promocode = promocode)
+
+        ActionButtonsSection(
+            promoCode = promocode,
+            isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
+            isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,
+            onUpvoteClicked = requireUpvote,
+            onDownvoteClicked = requireDownvote,
+            onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
+        )
     }
 }
 
@@ -192,8 +208,8 @@ private fun sharePromocode(
         append("🎉 Check out this amazing deal!\n\n")
         append("${promoCode.serviceName}\n")
         when (val discount = promoCode.discount) {
-            is Discount.Percentage -> append("${discount.value.toInt()}% OFF")
-            is Discount.FixedAmount -> append("${discount.value.toInt()}₸ OFF")
+            is Discount.Percentage -> append("${formatNumber(discount.value)}% OFF")
+            is Discount.FixedAmount -> append("${formatNumber(discount.value)}₸ OFF")
         }
         append("\n\nCode: ${promoCode.code}")
         promoCode.description?.let { append("\n\n$it") }

@@ -1,117 +1,90 @@
 package com.qodein.feature.promocode.detail.component
 
+import android.R.attr.label
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeIcons
+import androidx.compose.ui.text.style.TextOverflow
+import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.util.formatNumber
+import com.qodein.feature.promocode.detail.PromocodeDetailScreen
+import com.qodein.feature.promocode.detail.PromocodeDetailUiState
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Instant
-import kotlin.time.toJavaInstant
+import com.qodein.shared.model.PromocodeInteraction
 
 @Composable
 fun DetailsSection(
-    promoCode: Promocode,
+    promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(SpacingTokens.md),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        // Section Title - smaller, cleaner
         Text(
             text = "Promocode Details",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = SpacingTokens.sm),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.fillMaxWidth(),
         )
 
-        // Details without card - flat design like reference
         Column(
-            modifier = Modifier.padding(horizontal = SpacingTokens.sm),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            // Minimum Order
-            when (promoCode.discount) {
-                is Discount.Percentage -> {
-                    DetailRow(
-                        icon = QodeIcons.Cost,
-                        label = "Minimum Order",
-                        value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
-                        valueColor = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                is Discount.FixedAmount -> {
-                    DetailRow(
-                        icon = QodeIcons.Cost,
-                        label = "Minimum Order",
-                        value = "₸${formatAmount(promoCode.minimumOrderAmount)}",
-                        valueColor = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                thickness = 1.dp,
+            DetailItem(
+                icon = if (promocode.discount is Discount.Percentage) PromocodeIcons.Percentage else PromocodeIcons.FixedAmount,
+                label = "Discount",
+                value = "${formatNumber(promocode.discount.value)}%",
+                valueColor = MaterialTheme.colorScheme.primary,
             )
 
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                thickness = 1.dp,
-            )
-            // Created date
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                thickness = 1.dp,
+            DetailItem(
+                icon = PromocodeIcons.MinimumOrder,
+                label = "Minimum Order",
+                value = "${formatNumber(promocode.minimumOrderAmount)}₸",
+                valueColor = MaterialTheme.colorScheme.primary,
             )
         }
     }
 }
 
 @Composable
-private fun DetailRow(
+private fun DetailItem(
     icon: ImageVector,
     label: String,
     value: String,
     valueColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = icon,
@@ -123,51 +96,44 @@ private fun DetailRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = valueColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
-
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = valueColor,
-        )
+        HorizontalDivider()
     }
 }
 
-// Helper functions
-private fun formatAmount(amount: Double): String =
-    when {
-        amount >= 1_000_000 -> "${(amount / 1_000_000).toInt()}M"
-        amount >= 1_000 -> "${(amount / 1_000).toInt()}K"
-        else -> amount.toInt().toString()
-    }
-
-private fun formatDate(instant: Instant): String {
-    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
-    val date = instant.toJavaInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-    return formatter.format(date)
-}
-
-private fun formatDateWithTime(instant: Instant): String {
-    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm")
-    val dateTime = instant.toJavaInstant().atZone(ZoneId.systemDefault())
-    return formatter.format(dateTime)
-}
-
-private fun isExpiringWithinWeek(endDate: Instant): Boolean {
-    val now = Clock.System.now()
-    val oneWeekFromNow = now.plus(7.days)
-    return endDate > now && endDate <= oneWeekFromNow
-}
-
-@Preview
+@ThemePreviews
 @Composable
 private fun DetailsSectionPreview() {
     QodeTheme {
-        Surface {
-            DetailsSection(promoCode = PromocodePreviewData.percentagePromocode)
-        }
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promoCodeId = samplePromoCode.id,
+                promocodeInteraction = PromocodeInteraction(
+                    promocode = samplePromoCode,
+                    userInteraction = null,
+                ),
+                isLoading = false,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
     }
 }

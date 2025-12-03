@@ -14,6 +14,8 @@
     <!-- Progress -->
 
     <!-- Promocode Detail Screen -->
+    <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
+    <string name="promocode_percentage_discount">Получите скидку %1$s%% на заказы от %2$s₸</string>
 
     <!-- Service Info Section -->
 

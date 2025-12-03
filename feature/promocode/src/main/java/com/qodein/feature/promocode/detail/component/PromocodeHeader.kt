@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,14 +22,31 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.detail.PromocodeDetailScreen
 import com.qodein.feature.promocode.detail.PromocodeDetailUiState
+import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeInteraction
 
 @Composable
 fun PromocodeHeader(
+    promocode: Promocode,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+    ) {
+        AuthorInfoSection(promocode)
+        TitleSection(promocode, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+private fun AuthorInfoSection(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
@@ -65,14 +83,48 @@ fun PromocodeHeader(
             Text(
                 text = if (promocode.voteScore > 0) "+${promocode.voteScore}" else promocode.voteScore.toString(),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.tertiary,
                 textAlign = TextAlign.End,
             )
             Text(
                 text = rememberFormattedRelativeTime(promocode.createdAt),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.tertiary,
                 textAlign = TextAlign.End,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TitleSection(
+    promocode: Promocode,
+    modifier: Modifier = Modifier
+) {
+    val discountText = when (val discount = promocode.discount) {
+        is Discount.FixedAmount -> stringResource(
+            id = R.string.promocode_fixed_amount_discount,
+            formatNumber(discount.value),
+            formatNumber(promocode.minimumOrderAmount),
+        )
+        is Discount.Percentage -> stringResource(
+            id = R.string.promocode_percentage_discount,
+            formatNumber(discount.value),
+            formatNumber(promocode.minimumOrderAmount),
+        )
+    }
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs)) {
+        Text(
+            text = discountText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        promocode.description?.takeIf { it.isNotBlank() }?.let { description ->
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

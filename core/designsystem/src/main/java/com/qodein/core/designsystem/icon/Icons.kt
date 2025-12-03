@@ -108,6 +108,8 @@ object PromocodeIcons {
     val EndDate: ImageVector = Icons.Outlined.EventBusy
     val Rules: ImageVector = Icons.Outlined.Radio
     val Description: ImageVector = Icons.Outlined.Description
+    val Percentage: ImageVector = FeatherIcons.Percent
+    val FixedAmount: ImageVector = FeatherIcons.DollarSign
 }
 
 object QodeIcons {

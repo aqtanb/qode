@@ -65,6 +65,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.feature.home.R
 import com.qodein.shared.model.Discount
@@ -102,8 +103,8 @@ fun PromocodeCard(
     )
 
     val discountText = when (val discount = promocode.discount) {
-        is Discount.Percentage -> "${discount.value.toInt()} %"
-        is Discount.FixedAmount -> "${discount.value.toInt()} ₸"
+        is Discount.Percentage -> "${formatNumber(discount.value)} %"
+        is Discount.FixedAmount -> "${formatNumber(discount.value)} ₸"
     }
 
     // Create custom coupon shape with actual cuts

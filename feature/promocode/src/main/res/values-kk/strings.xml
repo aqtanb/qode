@@ -13,6 +13,10 @@
 
     <!-- Progress -->
 
+    <!-- Promocode Detail Screen -->
+    <string name="promocode_fixed_amount_discount">%2$s₸-ден жоғары тапсырыстарға %1$s₸ жеңілдік алыңыз</string>
+    <string name="promocode_percentage_discount">%2$s₸-ден жоғары тапсырыстарға %1$s%% жеңілдік алыңыз</string>
+
     <!-- Promocode step -->
     <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>
     <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>
