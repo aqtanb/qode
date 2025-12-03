@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="post">Жазба</string>
+    <string name="select_tags">Тегтерді таңдаңыз</string>
+    <string name="popular_tags">Танымал тегтер</string>
+    <string name="type_tag">Тег енгізіңіз</string>
+    <string name="selected_tags_label">Таңдалды</string>
+    <string name="max_tags_reached">Ең көп %d тег</string>
+    <string name="tag_helper_text">Кіші әріп, сан және асты сызу қолданыңыз</string>
+    <string name="tag_too_long">Тег 50 таңбадан аспауы керек</string>
+    <string name="tag_invalid_characters">Тек кіші әріптер, сандар, сызықша және асты сызу рұқсат</string>
+    <string name="tag_already_added">Тег қосылған</string>
+    <string name="cd_add_image">Сурет қосу</string>
+    <string name="cd_remove_image">Суретті жою</string>
+    <string name="cd_post_image">Жазба суреті</string>
+    <string name="image_limit_reached">Ең көбі 5 сурет. Басқаларын өшіріңіз.</string>
+    <string name="images_partially_added">Тек %1$d сурет қосылды. Ең көбі 5.</string>
+    <string name="compressing_images">Суреттер сығылуда… %1$d/%2$d</string>
+    <string name="placeholder_title">Тақырып</string>
+    <string name="placeholder_description">Сипаттама</string>
+    <string name="feed_title">Лента</string>
+    <string name="cd_profile">Профиль</string>
+    <string name="cd_settings">Баптаулар</string>
+    <string name="cd_image_load_failed">Суретті жүктеу сәтсіз</string>
+    <string name="image_load_failed">Суретті жүктеу сәтсіз аяқталды</string>
+    <string name="cd_upvote">Ұнату, %1$d</string>
+    <string name="cd_downvote">Ұнатпау, %1$d</string>
+    <string name="cd_comments">Пікірлер, %1$d</string>
+    <string name="cd_share">Бөлісу</string>
+</resources>

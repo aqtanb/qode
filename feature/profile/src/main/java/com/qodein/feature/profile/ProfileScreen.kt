@@ -1,6 +1,5 @@
 package com.qodein.feature.profile
 
-import android.R.attr.fontWeight
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -121,10 +120,10 @@ private fun ProfileScreen(
                 .padding(SpacingTokens.lg),
             contentAlignment = Alignment.Center,
         ) {
-            when (val currentState = uiState) {
+            when (uiState) {
                 is ProfileUiState.Success -> {
                     ProfileContent(
-                        user = currentState.user,
+                        user = uiState.user,
                         scrollState = scrollState,
                         onAction = onAction,
                         modifier = Modifier.fillMaxSize(),
@@ -137,7 +136,7 @@ private fun ProfileScreen(
 
                 is ProfileUiState.Error -> {
                     QodeErrorCard(
-                        error = currentState.errorType,
+                        error = uiState.errorType,
                         onRetry = { onAction(ProfileAction.RetryClicked) },
                     )
                 }

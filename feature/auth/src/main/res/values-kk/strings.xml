@@ -1,33 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Auth Screen -->
     <string name="sign_in_title">Кіру</string>
-    <string name="sign_in_subtitle">Телефон арқылы кіру жақында қосылады! Қазір Google пайдаланыңыз.</string>
+    <string name="sign_in_subtitle">Телефон арқылы кіру жақында қосылады! Қазірше Google пайдаланыңыз.</string>
     <string name="continue_with_google">Google арқылы жалғастыру</string>
     <string name="terms_of_service">Қызмет көрсету шарттары</string>
     <string name="privacy_policy">Құпиялылық саясаты</string>
-
-    <!-- Verification Screen -->
-
-    <!-- Sign Up Screen -->
-
-    <!-- Country Picker Screen -->
-
-    <!-- Accessibility -->
-
-    <!-- Error Messages -->
-
-    <!-- Loading States -->
-
-    <!-- Success Messages -->
-    <string name="terms_first_line">Жалғастыра отырып, сіз біздің келісесіз</string>
-    <string name="and">және</string>
-
-    <!-- Phone Authentication -->
-
-    <!-- Auth Flow -->
-
-    <!-- Errors -->
-
-    <!-- Success -->
+    <string name="terms_first_line">Продолжая, вы соглашаетесь с этими документами</string>
 </resources>

@@ -1,49 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_home_title">Үй</string>
-
-    <!-- Home Screen Strings -->
-
-    <!-- Dynamic Section Titles -->
-
-    <!-- Banner Carousel -->
-
-    <!-- Stats Section -->
-
-    <!-- Filter Categories -->
-
-    <!-- Error Messages -->
-    <string name="error_retry">Қайтадан байқап көріңіз</string>
     <string name="error_image_not_available">Сурет қол жетімді емес</string>
+    <string name="empty_no_promo_codes">Промокодтар жоқ</string>
+    <string name="empty_check_back_later">Жеңілдіктер үшін кейінірек келіңіз!</string>
+    <string name="promocode_label">ПРОМОКОД</string>
 
-    <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Жақында</string>
-    <string name="coming_soon_country_description">Жақында ел таңдау келе жатыр!</string>
-
-    <!-- Country -->
-    <string name="country_kazakhstan">Қазақстан</string>
-
-    <!-- Actions -->
-    <string name="action_close">Жабу</string>
-
-    <!-- Filter Chips -->
-    <string name="filter_chip_category">Санат</string>
-    <string name="filter_chip_service">Қызмет</string>
-    <string name="filter_chip_sort">Сұрыптау</string>
-
-    <!-- Filter Dialog Titles -->
-
-    <!-- Filter Options - Type -->
-
-    <!-- Filter Options - Category -->
-    <string name="filter_category_all">Барлық санаттар</string>
-
-    <!-- Filter Options - Service -->
-
-    <!-- Filter Options - Sort -->
-
-    <!-- Empty State -->
-    <string name="empty_no_promo_codes">Науқандық кодтар жоқ</string>
-    <string name="empty_check_back_later">Кейінірек таңғажайып мәмілелер мен жеңілдіктер үшін тексеріңіз!</string>
+    <string name="banner_loading_title">Ұсыныстар жүктелуде</string>
+    <string name="banner_loading_description">Сіз үшін үздік акцияларды іздеудеміз…</string>
+    <string name="banner_empty_title">Белсенді баннерлер жоқ</string>
+    <string name="banner_empty_description">Сіздің жарнамаңыз осында болуы мүмкін :)</string>
+    <string name="banner_error_title">Баннерлерді жүктеу сәтсіз аяқталды</string>
+    <string name="filter_chip_reset">Тазалау</string>
 </resources>
-

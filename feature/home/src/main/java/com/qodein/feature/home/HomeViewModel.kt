@@ -12,6 +12,7 @@ import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
+import com.qodein.shared.domain.service.selection.SearchStatus
 import com.qodein.shared.domain.service.selection.SelectionState
 import com.qodein.shared.domain.service.selection.ServiceSelectionAction
 import com.qodein.shared.domain.service.selection.ServiceSelectionState
@@ -129,7 +130,7 @@ class HomeViewModel @Inject constructor(
         val selectionState = _uiState.value.serviceSelectionState
         val allServices = (
             selectionState.popular.services +
-                (selectionState.search.status as? com.qodein.shared.domain.service.selection.SearchStatus.Success)?.services.orEmpty()
+                (selectionState.search.status as? SearchStatus.Success)?.services.orEmpty()
             ).associateBy { it.id }
 
         val serviceFilter = when (val selection = selectionState.selection) {

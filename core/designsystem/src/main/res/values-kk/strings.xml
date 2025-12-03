@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Design System Components -->
-
-    <!-- Button Components -->
-
-    <!-- Logo Components -->
-
-    <!-- Common Actions -->
-    <string name="close">Жабу</string>
-
-    <!-- Accessibility -->
-
-    <!-- SearchableTopAppBar Component -->
-
-    <!-- Avatar -->
     <string name="profile_picture_description">Профиль суреті</string>
 </resources>

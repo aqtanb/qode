@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +40,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -46,13 +48,11 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateSelector(
-    label: String,
+fun PromocodeDatesStep(
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Select date",
-    isRequired: Boolean = false
+    placeholder: String = stringResource(R.string.promocode_dates_placeholder)
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -64,7 +64,7 @@ fun DateSelector(
         targetValue = if (hasSelection) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme.colorScheme.surface
         },
         label = "backgroundColor",
     )
@@ -73,7 +73,7 @@ fun DateSelector(
         targetValue = if (hasSelection) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.outline
         },
         label = "borderColor",
     )
@@ -122,7 +122,6 @@ fun DateSelector(
 
                 Text(
                     text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
-                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
                     color = if (hasSelection) {
                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -152,12 +151,12 @@ fun DateSelector(
                         showDatePicker = false
                     },
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.promocode_dates_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.promocode_dates_cancel))
                 }
             },
         ) {
@@ -174,19 +173,16 @@ private fun DatePickerStepPreview() {
             modifier = Modifier.padding(SpacingTokens.lg),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
-            DateSelector(
-                label = "Start Date",
+            PromocodeDatesStep(
                 selectedDate = LocalDate.now(),
                 onDateSelected = {},
                 placeholder = "Select start date",
             )
 
-            DateSelector(
-                label = "End Date",
+            PromocodeDatesStep(
                 selectedDate = null,
                 onDateSelected = {},
                 placeholder = "Select end date",
-                isRequired = true,
             )
         }
     }

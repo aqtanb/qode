@@ -29,7 +29,7 @@ sealed interface PostSubmissionUiState {
         val availableTags: List<Tag> = emptyList(),
 
         // Auth state
-        val authentication: UiAuthState = UiAuthState.Loading,
+        val authentication: UiAuthState = UiAuthState.Uninitialized,
 
         // Submission state
         val submission: PostSubmissionState = PostSubmissionState.Idle,

@@ -38,12 +38,13 @@ import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun FeedRoute(
-    user: User?,
+    userId: UserId?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPostClick: (String) -> Unit,
@@ -51,6 +52,7 @@ fun FeedRoute(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val user by viewModel.user.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -61,6 +63,10 @@ fun FeedRoute(
                 }
             }
         }
+    }
+
+    LaunchedEffect(userId) {
+        viewModel.setUserId(userId)
     }
 
     FeedScreen(

@@ -48,7 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -340,8 +340,8 @@ private fun QodeBottomNavigationPreview() {
                     TabItem(
                         route = "home",
                         label = "Home",
-                        selectedIcon = QodeEssentialIcons.Coupon,
-                        unselectedIcon = QodeEssentialIcons.Coupon,
+                        selectedIcon = QodeIcons.Promocode,
+                        unselectedIcon = QodeIcons.Promocode,
                     ),
                     TabItem(
                         route = "feed",

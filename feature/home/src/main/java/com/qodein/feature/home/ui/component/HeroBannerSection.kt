@@ -1,7 +1,6 @@
 package com.qodein.feature.home.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,8 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
+import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -60,6 +60,7 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeEffect
 import kotlin.time.Duration.Companion.seconds
+import com.qodein.core.ui.R as CoreUiR
 
 // MARK: - Constants
 
@@ -131,7 +132,7 @@ fun HeroBannerSection(
                         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                     ) {
                         Icon(
-                            imageVector = QodeUIIcons.Error,
+                            imageVector = UIIcons.Error,
                             contentDescription = null,
                             modifier = modifier.size(SizeTokens.Avatar.sizeLarge).padding(bottom = SpacingTokens.md),
                             tint = MaterialTheme.colorScheme.onSurface,
@@ -139,7 +140,7 @@ fun HeroBannerSection(
 
                         QodeButton(
                             onClick = onRetryBanners,
-                            text = stringResource(R.string.error_retry),
+                            text = stringResource(CoreUiR.string.error_retry),
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
@@ -344,18 +345,8 @@ private fun BannerCallToAction(
                 .fillMaxSize()
                 .clip(
                     RoundedCornerShape(
-                        topStart = ShapeTokens.Corner.full,
-                        topEnd = ShapeTokens.Corner.full,
-                    ),
-                )
-                .border(
-                    width = ShapeTokens.Border.thin,
-                    color = MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(
-                        topStart = ShapeTokens.Corner.full,
-                        topEnd = ShapeTokens.Corner.full,
-                        bottomEnd = 0.dp,
-                        bottomStart = 0.dp,
+                        topStart = ShapeTokens.Corner.extraLarge,
+                        topEnd = ShapeTokens.Corner.extraLarge,
                     ),
                 )
                 .let { base ->
@@ -363,8 +354,7 @@ private fun BannerCallToAction(
                         base.hazeEffect(
                             state = it,
                             style = HazeStyle(
-                                backgroundColor = MaterialTheme.colorScheme.background,
-                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.5f)),
+                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = OpacityTokens.HAZE_BACKGROUND)),
                                 blurRadius = BLUR_RADIUS,
                             ),
                         )

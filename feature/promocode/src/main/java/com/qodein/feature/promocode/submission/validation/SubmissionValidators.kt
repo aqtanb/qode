@@ -1,7 +1,9 @@
 package com.qodein.feature.promocode.submission.validation
 
-import com.qodein.feature.promocode.submission.PromoCodeType
+import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.shared.common.Result
+import com.qodein.shared.model.PromocodeCode
 
 /**
  * Centralized validation utilities for submission wizard.
@@ -11,14 +13,7 @@ import com.qodein.feature.promocode.submission.SubmissionWizardData
 /**
  * Validates promo code format with same rules as domain validation.
  */
-fun isValidPromoCodeFormat(code: String): Boolean {
-    // Clean promo code (remove spaces, hyphens for validation)
-    val cleanCode = code.replace("[\\s-]".toRegex(), "")
-
-    return cleanCode.length >= 2 &&
-        cleanCode.length <= 50 &&
-        cleanCode.matches("[A-Za-z0-9]+".toRegex())
-}
+fun isValidPromoCodeFormat(code: String): Boolean = PromocodeCode.create(code) is Result.Success
 
 /**
  * Validates discount percentage (1-100%).
@@ -50,79 +45,42 @@ fun isValidMinimumOrderAmount(amount: String): Boolean {
 fun isValidServiceName(name: String): Boolean = name.trim().isNotBlank()
 
 /**
+ * Validates service URL (basic check for non-blank and a domain-like structure).
+ */
+fun sanitizeServiceUrl(raw: String): String {
+    val trimmed = raw.trim()
+    val withoutScheme = trimmed
+        .removePrefix("https://")
+        .removePrefix("http://")
+        .removePrefix("www.")
+    return withoutScheme
+        .substringBefore('/')
+        .substringBefore('?')
+        .substringBefore('#')
+        .trim()
+}
+
+fun isValidServiceUrl(url: String): Boolean {
+    val value = sanitizeServiceUrl(url)
+    return value.isNotBlank() && value.contains(".") && !value.contains(" ")
+}
+
+/**
  * Validates discount value based on promo code type.
  */
 fun isValidDiscountValue(data: SubmissionWizardData): Boolean =
-    when (data.promoCodeType) {
-        PromoCodeType.PERCENTAGE -> isValidDiscountPercentage(data.discountPercentage)
-        PromoCodeType.FIXED_AMOUNT -> isValidDiscountAmount(data.discountAmount)
+    when (data.promocodeType) {
+        PromocodeType.PERCENTAGE -> isValidDiscountPercentage(data.discountPercentage)
+        PromocodeType.FIXED_AMOUNT -> isValidDiscountAmount(data.discountAmount)
         null -> false
     }
-
-/**
- * Gets validation error message for promo code.
- */
-fun getPromoCodeValidationError(code: String): String? {
-    if (code.isBlank()) return "Promo code is required"
-
-    val cleanCode = code.replace("[\\s-]".toRegex(), "")
-    return when {
-        cleanCode.length < 2 -> "Promo code is too short"
-        cleanCode.length > 50 -> "Promo code is too long"
-        !cleanCode.matches("[A-Za-z0-9]+".toRegex()) -> "Use only letters and numbers"
-        else -> null
-    }
-}
-
-/**
- * Gets validation error message for discount percentage.
- */
-fun getDiscountPercentageValidationError(percentage: String): String? {
-    if (percentage.isBlank()) return "Discount percentage is required"
-
-    val value = percentage.toDoubleOrNull()
-    return when {
-        value == null -> "Enter a valid percentage"
-        value <= 0 -> "Discount percentage must be positive"
-        value > 100 -> "Discount percentage cannot exceed 100%"
-        else -> null
-    }
-}
-
-/**
- * Gets validation error message for discount amount.
- */
-fun getDiscountAmountValidationError(amount: String): String? {
-    if (amount.isBlank()) return "Discount amount is required"
-
-    val value = amount.toDoubleOrNull()
-    return when {
-        value == null -> "Enter a valid amount"
-        value <= 0 -> "Discount amount must be positive"
-        else -> null
-    }
-}
-
-/**
- * Gets validation error message for minimum order amount.
- */
-fun getMinimumOrderAmountValidationError(amount: String): String? {
-    if (amount.isBlank()) return "Minimum order amount is required"
-
-    val value = amount.toDoubleOrNull()
-    return when {
-        value == null -> "Enter a valid amount"
-        value < 0 -> "Minimum order amount cannot be negative"
-        else -> null
-    }
-}
 
 /**
  * Validates business logic rules to prevent loss-making promo codes.
  */
 fun isValidBusinessLogic(data: SubmissionWizardData): Boolean {
     // For fixed amount discounts, discount cannot exceed minimum order
-    if (data.promoCodeType == PromoCodeType.FIXED_AMOUNT) {
+    if (data.promocodeType == PromocodeType.FIXED_AMOUNT) {
         val discount = data.discountAmount.toDoubleOrNull() ?: 0.0
         val minOrder = data.minimumOrderAmount.toDoubleOrNull() ?: 0.0
         if (minOrder > 0) { // Only validate if minimum order is set
@@ -136,7 +94,7 @@ fun isValidBusinessLogic(data: SubmissionWizardData): Boolean {
  * Gets business logic validation error message.
  */
 fun getBusinessLogicValidationError(data: SubmissionWizardData): String? {
-    if (data.promoCodeType == PromoCodeType.FIXED_AMOUNT) {
+    if (data.promocodeType == PromocodeType.FIXED_AMOUNT) {
         val discount = data.discountAmount.toDoubleOrNull() ?: 0.0
         val minOrder = data.minimumOrderAmount.toDoubleOrNull() ?: 0.0
         if (minOrder > 0 && discount > minOrder) {

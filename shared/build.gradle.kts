@@ -29,12 +29,6 @@ kotlin {
             }
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlin.test)
-            }
-        }
-
         androidMain {
             dependencies {
                 // Firebase BOM for version management
@@ -48,9 +42,11 @@ kotlin {
     }
 }
 
-// Use same JVM toolchain as other modules
 kotlin {
     jvmToolchain(17)
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     sourceSets.all {
         languageSettings.optIn("kotlin.time.ExperimentalTime")
     }

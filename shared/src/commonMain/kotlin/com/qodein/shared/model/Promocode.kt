@@ -44,6 +44,39 @@ value class PromocodeId(val value: String) {
     }
 }
 
+@Serializable
+@JvmInline
+value class PromocodeCode(val value: String) {
+    override fun toString(): String = value
+
+    companion object {
+        const val MIN_LENGTH = 1
+        const val MAX_LENGTH = 50
+
+        fun create(rawCode: String): Result<PromocodeCode, PromocodeError.CreationFailure> {
+            val normalized = rawCode.trim()
+
+            if (normalized.isEmpty()) {
+                return Result.Error(PromocodeError.CreationFailure.EmptyCode)
+            }
+            if (normalized.length < MIN_LENGTH) {
+                return Result.Error(PromocodeError.CreationFailure.CodeTooShort)
+            }
+            if (normalized.length > MAX_LENGTH) {
+                return Result.Error(PromocodeError.CreationFailure.CodeTooLong)
+            }
+
+            return Result.Success(PromocodeCode(normalized))
+        }
+
+        /**
+         * Creates a code from already validated/persisted data (e.g., Firestore DTOs).
+         * Bypasses validation since data is assumed to be trusted.
+         */
+        fun fromRaw(rawCode: String): PromocodeCode = PromocodeCode(rawCode)
+    }
+}
+
 /**
  * Discount type for promocodes.
  * Sealed interface ensures type safety while avoiding boilerplate.
@@ -84,7 +117,7 @@ sealed interface Discount {
 @Serializable
 data class Promocode private constructor(
     val id: PromocodeId,
-    val code: String,
+    val code: PromocodeCode,
     val discount: Discount,
     val minimumOrderAmount: Double,
     val startDate: Instant,
@@ -110,8 +143,6 @@ data class Promocode private constructor(
     val voteScore: Int get() = upvotes - downvotes
 
     companion object {
-        const val CODE_MIN_LENGTH = 2
-        const val CODE_MAX_LENGTH = 50
         const val DESCRIPTION_MAX_LENGTH = 1000
 
         fun create(
@@ -127,18 +158,11 @@ data class Promocode private constructor(
             isVerified: Boolean,
             description: String? = null
         ): Result<Promocode, PromocodeError.CreationFailure> {
-            val cleanCode = code.uppercase().trim()
+            val promoCode = when (val result = PromocodeCode.create(code)) {
+                is Result.Error -> return Result.Error(result.error)
+                is Result.Success -> result.data
+            }
             val cleanDescription = description?.trim()
-
-            if (cleanCode.isBlank()) {
-                return Result.Error(PromocodeError.CreationFailure.EmptyCode)
-            }
-            if (cleanCode.length < CODE_MIN_LENGTH) {
-                return Result.Error(PromocodeError.CreationFailure.CodeTooShort)
-            }
-            if (cleanCode.length > CODE_MAX_LENGTH) {
-                return Result.Error(PromocodeError.CreationFailure.CodeTooLong)
-            }
 
             if (minimumOrderAmount <= 0) {
                 return Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
@@ -162,7 +186,7 @@ data class Promocode private constructor(
             val promoId = when (
                 val idResult = PromocodeId.create(
                     serviceName = service.name,
-                    code = cleanCode,
+                    code = promoCode.value,
                 )
             ) {
                 is Result.Error -> return Result.Error(idResult.error)
@@ -172,7 +196,7 @@ data class Promocode private constructor(
             return Result.Success(
                 Promocode(
                     id = promoId,
-                    code = cleanCode,
+                    code = promoCode,
                     discount = discount,
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
@@ -221,7 +245,7 @@ data class Promocode private constructor(
         ): Promocode =
             Promocode(
                 id = id,
-                code = code,
+                code = PromocodeCode.fromRaw(code),
                 discount = discount,
                 minimumOrderAmount = minimumOrderAmount,
                 startDate = startDate,

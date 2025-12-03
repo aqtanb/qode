@@ -12,6 +12,7 @@ data class ServiceDto(
     @DocumentId
     val documentId: String = "",
     val name: String = "",
+    val siteUrl: String = "",
     val logoUrl: String? = null,
     val promoCodeCount: Int = 0
 ) {

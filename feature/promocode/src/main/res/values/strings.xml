@@ -1,81 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Wizard Screen -->
-
-    <!-- Error Messages -->
-
-    <!-- Actions -->
-    <string name="action_back">Back</string>
-    <string name="action_submit">Submit</string>
     <string name="action_continue">Continue</string>
+    <string name="action_share">Share</string>
+    <string name="action_submit">Submit</string>
 
-    <!-- Wizard Steps -->
+    <string name="promocode_fixed_amount_discount">Get %1$s₸ OFF on orders above %2$s₸</string>
+    <string name="promocode_percentage_discount">Get %1$s%% OFF on orders above %2$s₸</string>
+    <string name="promocode_details_title">Promocode Details</string>
+    <string name="promocode_details_service">Service</string>
+    <string name="promocode_details_discount">Discount</string>
+    <string name="promocode_details_minimum_order">Minimum Order</string>
+    <string name="promocode_details_start_date">Start Date</string>
+    <string name="promocode_details_end_date">End Date</string>
+    <string name="promocode_details_new_user_only">New user only</string>
+    <string name="promocode_details_one_time_use_only">One time use only</string>
+    <string name="promocode_details_value_yes">Yes</string>
+    <string name="promocode_details_value_no">No</string>
 
-    <!-- Progress -->
+    <string name="promocode_rules_customer_eligibility_title">Customer Eligibility</string>
+    <string name="promocode_rules_customer_eligibility_all">All customers</string>
+    <string name="promocode_rules_customer_eligibility_all_description">Any customer can use this promocode</string>
+    <string name="promocode_rules_customer_eligibility_new">New customers only</string>
+    <string name="promocode_rules_customer_eligibility_new_description">Only new customers can use this code</string>
+    <string name="promocode_rules_usage_limitation_title">Usage Limitation</string>
+    <string name="promocode_rules_usage_limitation_multiple">Multiple uses</string>
+    <string name="promocode_rules_usage_limitation_multiple_description">Any customer can use this promocode</string>
+    <string name="promocode_rules_usage_limitation_one_time">One-time use</string>
+    <string name="promocode_rules_usage_limitation_one_time_description">Code can be used only by one customer and gets deleted</string>
 
-    <!-- Promocode Detail Screen -->
+    <string name="service_step_placeholder_service_name">Type the service name</string>
+    <string name="service_step_helper_service_name">Exact service name</string>
+    <string name="service_step_browse_services_instead">Browse services instead</string>
+    <string name="service_step_search_placeholder">Click to search</string>
+    <string name="service_step_cant_find_service">Cannot find the service?</string>
+    <string name="service_step_type_manually">Type manually</string>
+    <string name="service_step_error_blank">Service name cannot be blank</string>
+    <string name="service_step_error_max_length">You have reached the maximum length (%1$d characters)</string>
+    <string name="service_step_placeholder_service_url">example.com</string>
+    <string name="service_step_helper_service_url">Official domain (no https://)</string>
+    <string name="service_step_error_url_blank">Service URL cannot be blank</string>
+    <string name="service_step_error_url_format">Enter a valid domain (e.g., example.com)</string>
+    <string name="service_step_service_logo_cd">Service logo</string>
 
-    <!-- Service Info Section -->
+    <string name="promocode_description_placeholder">Great promocode!</string>
+    <string name="promocode_description_helper">Add a description to help customers understand the offer better</string>
 
-    <!-- Statistics Section -->
+    <string name="promocode_dates_placeholder">Select date</string>
+    <string name="promocode_dates_start_placeholder">Select start date</string>
+    <string name="promocode_dates_end_placeholder">Select end date</string>
+    <string name="promocode_dates_confirm">OK</string>
+    <string name="promocode_dates_cancel">Cancel</string>
 
-    <!-- Details Section -->
+    <string name="promocode_discount_percentage_placeholder">30</string>
+    <string name="promocode_discount_percentage_helper">Enter the percentage (1–99%)</string>
+    <string name="promocode_discount_amount_placeholder">2000</string>
+    <string name="promocode_discount_amount_helper">Enter in ₸ (tenge)</string>
 
-    <!-- Status Messages -->
+    <string name="promocode_minimum_order_placeholder">5000</string>
+    <string name="promocode_minimum_order_helper">Minimum order in ₸ (tenge) to get the discount</string>
 
-    <!-- Actions -->
+    <string name="promocode_submission_show_tips">Show helpful tips</string>
+    <string name="promocode_submission_hide_tips">Hide helpful tips</string>
 
-    <!-- Feedback Messages -->
+    <string name="promo_code_step_placeholder">Enter the promocode</string>
+    <string name="promo_code_step_helper_text">Use the exact capitalization and characters</string>
 
-    <!-- TODO Messages -->
-
-    <!-- Community Rating -->
-
-    <!-- Share Template -->
-
-    <!-- Filter Components -->
-    <string name="filter_chip_category">Category</string>
-    <string name="filter_chip_service">Service</string>
-    <string name="filter_chip_sort">Sort</string>
-
-    <!-- Submission Steps -->
-    <string name="step_service_title">Select Service</string>
-    <string name="step_service_short">Service</string>
-    <string name="step_discount_type_title">Discount Type</string>
-    <string name="step_discount_type_short">Type</string>
-    <string name="step_promo_code_title">Promo Code</string>
-    <string name="step_promo_code_short">Code</string>
-    <string name="step_discount_value_title">Discount Value</string>
-    <string name="step_discount_value_short">Value</string>
-    <string name="step_minimum_order_title">Minimum Order</string>
-    <string name="step_minimum_order_short">Minimum</string>
-    <string name="step_eligibility_title">Eligibility</string>
-    <string name="step_eligibility_short">Eligibility</string>
-    <string name="step_description_title">Description</string>
-    <string name="step_description_short">Description</string>
-    <string name="step_start_date_title">Start Date</string>
-    <string name="step_start_date_short">Start</string>
-    <string name="step_end_date_title">End Date</string>
-    <string name="step_end_date_short">End</string>
-
-    <!-- Step Hints -->
-    <string name="step_service_hint">Which service does this promo code work with?</string>
-    <string name="step_discount_type_hint">Percentage (%) – the higher the order, the bigger the discount.\nFixed amount ($) – same discount no matter how much you spend.</string>
-    <string name="step_promo_code_hint">Enter the exact promo code as it appears.</string>
-    <string name="step_discount_value_hint">How much discount does this code give?</string>
-    <string name="step_minimum_order_hint">What\'s the minimum order required to use this code?</string>
-    <string name="step_start_date_hint">When does this promo code become active?</string>
-    <string name="step_end_date_hint">When does this promo code expire?</string>
-    <string name="step_eligibility_hint">Who can use this code and how often?</string>
-    <string name="step_description_hint">Add any helpful details about this deal.</string>
-
-    <!-- Promo Code Types -->
     <string name="promo_type_percentage_title">Percentage</string>
     <string name="promo_type_fixed_amount_title">Fixed Amount</string>
-
-    <!-- Status Badges -->
-    <string name="cd_first_user_only">First user only</string>
-    <string name="cd_one_time_use">One time use</string>
-    <string name="cd_expiring_soon">Expiring soon</string>
-    <string name="cd_verified">Verified</string>
+    <string name="submit_promocode">Submit Promocode</string>
+    <string name="cd_upvote">Upvote, %1$d</string>
+    <string name="cd_downvote">Downvote, %1$d</string>
+    <string name="cd_comments">View comments</string>
+    <string name="cd_share">Share promocode</string>
 </resources>

@@ -29,38 +29,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
+import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.submission.PromoCodeType
+import com.qodein.feature.promocode.submission.PromocodeType
 
-val PromoCodeType.titleRes: Int
+val PromocodeType.titleRes: Int
     get() = when (this) {
-        PromoCodeType.PERCENTAGE -> R.string.promo_type_percentage_title
-        PromoCodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
+        PromocodeType.PERCENTAGE -> R.string.promo_type_percentage_title
+        PromocodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
     }
 
-val PromoCodeType.icon: ImageVector
+val PromocodeType.icon: ImageVector
     get() = when (this) {
-        PromoCodeType.PERCENTAGE -> QodeEssentialIcons.Sale
-        PromoCodeType.FIXED_AMOUNT -> QodeEssentialIcons.Dollar
+        PromocodeType.PERCENTAGE -> PromocodeIcons.Percentage
+        PromocodeType.FIXED_AMOUNT -> PromocodeIcons.FixedAmount
     }
 
 @Composable
-fun PromocodeTypeSelector(
-    selectedType: PromoCodeType?,
-    onTypeSelected: (PromoCodeType) -> Unit,
+fun PromocodeTypeStep(
+    selectedType: PromocodeType?,
+    onTypeSelected: (PromocodeType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        PromoCodeType.entries.forEach { type ->
+        PromocodeType.entries.forEach { type ->
             TypeToggleButton(
                 title = stringResource(type.titleRes),
                 icon = type.icon,
@@ -150,7 +151,7 @@ private fun TypeToggleButton(
 @Composable
 private fun PromoTypeCardNonePreview() {
     QodeTheme {
-        PromocodeTypeSelector(
+        PromocodeTypeStep(
             selectedType = null,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
@@ -158,24 +159,24 @@ private fun PromoTypeCardNonePreview() {
     }
 }
 
-@Preview(name = "Promo Type Card - Percentage Selected", showBackground = true)
+@ThemePreviews
 @Composable
 private fun PromoTypeCardPercentagePreview() {
     QodeTheme {
-        PromocodeTypeSelector(
-            selectedType = PromoCodeType.PERCENTAGE,
+        PromocodeTypeStep(
+            selectedType = PromocodeType.PERCENTAGE,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
         )
     }
 }
 
-@Preview(name = "Promo Type Card - Fixed Amount Selected", showBackground = true)
+@ThemePreviews
 @Composable
 private fun PromoTypeCardFixedAmountPreview() {
     QodeTheme {
-        PromocodeTypeSelector(
-            selectedType = PromoCodeType.FIXED_AMOUNT,
+        PromocodeTypeStep(
+            selectedType = PromocodeType.FIXED_AMOUNT,
             onTypeSelected = {},
             modifier = Modifier.padding(SpacingTokens.lg),
         )

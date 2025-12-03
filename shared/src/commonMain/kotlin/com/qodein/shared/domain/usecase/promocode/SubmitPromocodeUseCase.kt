@@ -34,45 +34,41 @@ data class SubmitPromocodeRequest(
  * - Domain object creation and validation
  * - Submission to repository
  */
-class SubmitPromocodeUseCase(private val repo: PromocodeRepository, private val resolveService: GetOrCreateServiceUseCase) {
-    suspend operator fun invoke(req: SubmitPromocodeRequest): Result<Unit, OperationError> {
-        val service = when (val result = resolveService(req.service)) {
+class SubmitPromocodeUseCase(private val repository: PromocodeRepository, private val resolveService: GetOrCreateServiceUseCase) {
+    suspend operator fun invoke(request: SubmitPromocodeRequest): Result<Unit, OperationError> {
+        val service = when (val result = resolveService(request.service)) {
             is Result.Success -> result.data
             is Result.Error -> return Result.Error(result.error)
         }
 
-        // Create and validate promocode
-        val promoCode = when (
+        val promocode = when (
             val result = Promocode.create(
-                code = req.code,
+                code = request.code,
                 service = service,
-                author = req.currentUser,
-                discount = req.discount,
-                minimumOrderAmount = req.minimumOrderAmount,
-                startDate = req.startDate,
-                endDate = req.endDate,
-                isFirstUserOnly = req.isFirstUserOnly,
-                isOneTimeUseOnly = req.isOneTimeUseOnly,
-                isVerified = req.isVerified,
-                description = req.description,
+                author = request.currentUser,
+                discount = request.discount,
+                minimumOrderAmount = request.minimumOrderAmount,
+                startDate = request.startDate,
+                endDate = request.endDate,
+                isFirstUserOnly = request.isFirstUserOnly,
+                isOneTimeUseOnly = request.isOneTimeUseOnly,
+                isVerified = request.isVerified,
+                description = request.description,
             )
         ) {
             is Result.Success -> result.data
             is Result.Error -> return Result.Error(result.error)
         }
 
-        // Check for duplicate promocode - fail if already exists
-        when (val result = repo.getPromocodeById(promoCode.id)) {
+        when (val result = repository.getPromocodeById(promocode.id)) {
             is Result.Success -> return Result.Error(PromocodeError.SubmissionFailure.DuplicateCode)
             is Result.Error -> {
-                // Only proceed if specifically not found - other errors should fail the operation
                 if (result.error !is FirestoreError.NotFound) {
                     return Result.Error(result.error)
                 }
             }
         }
 
-        // Submit to repository
-        return repo.createPromocode(promoCode)
+        return repository.createPromocode(promocode)
     }
 }

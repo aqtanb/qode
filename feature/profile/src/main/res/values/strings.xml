@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Profile Screen -->
     <string name="profile_sign_out_button">Sign Out</string>
     <string name="profile_loading_description">Loading profile</string>
     <string name="profile_error_unknown">Unknown error</string>
-
-    <!-- Profile Header -->
-    <string name="profile_picture_description">Profile picture</string>
     <string name="edit_profile_button">Edit Profile</string>
-    <string name="profile_full_name_format">%1$s %2$s</string>
-
-    <!-- Profile Stats -->
     <string name="profile_stats_title">Statistics</string>
     <string name="profile_promocodes_label">Promocodes</string>
     <string name="profile_upvotes_label">Upvotes</string>
     <string name="profile_downvotes_label">Downvotes</string>
-
-    <!-- Profile Activity -->
     <string name="profile_activity_title">Recent Activity</string>
     <string name="profile_achievements_title">Achievements</string>
-    <string name="profile_user_journey_title">Your Journey</string>
     <string name="posts">Posts</string>
 </resources>

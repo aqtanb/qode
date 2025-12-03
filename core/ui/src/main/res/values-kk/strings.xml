@@ -1,67 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phone Input Component -->
-
-    <!-- Country Picker -->
-
-    <!-- Navigation -->
     <string name="close">Жабу</string>
-
-    <!-- Social Sign-In Components -->
     <string name="continue_with_google">Google арқылы жалғастыру</string>
-
-    <!-- Error Handling -->
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
-
-    <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Біз осы функцияда жұмыс істеп жатырмыз</string>
-    <string name="coming_soon_description">Бізбен байланысып, Telegram арнасындағы прогрессімізді көре аласыз.</string>
-    <string name="coming_soon_telegram_button">Telegram-да жазылу</string>
-
-    <!-- Accessibility -->
-
-    <!-- Common Input States -->
-
-    <!-- Promo Code Card Strings -->
     <string name="copy_code">Кодты көшіру</string>
 
-    <!-- Home Screen Strings -->
-
-    <!-- Stats Section -->
-
-    <!-- Filter Categories -->
-
-    <!-- Legacy strings that might be used elsewhere -->
-
-    <!-- Error Messages -->
-    <!-- Network Errors -->
     <string name="error_network_no_connection">Интернет қосылымы жоқ. Желіні тексеріңіз.</string>
-
-    <!-- Authentication Errors -->
-    <string name="error_auth_permission_denied">Сізде бұл әрекетті орындауға рұқсат жоқ.</string>
     <string name="error_auth_user_cancelled">Кіру болдырылмады.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
-    <string name="error_auth_unauthorized">Қол жетімділік рұқсат етілмеген. Жүйеге кіріп, қайтадан көріңіз.</string>
-
-    <!-- Promo Code Errors -->
-    <string name="error_promo_code_not_found">Промо код табылмады. Кодты тексеріп, қайтадан көріңіз.</string>
     <string name="error_promo_code_already_exists">Бұл промо код әлдеқашан бар.</string>
 
-    <!-- User Errors -->
     <string name="error_user_not_found">Пайдаланушы тіркелгісі табылмады.</string>
-
-    <!-- Service Errors -->
     <string name="error_service_not_found">Қызмет табылмады. Қайтадан көріңіз.</string>
-    <string name="error_service_unavailable">Қызмет уақытша қолжетімді емес.</string>
-
-    <!-- Validation Errors -->
-    <string name="error_validation_invalid_format">Жарамсыз пішім. Енгізгеніңізді тексеріңіз.</string>
-
-    <!-- System Errors -->
-
-    <!-- General Error -->
     <string name="error_unknown">Бірдеңе дұрыс болмады. Қайтадан көріңіз.</string>
-
-    <!-- Error Actions -->
+    <string name="error_retry">Қайтадан байқап көріңіз</string>
     <string name="action_retry">Қайталау</string>
+
+    <string name="error_user_display_name_too_long">Көрсетілетін атау тым ұзын.</string>
+    <string name="error_user_auth_account_conflict">Бұл деректер басқа аккаунтпен байланыстырылған.</string>
+    <string name="error_user_auth_account_disabled">Бұл аккаунт өшірілген.</string>
+    <string name="error_user_auth_configuration_error">Кіру баптауларында қате. Кейінірек көріңіз.</string>
+    <string name="error_user_auth_no_credentials">Мәліметтер жоқ. Қайта кіріңіз.</string>
+    <string name="error_user_auth_unknown">Кіру сәтсіз болды. Тағы қайталап көріңіз.</string>
+    <string name="error_user_auth_unsupported_credential">Бұл кіру әдісі қолдамайды.</string>
+
+    <string name="error_service_site_url_empty">Қызмет сайтының адресі қажет.</string>
+
+    <string name="cd_close">Жабу</string>
+    <string name="cd_first_user_only">Тек алғашқы пайдаланушыға</string>
+    <string name="cd_one_time_use">Бір рет қолдану</string>
+    <string name="cd_expiring_soon">Жақында аяқталады</string>
+    <string name="cd_verified">Тексерілді</string>
+    <string name="cd_service_logo">Қызмет логотипі</string>
+
+    <string name="error_auth_required">Кіру қажет.</string>
+    <string name="error_auth_service_unavailable">Кіру қызметі уақытша қолжетімсіз.</string>
+    <string name="error_auth_too_many_attempts">Кіру әрекеттері тым көп.</string>
+
+    <string name="error_user_data_corrupted">Профиль деректері бұзылған.</string>
+    <string name="error_user_update_failed">Профильді жаңарту сәтсіз болды.</string>
+    <string name="error_user_profile_access_denied">Профильді жаңартуға рұқсатыңыз жоқ.</string>
+
+    <string name="error_promo_code_empty">Промокод бос болмауы керек.</string>
+    <string name="error_promo_code_too_short">Промокод тым қысқа. Ең аз 2 таңба.</string>
+    <string name="error_promo_code_too_long">Промокод тым ұзын. Ең көбі 50 таңба.</string>
+    <string name="error_promo_description_too_long">Сипаттама тым ұзын. Ең көбі 1000 таңба.</string>
+    <string name="error_promo_invalid_date_range">Аяқталу күні басталу күнінен кейін болуы керек.</string>
+    <string name="error_promo_invalid_percentage" formatted="false">Жеңілдік пайызы 1%-дан 100%-ға дейін болуы керек.</string>
+    <string name="error_promo_invalid_fixed_amount">Бекітілген жеңілдік нөлден үлкен болуы тиіс.</string>
+    <string name="error_promo_invalid_minimum_amount">Минималды сома нөлден үлкен болуы керек.</string>
+    <string name="error_promo_discount_exceeds_minimum">Жеңілдік минималды сомадан артық бола алмайды.</string>
+    <string name="error_promo_invalid_id">Промокод идентификаторы қате.</string>
+
+    <string name="error_user_invalid_email">Электрондық пошта қате.</string>
+    <string name="error_user_invalid_photo_url">Профиль фотосының сілтемесі қате.</string>
+    <string name="error_user_invalid_id">Пайдаланушы идентификаторы қате.</string>
+
+    <string name="error_service_no_results">Қызметтер табылмады.</string>
+    <string name="error_service_query_too_short">Сұрау тым қысқа. Кемінде 2 таңба енгізіңіз.</string>
+    <string name="error_service_too_many_results">Нәтижелер тым көп. Сұрауды нақтылаңыз.</string>
+    <string name="error_service_invalid_query">Сұрау қате.</string>
+    <string name="error_service_data_corrupted">Қызмет деректері бұзылған.</string>
+    <string name="error_service_cache_expired">Қызмет деректері ескірген. Жаңартыңыз.</string>
+    <string name="error_service_name_empty">Қызмет атауы бос болмауы керек.</string>
+    <string name="error_service_name_too_short">Қызмет атауы кемінде 1 таңба болуы керек.</string>
+    <string name="error_service_name_too_long">Қызмет атауы тым ұзын. Ең көбі 100 таңба.</string>
+    <string name="error_service_invalid_id">Қызмет идентификаторын жасау мүмкін болмады.</string>
+    <string name="error_service_duplicate">Бұл қызмет жүйеде бар.</string>
+    <string name="error_service_submission_invalid_data">Қызмет деректері қате.</string>
+    <string name="error_service_submission_not_authorized">Қызмет қосу үшін кіріңіз.</string>
+
+    <string name="error_legal_document_not_found">Құжат табылмады.</string>
+    <string name="error_legal_document_unavailable">Құжаттар әзір қолжетімсіз.</string>
+
+    <string name="error_operation_cancelled">Операция тоқтатылды.</string>
+    <string name="error_request_timeout">Күту уақыты аяқталды.</string>
+    <string name="error_not_found">Ресурс табылмады.</string>
+    <string name="error_already_exists">Ресурс бұрыннан бар.</string>
+    <string name="error_quota_exceeded">Квота таусылды.</string>
+    <string name="error_operation_failed">Операция орындалмады.</string>
+    <string name="error_operation_aborted">Операция үзіліп қалды.</string>
+    <string name="error_not_supported">Бұл әрекет қолдамайды.</string>
+    <string name="error_data_corrupted">Деректер бұзылған.</string>
+
+    <string name="error_interaction_already_voted">Сіз бұрын дауыс бердіңіз.</string>
+    <string name="error_interaction_remove_failed">Жою сәтсіз болды.</string>
+    <string name="error_interaction_vote_not_authorized">Дауыс беру үшін кіріңіз.</string>
+    <string name="error_interaction_vote_content_not_found">Дауыс берілетін элемент табылмады.</string>
+    <string name="error_interaction_vote_save_failed">Дауыс беру сақталмады.</string>
+    <string name="error_interaction_bookmark_not_authorized">Бетбелгілеу үшін кіріңіз.</string>
+    <string name="error_interaction_bookmark_content_not_found">Элемент табылмады.</string>
+    <string name="error_interaction_bookmark_save_failed">Бетбелгіні жаңарту сәтсіз.</string>
+
+    <string name="error_post_title_empty">Тақырып қажет.</string>
+    <string name="error_post_title_too_long">Тақырып тым ұзын (ең көбі 200 таңба).</string>
+    <string name="error_post_content_empty">Мәтін қажет.</string>
+    <string name="error_post_content_too_long">Мәтін тым ұзын (ең көбі 2000 таңба).</string>
+    <string name="error_post_author_missing">Автор туралы ақпарат жоқ.</string>
+    <string name="error_post_too_many_tags">Тегтер тым көп (ең көбі 10).</string>
+    <string name="error_post_too_many_images">Суреттер тым көп (ең көбі 5).</string>
+    <string name="error_post_invalid_tag">Тег форматы дұрыс емес.</string>
+    <string name="error_post_not_found">Пост табылмады немесе өшірілген.</string>
+    <string name="error_post_no_results">Посттар табылмады.</string>
+    <string name="error_post_access_denied">Бұл постқа қолжетім жоқ.</string>
+    <string name="error_post_submission_invalid_data">Пост деректерінде қате бар.</string>
+    <string name="error_post_submission_not_authorized">Пост жариялау үшін кіріңіз.</string>
+
+    <string name="error_storage_upload_not_authenticated">Файл жүктеу үшін кіріңіз.</string>
+    <string name="error_storage_upload_quota_exceeded">Сақтау квотасы асып кеткен.</string>
+    <string name="error_storage_upload_file_too_large">Файл өте үлкен.</string>
+    <string name="error_storage_upload_invalid_file_type">Файл түрі жарамсыз.</string>
+    <string name="error_storage_upload_cancelled">Жүктеу тоқтатылды.</string>
+    <string name="error_storage_upload_corrupted_file">Файл бұзылған.</string>
+    <string name="error_storage_delete_file_not_found">Жоюға арналған файл табылмады.</string>
+    <string name="error_storage_retrieve_file_not_found">Сұралған файл табылмады.</string>
+    <string name="error_storage_compression_cannot_read">Суретті оқу мүмкін емес.</string>
+    <string name="error_storage_compression_invalid_format">Сурет форматы жарамсыз немесе қолдамайды.</string>
+    <string name="error_storage_compression_out_of_memory">Сурет өңдеуге тым үлкен.</string>
+    <string name="error_storage_compression_failed">Суретті сығу сәтсіз.</string>
+
+    <string name="error_firestore_invalid_argument">Firestore сұрауында қате деректер бар.</string>
+    <string name="error_firestore_out_of_range">Firestore сұрауы рұқсат етілген шектен тыс.</string>
+    <string name="error_firestore_permission_denied">Firestore сұрауына рұқсат жоқ.</string>
+    <string name="error_firestore_internal">Firestore ішкі қатесі.</string>
+    <string name="error_firestore_unavailable">Firestore уақытша қолжетімсіз.</string>
+
+    <string name="error_algolia_index_not_found">Іздеу индексі табылмады.</string>
+    <string name="error_algolia_insufficient_permissions">Іздеуге қол жеткізуге рұқсат жоқ.</string>
+    <string name="error_algolia_invalid_credentials">Іздеу қызметінде аутентификация қатесі.</string>
+    <string name="error_algolia_invalid_query">Іздеу сұрауы қате.</string>
+    <string name="error_algolia_network_error">Іздеу қызметіне қосылу мүмкін емес.</string>
+    <string name="error_algolia_rate_limit_exceeded">Сұраулар тым көп. Күтіңіз және қайталаңыз.</string>
+    <string name="error_algolia_request_too_large">Сұрау тым күрделі.</string>
+    <string name="error_algolia_server_error">Іздеу қызметі ақауда.</string>
+    <string name="error_algolia_service_unavailable">Іздеу қызметі уақытша қолжетімсіз.</string>
+    <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
+
+    <string name="filter_chip_service">Қызмет</string>
+    <string name="filter_chip_sort">Сұрыптау</string>
+    <string name="search_services_placeholder">Қызметтерді іздеу…</string>
+    <string name="popular_services_title">Танымал қызметтер</string>
+    <string name="no_services_found_message">Қызметтер табылмады</string>
+    <string name="action_back">Артқа</string>
+    <string name="search_error_message">Қызметтерді іздеу сәтсіз аяқталды.</string>
+    <string name="sort_popularity">Ең танымал</string>
+    <string name="sort_newest">Алдымен жаңалары</string>
+    <string name="sort_expiring_soon">Жақында аяқталатын</string>
+    <string name="sort_section_title_popularity">Танымал ұсыныстар</string>
+    <string name="sort_section_title_newest">Жаңа ұсыныстар</string>
+    <string name="sort_section_title_expiring">Жақында аяқталады</string>
+
+    <string name="auth_submit_promo_title">Промокод қосу үшін кіріңіз</string>
+    <string name="auth_submit_promo_message">Қауымдастыққа қосылып, табылған промокодтармен бөлісіңіз.</string>
+    <string name="auth_upvote_title">Ұнату үшін кіріңіз</string>
+    <string name="auth_upvote_message">Басқаларға үздігін табуға көмектесіңіз</string>
+    <string name="auth_downvote_title">Ұнатпау үшін кіріңіз</string>
+    <string name="auth_downvote_message">Қауымдастық сапасын сақтаңыз</string>
+    <string name="auth_comment_title">Пікір жазу үшін кіріңіз</string>
+    <string name="auth_comment_message">Тәжірибеңізбен және кеңестеріңізбен бөлісіңіз</string>
+    <string name="auth_bookmark_promo_title">Сақтау үшін кіріңіз</string>
+    <string name="auth_bookmark_promo_message">Промокодты жеке жинаққа қосыңыз</string>
+    <string name="auth_follow_store_title">Дүкенге жазылу үшін кіріңіз</string>
+    <string name="auth_follow_store_message">Жаңа акциялар туралы хабарламалар алыңыз</string>
+    <string name="auth_bottom_sheet_footer">Google арқылы жылдам әрі қауіпсіз кіру</string>
+    <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
+    <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
+    <string name="common_service">Қызмет</string>
+    <string name="common_promocode">Промокод</string>
+    <string name="step_service_title">Қызметті таңдаңыз</string>
+    <string name="step_service_short">Қызмет</string>
+    <string name="step_discount_type_title">Жеңілдік түрі</string>
+    <string name="step_discount_type_short">Түрі</string>
+    <string name="step_promo_code_title">Промокод</string>
+    <string name="step_promo_code_short">Код</string>
+    <string name="step_discount_value_title">Жеңілдік мөлшері</string>
+    <string name="step_discount_value_short">Мөлшері</string>
+    <string name="step_minimum_order_title">Ең төменгі тапсырыс</string>
+    <string name="step_minimum_order_short">Мин. тапсырыс</string>
+    <string name="step_eligibility_title">Қолдану шарттары</string>
+    <string name="step_eligibility_short">Шарттар</string>
+    <string name="step_description_title">Сипаттама</string>
+    <string name="step_description_short">Сипаттама</string>
+    <string name="step_start_date_title">Басталу күні</string>
+    <string name="step_start_date_short">Басталу</string>
+    <string name="step_end_date_title">Аяқталу күні</string>
+    <string name="step_end_date_short">Аяқталу</string>
+    <string name="step_service_hint">Қызметті таңдаңыз немесе енгізіңіз</string>
+    <string name="step_discount_type_hint">Пайыздық – тапсырыс сомасына қарай өседі.\nБекітілген – тапсырыс сомасына қарамай бірдей жеңілдік.</string>
+    <string name="step_promo_code_hint">Пайдаланушылар енгізетін код</string>
+    <string name="step_discount_value_hint">Бұл код қанша жеңілдік береді?</string>
+    <string name="step_minimum_order_hint">Жеңілдікке керек ең төменгі сома</string>
+    <string name="step_start_date_hint">Жеңілдік осы күні басталады</string>
+    <string name="step_end_date_hint">Жеңілдік осы күні аяқталады</string>
+    <string name="step_eligibility_hint">Кімдерге және қандай шарттармен қолданылады</string>
+    <string name="step_description_hint">Негізгі ережелер мен егжей-тегжейлер</string>
 </resources>

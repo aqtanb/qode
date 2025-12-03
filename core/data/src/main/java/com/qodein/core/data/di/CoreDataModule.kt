@@ -78,12 +78,12 @@ val coreDataModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
-    single<PromocodeRepository> { PromocodeRepositoryImpl(get(), get()) }
+    single<PromocodeRepository> { PromocodeRepositoryImpl(get()) }
     single<ServiceRepository> { ServiceRepositoryImpl(get()) }
     single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(androidContext(), get()) }
     single<BannerRepository> { BannerRepositoryImpl(get()) }
     single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get(), get()) }
-    single<PostRepository> { PostRepositoryImpl(get(), get()) }
+    single<PostRepository> { PostRepositoryImpl(get()) }
     single<StorageRepository> { StorageRepositoryImpl(get()) }
 
     single<ServiceSelectionManager> { ServiceSelectionManagerImpl() }

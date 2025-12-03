@@ -6,7 +6,6 @@ import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,9 +28,11 @@ import javax.inject.Inject
  * Following enterprise patterns with proper separation of concerns.
  */
 @HiltViewModel
-class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase, getThemeUseCase: GetThemeUseCase) : ViewModel() {
-    val authState: StateFlow<AuthState> = getAuthStateUseCase()
+class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
+    private val authStateFlow = getAuthStateUseCase()
         .catch { emit(AuthState.Unauthenticated) }
+
+    val authState: StateFlow<AuthState> = authStateFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

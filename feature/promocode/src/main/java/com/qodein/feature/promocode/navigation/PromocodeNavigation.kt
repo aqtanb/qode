@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.qodein.feature.promocode.detail.PromocodeDetailScreen
+import com.qodein.feature.promocode.detail.PromocodeDetailRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromocodeId
 import kotlinx.serialization.Serializable
@@ -33,15 +33,9 @@ fun NavGraphBuilder.promocodeSubmissionSection(onNavigateBack: () -> Unit) {
 fun NavGraphBuilder.promocodeDetailSection(onNavigateBack: () -> Unit) {
     composable<PromocodeDetailRoute> { backStackEntry ->
         val args = backStackEntry.toRoute<PromocodeDetailRoute>()
-        PromocodeDetailScreen(
+        PromocodeDetailRoute(
             promoCodeId = PromocodeId(args.promoCodeId),
             onNavigateBack = onNavigateBack,
-            onNavigateToComments = { promoCodeId ->
-                // TODO: Navigate to comments
-            },
-            onNavigateToService = { serviceName ->
-                // TODO: Navigate to service
-            },
         )
     }
 }

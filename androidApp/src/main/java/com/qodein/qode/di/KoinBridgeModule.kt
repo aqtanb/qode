@@ -22,6 +22,7 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -122,6 +123,13 @@ object KoinBridgeModule : KoinComponent {
     @Singleton
     fun provideGetUserByIdUseCase(): GetUserByIdUseCase {
         val useCase: GetUserByIdUseCase by inject()
+        return useCase
+    }
+
+    @Provides
+    @Singleton
+    fun provideObserveUserUseCase(): ObserveUserUseCase {
+        val useCase: ObserveUserUseCase by inject()
         return useCase
     }
 

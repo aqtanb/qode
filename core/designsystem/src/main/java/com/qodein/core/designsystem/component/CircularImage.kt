@@ -51,55 +51,48 @@ fun CircularImage(
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     contentDescription: String? = null
 ) {
-    val density = LocalDensity.current
-    val pixelSize = with(density) { (size * 2).roundToPx() } // 2x for crisp quality
+    val sizedModifier = modifier.size(size)
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size(size),
-    ) {
-        if (imageUrl != null) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .size(pixelSize) // Dynamic size based on actual display size
-                    .crossfade(true)
-                    .allowHardware(false)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .build(),
-                contentDescription = contentDescription,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                error = {
-                    CircularImageFallback(
-                        fallbackText = fallbackText,
-                        fallbackIcon = fallbackIcon,
-                        size = size,
-                        backgroundColor = backgroundColor,
-                        contentColor = contentColor,
-                        contentDescription = contentDescription,
-                    )
-                },
-                loading = {
-                    CircularImageLoading(
-                        size = size,
-                        backgroundColor = backgroundColor,
-                    )
-                },
-            )
-        } else {
-            CircularImageFallback(
-                fallbackText = fallbackText,
-                fallbackIcon = fallbackIcon,
-                size = size,
-                backgroundColor = backgroundColor,
-                contentColor = contentColor,
-                contentDescription = contentDescription,
-            )
-        }
+    if (imageUrl != null) {
+        SubcomposeAsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .crossfade(true)
+                .allowHardware(false)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .build(),
+            contentDescription = contentDescription,
+            modifier = sizedModifier
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+            error = {
+                CircularImageFallback(
+                    fallbackText = fallbackText,
+                    fallbackIcon = fallbackIcon,
+                    size = size,
+                    backgroundColor = backgroundColor,
+                    contentColor = contentColor,
+                    contentDescription = contentDescription,
+                )
+            },
+            loading = {
+                CircularImageLoading(
+                    size = size,
+                    backgroundColor = backgroundColor,
+                )
+            },
+        )
+    } else {
+        CircularImageFallback(
+            fallbackText = fallbackText,
+            fallbackIcon = fallbackIcon,
+            size = size,
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            contentDescription = contentDescription,
+            modifier = sizedModifier,
+        )
     }
 }
 
@@ -138,7 +131,6 @@ private fun CircularImageFallback(
                     imageVector = fallbackIcon,
                     contentDescription = contentDescription,
                     tint = contentColor,
-                    modifier = Modifier.size(size * 0.6f),
                 )
             }
         }

@@ -4,6 +4,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
 
@@ -131,7 +132,7 @@ object SizeTokens {
     @Immutable
     object Selector {
         val height = 64.dp
-        val padding = SpacingTokens.lg
+        val padding = PaddingValues(horizontal = SpacingTokens.lg, vertical = SpacingTokens.xs)
         val shape = ShapeTokens.Corner.full
     }
 }
@@ -193,9 +194,11 @@ object MotionTokens {
  */
 @Immutable
 object OpacityTokens {
-    // Disabled states
     const val DISABLED = 0.38f
     const val DISABLED_CONTAINER = 0.12f
+
+    const val PLACEHOLDER = 0.54f
+    const val HAZE_BACKGROUND = 0.5f
 
     // Interactive states
     const val HOVER = 0.08f

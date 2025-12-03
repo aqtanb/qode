@@ -55,6 +55,7 @@ import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.state.UiAuthState
+import com.qodein.core.ui.state.shouldShowAuthSheet
 import com.qodein.feature.post.R
 import com.qodein.feature.post.component.FullScreenImageViewer
 import com.qodein.feature.post.component.PostImage
@@ -186,9 +187,9 @@ fun PostSubmissionScreen(
                         LoadingState()
                     }
                     is PostSubmissionUiState.Success -> {
-                        val showAuthenticationSheet = currentState.authentication !is UiAuthState.Authenticated
+                        val showAuthenticationSheet = currentState.authentication.shouldShowAuthSheet()
                         if (showAuthenticationSheet) {
-                            val isSigningIn = currentState.authentication is UiAuthState.Loading
+                            val isSigningIn = currentState.authentication is UiAuthState.SigningIn
                             AuthenticationBottomSheet(
                                 authPromptAction = AuthPromptAction.CreatePost,
                                 onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle(context)) },

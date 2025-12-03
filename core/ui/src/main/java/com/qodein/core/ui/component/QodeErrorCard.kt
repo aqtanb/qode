@@ -65,7 +65,7 @@ fun QodeErrorCard(
                 Text(
                     text = error.asUiText(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                 )
 
@@ -76,6 +76,8 @@ fun QodeErrorCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = SpacingTokens.sm),
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
                     )
                 }
             }

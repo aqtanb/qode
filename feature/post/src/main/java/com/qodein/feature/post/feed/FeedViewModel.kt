@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
+import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +18,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUseCase) : ViewModel() {
+class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUseCase, private val getUserByIdUseCase: GetUserByIdUseCase) :
+    ViewModel() {
     private val _uiState: MutableStateFlow<FeedUiState> = MutableStateFlow(FeedUiState.Loading)
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
+
+    private val _user: MutableStateFlow<User?> = MutableStateFlow(null)
+    val user: StateFlow<User?> = _user.asStateFlow()
 
     private val _events: MutableSharedFlow<FeedEvent> = MutableSharedFlow()
     val events: SharedFlow<FeedEvent> = _events.asSharedFlow()
@@ -34,6 +41,19 @@ class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUse
 
     init {
         loadPosts()
+    }
+
+    fun setUserId(userId: UserId?) {
+        if (userId == null) {
+            _user.value = null
+            return
+        }
+        viewModelScope.launch {
+            when (val result = getUserByIdUseCase(userId.value)) {
+                is Result.Success -> _user.value = result.data
+                is Result.Error -> _user.value = null
+            }
+        }
     }
 
     private fun loadPosts() {

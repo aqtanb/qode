@@ -33,6 +33,7 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun WizardController(
@@ -44,8 +45,7 @@ fun WizardController(
     isLoading: Boolean = false,
     nextButtonText: String = stringResource(R.string.action_continue),
     canSubmit: Boolean = false,
-    onSubmit: (() -> Unit)? = null,
-    showSubmitAlongside: Boolean = false
+    onSubmit: (() -> Unit)? = null
 ) {
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     val imePadding = WindowInsets.ime.asPaddingValues()
@@ -57,10 +57,6 @@ fun WizardController(
         SpacingTokens.xl + navigationBarsPadding.calculateBottomPadding() // Normal floating when keyboard is closed
     }
 
-    // Calculate if we need a wider surface for 3 buttons
-    val show3Buttons = showSubmitAlongside && canSubmit && onSubmit != null
-    val surfaceWidth = if (show3Buttons) SizeTokens.Controller.pillWidth * 1.5f else SizeTokens.Controller.pillWidth
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -70,7 +66,7 @@ fun WizardController(
     ) {
         Surface(
             modifier = Modifier
-                .width(surfaceWidth)
+                .width(SizeTokens.Controller.pillWidth)
                 .height(SizeTokens.Controller.pillHeight)
                 .clip(RoundedCornerShape(ShapeTokens.Corner.full)),
             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -87,7 +83,7 @@ fun WizardController(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Back button
+                // MARK: - Back button
                 IconButton(
                     onClick = onPrevious,
                     enabled = canGoBack,
@@ -101,104 +97,52 @@ fun WizardController(
                 ) {
                     Icon(
                         imageVector = QodeActionIcons.Previous,
-                        contentDescription = stringResource(R.string.action_back),
+                        contentDescription = stringResource(CoreUiR.string.action_back),
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     )
                 }
 
-                // Determine layout: 3 buttons when all conditions met, otherwise 2 buttons
-                val show3Buttons = showSubmitAlongside && canSubmit && onSubmit != null
-
-                if (!show3Buttons) {
-                    // 2-button layout: Back + Next/Submit
-                    IconButton(
-                        onClick = if (canGoNext) {
-                            onNext
-                        } else if (canSubmit && onSubmit != null) {
-                            onSubmit
-                        } else {
-                            onNext
-                        },
-                        enabled = (canGoNext || (canSubmit && onSubmit != null)) && !isLoading,
-                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(2f),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        } else {
-                            Icon(
-                                imageVector = if (canGoNext) {
-                                    QodeActionIcons.Next
-                                } else if (canSubmit && onSubmit != null) {
-                                    QodeActionIcons.Check
-                                } else {
-                                    QodeActionIcons.Next
-                                },
-                                contentDescription = if (canGoNext) {
-                                    nextButtonText
-                                } else if (canSubmit && onSubmit != null) {
-                                    stringResource(R.string.action_submit)
-                                } else {
-                                    nextButtonText
-                                },
-                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                            )
-                        }
-                    }
-                } else {
-                    // 3-button layout: Next + Submit
-                    IconButton(
-                        onClick = onNext,
-                        enabled = canGoNext && !isLoading,
-                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(1f),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    ) {
+                IconButton(
+                    onClick = if (canGoNext) {
+                        onNext
+                    } else if (canSubmit && onSubmit != null) {
+                        onSubmit
+                    } else {
+                        onNext
+                    },
+                    enabled = (canGoNext || (canSubmit && onSubmit != null)) && !isLoading,
+                    modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(2f),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    } else {
                         Icon(
-                            imageVector = QodeActionIcons.Next,
-                            contentDescription = nextButtonText,
+                            imageVector = if (canGoNext) {
+                                QodeActionIcons.Next
+                            } else if (canSubmit && onSubmit != null) {
+                                QodeActionIcons.Check
+                            } else {
+                                QodeActionIcons.Next
+                            },
+                            contentDescription = if (canGoNext) {
+                                nextButtonText
+                            } else if (canSubmit && onSubmit != null) {
+                                stringResource(R.string.action_submit)
+                            } else {
+                                nextButtonText
+                            },
                             modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         )
-                    }
-
-                    // Submit button
-                    IconButton(
-                        onClick = onSubmit,
-                        enabled = canSubmit && !isLoading,
-                        modifier = Modifier.size(SizeTokens.IconButton.sizeLarge).weight(1f),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        } else {
-                            Icon(
-                                imageVector = QodeActionIcons.Check,
-                                contentDescription = stringResource(R.string.action_submit),
-                                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                            )
-                        }
                     }
                 }
             }
@@ -275,7 +219,6 @@ private fun WizardController3ButtonsPreview() {
             onPrevious = {},
             canSubmit = true,
             onSubmit = {},
-            showSubmitAlongside = true,
         )
     }
 }

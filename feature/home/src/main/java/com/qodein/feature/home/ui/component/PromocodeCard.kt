@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,8 +55,8 @@ import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeEssentialIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.shape.CouponShape
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
@@ -64,14 +65,16 @@ import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
-import com.qodein.feature.home.R
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import com.qodein.core.ui.R as CoreUiR
+import com.qodein.feature.home.R as HomeR
 
 private object CouponTokens {
     val cardHeight = 140.dp
@@ -101,11 +104,9 @@ fun PromocodeCard(
     )
 
     val discountText = when (val discount = promocode.discount) {
-        is Discount.Percentage -> "${discount.value.toInt()} %"
-        is Discount.FixedAmount -> "${discount.value.toInt()} ₸"
+        is Discount.Percentage -> "${formatNumber(discount.value)} %"
+        is Discount.FixedAmount -> "${formatNumber(discount.value)} ₸"
     }
-
-    val stubColor = MaterialTheme.colorScheme.primaryContainer
 
     // Create custom coupon shape with actual cuts
     val density = LocalDensity.current
@@ -160,11 +161,11 @@ fun PromocodeCard(
 
                     // Clean promo code section (no ugly background)
                     PromoCodeRow(
-                        code = promocode.code,
+                        code = promocode.code.value,
                         onCopyClick = {
                             // Copy to clipboard using coroutine
                             coroutineScope.launch {
-                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("promo_code", promocode.code)))
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("promo_code", promocode.code.value)))
                             }
                             // Call the provided callback
                             onCopyCodeClick()
@@ -176,15 +177,7 @@ fun PromocodeCard(
                     modifier = Modifier
                         .width(CouponTokens.stubWidth)
                         .fillMaxHeight()
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 0.dp,
-                                bottomStart = 0.dp,
-                                topEnd = ShapeTokens.Corner.large,
-                                bottomEnd = ShapeTokens.Corner.large,
-                            ),
-                        )
-                        .background(color = stubColor),
+                        .background(MaterialTheme.colorScheme.tertiaryContainer),
                 ) {
                     StubContent(
                         createdAt = promocode.createdAt,
@@ -214,18 +207,16 @@ private fun CouponHeader(
     ) {
         CircularImage(
             imageUrl = promocode.serviceLogoUrl,
-            fallbackIcon = QodeEssentialIcons.Store,
-            contentDescription = stringResource(R.string.cd_service_logo),
+            fallbackIcon = QodeIcons.Store,
+            contentDescription = stringResource(CoreUiR.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
-            modifier = Modifier
-                .alignByBaseline(),
+            modifier = Modifier.clip(CircleShape),
         )
 
         Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
         Text(
             text = promocode.serviceName,
-            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
@@ -243,8 +234,8 @@ private fun CouponHeader(
         ) {
             if (promocode.isFirstUseOnly) {
                 Icon(
-                    imageVector = PromocodeIcons.FirstUseOnly,
-                    contentDescription = stringResource(R.string.cd_first_user_only),
+                    imageVector = PromocodeIcons.NewUserOnly,
+                    contentDescription = stringResource(CoreUiR.string.cd_first_user_only),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -253,7 +244,7 @@ private fun CouponHeader(
             if (promocode.isOneTimeUseOnly) {
                 Icon(
                     imageVector = PromocodeIcons.OneTimeUse,
-                    contentDescription = stringResource(R.string.cd_one_time_use),
+                    contentDescription = stringResource(CoreUiR.string.cd_one_time_use),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -262,8 +253,8 @@ private fun CouponHeader(
             val isExpiringSoon = promocode.endDate < now.plus(3.days)
             if (isExpiringSoon) {
                 Icon(
-                    imageVector = QodeUIIcons.Expiring,
-                    contentDescription = stringResource(R.string.cd_expiring_soon),
+                    imageVector = UIIcons.Expiring,
+                    contentDescription = stringResource(CoreUiR.string.cd_expiring_soon),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -272,7 +263,7 @@ private fun CouponHeader(
             if (promocode.isVerified) {
                 Icon(
                     imageVector = PromocodeIcons.Verified,
-                    contentDescription = stringResource(R.string.cd_verified),
+                    contentDescription = stringResource(CoreUiR.string.cd_verified),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -296,7 +287,7 @@ private fun PromoCodeRow(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = stringResource(R.string.promocode_label),
+                text = stringResource(HomeR.string.promocode_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 1.sp,
@@ -317,7 +308,7 @@ private fun PromoCodeRow(
         QodeinOutlinedIconButton(
             onClick = onCopyClick,
             icon = QodeActionIcons.Copy,
-            contentDescription = stringResource(R.string.copy_code),
+            contentDescription = stringResource(CoreUiR.string.copy_code),
             size = ButtonSize.Small,
         )
     }
@@ -340,7 +331,7 @@ private fun StubContent(
             text = if (netRating > 0) "+$netRating" else "$netRating",
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier.align(Alignment.TopCenter),
@@ -350,7 +341,7 @@ private fun StubContent(
             text = discountText,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Black,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.Center),
         )
@@ -360,7 +351,7 @@ private fun StubContent(
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
@@ -448,7 +439,7 @@ fun PromocodeCardSkeleton(modifier: Modifier = Modifier) {
                                 bottomEnd = ShapeTokens.Corner.large,
                             ),
                         )
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.tertiaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(

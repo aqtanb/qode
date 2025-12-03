@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogout
+import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
-import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val observeUserUseCase: ObserveUserUseCase,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val analyticsHelper: AnalyticsHelper
@@ -54,7 +55,13 @@ class ProfileViewModel @Inject constructor(
                 .collectLatest { authState ->
                     when (authState) {
                         is AuthState.Authenticated -> {
-                            _uiState.value = ProfileUiState.Success(authState.user)
+                            observeUserUseCase(authState.userId.value)
+                                .collectLatest { userResult ->
+                                    when (userResult) {
+                                        is Result.Success -> _uiState.value = ProfileUiState.Success(userResult.data)
+                                        is Result.Error -> _uiState.value = ProfileUiState.Error(userResult.error)
+                                    }
+                                }
                         }
 
                         AuthState.Unauthenticated -> {

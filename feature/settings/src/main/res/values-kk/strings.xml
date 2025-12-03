@@ -1,16 +1,20 @@
 <resources>
-    <!-- Settings Screen -->
     <string name="settings_title">Параметрлер</string>
-    
-    <!-- Theme Settings -->
     <string name="settings_theme_title">Тақырып</string>
     <string name="theme_system">Жүйелік</string>
     <string name="theme_light">Жарық</string>
     <string name="theme_dark">Қараңғы</string>
-    
-    <!-- Language Settings -->
     <string name="settings_language_title">Тіл</string>
     <string name="language_english">Ағылшын</string>
     <string name="language_russian">Орыс</string>
     <string name="language_kazakh">Қазақ</string>
+    <string name="settings_notifications_title">Хабарламалар</string>
+    <string name="settings_source_code_title">Код көздері</string>
+    <string name="settings_open_source_licences_title">Open source лицензиялары</string>
+    <string name="settings_about_title">Қосымша туралы</string>
+    <string name="settings_feedback_title">Кері байланыс</string>
+    <string name="about_app_name" translatable="false">Qode</string>
+    <string name="about_version">Нұсқа %s</string>
+    <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
+    <string name="about_join_telegram">Қауымдастыққа қосылыңыз</string>
 </resources>

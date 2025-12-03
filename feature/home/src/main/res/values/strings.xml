@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_home_title">Home</string>
-
-    <string name="error_retry">Try again</string>
     <string name="error_image_not_available">Image not available</string>
-
     <string name="banner_loading_title">Loading deals</string>
     <string name="banner_loading_description">Getting the best offers for you…</string>
     <string name="banner_empty_title">No active banners</string>
     <string name="banner_empty_description">Your ad could go here :)</string>
     <string name="banner_error_title">Failed to load the banners</string>
-
     <string name="promocode_label">PROMOCODE</string>
-    <string name="copy_code">Copy code</string>
-    <string name="promocodes_loading_title">Loading Promo Codes</string>
-    <string name="promocodes_loading_description">Finding the best deals for you…</string>
-    <string name="empty_no_promo_codes">No promo codes available</string>
-    <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>
-
-    <string name="filter_chip_category">Category</string>
-    <string name="filter_chip_service">Service</string>
-    <string name="filter_chip_sort">Sort</string>
-    <string name="filter_category_all">All Categories</string>
+    <string name="empty_no_promo_codes">No promocodes available</string>
+    <string name="empty_check_back_later">Check back later for amazing deals!</string>
     <string name="filter_chip_reset">Reset</string>
-
-    <string name="cd_first_user_only">First user only</string>
-    <string name="cd_one_time_use">One time use</string>
-    <string name="cd_expiring_soon">Expiring soon</string>
-    <string name="cd_verified">Verified</string>
-    <string name="cd_service_logo">Service logo</string>
 </resources>

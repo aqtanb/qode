@@ -23,6 +23,7 @@ import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import com.qodein.shared.domain.usecase.user.ResolveUserUseCase
 import org.koin.dsl.module
 
@@ -36,6 +37,7 @@ val domainModule = module {
 
     single { ResolveUserUseCase(get()) }
     single { GetUserByIdUseCase(get()) }
+    single { ObserveUserUseCase(get()) }
 
     single { GetBannersUseCase(get()) }
     single { GetPromocodesUseCase(get()) }

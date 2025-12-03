@@ -13,7 +13,7 @@ import kotlin.time.toKotlinInstant
  * Mapper between UserInteraction domain model and UserInteractionDto data model.
  * Handles conversion between Kotlin types and Firestore-compatible types.
  */
-class UserInteractionMapper constructor() {
+class UserInteractionMapper {
 
     /**
      * Convert domain model to DTO for Firestore storage
@@ -51,22 +51,7 @@ class UserInteractionMapper constructor() {
         }
 
     /**
-     * Convert list of DTOs to domain models, filtering out malformed data
-     */
-    fun fromDtos(dtos: List<UserInteractionDto>): List<UserInteraction> = dtos.mapNotNull { fromDto(it) }
-
-    /**
-     * Convert list of domain models to DTOs
-     */
-    fun toDtos(userInteractions: List<UserInteraction>): List<UserInteractionDto> = userInteractions.map { toDto(it) }
-
-    /**
      * Extension function to convert Instant to Firebase Timestamp
      */
     private fun Instant.toTimestamp(): Timestamp = Timestamp(epochSeconds, nanosecondsOfSecond.toInt())
-
-    /**
-     * Extension function to convert Firebase Timestamp to Instant
-     */
-    private fun Timestamp.toInstant(): Instant = Instant.fromEpochSeconds(seconds, nanoseconds.toLong())
 }

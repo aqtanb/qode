@@ -149,9 +149,9 @@ class PostDetailViewModel @Inject constructor(
             getAuthStateUseCase().collectLatest { authState ->
                 when (authState) {
                     is AuthState.Authenticated -> {
-                        _uiState.update { it.copy(userId = authState.user.id) }
+                        _uiState.update { it.copy(userId = authState.userId) }
                         loadUserInteractions(
-                            userId = authState.user.id,
+                            userId = authState.userId,
                             itemId = args.postId,
                         )
                     }

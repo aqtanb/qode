@@ -33,23 +33,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeCalendarIcons
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
-import com.qodein.feature.promocode.submission.PromocodeSubmissionStep
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.hintRes
-import com.qodein.feature.promocode.submission.titleRes
+import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.hintRes
+import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
-fun SubmissionStepCard(
+fun PromocodeSubmissionCard(
     currentStep: PromocodeSubmissionStep,
     wizardData: SubmissionWizardData,
+    validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -73,7 +76,6 @@ fun SubmissionStepCard(
                 .fillMaxWidth()
                 .padding(SpacingTokens.xl),
         ) {
-            // Clean header with proper title
             StepHeader(
                 step = currentStep,
                 isHintExpanded = isHintExpanded,
@@ -109,9 +111,10 @@ fun SubmissionStepCard(
                 },
                 label = "stepContent",
             ) { step ->
-                SubmissionWizardStepContent(
+                PromocodeSubmissionCardContent(
                     currentStep = step,
                     wizardData = wizardData,
+                    validation = validation,
                     onAction = onAction,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -134,7 +137,6 @@ private fun StepHeader(
     ) {
         Text(
             text = stringResource(step.titleRes),
-            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .weight(1f)
@@ -147,11 +149,17 @@ private fun StepHeader(
         ) {
             Icon(
                 imageVector = if (isHintExpanded) {
-                    QodeUIIcons.HintFilled
+                    UIIcons.HintFilled
                 } else {
-                    QodeUIIcons.Hint
+                    UIIcons.Hint
                 },
-                contentDescription = "Toggle helpful tips",
+                contentDescription = stringResource(
+                    if (isHintExpanded) {
+                        R.string.promocode_submission_hide_tips
+                    } else {
+                        R.string.promocode_submission_show_tips
+                    },
+                ),
                 tint = if (isHintExpanded) {
                     MaterialTheme.colorScheme.tertiary
                 } else {
@@ -167,7 +175,6 @@ private fun HintCard(
     step: PromocodeSubmissionStep,
     modifier: Modifier = Modifier
 ) {
-    // Using your beautiful StepWithInstructions pattern
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(ShapeTokens.Corner.large),
@@ -198,26 +205,14 @@ private fun HintCard(
     }
 }
 
-@Preview(name = "Floating Step Card - Service", showBackground = true)
+@ThemePreviews
 @Composable
-private fun FloatingStepCardServicePreview() {
+private fun PromocodeSubmissionCardPreview() {
     QodeTheme {
-        SubmissionStepCard(
+        PromocodeSubmissionCard(
             currentStep = PromocodeSubmissionStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            onAction = {},
-            modifier = Modifier.padding(SpacingTokens.md),
-        )
-    }
-}
-
-@Preview(name = "Floating Step Card - Promo Code", showBackground = true)
-@Composable
-private fun FloatingStepCardPromoCodePreview() {
-    QodeTheme {
-        SubmissionStepCard(
-            currentStep = PromocodeSubmissionStep.PROMO_CODE,
-            wizardData = SubmissionWizardData(),
+            validation = ValidationState.valid(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
         )

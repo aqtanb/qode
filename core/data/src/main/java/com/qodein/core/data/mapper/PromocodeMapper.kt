@@ -15,9 +15,10 @@ import kotlin.time.toKotlinInstant
 object PromocodeMapper {
 
     fun toDomain(dto: PromocodeDto): Promocode {
-        val discount = when (dto.discount) {
-            is DiscountDto.Percentage -> Discount.Percentage(dto.discount.value)
-            is DiscountDto.FixedAmount -> Discount.FixedAmount(dto.discount.value)
+        val discount = when (dto.discount.type) {
+            DiscountDto.TYPE_FIXED_AMOUNT -> Discount.FixedAmount(dto.discount.value ?: 0.0)
+            DiscountDto.TYPE_PERCENTAGE -> Discount.Percentage(dto.discount.value ?: 0.0)
+            else -> Discount.Percentage(dto.discount.value ?: 0.0) // default to percentage on unknown
         }
 
         return Promocode.fromDto(
@@ -45,13 +46,13 @@ object PromocodeMapper {
 
     fun toDto(domain: Promocode): PromocodeDto {
         val discountDto = when (domain.discount) {
-            is Discount.Percentage -> DiscountDto.Percentage(domain.discount.value)
-            is Discount.FixedAmount -> DiscountDto.FixedAmount(domain.discount.value)
+            is Discount.Percentage -> DiscountDto(type = DiscountDto.TYPE_PERCENTAGE, value = domain.discount.value)
+            is Discount.FixedAmount -> DiscountDto(type = DiscountDto.TYPE_FIXED_AMOUNT, value = domain.discount.value)
         }
 
         return PromocodeDto(
             documentId = domain.id.value,
-            code = domain.code,
+            code = domain.code.value,
             startDate = Timestamp(domain.startDate.toJavaInstant()),
             endDate = Timestamp(domain.endDate.toJavaInstant()),
             serviceName = domain.serviceName,

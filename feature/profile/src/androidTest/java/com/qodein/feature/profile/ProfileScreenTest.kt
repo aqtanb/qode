@@ -18,7 +18,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.testing.data.TestUsers
 import com.qodein.core.ui.component.QodeRetryableErrorCard
 import com.qodein.feature.profile.component.StatsSection
 import org.junit.Rule

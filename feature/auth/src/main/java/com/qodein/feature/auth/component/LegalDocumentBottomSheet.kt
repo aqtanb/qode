@@ -25,17 +25,17 @@ import com.mikepenz.markdown.m3.Markdown
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.ShimmerLine
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.auth.LegalDocumentUiState
-import com.qodein.feature.auth.R
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.DocumentType
 import com.qodein.shared.model.LegalDocument
+import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,7 +152,7 @@ private fun LegalDocumentError(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         Icon(
-            imageVector = QodeUIIcons.Error,
+            imageVector = UIIcons.Error,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
@@ -166,7 +166,7 @@ private fun LegalDocumentError(
         )
 
         QodeButton(
-            text = stringResource(R.string.action_retry),
+            text = stringResource(CoreUiR.string.action_retry),
             onClick = onRetry,
             modifier = Modifier.fillMaxWidth(),
         )

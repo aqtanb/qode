@@ -4,6 +4,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.Diversity1
+import androidx.compose.material.icons.filled.EmojiObjects
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.Filter2
@@ -15,18 +17,26 @@ import androidx.compose.material.icons.filled.Filter7
 import androidx.compose.material.icons.filled.Filter8
 import androidx.compose.material.icons.filled.Filter9
 import androidx.compose.material.icons.filled.Filter9Plus
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkAdd
-import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Diversity1
+import androidx.compose.material.icons.outlined.EmojiObjects
+import androidx.compose.material.icons.outlined.EmojiSymbols
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LooksOne
+import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material.icons.outlined.Radio
+import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material.icons.outlined.Verified
@@ -79,10 +89,8 @@ import compose.icons.simpleicons.Telegram
 import compose.icons.simpleicons.Twitter
 import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.CurrencyDollar
-import compose.icons.tablericons.Discount2
 import compose.icons.tablericons.Language
 import compose.icons.tablericons.Seeding
-import compose.icons.tablericons.Tag
 import compose.icons.tablericons.Ticket
 
 object QodeinIcons {
@@ -96,22 +104,30 @@ object QodeinIcons {
 object PromocodeIcons {
     val Verified: ImageVector = Icons.Outlined.Verified
     val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
-    val FirstUseOnly: ImageVector = TablerIcons.Seeding
+    val NewUserOnly: ImageVector = TablerIcons.Seeding
+    val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
+    val DiscountValue: ImageVector = Icons.Outlined.Sell
+    val MinimumOrder: ImageVector = Icons.Outlined.Money
+    val StartDate: ImageVector = Icons.Outlined.CalendarToday
+    val EndDate: ImageVector = Icons.Outlined.EventBusy
+    val Rules: ImageVector = Icons.Outlined.Radio
+    val Description: ImageVector = Icons.Outlined.Description
+    val Percentage: ImageVector = FeatherIcons.Percent
+    val FixedAmount: ImageVector = FeatherIcons.DollarSign
 }
 
-object QodeEssentialIcons {
-    val PromoCode: ImageVector = TablerIcons.Tag
-    val Discount: ImageVector = TablerIcons.Discount2
+object QodeIcons {
+    val Feed: ImageVector = Icons.Outlined.Diversity1
+    val FeedFilled: ImageVector = Icons.Filled.Diversity1
+    val Home: ImageVector = Icons.Outlined.Home
+    val HomeFilled: ImageVector = Icons.Filled.Home
     val Sale: ImageVector = FeatherIcons.Percent
-    val Coupon: ImageVector = TablerIcons.Ticket
+    val Promocode: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
-    val Cost: ImageVector = FeatherIcons.DollarSign
     val Store: ImageVector = Icons.Outlined.Store
-    val StoreFilled: ImageVector = Icons.Filled.Store
 }
 
 object QodeCategoryIcons {
-    val Home: ImageVector = FeatherIcons.Home
     val Language: ImageVector = TablerIcons.Language
     val Certification: ImageVector = TablerIcons.Certificate
     val Tech: ImageVector = FeatherIcons.Code
@@ -175,13 +191,15 @@ object QodeSocialIcons {
     val Telegram: ImageVector = SimpleIcons.Telegram
 }
 
-object QodeUIIcons {
+object UIIcons {
+    val AccountCircle: ImageVector = Icons.Outlined.AccountCircle
+
     val Popular: ImageVector = Icons.Filled.Diamond
     val Newest: ImageVector = Icons.Filled.FiberNew
     val Expiring: ImageVector = Icons.Filled.Timelapse
 
-    val Hint: ImageVector = Icons.Outlined.Lightbulb
-    val HintFilled: ImageVector = Icons.Filled.Lightbulb
+    val Hint: ImageVector = Icons.Outlined.EmojiObjects
+    val HintFilled: ImageVector = Icons.Filled.EmojiObjects
 
     val Empty: ImageVector = FeatherIcons.Coffee
     val Error: ImageVector = FeatherIcons.AlertCircle

@@ -211,7 +211,7 @@ private fun TagSelectorContent(
                     verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
                 ) {
                     Text(
-                        text = stringResource(R.string.selected) + " (${selectedTags.size}/${Tag.MAX_TAGS_SELECTED})",
+                        text = stringResource(R.string.selected_tags_label) + " (${selectedTags.size}/${Tag.MAX_TAGS_SELECTED})",
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),

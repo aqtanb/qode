@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.icon.QodeUIIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -30,6 +30,7 @@ import com.qodein.feature.home.R
 import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun PromocodeSectionHeader(
@@ -70,7 +71,7 @@ fun PromocodeSectionErrorState(
 ) {
     StateContainer(modifier = modifier) {
         Icon(
-            imageVector = QodeUIIcons.Error,
+            imageVector = UIIcons.Error,
             contentDescription = null,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             tint = MaterialTheme.colorScheme.error,
@@ -86,7 +87,7 @@ fun PromocodeSectionErrorState(
 
         QodeButton(
             onClick = onRetry,
-            text = stringResource(R.string.error_retry),
+            text = stringResource(CoreUiR.string.error_retry),
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
         )
@@ -97,7 +98,7 @@ fun PromocodeSectionErrorState(
 fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
     StateContainer(modifier = modifier) {
         Icon(
-            imageVector = QodeUIIcons.Empty,
+            imageVector = UIIcons.Empty,
             contentDescription = null,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,

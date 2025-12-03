@@ -3,7 +3,6 @@ package com.qodein.core.data.repository
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
-import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.dto.PromocodeDto
 import com.qodein.core.data.mapper.PromocodeMapper
 import com.qodein.core.data.util.ErrorMapper
@@ -21,35 +20,27 @@ import com.qodein.shared.model.PromocodeId
 import timber.log.Timber
 import java.io.IOException
 
-class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSource, private val userDataSource: FirestoreUserDataSource) :
-    PromocodeRepository {
+class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSource) : PromocodeRepository {
     override suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError> =
         try {
-            Timber.i("Creating promocode: %s", promocode.code)
+            Timber.i("Creating promocode: %s", promocode.code.value)
 
             val dto = PromocodeMapper.toDto(promocode)
             dataSource.createPromocode(dto)
 
             Timber.i("Successfully created promocode: %s", promocode.id.value)
 
-            try {
-                userDataSource.incrementPromocodeCount(promocode.authorId.value)
-                Timber.d("Incremented promocode count for user: %s", promocode.authorId.value)
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to increment promocode count: %s", e.message)
-            }
-
             Result.Success(Unit)
         } catch (e: FirebaseFirestoreException) {
             Result.Error(ErrorMapper.mapFirestoreException(e))
         } catch (e: SecurityException) {
-            Timber.e(e, "Security error creating promocode: %s", promocode.code)
+            Timber.e(e, "Security error creating promocode: %s", promocode.code.value)
             Result.Error(FirestoreError.PermissionDenied)
         } catch (e: IllegalArgumentException) {
-            Timber.e(e, "Invalid data creating promocode: %s", promocode.code)
+            Timber.e(e, "Invalid data creating promocode: %s", promocode.code.value)
             Result.Error(FirestoreError.InvalidArgument)
         } catch (e: IOException) {
-            Timber.e(e, "Network error creating promocode: %s", promocode.code)
+            Timber.e(e, "Network error creating promocode: %s", promocode.code.value)
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
             Timber.e(e, "Unknown error creating promocode: %s", e::class.simpleName)
