@@ -46,7 +46,6 @@
     <!-- Share Template -->
 
     <!-- Filter Components -->
-    <string name="filter_chip_category">Category</string>
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>
 
@@ -83,7 +82,6 @@
     <string name="promocode_rules_usage_limitation_one_time_description">Code can be used only by one customer and gets deleted</string>
 
     <!-- Service step -->
-    <string name="service_step_label_service_name">Service Name</string>
     <string name="service_step_placeholder_service_name">Type the service name</string>
     <string name="service_step_helper_service_name">Exact service name</string>
     <string name="service_step_browse_services_instead">Browse services instead</string>
@@ -153,5 +151,4 @@
     <string name="cd_comments">View comments</string>
     <string name="cd_share">Share promocode</string>
     <string name="action_share">Share</string>
-    <string name="action_comments">Comments</string>
 </resources>

@@ -67,7 +67,6 @@
     <string name="promocode_rules_usage_limitation_one_time_description">Кодты бір ғана клиент қолдана алады және кейін өшіріледі</string>
 
     <!-- Filter Components -->
-    <string name="filter_chip_category">Санат</string>
     <string name="filter_chip_service">Қызмет</string>
     <string name="filter_chip_sort">Сұрыптау</string>
 
@@ -92,7 +91,6 @@
     <string name="step_end_date_short">Аяқталу</string>
 
     <!-- Service step -->
-    <string name="service_step_label_service_name">Қызмет атауы</string>
     <string name="service_step_placeholder_service_name">Мысалы: Kaspi</string>
     <string name="service_step_helper_service_name">Тізімнен таңдаңыз немесе атауын жазыңыз</string>
     <string name="service_step_browse_services_instead">Оның орнына қызметтерді қарап шығу</string>
@@ -133,7 +131,6 @@
     <string name="cd_comments">Пікірлерді көру</string>
     <string name="cd_share">Промокодты бөлісу</string>
     <string name="action_share">Бөлісу</string>
-    <string name="action_comments">Пікірлер</string>
 
     <!-- Promocode step -->
     <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>

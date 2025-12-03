@@ -14,21 +14,16 @@
     <string name="copy_code">Кодты көшіру</string>
 
     <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Біз осы функциямен жұмыс істеп жатырмыз</string>
-    <string name="coming_soon_description">Сіз бізбен байланысып, біздің жетістіктерді осы жерден көре аласыз</string>
 
     <!-- Error Messages -->
     <!-- Network Errors -->
     <string name="error_network_no_connection">Интернет байланысы жоқ. Желіңізді тексеріңіз.</string>
 
     <!-- Authentication Errors -->
-    <string name="error_auth_permission_denied">Сізде осы әрекетті орындауға рұқсат жоқ.</string>
     <string name="error_auth_user_cancelled">Кіру тоқтатылды.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Кіруді қайталап көріңіз.</string>
-    <string name="error_auth_unauthorized">Рұқсат жоқ. Кіріп, қайталап көріңіз.</string>
 
     <!-- Promo Code Errors -->
-    <string name="error_promo_code_not_found">Промо-код табылмады. Кодты тексеріп, қайталап көріңіз.</string>
     <string name="error_promo_code_already_exists">Бұл промо-код бұрын бар.</string>
 
     <!-- User Errors -->
@@ -36,10 +31,8 @@
 
     <!-- Service Errors -->
     <string name="error_service_not_found">Қызмет табылмады. Қайталап көріңіз.</string>
-    <string name="error_service_unavailable">Қызмет уақытша қолжетімсіз.</string>
 
     <!-- Validation Errors -->
-    <string name="error_validation_invalid_format">Жарамсыз пішім. Енгізу деректеріңізді тексеріңіз.</string>
 
     <!-- System Errors -->
 

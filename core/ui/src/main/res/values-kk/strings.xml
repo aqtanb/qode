@@ -14,9 +14,6 @@
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
 
     <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Біз осы функцияда жұмыс істеп жатырмыз</string>
-    <string name="coming_soon_description">Бізбен байланысып, Telegram арнасындағы прогрессімізді көре аласыз.</string>
-    <string name="coming_soon_telegram_button">Telegram-да жазылу</string>
 
     <!-- Accessibility -->
 
@@ -38,13 +35,10 @@
     <string name="error_network_no_connection">Интернет қосылымы жоқ. Желіні тексеріңіз.</string>
 
     <!-- Authentication Errors -->
-    <string name="error_auth_permission_denied">Сізде бұл әрекетті орындауға рұқсат жоқ.</string>
     <string name="error_auth_user_cancelled">Кіру болдырылмады.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
-    <string name="error_auth_unauthorized">Қол жетімділік рұқсат етілмеген. Жүйеге кіріп, қайтадан көріңіз.</string>
 
     <!-- Promo Code Errors -->
-    <string name="error_promo_code_not_found">Промо код табылмады. Кодты тексеріп, қайтадан көріңіз.</string>
     <string name="error_promo_code_already_exists">Бұл промо код әлдеқашан бар.</string>
 
     <!-- User Errors -->
@@ -52,10 +46,8 @@
 
     <!-- Service Errors -->
     <string name="error_service_not_found">Қызмет табылмады. Қайтадан көріңіз.</string>
-    <string name="error_service_unavailable">Қызмет уақытша қолжетімді емес.</string>
 
     <!-- Validation Errors -->
-    <string name="error_validation_invalid_format">Жарамсыз пішім. Енгізгеніңізді тексеріңіз.</string>
 
     <!-- System Errors -->
 
@@ -95,7 +87,6 @@
     <string name="error_user_profile_access_denied">Профильді жаңартуға рұқсатыңыз жоқ.</string>
 
     <!-- Promo code errors -->
-    <string name="error_promo_code_submission_not_authorized">Промокод жіберу үшін кіріңіз.</string>
     <string name="error_promo_code_empty">Промокод бос болмауы керек.</string>
     <string name="error_promo_code_too_short">Промокод тым қысқа. Ең аз 2 таңба.</string>
     <string name="error_promo_code_too_long">Промокод тым ұзын. Ең көбі 50 таңба.</string>
@@ -108,13 +99,6 @@
     <string name="error_promo_invalid_id">Промокод идентификаторы қате.</string>
 
     <!-- User creation errors -->
-    <string name="error_user_first_name_empty">Аты-жөні міндетті.</string>
-    <string name="error_user_first_name_too_short">Аты-жөні кемінде 1 таңба болуы керек.</string>
-    <string name="error_user_first_name_too_long">Аты-жөні тым ұзын. Ең көбі 50 таңба.</string>
-    <string name="error_user_first_name_invalid_characters">Аты-жөнінде рұқсат етілмеген таңбалар бар.</string>
-    <string name="error_user_last_name_too_long">Тегі тым ұзын. Ең көбі 50 таңба.</string>
-    <string name="error_user_last_name_invalid_characters">Тегінде рұқсат етілмеген таңбалар бар.</string>
-    <string name="error_user_bio_too_long">Био тым ұзын. Ең көбі 500 таңба.</string>
     <string name="error_user_invalid_email">Электрондық пошта қате.</string>
     <string name="error_user_invalid_photo_url">Профиль фотосының сілтемесі қате.</string>
     <string name="error_user_invalid_id">Пайдаланушы идентификаторы қате.</string>
@@ -139,8 +123,6 @@
     <string name="error_legal_document_unavailable">Құжаттар әзір қолжетімсіз.</string>
 
     <!-- System/operation errors -->
-    <string name="error_system_service_down">Сервис уақытша жұмыс істемейді.</string>
-    <string name="error_system_permission_denied">Бұл әрекетке жүйелік рұқсат жоқ.</string>
     <string name="error_operation_cancelled">Операция тоқтатылды.</string>
     <string name="error_request_timeout">Күту уақыты аяқталды.</string>
     <string name="error_not_found">Ресурс табылмады.</string>
@@ -153,8 +135,6 @@
 
     <!-- Interaction errors -->
     <string name="error_interaction_already_voted">Сіз бұрын дауыс бердіңіз.</string>
-    <string name="error_interaction_content_not_found">Контент табылмады.</string>
-    <string name="error_interaction_save_failed">Әрекетті сақтау мүмкін болмады.</string>
     <string name="error_interaction_remove_failed">Жою сәтсіз болды.</string>
     <string name="error_interaction_vote_not_authorized">Дауыс беру үшін кіріңіз.</string>
     <string name="error_interaction_vote_content_not_found">Дауыс берілетін элемент табылмады.</string>
@@ -162,8 +142,6 @@
     <string name="error_interaction_bookmark_not_authorized">Бетбелгілеу үшін кіріңіз.</string>
     <string name="error_interaction_bookmark_content_not_found">Элемент табылмады.</string>
     <string name="error_interaction_bookmark_save_failed">Бетбелгіні жаңарту сәтсіз.</string>
-    <string name="error_no_results">Нәтижелер жоқ.</string>
-    <string name="error_too_many_results">Нәтижелер тым көп.</string>
 
     <!-- Post errors -->
     <string name="error_post_title_empty">Тақырып қажет.</string>
@@ -187,7 +165,6 @@
     <string name="error_storage_upload_invalid_file_type">Файл түрі жарамсыз.</string>
     <string name="error_storage_upload_cancelled">Жүктеу тоқтатылды.</string>
     <string name="error_storage_upload_corrupted_file">Файл бұзылған.</string>
-    <string name="error_storage_file_not_found">Файл табылмады.</string>
     <string name="error_storage_delete_file_not_found">Жоюға арналған файл табылмады.</string>
     <string name="error_storage_retrieve_file_not_found">Сұралған файл табылмады.</string>
     <string name="error_storage_compression_cannot_read">Суретті оқу мүмкін емес.</string>
@@ -215,23 +192,10 @@
     <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
 
     <!-- Filter/search UI -->
-    <string name="action_close">Жабу</string>
-    <string name="filter_category_title">Санат бойынша сүзу</string>
-    <string name="filter_category_all">Барлық санаттар</string>
-    <string name="filter_sort_title">Сұрыптау параметрлері</string>
-    <string name="filter_tag_title">Тегтер бойынша сүзу</string>
-    <string name="filter_tag_all">Барлық тегтер</string>
-    <string name="select_service_title">Қызметті таңдаңыз</string>
-    <string name="search_services_label">Қызметтерді іздеу</string>
     <string name="search_services_placeholder">Қызметтерді іздеу...</string>
     <string name="popular_services_title">Танымал қызметтер</string>
-    <string name="searching_message">Іздеу...</string>
     <string name="no_services_found_message">Қызметтер табылмады</string>
     <string name="action_back">Артқа</string>
-    <string name="action_clear">Тазалау</string>
-    <string name="search_icon_description">Іздеу</string>
-    <string name="loading_popular_services">Танымал қызметтер жүктелуде…</string>
-    <string name="error_loading_popular_services">Танымал қызметтерді жүктеу сәтсіз болды</string>
     <string name="search_error_message">Қызметтерді іздеу сәтсіз аяқталды.</string>
     <string name="sort_popularity">Ең танымал</string>
     <string name="sort_newest">Алдымен жаңалары</string>

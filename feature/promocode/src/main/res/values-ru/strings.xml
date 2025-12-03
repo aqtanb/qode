@@ -46,7 +46,6 @@
     <!-- Share Template -->
 
     <!-- Filter Components -->
-    <string name="filter_chip_category">Категория</string>
     <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировка</string>
 
@@ -71,7 +70,6 @@
     <string name="step_end_date_short">Окончание</string>
 
     <!-- Service step -->
-    <string name="service_step_label_service_name">Название сервиса</string>
     <string name="service_step_placeholder_service_name">Например: Kaspi</string>
     <string name="service_step_helper_service_name">Выберите из списка или введите название</string>
     <string name="service_step_browse_services_instead">Вместо этого просмотреть сервисы</string>
@@ -112,7 +110,6 @@
     <string name="cd_comments">Посмотреть комментарии</string>
     <string name="cd_share">Поделиться промокодом</string>
     <string name="action_share">Поделиться</string>
-    <string name="action_comments">Комментарии</string>
 
     <!-- Promocode step -->
     <string name="promo_code_step_placeholder">Введите промокод</string>

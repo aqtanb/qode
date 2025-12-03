@@ -13,15 +13,11 @@
 
     <string name="promocode_label">PROMOCODE</string>
     <string name="copy_code">Copy code</string>
-    <string name="promocodes_loading_title">Loading Promo Codes</string>
-    <string name="promocodes_loading_description">Finding the best deals for you…</string>
     <string name="empty_no_promo_codes">No promo codes available</string>
     <string name="empty_check_back_later">Check back later for amazing deals and discounts!</string>
 
-    <string name="filter_chip_category">Category</string>
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>
-    <string name="filter_category_all">All Categories</string>
     <string name="filter_chip_reset">Reset</string>
 
     <string name="cd_first_user_only">First user only</string>

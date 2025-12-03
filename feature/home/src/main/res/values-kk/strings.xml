@@ -17,17 +17,12 @@
     <string name="error_image_not_available">Сурет қол жетімді емес</string>
 
     <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Жақында</string>
-    <string name="coming_soon_country_description">Жақында ел таңдау келе жатыр!</string>
 
     <!-- Country -->
-    <string name="country_kazakhstan">Қазақстан</string>
 
     <!-- Actions -->
-    <string name="action_close">Жабу</string>
 
     <!-- Filter Chips -->
-    <string name="filter_chip_category">Санат</string>
     <string name="filter_chip_service">Қызмет</string>
     <string name="filter_chip_sort">Сұрыптау</string>
 
@@ -36,7 +31,6 @@
     <!-- Filter Options - Type -->
 
     <!-- Filter Options - Category -->
-    <string name="filter_category_all">Барлық санаттар</string>
 
     <!-- Filter Options - Service -->
 

@@ -14,9 +14,6 @@
     <string name="error_default_title">Что-то пошло не так</string>
 
     <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Мы работаем над этой функцией</string>
-    <string name="coming_soon_description">Вы можете связаться с нами и следить за нашим прогрессом в канале Telegram.</string>
-    <string name="coming_soon_telegram_button">Подписаться на Telegram</string>
 
     <!-- Accessibility -->
 
@@ -38,13 +35,10 @@
     <string name="error_network_no_connection">Нет подключения к интернету. Проверьте сеть.</string>
 
     <!-- Authentication Errors -->
-    <string name="error_auth_permission_denied">У вас нет разрешения на выполнение этого действия.</string>
     <string name="error_auth_user_cancelled">Вход был отменен.</string>
     <string name="error_auth_invalid_credentials">Неверные учетные данные. Попробуйте войти снова.</string>
-    <string name="error_auth_unauthorized">Доступ запрещен. Войдите в систему и попробуйте снова.</string>
 
     <!-- Promo Code Errors -->
-    <string name="error_promo_code_not_found">Промо-код не найден. Проверьте код и попробуйте снова.</string>
     <string name="error_promo_code_already_exists">Этот промо-код уже существует.</string>
 
     <!-- User Errors -->
@@ -52,10 +46,8 @@
 
     <!-- Service Errors -->
     <string name="error_service_not_found">Сервис не найден. Попробуйте снова.</string>
-    <string name="error_service_unavailable">Сервис временно недоступен.</string>
 
     <!-- Validation Errors -->
-    <string name="error_validation_invalid_format">Неверный формат. Проверьте ваш ввод.</string>
 
     <!-- System Errors -->
 
@@ -95,7 +87,6 @@
     <string name="error_user_profile_access_denied">Нет прав для обновления профиля.</string>
 
     <!-- Promo code errors -->
-    <string name="error_promo_code_submission_not_authorized">Нужно войти, чтобы отправить промокод.</string>
     <string name="error_promo_code_empty">Промокод не может быть пустым.</string>
     <string name="error_promo_code_too_short">Промокод слишком короткий. Минимум 2 символа.</string>
     <string name="error_promo_code_too_long">Промокод слишком длинный. Максимум 50 символов.</string>
@@ -108,13 +99,6 @@
     <string name="error_promo_invalid_id">Некорректный идентификатор промокода.</string>
 
     <!-- User creation errors -->
-    <string name="error_user_first_name_empty">Имя обязательно.</string>
-    <string name="error_user_first_name_too_short">Имя должно содержать минимум 1 символ.</string>
-    <string name="error_user_first_name_too_long">Имя слишком длинное. Максимум 50 символов.</string>
-    <string name="error_user_first_name_invalid_characters">Имя содержит недопустимые символы.</string>
-    <string name="error_user_last_name_too_long">Фамилия слишком длинная. Максимум 50 символов.</string>
-    <string name="error_user_last_name_invalid_characters">Фамилия содержит недопустимые символы.</string>
-    <string name="error_user_bio_too_long">Био слишком длинное. Максимум 500 символов.</string>
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>
@@ -139,8 +123,6 @@
     <string name="error_legal_document_unavailable">Документы сейчас недоступны.</string>
 
     <!-- System/operation errors -->
-    <string name="error_system_service_down">Сервис временно недоступен.</string>
-    <string name="error_system_permission_denied">Нет системных разрешений для этого действия.</string>
     <string name="error_operation_cancelled">Операция отменена.</string>
     <string name="error_request_timeout">Время ожидания истекло.</string>
     <string name="error_not_found">Ресурс не найден.</string>
@@ -153,8 +135,6 @@
 
     <!-- Interaction errors -->
     <string name="error_interaction_already_voted">Вы уже проголосовали.</string>
-    <string name="error_interaction_content_not_found">Контент не найден.</string>
-    <string name="error_interaction_save_failed">Не удалось сохранить действие.</string>
     <string name="error_interaction_remove_failed">Не удалось удалить.</string>
     <string name="error_interaction_vote_not_authorized">Нужно войти, чтобы голосовать.</string>
     <string name="error_interaction_vote_content_not_found">Элемент для голосования не найден.</string>
@@ -162,8 +142,6 @@
     <string name="error_interaction_bookmark_not_authorized">Нужно войти, чтобы добавить в закладки.</string>
     <string name="error_interaction_bookmark_content_not_found">Элемент не найден.</string>
     <string name="error_interaction_bookmark_save_failed">Не удалось обновить закладку.</string>
-    <string name="error_no_results">Нет результатов.</string>
-    <string name="error_too_many_results">Слишком много результатов.</string>
 
     <!-- Post errors -->
     <string name="error_post_title_empty">Требуется заголовок.</string>
@@ -187,7 +165,6 @@
     <string name="error_storage_upload_invalid_file_type">Недопустимый тип файла.</string>
     <string name="error_storage_upload_cancelled">Загрузка отменена.</string>
     <string name="error_storage_upload_corrupted_file">Файл поврежден.</string>
-    <string name="error_storage_file_not_found">Файл не найден.</string>
     <string name="error_storage_delete_file_not_found">Файл для удаления не найден.</string>
     <string name="error_storage_retrieve_file_not_found">Не удалось найти запрошенный файл.</string>
     <string name="error_storage_compression_cannot_read">Не удается прочитать изображение.</string>
@@ -215,23 +192,10 @@
     <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
     <!-- Filter/search UI -->
-    <string name="action_close">Закрыть</string>
-    <string name="filter_category_title">Фильтр по категории</string>
-    <string name="filter_category_all">Все категории</string>
-    <string name="filter_sort_title">Параметры сортировки</string>
-    <string name="filter_tag_title">Фильтр по тегам</string>
-    <string name="filter_tag_all">Все теги</string>
-    <string name="select_service_title">Выберите сервис</string>
-    <string name="search_services_label">Поиск сервисов</string>
     <string name="search_services_placeholder">Поиск сервисов...</string>
     <string name="popular_services_title">Популярные сервисы</string>
-    <string name="searching_message">Поиск...</string>
     <string name="no_services_found_message">Сервисы не найдены</string>
     <string name="action_back">Назад</string>
-    <string name="action_clear">Очистить</string>
-    <string name="search_icon_description">Поиск</string>
-    <string name="loading_popular_services">Загрузка популярных сервисов…</string>
-    <string name="error_loading_popular_services">Не удалось загрузить популярные сервисы</string>
     <string name="search_error_message">Не удалось выполнить поиск сервисов.</string>
     <string name="sort_popularity">Самые популярные</string>
     <string name="sort_newest">Сначала новые</string>

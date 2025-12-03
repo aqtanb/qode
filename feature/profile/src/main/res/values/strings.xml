@@ -8,7 +8,6 @@
     <!-- Profile Header -->
     <string name="profile_picture_description">Profile picture</string>
     <string name="edit_profile_button">Edit Profile</string>
-    <string name="profile_full_name_format">%1$s %2$s</string>
 
     <!-- Profile Stats -->
     <string name="profile_stats_title">Statistics</string>

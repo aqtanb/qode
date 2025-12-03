@@ -17,17 +17,12 @@
     <string name="error_image_not_available">Изображение недоступно</string>
 
     <!-- Coming Soon Dialog -->
-    <string name="coming_soon_title">Вскоре</string>
-    <string name="coming_soon_country_description">Выбор страны скоро наступит!</string>
 
     <!-- Country -->
-    <string name="country_kazakhstan">Казахстан</string>
 
     <!-- Actions -->
-    <string name="action_close">Закрыть</string>
 
     <!-- Filter Chips -->
-    <string name="filter_chip_category">Категория</string>
     <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировать</string>
 
@@ -36,7 +31,6 @@
     <!-- Filter Options - Type -->
 
     <!-- Filter Options - Category -->
-    <string name="filter_category_all">Все категории</string>
 
     <!-- Filter Options - Service -->
 
