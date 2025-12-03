@@ -22,6 +22,16 @@
     <!-- Statistics Section -->
 
     <!-- Details Section -->
+    <string name="promocode_details_title">Детали промокода</string>
+    <string name="promocode_details_service">Сервис</string>
+    <string name="promocode_details_discount">Скидка</string>
+    <string name="promocode_details_minimum_order">Минимальный заказ</string>
+    <string name="promocode_details_start_date">Дата начала</string>
+    <string name="promocode_details_end_date">Дата окончания</string>
+    <string name="promocode_details_new_user_only">Только для новых пользователей</string>
+    <string name="promocode_details_one_time_use_only">Только однократное использование</string>
+    <string name="promocode_details_value_yes">Да</string>
+    <string name="promocode_details_value_no">Нет</string>
 
     <!-- Status Messages -->
 

@@ -17,6 +17,18 @@
     <string name="promocode_fixed_amount_discount">%2$s₸-ден жоғары тапсырыстарға %1$s₸ жеңілдік алыңыз</string>
     <string name="promocode_percentage_discount">%2$s₸-ден жоғары тапсырыстарға %1$s%% жеңілдік алыңыз</string>
 
+    <!-- Details Section -->
+    <string name="promocode_details_title">Промокод деректері</string>
+    <string name="promocode_details_service">Сервис</string>
+    <string name="promocode_details_discount">Жеңілдік</string>
+    <string name="promocode_details_minimum_order">Минималды тапсырыс</string>
+    <string name="promocode_details_start_date">Басталу күні</string>
+    <string name="promocode_details_end_date">Аяқталу күні</string>
+    <string name="promocode_details_new_user_only">Тек жаңа пайдаланушыларға</string>
+    <string name="promocode_details_one_time_use_only">Бір рет қана қолдануға болады</string>
+    <string name="promocode_details_value_yes">Иә</string>
+    <string name="promocode_details_value_no">Жоқ</string>
+
     <!-- Promocode step -->
     <string name="promo_code_step_placeholder">Промокодты енгізіңіз</string>
     <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>

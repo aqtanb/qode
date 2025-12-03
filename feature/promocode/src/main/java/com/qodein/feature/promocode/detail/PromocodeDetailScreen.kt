@@ -35,8 +35,8 @@ import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.feature.promocode.detail.component.ActionButtonsSection
-import com.qodein.feature.promocode.detail.component.DetailsSection
-import com.qodein.feature.promocode.detail.component.PromocodeHeader
+import com.qodein.feature.promocode.detail.component.PromocodeDetails
+import com.qodein.feature.promocode.detail.component.PromocodeInfo
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
@@ -174,11 +174,11 @@ private fun SuccessState(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        PromocodeHeader(
+        PromocodeInfo(
             promocode = promocode,
         )
 
-        DetailsSection(promocode = promocode)
+        PromocodeDetails(promocode = promocode)
 
         ActionButtonsSection(
             promoCode = promocode,

@@ -22,6 +22,16 @@
     <!-- Statistics Section -->
 
     <!-- Details Section -->
+    <string name="promocode_details_title">Promocode Details</string>
+    <string name="promocode_details_service">Service</string>
+    <string name="promocode_details_discount">Discount</string>
+    <string name="promocode_details_minimum_order">Minimum Order</string>
+    <string name="promocode_details_start_date">Start Date</string>
+    <string name="promocode_details_end_date">End Date</string>
+    <string name="promocode_details_new_user_only">New user only</string>
+    <string name="promocode_details_one_time_use_only">One time use only</string>
+    <string name="promocode_details_value_yes">Yes</string>
+    <string name="promocode_details_value_no">No</string>
 
     <!-- Status Messages -->
 

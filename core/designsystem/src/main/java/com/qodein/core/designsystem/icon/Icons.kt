@@ -100,7 +100,7 @@ object QodeinIcons {
 object PromocodeIcons {
     val Verified: ImageVector = Icons.Outlined.Verified
     val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
-    val FirstUseOnly: ImageVector = TablerIcons.Seeding
+    val NewUserOnly: ImageVector = TablerIcons.Seeding
     val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
     val DiscountValue: ImageVector = Icons.Outlined.Sell
     val MinimumOrder: ImageVector = Icons.Outlined.Money

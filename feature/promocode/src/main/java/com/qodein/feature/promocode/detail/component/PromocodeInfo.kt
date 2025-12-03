@@ -32,7 +32,7 @@ import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeInteraction
 
 @Composable
-fun PromocodeHeader(
+fun PromocodeInfo(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
@@ -40,13 +40,13 @@ fun PromocodeHeader(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        AuthorInfoSection(promocode)
-        TitleSection(promocode, modifier = Modifier.fillMaxWidth())
+        PromocodeHeader(promocode)
+        PromocodeDescription(promocode, modifier = Modifier.fillMaxWidth())
     }
 }
 
 @Composable
-private fun AuthorInfoSection(
+private fun PromocodeHeader(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
@@ -83,13 +83,13 @@ private fun AuthorInfoSection(
             Text(
                 text = if (promocode.voteScore > 0) "+${promocode.voteScore}" else promocode.voteScore.toString(),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.End,
             )
             Text(
                 text = rememberFormattedRelativeTime(promocode.createdAt),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.End,
             )
         }
@@ -97,7 +97,7 @@ private fun AuthorInfoSection(
 }
 
 @Composable
-private fun TitleSection(
+private fun PromocodeDescription(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {

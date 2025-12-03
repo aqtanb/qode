@@ -233,7 +233,7 @@ private fun CouponHeader(
         ) {
             if (promocode.isFirstUseOnly) {
                 Icon(
-                    imageVector = PromocodeIcons.FirstUseOnly,
+                    imageVector = PromocodeIcons.NewUserOnly,
                     contentDescription = stringResource(R.string.cd_first_user_only),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
