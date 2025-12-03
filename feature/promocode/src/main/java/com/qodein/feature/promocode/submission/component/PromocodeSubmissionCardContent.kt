@@ -8,7 +8,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
@@ -100,21 +102,17 @@ fun PromocodeSubmissionCardContent(
             )
 
             PromocodeSubmissionStep.START_DATE -> PromocodeDatesStep(
-                label = "Start Date",
                 selectedDate = wizardData.startDate,
                 onDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
-                placeholder = "Select start date",
-                isRequired = true,
+                placeholder = stringResource(R.string.promocode_dates_start_placeholder),
             )
 
             PromocodeSubmissionStep.END_DATE -> PromocodeDatesStep(
-                label = "End Date",
                 selectedDate = wizardData.endDate,
                 onDateSelected = { date ->
                     onAction(PromocodeSubmissionAction.UpdateEndDate(date))
                 },
-                placeholder = "Select end date",
-                isRequired = true,
+                placeholder = stringResource(R.string.promocode_dates_end_placeholder),
             )
         }
     }

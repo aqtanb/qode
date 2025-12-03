@@ -4,12 +4,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
@@ -27,9 +29,9 @@ internal fun MinimumOrderAmountStep(
     QodeinTextField(
         value = minimumOrderAmount,
         onValueChange = onMinimumOrderAmountChange,
-        placeholder = "5000",
+        placeholder = stringResource(R.string.promocode_minimum_order_placeholder),
         leadingIcon = QodeIcons.Dollar,
-        helperText = "Minimum order in ₸ (tenge) to get the discount",
+        helperText = stringResource(R.string.promocode_minimum_order_helper),
         errorText = getBusinessLogicValidationError(wizardData),
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(

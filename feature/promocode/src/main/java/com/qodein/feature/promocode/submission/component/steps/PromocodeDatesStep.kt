@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +40,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -47,12 +49,10 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeDatesStep(
-    label: String,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Select date",
-    isRequired: Boolean = false
+    placeholder: String = stringResource(R.string.promocode_dates_placeholder)
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -151,12 +151,12 @@ fun PromocodeDatesStep(
                         showDatePicker = false
                     },
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.promocode_dates_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.promocode_dates_cancel))
                 }
             },
         ) {
@@ -174,18 +174,15 @@ private fun DatePickerStepPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             PromocodeDatesStep(
-                label = "Start Date",
                 selectedDate = LocalDate.now(),
                 onDateSelected = {},
                 placeholder = "Select start date",
             )
 
             PromocodeDatesStep(
-                label = "End Date",
                 selectedDate = null,
                 onDateSelected = {},
                 placeholder = "Select end date",
-                isRequired = true,
             )
         }
     }

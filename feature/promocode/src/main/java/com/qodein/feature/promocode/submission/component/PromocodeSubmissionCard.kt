@@ -40,6 +40,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.ValidationState
@@ -152,7 +153,13 @@ private fun StepHeader(
                 } else {
                     UIIcons.Hint
                 },
-                contentDescription = "Toggle helpful tips",
+                contentDescription = stringResource(
+                    if (isHintExpanded) {
+                        R.string.promocode_submission_hide_tips
+                    } else {
+                        R.string.promocode_submission_show_tips
+                    },
+                ),
                 tint = if (isHintExpanded) {
                     MaterialTheme.colorScheme.tertiary
                 } else {

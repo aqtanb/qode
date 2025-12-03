@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
@@ -41,31 +43,31 @@ internal fun PromocodeRulesStep(
         val eligibilityOptions = listOf(
             SubmissionFieldOption(
                 value = "all",
-                label = "All customers",
-                description = "Any customer can use this promo code",
+                label = stringResource(R.string.promocode_rules_customer_eligibility_all),
+                description = stringResource(R.string.promocode_rules_customer_eligibility_all_description),
             ),
             SubmissionFieldOption(
                 value = "first",
-                label = "First-time customers only",
-                description = "Only new customers can use this code",
+                label = stringResource(R.string.promocode_rules_customer_eligibility_new),
+                description = stringResource(R.string.promocode_rules_customer_eligibility_new_description),
             ),
         )
 
         val usageOptions = listOf(
             SubmissionFieldOption(
                 value = "multiple",
-                label = "Multiple uses",
-                description = "Customers can redeem this code more than once",
+                label = stringResource(R.string.promocode_rules_usage_limitation_multiple),
+                description = stringResource(R.string.promocode_rules_usage_limitation_multiple_description),
             ),
             SubmissionFieldOption(
                 value = "oneTime",
-                label = "One-time use",
-                description = "Automatically expires after a single redemption",
+                label = stringResource(R.string.promocode_rules_usage_limitation_one_time),
+                description = stringResource(R.string.promocode_rules_usage_limitation_one_time_description),
             ),
         )
 
         OptionRadioGroup(
-            title = "Customer Eligibility",
+            title = stringResource(R.string.promocode_rules_customer_eligibility_title),
             options = eligibilityOptions,
             selectedValue = if (isFirstUserOnly) "first" else "all",
             onOptionSelected = { onFirstUserOnlyChange(it == "first") },
@@ -73,7 +75,7 @@ internal fun PromocodeRulesStep(
         )
 
         OptionRadioGroup(
-            title = "Usage Limitation",
+            title = stringResource(R.string.promocode_rules_usage_limitation_title),
             options = usageOptions,
             selectedValue = if (isOneTimeUseOnly) "oneTime" else "multiple",
             onOptionSelected = { onOneTimeUseOnlyChange(it == "oneTime") },

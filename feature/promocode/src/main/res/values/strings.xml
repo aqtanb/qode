@@ -70,6 +70,18 @@
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
 
+    <!-- Rules step -->
+    <string name="promocode_rules_customer_eligibility_title">Customer Eligibility</string>
+    <string name="promocode_rules_customer_eligibility_all">All customers</string>
+    <string name="promocode_rules_customer_eligibility_all_description">Any customer can use this promocode</string>
+    <string name="promocode_rules_customer_eligibility_new">New customers only</string>
+    <string name="promocode_rules_customer_eligibility_new_description">Only new customers can use this code</string>
+    <string name="promocode_rules_usage_limitation_title">Usage Limitation</string>
+    <string name="promocode_rules_usage_limitation_multiple">Multiple uses</string>
+    <string name="promocode_rules_usage_limitation_multiple_description">Any customer can use this promocode</string>
+    <string name="promocode_rules_usage_limitation_one_time">One-time use</string>
+    <string name="promocode_rules_usage_limitation_one_time_description">Code can be used only by one customer and gets deleted</string>
+
     <!-- Service step -->
     <string name="service_step_label_service_name">Service Name</string>
     <string name="service_step_placeholder_service_name">Type the service name</string>
@@ -92,6 +104,31 @@
     <string name="step_end_date_hint">When does this promo code expire?</string>
     <string name="step_eligibility_hint">Who can use this code and how often?</string>
     <string name="step_description_hint">Add any helpful details about this deal.</string>
+
+    <!-- Description step -->
+    <string name="promocode_description_placeholder">Great promocode!</string>
+    <string name="promocode_description_helper">Add a description to help customers understand the offer better</string>
+
+    <!-- Dates step -->
+    <string name="promocode_dates_placeholder">Select date</string>
+    <string name="promocode_dates_start_placeholder">Select start date</string>
+    <string name="promocode_dates_end_placeholder">Select end date</string>
+    <string name="promocode_dates_confirm">OK</string>
+    <string name="promocode_dates_cancel">Cancel</string>
+
+    <!-- Discount value step -->
+    <string name="promocode_discount_percentage_placeholder">30</string>
+    <string name="promocode_discount_percentage_helper">Enter the percentage (1-99%)</string>
+    <string name="promocode_discount_amount_placeholder">2000</string>
+    <string name="promocode_discount_amount_helper">Enter in ₸ (tenge)</string>
+
+    <!-- Minimum order step -->
+    <string name="promocode_minimum_order_placeholder">5000</string>
+    <string name="promocode_minimum_order_helper">Minimum order in ₸ (tenge) to get the discount</string>
+
+    <!-- Submission UI -->
+    <string name="promocode_submission_show_tips">Show helpful tips</string>
+    <string name="promocode_submission_hide_tips">Hide helpful tips</string>
 
     <!-- Promocode step -->
     <string name="promo_code_step_placeholder">Enter the promocode</string>

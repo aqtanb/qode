@@ -34,7 +34,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
-import com.qodein.feature.promocode.detail.component.ActionButtonsSection
+import com.qodein.feature.promocode.detail.component.PromocodeActions
 import com.qodein.feature.promocode.detail.component.PromocodeDetails
 import com.qodein.feature.promocode.detail.component.PromocodeInfo
 import com.qodein.shared.model.Discount
@@ -180,7 +180,7 @@ private fun SuccessState(
 
         PromocodeDetails(promocode = promocode)
 
-        ActionButtonsSection(
+        PromocodeActions(
             promoCode = promocode,
             isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
             isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,

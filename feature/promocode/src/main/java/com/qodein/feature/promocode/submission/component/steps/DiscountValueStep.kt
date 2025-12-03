@@ -4,12 +4,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
@@ -31,9 +33,9 @@ internal fun DiscountValueStep(
             QodeinTextField(
                 value = discountPercentage,
                 onValueChange = onDiscountPercentageChange,
-                placeholder = "30",
+                placeholder = stringResource(R.string.promocode_discount_percentage_placeholder),
                 leadingIcon = QodeIcons.Sale,
-                helperText = "Enter the percentage (1-99%)",
+                helperText = stringResource(R.string.promocode_discount_percentage_helper),
                 focusRequester = focusRequester,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Companion.Next,
@@ -49,9 +51,9 @@ internal fun DiscountValueStep(
             QodeinTextField(
                 value = discountAmount,
                 onValueChange = onDiscountAmountChange,
-                placeholder = "2000",
+                placeholder = stringResource(R.string.promocode_discount_amount_placeholder),
                 leadingIcon = QodeIcons.Dollar,
-                helperText = "Enter in ₸ (tenge)",
+                helperText = stringResource(R.string.promocode_discount_amount_helper),
                 focusRequester = focusRequester,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Companion.Next,
