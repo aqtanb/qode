@@ -31,7 +31,7 @@ import org.koin.dsl.module
  * Provides domain-layer use cases.
  */
 val domainModule = module {
-    single { GetAuthStateUseCase(get(), get()) }
+    single { GetAuthStateUseCase(get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
 

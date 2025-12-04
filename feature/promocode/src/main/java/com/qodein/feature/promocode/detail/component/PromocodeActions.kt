@@ -112,7 +112,7 @@ private fun PromocodeActionsPreview() {
 
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
+                promocodeId = samplePromoCode.id,
                 promocodeInteraction = PromocodeInteraction(
                     promocode = samplePromoCode,
                     userInteraction = null,

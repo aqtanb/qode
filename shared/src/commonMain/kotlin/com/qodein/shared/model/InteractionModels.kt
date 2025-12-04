@@ -17,7 +17,7 @@ enum class VoteState {
 
 @Serializable
 enum class ContentType {
-    PROMO_CODE,
+    PROMOCODE,
     POST,
     COMMENT,
     PROMO
@@ -34,7 +34,7 @@ enum class ContentType {
  */
 @Serializable
 data class UserInteraction(
-    val id: String, // Generated: sanitized_itemId_sanitized_userId
+    val id: String, // Generated: {itemId}_{userId}
     val itemId: String, // ID of the content (promo code, post, comment)
     val itemType: ContentType, // Type of content being interacted with (reusing existing ContentType)
     val userId: UserId, // User performing the interaction
@@ -48,7 +48,7 @@ data class UserInteraction(
         require(id.isNotBlank()) { "Interaction ID cannot be blank" }
         require(updatedAt >= createdAt) { "Updated time cannot be before created time" }
         require(id == generateId(itemId, userId.value)) {
-            "ID must match format: sanitized_itemId_sanitized_userId"
+            "ID must match format: {itemId}_{userId}"
         }
     }
 
@@ -106,9 +106,9 @@ data class UserInteraction(
             voteState: VoteState = VoteState.NONE,
             isBookmarked: Boolean = false
         ): UserInteraction {
-            val sanitizedId = generateId(itemId, userId.value)
+            val interactionId = generateId(itemId, userId.value)
             return UserInteraction(
-                id = sanitizedId,
+                id = interactionId,
                 itemId = itemId,
                 itemType = itemType,
                 userId = userId,
@@ -118,20 +118,13 @@ data class UserInteraction(
         }
 
         /**
-         * Generate consistent sanitized ID for Firestore document
-         * Format: sanitized_itemId_sanitized_userId
-         *
-         * This must match the format used in Cloud Functions for consistency.
-         * Reuses the same logic as the existing Vote.generateId() method.
+         * Generate consistent ID for Firestore document
+         * Format: {itemId}_{userId}
          */
         fun generateId(
             itemId: String,
             userId: String
-        ): String {
-            val sanitizedItemId = itemId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
-            val sanitizedUserId = userId.replace("[^a-zA-Z0-9_-]".toRegex(), "_")
-            return "${sanitizedItemId}_$sanitizedUserId"
-        }
+        ): String = "${itemId}_$userId"
 
         /**
          * Parse document ID to extract itemId and userId
@@ -156,16 +149,3 @@ data class UserInteraction(
         }
     }
 }
-
-/**
- * Statistics for user interactions on a specific item.
- * Used for displaying vote/bookmark counts.
- */
-@Serializable
-data class InteractionStats(
-    val itemId: String,
-    val upvoteCount: Int = 0,
-    val downvoteCount: Int = 0,
-    val bookmarkCount: Int = 0,
-    val totalInteractions: Int = 0
-)

@@ -119,7 +119,9 @@ fun PromocodeDetailScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues).padding(horizontal = SpacingTokens.sm),
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = SpacingTokens.sm),
         ) {
             when {
                 uiState.isLoading -> {
@@ -130,19 +132,9 @@ fun PromocodeDetailScreen(
                     val promocodeInteraction = uiState.promocodeInteraction!!
                     val promocode = promocodeInteraction.promocode
 
-                    val requireUpvote = {
-                        onAction(PromocodeDetailAction.UpvoteClicked)
-                    }
-
-                    val requireDownvote = {
-                        onAction(PromocodeDetailAction.DownvoteClicked)
-                    }
-
                     SuccessState(
                         promocode = promocode,
                         promocodeInteraction = promocodeInteraction,
-                        requireUpvote = requireUpvote,
-                        requireDownvote = requireDownvote,
                         onAction = onAction,
                     )
                 }
@@ -164,8 +156,6 @@ fun PromocodeDetailScreen(
 private fun SuccessState(
     promocode: Promocode,
     promocodeInteraction: PromocodeInteraction,
-    requireUpvote: () -> Unit,
-    requireDownvote: () -> Unit,
     onAction: (PromocodeDetailAction) -> Unit
 ) {
     Column(
@@ -184,8 +174,8 @@ private fun SuccessState(
             promoCode = promocode,
             isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
             isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,
-            onUpvoteClicked = requireUpvote,
-            onDownvoteClicked = requireDownvote,
+            onUpvoteClicked = { onAction(PromocodeDetailAction.UpvoteClicked) },
+            onDownvoteClicked = { onAction(PromocodeDetailAction.DownvoteClicked) },
             onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
         )
     }
@@ -243,7 +233,7 @@ private fun PromocodeDetailScreenPreview() {
 
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
+                promocodeId = samplePromoCode.id,
                 promocodeInteraction = PromocodeInteraction(
                     promocode = samplePromoCode,
                     userInteraction = null,
@@ -264,7 +254,7 @@ private fun LoadingStatePreview() {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
+                promocodeId = samplePromoCode.id,
                 promocodeInteraction = PromocodeInteraction(
                     promocode = samplePromoCode,
                     userInteraction = null,

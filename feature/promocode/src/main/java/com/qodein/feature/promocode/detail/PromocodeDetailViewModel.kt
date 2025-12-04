@@ -23,7 +23,6 @@ import com.qodein.shared.model.PromocodeInteraction
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
-import com.qodein.shared.presentation.interaction.InteractionStateHandler
 import com.qodein.shared.presentation.interaction.VoteUpdate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -36,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -59,7 +59,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         fun create(promoCodeId: String): PromocodeDetailViewModel
     }
 
-    private val _uiState = MutableStateFlow(PromocodeDetailUiState(promoCodeId = promocodeId))
+    private val _uiState = MutableStateFlow(PromocodeDetailUiState(promocodeId = promocodeId))
     val uiState: StateFlow<PromocodeDetailUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<PromocodeDetailEvent>()
@@ -68,7 +68,11 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch {
             getAuthStateUseCase()
-                .collect { authState ->
+                .collectLatest { authState ->
+                    when (authState) {
+                        is AuthState.Authenticated -> _uiState.update { it.copy(userId = authState.userId) }
+                        AuthState.Unauthenticated -> _uiState.update { it.copy(userId = null) }
+                    }
                     loadPromocode(promocodeId, authState)
                 }
         }
@@ -77,8 +81,22 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     fun onAction(action: PromocodeDetailAction) {
         when (action) {
             is PromocodeDetailAction.RefreshData -> reloadPromocode()
-            is PromocodeDetailAction.UpvoteClicked -> handleVote(VoteState.UPVOTE, AuthPromptAction.UpvotePrompt)
-            is PromocodeDetailAction.DownvoteClicked -> handleVote(VoteState.DOWNVOTE, AuthPromptAction.DownvotePrompt)
+            is PromocodeDetailAction.UpvoteClicked -> {
+                val userId = _uiState.value.userId
+                if (userId == null) {
+                    showAuthBottomSheet(AuthPromptAction.UpvotePrompt)
+                } else {
+                    handleVote(VoteState.UPVOTE)
+                }
+            }
+            is PromocodeDetailAction.DownvoteClicked -> {
+                val userId = _uiState.value.userId
+                if (userId == null) {
+                    showAuthBottomSheet(AuthPromptAction.UpvotePrompt)
+                } else {
+                    handleVote(VoteState.DOWNVOTE)
+                }
+            }
             is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BackClicked -> handleBack()
@@ -165,71 +183,22 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handleVote(
-        targetVoteState: VoteState,
-        authPromptAction: AuthPromptAction
-    ) {
+    private fun handleVote(targetVoteState: VoteState) {
         viewModelScope.launch {
-            val authState = requireAuth(authPromptAction) ?: return@launch
-            val promoCodeWithUserState = _uiState.value.promocodeInteraction ?: return@launch
-            val currentPromoCode = promoCodeWithUserState.promocode
-            val currentUserState = promoCodeWithUserState.userInteraction
-            val originalPromoCodeWithUserState = promoCodeWithUserState
-
-            // Get current vote state
-            val currentVoteState = currentUserState?.voteState ?: VoteState.NONE
-
-            // Compute optimistic updates using handler
-            val voteUpdate = InteractionStateHandler.computeVoteUpdate(
-                currentUpvotes = currentPromoCode.upvotes,
-                currentDownvotes = currentPromoCode.downvotes,
-                currentVoteState = currentVoteState,
-                targetVoteState = targetVoteState,
-            )
-
-//            val updatedPromoCode = currentPromoCode.copy(
-//                upvotes = voteUpdate.newUpvotes,
-//                downvotes = voteUpdate.newDownvotes,
-//            )
-
-            val updatedInteraction = InteractionStateHandler.createOrUpdateVoteInteraction(
-                currentInteraction = currentUserState,
-                newVoteState = voteUpdate.newVoteState,
-                contentId = currentPromoCode.id.value,
-                contentType = ContentType.PROMO_CODE,
-                userId = authState.userId,
-            )
-
-            // Apply optimistic update to UI
-            _uiState.update { currentState ->
-                currentState.copy(
-                    promocodeInteraction = PromocodeInteraction(
-                        promocode = currentPromoCode,
-                        userInteraction = updatedInteraction,
-                    ),
-                    showVoteAnimation = true,
-                    lastVoteType = voteUpdate.newVoteState,
+            val currentVoteState = _uiState.value.voteState
+            if (targetVoteState == VoteState.UPVOTE) {
+                toggleVoteUseCase.toggleUpvote(
+                    itemId = uiState.value.promocodeId.value,
+                    itemType = ContentType.PROMOCODE,
+                    userId = uiState.value.userId ?: return@launch,
+                    currentVoteState = currentVoteState ?: return@launch,
                 )
-            }
-
-            // Execute vote operation
-            val result = executeVoteOperation(
-                currentVoteState = currentVoteState,
-                targetVoteState = targetVoteState,
-                contentId = currentPromoCode.id.value,
-                userId = authState.userId,
-            )
-
-            when (result) {
-                is Result.Success -> handleVoteSuccess(
-                    updatedInteraction = result.data,
-                    voteUpdate = voteUpdate,
-                    targetVoteState = targetVoteState,
-                    contentId = currentPromoCode.id.value,
-                )
-                is Result.Error -> handleInteractionError(
-                    error = result.error,
-                    originalState = originalPromoCodeWithUserState,
+            } else {
+                toggleVoteUseCase.toggleDownvote(
+                    itemId = uiState.value.promocodeId.value,
+                    itemType = ContentType.PROMOCODE,
+                    userId = uiState.value.userId ?: return@launch,
+                    currentVoteState = currentVoteState ?: return@launch,
                 )
             }
         }
@@ -314,13 +283,12 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         _uiState.update { it.copy(authBottomSheet = AuthBottomSheetState(action)) }
     }
 
-    private suspend fun requireAuth(action: AuthPromptAction): AuthState.Authenticated? {
-        val authState = getAuthStateUseCase().first()
-        return if (authState is AuthState.Authenticated) {
-            authState
-        } else {
-            showAuthBottomSheet(action)
-            null
+    private fun requireAuth(action: AuthPromptAction) {
+        viewModelScope.launch {
+            val authState = getAuthStateUseCase().first()
+            if (authState !is AuthState.Authenticated) {
+                showAuthBottomSheet(action)
+            }
         }
     }
 
@@ -333,13 +301,13 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         when (targetVoteState) {
             VoteState.UPVOTE -> toggleVoteUseCase.toggleUpvote(
                 itemId = contentId,
-                itemType = ContentType.PROMO_CODE,
+                itemType = ContentType.PROMOCODE,
                 userId = userId,
                 currentVoteState = currentVoteState,
             )
             VoteState.DOWNVOTE -> toggleVoteUseCase.toggleDownvote(
                 itemId = contentId,
-                itemType = ContentType.PROMO_CODE,
+                itemType = ContentType.PROMOCODE,
                 userId = userId,
                 currentVoteState = currentVoteState,
             )
