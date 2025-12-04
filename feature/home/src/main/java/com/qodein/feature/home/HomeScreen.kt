@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -136,95 +138,103 @@ private fun HomeContent(
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        state = listState,
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
+    val pullToRefreshState = rememberPullToRefreshState()
+    PullToRefreshBox(
+        state = pullToRefreshState,
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { onAction(HomeAction.RefreshData) },
+        modifier = modifier,
     ) {
-        // Hero Banner
-        item(key = BANNER_SECTION_KEY) {
-            HeroBannerSection(
-                bannerState = uiState.bannerState,
-                userLanguage = uiState.userLanguage,
-                onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
-                onRetryBanners = { onAction(HomeAction.RetryBannersClicked) },
-            )
-        }
-
-        // Filters Section
-        item(key = FILTERS_SECTION_KEY) {
-            FiltersSection(
-                currentFilters = uiState.currentFilters,
-                onFilterSelected = { filterType ->
-                    onAction(HomeAction.ShowFilterDialog(filterType))
-                },
-                onResetFilters = {
-                    onAction(HomeAction.ResetFilters)
-                },
-                modifier = Modifier.padding(
-                    top = SpacingTokens.lg,
-                    bottom = SpacingTokens.md,
-                    start = SpacingTokens.sm,
-                    end = SpacingTokens.sm,
-                ),
-            )
-        }
-
-        // Promo Codes Section Header
-        item(key = PROMO_CODES_HEADER_KEY) {
-            PromocodeSectionHeader(
-                currentFilters = uiState.currentFilters,
-                modifier = Modifier.padding(SpacingTokens.xs),
-            )
-        }
-
-        // Promo Codes Content
-        when (val promoState = uiState.promocodeUiState) {
-            PromocodeUiState.Loading -> {
-                item(key = PROMO_CODES_LOADING_KEY) {
-                    PromocodeSectionLoadingState(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                    )
-                }
+        LazyColumn(
+            state = listState,
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
+        ) {
+            // Hero Banner
+            item(key = BANNER_SECTION_KEY) {
+                HeroBannerSection(
+                    bannerState = uiState.bannerState,
+                    userLanguage = uiState.userLanguage,
+                    onBannerClick = { banner -> onAction(HomeAction.BannerClicked(banner)) },
+                    onRetryBanners = { onAction(HomeAction.RetryBannersClicked) },
+                )
             }
-            is PromocodeUiState.Success -> {
-                items(
-                    items = promoState.promocodes,
-                    key = { promoCode -> promoCode.id.value },
-                ) { promocode ->
-                    PromocodeCard(
-                        promocode = promocode,
-                        onCardClick = {
-                            onAction(HomeAction.PromoCodeClicked(promocode.id))
-                        },
-                        onCopyCodeClick = {
-                            onAction(HomeAction.CopyPromoCode(promocode))
-                        },
-                        modifier = Modifier.padding(SpacingTokens.sm),
-                    )
-                }
 
-                if (uiState.isLoadingMore) {
-                    item(key = PROMO_CODES_LOADING_MORE_KEY) {
-                        LoadingMoreIndicator()
+            // Filters Section
+            item(key = FILTERS_SECTION_KEY) {
+                FiltersSection(
+                    currentFilters = uiState.currentFilters,
+                    onFilterSelected = { filterType ->
+                        onAction(HomeAction.ShowFilterDialog(filterType))
+                    },
+                    onResetFilters = {
+                        onAction(HomeAction.ResetFilters)
+                    },
+                    modifier = Modifier.padding(
+                        top = SpacingTokens.lg,
+                        bottom = SpacingTokens.md,
+                        start = SpacingTokens.sm,
+                        end = SpacingTokens.sm,
+                    ),
+                )
+            }
+
+            // Promo Codes Section Header
+            item(key = PROMO_CODES_HEADER_KEY) {
+                PromocodeSectionHeader(
+                    currentFilters = uiState.currentFilters,
+                    modifier = Modifier.padding(SpacingTokens.xs),
+                )
+            }
+
+            // Promo Codes Content
+            when (val promoState = uiState.promocodeUiState) {
+                PromocodeUiState.Loading -> {
+                    item(key = PROMO_CODES_LOADING_KEY) {
+                        PromocodeSectionLoadingState(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                        )
                     }
                 }
-            }
-            PromocodeUiState.Empty -> {
-                item(key = PROMO_CODES_EMPTY_KEY) {
-                    PromocodeSectionEmptyState(
-                        modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
-                    )
+                is PromocodeUiState.Success -> {
+                    items(
+                        items = promoState.promocodes,
+                        key = { promoCode -> promoCode.id.value },
+                    ) { promocode ->
+                        PromocodeCard(
+                            promocode = promocode,
+                            onCardClick = {
+                                onAction(HomeAction.PromoCodeClicked(promocode.id))
+                            },
+                            onCopyCodeClick = {
+                                onAction(HomeAction.CopyPromoCode(promocode))
+                            },
+                            modifier = Modifier.padding(SpacingTokens.sm),
+                        )
+                    }
+
+                    if (uiState.isLoadingMore) {
+                        item(key = PROMO_CODES_LOADING_MORE_KEY) {
+                            LoadingMoreIndicator()
+                        }
+                    }
                 }
-            }
-            is PromocodeUiState.Error -> {
-                item(key = PROMO_CODES_ERROR_KEY) {
-                    PromocodeSectionErrorState(
-                        errorState = promoState,
-                        onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
-                        modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
-                    )
+                PromocodeUiState.Empty -> {
+                    item(key = PROMO_CODES_EMPTY_KEY) {
+                        PromocodeSectionEmptyState(
+                            modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
+                        )
+                    }
+                }
+                is PromocodeUiState.Error -> {
+                    item(key = PROMO_CODES_ERROR_KEY) {
+                        PromocodeSectionErrorState(
+                            errorState = promoState,
+                            onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
+                            modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
+                        )
+                    }
                 }
             }
         }
