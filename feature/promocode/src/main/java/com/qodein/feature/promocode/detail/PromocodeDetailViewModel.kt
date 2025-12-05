@@ -163,10 +163,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             }
 
             // Voting
-            val currentVoteState = _uiState.value.userInteraction?.voteState ?: run {
-                // Interaction not loaded yet; skip vote until user data arrives
-                return@launch
-            }
+            val currentVoteState = _uiState.value.userInteraction?.voteState ?: VoteState.NONE
             _uiState.update { it.copy(currentVoting = targetVoteState) }
             when (
                 val result = toggleVoteUseCase(

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
 import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
@@ -124,13 +125,13 @@ val PromocodeSubmissionStep.shortNameRes: Int
 
 val PromocodeSubmissionStep.hintRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_hint
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_hint
-        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_hint
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_hint
-        PromocodeSubmissionStep.MINIMUM_ORDER -> CoreUiR.string.step_minimum_order_hint
-        PromocodeSubmissionStep.RULES -> CoreUiR.string.step_eligibility_hint
-        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_hint
-        PromocodeSubmissionStep.START_DATE -> CoreUiR.string.step_start_date_hint
-        PromocodeSubmissionStep.END_DATE -> CoreUiR.string.step_end_date_hint
+        PromocodeSubmissionStep.SERVICE -> R.string.step_service_hint
+        PromocodeSubmissionStep.DISCOUNT_TYPE -> R.string.step_discount_type_hint
+        PromocodeSubmissionStep.PROMOCODE -> R.string.step_promo_code_hint
+        PromocodeSubmissionStep.DISCOUNT_VALUE -> R.string.step_discount_value_hint
+        PromocodeSubmissionStep.MINIMUM_ORDER -> R.string.step_minimum_order_hint
+        PromocodeSubmissionStep.RULES -> R.string.step_eligibility_hint
+        PromocodeSubmissionStep.DESCRIPTION -> R.string.step_description_hint
+        PromocodeSubmissionStep.START_DATE -> R.string.step_start_date_hint
+        PromocodeSubmissionStep.END_DATE -> R.string.step_end_date_hint
     }

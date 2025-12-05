@@ -32,7 +32,7 @@ data class SubmissionWizardData(
 
     // Date Settings
     val startDate: LocalDate = LocalDate.now(),
-    val endDate: LocalDate? = null
+    val endDate: LocalDate? = LocalDate.now().plusDays(30)
 ) {
     val effectiveServiceName: String get() = selectedService?.name ?: serviceName
     val effectiveServiceUrl: String get() = selectedService?.siteUrl ?: serviceUrl

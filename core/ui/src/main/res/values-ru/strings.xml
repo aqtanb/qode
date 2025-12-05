@@ -176,13 +176,4 @@
     <string name="step_start_date_short">Начало</string>
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
-    <string name="step_service_hint">Выберите или введите сервис</string>
-    <string name="step_discount_type_hint">Процентная — растёт вместе с суммой заказа.\nФиксированная — одинаковая скидка вне зависимости от суммы.</string>
-    <string name="step_promo_code_hint">Код, который введет пользователь</string>
-    <string name="step_discount_value_hint">Какую скидку дает этот код?</string>
-    <string name="step_minimum_order_hint">Минимальная сумма для скидки</string>
-    <string name="step_start_date_hint">Скидка стартует в эту дату</string>
-    <string name="step_end_date_hint">Скидка заканчивается в эту дату</string>
-    <string name="step_eligibility_hint">Кому доступно и как часто можно использовать</string>
-    <string name="step_description_hint">Основные правила и детали</string>
 </resources>

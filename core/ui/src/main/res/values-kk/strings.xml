@@ -185,13 +185,4 @@
     <string name="step_start_date_short">Басталу</string>
     <string name="step_end_date_title">Аяқталу күні</string>
     <string name="step_end_date_short">Аяқталу</string>
-    <string name="step_service_hint">Қызметті таңдаңыз немесе енгізіңіз</string>
-    <string name="step_discount_type_hint">Пайыздық – тапсырыс сомасына қарай өседі.\nБекітілген – тапсырыс сомасына қарамай бірдей жеңілдік.</string>
-    <string name="step_promo_code_hint">Пайдаланушылар енгізетін код</string>
-    <string name="step_discount_value_hint">Бұл код қанша жеңілдік береді?</string>
-    <string name="step_minimum_order_hint">Жеңілдікке керек ең төменгі сома</string>
-    <string name="step_start_date_hint">Жеңілдік осы күні басталады</string>
-    <string name="step_end_date_hint">Жеңілдік осы күні аяқталады</string>
-    <string name="step_eligibility_hint">Кімдерге және қандай шарттармен қолданылады</string>
-    <string name="step_description_hint">Негізгі ережелер мен егжей-тегжейлер</string>
 </resources>
