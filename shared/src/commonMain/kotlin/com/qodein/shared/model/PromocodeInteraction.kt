@@ -45,7 +45,7 @@ data class PromocodeInteraction(val promocode: Promocode, val userInteraction: U
                 require(interaction.itemId == promocode.id.value) {
                     "User interaction itemId (${interaction.itemId}) must match promo code ID (${promocode.id.value})"
                 }
-                require(interaction.itemType == ContentType.PROMOCODE) {
+                require(interaction.itemType == ContentType.PROMO_CODE) {
                     "User interaction must be for PROMO_CODE type, got ${interaction.itemType}"
                 }
             }

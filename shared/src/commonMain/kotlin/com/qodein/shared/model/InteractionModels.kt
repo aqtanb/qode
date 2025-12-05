@@ -17,7 +17,7 @@ enum class VoteState {
 
 @Serializable
 enum class ContentType {
-    PROMOCODE,
+    PROMO_CODE,
     POST,
     COMMENT,
     PROMO

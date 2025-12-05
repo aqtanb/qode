@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,11 +23,8 @@ import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.detail.PromocodeDetailScreen
-import com.qodein.feature.promocode.detail.PromocodeDetailUiState
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
-import com.qodein.shared.model.PromocodeInteraction
 
 @Composable
 fun PromocodeInfo(
@@ -136,18 +131,8 @@ private fun PromocodeHeaderPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
 
-        PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(
-                promocodeId = samplePromoCode.id,
-                promocodeInteraction = PromocodeInteraction(
-                    promocode = samplePromoCode,
-                    userInteraction = null,
-                ),
-                isLoading = false,
-            ),
-            onAction = {},
-            onNavigateBack = {},
-            snackbarHostState = remember { SnackbarHostState() },
+        PromocodeInfo(
+            promocode = samplePromoCode,
         )
     }
 }

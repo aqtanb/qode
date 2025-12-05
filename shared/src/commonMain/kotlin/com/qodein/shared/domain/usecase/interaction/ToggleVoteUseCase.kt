@@ -1,6 +1,7 @@
 package com.qodein.shared.domain.usecase.interaction
 
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.model.ContentType
@@ -13,39 +14,30 @@ import com.qodein.shared.model.VoteState
  * Handles the business logic for vote state transitions.
  */
 class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository) {
-    /**
-     * Toggle upvote on content.
-     * If user already upvoted, removes vote. If no vote or downvoted, sets upvote.
-     */
-    suspend fun toggleUpvote(
+    suspend operator fun invoke(
         itemId: String,
         itemType: ContentType,
-        userId: UserId,
-        currentVoteState: VoteState
+        userId: UserId?,
+        currentVoteState: VoteState,
+        targetVoteState: VoteState
     ): Result<UserInteraction, OperationError> {
-        val newVoteState = when (currentVoteState) {
-            VoteState.UPVOTE -> VoteState.NONE
-            VoteState.DOWNVOTE -> VoteState.UPVOTE
-            VoteState.NONE -> VoteState.UPVOTE
+        if (userId == null) {
+            return Result.Error(InteractionError.VotingFailure.NotAuthorized)
         }
-        return repository.toggleVote(itemId, itemType, userId, newVoteState)
-    }
 
-    /**
-     * Toggle downvote on content.
-     * If user already downvoted, removes vote. If no vote or upvoted, sets downvote.
-     */
-    suspend fun toggleDownvote(
-        itemId: String,
-        itemType: ContentType,
-        userId: UserId,
-        currentVoteState: VoteState
-    ): Result<UserInteraction, OperationError> {
-        val newVoteState = when (currentVoteState) {
-            VoteState.UPVOTE -> VoteState.DOWNVOTE
-            VoteState.DOWNVOTE -> VoteState.NONE
-            VoteState.NONE -> VoteState.DOWNVOTE
+        val newVoteState = when (targetVoteState) {
+            VoteState.UPVOTE ->
+                if (currentVoteState == VoteState.UPVOTE) VoteState.NONE else VoteState.UPVOTE
+            VoteState.DOWNVOTE ->
+                if (currentVoteState == VoteState.DOWNVOTE) VoteState.NONE else VoteState.DOWNVOTE
+            VoteState.NONE -> VoteState.NONE
         }
-        return repository.toggleVote(itemId, itemType, userId, newVoteState)
+
+        return repository.toggleVote(
+            itemId = itemId,
+            itemType = itemType,
+            userId = userId,
+            newVoteState,
+        )
     }
 }
