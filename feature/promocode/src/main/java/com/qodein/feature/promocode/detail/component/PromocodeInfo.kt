@@ -29,13 +29,14 @@ import com.qodein.shared.model.Promocode
 @Composable
 fun PromocodeInfo(
     promocode: Promocode,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    voteScoreOverride: Int? = null
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
     ) {
-        PromocodeHeader(promocode)
+        PromocodeHeader(promocode, voteScoreOverride = voteScoreOverride)
         PromocodeDescription(promocode, modifier = Modifier.fillMaxWidth())
     }
 }
@@ -43,7 +44,8 @@ fun PromocodeInfo(
 @Composable
 private fun PromocodeHeader(
     promocode: Promocode,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    voteScoreOverride: Int? = null
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -75,8 +77,9 @@ private fun PromocodeHeader(
         Column(
             horizontalAlignment = Alignment.End,
         ) {
+            val voteScore = voteScoreOverride ?: promocode.voteScore
             Text(
-                text = if (promocode.voteScore > 0) "+${promocode.voteScore}" else promocode.voteScore.toString(),
+                text = if (voteScore > 0) "+$voteScore" else voteScore.toString(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.End,
@@ -133,6 +136,7 @@ private fun PromocodeHeaderPreview() {
 
         PromocodeInfo(
             promocode = samplePromoCode,
+            voteScoreOverride = 5,
         )
     }
 }

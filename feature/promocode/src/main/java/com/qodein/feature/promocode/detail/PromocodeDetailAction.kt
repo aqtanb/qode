@@ -8,7 +8,6 @@ sealed class PromocodeDetailAction {
 
     data class VoteClicked(val voteState: VoteState) : PromocodeDetailAction()
 
-    data object CopyCodeClicked : PromocodeDetailAction()
     data object ShareClicked : PromocodeDetailAction()
 
     data object BackClicked : PromocodeDetailAction()
@@ -17,5 +16,4 @@ sealed class PromocodeDetailAction {
     data object DismissAuthSheet : PromocodeDetailAction()
 
     data object RetryClicked : PromocodeDetailAction()
-    data object ErrorDismissed : PromocodeDetailAction()
 }

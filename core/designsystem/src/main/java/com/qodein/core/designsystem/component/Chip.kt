@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -58,16 +59,25 @@ fun QodeinFilterChip(
     filled: Boolean = false,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: ImageVector? = null,
+    isLoading: Boolean = false,
     onClose: (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(ShapeTokens.Corner.full)
 ) {
     FilterChip(
         onClick = onClick,
         label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                    strokeWidth = ShapeTokens.Border.thin,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            } else {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
         },
         selected = selected,
         enabled = enabled,

@@ -18,31 +18,25 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.R
-import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.VoteState
 
 @Composable
 fun PromocodeActions(
-    promocode: Promocode,
     upvoteCount: Int,
     downvoteCount: Int,
-    isUpvotedByCurrentUser: Boolean,
-    isDownvotedByCurrentUser: Boolean,
-    onUpvoteClicked: () -> Unit,
-    onDownvoteClicked: () -> Unit,
+    vote: VoteState,
+    currentVoting: VoteState?,
+    onVote: (VoteState) -> Unit,
     onShareClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val upvoteContentDescription = stringResource(R.string.cd_upvote, upvoteCount)
     val downvoteContentDescription = stringResource(R.string.cd_downvote, downvoteCount)
     val shareContentDescription = stringResource(R.string.cd_share)
-    val userVoteState = when {
-        isUpvotedByCurrentUser -> VoteState.UPVOTE
-        isDownvotedByCurrentUser -> VoteState.DOWNVOTE
-        else -> VoteState.NONE
-    }
+    val isUpvoteVoting = currentVoting == VoteState.UPVOTE
+    val isDownvoteVoting = currentVoting == VoteState.DOWNVOTE
+    val votingDisabled = currentVoting != null
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -51,8 +45,8 @@ fun PromocodeActions(
     ) {
         QodeinFilterChip(
             label = upvoteCount.toString(),
-            onClick = onUpvoteClicked,
-            selected = userVoteState == VoteState.UPVOTE,
+            onClick = { if (!votingDisabled) onVote(VoteState.UPVOTE) },
+            selected = vote == VoteState.UPVOTE,
             leadingIcon = {
                 Icon(
                     imageVector = QodeActionIcons.Up,
@@ -60,15 +54,16 @@ fun PromocodeActions(
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             },
+            isLoading = isUpvoteVoting,
             modifier = Modifier.semantics {
                 contentDescription = upvoteContentDescription
             },
         )
 
         QodeinFilterChip(
-            label = downvoteCount.toString(),
-            onClick = onDownvoteClicked,
-            selected = userVoteState == VoteState.DOWNVOTE,
+            label = if (downvoteCount == 0) "0" else "-$downvoteCount",
+            onClick = { if (!votingDisabled) onVote(VoteState.DOWNVOTE) },
+            selected = vote == VoteState.DOWNVOTE,
             leadingIcon = {
                 Icon(
                     imageVector = QodeActionIcons.Down,
@@ -76,6 +71,7 @@ fun PromocodeActions(
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             },
+            isLoading = isDownvoteVoting,
             modifier = Modifier.semantics {
                 contentDescription = downvoteContentDescription
             },
@@ -105,17 +101,13 @@ fun PromocodeActions(
 @Composable
 private fun PromocodeActionsPreview() {
     QodeTheme {
-        val samplePromoCode = PromocodePreviewData.percentagePromocode
-
         PromocodeActions(
-            promocode = samplePromoCode,
-            upvoteCount = samplePromoCode.upvotes,
-            downvoteCount = samplePromoCode.downvotes,
-            isUpvotedByCurrentUser = true,
-            isDownvotedByCurrentUser = false,
-            onUpvoteClicked = {},
-            onDownvoteClicked = {},
+            upvoteCount = 12,
+            downvoteCount = 5,
+            vote = VoteState.UPVOTE,
+            onVote = {},
             onShareClicked = {},
+            currentVoting = null,
         )
     }
 }

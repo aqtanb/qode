@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -69,8 +68,6 @@ fun PromocodeDetailRoute(
     )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val promocodeState by viewModel.promocodeUiState.collectAsStateWithLifecycle()
-    val interactionState by viewModel.interactionState.collectAsStateWithLifecycle()
     val localContext = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -106,8 +103,6 @@ fun PromocodeDetailRoute(
 
     PromocodeDetailScreen(
         uiState = uiState,
-        promocodeState = promocodeState,
-        interactionState = interactionState,
         onAction = viewModel::onAction,
         onNavigateBack = onNavigateBack,
         snackbarHostState = snackbarHostState,
@@ -119,16 +114,14 @@ fun PromocodeDetailRoute(
 @Composable
 fun PromocodeDetailScreen(
     uiState: PromocodeDetailUiState,
-    promocodeState: PromocodeUiState,
-    interactionState: InteractionUiState,
     onAction: (PromocodeDetailAction) -> Unit,
     onNavigateBack: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val title = when (promocodeState) {
-        is PromocodeUiState.Success -> promocodeState.data.code.value
+    val title = when (val state = uiState.promocodeState) {
+        is PromocodeUiState.Success -> state.data.code.value
         else -> ""
     }
 
@@ -148,14 +141,17 @@ fun PromocodeDetailScreen(
                 .padding(paddingValues)
                 .padding(horizontal = SpacingTokens.sm),
         ) {
-            when (promocodeState) {
+            when (val promoState = uiState.promocodeState) {
                 PromocodeUiState.Loading -> PromocodeLoadingState()
-                is PromocodeUiState.Error -> PromocodeErrorState(error = promocodeState.error, onRetry = {
+                is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
                     onAction(PromocodeDetailAction.RetryClicked)
                 })
                 is PromocodeUiState.Success -> PromocodeSuccessState(
-                    promocode = promocodeState.data,
-                    interactionState = interactionState,
+                    promocode = promoState.data,
+                    userInteraction = uiState.userInteraction,
+                    currentVoting = uiState.currentVoting,
+                    optimisticUpvotes = uiState.optimisticUpvotes,
+                    optimisticDownvotes = uiState.optimisticDownvotes,
                     onAction = onAction,
                 )
             }
@@ -175,29 +171,36 @@ fun PromocodeDetailScreen(
 @Composable
 private fun PromocodeSuccessState(
     promocode: Promocode,
-    interactionState: InteractionUiState,
+    userInteraction: UserInteraction?,
+    currentVoting: VoteState?,
+    optimisticUpvotes: Int?,
+    optimisticDownvotes: Int?,
     onAction: (PromocodeDetailAction) -> Unit
 ) {
+    val displayUpvotes = optimisticUpvotes ?: promocode.upvotes
+    val displayDownvotes = optimisticDownvotes ?: promocode.downvotes
+    val displayVoteScore = displayUpvotes - displayDownvotes
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        PromocodeInfo(promocode = promocode)
+        PromocodeInfo(
+            promocode = promocode,
+            voteScoreOverride = displayVoteScore,
+        )
         PromocodeDetails(promocode = promocode)
 
-        when (interactionState) {
-            InteractionUiState.Loading -> InteractionLoadingState()
-            is InteractionUiState.Error -> InteractionErrorState(error = interactionState.error, onRetry = {
-                onAction(PromocodeDetailAction.RetryClicked)
-            })
-            else -> InteractionsSuccessState(
-                interactionState = interactionState,
-                onAction = onAction,
-                promocode = promocode,
-            )
-        }
+        InteractionsSuccessState(
+            promocode = promocode,
+            userInteraction = userInteraction,
+            currentVoting = currentVoting,
+            optimisticUpvotes = optimisticUpvotes,
+            optimisticDownvotes = optimisticDownvotes,
+            onAction = onAction,
+        )
     }
 }
 
@@ -217,49 +220,24 @@ private fun PromocodeErrorState(
 @Composable
 private fun InteractionsSuccessState(
     promocode: Promocode,
-    interactionState: InteractionUiState,
+    userInteraction: UserInteraction?,
+    currentVoting: VoteState?,
+    optimisticUpvotes: Int?,
+    optimisticDownvotes: Int?,
     onAction: (PromocodeDetailAction) -> Unit
 ) {
-    val voteState = when (interactionState) {
-        is InteractionUiState.Success -> interactionState.interaction.voteState
-        else -> VoteState.NONE
-    }
-    val isUpvoted = voteState == VoteState.UPVOTE
-    val isDownvoted = voteState == VoteState.DOWNVOTE
+    val voteState = userInteraction?.voteState ?: VoteState.NONE
+    val upvotes = optimisticUpvotes ?: promocode.upvotes
+    val downvotes = optimisticDownvotes ?: promocode.downvotes
 
     PromocodeActions(
-        promocode = promocode,
-        upvoteCount = promocode.upvotes,
-        downvoteCount = promocode.downvotes,
-        isUpvotedByCurrentUser = isUpvoted,
-        isDownvotedByCurrentUser = isDownvoted,
-        onUpvoteClicked = { onAction(PromocodeDetailAction.VoteClicked(VoteState.UPVOTE)) },
-        onDownvoteClicked = { onAction(PromocodeDetailAction.VoteClicked(VoteState.DOWNVOTE)) },
+        upvoteCount = upvotes,
+        downvoteCount = downvotes,
+        vote = voteState,
+        currentVoting = currentVoting,
+        onVote = { vote -> onAction(PromocodeDetailAction.VoteClicked(vote)) },
         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
     )
-}
-
-@Composable
-private fun InteractionLoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun InteractionErrorState(
-    error: OperationError,
-    onRetry: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        QodeErrorCard(error = error, onRetry = onRetry)
-    }
 }
 
 @Composable
@@ -401,9 +379,10 @@ private fun PromocodeLoadingPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Loading,
-            interactionState = InteractionUiState.None,
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Loading,
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },
@@ -417,9 +396,10 @@ private fun PromocodeErrorPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Error(SystemError.Unknown),
-            interactionState = InteractionUiState.None,
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Error(SystemError.Unknown),
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },
@@ -433,9 +413,10 @@ private fun PromocodeSuccessPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Success(samplePromoCode),
-            interactionState = InteractionUiState.None,
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },
@@ -449,9 +430,11 @@ private fun InteractionLoadingPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Success(samplePromoCode),
-            interactionState = InteractionUiState.Loading,
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                currentVoting = VoteState.UPVOTE,
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },
@@ -465,9 +448,11 @@ private fun InteractionErrorPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Success(samplePromoCode),
-            interactionState = InteractionUiState.Error(SystemError.Unknown),
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                transientError = SystemError.Unknown,
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },
@@ -489,9 +474,11 @@ private fun InteractionSuccessPreview() {
         )
 
         PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(promocodeId = samplePromoCode.id),
-            promocodeState = PromocodeUiState.Success(samplePromoCode),
-            interactionState = InteractionUiState.Success(interaction),
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                userInteraction = interaction,
+            ),
             onAction = {},
             onNavigateBack = {},
             snackbarHostState = remember { SnackbarHostState() },

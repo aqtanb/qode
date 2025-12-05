@@ -52,12 +52,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private val _uiState = MutableStateFlow(PromocodeDetailUiState(promocodeId = promocodeId))
     val uiState: StateFlow<PromocodeDetailUiState> = _uiState.asStateFlow()
 
-    private val _interactionState = MutableStateFlow<InteractionUiState>(InteractionUiState.None)
-    val interactionState: StateFlow<InteractionUiState> = _interactionState.asStateFlow()
-
-    private val _promocodeUiState = MutableStateFlow<PromocodeUiState>(PromocodeUiState.Loading)
-    val promocodeUiState: StateFlow<PromocodeUiState> = _promocodeUiState.asStateFlow()
-
     private val _events = MutableSharedFlow<PromocodeDetailEvent>()
     val events = _events.asSharedFlow()
 
@@ -72,24 +66,44 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             is PromocodeDetailAction.VoteClicked -> {
                 handleVote(action.voteState)
             }
-            is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
             is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
-            is PromocodeDetailAction.ErrorDismissed -> dismissError()
         }
     }
 
+    private fun computeVoteCounts(
+        previousVote: VoteState,
+        newVote: VoteState,
+        currentUpvotes: Int,
+        currentDownvotes: Int
+    ): Pair<Int, Int> =
+        when (previousVote to newVote) {
+            VoteState.NONE to VoteState.UPVOTE -> (currentUpvotes + 1) to currentDownvotes
+            VoteState.NONE to VoteState.DOWNVOTE -> currentUpvotes to (currentDownvotes + 1)
+            VoteState.UPVOTE to VoteState.NONE -> (currentUpvotes - 1).coerceAtLeast(0) to currentDownvotes
+            VoteState.DOWNVOTE to VoteState.NONE -> currentUpvotes to (currentDownvotes - 1).coerceAtLeast(0)
+            VoteState.UPVOTE to VoteState.DOWNVOTE -> (currentUpvotes - 1).coerceAtLeast(0) to (currentDownvotes + 1)
+            VoteState.DOWNVOTE to VoteState.UPVOTE -> (currentUpvotes + 1) to (currentDownvotes - 1).coerceAtLeast(0)
+            else -> currentUpvotes to currentDownvotes
+        }
+
     private suspend fun loadPromocode(promocodeId: PromocodeId) {
-        _promocodeUiState.value = PromocodeUiState.Loading
+        _uiState.update { it.copy(promocodeState = PromocodeUiState.Loading) }
         when (val result = getPromocodeUseCase(promocodeId)) {
             is Result.Success -> {
-                _promocodeUiState.value = PromocodeUiState.Success(result.data)
+                _uiState.update {
+                    it.copy(
+                        promocodeState = PromocodeUiState.Success(result.data),
+                        optimisticUpvotes = null,
+                        optimisticDownvotes = null,
+                    )
+                }
             }
             is Result.Error -> {
-                _promocodeUiState.value = PromocodeUiState.Error(result.error)
+                _uiState.update { it.copy(promocodeState = PromocodeUiState.Error(result.error)) }
             }
         }
     }
@@ -106,15 +120,10 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 )
             ) {
                 is Result.Success -> {
-                    val interaction = result.data
-                    if (interaction != null) {
-                        _interactionState.value = InteractionUiState.Success(interaction)
-                    } else {
-                        _interactionState.value = InteractionUiState.None
-                    }
+                    _uiState.update { it.copy(userInteraction = result.data) }
                 }
                 is Result.Error -> {
-                    _interactionState.value = InteractionUiState.Error(result.error)
+                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
                 }
             }
         }
@@ -154,11 +163,11 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             }
 
             // Voting
-            val currentVoteState = when (val state = _interactionState.value) {
-                is InteractionUiState.Success -> state.interaction.voteState
-                else -> return@launch
+            val currentVoteState = _uiState.value.userInteraction?.voteState ?: run {
+                // Interaction not loaded yet; skip vote until user data arrives
+                return@launch
             }
-            _interactionState.value = InteractionUiState.Loading
+            _uiState.update { it.copy(currentVoting = targetVoteState) }
             when (
                 val result = toggleVoteUseCase(
                     itemId = promocodeId.value,
@@ -169,37 +178,46 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 )
             ) {
                 is Result.Success -> {
-                    _interactionState.value = InteractionUiState.Success(result.data)
+                    val newInteraction = result.data
+                    val promoState = _uiState.value.promocodeState
+                    val promo = (promoState as? PromocodeUiState.Success)?.data
+                    if (promo != null) {
+                        val baseUpvotes = _uiState.value.optimisticUpvotes ?: promo.upvotes
+                        val baseDownvotes = _uiState.value.optimisticDownvotes ?: promo.downvotes
+                        val (newUpvotes, newDownvotes) = computeVoteCounts(
+                            previousVote = currentVoteState,
+                            newVote = newInteraction.voteState,
+                            currentUpvotes = baseUpvotes,
+                            currentDownvotes = baseDownvotes,
+                        )
+                        _uiState.update {
+                            it.copy(
+                                userInteraction = newInteraction,
+                                optimisticUpvotes = newUpvotes,
+                                optimisticDownvotes = newDownvotes,
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(userInteraction = newInteraction) }
+                    }
                 }
                 is Result.Error -> {
-                    _interactionState.value = InteractionUiState.Error(result.error)
+                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
                 }
             }
-        }
-    }
-
-    private fun handleCopyCode() {
-        val currentPromoCode = _uiState.value.promocodeInteraction?.promocode
-        if (currentPromoCode != null) {
-            _uiState.update { it.copy(isCopying = true) }
-
-            viewModelScope.launch {
-                _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code.value))
-
-                _uiState.update { it.copy(isCopying = false) }
-            }
+            _uiState.update { it.copy(currentVoting = null) }
         }
     }
 
     private fun handleShare() {
-        val currentPromoCode = _uiState.value.promocodeInteraction?.promocode
-        if (currentPromoCode != null) {
-            _uiState.update { it.copy(isSharing = true) }
+        val promoState = _uiState.value.promocodeState
+        if (promoState !is PromocodeUiState.Success) return
+        val currentPromoCode = promoState.data
+        _uiState.update { it.copy(isSharing = true) }
 
-            viewModelScope.launch {
-                _events.emit(PromocodeDetailEvent.SharePromocode(currentPromoCode))
-                _uiState.update { it.copy(isSharing = false) }
-            }
+        viewModelScope.launch {
+            _events.emit(PromocodeDetailEvent.SharePromocode(currentPromoCode))
+            _uiState.update { it.copy(isSharing = false) }
         }
     }
 
@@ -210,36 +228,34 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     }
 
     private fun signInWithGoogle(context: Context) {
-        val currentAuthSheet = _uiState.value.authBottomSheet
-        if (currentAuthSheet != null) {
-            _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
+        val currentAuthSheet = _uiState.value.authBottomSheet ?: return
+        _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
 
-            viewModelScope.launch {
-                when (val tokenResult = idTokenProvider.getIdToken(context)) {
-                    is Result.Success -> {
-                        when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
-                            is Result.Success -> {
-                                _uiState.update { it.copy(authBottomSheet = null) }
-                                // Screen auto-reloads with user data via auth state listener in init
+        viewModelScope.launch {
+            when (val tokenResult = idTokenProvider.getIdToken(context)) {
+                is Result.Success -> {
+                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
+                        is Result.Success -> {
+                            _uiState.update { it.copy(authBottomSheet = null) }
+                            // Screen auto-reloads with user data via auth state listener in init
+                        }
+                        is Result.Error -> {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    authBottomSheet = currentAuthSheet.copy(isLoading = false),
+                                )
                             }
-                            is Result.Error -> {
-                                _uiState.update { currentState ->
-                                    currentState.copy(
-                                        authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                                    )
-                                }
-                                _events.emit(PromocodeDetailEvent.ShowError(signInResult.error))
-                            }
+                            _events.emit(PromocodeDetailEvent.ShowError(signInResult.error))
                         }
                     }
-                    is Result.Error -> {
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                            )
-                        }
-                        _events.emit(PromocodeDetailEvent.ShowError(tokenResult.error))
+                }
+                is Result.Error -> {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            authBottomSheet = currentAuthSheet.copy(isLoading = false),
+                        )
                     }
+                    _events.emit(PromocodeDetailEvent.ShowError(tokenResult.error))
                 }
             }
         }
@@ -247,10 +263,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 
     private fun dismissAuthSheet() {
         _uiState.update { it.copy(authBottomSheet = null) }
-    }
-
-    private fun dismissError() {
-        _uiState.update { it.copy(errorType = null) }
     }
 
     private fun showAuthBottomSheet(action: AuthPromptAction) {
