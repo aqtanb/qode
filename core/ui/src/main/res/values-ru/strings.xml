@@ -127,6 +127,7 @@
     <string name="error_algolia_service_unavailable">Сервис поиска временно недоступен.</string>
     <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
+    <string name="discount_fixed">%1$s₸ СКИДКА</string>
     <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировка</string>
     <string name="search_services_placeholder">Поиск сервисов…</string>
@@ -176,4 +177,5 @@
     <string name="step_start_date_short">Начало</string>
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
+    <string name="discount_percent">%1$s%% СКИДКА</string>
 </resources>

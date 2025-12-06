@@ -135,6 +135,8 @@
     <string name="action_retry">Retry</string>
     <string name="common_service">Service</string>
     <string name="common_promocode">Promocode</string>
+    <string name="discount_percent">%1$s%% OFF</string>
+    <string name="discount_fixed">%1$s₸ OFF</string>
 
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>

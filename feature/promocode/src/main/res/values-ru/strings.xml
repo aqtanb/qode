@@ -76,4 +76,7 @@
     <string name="step_end_date_hint">День когда промокод перестает действовать</string>
     <string name="step_eligibility_hint">Некоторые промокоды предоставляются только новым пользователям, некоторые могут использоваться в целом только один раз.</string>
     <string name="step_description_hint">Добавьте какие-нибудь полезные подробности об этой сделке, возможно, какие-то дополнительные правила</string>
+    <string name="action_share_promocode">Поделиться Промокодом</string>
+    <string name="share_subject_format">%1$s Промокод</string>
+    <string name="share_code_label">Код: %1$s</string>
 </resources>

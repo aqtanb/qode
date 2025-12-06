@@ -76,4 +76,7 @@
     <string name="step_end_date_hint">Промокод жұмысын тоқтататын күн</string>
     <string name="step_eligibility_hint">Кейбір промокодтар жаңа қолданушыларға ғана беріледі, кейбіреулері жалпы бір рет қана қолданыла алады.</string>
     <string name="step_description_hint">Кез келген пайдалы мәліметтерді, мүмкін кейбір қосымша ережелерді қосыңыз</string>
+    <string name="action_share_promocode">Промокодпен бөлісу</string>
+    <string name="share_subject_format">%1$s Промокод</string>
+    <string name="share_code_label">Код: %1$s</string>
 </resources>

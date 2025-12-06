@@ -82,4 +82,10 @@
     <string name="step_end_date_hint">The day when the promocode ceases to be valid</string>
     <string name="step_eligibility_hint">Who can use this code and how often?</string>
     <string name="step_description_hint">Add any helpful details about this deal, maybe some additional rules</string>
+
+    <string name="action_share_promocode">Share Promocode</string>
+    <string name="share_subject_format">%1$s Promocode</string>
+    <string name="share_header_format" translatable="false">%1$s: %2$s</string>
+    <string name="share_code_label">Code: %1$s</string>
+    <string name="share_link_format" translatable="false">https://qodein.web.app/promocodes/%1$s</string>
 </resources>

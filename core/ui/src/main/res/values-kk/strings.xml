@@ -136,6 +136,7 @@
     <string name="error_algolia_service_unavailable">Іздеу қызметі уақытша қолжетімсіз.</string>
     <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
 
+    <string name="discount_fixed">%1$s₸ ЖЕҢІЛДІК</string>
     <string name="filter_chip_service">Қызмет</string>
     <string name="filter_chip_sort">Сұрыптау</string>
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>
@@ -185,4 +186,5 @@
     <string name="step_start_date_short">Басталу</string>
     <string name="step_end_date_title">Аяқталу күні</string>
     <string name="step_end_date_short">Аяқталу</string>
+    <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
 </resources>

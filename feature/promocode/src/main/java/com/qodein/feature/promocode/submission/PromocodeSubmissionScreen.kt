@@ -3,8 +3,10 @@ package com.qodein.feature.promocode.submission
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -213,6 +215,17 @@ private fun SuccessState(
                 onAction = onAction,
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            val submissionState = uiState.submission
+            if (submissionState is PromocodeSubmissionState.Error) {
+                Spacer(modifier = Modifier.height(SpacingTokens.md))
+                QodeErrorCard(
+                    error = submissionState.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingTokens.md),
+                )
+            }
         }
 
         WizardController(

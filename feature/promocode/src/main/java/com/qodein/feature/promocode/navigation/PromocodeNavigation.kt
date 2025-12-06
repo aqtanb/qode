@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.qodein.feature.promocode.detail.PromocodeDetailRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
@@ -31,7 +32,18 @@ fun NavGraphBuilder.promocodeSubmissionSection(onNavigateBack: () -> Unit) {
 }
 
 fun NavGraphBuilder.promocodeDetailSection(onNavigateBack: () -> Unit) {
-    composable<PromocodeDetailRoute> { backStackEntry ->
+    composable<PromocodeDetailRoute>(
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "https://qodein.web.app/promocodes/{promoCodeId}"
+                action = "android.intent.action.VIEW"
+            },
+            navDeepLink {
+                uriPattern = "qodein://promocode/{promoCodeId}"
+                action = "android.intent.action.VIEW"
+            },
+        ),
+    ) { backStackEntry ->
         val args = backStackEntry.toRoute<PromocodeDetailRoute>()
         PromocodeDetailRoute(
             promoCodeId = PromocodeId(args.promoCodeId),
