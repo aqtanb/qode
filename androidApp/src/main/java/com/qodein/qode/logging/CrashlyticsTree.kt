@@ -4,11 +4,6 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
-/**
- * Custom Timber tree that sends logs to Firebase Crashlytics.
- * All logs are sent as breadcrumbs to provide context for crash reports.
- * Errors and warnings are additionally recorded as non-fatal exceptions.
- */
 class CrashlyticsTree : Timber.Tree() {
 
     private val crashlytics = FirebaseCrashlytics.getInstance()
@@ -19,13 +14,34 @@ class CrashlyticsTree : Timber.Tree() {
         message: String,
         t: Throwable?
     ) {
-        // Send all logs as breadcrumbs for crash context
-        val logMessage = if (tag != null) "[$tag] $message" else message
+        if (priority == Log.VERBOSE || priority == Log.DEBUG) {
+            return
+        }
+
+        val logMessage = buildString {
+            append("[")
+            append(priorityToString(priority))
+            append("] ")
+            if (tag != null) {
+                append(tag)
+                append(": ")
+            }
+            append(message)
+        }
+
         crashlytics.log(logMessage)
 
-        // Record exceptions for ERROR and WARN priorities
-        if (priority >= Log.WARN) {
-            t?.let { crashlytics.recordException(it) }
+        if (t != null && priority >= Log.WARN) {
+            crashlytics.recordException(t)
         }
     }
+
+    private fun priorityToString(priority: Int): String =
+        when (priority) {
+            Log.INFO -> "INFO"
+            Log.WARN -> "WARN"
+            Log.ERROR -> "ERROR"
+            Log.ASSERT -> "ASSERT"
+            else -> "UNKNOWN"
+        }
 }

@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-assumenosideeffects class timber.log.Timber {
+    public static *** v(...);
+    public static *** d(...);
+}
+
+-assumenosideeffects class co.touchlab.kermit.Logger {
+    public *** v(...);
+    public *** d(...);
+}
