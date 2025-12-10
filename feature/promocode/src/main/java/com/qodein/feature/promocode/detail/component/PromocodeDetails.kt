@@ -78,6 +78,16 @@ internal fun PromocodeDetails(
                 valueColor = MaterialTheme.colorScheme.primary,
             )
             DetailItem(
+                icon = PromocodeIcons.Verified,
+                label = stringResource(R.string.promocode_details_verified),
+                value = if (promocode.isVerified) {
+                    stringResource(R.string.promocode_details_value_yes)
+                } else {
+                    stringResource(R.string.promocode_details_value_no)
+                },
+                valueColor = MaterialTheme.colorScheme.primary,
+            )
+            DetailItem(
                 icon = PromocodeIcons.StartDate,
                 label = stringResource(R.string.promocode_details_start_date),
                 value = rememberFormattedRelativeTime(promocode.startDate),

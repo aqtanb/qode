@@ -79,4 +79,5 @@
     <string name="action_share_promocode">Поделиться Промокодом</string>
     <string name="share_subject_format">%1$s Промокод</string>
     <string name="share_code_label">Код: %1$s</string>
+    <string name="promocode_details_verified">Верифицированный?</string>
 </resources>
