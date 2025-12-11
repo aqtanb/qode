@@ -2,6 +2,7 @@ package com.qodein.shared.model
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.ServiceError
+import com.qodein.shared.config.AppConfig
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -48,7 +49,7 @@ data class Service private constructor(
     companion object {
         const val NAME_MIN_LENGTH = 1
         const val NAME_MAX_LENGTH = 40
-        const val CLEARBIT_LOGO_BASE = "https://logo.clearbit.com/"
+        const val LOGO_DEV_BASE_URL = "https://img.logo.dev/"
 
         fun create(
             name: String,
@@ -72,7 +73,7 @@ data class Service private constructor(
             }
 
             val normalizedSiteUrl = normalizeDomain(cleanSiteUrl)
-            val resolvedLogoUrl = logoUrl ?: deriveClearbitLogoUrl(normalizedSiteUrl)
+            val resolvedLogoUrl = logoUrl ?: deriveLogoDevUrl(normalizedSiteUrl)
             val serviceId = generateRandomId()
 
             return Result.Success(
@@ -122,9 +123,11 @@ data class Service private constructor(
                 .trim()
         }
 
-        private fun deriveClearbitLogoUrl(siteUrl: String): String? {
+        private fun deriveLogoDevUrl(siteUrl: String): String? {
             if (siteUrl.isBlank()) return null
-            return "$CLEARBIT_LOGO_BASE$siteUrl"
+            val token = AppConfig.logoDevKey
+            if (token.isBlank()) return null
+            return "$LOGO_DEV_BASE_URL$siteUrl?token=$token&size=128&format=webp&fallback=monogram"
         }
     }
 }

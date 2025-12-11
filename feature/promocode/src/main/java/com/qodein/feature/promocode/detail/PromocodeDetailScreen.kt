@@ -7,12 +7,17 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -24,23 +29,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.ShimmerBox
+import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.detail.component.PromocodeActions
 import com.qodein.feature.promocode.detail.component.PromocodeDetails
 import com.qodein.feature.promocode.detail.component.PromocodeInfo
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
-import com.qodein.shared.model.PromocodeInteraction
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserInteraction
+import com.qodein.shared.model.VoteState
+import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,12 +122,16 @@ fun PromocodeDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val title = when (val state = uiState.promocodeState) {
+        is PromocodeUiState.Success -> state.data.code.value
+        else -> ""
+    }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             QodeTopAppBar(
-                title = uiState.promocodeInteraction?.promocode?.code?.value ?: "",
+                title = title,
                 navigationIcon = QodeActionIcons.Back,
                 onNavigationClick = onNavigateBack,
             )
@@ -119,33 +139,23 @@ fun PromocodeDetailScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues).padding(horizontal = SpacingTokens.sm),
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = SpacingTokens.sm),
         ) {
-            when {
-                uiState.isLoading -> {
-                    LoadingState()
-                }
-
-                uiState.hasData -> {
-                    val promocodeInteraction = uiState.promocodeInteraction!!
-                    val promocode = promocodeInteraction.promocode
-
-                    val requireUpvote = {
-                        onAction(PromocodeDetailAction.UpvoteClicked)
-                    }
-
-                    val requireDownvote = {
-                        onAction(PromocodeDetailAction.DownvoteClicked)
-                    }
-
-                    SuccessState(
-                        promocode = promocode,
-                        promocodeInteraction = promocodeInteraction,
-                        requireUpvote = requireUpvote,
-                        requireDownvote = requireDownvote,
-                        onAction = onAction,
-                    )
-                }
+            when (val promoState = uiState.promocodeState) {
+                PromocodeUiState.Loading -> PromocodeLoadingState()
+                is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
+                    onAction(PromocodeDetailAction.RetryClicked)
+                })
+                is PromocodeUiState.Success -> PromocodeSuccessState(
+                    promocode = promoState.data,
+                    userInteraction = uiState.userInteraction,
+                    currentVoting = uiState.currentVoting,
+                    optimisticUpvotes = uiState.optimisticUpvotes,
+                    optimisticDownvotes = uiState.optimisticDownvotes,
+                    onAction = onAction,
+                )
             }
 
             uiState.authBottomSheet?.let { authSheetState ->
@@ -161,13 +171,18 @@ fun PromocodeDetailScreen(
 }
 
 @Composable
-private fun SuccessState(
+private fun PromocodeSuccessState(
     promocode: Promocode,
-    promocodeInteraction: PromocodeInteraction,
-    requireUpvote: () -> Unit,
-    requireDownvote: () -> Unit,
+    userInteraction: UserInteraction?,
+    currentVoting: VoteState?,
+    optimisticUpvotes: Int?,
+    optimisticDownvotes: Int?,
     onAction: (PromocodeDetailAction) -> Unit
 ) {
+    val displayUpvotes = optimisticUpvotes ?: promocode.upvotes
+    val displayDownvotes = optimisticDownvotes ?: promocode.downvotes
+    val displayVoteScore = displayUpvotes - displayDownvotes
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -176,26 +191,151 @@ private fun SuccessState(
     ) {
         PromocodeInfo(
             promocode = promocode,
+            voteScoreOverride = displayVoteScore,
         )
-
         PromocodeDetails(promocode = promocode)
 
-        PromocodeActions(
-            promoCode = promocode,
-            isUpvotedByCurrentUser = promocodeInteraction.isUpvotedByCurrentUser,
-            isDownvotedByCurrentUser = promocodeInteraction.isDownvotedByCurrentUser,
-            onUpvoteClicked = requireUpvote,
-            onDownvoteClicked = requireDownvote,
-            onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
+        InteractionsSuccessState(
+            promocode = promocode,
+            userInteraction = userInteraction,
+            currentVoting = currentVoting,
+            optimisticUpvotes = optimisticUpvotes,
+            optimisticDownvotes = optimisticDownvotes,
+            onAction = onAction,
         )
     }
 }
 
-// TODO: Make it a skeleton
 @Composable
-private fun LoadingState() {
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-        CircularProgressIndicator()
+private fun PromocodeErrorState(
+    error: OperationError,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        QodeErrorCard(error = error, onRetry = onRetry)
+    }
+}
+
+@Composable
+private fun InteractionsSuccessState(
+    promocode: Promocode,
+    userInteraction: UserInteraction?,
+    currentVoting: VoteState?,
+    optimisticUpvotes: Int?,
+    optimisticDownvotes: Int?,
+    onAction: (PromocodeDetailAction) -> Unit
+) {
+    val voteState = userInteraction?.voteState ?: VoteState.NONE
+    val upvotes = optimisticUpvotes ?: promocode.upvotes
+    val downvotes = optimisticDownvotes ?: promocode.downvotes
+
+    PromocodeActions(
+        upvoteCount = upvotes,
+        downvoteCount = downvotes,
+        vote = voteState,
+        currentVoting = currentVoting,
+        onVote = { vote -> onAction(PromocodeDetailAction.VoteClicked(vote)) },
+        onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
+    )
+}
+
+@Composable
+private fun PromocodeLoadingState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        // 1. Header (Avatar + Name | Score + Time)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            // Left: Avatar and Name
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ShimmerBox(
+                    width = 40.dp,
+                    height = 40.dp,
+                    shape = CircleShape,
+                )
+                ShimmerLine(width = 120.dp, height = 14.dp)
+            }
+
+            // Right: Meta info aligned to End
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
+            ) {
+                ShimmerLine(width = 40.dp, height = 12.dp)
+                ShimmerLine(width = 70.dp, height = 12.dp)
+            }
+        }
+
+        // 2. Title (Bold/Large)
+        ShimmerLine(width = 280.dp, height = 24.dp)
+
+        // 3. Description Body (3 Paragraphs)
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.md)) {
+            // Paragraph 1 (~4 lines)
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs)) {
+                ShimmerLine(width = 320.dp, height = 14.dp)
+                ShimmerLine(width = 300.dp, height = 14.dp)
+                ShimmerLine(width = 310.dp, height = 14.dp)
+                ShimmerLine(width = 240.dp, height = 14.dp)
+            }
+        }
+
+        // 4. Details List (Table style)
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm)) {
+            // Table Header
+            ShimmerLine(width = 150.dp, height = 18.dp)
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                thickness = 1.dp,
+            )
+
+            // Table Rows (7 items)
+            repeat(7) {
+                Column {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SpacingTokens.sm),
+                    ) {
+                        // Left: Icon + Label
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            ShimmerBox(
+                                width = 20.dp,
+                                height = 20.dp,
+                                shape = CircleShape,
+                            )
+                            ShimmerLine(width = 80.dp, height = 14.dp)
+                        }
+
+                        // Right: Value
+                        ShimmerLine(width = 60.dp, height = 14.dp)
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+                        thickness = 1.dp,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -204,26 +344,54 @@ private fun sharePromocode(
     context: Context,
     promoCode: Promocode
 ) {
-    val shareText = buildString {
-        append("🎉 Check out this amazing deal!\n\n")
-        append("${promoCode.serviceName}\n")
-        when (val discount = promoCode.discount) {
-            is Discount.Percentage -> append("${formatNumber(discount.value)}% OFF")
-            is Discount.FixedAmount -> append("${formatNumber(discount.value)}₸ OFF")
-        }
-        append("\n\nCode: ${promoCode.code}")
-        promoCode.description?.let { append("\n\n$it") }
-        append("\n\nShared via Qode App")
-    }
+    val shareText = buildShareText(context, promoCode)
 
-    val shareIntent = Intent().apply {
-        action = Intent.ACTION_SEND
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_TEXT, shareText)
-        putExtra(Intent.EXTRA_SUBJECT, "Amazing Deal: ${promoCode.serviceName}")
+        putExtra(
+            Intent.EXTRA_SUBJECT,
+            context.getString(R.string.share_subject_format, promoCode.serviceName),
+        )
     }
 
-    context.startActivity(Intent.createChooser(shareIntent, "Share Promocode"))
+    val chooserTitle = context.getString(R.string.action_share_promocode)
+    try {
+        context.startActivity(Intent.createChooser(shareIntent, chooserTitle))
+    } catch (_: Exception) {
+        // Swallow to avoid crashes if no activity can handle the intent.
+    }
+}
+
+private fun buildShareText(
+    context: Context,
+    promoCode: Promocode
+): String {
+    val discountText = when (val discount = promoCode.discount) {
+        is Discount.Percentage -> context.getString(
+            CoreUiR.string.discount_percent,
+            formatNumber(discount.value),
+        )
+
+        is Discount.FixedAmount -> context.getString(
+            CoreUiR.string.discount_fixed,
+            formatNumber(discount.value),
+        )
+    }
+
+    return buildString {
+        append(context.getString(R.string.share_header_format, promoCode.serviceName, discountText))
+        append("\n")
+        append(context.getString(R.string.share_code_label, promoCode.code.value))
+        append("\n\n")
+
+        promoCode.description?.takeIf { it.isNotBlank() }?.let { description ->
+            append(description.trim())
+            append("\n\n")
+        }
+
+        append(context.getString(R.string.share_link_format, promoCode.id.value))
+    }
 }
 
 private fun copyToClipboard(
@@ -237,18 +405,13 @@ private fun copyToClipboard(
 
 @ThemePreviews
 @Composable
-private fun PromocodeDetailScreenPreview() {
+private fun PromocodeLoadingPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
-
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
-                promocodeInteraction = PromocodeInteraction(
-                    promocode = samplePromoCode,
-                    userInteraction = null,
-                ),
-                isLoading = false,
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Loading,
             ),
             onAction = {},
             onNavigateBack = {},
@@ -259,17 +422,92 @@ private fun PromocodeDetailScreenPreview() {
 
 @ThemePreviews
 @Composable
-private fun LoadingStatePreview() {
+private fun PromocodeErrorPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
-                promocodeInteraction = PromocodeInteraction(
-                    promocode = samplePromoCode,
-                    userInteraction = null,
-                ),
-                isLoading = true,
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Error(SystemError.Unknown),
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PromocodeSuccessPreview() {
+    QodeTheme {
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun InteractionLoadingPreview() {
+    QodeTheme {
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                currentVoting = VoteState.UPVOTE,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun InteractionErrorPreview() {
+    QodeTheme {
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                transientError = SystemError.Unknown,
+            ),
+            onAction = {},
+            onNavigateBack = {},
+            snackbarHostState = remember { SnackbarHostState() },
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun InteractionSuccessPreview() {
+    QodeTheme {
+        val samplePromoCode = PromocodePreviewData.percentagePromocode
+        val interaction = UserInteraction.create(
+            itemId = samplePromoCode.id.value,
+            itemType = ContentType.PROMO_CODE,
+            userId = UserId("preview-user"),
+            voteState = VoteState.UPVOTE,
+            isBookmarked = false,
+        )
+
+        PromocodeDetailScreen(
+            uiState = PromocodeDetailUiState(
+                promocodeId = samplePromoCode.id,
+                promocodeState = PromocodeUiState.Success(samplePromoCode),
+                userInteraction = interaction,
             ),
             onAction = {},
             onNavigateBack = {},

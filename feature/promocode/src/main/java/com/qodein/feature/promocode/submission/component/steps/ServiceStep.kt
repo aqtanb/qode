@@ -127,78 +127,82 @@ private fun ManualServiceEntry(
         focusRequester.requestFocus()
     }
 
-    QodeinTextField(
-        value = serviceName,
-        onValueChange = { newValue ->
-            val clamped = newValue.take(Service.NAME_MAX_LENGTH)
-            errorText = when {
-                newValue.length >= Service.NAME_MAX_LENGTH -> maxLengthErrorText
-                clamped.isBlank() -> null
-                else -> null
-            }
-            onServiceNameChange(clamped)
-        },
-        placeholder = stringResource(R.string.service_step_placeholder_service_name),
-        leadingIcon = QodeIcons.Store,
-        helperText = stringResource(R.string.service_step_helper_service_name),
-        errorText = errorText,
-        focusRequester = focusRequester,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Words,
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = {
-                if (serviceName.isBlank()) {
-                    errorText = blankErrorText
-                } else {
-                    errorText = null
-                    urlFocusRequester.requestFocus()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
+    ) {
+        QodeinTextField(
+            value = serviceName,
+            onValueChange = { newValue ->
+                val clamped = newValue.take(Service.NAME_MAX_LENGTH)
+                errorText = when {
+                    newValue.length >= Service.NAME_MAX_LENGTH -> maxLengthErrorText
+                    clamped.isBlank() -> null
+                    else -> null
                 }
+                onServiceNameChange(clamped)
             },
-        ),
-    )
-
-    QodeinTextField(
-        value = serviceUrl,
-        onValueChange = { newValue ->
-            val trimmed = sanitizeServiceUrl(newValue)
-            urlErrorText = null
-            onServiceUrlChange(trimmed)
-        },
-        placeholder = stringResource(R.string.service_step_placeholder_service_url),
-        leadingIcon = QodeActionIcons.Share,
-        helperText = stringResource(R.string.service_step_helper_service_url),
-        errorText = urlErrorText,
-        focusRequester = urlFocusRequester,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Uri,
-            capitalization = KeyboardCapitalization.None,
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = {
-                when {
-                    serviceName.isBlank() -> {
+            placeholder = stringResource(R.string.service_step_placeholder_service_name),
+            leadingIcon = QodeIcons.Store,
+            helperText = stringResource(R.string.service_step_helper_service_name),
+            errorText = errorText,
+            focusRequester = focusRequester,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    if (serviceName.isBlank()) {
                         errorText = blankErrorText
-                        focusRequester.requestFocus()
-                    }
-                    serviceUrl.isBlank() -> {
-                        urlErrorText = blankUrlErrorText
-                    }
-                    !isValidServiceUrl(serviceUrl) -> {
-                        urlErrorText = invalidUrlErrorText
-                    }
-                    else -> {
+                    } else {
                         errorText = null
-                        urlErrorText = null
-                        onNextStep()
+                        urlFocusRequester.requestFocus()
                     }
-                }
+                },
+            ),
+        )
+
+        QodeinTextField(
+            value = serviceUrl,
+            onValueChange = { newValue ->
+                val trimmed = sanitizeServiceUrl(newValue)
+                urlErrorText = null
+                onServiceUrlChange(trimmed)
             },
-        ),
-    )
+            placeholder = stringResource(R.string.service_step_placeholder_service_url),
+            leadingIcon = QodeActionIcons.Share,
+            helperText = stringResource(R.string.service_step_helper_service_url),
+            errorText = urlErrorText,
+            focusRequester = urlFocusRequester,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Uri,
+                capitalization = KeyboardCapitalization.None,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    when {
+                        serviceName.isBlank() -> {
+                            errorText = blankErrorText
+                            focusRequester.requestFocus()
+                        }
+                        serviceUrl.isBlank() -> {
+                            urlErrorText = blankUrlErrorText
+                        }
+                        !isValidServiceUrl(serviceUrl) -> {
+                            urlErrorText = invalidUrlErrorText
+                        }
+                        else -> {
+                            errorText = null
+                            urlErrorText = null
+                            onNextStep()
+                        }
+                    }
+                },
+            ),
+        )
+    }
 
     Text(
         text = stringResource(R.string.service_step_browse_services_instead),

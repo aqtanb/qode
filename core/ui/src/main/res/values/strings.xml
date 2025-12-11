@@ -135,6 +135,8 @@
     <string name="action_retry">Retry</string>
     <string name="common_service">Service</string>
     <string name="common_promocode">Promocode</string>
+    <string name="discount_percent">%1$s%% OFF</string>
+    <string name="discount_fixed">%1$s₸ OFF</string>
 
     <string name="filter_chip_service">Service</string>
     <string name="filter_chip_sort">Sort</string>
@@ -186,14 +188,5 @@
     <string name="step_start_date_short">Start</string>
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
-    <string name="step_service_hint">Which service does this promo code work with?</string>
-    <string name="step_discount_type_hint">Percentage – discount rise with the order amount.\nFixed – same discount no matter the order amount.</string>
-    <string name="step_promo_code_hint">Enter the exact promo code as it appears.</string>
-    <string name="step_discount_value_hint">How much discount does this code give?</string>
-    <string name="step_minimum_order_hint">What\'s the minimum order required to use this code?</string>
-    <string name="step_start_date_hint">When does this promo code become active?</string>
-    <string name="step_end_date_hint">When does this promo code expire?</string>
-    <string name="step_eligibility_hint">Who can use this code and how often?</string>
-    <string name="step_description_hint">Add any helpful details about this deal.</string>
 
 </resources>

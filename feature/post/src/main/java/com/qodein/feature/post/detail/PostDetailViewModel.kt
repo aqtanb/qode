@@ -15,7 +15,6 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
-import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
@@ -119,14 +118,6 @@ class PostDetailViewModel @Inject constructor(
         userId: UserId,
         currentVoteState: VoteState
     ) {
-        viewModelScope.launch {
-            toggleVoteUseCase.toggleUpvote(
-                itemId = itemId,
-                itemType = ContentType.POST,
-                userId = userId,
-                currentVoteState = currentVoteState,
-            )
-        }
     }
 
     private fun handleDownVote(
@@ -134,14 +125,6 @@ class PostDetailViewModel @Inject constructor(
         userId: UserId,
         currentVoteState: VoteState
     ) {
-        viewModelScope.launch {
-            toggleVoteUseCase.toggleDownvote(
-                itemId = itemId,
-                itemType = ContentType.POST,
-                userId = userId,
-                currentVoteState = currentVoteState,
-            )
-        }
     }
 
     private fun observeAuthState() {

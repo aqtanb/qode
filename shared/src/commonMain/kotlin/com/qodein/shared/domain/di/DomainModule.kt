@@ -16,7 +16,7 @@ import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
-import com.qodein.shared.domain.usecase.promocode.GetPromocodeByIdUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
@@ -31,7 +31,7 @@ import org.koin.dsl.module
  * Provides domain-layer use cases.
  */
 val domainModule = module {
-    single { GetAuthStateUseCase(get(), get()) }
+    single { GetAuthStateUseCase(get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
 
@@ -41,7 +41,7 @@ val domainModule = module {
 
     single { GetBannersUseCase(get()) }
     single { GetPromocodesUseCase(get()) }
-    single { GetPromocodeByIdUseCase(get()) }
+    single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
 
     single { GetPostsUseCase(get()) }

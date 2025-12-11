@@ -2,32 +2,32 @@ package com.qodein.feature.promocode.detail
 
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
-import com.qodein.shared.model.PromocodeInteraction
+import com.qodein.shared.model.UserId
+import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 
 data class AuthBottomSheetState(val action: AuthPromptAction, val isLoading: Boolean = false)
 
 data class PromocodeDetailUiState(
-    // Data State
-    val promoCodeId: PromocodeId,
-    val promocodeInteraction: PromocodeInteraction? = null,
-    val isLoading: Boolean = false,
-    val errorType: OperationError? = null,
+    val promocodeId: PromocodeId,
+    val userId: UserId? = null,
 
-    // Interaction States
+    val promocodeState: PromocodeUiState = PromocodeUiState.Loading,
+    val userInteraction: UserInteraction? = null,
+    val currentVoting: VoteState? = null,
+    val optimisticUpvotes: Int? = null,
+    val optimisticDownvotes: Int? = null,
     val isSharing: Boolean = false,
     val isCopying: Boolean = false,
+    val transientError: OperationError? = null,
 
-    // UI States
-    val showVoteAnimation: Boolean = false,
-    val lastVoteType: VoteState? = null,
-    val authBottomSheet: AuthBottomSheetState? = null,
+    val authBottomSheet: AuthBottomSheetState? = null
+)
 
-    // TODO Follow states
-    val isFollowingService: Boolean = false
-) {
-    val hasError: Boolean get() = errorType != null
-    val hasData: Boolean get() = promocodeInteraction != null
-    val isEmpty: Boolean get() = !isLoading && !hasError && !hasData
+sealed interface PromocodeUiState {
+    data object Loading : PromocodeUiState
+    data class Success(val data: Promocode) : PromocodeUiState
+    data class Error(val error: OperationError) : PromocodeUiState
 }

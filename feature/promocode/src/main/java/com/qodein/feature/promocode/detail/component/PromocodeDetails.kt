@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,11 +28,8 @@ import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.detail.PromocodeDetailScreen
-import com.qodein.feature.promocode.detail.PromocodeDetailUiState
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
-import com.qodein.shared.model.PromocodeInteraction
 
 @Composable
 internal fun PromocodeDetails(
@@ -80,6 +75,16 @@ internal fun PromocodeDetails(
                 icon = PromocodeIcons.MinimumOrder,
                 label = stringResource(R.string.promocode_details_minimum_order),
                 value = "${formatNumber(promocode.minimumOrderAmount)}₸",
+                valueColor = MaterialTheme.colorScheme.primary,
+            )
+            DetailItem(
+                icon = PromocodeIcons.Verified,
+                label = stringResource(R.string.promocode_details_verified),
+                value = if (promocode.isVerified) {
+                    stringResource(R.string.promocode_details_value_yes)
+                } else {
+                    stringResource(R.string.promocode_details_value_no)
+                },
                 valueColor = MaterialTheme.colorScheme.primary,
             )
             DetailItem(
@@ -174,18 +179,8 @@ private fun DetailsSectionPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
 
-        PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
-                promocodeInteraction = PromocodeInteraction(
-                    promocode = samplePromoCode,
-                    userInteraction = null,
-                ),
-                isLoading = false,
-            ),
-            onAction = {},
-            onNavigateBack = {},
-            snackbarHostState = remember { SnackbarHostState() },
+        PromocodeDetails(
+            promocode = samplePromoCode,
         )
     }
 }

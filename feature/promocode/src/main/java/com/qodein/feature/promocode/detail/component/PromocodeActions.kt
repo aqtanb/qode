@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,32 +18,25 @@ import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.feature.promocode.R
-import com.qodein.feature.promocode.detail.PromocodeDetailScreen
-import com.qodein.feature.promocode.detail.PromocodeDetailUiState
-import com.qodein.shared.model.Promocode
-import com.qodein.shared.model.PromocodeInteraction
 import com.qodein.shared.model.VoteState
 
 @Composable
 fun PromocodeActions(
-    promoCode: Promocode,
-    isUpvotedByCurrentUser: Boolean,
-    isDownvotedByCurrentUser: Boolean,
-    onUpvoteClicked: () -> Unit,
-    onDownvoteClicked: () -> Unit,
+    upvoteCount: Int,
+    downvoteCount: Int,
+    vote: VoteState,
+    currentVoting: VoteState?,
+    onVote: (VoteState) -> Unit,
     onShareClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val upvoteContentDescription = stringResource(R.string.cd_upvote, promoCode.upvotes)
-    val downvoteContentDescription = stringResource(R.string.cd_downvote, promoCode.downvotes)
+    val upvoteContentDescription = stringResource(R.string.cd_upvote, upvoteCount)
+    val downvoteContentDescription = stringResource(R.string.cd_downvote, downvoteCount)
     val shareContentDescription = stringResource(R.string.cd_share)
-    val userVoteState = when {
-        isUpvotedByCurrentUser -> VoteState.UPVOTE
-        isDownvotedByCurrentUser -> VoteState.DOWNVOTE
-        else -> VoteState.NONE
-    }
+    val isUpvoteVoting = currentVoting == VoteState.UPVOTE
+    val isDownvoteVoting = currentVoting == VoteState.DOWNVOTE
+    val votingDisabled = currentVoting != null
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -53,9 +44,9 @@ fun PromocodeActions(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         QodeinFilterChip(
-            label = promoCode.upvotes.toString(),
-            onClick = onUpvoteClicked,
-            selected = userVoteState == VoteState.UPVOTE,
+            label = upvoteCount.toString(),
+            onClick = { if (!votingDisabled) onVote(VoteState.UPVOTE) },
+            selected = vote == VoteState.UPVOTE,
             leadingIcon = {
                 Icon(
                     imageVector = QodeActionIcons.Up,
@@ -63,15 +54,16 @@ fun PromocodeActions(
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             },
+            isLoading = isUpvoteVoting,
             modifier = Modifier.semantics {
                 contentDescription = upvoteContentDescription
             },
         )
 
         QodeinFilterChip(
-            label = promoCode.downvotes.toString(),
-            onClick = onDownvoteClicked,
-            selected = userVoteState == VoteState.DOWNVOTE,
+            label = if (downvoteCount == 0) "0" else "-$downvoteCount",
+            onClick = { if (!votingDisabled) onVote(VoteState.DOWNVOTE) },
+            selected = vote == VoteState.DOWNVOTE,
             leadingIcon = {
                 Icon(
                     imageVector = QodeActionIcons.Down,
@@ -79,6 +71,7 @@ fun PromocodeActions(
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             },
+            isLoading = isDownvoteVoting,
             modifier = Modifier.semantics {
                 contentDescription = downvoteContentDescription
             },
@@ -108,20 +101,13 @@ fun PromocodeActions(
 @Composable
 private fun PromocodeActionsPreview() {
     QodeTheme {
-        val samplePromoCode = PromocodePreviewData.percentagePromocode
-
-        PromocodeDetailScreen(
-            uiState = PromocodeDetailUiState(
-                promoCodeId = samplePromoCode.id,
-                promocodeInteraction = PromocodeInteraction(
-                    promocode = samplePromoCode,
-                    userInteraction = null,
-                ),
-                isLoading = false,
-            ),
-            onAction = {},
-            onNavigateBack = {},
-            snackbarHostState = remember { SnackbarHostState() },
+        PromocodeActions(
+            upvoteCount = 12,
+            downvoteCount = 5,
+            vote = VoteState.UPVOTE,
+            onVote = {},
+            onShareClicked = {},
+            currentVoting = null,
         )
     }
 }

@@ -1,14 +1,13 @@
 package com.qodein.feature.promocode.detail
 
 import android.content.Context
+import com.qodein.shared.model.VoteState
 
 sealed class PromocodeDetailAction {
     data object RefreshData : PromocodeDetailAction()
 
-    data object UpvoteClicked : PromocodeDetailAction()
-    data object DownvoteClicked : PromocodeDetailAction()
+    data class VoteClicked(val voteState: VoteState) : PromocodeDetailAction()
 
-    data object CopyCodeClicked : PromocodeDetailAction()
     data object ShareClicked : PromocodeDetailAction()
 
     data object BackClicked : PromocodeDetailAction()
@@ -17,5 +16,4 @@ sealed class PromocodeDetailAction {
     data object DismissAuthSheet : PromocodeDetailAction()
 
     data object RetryClicked : PromocodeDetailAction()
-    data object ErrorDismissed : PromocodeDetailAction()
 }

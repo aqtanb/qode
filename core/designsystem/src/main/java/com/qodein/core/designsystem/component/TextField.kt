@@ -200,7 +200,7 @@ fun QodeinTextField(
             exit = shrinkVertically() + fadeOut(),
         ) {
             Column(
-                modifier = Modifier.padding(top = SpacingTokens.sm),
+                modifier = Modifier.padding(top = SpacingTokens.xs),
             ) {
                 when {
                     // Error has highest priority
@@ -219,7 +219,7 @@ fun QodeinTextField(
                     helperText != null -> {
                         Text(
                             text = helperText,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),

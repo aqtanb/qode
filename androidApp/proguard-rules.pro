@@ -19,3 +19,32 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-assumenosideeffects class timber.log.Timber {
+    public static *** v(...);
+    public static *** d(...);
+}
+
+-assumenosideeffects class co.touchlab.kermit.Logger {
+    public *** v(...);
+    public *** d(...);
+}
+
+# Keep Kotlin serialization metadata and generated serializers (used by type-safe Navigation routes)
+-keep class com.qodein.**$$serializer { *; }
+-keepclassmembers class com.qodein.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-dontwarn kotlinx.serialization.**
+
+# Keep any class annotated with @Serializable (covers shared models and navigation routes)
+-keep @kotlinx.serialization.Serializable class com.qodein.** { *; }
+
+# Preserve Firestore DTOs so reflection-based mapping keeps working in release builds
+-keep class com.qodein.core.data.dto.** { *; }
+-keepclassmembers class * {
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.firestore.PropertyName <methods>;
+    @com.google.firebase.firestore.DocumentId <fields>;
+    @com.google.firebase.firestore.ServerTimestamp <fields>;
+}

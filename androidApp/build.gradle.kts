@@ -47,6 +47,20 @@ android {
         resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
     }
 
+    signingConfigs {
+        create("release") {
+            val properties =
+                Properties().apply {
+                    load(rootProject.file("local.properties").inputStream())
+                }
+
+            storeFile = file(properties.getProperty("KEYSTORE_FILE"))
+            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
+            keyAlias = properties.getProperty("KEY_ALIAS")
+            keyPassword = properties.getProperty("KEY_PASSWORD")
+        }
+    }
+
     buildFeatures {
         buildConfig = true
     }
@@ -54,17 +68,17 @@ android {
     buildTypes {
         debug {
             isDebuggable = true
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "qode-debug")
         }
         release {
-            // TODO: Enable when ProGuard rules are configured
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // TODO: Replace with release signing for production
-            signingConfig = signingConfigs.named("debug").get()
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
