@@ -1,67 +1,182 @@
-# Privacy Policy
+# Privacy Policy for Qode
+_Last updated: 11.12.2025_
 
-This policy describes how Qode, developed by Ybyraiym Aktanberdi, collects, uses, and shares information.
+Qode (“the App”) is developed and operated by **Ybyraiym Aktanberdi** (“Developer”, “we”, “us”).  
+By using Qode, you agree to the practices described in this Privacy Policy.
 
-## 1. Data Controller and Developer Identity
-The data controller is **Ybyraiym Aktanberdi**, the independent developer of Qode. The Qode name is used solely as the application's brand name and does not represent a separate legal entity or company. Contact information is provided at the end of this policy.
+---
 
-## 2. Information We Collect
+## 1. Developer Information
+**Data Controller:**  
+Ybyraiym Aktanberdi  
+Email: **qodeinhq@gmail.com**
 
-We only collect data necessary to provide and improve the Qode platform.
+Qode is an independently developed application and is not operated by a registered legal entity.
 
-### A. Personal Identifiable Information (PII)
-This data is collected and stored via **Google Firebase Authentication**.
+---
 
-* **Google Account ID/Token:** Used to securely identify your account.
-* **Email Address:** Stored for account recovery and identification.
-* **Profile Picture URL:** Stored if provided by your Google account.
+## 2. Data We Collect
+We collect only the data required to provide core functionality, maintain stability, and understand how the App is used.
 
-### B. User-Generated Content (UGC)
-This content is stored in **Google Firestore**.
+### 2.1. Account Information (Firebase Authentication)
+When you sign in with Google, we collect:
+- Email address  
+- Google user ID (UID)  
+- Profile image URL (if available)
 
-* **Promocodes & Posts:** Data submitted by users, including the code value, service name, dates, descriptions, and accompanying images uploaded by the user.
-* **User Interactions:** Data reflecting user voting activity (upvotes/downvotes) on content.
-* **User Metadata:** Counts of submitted posts and promocodes.
+This is required to identify authors of submitted content and prevent impersonation.
 
-## 3. How We Use Information
+### 2.2. User-Generated Content (UGC)
+Stored in Firebase Firestore and Firebase Storage:
+- Promocodes and posts submitted by users  
+- Titles, descriptions, service names  
+- Uploaded images  
+- Voting actions (upvote/downvote)  
+- Metadata such as post count and promo count  
+- Timestamps (created/updated)
 
-| Category | Purpose | Data Stored |
-| :--- | :--- | :--- |
-| **Authentication** | To provide secure, password-less login and identify the content author. | Email, Profile Picture, Google ID. |
-| **Core Functionality** | To display, search, and manage user-submitted codes and posts. | Promocodes, Posts, Interactions. |
-| **Analytics & Crash Reporting** | To monitor app stability and diagnose errors. We rely on standard Firebase functionality, which may collect basic device state data. | Performance Data, Stack Traces, Custom UI Events (e.g., button clicks). |
+All UGC published in the App is publicly visible.
 
-## 4. Permissions and Device Access
+### 2.3. Analytics Data (Firebase Analytics)
+We use Firebase Analytics to understand app usage and improve user experience.
 
-Qode requires the following permissions, which may access user data:
+Data collected may include:
+- Screen views  
+- Button taps  
+- Session duration  
+- Feature usage  
+- Device information such as model, OS version, and app version
 
-* **Internet Access:** Required for all core functionality, including login, data fetching from Firestore, and sharing links.
-* **Camera & Storage:** The app accesses the device's **Camera and Media Storage** solely for the purpose of allowing users to **upload images to accompany their posts.** This data is only accessed when the user actively selects the upload function.
+Firebase Analytics is configured **without Advertising ID collection**.  
+No behavioral profiling or ad personalization is performed.
 
-## 5. Third-Party Data Processing
+### 2.4. Crash and Performance Data (Firebase Crashlytics)
+Crashlytics may collect:
+- Device model  
+- OS version  
+- App version  
+- Crash logs and stack traces  
+- Temporary IP address (routing purposes only)
 
-### A. Google Firebase Services
-Qode uses the following services, and data is stored on Google’s servers:
+This data is used solely for debugging and stability improvements.
 
-* **Firebase Authentication:** Handles login and user identity.
-* **Firebase Firestore:** Stores all user-generated content (promocodes, posts) and metadata.
-* **Firebase Analytics:** Collects anonymous data on app performance and **custom UI events** to understand usage.
-* **Firebase Crashlytics:** Collects stack traces and app performance data when crashes occur, strictly for debugging. **We do not collect explicit Device ID or Advertising ID.**
+### 2.5. Search Index Data (Algolia)
+Algolia indexes **public** content to enable efficient search:
+- Promocode text  
+- Service names  
+- Public UGC fields
 
-### B. Algolia
-We use **Algolia** for fast, optimized searching of promotional content. Algolia may temporarily process text data (promocode names, service names, post titles) as it indexes the content provided by users.
+Algolia does *not* receive personal identifiers such as email or UID.
 
-### C. Data Sale
-The developer of Qode **does not sell your personal data** to third parties.
+---
 
-## 6. Advertising
+## 3. Advertising & Promotional Content
+The App displays **non-personalized promotional banners**.
 
-Qode **does not use third-party ad networks (like AdMob)**. However, the app maintains an internal `banners` collection to display developer-controlled promotional content or sponsored messages. **No user data is collected or shared for the purpose of serving these internal banners.**
+- Banners may promote Qode features or third-party brands.  
+- No tracking or personalization is used.  
+- No advertising networks (e.g., AdMob) are integrated.
 
-## 7. Children’s Privacy
-Qode is not directed to children under the age of 13. If you are under 13, you should not use this app without verifiable parental consent. If we become aware that we have collected personal data from a child under 13 without verifiable parental consent, we will take steps to remove that information from our servers.
+Because banners are clearly promotional, the App may be labeled **“Contains ads”** on Google Play.
 
-## 8. Contact Information
-If you have questions or suggestions about this Privacy Policy or your data, please contact the developer, Ybyraiym Aktanberdi, at:
+---
 
-**qodeinhq@gmail.com**
+## 4. How We Use Data
+Data is used to:
+- Authenticate users  
+- Support content submission and management  
+- Provide search functionality  
+- Diagnose crashes and performance issues  
+- Analyze usage patterns to improve features  
+- Display non-personalized promotional banners  
+- Prevent abuse and maintain security
+
+We do not sell or rent personal data.
+
+---
+
+## 5. Permissions
+### Current Permissions
+- **INTERNET** — Required for core functionality  
+- **POST_NOTIFICATIONS** — Optional notifications
+
+### Future Permissions (not currently active)
+The App does not currently request:
+- `CAMERA`  
+- `READ_EXTERNAL_STORAGE`  
+- `WRITE_EXTERNAL_STORAGE`
+
+These may be added in future versions to support image uploads.  
+Permissions will be activated only after explicit user action, and this policy will be updated accordingly.
+
+---
+
+## 6. Data Sharing
+We share data only with essential service providers:
+- Google Firebase (Auth, Firestore, Storage, Analytics, Crashlytics)  
+- Algolia (search indexing of public data)
+
+No personal information is shared with advertisers or third-party marketing partners.
+
+---
+
+## 7. Data Retention
+We retain:
+- Account data until the user deletes their account (feature coming soon)  
+- User-generated content until removed by the user or moderated  
+- Crash logs based on Firebase’s retention policy
+
+---
+
+## 8. Account Deletion
+Account deletion is not yet available and will be introduced in a future update.
+
+When available, deleting your account will remove:
+- Authentication data  
+- Personal identifiers  
+- Non-essential metadata
+
+User-generated content may remain unless removed before account deletion.
+
+---
+
+## 9. Children’s Privacy
+Qode does not target children under 13.  
+We do not knowingly collect data from children under 13.  
+If such data is discovered, it will be deleted.
+
+---
+
+## 10. App Access Rules
+- Browsing public content: no login required  
+- Posting, voting, uploading images: login required  
+- No special reviewer credentials needed  
+- No hidden or restricted sections
+
+---
+
+## 11. Security
+We rely on Firebase’s infrastructure for secure data handling:
+- Encrypted HTTPS  
+- Server-enforced Firestore and Storage rules  
+- Access control via Firebase Authentication
+
+Users must protect their Google account credentials.
+
+---
+
+## 12. Changes to This Policy
+We may update this Privacy Policy as needed.  
+Updates will always be published at:
+
+**https://github.com/aqtanb/qode/blob/main/PRIVACY_POLICY.md**
+
+Continued use of the App after updates constitutes acceptance of the revised policy.
+
+---
+
+## 13. Contact
+For questions or data concerns, contact:
+
+**qodeinhq@gmail.com**  
+Developer: **Ybyraiym Aktanberdi**
