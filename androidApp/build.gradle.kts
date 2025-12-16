@@ -19,6 +19,11 @@ android {
             .get()
             .toInt()
 
+    val properties =
+        Properties().apply {
+            load(rootProject.file("local.properties").inputStream())
+        }
+
     defaultConfig {
         applicationId = "com.qodein.qode"
         minSdk =
@@ -39,21 +44,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        val properties =
-            Properties().apply {
-                load(rootProject.file("local.properties").inputStream())
-            }
-        resValue("string", "web_client_id", "${properties.getProperty("WEB_CLIENT_ID")}")
     }
 
     signingConfigs {
         create("release") {
-            val properties =
-                Properties().apply {
-                    load(rootProject.file("local.properties").inputStream())
-                }
-
             storeFile = file(properties.getProperty("KEYSTORE_FILE"))
             storePassword = properties.getProperty("KEYSTORE_PASSWORD")
             keyAlias = properties.getProperty("KEY_ALIAS")
@@ -70,6 +64,13 @@ android {
             isDebuggable = true
             applicationIdSuffix = ".debug"
             resValue("string", "app_name", "qode-debug")
+            resValue(
+                "string",
+                "web_client_id",
+                properties.getProperty("WEB_CLIENT_ID_DEBUG")
+                    ?: properties.getProperty("WEB_CLIENT_ID")
+                    ?: "",
+            )
         }
         release {
             isMinifyEnabled = true
@@ -79,6 +80,12 @@ android {
                 "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
+            resValue(
+                "string",
+                "web_client_id",
+                properties.getProperty("WEB_CLIENT_ID")
+                    ?: "",
+            )
         }
     }
 

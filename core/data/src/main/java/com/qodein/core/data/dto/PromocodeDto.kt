@@ -3,6 +3,7 @@ package com.qodein.core.data.dto
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 
 /**
@@ -30,8 +31,11 @@ data class PromocodeDto(
     val serviceId: String? = null,
     val serviceLogoUrl: String? = null,
 
+    @PropertyName("firstUserOnly")
     val isFirstUserOnly: Boolean = false,
+    @PropertyName("oneTimeUseOnly")
     val isOneTimeUseOnly: Boolean = false,
+    @PropertyName("verified")
     val isVerified: Boolean = false,
 
     val upvotes: Int = 0,

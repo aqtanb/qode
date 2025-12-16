@@ -25,17 +25,30 @@ android {
                 .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
-        resValue(
-            "string",
-            "web_client_id",
-            localProperties.getProperty("WEB_CLIENT_ID") ?: "",
-        )
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    buildTypes {
+        debug {
+            resValue(
+                "string",
+                "web_client_id",
+                localProperties.getProperty("WEB_CLIENT_ID_DEBUG")
+                    ?: localProperties.getProperty("WEB_CLIENT_ID")
+                    ?: "",
+            )
+        }
+        release {
+            resValue(
+                "string",
+                "web_client_id",
+                localProperties.getProperty("WEB_CLIENT_ID") ?: "",
+            )
+        }
     }
 }
 
