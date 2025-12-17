@@ -112,3 +112,4 @@ functions/src/*-service-account.json
 /AGENTS.md
 
 *.jks
+/.firebase/
