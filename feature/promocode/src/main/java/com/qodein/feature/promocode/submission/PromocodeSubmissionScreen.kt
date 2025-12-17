@@ -36,11 +36,11 @@ import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
-import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.state.shouldShowAuthSheet
+import com.qodein.core.ui.text.asString
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
@@ -67,21 +67,14 @@ fun PromocodeSubmissionScreen(
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Handle error string outside LaunchedEffect since asUiText is @Composable
-    val errorMessage = (events as? PromocodeSubmissionEvent.ShowError)?.error?.asUiText()
-
-    LaunchedEffect(events, errorMessage) {
-        when (events) {
+    LaunchedEffect(events) {
+        when (val event = events) {
             PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
             PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
-            is PromocodeSubmissionEvent.ShowError -> {
-                errorMessage?.let {
-                    snackbarHostState.showSnackbar(
-                        message = it,
-                        withDismissAction = true,
-                    )
-                }
-            }
+            is PromocodeSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
+                message = event.message.asString(context),
+                withDismissAction = true,
+            )
             null -> { /* No event */ }
         }
     }

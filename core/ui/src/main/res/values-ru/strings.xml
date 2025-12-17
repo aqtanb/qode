@@ -27,6 +27,9 @@
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
     <string name="cd_service_logo">Логотип сервиса</string>
+    <string name="cd_more_options">Дополнительные параметры</string>
+    <string name="action_block">Заблокировать пользователя</string>
+    <string name="action_report">Пожаловаться</string>
     <string name="error_auth_required">Требуется вход в систему.</string>
     <string name="error_auth_service_unavailable">Сервис авторизации временно недоступен.</string>
     <string name="error_auth_too_many_attempts">Слишком много попыток входа.</string>

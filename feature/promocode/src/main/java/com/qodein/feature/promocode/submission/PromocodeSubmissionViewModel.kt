@@ -7,6 +7,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.feature.promocode.submission.validation.SubmissionField
 import com.qodein.feature.promocode.submission.validation.ValidationState
@@ -284,14 +285,14 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         is Result.Error -> {
                             Logger.w(TAG) { "Sign-in failed: ${signInResult.error}" }
                             _authState.update { UiAuthState.Unauthenticated }
-                            _events.emit(PromocodeSubmissionEvent.ShowError(signInResult.error))
+                            _events.emit(PromocodeSubmissionEvent.ShowError(signInResult.error.toUiText()))
                         }
                     }
                 }
                 is Result.Error -> {
                     Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
                     _authState.update { UiAuthState.Unauthenticated }
-                    _events.emit(PromocodeSubmissionEvent.ShowError(tokenResult.error))
+                    _events.emit(PromocodeSubmissionEvent.ShowError(tokenResult.error.toUiText()))
                 }
             }
         }
@@ -386,7 +387,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
                 is Result.Success -> performSubmission(userResult.data)
                 is Result.Error -> {
                     Logger.w(TAG) { "Cannot submit: failed to load user profile: ${userResult.error}" }
-                    _events.emit(PromocodeSubmissionEvent.ShowError(userResult.error))
+                    _events.emit(PromocodeSubmissionEvent.ShowError(userResult.error.toUiText()))
                 }
             }
         }

@@ -53,9 +53,9 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.core.ui.component.AuthenticationBottomSheet
 import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.state.shouldShowAuthSheet
+import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.R
 import com.qodein.feature.post.component.FullScreenImageViewer
 import com.qodein.feature.post.component.PostImage
@@ -109,20 +109,15 @@ fun PostSubmissionScreen(
     }
 
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
-    val errorMessage = (events as? PostSubmissionEvent.ShowError)?.error?.asUiText()
 
-    LaunchedEffect(events, errorMessage) {
-        when (events) {
+    LaunchedEffect(events) {
+        when (val event = events) {
             is PostSubmissionEvent.NavigateBack -> onNavigateBack()
             is PostSubmissionEvent.PostSubmitted -> onNavigateBack()
-            is PostSubmissionEvent.ShowError -> {
-                errorMessage?.let { message ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true,
-                    )
-                }
-            }
+            is PostSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
+                message = event.message.asString(context),
+                withDismissAction = true,
+            )
             null -> { /* No event yet */ }
         }
     }

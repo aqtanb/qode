@@ -61,11 +61,27 @@ object SpacingTokens {
 object SizeTokens {
 
     @Immutable
+    object TouchTarget {
+        /** Minimum recommended touch target size */
+        val min = 48.dp
+    }
+
+    @Immutable
     object Button {
         val heightSmall = 32.dp
         val heightMedium = 40.dp
         val heightLarge = 48.dp
         val heightXL = 56.dp
+
+        val widthSmall = 64.dp
+        val widthMedium = 80.dp
+        val widthLarge = 96.dp
+        val widthXL = 128.dp
+    }
+
+    @Immutable
+    object Menu {
+        val minWidth = 220.dp
     }
 
     @Immutable

@@ -68,6 +68,8 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             }
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BackClicked -> handleBack()
+            is PromocodeDetailAction.BlockUserClicked -> Unit
+            is PromocodeDetailAction.ReportPromocodeClicked -> Unit
             is PromocodeDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
             is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()

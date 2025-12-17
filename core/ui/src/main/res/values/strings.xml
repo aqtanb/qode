@@ -11,6 +11,10 @@
     <string name="cd_expiring_soon">Expiring soon</string>
     <string name="cd_verified">Verified</string>
     <string name="cd_service_logo">Service logo</string>
+    <string name="cd_more_options">More options</string>
+
+    <string name="action_block">Block user</string>
+    <string name="action_report">Report a problem</string>
 
     <string name="error_network_no_connection">No internet connection. Please check your network.</string>
     <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>

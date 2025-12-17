@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
@@ -179,7 +180,7 @@ class PostSubmissionViewModel @Inject constructor(
                     updateSuccessState {
                         it.copy(compression = ImageCompressionState.Idle)
                     }
-                    _events.emit(PostSubmissionEvent.ShowError(result.error))
+                    _events.emit(PostSubmissionEvent.ShowError(result.error.toUiText()))
                 }
             }
         }
@@ -268,14 +269,14 @@ class PostSubmissionViewModel @Inject constructor(
                         is Result.Error -> {
                             Logger.w(TAG) { "Sign in failed: ${signInResult.error}" }
                             updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
-                            _events.emit(PostSubmissionEvent.ShowError(signInResult.error))
+                            _events.emit(PostSubmissionEvent.ShowError(signInResult.error.toUiText()))
                         }
                     }
                 }
                 is Result.Error -> {
                     Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
                     updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
-                    _events.emit(PostSubmissionEvent.ShowError(tokenResult.error))
+                    _events.emit(PostSubmissionEvent.ShowError(tokenResult.error.toUiText()))
                 }
             }
         }

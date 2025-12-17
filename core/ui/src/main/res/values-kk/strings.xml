@@ -32,6 +32,9 @@
     <string name="cd_expiring_soon">Жақында аяқталады</string>
     <string name="cd_verified">Тексерілді</string>
     <string name="cd_service_logo">Қызмет логотипі</string>
+    <string name="cd_more_options">Қосымша параметрлер</string>
+    <string name="action_block">Қолданушыны бұғаттау</string>
+    <string name="action_report">Арыздану</string>
 
     <string name="error_auth_required">Кіру қажет.</string>
     <string name="error_auth_service_unavailable">Кіру қызметі уақытша қолжетімсіз.</string>

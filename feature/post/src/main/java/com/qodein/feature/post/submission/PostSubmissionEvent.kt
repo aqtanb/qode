@@ -1,6 +1,6 @@
 package com.qodein.feature.post.submission
 
-import com.qodein.shared.common.error.OperationError
+import com.qodein.core.ui.text.UiText
 
 /**
  * Events for Post Submission screen.
@@ -9,5 +9,5 @@ import com.qodein.shared.common.error.OperationError
 sealed interface PostSubmissionEvent {
     data object NavigateBack : PostSubmissionEvent
     data object PostSubmitted : PostSubmissionEvent
-    data class ShowError(val error: OperationError) : PostSubmissionEvent
+    data class ShowError(val message: UiText) : PostSubmissionEvent
 }
