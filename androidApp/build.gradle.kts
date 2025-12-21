@@ -48,8 +48,6 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(properties.getProperty("KEYSTORE_FILE"))
-            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
             keyAlias = properties.getProperty("KEY_ALIAS")
             keyPassword = properties.getProperty("KEY_PASSWORD")
         }

@@ -208,7 +208,7 @@ class PostSubmissionViewModel @Inject constructor(
                 authorAvatarUrl = user.profile.photoUrl,
             )
             WorkManager.getInstance(context).enqueue(workRequest)
-            _events.emit(PostSubmissionEvent.PostSubmitted)*/
+            _events.emit(PostSubmissionEvent.PostSubmitted) */
         }
     }
 

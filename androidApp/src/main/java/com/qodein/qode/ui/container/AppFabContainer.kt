@@ -68,7 +68,12 @@ fun AppFabContainer(
 
     // Only show FAB for top-level destinations (Home and Feed)
     val currentTopLevelDestination = appState.currentTopLevelDestination
-    if (currentTopLevelDestination != null && currentTopLevelDestination != TopLevelDestination.FEED) {
+
+    // ИСПРАВЛЕНО: показываем FAB если это HOME или FEED
+    val shouldShowFab = currentTopLevelDestination == TopLevelDestination.HOME ||
+        currentTopLevelDestination == TopLevelDestination.FEED
+
+    if (shouldShowFab && currentTopLevelDestination != null) {
         // Capture delegated property for smart casting
         val currentFabState = fabAutoHidingState
         if (currentFabState != null) {

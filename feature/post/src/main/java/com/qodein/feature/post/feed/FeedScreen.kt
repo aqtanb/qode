@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.QodeinTextField
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
@@ -114,15 +116,28 @@ internal fun FeedScreen(
                 when (val currentState = uiState) {
                     is FeedUiState.Loading -> FeedLoadingState()
                     is FeedUiState.Success -> {
-                        FeedContent(
-                            posts = currentState.posts,
-                            onImageClick = { uri ->
-                                focusManager.clearFocus()
-                                fullScreenImageUri = uri
-                                showFullScreenImage = true
-                            },
-                            onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
-                        )
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // Search field
+                            QodeinTextField(
+                                value = currentState.searchQuery,
+                                onValueChange = { onAction(FeedAction.SearchQueryChanged(it)) },
+                                placeholder = "Search by tag...",
+                                leadingIcon = QodeinIcons.Hashtag,
+                                modifier = Modifier.padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xs),
+                                singleLine = true,
+                            )
+
+                            // Posts content
+                            FeedContent(
+                                posts = currentState.posts,
+                                onImageClick = { uri ->
+                                    focusManager.clearFocus()
+                                    fullScreenImageUri = uri
+                                    showFullScreenImage = true
+                                },
+                                onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
+                            )
+                        }
                     }
                     is FeedUiState.Error -> FeedErrorState(
                         error = currentState.error,

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.model.Post
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +30,9 @@ class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUse
     private val _events: MutableSharedFlow<FeedEvent> = MutableSharedFlow()
     val events: SharedFlow<FeedEvent> = _events.asSharedFlow()
 
+    private var allPosts: List<Post> = emptyList()
+    private var currentSearchQuery: String = ""
+
     fun onAction(action: FeedAction) {
         when (action) {
             is FeedAction.LoadPosts -> loadPosts()
@@ -36,6 +40,7 @@ class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUse
             FeedAction.ProfileClicked -> emitEvent(FeedEvent.NavigateToProfile)
             FeedAction.SettingsClicked -> emitEvent(FeedEvent.NavigateToSettings)
             FeedAction.RetryClicked -> loadPosts()
+            is FeedAction.SearchQueryChanged -> updateSearchQuery(action.query)
         }
     }
 
@@ -56,13 +61,28 @@ class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUse
         }
     }
 
+    private fun updateSearchQuery(query: String) {
+        currentSearchQuery = query
+        val filteredPosts = if (query.isBlank()) {
+            allPosts
+        } else {
+            allPosts.filter { post ->
+                post.tags.any { tag ->
+                    tag.toString().contains(query, ignoreCase = true)
+                }
+            }
+        }
+        _uiState.value = FeedUiState.Success(posts = filteredPosts, searchQuery = query)
+    }
+
     private fun loadPosts() {
         viewModelScope.launch {
             _uiState.value = FeedUiState.Loading
             getPostsUseCase().collect { result ->
                 when (result) {
                     is Result.Success -> {
-                        _uiState.value = FeedUiState.Success(result.data.data)
+                        allPosts = result.data.data
+                        updateSearchQuery(currentSearchQuery)
                     }
                     is Result.Error -> _uiState.value = FeedUiState.Error(result.error)
                 }

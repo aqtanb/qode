@@ -10,7 +10,7 @@ sealed interface FeedUiState {
 
     data object Loading : FeedUiState
 
-    data class Success(val posts: List<Post> = emptyList()) : FeedUiState
+    data class Success(val posts: List<Post> = emptyList(), val searchQuery: String = "") : FeedUiState
 
     data class Error(val error: OperationError) : FeedUiState
 }
