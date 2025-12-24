@@ -14,7 +14,7 @@
     <string name="cd_more_options">More options</string>
 
     <string name="action_block">Block user</string>
-    <string name="action_report">Report a problem</string>
+    <string name="action_report">Report problem</string>
 
     <string name="error_network_no_connection">No internet connection. Please check your network.</string>
     <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
