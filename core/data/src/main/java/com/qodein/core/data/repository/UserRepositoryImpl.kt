@@ -50,6 +50,24 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
             Result.Error(SystemError.Unknown)
         }
 
+    override suspend fun updateUserConsent(
+        userId: String,
+        legalPoliciesAcceptedAt: Long
+    ): Result<Unit, OperationError> =
+        try {
+            dataSource.updateUserConsent(userId, legalPoliciesAcceptedAt)
+            Result.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error updating user consent: $userId")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error updating user consent: $userId")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error updating user consent: $userId")
+            Result.Error(SystemError.Unknown)
+        }
+
     override fun observeUser(userId: String): Flow<Result<User, OperationError>> =
         dataSource.observeUser(userId)
             .map { dto ->

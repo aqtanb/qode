@@ -11,19 +11,14 @@ import kotlinx.coroutines.flow.Flow
  */
 interface UserRepository {
 
-    /**
-     * Get user by ID with current stats from Firestore.
-     */
     suspend fun getUserById(userId: String): Result<User, OperationError>
 
-    /**
-     * Create user document in Firestore if it doesn't exist.
-     * If user already exists, this is a no-op.
-     */
     suspend fun createUser(user: User): Result<Unit, OperationError>
 
-    /**
-     * Observe user profile changes.
-     */
+    suspend fun updateUserConsent(
+        userId: String,
+        legalPoliciesAcceptedAt: Long
+    ): Result<Unit, OperationError>
+
     fun observeUser(userId: String): Flow<Result<User, OperationError>>
 }

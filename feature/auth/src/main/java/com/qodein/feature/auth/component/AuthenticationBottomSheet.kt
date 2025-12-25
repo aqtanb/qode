@@ -1,4 +1,4 @@
-package com.qodein.core.ui.component
+package com.qodein.feature.auth.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,6 +41,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
+import com.qodein.core.ui.component.QodeGoogleSignInButton
 import com.qodein.core.ui.error.asUiText
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.UserError

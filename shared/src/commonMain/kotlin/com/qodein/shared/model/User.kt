@@ -106,8 +106,16 @@ data class UserStats(
     }
 }
 
+data class UserConsent(val legalPoliciesAcceptedAt: Long? = null)
+
 @ConsistentCopyVisibility
-data class User private constructor(val id: UserId, val email: Email, val profile: UserProfile, val stats: UserStats) {
+data class User private constructor(
+    val id: UserId,
+    val email: Email,
+    val profile: UserProfile,
+    val stats: UserStats,
+    val consent: UserConsent
+) {
     val displayName: String? get() = profile.displayName
 
     companion object {
@@ -125,25 +133,24 @@ data class User private constructor(val id: UserId, val email: Email, val profil
                     email = Email(email),
                     profile = profile,
                     stats = UserStats.initial(UserId(id)),
+                    consent = UserConsent(),
                 ),
             )
         }
 
-        /**
-         * Reconstruct a User from storage/DTO (for mappers/repositories only).
-         * Assumes data is already validated. No sanitization performed.
-         */
         fun fromDto(
             id: UserId,
             email: Email,
             profile: UserProfile,
-            stats: UserStats
+            stats: UserStats,
+            consent: UserConsent
         ): User =
             User(
                 id = id,
                 email = email,
                 profile = profile,
                 stats = stats,
+                consent = consent,
             )
     }
 }

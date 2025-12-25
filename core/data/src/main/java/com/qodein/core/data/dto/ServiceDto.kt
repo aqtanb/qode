@@ -2,8 +2,6 @@ package com.qodein.core.data.dto
 
 import com.google.firebase.firestore.DocumentId
 
-// MARK: - SERVICE DTOs
-
 /**
  * Firestore document model for Service.
  * Represents services/brands that offer promo codes.

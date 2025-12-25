@@ -193,4 +193,14 @@
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
 
+    <string name="legal_consent_title">Accept Terms to Continue</string>
+    <string name="legal_consent_subtitle">To use this app, you must accept our legal policies.</string>
+    <string name="legal_consent_checkbox_prefix">I accept the</string>
+    <string name="legal_consent_and">and</string>
+    <string name="legal_consent_accept">Accept and Continue</string>
+    <string name="legal_consent_decline">Decline</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="loading">Loading…</string>
+
 </resources>

@@ -1,6 +1,5 @@
 package com.qodein.feature.post.submission
 
-import android.R.id.message
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
