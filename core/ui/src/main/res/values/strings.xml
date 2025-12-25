@@ -94,7 +94,7 @@
     <string name="error_post_title_empty">Post title is required</string>
     <string name="error_post_title_too_long">Post title is too long (max 200 characters)</string>
     <string name="error_post_content_empty">Post content is required</string>
-    <string name="error_post_content_too_long">Post content is too long (max 2000 characters)</string>
+    <string name="error_post_content_too_long">Post content is a bit long (max 2000 characters)</string>
     <string name="error_post_author_missing">Author information is missing</string>
     <string name="error_post_too_many_tags">Too many tags (max 10 allowed)</string>
     <string name="error_post_too_many_images">Too many images (max 5 allowed)</string>
@@ -137,8 +137,6 @@
 
     <string name="error_retry">Try again</string>
     <string name="action_retry">Retry</string>
-    <string name="common_service">Service</string>
-    <string name="common_promocode">Promocode</string>
     <string name="discount_percent">%1$s%% OFF</string>
     <string name="discount_fixed">%1$s₸ OFF</string>
 
@@ -174,6 +172,8 @@
     <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
+    <string name="auth_profile_title">Your Corner of Qode</string>
+    <string name="auth_profile_message">Sign in to view your promocodes, track your stats, and manage your profile.</string>
     <string name="step_service_title">Select Service</string>
     <string name="step_service_short">Service</string>
     <string name="step_discount_type_title">Discount Type</string>
@@ -193,10 +193,9 @@
     <string name="step_end_date_title">End Date</string>
     <string name="step_end_date_short">End</string>
 
-    <string name="legal_consent_title">Accept Terms to Continue</string>
+    <string name="legal_consent_title">Accept the Terms</string>
     <string name="legal_consent_subtitle">To use this app, you must accept our legal policies.</string>
     <string name="legal_consent_checkbox_prefix">I accept the</string>
-    <string name="legal_consent_and">and</string>
     <string name="legal_consent_accept">Accept and Continue</string>
     <string name="legal_consent_decline">Decline</string>
     <string name="terms_of_service">Terms of Service</string>

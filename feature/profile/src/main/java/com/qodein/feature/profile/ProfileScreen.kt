@@ -70,7 +70,6 @@ import com.qodein.shared.model.UserStats
 fun ProfileRoute(
     onBackClick: () -> Unit,
     onSignOut: () -> Unit,
-    onNavigateToAuth: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -81,7 +80,7 @@ fun ProfileRoute(
         viewModel.events.collect { event ->
             when (event) {
                 is ProfileEvent.SignedOut -> onSignOut()
-                is ProfileEvent.NavigateToAuth -> onNavigateToAuth()
+                is ProfileEvent.NavigateToAuth -> onBackClick()
             }
         }
     }

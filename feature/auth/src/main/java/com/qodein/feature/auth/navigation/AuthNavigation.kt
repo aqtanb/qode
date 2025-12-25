@@ -3,7 +3,6 @@ package com.qodein.feature.auth.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
@@ -29,17 +28,10 @@ fun NavController.navigateToAuthBottomSheet(
     navigate(route = AuthBottomSheetRoute(authPromptAction), navOptions = navOptions)
 }
 
-fun NavGraphBuilder.authSection(
-    navController: NavController,
-    onNavigateBack: () -> Unit
-) {
-    navigation<AuthBaseRoute>(startDestination = AuthRoute) {
-        composable<AuthRoute> {
-            AuthRoute(
-                onNavigateToHome = onNavigateBack,
-            )
-        }
-
+fun NavGraphBuilder.authSection(navController: NavController) {
+    navigation<AuthBaseRoute>(
+        startDestination = AuthBottomSheetRoute(authPromptAction = AuthPromptAction.Profile),
+    ) {
         dialog<AuthBottomSheetRoute> { backStackEntry ->
             val args = backStackEntry.toRoute<AuthBottomSheetRoute>()
             AuthPromptScreen(

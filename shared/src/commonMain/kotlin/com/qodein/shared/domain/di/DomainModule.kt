@@ -36,7 +36,7 @@ import kotlin.time.Clock
 val domainModule = module {
     single<Clock> { Clock.System }
 
-    single { GetAuthStateUseCase(get()) }
+    single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
 

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,12 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
@@ -37,7 +34,7 @@ import com.qodein.feature.auth.component.AuthenticationBottomSheet
 import com.qodein.feature.auth.component.LegalDocumentBottomSheet
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.DocumentType
-import com.qodein.shared.model.GoogleAuthResult
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import com.qodein.core.ui.R as CoreUiR
 
@@ -67,7 +64,6 @@ fun AuthPromptScreen(
         }
         is AuthBottomSheetUiState.ConsentRequired -> {
             ConsentDialog(
-                authUser = state.authUser,
                 isLoading = isLoading,
                 error = error,
                 onAccept = { viewModel.acceptConsent(state.authUser) },
@@ -106,7 +102,6 @@ fun AuthPromptScreen(
 
 @Composable
 private fun ConsentDialog(
-    authUser: GoogleAuthResult,
     isLoading: Boolean,
     error: OperationError?,
     onAccept: () -> Unit,
@@ -116,84 +111,85 @@ private fun ConsentDialog(
     onDismissError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isChecked by remember { mutableStateOf(false) }
+    var termsAccepted by remember { mutableStateOf(false) }
+    var privacyAccepted by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = { /* Cannot dismiss - user must choose */ },
+        onDismissRequest = {},
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
                 text = stringResource(CoreUiR.string.legal_consent_title),
                 style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             ) {
-                // Subtitle
                 Text(
                     text = stringResource(CoreUiR.string.legal_consent_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                // Checkbox with legal links
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = { isChecked = it },
+                        checked = termsAccepted,
+                        onCheckedChange = { termsAccepted = it },
                         enabled = !isLoading,
                     )
-
-                    val annotatedText = buildAnnotatedString {
-                        append(stringResource(CoreUiR.string.legal_consent_checkbox_prefix))
-                        append(" ")
-
-                        pushStringAnnotation(tag = "terms", annotation = "terms")
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline,
-                            ),
-                        ) {
-                            append(stringResource(CoreUiR.string.terms_of_service))
-                        }
-                        pop()
-
-                        append(" ")
-                        append(stringResource(CoreUiR.string.legal_consent_and))
-                        append(" ")
-
-                        pushStringAnnotation(tag = "privacy", annotation = "privacy")
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline,
-                            ),
-                        ) {
-                            append(stringResource(CoreUiR.string.privacy_policy))
-                        }
-                        pop()
-                    }
-
-                    ClickableText(
-                        text = annotatedText,
+                    Text(
+                        text = stringResource(CoreUiR.string.legal_consent_checkbox_prefix),
                         style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = SpacingTokens.xs),
-                        onClick = { offset ->
-                            annotatedText.getStringAnnotations(tag = "terms", start = offset, end = offset)
-                                .firstOrNull()?.let { onShowTerms() }
-                            annotatedText.getStringAnnotations(tag = "privacy", start = offset, end = offset)
-                                .firstOrNull()?.let { onShowPrivacy() }
-                        },
                     )
+                    TextButton(onClick = onShowTerms) {
+                        Text(
+                            text = stringResource(CoreUiR.string.terms_of_service),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
 
-                // Error message
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = privacyAccepted,
+                        onCheckedChange = { privacyAccepted = it },
+                        enabled = !isLoading,
+                    )
+                    Text(
+                        text = stringResource(CoreUiR.string.legal_consent_checkbox_prefix),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = SpacingTokens.xs),
+                    )
+                    TextButton(onClick = onShowPrivacy) {
+                        Text(
+                            text = stringResource(CoreUiR.string.privacy_policy),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+
                 error?.let { err ->
                     Text(
                         text = err.toUiText().asString(),
@@ -202,7 +198,7 @@ private fun ConsentDialog(
                         modifier = Modifier.padding(top = SpacingTokens.xs),
                     )
                     LaunchedEffect(err) {
-                        kotlinx.coroutines.delay(3000)
+                        delay(3000)
                         onDismissError()
                     }
                 }
@@ -216,7 +212,7 @@ private fun ConsentDialog(
                 } else {
                     stringResource(CoreUiR.string.legal_consent_accept)
                 },
-                enabled = isChecked && !isLoading,
+                enabled = termsAccepted && privacyAccepted && !isLoading,
                 loading = isLoading,
             )
         },
@@ -225,9 +221,28 @@ private fun ConsentDialog(
                 onClick = onDecline,
                 enabled = !isLoading,
             ) {
-                Text(stringResource(CoreUiR.string.legal_consent_decline))
+                Text(
+                    text = stringResource(CoreUiR.string.legal_consent_decline),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         },
         modifier = modifier,
     )
+}
+
+@ThemePreviews
+@Composable
+private fun ConsentDialogPreview() {
+    MaterialTheme {
+        ConsentDialog(
+            isLoading = false,
+            error = null,
+            onAccept = {},
+            onDecline = {},
+            onShowTerms = {},
+            onShowPrivacy = {},
+            onDismissError = {},
+        )
+    }
 }

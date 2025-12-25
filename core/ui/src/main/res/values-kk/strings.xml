@@ -169,8 +169,8 @@
     <string name="auth_bottom_sheet_footer">Google арқылы жылдам әрі қауіпсіз кіру</string>
     <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
-    <string name="common_service">Қызмет</string>
-    <string name="common_promocode">Промокод</string>
+    <string name="auth_profile_title">Сіздің Qode-тағы бұрышыңыз</string>
+    <string name="auth_profile_message">Промкодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
     <string name="step_service_title">Қызметті таңдаңыз</string>
     <string name="step_service_short">Қызмет</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>
@@ -190,4 +190,13 @@
     <string name="step_end_date_title">Аяқталу күні</string>
     <string name="step_end_date_short">Аяқталу</string>
     <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
+
+    <string name="legal_consent_title">Шарттарды қабылдаңыз</string>
+    <string name="legal_consent_subtitle">Қолданбаны пайдалану үшін біздің шарттарымызды қабылдауыңыз керек.</string>
+    <string name="legal_consent_checkbox_prefix">Мен қабылдаймын</string>
+    <string name="legal_consent_accept">Қабылдау</string>
+    <string name="legal_consent_decline">Бас тарту</string>
+    <string name="terms_of_service">Қызмет көрсету шарттарын</string>
+    <string name="privacy_policy">Құпиялылық саясатын</string>
+    <string name="loading">Жүктелуде…</string>
 </resources>

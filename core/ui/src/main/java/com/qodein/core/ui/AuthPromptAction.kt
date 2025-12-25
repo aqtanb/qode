@@ -3,6 +3,7 @@ package com.qodein.core.ui
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.UIIcons
 
 /**
  * Authentication prompt actions that trigger contextual auth prompts
@@ -42,5 +43,10 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         titleResId = R.string.auth_create_post_title,
         messageResId = R.string.auth_create_post_message,
         iconVector = QodeinIcons.PostAdd,
+    ),
+    Profile(
+        titleResId = R.string.auth_profile_title,
+        messageResId = R.string.auth_profile_message,
+        iconVector = UIIcons.AccountCircle,
     )
 }

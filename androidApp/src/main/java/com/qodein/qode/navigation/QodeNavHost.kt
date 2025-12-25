@@ -3,9 +3,8 @@ package com.qodein.qode.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import androidx.navigation.navOptions
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.auth.navigation.authSection
-import com.qodein.feature.auth.navigation.navigateToAuth
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
@@ -13,7 +12,6 @@ import com.qodein.feature.post.navigation.feedSection
 import com.qodein.feature.post.navigation.navigateToPostDetail
 import com.qodein.feature.post.navigation.postDetailSection
 import com.qodein.feature.post.navigation.postSubmissionSection
-import com.qodein.feature.profile.navigation.ProfileBaseRoute
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
@@ -61,7 +59,7 @@ fun QodeNavHost(
                 if (userId != null) {
                     navController.navigateToProfile()
                 } else {
-                    navController.navigateToAuth()
+                    navController.navigateToAuthBottomSheet(AuthPromptAction.Profile)
                 }
             },
             onSettingsClick = { navController.navigateToSettings() },
@@ -77,20 +75,10 @@ fun QodeNavHost(
             onSignOut = {
                 appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
             },
-            onNavigateToAuth = {
-                navController.navigateToAuth(
-                    navOptions = navOptions {
-                        popUpTo(ProfileBaseRoute) { inclusive = true }
-                    },
-                )
-            },
         )
 
         authSection(
             navController = navController,
-            onNavigateBack = {
-                appState.navigateToTopLevelDestination(selectedTabDestination)
-            },
         )
 
         promocodeSubmissionSection(

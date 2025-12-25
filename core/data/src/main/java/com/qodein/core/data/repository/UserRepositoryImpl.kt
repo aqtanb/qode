@@ -22,8 +22,12 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
     override suspend fun getUserById(userId: String): Result<User, OperationError> =
         try {
             val dto = dataSource.getUserById(userId)
-            dto?.let { Result.Success(UserMapper.toDomain(dto)) }
-                ?: Result.Error(UserError.ProfileFailure.NotFound)
+            if (dto == null) {
+                Timber.w("User not found in Firestore: $userId")
+                Result.Error(UserError.ProfileFailure.NotFound)
+            } else {
+                Result.Success(UserMapper.toDomain(dto))
+            }
         } catch (e: FirebaseFirestoreException) {
             Timber.e(e, "Firestore error getting user: $userId")
             Result.Error(ErrorMapper.mapFirestoreException(e))

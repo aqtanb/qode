@@ -160,8 +160,8 @@
     <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход через Google</string>
     <string name="auth_create_post_message">Делитесь горячими предложениями и общайтесь</string>
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
-    <string name="common_service">Сервис</string>
-    <string name="common_promocode">Промокод</string>
+    <string name="auth_profile_title">Ваш уголок в Qode</string>
+    <string name="auth_profile_message">Войдите, чтобы просматривать свои промкоды, отслеживать статистику и управлять своим профилем.</string>
     <string name="step_service_title">Выберите сервис</string>
     <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
@@ -181,4 +181,13 @@
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
     <string name="discount_percent">%1$s%% СКИДКА</string>
+
+    <string name="legal_consent_title">Примите условия</string>
+    <string name="legal_consent_subtitle">Чтобы использовать приложение, необходимо принять наши условия.</string>
+    <string name="legal_consent_checkbox_prefix">Я принимаю</string>
+    <string name="legal_consent_accept">Принять и продолжить</string>
+    <string name="legal_consent_decline">Отказаться</string>
+    <string name="terms_of_service">Условия использования</string>
+    <string name="privacy_policy">Политику конфиденциальности</string>
+    <string name="loading">Загрузка…</string>
 </resources>
