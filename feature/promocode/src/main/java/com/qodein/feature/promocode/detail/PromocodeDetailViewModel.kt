@@ -1,15 +1,12 @@
 package com.qodein.feature.promocode.detail
 
-import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.ui.auth.IdTokenProvider
-import com.qodein.core.ui.component.AuthPromptAction
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
@@ -33,13 +30,11 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = PromocodeDetailViewModel.Factory::class)
 class PromocodeDetailViewModel @AssistedInject constructor(
     @Assisted promoCodeIdString: String,
+    private val savedStateHandle: SavedStateHandle,
     private val getPromocodeUseCase: GetPromocodeUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
-    private val analyticsHelper: AnalyticsHelper,
-    private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val idTokenProvider: IdTokenProvider,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val getAuthStateUseCase: GetAuthStateUseCase
 ) : ViewModel() {
 
     private val promocodeId = PromocodeId(promoCodeIdString)
@@ -55,8 +50,11 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private val _events = MutableSharedFlow<PromocodeDetailEvent>()
     val events = _events.asSharedFlow()
 
+    private var pendingVoteAction: VoteState? = null
+
     init {
         observeAuthState()
+        observeAuthResult()
         refreshPromocode()
     }
 
@@ -70,8 +68,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.BlockUserClicked -> Unit
             is PromocodeDetailAction.ReportPromocodeClicked -> Unit
-            is PromocodeDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
-            is PromocodeDetailAction.DismissAuthSheet -> dismissAuthSheet()
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
         }
     }
@@ -152,6 +148,23 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         }
     }
 
+    private fun observeAuthResult() {
+        viewModelScope.launch {
+            savedStateHandle.getStateFlow("auth_result", "")
+                .collect { result ->
+                    if (result == "success") {
+                        // Execute pending action if auth was successful
+                        pendingVoteAction?.let { voteState ->
+                            handleVote(voteState)
+                            pendingVoteAction = null
+                        }
+                        // Reset the flag so it doesn't trigger again
+                        savedStateHandle["auth_result"] = ""
+                    }
+                }
+        }
+    }
+
     private fun handleVote(targetVoteState: VoteState) {
         viewModelScope.launch {
             // Auth check
@@ -160,7 +173,9 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                 else -> AuthPromptAction.DownvotePrompt
             }
             _uiState.value.userId ?: run {
-                showAuthBottomSheet(authPrompt)
+                // Store the pending action before navigating to auth
+                pendingVoteAction = targetVoteState
+                _events.emit(PromocodeDetailEvent.NavigateToAuth(authPrompt))
                 return@launch
             }
 
@@ -224,47 +239,5 @@ class PromocodeDetailViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _events.emit(PromocodeDetailEvent.NavigateBack)
         }
-    }
-
-    private fun signInWithGoogle(context: Context) {
-        val currentAuthSheet = _uiState.value.authBottomSheet ?: return
-        _uiState.update { it.copy(authBottomSheet = currentAuthSheet.copy(isLoading = true)) }
-
-        viewModelScope.launch {
-            when (val tokenResult = idTokenProvider.getIdToken(context)) {
-                is Result.Success -> {
-                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
-                        is Result.Success -> {
-                            _uiState.update { it.copy(authBottomSheet = null) }
-                            // Screen auto-reloads with user data via auth state listener in init
-                        }
-                        is Result.Error -> {
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                                )
-                            }
-                            _events.emit(PromocodeDetailEvent.ShowError(signInResult.error))
-                        }
-                    }
-                }
-                is Result.Error -> {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            authBottomSheet = currentAuthSheet.copy(isLoading = false),
-                        )
-                    }
-                    _events.emit(PromocodeDetailEvent.ShowError(tokenResult.error))
-                }
-            }
-        }
-    }
-
-    private fun dismissAuthSheet() {
-        _uiState.update { it.copy(authBottomSheet = null) }
-    }
-
-    private fun showAuthBottomSheet(action: AuthPromptAction) {
-        _uiState.update { it.copy(authBottomSheet = AuthBottomSheetState(action)) }
     }
 }

@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,17 +28,22 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.qodein.core.designsystem.component.QodePrimaryButton
+import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.auth.component.AuthPromptAction
+import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.text.asString
 import com.qodein.feature.auth.component.AuthenticationBottomSheet
 import com.qodein.feature.auth.component.LegalDocumentBottomSheet
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.DocumentType
+import com.qodein.shared.model.GoogleAuthResult
 import org.koin.androidx.compose.koinViewModel
 import com.qodein.core.ui.R as CoreUiR
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthBottomSheetRoute(
+fun AuthPromptScreen(
     authPromptAction: AuthPromptAction,
     navController: NavController,
     viewModel: AuthBottomSheetViewModel = koinViewModel()
@@ -87,6 +94,10 @@ fun AuthBottomSheetRoute(
             ?.getStateFlow(AuthBottomSheetViewModel.AUTH_RESULT_KEY, "")
             ?.collect { result ->
                 if (result == AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS) {
+                    // Set the result on the previous screen's savedStateHandle
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(AuthBottomSheetViewModel.AUTH_RESULT_KEY, AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS)
                     navController.popBackStack()
                 }
             }
@@ -95,9 +106,9 @@ fun AuthBottomSheetRoute(
 
 @Composable
 private fun ConsentDialog(
-    authUser: com.qodein.shared.model.GoogleAuthResult,
+    authUser: GoogleAuthResult,
     isLoading: Boolean,
-    error: com.qodein.shared.common.error.OperationError?,
+    error: OperationError?,
     onAccept: () -> Unit,
     onDecline: () -> Unit,
     onShowTerms: () -> Unit,
@@ -108,7 +119,7 @@ private fun ConsentDialog(
     var isChecked by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = onDecline,
+        onDismissRequest = { /* Cannot dismiss - user must choose */ },
         title = {
             Text(
                 text = stringResource(CoreUiR.string.legal_consent_title),
@@ -119,12 +130,14 @@ private fun ConsentDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             ) {
+                // Subtitle
                 Text(
                     text = stringResource(CoreUiR.string.legal_consent_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
+                // Checkbox with legal links
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
@@ -167,7 +180,7 @@ private fun ConsentDialog(
                         pop()
                     }
 
-                    Text(
+                    ClickableText(
                         text = annotatedText,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = SpacingTokens.xs),
@@ -180,9 +193,10 @@ private fun ConsentDialog(
                     )
                 }
 
+                // Error message
                 error?.let { err ->
                     Text(
-                        text = com.qodein.core.ui.error.asUiText(err),
+                        text = err.toUiText().asString(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(top = SpacingTokens.xs),
@@ -195,19 +209,16 @@ private fun ConsentDialog(
             }
         },
         confirmButton = {
-            QodePrimaryButton(
+            QodeButton(
                 onClick = onAccept,
+                text = if (isLoading) {
+                    stringResource(CoreUiR.string.loading)
+                } else {
+                    stringResource(CoreUiR.string.legal_consent_accept)
+                },
                 enabled = isChecked && !isLoading,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    text = if (isLoading) {
-                        stringResource(CoreUiR.string.loading)
-                    } else {
-                        stringResource(CoreUiR.string.legal_consent_accept)
-                    },
-                )
-            }
+                loading = isLoading,
+            )
         },
         dismissButton = {
             TextButton(

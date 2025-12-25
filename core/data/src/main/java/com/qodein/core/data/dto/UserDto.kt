@@ -7,7 +7,7 @@ import com.google.firebase.firestore.DocumentId
  * Firestore DTO for user profile data.
  * Embedded inside UserDto as a nested field.
  */
-data class UserProfileDto(val displayName: String = "", val photoUrl: String? = null)
+data class UserProfileDto(val displayName: String? = "", val photoUrl: String? = null)
 
 /**
  * Firestore DTO for user statistics.

@@ -122,7 +122,8 @@ data class User private constructor(
         fun create(
             id: String,
             email: String?,
-            profile: UserProfile
+            profile: UserProfile,
+            consent: UserConsent
         ): Result<User, UserError.CreationFailure> {
             if (id.isBlank()) return Result.Error(UserError.CreationFailure.InvalidUserId)
             if (email.isNullOrBlank()) return Result.Error(UserError.CreationFailure.InvalidEmail)
@@ -133,7 +134,7 @@ data class User private constructor(
                     email = Email(email),
                     profile = profile,
                     stats = UserStats.initial(UserId(id)),
-                    consent = UserConsent(),
+                    consent = consent,
                 ),
             )
         }

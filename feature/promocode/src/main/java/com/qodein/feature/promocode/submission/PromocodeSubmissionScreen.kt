@@ -32,14 +32,11 @@ import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.state.ServiceSelectionUiState
-import com.qodein.core.ui.state.UiAuthState
-import com.qodein.core.ui.state.shouldShowAuthSheet
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
@@ -56,13 +53,13 @@ import com.qodein.shared.domain.service.selection.ServiceSelectionState
 @Composable
 fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
     viewModel: PromocodeSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
 
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val authState by viewModel.authState.collectAsStateWithLifecycle()
     val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -71,6 +68,9 @@ fun PromocodeSubmissionScreen(
         when (val event = events) {
             PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
             PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
+            is PromocodeSubmissionEvent.NavigateToAuth -> {
+                onNavigateToAuth(event.action)
+            }
             is PromocodeSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
                 message = event.message.asString(context),
                 withDismissAction = true,
@@ -81,13 +81,11 @@ fun PromocodeSubmissionScreen(
 
     PromocodeSubmissionScreenContent(
         uiState = uiState,
-        authState = authState,
         serviceSelectionState = serviceSelectionState,
         snackbarHostState = snackbarHostState,
         onNavigateBack = onNavigateBack,
         onAction = viewModel::onAction,
         onServiceSelectionAction = viewModel::onServiceSelectionAction,
-        onSignIn = { viewModel.onAction(PromocodeSubmissionAction.SignInWithGoogle(context)) },
     )
 }
 
@@ -95,13 +93,11 @@ fun PromocodeSubmissionScreen(
 @Composable
 private fun PromocodeSubmissionScreenContent(
     uiState: PromocodeSubmissionUiState,
-    authState: UiAuthState,
     serviceSelectionState: ServiceSelectionState,
     snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit,
     onAction: (PromocodeSubmissionAction) -> Unit,
-    onServiceSelectionAction: (ServiceSelectionAction) -> Unit,
-    onSignIn: () -> Unit
+    onServiceSelectionAction: (ServiceSelectionAction) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -133,15 +129,6 @@ private fun PromocodeSubmissionScreenContent(
                         uiState = uiState,
                         onAction = onAction,
                     )
-
-                    if (authState.shouldShowAuthSheet()) {
-                        AuthenticationBottomSheet(
-                            authPromptAction = AuthPromptAction.SubmitPromocode,
-                            onSignInClick = onSignIn,
-                            onDismiss = { onAction(PromocodeSubmissionAction.DismissAuthSheet) },
-                            isLoading = authState is UiAuthState.SigningIn,
-                        )
-                    }
 
                     if (uiState.showServiceSelector) {
                         val updatedSelectionState = serviceSelectionState.copy(

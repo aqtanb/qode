@@ -5,16 +5,11 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.error.toUiText
-import com.qodein.core.ui.state.UiAuthState
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.PostError
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,10 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PostSubmissionViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
-    private val idTokenProvider: IdTokenProvider,
-    private val analyticsHelper: AnalyticsHelper
+    private val getAuthStateUseCase: GetAuthStateUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PostSubmissionUiState>(PostSubmissionUiState.Success.initial())
@@ -43,6 +34,8 @@ class PostSubmissionViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<PostSubmissionEvent>()
     val events = _events.asSharedFlow()
+
+    private var currentAuthState: AuthState = AuthState.Unauthenticated
 
     companion object {
         private const val TAG = "PostSubmissionVM"
@@ -83,10 +76,6 @@ class PostSubmissionViewModel @Inject constructor(
             // Navigation
             PostSubmissionAction.NavigateBack -> navigateBack()
 
-            // Auth
-            is PostSubmissionAction.SignInWithGoogle -> signInWithGoogle(action.context)
-            PostSubmissionAction.DismissAuthSheet -> navigateBack()
-
             // Error handling
             PostSubmissionAction.ClearValidationErrors -> clearValidationErrors()
             PostSubmissionAction.RetryPostSubmission -> submitPost()
@@ -96,13 +85,7 @@ class PostSubmissionViewModel @Inject constructor(
     private fun observeAuthState() {
         viewModelScope.launch {
             getAuthStateUseCase().collect { authState ->
-                updateSuccessState { state ->
-                    val mapped = when (authState) {
-                        is AuthState.Authenticated -> UiAuthState.Authenticated(authState.userId)
-                        AuthState.Unauthenticated -> UiAuthState.Unauthenticated
-                    }
-                    state.copy(authentication = mapped)
-                }
+                currentAuthState = authState
             }
         }
     }
@@ -190,13 +173,13 @@ class PostSubmissionViewModel @Inject constructor(
         viewModelScope.launch {
             val currentState = uiState.value
             if (currentState !is PostSubmissionUiState.Success) return@launch
-            val user = when (val authState = getAuthStateUseCase().firstOrNull()) {
-                is AuthState.Authenticated -> authState.userId
-                else -> {
-                    _uiState.update { PostSubmissionUiState.Error(PostError.SubmissionFailure.NotAuthorized) }
-                    return@launch
-                }
+
+            val userId = (currentAuthState as? AuthState.Authenticated)?.userId
+            if (userId == null) {
+                Logger.w(TAG) { "Cannot submit: user is not authenticated" }
+                return@launch
             }
+
             _uiState.update { PostSubmissionUiState.Loading }
 
             /*val workRequest = UploadPostWorker.createWorkRequest(
@@ -204,9 +187,9 @@ class PostSubmissionViewModel @Inject constructor(
                 content = currentState.content,
                 tags = currentState.tags.map { it.value },
                 imageUris = currentState.imageUris,
-                authorId = user.value,
-                authorUsername = user.displayName.orEmpty(),
-                authorAvatarUrl = user.profile.photoUrl,
+                authorId = userId.value,
+                authorUsername = userId.displayName.orEmpty(),
+                authorAvatarUrl = userId.profile.photoUrl,
             )
             WorkManager.getInstance(context).enqueue(workRequest)
             _events.emit(PostSubmissionEvent.PostSubmitted)*/
@@ -252,33 +235,6 @@ class PostSubmissionViewModel @Inject constructor(
     private fun navigateBack() {
         viewModelScope.launch {
             _events.emit(PostSubmissionEvent.NavigateBack)
-        }
-    }
-
-    private fun signInWithGoogle(activityContext: Context) {
-        updateSuccessState { it.copy(authentication = UiAuthState.SigningIn) }
-
-        viewModelScope.launch {
-            when (val tokenResult = idTokenProvider.getIdToken(activityContext)) {
-                is Result.Success -> {
-                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
-                        is Result.Success -> {
-                            Logger.i(TAG) { "Sign in successful" }
-                            // Auth state will update via observeAuthState()
-                        }
-                        is Result.Error -> {
-                            Logger.w(TAG) { "Sign in failed: ${signInResult.error}" }
-                            updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
-                            _events.emit(PostSubmissionEvent.ShowError(signInResult.error.toUiText()))
-                        }
-                    }
-                }
-                is Result.Error -> {
-                    Logger.w(TAG) { "Failed to get ID token: ${tokenResult.error}" }
-                    updateSuccessState { it.copy(authentication = UiAuthState.Unauthenticated) }
-                    _events.emit(PostSubmissionEvent.ShowError(tokenResult.error.toUiText()))
-                }
-            }
         }
     }
 

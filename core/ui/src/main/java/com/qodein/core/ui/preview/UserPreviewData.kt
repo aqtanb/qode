@@ -3,6 +3,7 @@ package com.qodein.core.ui.preview
 import com.qodein.shared.common.requireSuccess
 import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserConsent
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserProfile
 import com.qodein.shared.model.UserStats
@@ -29,6 +30,7 @@ object UserPreviewData {
                 submittedPromocodesCount = submittedPromocodes,
                 submittedPostsCount = submittedPosts,
             ),
+            consent = UserConsent(),
         )
 
     val newUser = buildUser(

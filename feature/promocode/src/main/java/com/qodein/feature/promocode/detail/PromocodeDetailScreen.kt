@@ -36,7 +36,7 @@ import com.qodein.core.designsystem.component.ShimmerBox
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PromocodePreviewData
@@ -63,6 +63,7 @@ import com.qodein.core.ui.R as CoreUiR
 fun PromocodeDetailRoute(
     promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -77,6 +78,7 @@ fun PromocodeDetailRoute(
         viewModel.events.collect { event ->
             when (event) {
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
+                is PromocodeDetailEvent.NavigateToAuth -> onNavigateToAuth(event.action)
                 is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowError -> {
@@ -132,34 +134,22 @@ fun PromocodeDetailScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = SpacingTokens.sm),
-        ) {
-            when (val promoState = uiState.promocodeState) {
-                PromocodeUiState.Loading -> PromocodeLoadingState()
-                is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
-                    onAction(PromocodeDetailAction.RetryClicked)
-                })
-                is PromocodeUiState.Success -> PromocodeSuccessState(
-                    promocode = promoState.data,
-                    userInteraction = uiState.userInteraction,
-                    currentVoting = uiState.currentVoting,
-                    optimisticUpvotes = uiState.optimisticUpvotes,
-                    optimisticDownvotes = uiState.optimisticDownvotes,
-                    onAction = onAction,
-                )
-            }
-
-            uiState.authBottomSheet?.let { authSheetState ->
-                AuthenticationBottomSheet(
-                    authPromptAction = authSheetState.action,
-                    isLoading = authSheetState.isLoading,
-                    onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
-                    onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
-                )
-            }
+        when (val promoState = uiState.promocodeState) {
+            PromocodeUiState.Loading -> PromocodeLoadingState()
+            is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
+                onAction(PromocodeDetailAction.RetryClicked)
+            })
+            is PromocodeUiState.Success -> PromocodeSuccessState(
+                promocode = promoState.data,
+                userInteraction = uiState.userInteraction,
+                currentVoting = uiState.currentVoting,
+                optimisticUpvotes = uiState.optimisticUpvotes,
+                optimisticDownvotes = uiState.optimisticDownvotes,
+                onAction = onAction,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = SpacingTokens.sm),
+            )
         }
     }
 }
@@ -171,14 +161,15 @@ private fun PromocodeSuccessState(
     currentVoting: VoteState?,
     optimisticUpvotes: Int?,
     optimisticDownvotes: Int?,
-    onAction: (PromocodeDetailAction) -> Unit
+    onAction: (PromocodeDetailAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val displayUpvotes = optimisticUpvotes ?: promocode.upvotes
     val displayDownvotes = optimisticDownvotes ?: promocode.downvotes
     val displayVoteScore = displayUpvotes - displayDownvotes
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),

@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -49,11 +50,8 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.state.UiAuthState
-import com.qodein.core.ui.state.shouldShowAuthSheet
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.R
 import com.qodein.feature.post.component.FullScreenImageViewer
@@ -71,6 +69,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostSubmissionScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
     viewModel: PostSubmissionViewModel = hiltViewModel()
 ) {
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
@@ -113,6 +112,7 @@ fun PostSubmissionScreen(
         when (val event = events) {
             is PostSubmissionEvent.NavigateBack -> onNavigateBack()
             is PostSubmissionEvent.PostSubmitted -> onNavigateBack()
+            is PostSubmissionEvent.NavigateToAuth -> onNavigateToAuth(event.action)
             is PostSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
                 message = event.message.asString(context),
                 withDismissAction = true,
@@ -149,7 +149,7 @@ fun PostSubmissionScreen(
             },
             bottomBar = {
                 val currentState = uiState as? PostSubmissionUiState.Success
-                if (currentState != null && currentState.authentication is UiAuthState.Authenticated) {
+                if (currentState != null) {
                     PostSubmissionBottomToolbar(
                         isImageLimitReached = currentState.imageUris.size >= 5,
                         onClick = {
@@ -181,42 +181,31 @@ fun PostSubmissionScreen(
                         LoadingState()
                     }
                     is PostSubmissionUiState.Success -> {
-                        val showAuthenticationSheet = currentState.authentication.shouldShowAuthSheet()
-                        if (showAuthenticationSheet) {
-                            val isSigningIn = currentState.authentication is UiAuthState.SigningIn
-                            AuthenticationBottomSheet(
-                                authPromptAction = AuthPromptAction.CreatePost,
-                                onSignInClick = { viewModel.onAction(PostSubmissionAction.SignInWithGoogle(context)) },
-                                onDismiss = { viewModel.onAction(PostSubmissionAction.DismissAuthSheet) },
-                                isLoading = isSigningIn,
-                            )
-                        } else {
-                            PostSubmissionContent(
-                                uiState = currentState,
-                                onAction = viewModel::onAction,
-                                onOpenTagSelector = { showTagBottomSheet = true },
-                                onOpenImagePicker = {
-                                    if (currentState.imageUris.size >= 5) {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = context.getString(R.string.image_limit_reached),
-                                                withDismissAction = true,
-                                            )
-                                        }
-                                    } else {
-                                        pickMediaLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                        PostSubmissionContent(
+                            uiState = currentState,
+                            onAction = viewModel::onAction,
+                            onOpenTagSelector = { showTagBottomSheet = true },
+                            onOpenImagePicker = {
+                                if (currentState.imageUris.size >= 5) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.image_limit_reached),
+                                            withDismissAction = true,
                                         )
                                     }
-                                },
-                                onOpenImage = { index ->
-                                    focusManager.clearFocus()
-                                    fullScreenImageIndex = index
-                                    showFullScreenImage = true
-                                },
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
+                                } else {
+                                    pickMediaLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                    )
+                                }
+                            },
+                            onOpenImage = { index ->
+                                focusManager.clearFocus()
+                                fullScreenImageIndex = index
+                                showFullScreenImage = true
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                        )
 
                         if (currentState.compression is ImageCompressionState.Compressing) {
                             LaunchedEffect(currentState.compression) {
@@ -227,7 +216,7 @@ fun PostSubmissionScreen(
                                         currentState.compression.total,
                                     ),
                                     withDismissAction = false,
-                                    duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+                                    duration = SnackbarDuration.Indefinite,
                                 )
                             }
                         }

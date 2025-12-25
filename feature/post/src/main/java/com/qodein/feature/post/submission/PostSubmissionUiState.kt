@@ -1,6 +1,5 @@
 package com.qodein.feature.post.submission
 
-import com.qodein.core.ui.state.UiAuthState
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
@@ -28,9 +27,6 @@ sealed interface PostSubmissionUiState {
         val tagSearchQuery: String = "",
         val availableTags: List<Tag> = emptyList(),
 
-        // Auth state
-        val authentication: UiAuthState = UiAuthState.Uninitialized,
-
         // Submission state
         val submission: PostSubmissionState = PostSubmissionState.Idle,
 
@@ -54,8 +50,7 @@ sealed interface PostSubmissionUiState {
                 areTagsValid &&
                 areImagesValid &&
                 submission is PostSubmissionState.Idle &&
-                compression is ImageCompressionState.Idle &&
-                authentication is UiAuthState.Authenticated
+                compression is ImageCompressionState.Idle
 
         companion object {
             fun initial() = Success()

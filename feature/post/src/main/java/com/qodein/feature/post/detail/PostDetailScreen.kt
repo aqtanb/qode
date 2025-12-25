@@ -17,12 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.ui.component.AuthPromptAction
-import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.post.detail.component.PostDetailSection
@@ -36,14 +34,13 @@ import com.qodein.shared.model.VoteState
 @Composable
 internal fun PostDetailRoute(
     onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PostDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
 
-    var authPromptAction by remember { mutableStateOf<AuthPromptAction?>(null) }
     var errorToShow by remember { mutableStateOf<OperationError?>(null) }
 
     LaunchedEffect(Unit) {
@@ -52,8 +49,8 @@ internal fun PostDetailRoute(
                 is PostDetailEvent.ShowError -> {
                     errorToShow = event.error
                 }
-                is PostDetailEvent.ShowAuthPrompt -> {
-                    authPromptAction = event.authPromptAction
+                is PostDetailEvent.NavigateToAuth -> {
+                    onNavigateToAuth(event.action)
                 }
             }
         }
@@ -78,19 +75,6 @@ internal fun PostDetailRoute(
         snackbarHostState = snackbarHostState,
         modifier = modifier,
     )
-
-    authPromptAction?.let { action ->
-        AuthenticationBottomSheet(
-            authPromptAction = action,
-            onSignInClick = {
-                viewModel.onAction(PostDetailAction.SignInWithGoogleClicked(context))
-            },
-            onDismiss = {
-                authPromptAction = null
-            },
-            isLoading = uiState.isSigningIn,
-        )
-    }
 }
 
 @Composable

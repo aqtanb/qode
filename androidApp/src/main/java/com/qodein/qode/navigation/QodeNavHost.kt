@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
@@ -49,6 +50,9 @@ fun QodeNavHost(
 
         promocodeDetailSection(
             onNavigateBack = { navController.popBackStack() },
+            onNavigateToAuth = { authPromptAction ->
+                navController.navigateToAuthBottomSheet(authPromptAction)
+            },
         )
 
         feedSection(
@@ -83,6 +87,7 @@ fun QodeNavHost(
         )
 
         authSection(
+            navController = navController,
             onNavigateBack = {
                 appState.navigateToTopLevelDestination(selectedTabDestination)
             },
@@ -92,10 +97,16 @@ fun QodeNavHost(
             onNavigateBack = {
                 navController.popBackStack()
             },
+            onNavigateToAuth = { authPromptAction ->
+                navController.navigateToAuthBottomSheet(authPromptAction)
+            },
         )
 
         postSubmissionSection(
             onNavigateBack = navController::popBackStack,
+            onNavigateToAuth = { authPromptAction ->
+                navController.navigateToAuthBottomSheet(authPromptAction)
+            },
         )
 
         settingsSection(
@@ -112,6 +123,9 @@ fun QodeNavHost(
 
         postDetailSection(
             onNavigateBack = { navController.popBackStack() },
+            onNavigateToAuth = { authPromptAction ->
+                navController.navigateToAuthBottomSheet(authPromptAction)
+            },
         )
     }
 }

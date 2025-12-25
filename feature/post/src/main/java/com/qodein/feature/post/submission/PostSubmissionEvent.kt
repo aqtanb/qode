@@ -1,5 +1,6 @@
 package com.qodein.feature.post.submission
 
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.text.UiText
 
 /**
@@ -9,5 +10,6 @@ import com.qodein.core.ui.text.UiText
 sealed interface PostSubmissionEvent {
     data object NavigateBack : PostSubmissionEvent
     data object PostSubmitted : PostSubmissionEvent
+    data class NavigateToAuth(val action: AuthPromptAction) : PostSubmissionEvent
     data class ShowError(val message: UiText) : PostSubmissionEvent
 }
