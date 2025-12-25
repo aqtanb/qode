@@ -66,7 +66,9 @@ fun AuthPromptScreen(
             ConsentDialog(
                 isLoading = isLoading,
                 error = error,
-                onAccept = { viewModel.acceptConsent(state.authUser) },
+                onAccept = {
+                    viewModel.acceptConsent(state.authUser)
+                },
                 onDecline = {
                     viewModel.declineConsent()
                     navController.popBackStack()
@@ -84,19 +86,18 @@ fun AuthPromptScreen(
         state = legalDocumentState,
     )
 
-    LaunchedEffect(Unit) {
-        navController.currentBackStackEntry
-            ?.savedStateHandle
-            ?.getStateFlow(AuthBottomSheetViewModel.AUTH_RESULT_KEY, "")
-            ?.collect { result ->
-                if (result == AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS) {
-                    // Set the result on the previous screen's savedStateHandle
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set(AuthBottomSheetViewModel.AUTH_RESULT_KEY, AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS)
-                    navController.popBackStack()
-                }
-            }
+    val authResult by viewModel.savedStateHandle
+        .getStateFlow(AuthBottomSheetViewModel.AUTH_RESULT_KEY, "")
+        .collectAsStateWithLifecycle()
+
+    LaunchedEffect(authResult) {
+        if (authResult == AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set(AuthBottomSheetViewModel.AUTH_RESULT_KEY, AuthBottomSheetViewModel.AUTH_RESULT_SUCCESS)
+            viewModel.savedStateHandle[AuthBottomSheetViewModel.AUTH_RESULT_KEY] = ""
+            navController.popBackStack()
+        }
     }
 }
 
@@ -202,31 +203,35 @@ private fun ConsentDialog(
                         onDismissError()
                     }
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TextButton(
+                        onClick = onDecline,
+                        enabled = !isLoading,
+                    ) {
+                        Text(
+                            text = stringResource(CoreUiR.string.legal_consent_decline),
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    QodeButton(
+                        onClick = onAccept,
+                        text = if (isLoading) {
+                            stringResource(CoreUiR.string.loading)
+                        } else {
+                            stringResource(CoreUiR.string.legal_consent_accept)
+                        },
+                        enabled = termsAccepted && privacyAccepted && !isLoading,
+                        loading = isLoading,
+                        modifier = Modifier.padding(start = SpacingTokens.sm),
+                    )
+                }
             }
         },
-        confirmButton = {
-            QodeButton(
-                onClick = onAccept,
-                text = if (isLoading) {
-                    stringResource(CoreUiR.string.loading)
-                } else {
-                    stringResource(CoreUiR.string.legal_consent_accept)
-                },
-                enabled = termsAccepted && privacyAccepted && !isLoading,
-                loading = isLoading,
-            )
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDecline,
-                enabled = !isLoading,
-            ) {
-                Text(
-                    text = stringResource(CoreUiR.string.legal_consent_decline),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-        },
+        confirmButton = {},
         modifier = modifier,
     )
 }

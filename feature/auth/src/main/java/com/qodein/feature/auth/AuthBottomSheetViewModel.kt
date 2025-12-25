@@ -25,7 +25,7 @@ sealed interface AuthBottomSheetUiState {
 }
 
 class AuthBottomSheetViewModel(
-    private val savedStateHandle: SavedStateHandle,
+    internal val savedStateHandle: SavedStateHandle,
     private val idTokenProvider: IdTokenProvider,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val acceptConsentUseCase: AcceptConsentAndCreateUserUseCase,

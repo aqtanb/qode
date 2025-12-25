@@ -9,8 +9,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 class GetAuthStateUseCase(private val authRepository: AuthRepository, private val userRepository: UserRepository) {
 
@@ -22,12 +22,13 @@ class GetAuthStateUseCase(private val authRepository: AuthRepository, private va
                 if (googleUser == null) {
                     flowOf<AuthState>(AuthState.Unauthenticated)
                 } else {
-                    flow {
-                        when (userRepository.getUserById(googleUser.uid)) {
-                            is Result.Success -> emit(AuthState.Authenticated(UserId(googleUser.uid)))
-                            is Result.Error -> emit(AuthState.Unauthenticated)
+                    userRepository.observeUser(googleUser.uid)
+                        .map { result ->
+                            when (result) {
+                                is Result.Success -> AuthState.Authenticated(UserId(googleUser.uid))
+                                is Result.Error -> AuthState.Unauthenticated
+                            }
                         }
-                    }
                 }
             }
             .distinctUntilChanged()
