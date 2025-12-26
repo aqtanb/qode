@@ -38,7 +38,8 @@ fun NavGraphBuilder.promocodeSubmissionSection(
 
 fun NavGraphBuilder.promocodeDetailSection(
     onNavigateBack: () -> Unit,
-    onNavigateToAuth: (AuthPromptAction) -> Unit
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit
 ) {
     composable<PromocodeDetailRoute>(
         deepLinks = listOf(
@@ -57,6 +58,7 @@ fun NavGraphBuilder.promocodeDetailSection(
             promoCodeId = PromocodeId(args.promoCodeId),
             onNavigateBack = onNavigateBack,
             onNavigateToAuth = onNavigateToAuth,
+            onNavigateToReport = onNavigateToReport,
         )
     }
 }

@@ -67,7 +67,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.BlockUserClicked -> Unit
-            is PromocodeDetailAction.ReportPromocodeClicked -> Unit
+            is PromocodeDetailAction.ReportPromocodeClicked -> handleReportPromocode(action.promocodeId)
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
         }
     }
@@ -238,6 +238,27 @@ class PromocodeDetailViewModel @AssistedInject constructor(
     private fun handleBack() {
         viewModelScope.launch {
             _events.emit(PromocodeDetailEvent.NavigateBack)
+        }
+    }
+
+    private fun handleReportPromocode(promocodeId: PromocodeId) {
+        val promocodeUiState = _uiState.value.promocodeState
+        if (promocodeUiState !is PromocodeUiState.Success) return
+        val currentPromocode = promocodeUiState.data
+
+        viewModelScope.launch {
+            _uiState.value.userId ?: run {
+                _events.emit(PromocodeDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
+                return@launch
+            }
+
+            _events.emit(
+                PromocodeDetailEvent.NavigateToReport(
+                    reportedItemId = promocodeId.value,
+                    itemTitle = currentPromocode.code.value,
+                    itemAuthor = currentPromocode.authorUsername,
+                ),
+            )
         }
     }
 }

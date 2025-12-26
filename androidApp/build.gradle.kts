@@ -106,10 +106,8 @@ kotlin {
 }
 
 dependencies {
-    // Shared multiplatform module
     implementation(projects.shared)
 
-    // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
     implementation(projects.core.ui)
@@ -122,6 +120,7 @@ dependencies {
     implementation(projects.feature.post)
     implementation(projects.feature.profile)
     implementation(projects.feature.promocode)
+    implementation(projects.feature.report)
     implementation(projects.feature.settings)
 
     implementation(platform(libs.firebase.bom))

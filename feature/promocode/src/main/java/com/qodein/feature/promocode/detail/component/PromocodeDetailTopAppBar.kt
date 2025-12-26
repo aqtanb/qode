@@ -29,57 +29,63 @@ import com.qodein.core.ui.R as CoreUiR
 internal fun PromocodeDetailTopAppBar(
     title: String,
     promocodeId: PromocodeId,
+    currentUserId: UserId?,
     authorId: UserId?,
     onNavigateBack: () -> Unit,
     onBlockUserClick: (UserId) -> Unit,
     onReportPromocodeClick: (PromocodeId) -> Unit
 ) {
     var isMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    val isOwnPromocode = currentUserId != null && currentUserId == authorId
 
     QodeTopAppBar(
         title = title,
         navigationIcon = QodeActionIcons.Back,
         onNavigationClick = onNavigateBack,
-        customActions = {
-            Box {
-                IconButton(onClick = { isMenuExpanded = true }) {
-                    Icon(
-                        imageVector = UIIcons.MoreVert,
-                        contentDescription = stringResource(CoreUiR.string.cd_more_options),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+        customActions = if (!isOwnPromocode) {
+            {
+                Box {
+                    IconButton(onClick = { isMenuExpanded = true }) {
+                        Icon(
+                            imageVector = UIIcons.MoreVert,
+                            contentDescription = stringResource(CoreUiR.string.cd_more_options),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
 
-                DropdownMenu(
-                    expanded = isMenuExpanded,
-                    onDismissRequest = { isMenuExpanded = false },
-                    modifier = Modifier.widthIn(min = SizeTokens.Menu.minWidth),
-                ) {
-                    QodeDropdownMenuItem(
-                        text = stringResource(CoreUiR.string.action_block),
-                        leadingIcon = UIIcons.Block,
-                        enabled = authorId != null,
-                        minHeight = SizeTokens.Button.heightXL,
-                        onClick = {
-                            val userId = authorId ?: return@QodeDropdownMenuItem
-                            isMenuExpanded = false
-                            onBlockUserClick(userId)
-                        },
-                    )
+                    DropdownMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = { isMenuExpanded = false },
+                        modifier = Modifier.widthIn(min = SizeTokens.Menu.minWidth),
+                    ) {
+                        QodeDropdownMenuItem(
+                            text = stringResource(CoreUiR.string.action_block),
+                            leadingIcon = UIIcons.Block,
+                            enabled = authorId != null,
+                            minHeight = SizeTokens.Button.heightXL,
+                            onClick = {
+                                val userId = authorId ?: return@QodeDropdownMenuItem
+                                isMenuExpanded = false
+                                onBlockUserClick(userId)
+                            },
+                        )
 
-                    HorizontalDivider()
+                        HorizontalDivider()
 
-                    QodeDropdownMenuItem(
-                        text = stringResource(CoreUiR.string.action_report),
-                        leadingIcon = UIIcons.Report,
-                        minHeight = SizeTokens.Button.heightXL,
-                        onClick = {
-                            isMenuExpanded = false
-                            onReportPromocodeClick(promocodeId)
-                        },
-                    )
+                        QodeDropdownMenuItem(
+                            text = stringResource(CoreUiR.string.action_report),
+                            leadingIcon = UIIcons.Report,
+                            minHeight = SizeTokens.Button.heightXL,
+                            onClick = {
+                                isMenuExpanded = false
+                                onReportPromocodeClick(promocodeId)
+                            },
+                        )
+                    }
                 }
             }
+        } else {
+            null
         },
     )
 }

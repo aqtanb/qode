@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.analytics.logPromoCodeView
+import com.qodein.core.ui.refresh.RefreshTarget
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromocodeUiState
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -51,6 +53,8 @@ class HomeViewModel @Inject constructor(
 
     // Service selection coordinator
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
+    // Refresh coordinator
+    private val screenRefreshCoordinator: ScreenRefreshCoordinator,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -81,6 +85,18 @@ class HomeViewModel @Inject constructor(
     init {
         observeLanguage()
         loadHomeData()
+        observeRefreshTrigger()
+    }
+
+    private fun observeRefreshTrigger() {
+        viewModelScope.launch {
+            screenRefreshCoordinator.refreshSignals
+                .filter { it == RefreshTarget.HOME }
+                .collect {
+                    Logger.d("HomeViewModel") { "Refresh signal received for HOME" }
+                    loadHomeData()
+                }
+        }
     }
 
     fun onAction(action: HomeAction) {
@@ -326,13 +342,6 @@ class HomeViewModel @Inject constructor(
                     AnalyticsEvent.Param("item_id", banner.id.value),
                 ),
             ),
-        )
-    }
-
-    private fun logPromoCodeViewAnalytics(promoCode: Promocode) {
-        analyticsHelper.logPromoCodeView(
-            promocodeId = promoCode.id.value,
-            promocodeType = promoCode.getAnalyticsType(),
         )
     }
 

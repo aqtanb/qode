@@ -27,6 +27,8 @@ import com.qodein.core.designsystem.component.HidingSensitivity
 import com.qodein.core.designsystem.component.LazyListScrollExtractor
 import com.qodein.core.designsystem.component.ScrollInfo
 import com.qodein.core.designsystem.component.ScrollStateExtractor
+import com.qodein.core.ui.refresh.RefreshTarget
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
@@ -41,15 +43,22 @@ import com.qodein.qode.navigation.TopLevelDestination.FEED
 import com.qodein.qode.navigation.TopLevelDestination.HOME
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @Composable
-fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
-    remember(navController) {
-        QodeAppState(navController = navController)
+fun rememberQodeAppState(
+    navController: NavHostController = rememberNavController(),
+    refreshCoordinator: ScreenRefreshCoordinator = koinInject()
+): QodeAppState =
+    remember(navController, refreshCoordinator) {
+        QodeAppState(
+            navController = navController,
+            refreshCoordinator = refreshCoordinator,
+        )
     }
 
 @Stable
-class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
+class QodeAppState(val navController: NavHostController, private val refreshCoordinator: ScreenRefreshCoordinator) : ScrollStateRegistry {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
     private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
 
@@ -108,22 +117,13 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
      * Get the destination that should be highlighted in bottom navigation
      * When on nested screens, this shows which tab the user came from
      */
-    val selectedTabDestination: TopLevelDestination?
+    val selectedTabDestination: TopLevelDestination
         @Composable get() {
             val actualDestination = currentTopLevelDestination
             return actualDestination
                 ?: ( // We're on a nested screen, show the last known destination
                     lastTopLevelDestination.value ?: HOME
                     )
-        }
-
-    /**
-     * Check if current destination is a nested screen (not a top-level destination)
-     */
-    val isNestedScreen: Boolean
-        @Composable get() {
-            // Use currentTopLevelDestination for consistency - if we have a top level destination, we're not nested
-            return currentTopLevelDestination == null
         }
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
@@ -223,7 +223,10 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             else -> ScreenType.OTHER
         }
 
-    fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
+    fun navigateToTopLevelDestination(
+        topLevelDestination: TopLevelDestination,
+        triggerRefresh: Boolean = false
+    ) {
         trace("Navigation: ${topLevelDestination.name}") {
             val topLevelNavOptions = navOptions {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -235,14 +238,24 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
             }
 
             when (topLevelDestination) {
-                HOME -> navController.navigate(
-                    route = HomeBaseRoute,
-                    navOptions = topLevelNavOptions,
-                )
-                FEED -> navController.navigate(
-                    route = FeedRoute,
-                    navOptions = topLevelNavOptions,
-                )
+                HOME -> {
+                    navController.navigate(
+                        route = HomeBaseRoute,
+                        navOptions = topLevelNavOptions,
+                    )
+                    if (triggerRefresh) {
+                        refreshCoordinator.tryTriggerRefresh(RefreshTarget.HOME)
+                    }
+                }
+                FEED -> {
+                    navController.navigate(
+                        route = FeedRoute,
+                        navOptions = topLevelNavOptions,
+                    )
+                    if (triggerRefresh) {
+                        refreshCoordinator.tryTriggerRefresh(RefreshTarget.FEED)
+                    }
+                }
             }
         }
     }
@@ -251,8 +264,7 @@ class QodeAppState(val navController: NavHostController) : ScrollStateRegistry {
      * Scroll to top functionality for bottom navigation scroll-to-top behavior
      */
     fun scrollToTop(coroutineScope: CoroutineScope) {
-        val scrollState = _currentScrollableState.value
-        when (scrollState) {
+        when (val scrollState = _currentScrollableState.value) {
             is LazyListState -> {
                 coroutineScope.launch {
                     // Check if we're far from top - if so, jump closer first then animate smoothly

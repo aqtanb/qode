@@ -174,6 +174,8 @@
     <string name="auth_create_post_title">Sign in to create a post</string>
     <string name="auth_profile_title">Your Corner of Qode</string>
     <string name="auth_profile_message">Sign in to view your promocodes, track your stats, and manage your profile.</string>
+    <string name="auth_report_title">Sign in to report</string>
+    <string name="auth_report_message">Help keep the community safe by reporting inappropriate content.</string>
     <string name="step_service_title">Select Service</string>
     <string name="step_service_short">Service</string>
     <string name="step_discount_type_title">Discount Type</string>

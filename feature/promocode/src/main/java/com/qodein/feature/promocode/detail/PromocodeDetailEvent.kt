@@ -9,6 +9,7 @@ sealed class PromocodeDetailEvent {
     // Navigation Events
     data object NavigateBack : PromocodeDetailEvent()
     data class NavigateToAuth(val action: AuthPromptAction) : PromocodeDetailEvent()
+    data class NavigateToReport(val reportedItemId: String, val itemTitle: String, val itemAuthor: String?) : PromocodeDetailEvent()
 
     // System Events
     data class SharePromocode(val promoCode: Promocode) : PromocodeDetailEvent()

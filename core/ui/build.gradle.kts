@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kermit)
     implementation(libs.androidx.exifinterface)
+    implementation(libs.koin.core)
 
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)

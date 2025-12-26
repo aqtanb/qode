@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen titles -->
+    <string name="report_title">Шағымдану</string>
+
+    <!-- Actions -->
+    <string name="submit_report">Жіберу</string>
+    <string name="close">Жабу</string>
+    <string name="retry">Қайталау</string>
+
+    <!-- Preview section -->
+    <string name="reporting_label">Сіз шағымданып жатырсыз</string>
+    <string name="content_type_post">Жазба</string>
+    <string name="content_type_promocode">Промокод</string>
+    <string name="by_author">автор: %s</string>
+
+    <!-- Reason selection -->
+    <string name="select_reason_label">Неліктен шағымданасыз?</string>
+
+    <!-- Reasons -->
+    <string name="reason_spam">Спам</string>
+    <string name="reason_spam_desc">Қайталанатын немесе қажетсіз мазмұн</string>
+
+    <string name="reason_scam">Алаяқтық немесе Жалған</string>
+    <string name="reason_scam_desc">Алдамшы немесе жалған ақпарат</string>
+
+    <string name="reason_inappropriate">Орынсыз Мазмұн</string>
+    <string name="reason_inappropriate_desc">Қорлайтын немесе зиянды материал</string>
+
+    <string name="reason_malicious">Зиянды Сілтеме</string>
+    <string name="reason_malicious_desc">Қауіпті немесе фишинг сілтемелері</string>
+
+    <string name="reason_other">Басқа</string>
+    <string name="reason_other_desc">Өз себебіңізді көрсетіңіз</string>
+
+    <!-- Additional details -->
+    <string name="additional_details_label">Қосымша Мәліметтер</string>
+    <string name="additional_details_placeholder_required">Мәселені сипаттаңыз…</string>
+    <string name="additional_details_placeholder_optional">Қосымша контекст қосыңыз (қалауыңызша)…</string>
+    <string name="character_count">%d / %d таңба</string>
+
+    <!-- Success/Error -->
+    <string name="report_submitted_success">Шағымыңыз үшін рақмет</string>
+
+    <!-- Validation errors -->
+    <string name="error_reason_required">Шағымдану себебін таңдаңыз</string>
+    <string name="error_details_required">Қосымша мәліметтерді көрсетіңіз</string>
+</resources>

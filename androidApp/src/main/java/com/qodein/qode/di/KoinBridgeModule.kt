@@ -2,6 +2,7 @@ package com.qodein.qode.di
 
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -47,6 +48,13 @@ object KoinBridgeModule : KoinComponent {
     fun provideIdTokenProvider(): IdTokenProvider {
         val provider: IdTokenProvider by inject()
         return provider
+    }
+
+    @Provides
+    @Singleton
+    fun provideScreenRefreshCoordinator(): ScreenRefreshCoordinator {
+        val coordinator: ScreenRefreshCoordinator by inject()
+        return coordinator
     }
 
     @Provides

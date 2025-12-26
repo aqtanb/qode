@@ -17,11 +17,14 @@ import com.qodein.feature.profile.navigation.profileSection
 import com.qodein.feature.promocode.navigation.navigateToPromocodeDetail
 import com.qodein.feature.promocode.navigation.promocodeDetailSection
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
+import com.qodein.feature.report.navigation.navigateToReport
+import com.qodein.feature.report.navigation.reportSection
 import com.qodein.feature.settings.navigation.navigateToAbout
 import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
+import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 
 @Composable
@@ -50,6 +53,14 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
+            },
+            onNavigateToReport = { reportedItemId, itemTitle, itemAuthor ->
+                navController.navigateToReport(
+                    reportedItemId = reportedItemId,
+                    reportedItemType = ContentType.PROMO_CODE,
+                    itemTitle = itemTitle,
+                    itemAuthor = itemAuthor,
+                )
             },
         )
 
@@ -113,6 +124,17 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
+            },
+        )
+
+        reportSection(
+            onNavigateBack = { navController.popBackStack() },
+            onReportSubmitted = { contentType ->
+                when (contentType) {
+                    ContentType.PROMO_CODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
+                    else -> {}
+                }
             },
         )
     }

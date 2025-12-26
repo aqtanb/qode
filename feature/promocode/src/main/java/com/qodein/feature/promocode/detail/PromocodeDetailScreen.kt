@@ -64,6 +64,7 @@ fun PromocodeDetailRoute(
     promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -79,6 +80,11 @@ fun PromocodeDetailRoute(
             when (event) {
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
                 is PromocodeDetailEvent.NavigateToAuth -> onNavigateToAuth(event.action)
+                is PromocodeDetailEvent.NavigateToReport -> onNavigateToReport(
+                    event.reportedItemId,
+                    event.itemTitle,
+                    event.itemAuthor,
+                )
                 is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowError -> {
@@ -122,6 +128,7 @@ fun PromocodeDetailScreen(
             PromocodeDetailTopAppBar(
                 title = title,
                 promocodeId = uiState.promocodeId,
+                currentUserId = uiState.userId,
                 authorId = authorId,
                 onNavigateBack = onNavigateBack,
                 onBlockUserClick = { userId ->

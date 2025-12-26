@@ -171,6 +171,8 @@
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
     <string name="auth_profile_title">Сіздің Qode-тағы бұрышыңыз</string>
     <string name="auth_profile_message">Промкодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
+    <string name="auth_report_title">Шағымдану үшін кіріңіз</string>
+    <string name="auth_report_message">Орынсыз мазмұн туралы хабарлап, қауымдастықтың қауіпсіздігін сақтауға көмектесіңіз.</string>
     <string name="step_service_title">Қызметті таңдаңыз</string>
     <string name="step_service_short">Қызмет</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>

@@ -48,5 +48,10 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         titleResId = R.string.auth_profile_title,
         messageResId = R.string.auth_profile_message,
         iconVector = UIIcons.AccountCircle,
+    ),
+    ReportContent(
+        titleResId = R.string.auth_report_title,
+        messageResId = R.string.auth_report_message,
+        iconVector = UIIcons.Report,
     )
 }

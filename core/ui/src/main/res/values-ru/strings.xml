@@ -162,6 +162,8 @@
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
     <string name="auth_profile_title">Ваш уголок в Qode</string>
     <string name="auth_profile_message">Войдите, чтобы просматривать свои промкоды, отслеживать статистику и управлять своим профилем.</string>
+    <string name="auth_report_title">Войдите, чтобы пожаловаться</string>
+    <string name="auth_report_message">Помогите поддерживать безопасность сообщества, сообщая о неприемлемом контенте.</string>
     <string name="step_service_title">Выберите сервис</string>
     <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
