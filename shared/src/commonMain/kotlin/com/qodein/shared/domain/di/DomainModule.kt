@@ -47,7 +47,7 @@ val domainModule = module {
     single { AcceptLegalPoliciesUseCase(get()) }
 
     single { GetBannersUseCase(get()) }
-    single { GetPromocodesUseCase(get()) }
+    single { GetPromocodesUseCase(get(), get()) }
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
 

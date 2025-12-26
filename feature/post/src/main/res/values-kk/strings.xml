@@ -18,7 +18,7 @@
     <string name="compressing_images">Суреттер сығылуда… %1$d/%2$d</string>
     <string name="placeholder_title">Тақырып</string>
     <string name="placeholder_description">Сипаттама</string>
-    <string name="feed_title">Лента</string>
+    <string name="feed_title">Арна</string>
     <string name="cd_profile">Профиль</string>
     <string name="cd_settings">Баптаулар</string>
     <string name="cd_image_load_failed">Суретті жүктеу сәтсіз</string>

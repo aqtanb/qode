@@ -21,9 +21,11 @@ import com.qodein.core.data.datasource.FirebaseStorageDataSource
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
 import com.qodein.core.data.datasource.FirestorePostDataSource
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
+import com.qodein.core.data.datasource.FirestoreReportDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
+import com.qodein.core.data.datasource.LocalReportDataSource
 import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.mapper.UserInteractionMapper
 import com.qodein.core.data.repository.AuthRepositoryImpl
@@ -31,6 +33,7 @@ import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.PostRepositoryImpl
 import com.qodein.core.data.repository.PromocodeRepositoryImpl
+import com.qodein.core.data.repository.ReportRepositoryImpl
 import com.qodein.core.data.repository.ServiceRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
@@ -41,6 +44,7 @@ import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.ReportRepository
 import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
@@ -50,14 +54,15 @@ import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "device_preferences")
+private val Context.preferencesDataStore: DataStore<Preferences> by preferencesDataStore(name = "device_preferences")
+private val Context.reportDataStore: DataStore<Preferences> by preferencesDataStore(name = "report_preferences")
 
 val coreDataModule = module {
     single<FirebaseAuth> { Firebase.auth }
     single<FirebaseFirestore> { Firebase.firestore }
     single<FirebaseFunctions> { Firebase.functions }
     single<FirebaseStorage> { Firebase.storage }
-    single<DataStore<Preferences>> { androidContext().dataStore }
+    single<DataStore<Preferences>> { androidContext().preferencesDataStore }
     single { UserInteractionMapper() }
     single {
         SearchClient(
@@ -75,6 +80,8 @@ val coreDataModule = module {
     single { FirestoreServiceDataSource(get(), get()) }
     single { FirestoreUnifiedUserInteractionDataSource(get()) }
     single { FirestoreUserDataSource(get()) }
+    single { FirestoreReportDataSource(get()) }
+    single { LocalReportDataSource(androidContext().reportDataStore) }
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
@@ -85,6 +92,7 @@ val coreDataModule = module {
     single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get(), get()) }
     single<PostRepository> { PostRepositoryImpl(get()) }
     single<StorageRepository> { StorageRepositoryImpl(get()) }
+    single<ReportRepository> { ReportRepositoryImpl(get(), get()) }
 
     single<ServiceSelectionManager> { ServiceSelectionManagerImpl() }
     single { ServiceSelectionCoordinator(get<SearchServicesUseCase>(), get()) }

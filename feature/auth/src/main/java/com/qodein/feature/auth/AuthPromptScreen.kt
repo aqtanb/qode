@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.error.toUiText
@@ -239,7 +240,7 @@ private fun ConsentDialog(
 @ThemePreviews
 @Composable
 private fun ConsentDialogPreview() {
-    MaterialTheme {
+    QodeTheme {
         ConsentDialog(
             isLoading = false,
             error = null,
