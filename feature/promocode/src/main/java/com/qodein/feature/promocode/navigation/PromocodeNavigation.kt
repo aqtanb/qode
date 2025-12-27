@@ -10,6 +10,7 @@ import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.promocode.detail.PromocodeDetailRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
 @Serializable object PromocodeSubmissionRoute
@@ -39,7 +40,8 @@ fun NavGraphBuilder.promocodeSubmissionSection(
 fun NavGraphBuilder.promocodeDetailSection(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
-    onNavigateToReport: (String, String, String?) -> Unit
+    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToBlockUser: (UserId, String?, String?) -> Unit
 ) {
     composable<PromocodeDetailRoute>(
         deepLinks = listOf(
@@ -59,6 +61,7 @@ fun NavGraphBuilder.promocodeDetailSection(
             onNavigateBack = onNavigateBack,
             onNavigateToAuth = onNavigateToAuth,
             onNavigateToReport = onNavigateToReport,
+            onNavigateToBlockUser = onNavigateToBlockUser,
         )
     }
 }

@@ -54,4 +54,42 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore) {
             }
             awaitClose { registration?.remove() }
         }
+
+    suspend fun blockUser(
+        currentUserId: String,
+        blockedUserId: String
+    ) {
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(currentUserId)
+            .collection("blocks")
+            .document(blockedUserId)
+            .set(
+                hashMapOf(
+                    "blockedAt" to Timestamp.now(),
+                    "blockedUserId" to blockedUserId,
+                ),
+            )
+            .await()
+    }
+
+    fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> =
+        callbackFlow {
+            var registration: ListenerRegistration? = null
+            try {
+                registration = firestore.collection(UserDto.COLLECTION_NAME)
+                    .document(currentUserId)
+                    .collection("blocks")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error)
+                            return@addSnapshotListener
+                        }
+                        val blockedIds = snapshot?.documents?.map { it.id }?.toSet() ?: emptySet()
+                        trySend(blockedIds)
+                    }
+            } catch (e: Exception) {
+                close(e)
+            }
+            awaitClose { registration?.remove() }
+        }
 }

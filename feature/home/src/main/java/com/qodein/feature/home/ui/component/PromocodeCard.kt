@@ -180,7 +180,7 @@ fun PromocodeCard(
                         .background(MaterialTheme.colorScheme.tertiaryContainer),
                 ) {
                     StubContent(
-                        createdAt = promocode.createdAt,
+                        expiresAt = promocode.endDate,
                         discountText = discountText,
                         upvotes = promocode.upvotes,
                         downvotes = promocode.downvotes,
@@ -318,7 +318,7 @@ private fun PromoCodeRow(
 @Composable
 private fun StubContent(
     discountText: String,
-    createdAt: Instant,
+    expiresAt: Instant,
     upvotes: Int,
     downvotes: Int,
     modifier: Modifier = Modifier
@@ -347,7 +347,7 @@ private fun StubContent(
         )
 
         Text(
-            text = rememberFormattedRelativeTime(createdAt),
+            text = rememberFormattedRelativeTime(expiresAt),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             maxLines = 1,

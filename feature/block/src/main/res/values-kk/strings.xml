@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dialog -->
+    <string name="block_user_title">Пайдаланушыны бұғаттау</string>
+    <string name="block_user_message">%s пайдаланушысын бұғаттағыңыз келе ме?</string>
+    <string name="block_user_message_no_username">Бұл пайдаланушыны бұғаттағыңыз келе ме?</string>
+    <string name="block_user_info">Сіз олардың контентін енді көрмейсіз.</string>
+
+    <!-- Actions -->
+    <string name="block_confirm">Бұғаттау</string>
+
+    <!-- Success messages -->
+    <string name="user_blocked_success">Пайдаланушы сәтті бұғатталды</string>
+</resources>

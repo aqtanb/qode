@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
+import com.qodein.feature.block.navigation.blockSection
+import com.qodein.feature.block.navigation.navigateToBlockUserDialog
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
@@ -61,6 +63,9 @@ fun QodeNavHost(
                     itemTitle = itemTitle,
                     itemAuthor = itemAuthor,
                 )
+            },
+            onNavigateToBlockUser = { userId, username, photoUrl ->
+                navController.navigateToBlockUserDialog(userId, username, photoUrl, ContentType.PROMO_CODE)
             },
         )
 
@@ -130,6 +135,17 @@ fun QodeNavHost(
         reportSection(
             onNavigateBack = { navController.popBackStack() },
             onReportSubmitted = { contentType ->
+                when (contentType) {
+                    ContentType.PROMO_CODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
+                    else -> {}
+                }
+            },
+        )
+
+        blockSection(
+            onNavigateBack = { navController.popBackStack() },
+            onUserBlocked = { contentType ->
                 when (contentType) {
                     ContentType.PROMO_CODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)

@@ -40,6 +40,7 @@ data class PromocodeDto(
 
     val upvotes: Int = 0,
     val downvotes: Int = 0,
+    val voteScore: Int = 0,
 
     val authorId: String = "",
     val authorUsername: String? = null,
@@ -53,7 +54,7 @@ data class PromocodeDto(
     companion object {
         const val COLLECTION_NAME = "promocodes"
         const val FIELD_SERVICE_NAME = "serviceName"
-        const val FIELD_UPVOTES = "upvotes"
+        const val FIELD_VOTE_SCORE = "voteScore"
         const val FIELD_CREATED_AT = "createdAt"
         const val FIELD_END_DATE = "endDate"
     }

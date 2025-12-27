@@ -115,6 +115,7 @@ dependencies {
     implementation(projects.core.notifications)
 
     implementation(projects.feature.auth)
+    implementation(projects.feature.block)
     implementation(projects.feature.home)
     implementation(projects.feature.inbox)
     implementation(projects.feature.post)

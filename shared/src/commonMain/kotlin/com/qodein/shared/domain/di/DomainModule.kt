@@ -24,7 +24,9 @@ import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
 import com.qodein.shared.domain.usecase.user.AcceptLegalPoliciesUseCase
+import com.qodein.shared.domain.usecase.user.BlockUserUseCase
 import com.qodein.shared.domain.usecase.user.EnsureUserExists
+import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import org.koin.dsl.module
@@ -45,9 +47,11 @@ val domainModule = module {
     single { ObserveUserUseCase(get()) }
     single { AcceptConsentAndCreateUserUseCase(get(), get()) }
     single { AcceptLegalPoliciesUseCase(get()) }
+    single { BlockUserUseCase(get(), get()) }
+    single { GetBlockedUserIdsUseCase(get(), get()) }
 
     single { GetBannersUseCase(get()) }
-    single { GetPromocodesUseCase(get(), get()) }
+    single { GetPromocodesUseCase(get(), get(), get()) }
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
 

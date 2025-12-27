@@ -66,7 +66,7 @@ class PromocodeDetailViewModel @AssistedInject constructor(
             }
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.BackClicked -> handleBack()
-            is PromocodeDetailAction.BlockUserClicked -> Unit
+            is PromocodeDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
             is PromocodeDetailAction.ReportPromocodeClicked -> handleReportPromocode(action.promocodeId)
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
         }
@@ -257,6 +257,22 @@ class PromocodeDetailViewModel @AssistedInject constructor(
                     reportedItemId = promocodeId.value,
                     itemTitle = currentPromocode.code.value,
                     itemAuthor = currentPromocode.authorUsername,
+                ),
+            )
+        }
+    }
+
+    private fun handleBlockUser(userId: UserId) {
+        val promocodeUiState = _uiState.value.promocodeState
+        if (promocodeUiState !is PromocodeUiState.Success) return
+        val currentPromocode = promocodeUiState.data
+
+        viewModelScope.launch {
+            _events.emit(
+                PromocodeDetailEvent.NavigateToBlockUser(
+                    userId = userId,
+                    username = currentPromocode.authorUsername,
+                    photoUrl = currentPromocode.authorAvatarUrl,
                 ),
             )
         }

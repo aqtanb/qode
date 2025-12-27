@@ -35,5 +35,6 @@ data class UserDto(
 ) {
     companion object {
         const val COLLECTION_NAME = "users"
+        const val FIELD_LEGAL_POLICIES_ACCEPTED_AT = "consent.legalPoliciesAcceptedAt"
     }
 }
