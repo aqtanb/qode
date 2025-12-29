@@ -1,5 +1,6 @@
 package com.qodein.core.ui
 
+import androidx.annotation.Keep
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
@@ -8,6 +9,7 @@ import com.qodein.core.designsystem.icon.UIIcons
 /**
  * Authentication prompt actions that trigger contextual auth prompts
  */
+@Keep
 enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val iconVector: ImageVector) {
     SubmitPromocode(
         titleResId = R.string.auth_submit_promo_title,

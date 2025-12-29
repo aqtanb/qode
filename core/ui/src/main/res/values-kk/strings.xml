@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close">Жабу</string>
+    <string name="cancel">Бас тарту</string>
     <string name="continue_with_google">Google арқылы жалғастыру</string>
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
     <string name="copy_code">Кодты көшіру</string>

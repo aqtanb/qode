@@ -79,7 +79,7 @@ val coreDataModule = module {
     single { FirestorePromocodeDataSource(get()) }
     single { FirestoreServiceDataSource(get(), get()) }
     single { FirestoreUnifiedUserInteractionDataSource(get()) }
-    single { FirestoreUserDataSource(get()) }
+    single { FirestoreUserDataSource(get(), get()) }
     single { FirestoreReportDataSource(get()) }
     single { LocalReportDataSource(androidContext().reportDataStore) }
 

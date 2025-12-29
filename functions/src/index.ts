@@ -10,6 +10,9 @@ export { updateContentVotesFromInteractions } from './unifiedInteractionHandler'
 // Export scheduled tasks
 export { cleanupOldStorageFiles } from './scheduledTasks/cleanupOldStorageFiles';
 
+// Export user account deletion
+export { deleteUserAccount } from './deleteUserAccount';
+
 // Export promo triggers
 export { onPromoCreated, onPromoDeleted, onPromoUpdated } from './triggers/promocodeCounts';
 export {

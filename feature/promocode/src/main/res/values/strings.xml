@@ -49,7 +49,6 @@
     <string name="promocode_dates_start_placeholder">Select start date</string>
     <string name="promocode_dates_end_placeholder">Select end date</string>
     <string name="promocode_dates_confirm">OK</string>
-    <string name="promocode_dates_cancel">Cancel</string>
 
     <string name="promocode_discount_percentage_placeholder" translatable="false">30</string>
     <string name="promocode_discount_percentage_helper">Enter the percentage (1–99%)</string>

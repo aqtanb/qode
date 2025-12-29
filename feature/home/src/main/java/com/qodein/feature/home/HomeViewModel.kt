@@ -1,5 +1,6 @@
 package com.qodein.feature.home
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
@@ -47,6 +48,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,

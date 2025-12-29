@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
     <string name="cd_close">Close button</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="error_default_title">Something went wrong</string>
@@ -49,6 +50,9 @@
     <string name="error_user_auth_no_credentials">No credentials available. Please sign in again.</string>
     <string name="error_user_auth_unknown">Could not complete sign-in. Please try again.</string>
     <string name="error_user_auth_unsupported_credential">This sign-in method is not supported.</string>
+    <string name="error_user_deletion_not_authenticated">You must be signed in to delete your account.</string>
+    <string name="error_user_deletion_failed">Failed to delete your account. Please try again.</string>
+    <string name="error_user_deletion_partial">Account deletion was incomplete. Some data may remain. Please contact support.</string>
 
     <string name="error_service_not_found">Service not found.</string>
     <string name="error_service_no_results">No services found for your search.</string>

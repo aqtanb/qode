@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close">Закрыть</string>
+    <string name="cancel">Отмена</string>
     <string name="continue_with_google">Продолжить с Google</string>
     <string name="error_default_title">Что-то пошло не так</string>
     <string name="copy_code">Копировать код</string>

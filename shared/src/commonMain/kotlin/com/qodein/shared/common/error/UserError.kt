@@ -41,4 +41,13 @@ sealed interface UserError : OperationError {
         data object DataCorrupted : ProfileFailure
         data object UpdateFailed : ProfileFailure
     }
+
+    /**
+     * Failures when user tries to delete their account.
+     */
+    sealed interface DeletionFailure : UserError {
+        data object NotAuthenticated : DeletionFailure
+        data object DeleteFailed : DeletionFailure
+        data object PartialDeletion : DeletionFailure
+    }
 }

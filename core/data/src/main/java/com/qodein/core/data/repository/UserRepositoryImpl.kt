@@ -1,6 +1,7 @@
 package com.qodein.core.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.mapper.UserMapper
 import com.qodein.core.data.util.ErrorMapper
@@ -113,4 +114,31 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
         }
 
     override fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> = dataSource.getBlockedUserIds(currentUserId)
+
+    override suspend fun deleteUserAccount(userId: String): Result<Unit, OperationError> =
+        try {
+            Timber.i("Deleting user account: $userId")
+            dataSource.deleteUserAccount(userId)
+            Timber.i("Successfully deleted user account: $userId")
+            Result.Success(Unit)
+        } catch (e: FirebaseFunctionsException) {
+            Timber.e(e, "Cloud Function error deleting account: $userId")
+
+            if (e.details != null) {
+                Result.Error(UserError.DeletionFailure.PartialDeletion)
+            } else {
+                when (e.code) {
+                    FirebaseFunctionsException.Code.UNAUTHENTICATED ->
+                        Result.Error(UserError.DeletionFailure.NotAuthenticated)
+                    else ->
+                        Result.Error(UserError.DeletionFailure.DeleteFailed)
+                }
+            }
+        } catch (e: IOException) {
+            Timber.e(e, "Network error deleting account: $userId")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error deleting account: $userId")
+            Result.Error(SystemError.Unknown)
+        }
 }

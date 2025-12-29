@@ -38,6 +38,9 @@ fun OperationError.toUiText(): UiText =
         UserError.ProfileFailure.AccessDenied -> UiText.StringResource(R.string.error_user_profile_access_denied)
         UserError.ProfileFailure.DataCorrupted -> UiText.StringResource(R.string.error_user_data_corrupted)
         UserError.ProfileFailure.UpdateFailed -> UiText.StringResource(R.string.error_user_update_failed)
+        UserError.DeletionFailure.NotAuthenticated -> UiText.StringResource(R.string.error_user_deletion_not_authenticated)
+        UserError.DeletionFailure.DeleteFailed -> UiText.StringResource(R.string.error_user_deletion_failed)
+        UserError.DeletionFailure.PartialDeletion -> UiText.StringResource(R.string.error_user_deletion_partial)
 
         ServiceError.SearchFailure.NoResults -> UiText.StringResource(R.string.error_service_no_results)
         ServiceError.SearchFailure.QueryTooShort -> UiText.StringResource(R.string.error_service_query_too_short)

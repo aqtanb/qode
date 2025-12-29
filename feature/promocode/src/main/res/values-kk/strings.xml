@@ -47,7 +47,6 @@
     <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
     <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
     <string name="promocode_dates_confirm">ОК</string>
-    <string name="promocode_dates_cancel">Бас тарту</string>
 
     <string name="promocode_discount_percentage_helper">Пайызды енгізіңіз (1–99%)</string>
     <string name="promocode_discount_amount_helper">Соманы ₸ (теңге) түрінде енгізіңіз</string>

@@ -108,53 +108,30 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "upvotes",
-          "order": "DESCENDING"
-        },
-        {
-          "fieldPath": "__name__",
-          "order": "DESCENDING"
-        }
-      ],
-      "density": "SPARSE_ALL"
-    },
-    {
-      "collectionGroup": "promocodes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "serviceName",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "upvotes",
-          "order": "DESCENDING"
-        },
-        {
           "fieldPath": "endDate",
-          "order": "DESCENDING"
-        },
-        {
-          "fieldPath": "__name__",
-          "order": "DESCENDING"
-        }
-      ],
-      "density": "SPARSE_ALL"
-    },
-    {
-      "collectionGroup": "promocodes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "serviceName",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "voteScore",
           "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "serviceName",
+          "order": "ASCENDING"
         },
         {
-          "fieldPath": "__name__",
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
       ],
@@ -165,15 +142,26 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "upvotes",
-          "order": "DESCENDING"
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
         },
+        {
+          "fieldPath": "voteScore",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
           "fieldPath": "endDate",
-          "order": "DESCENDING"
+          "order": "ASCENDING"
         },
         {
-          "fieldPath": "__name__",
+          "fieldPath": "createdAt",
           "order": "DESCENDING"
         }
       ],

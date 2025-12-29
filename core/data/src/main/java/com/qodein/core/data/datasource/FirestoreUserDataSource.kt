@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
+import com.google.firebase.functions.FirebaseFunctions
 import com.qodein.core.data.dto.UserDto
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 
-class FirestoreUserDataSource(private val firestore: FirebaseFirestore) {
+class FirestoreUserDataSource(private val firestore: FirebaseFirestore, private val functions: FirebaseFunctions) {
     suspend fun createUser(userDto: UserDto) {
         firestore.collection(UserDto.COLLECTION_NAME)
             .document(userDto.documentId)
@@ -92,4 +93,11 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore) {
             }
             awaitClose { registration?.remove() }
         }
+
+    suspend fun deleteUserAccount(userId: String) {
+        functions
+            .getHttpsCallable("deleteUserAccount")
+            .call()
+            .await()
+    }
 }

@@ -7,16 +7,16 @@ compileSdk = "36"
 minSdk = "29"
 targetSdk = "36"
 
-versionCode = "2"
-versionName = "0.5.1"
+versionCode = "3"
+versionName = "0.6.0"
 
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.1"
+activityCompose = "1.12.2"
 appcompat = "1.7.1"
 startup = "1.2.0"
 
-composeBom = "2025.12.00"
+composeBom = "2025.12.01"
 material = "1.13.0"
 
 navigation = "2.9.6"
@@ -48,15 +48,15 @@ googleid = "1.1.1"
 composeIcons = "1.1.1"
 browser = "1.9.0"
 haze = "1.7.1"
-multiplatformMarkdown = "0.38.1"
+multiplatformMarkdown = "0.39.0"
 
 kermit = "2.0.8"
 timber = "5.0.1"
 
-algolia = "3.37.0"
+algolia = "3.37.2"
 
 spotless = "8.1.0"
-aboutlibraries = "13.1.0"
+aboutlibraries = "13.2.1"
 
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -157,7 +157,6 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
-kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 
 [bundles]

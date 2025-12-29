@@ -25,6 +25,7 @@ import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
 import com.qodein.shared.domain.usecase.user.AcceptLegalPoliciesUseCase
 import com.qodein.shared.domain.usecase.user.BlockUserUseCase
+import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.EnsureUserExists
 import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
@@ -49,6 +50,7 @@ val domainModule = module {
     single { AcceptLegalPoliciesUseCase(get()) }
     single { BlockUserUseCase(get(), get()) }
     single { GetBlockedUserIdsUseCase(get(), get()) }
+    single { DeleteUserAccountUseCase(get(), get()) }
 
     single { GetBannersUseCase(get()) }
     single { GetPromocodesUseCase(get(), get(), get()) }

@@ -7,6 +7,8 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.refresh.RefreshTarget
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.feature.promocode.submission.validation.SubmissionField
 import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
@@ -60,7 +62,8 @@ class PromocodeSubmissionViewModel @Inject constructor(
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val getUserByIdUseCase: GetUserByIdUseCase
+    private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val refreshCoordinator: ScreenRefreshCoordinator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
@@ -396,6 +399,7 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
             when (val result = submitPromocodeUseCase(request)) {
                 is Result.Success -> {
+                    refreshCoordinator.triggerRefresh(RefreshTarget.HOME)
                     viewModelScope.launch {
                         _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
                         _events.emit(PromocodeSubmissionEvent.NavigateBack)

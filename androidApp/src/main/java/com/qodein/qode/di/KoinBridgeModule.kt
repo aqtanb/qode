@@ -22,6 +22,7 @@ import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import dagger.Module
@@ -145,6 +146,13 @@ object KoinBridgeModule : KoinComponent {
     @Singleton
     fun provideSignOutUseCase(): SignOutUseCase {
         val useCase: SignOutUseCase by inject()
+        return useCase
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteUserAccountUseCase(): DeleteUserAccountUseCase {
+        val useCase: DeleteUserAccountUseCase by inject()
         return useCase
     }
 

@@ -17,4 +17,12 @@
     <string name="about_version">Нұсқа %s</string>
     <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
     <string name="about_join_telegram">Қауымдастыққа қосылыңыз</string>
+
+    <!-- Delete Account -->
+    <string name="settings_delete_account_title">Аккаунтты жою</string>
+    <string name="delete_account_dialog_title">Аккаунтты жою</string>
+    <string name="delete_account_dialog_message">Бұл сіздің аккаунтыңызды және барлық контентіңізді, соның ішінде посттарды, промокодтарды және әрекеттерді мәңгілікке жояды. Бұл әрекетті қайтаруға болмайды.</string>
+    <string name="delete_account_checkbox">Бұл әрекетті қайтаруға болмайтынын түсінемін</string>
+    <string name="delete_account_confirm">Аккаунтты жою</string>
+    <string name="delete_account_error_title">Жою қатесі</string>
 </resources>

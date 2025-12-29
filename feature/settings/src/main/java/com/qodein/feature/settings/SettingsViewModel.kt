@@ -7,10 +7,12 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.shared.common.Result
+import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
+import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +32,8 @@ class SettingsViewModel @Inject constructor(
     private val setThemeUseCase: SetThemeUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
     private val setLanguageUseCase: SetLanguageUseCase,
+    private val deleteUserAccountUseCase: DeleteUserAccountUseCase,
+    private val signOutUseCase: SignOutUseCase,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
@@ -59,6 +63,23 @@ class SettingsViewModel @Inject constructor(
             SettingsAction.OpenSourceLicencesClicked -> TODO()
             SettingsAction.RateAppClicked -> TODO()
             SettingsAction.SourceCodeClicked -> TODO()
+
+            SettingsAction.DeleteAccountClicked -> {
+                _uiState.update { it.copy(showDeleteAccountDialog = true) }
+            }
+            SettingsAction.HideDeleteAccountDialog -> {
+                _uiState.update {
+                    it.copy(
+                        showDeleteAccountDialog = false,
+                        deleteAccountError = null,
+                        isDeleting = false,
+                    )
+                }
+            }
+            SettingsAction.ConfirmDeleteAccount -> deleteAccount()
+            SettingsAction.DismissDeleteAccountError -> {
+                _uiState.update { it.copy(deleteAccountError = null) }
+            }
         }
     }
 
@@ -166,6 +187,38 @@ class SettingsViewModel @Inject constructor(
                     is Result.Error -> {
                         Logger.e("SettingsViewModel") { "Failed to set language: ${result.error}" }
                         _uiState.value = _uiState.value.copy(isLoading = false, error = result.error)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteAccount() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isDeleting = true, deleteAccountError = null) }
+
+            when (val result = deleteUserAccountUseCase()) {
+                is Result.Success -> {
+                    // Track account deletion
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = "account_deleted",
+                            extras = emptyList(),
+                        ),
+                    )
+
+                    // Sign out user
+                    signOutUseCase()
+
+                    // Emit event to navigate
+                    emitEvent(SettingsEvent.AccountDeleted)
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isDeleting = false,
+                            deleteAccountError = result.error,
+                        )
                     }
                 }
             }

@@ -28,4 +28,13 @@ interface UserRepository {
     ): Result<Unit, OperationError>
 
     fun getBlockedUserIds(currentUserId: String): Flow<Set<String>>
+
+    /**
+     * Deletes the user account and all associated data.
+     * This operation is irreversible.
+     *
+     * @param userId The ID of the user to delete
+     * @return Result indicating success or specific deletion failure
+     */
+    suspend fun deleteUserAccount(userId: String): Result<Unit, OperationError>
 }

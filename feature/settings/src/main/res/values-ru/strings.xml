@@ -17,4 +17,12 @@
     <string name="about_version">Версия %s</string>
     <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
     <string name="about_join_telegram">Присоединяйтесь к нашему сообществу</string>
+
+    <!-- Delete Account -->
+    <string name="settings_delete_account_title">Удалить аккаунт</string>
+    <string name="delete_account_dialog_title">Удалить ваш аккаунт</string>
+    <string name="delete_account_dialog_message">Это навсегда удалит ваш аккаунт и весь ваш контент, включая посты, промокоды и взаимодействия. Это действие невозможно отменить.</string>
+    <string name="delete_account_checkbox">Я понимаю, что это действие невозможно отменить</string>
+    <string name="delete_account_confirm">Удалить аккаунт</string>
+    <string name="delete_account_error_title">Ошибка удаления</string>
 </resources>
