@@ -72,8 +72,6 @@ data class Post private constructor(
     val tags: List<Tag> = emptyList(),
     val upvotes: Int = 0,
     val downvotes: Int = 0,
-    val shares: Int = 0,
-    val commentCount: Int = 0, // Denormalized, updated via Cloud Functions
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
@@ -156,8 +154,6 @@ data class Post private constructor(
             tags: List<Tag> = emptyList(),
             upvotes: Int = 0,
             downvotes: Int = 0,
-            shares: Int = 0,
-            commentCount: Int = 0,
             createdAt: Instant,
             updatedAt: Instant
         ): Post =
@@ -172,8 +168,6 @@ data class Post private constructor(
                 tags = tags,
                 upvotes = upvotes,
                 downvotes = downvotes,
-                shares = shares,
-                commentCount = commentCount,
                 createdAt = createdAt,
                 updatedAt = updatedAt,
             )

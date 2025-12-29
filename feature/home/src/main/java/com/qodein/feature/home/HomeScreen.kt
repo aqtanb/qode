@@ -59,11 +59,23 @@ fun HomeScreen(
     val serviceUiState by viewModel.serviceSelectionUiState.collectAsStateWithLifecycle()
 
     val listState = rememberSaveable(saver = LazyListState.Saver) {
-        LazyListState()
+        LazyListState(
+            firstVisibleItemIndex = viewModel.getSavedScrollIndex(),
+            firstVisibleItemScrollOffset = viewModel.getSavedScrollOffset(),
+        )
     }
 
     val context = LocalContext.current
     scrollStateRegistry?.RegisterScrollState(listState)
+
+    // Save scroll position when navigating away
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) ->
+            viewModel.saveScrollPosition(index, offset)
+        }
+    }
 
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->

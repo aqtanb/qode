@@ -82,7 +82,22 @@ class HomeViewModel @Inject constructor(
         private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
         private const val CONTENT_TYPE_BANNER = "banner"
         private const val EVENT_COPY_PROMOCODE = "copy_promocode"
+        private const val KEY_SCROLL_INDEX = "scroll_index"
+        private const val KEY_SCROLL_OFFSET = "scroll_offset"
     }
+
+    // Scroll state preservation
+    fun saveScrollPosition(
+        firstVisibleItemIndex: Int,
+        firstVisibleItemScrollOffset: Int
+    ) {
+        savedStateHandle[KEY_SCROLL_INDEX] = firstVisibleItemIndex
+        savedStateHandle[KEY_SCROLL_OFFSET] = firstVisibleItemScrollOffset
+    }
+
+    fun getSavedScrollIndex(): Int = savedStateHandle.get<Int>(KEY_SCROLL_INDEX) ?: 0
+
+    fun getSavedScrollOffset(): Int = savedStateHandle.get<Int>(KEY_SCROLL_OFFSET) ?: 0
 
     init {
         observeLanguage()

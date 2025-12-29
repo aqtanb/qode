@@ -3,7 +3,6 @@ package com.qodein.feature.post.detail.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,7 +52,6 @@ internal fun PostDetailSection(
             postId = post.id,
             upvotes = post.upvotes,
             downvotes = post.downvotes,
-            commentCount = post.commentCount,
             userVoteState = userVoteState,
             userId = userId,
             onAction = onAction,
@@ -67,7 +65,6 @@ private fun PostInteractionsRow(
     postId: PostId,
     upvotes: Int,
     downvotes: Int,
-    commentCount: Int,
     userVoteState: VoteState,
     userId: UserId?,
     onAction: (PostDetailAction) -> Unit,
@@ -75,8 +72,6 @@ private fun PostInteractionsRow(
 ) {
     val upvoteContentDescription = stringResource(R.string.cd_upvote, upvotes)
     val downvoteContentDescription = stringResource(R.string.cd_downvote, downvotes)
-    val commentsContentDescription = stringResource(R.string.cd_comments, commentCount)
-    val shareContentDescription = stringResource(R.string.cd_share)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -129,40 +124,6 @@ private fun PostInteractionsRow(
             },
             modifier = Modifier.semantics {
                 contentDescription = downvoteContentDescription
-            },
-        )
-
-        QodeinFilterChip(
-            label = commentCount.toString(),
-            onClick = {},
-            selected = false,
-            leadingIcon = {
-                Icon(
-                    imageVector = QodeActionIcons.Comment,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            },
-            modifier = Modifier.semantics {
-                contentDescription = commentsContentDescription
-            },
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        QodeinFilterChip(
-            label = "Share",
-            onClick = {},
-            selected = false,
-            leadingIcon = {
-                Icon(
-                    imageVector = QodeActionIcons.Share,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            },
-            modifier = Modifier.semantics {
-                contentDescription = shareContentDescription
             },
         )
     }
