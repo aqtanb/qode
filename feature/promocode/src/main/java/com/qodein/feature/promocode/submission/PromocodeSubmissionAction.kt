@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission
 
-import android.content.Context
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.model.User
 import java.time.LocalDate
@@ -31,10 +30,6 @@ sealed interface PromocodeSubmissionAction {
 
     data class SubmitPromoCodeWithUser(val user: User) : PromocodeSubmissionAction
     data object SubmitPromoCode : PromocodeSubmissionAction
-
-    // Authentication actions
-    data class SignInWithGoogle(val context: Context) : PromocodeSubmissionAction
-    data object DismissAuthSheet : PromocodeSubmissionAction
 
     // Error handling
     data object RetryClicked : PromocodeSubmissionAction

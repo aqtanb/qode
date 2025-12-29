@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close">Закрыть</string>
+    <string name="cancel">Отмена</string>
     <string name="continue_with_google">Продолжить с Google</string>
     <string name="error_default_title">Что-то пошло не так</string>
     <string name="copy_code">Копировать код</string>
@@ -27,6 +28,9 @@
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
     <string name="cd_service_logo">Логотип сервиса</string>
+    <string name="cd_more_options">Дополнительные параметры</string>
+    <string name="action_block">Заблокировать пользователя</string>
+    <string name="action_report">Пожаловаться</string>
     <string name="error_auth_required">Требуется вход в систему.</string>
     <string name="error_auth_service_unavailable">Сервис авторизации временно недоступен.</string>
     <string name="error_auth_too_many_attempts">Слишком много попыток входа.</string>
@@ -46,6 +50,9 @@
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>
+    <string name="error_user_deletion_not_authenticated">Для удаления аккаунта необходимо войти.</string>
+    <string name="error_user_deletion_failed">Не удалось удалить аккаунт. Попробуйте ещё раз.</string>
+    <string name="error_user_deletion_partial">Удаление аккаунта завершено частично. Некоторые данные могут остаться. Обратитесь в поддержку.</string>
 
     <string name="error_service_no_results">Сервисы не найдены.</string>
     <string name="error_service_query_too_short">Слишком короткий запрос. Введите минимум 2 символа.</string>
@@ -157,8 +164,10 @@
     <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход через Google</string>
     <string name="auth_create_post_message">Делитесь горячими предложениями и общайтесь</string>
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
-    <string name="common_service">Сервис</string>
-    <string name="common_promocode">Промокод</string>
+    <string name="auth_profile_title">Ваш уголок в Qode</string>
+    <string name="auth_profile_message">Войдите, чтобы просматривать свои промкоды, отслеживать статистику и управлять своим профилем.</string>
+    <string name="auth_report_title">Войдите, чтобы пожаловаться</string>
+    <string name="auth_report_message">Помогите поддерживать безопасность сообщества, сообщая о неприемлемом контенте.</string>
     <string name="step_service_title">Выберите сервис</string>
     <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
@@ -178,4 +187,13 @@
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
     <string name="discount_percent">%1$s%% СКИДКА</string>
+
+    <string name="legal_consent_title">Примите условия</string>
+    <string name="legal_consent_subtitle">Чтобы использовать приложение, необходимо принять наши условия.</string>
+    <string name="legal_consent_checkbox_prefix">Я принимаю</string>
+    <string name="legal_consent_accept">Принять и продолжить</string>
+    <string name="legal_consent_decline">Отказаться</string>
+    <string name="terms_of_service">Условия использования</string>
+    <string name="privacy_policy">Политику конфиденциальности</string>
+    <string name="loading">Загрузка…</string>
 </resources>

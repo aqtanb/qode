@@ -1,11 +1,13 @@
 package com.qodein.feature.home
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.analytics.logPromoCodeView
+import com.qodein.core.ui.refresh.RefreshTarget
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromocodeUiState
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -45,12 +48,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
 
     // Service selection coordinator
     private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
+    // Refresh coordinator
+    private val screenRefreshCoordinator: ScreenRefreshCoordinator,
     // Analytics
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
@@ -76,11 +82,38 @@ class HomeViewModel @Inject constructor(
         private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
         private const val CONTENT_TYPE_BANNER = "banner"
         private const val EVENT_COPY_PROMOCODE = "copy_promocode"
+        private const val KEY_SCROLL_INDEX = "scroll_index"
+        private const val KEY_SCROLL_OFFSET = "scroll_offset"
     }
+
+    // Scroll state preservation
+    fun saveScrollPosition(
+        firstVisibleItemIndex: Int,
+        firstVisibleItemScrollOffset: Int
+    ) {
+        savedStateHandle[KEY_SCROLL_INDEX] = firstVisibleItemIndex
+        savedStateHandle[KEY_SCROLL_OFFSET] = firstVisibleItemScrollOffset
+    }
+
+    fun getSavedScrollIndex(): Int = savedStateHandle.get<Int>(KEY_SCROLL_INDEX) ?: 0
+
+    fun getSavedScrollOffset(): Int = savedStateHandle.get<Int>(KEY_SCROLL_OFFSET) ?: 0
 
     init {
         observeLanguage()
         loadHomeData()
+        observeRefreshTrigger()
+    }
+
+    private fun observeRefreshTrigger() {
+        viewModelScope.launch {
+            screenRefreshCoordinator.refreshSignals
+                .filter { it == RefreshTarget.HOME }
+                .collect {
+                    Logger.d("HomeViewModel") { "Refresh signal received for HOME" }
+                    loadHomeData()
+                }
+        }
     }
 
     fun onAction(action: HomeAction) {
@@ -326,13 +359,6 @@ class HomeViewModel @Inject constructor(
                     AnalyticsEvent.Param("item_id", banner.id.value),
                 ),
             ),
-        )
-    }
-
-    private fun logPromoCodeViewAnalytics(promoCode: Promocode) {
-        analyticsHelper.logPromoCodeView(
-            promocodeId = promoCode.id.value,
-            promocodeType = promoCode.getAnalyticsType(),
         )
     }
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,18 +32,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.ShimmerBox
 import com.qodein.core.designsystem.component.ShimmerLine
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.AuthenticationBottomSheet
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PromocodePreviewData
+import com.qodein.core.ui.text.asString
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.detail.component.PromocodeActions
+import com.qodein.feature.promocode.detail.component.PromocodeDetailTopAppBar
 import com.qodein.feature.promocode.detail.component.PromocodeDetails
 import com.qodein.feature.promocode.detail.component.PromocodeInfo
 import com.qodein.shared.common.error.OperationError
@@ -63,6 +63,9 @@ import com.qodein.core.ui.R as CoreUiR
 fun PromocodeDetailRoute(
     promoCodeId: PromocodeId,
     onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToBlockUser: (UserId, String?, String?) -> Unit,
     viewModel: PromocodeDetailViewModel = hiltViewModel(
         creationCallback = { factory: PromocodeDetailViewModel.Factory ->
             factory.create(promoCodeId.value)
@@ -73,29 +76,26 @@ fun PromocodeDetailRoute(
     val localContext = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Handle events
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is PromocodeDetailEvent.NavigateBack -> onNavigateBack()
-                is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promoCode)
+                is PromocodeDetailEvent.NavigateToAuth -> onNavigateToAuth(event.action)
+                is PromocodeDetailEvent.NavigateToReport -> onNavigateToReport(
+                    event.reportedItemId,
+                    event.itemTitle,
+                    event.itemAuthor,
+                )
+                is PromocodeDetailEvent.NavigateToBlockUser -> onNavigateToBlockUser(
+                    event.userId,
+                    event.username,
+                    event.photoUrl,
+                )
+                is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promocode)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
-                is PromocodeDetailEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(
-                        message = event.message,
-                        duration = SnackbarDuration.Short,
-                    )
-                }
                 is PromocodeDetailEvent.ShowError -> {
                     snackbarHostState.showSnackbar(
-                        message = "Something went wrong. Please try again.",
-                        duration = SnackbarDuration.Short,
-                    )
-                }
-                is PromocodeDetailEvent.ShowVoteFeedback -> {
-                    val message = if (event.isUpvote) "Thanks for your upvote!" else "Thanks for your feedback!"
-                    snackbarHostState.showSnackbar(
-                        message = message,
+                        message = event.error.toUiText().asString(localContext),
                         duration = SnackbarDuration.Short,
                     )
                 }
@@ -126,46 +126,43 @@ fun PromocodeDetailScreen(
         is PromocodeUiState.Success -> state.data.code.value
         else -> ""
     }
+    val authorId = (uiState.promocodeState as? PromocodeUiState.Success)?.data?.authorId
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            QodeTopAppBar(
+            PromocodeDetailTopAppBar(
                 title = title,
-                navigationIcon = QodeActionIcons.Back,
-                onNavigationClick = onNavigateBack,
+                promocodeId = uiState.promocodeId,
+                currentUserId = uiState.userId,
+                authorId = authorId,
+                onNavigateBack = onNavigateBack,
+                onBlockUserClick = { userId ->
+                    onAction(PromocodeDetailAction.BlockUserClicked(userId))
+                },
+                onReportPromocodeClick = { promocodeId ->
+                    onAction(PromocodeDetailAction.ReportPromocodeClicked(promocodeId))
+                },
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = SpacingTokens.sm),
-        ) {
-            when (val promoState = uiState.promocodeState) {
-                PromocodeUiState.Loading -> PromocodeLoadingState()
-                is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
-                    onAction(PromocodeDetailAction.RetryClicked)
-                })
-                is PromocodeUiState.Success -> PromocodeSuccessState(
-                    promocode = promoState.data,
-                    userInteraction = uiState.userInteraction,
-                    currentVoting = uiState.currentVoting,
-                    optimisticUpvotes = uiState.optimisticUpvotes,
-                    optimisticDownvotes = uiState.optimisticDownvotes,
-                    onAction = onAction,
-                )
-            }
-
-            uiState.authBottomSheet?.let { authSheetState ->
-                AuthenticationBottomSheet(
-                    authPromptAction = authSheetState.action,
-                    isLoading = authSheetState.isLoading,
-                    onSignInClick = { onAction(PromocodeDetailAction.SignInWithGoogleClicked(context)) },
-                    onDismiss = { onAction(PromocodeDetailAction.DismissAuthSheet) },
-                )
-            }
+        when (val promoState = uiState.promocodeState) {
+            PromocodeUiState.Loading -> PromocodeLoadingState()
+            is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
+                onAction(PromocodeDetailAction.RetryClicked)
+            })
+            is PromocodeUiState.Success -> PromocodeSuccessState(
+                promocode = promoState.data,
+                userInteraction = uiState.userInteraction,
+                currentVoting = uiState.currentVoting,
+                optimisticUpvotes = uiState.optimisticUpvotes,
+                optimisticDownvotes = uiState.optimisticDownvotes,
+                onAction = onAction,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = SpacingTokens.sm),
+            )
         }
     }
 }
@@ -177,14 +174,15 @@ private fun PromocodeSuccessState(
     currentVoting: VoteState?,
     optimisticUpvotes: Int?,
     optimisticDownvotes: Int?,
-    onAction: (PromocodeDetailAction) -> Unit
+    onAction: (PromocodeDetailAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val displayUpvotes = optimisticUpvotes ?: promocode.upvotes
     val displayDownvotes = optimisticDownvotes ?: promocode.downvotes
     val displayVoteScore = displayUpvotes - displayDownvotes
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),

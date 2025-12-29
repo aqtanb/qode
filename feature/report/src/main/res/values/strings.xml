@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen titles -->
+    <string name="report_title">Report Content</string>
+
+    <!-- Actions -->
+    <string name="submit_report">Submit Report</string>
+    <string name="close">Close</string>
+    <string name="retry">Retry</string>
+
+    <!-- Preview section -->
+    <string name="reporting_label">You are reporting</string>
+    <string name="content_type_post">Post</string>
+    <string name="content_type_promocode">Promo Code</string>
+    <string name="by_author">by %s</string>
+
+    <!-- Reason selection -->
+    <string name="select_reason_label">Why are you reporting this?</string>
+
+    <!-- Reasons -->
+    <string name="reason_spam">Spam</string>
+    <string name="reason_spam_desc">Repetitive or unwanted content</string>
+
+    <string name="reason_scam">Scam or Misleading</string>
+    <string name="reason_scam_desc">Fraudulent or deceptive information</string>
+
+    <string name="reason_inappropriate">Inappropriate Content</string>
+    <string name="reason_inappropriate_desc">Offensive or harmful material</string>
+
+    <string name="reason_malicious">Malicious Link</string>
+    <string name="reason_malicious_desc">Dangerous or phishing links</string>
+
+    <string name="reason_other">Other</string>
+    <string name="reason_other_desc">Specify your concern</string>
+
+    <!-- Additional details -->
+    <string name="additional_details_label">Additional Details</string>
+    <string name="additional_details_placeholder_required">Please describe the issue…</string>
+    <string name="additional_details_placeholder_optional">Add more context (optional)…</string>
+    <string name="character_count">%d / %d characters</string>
+
+    <!-- Success/Error -->
+    <string name="report_submitted_success">Thank you for your report</string>
+
+    <!-- Validation errors -->
+    <string name="error_reason_required">Please select a reason for reporting</string>
+    <string name="error_details_required">Please provide additional details</string>
+</resources>

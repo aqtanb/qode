@@ -17,4 +17,12 @@
     <string name="about_version">Version %s</string>
     <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
     <string name="about_join_telegram">Join our community</string>
+
+    <!-- Delete Account -->
+    <string name="settings_delete_account_title">Delete Account</string>
+    <string name="delete_account_dialog_title">Delete Your Account</string>
+    <string name="delete_account_dialog_message">This will permanently delete your account and all your content, including posts, promocodes, and interactions. This action cannot be undone.</string>
+    <string name="delete_account_checkbox">I understand this action cannot be undone</string>
+    <string name="delete_account_confirm">Delete Account</string>
+    <string name="delete_account_error_title">Deletion Failed</string>
 </resources>

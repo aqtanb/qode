@@ -1,5 +1,6 @@
 package com.qodein.core.data.datasource
 
+import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -86,6 +87,7 @@ class FirestorePostDataSource constructor(
                 try {
                     document.toObject<PostDto>()?.let { PostMapper.toDomain(it) }
                 } catch (e: Exception) {
+                    Log.e("FirestorePostDataSource", "Error mapping post ${document.id}", e)
                     null
                 }
             }

@@ -1,19 +1,56 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Votes collection - managed by Cloud Functions
-    match /votes/{voteId} {
-      // Allow read access to authenticated users for their own votes or public vote data
-      allow read: if request.auth != null;
-      
-      // Only allow Cloud Functions to write votes (not direct client writes)
-      // This prevents vote manipulation and ensures proper validation
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(field) { return isSignedIn() && request.auth.uid == field; }
+
+    match /banners/{bannerId} {
+      allow read: if true;
       allow write: if false;
     }
-    
-    // Default: Allow all for other collections (you may want to restrict this later)
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.authorId);
+    }
+
+    match /promocodes/{promoId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.authorId);
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /user_interactions/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+
+      match /blocks/{blockedUserId} {
+        allow read: if isSignedIn() && request.auth.uid == userId;
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /reports/{reportId} {
+      allow read: if isSignedIn() && request.auth.uid == resource.data.reporterId;
+      allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

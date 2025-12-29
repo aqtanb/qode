@@ -1,7 +1,8 @@
 package com.qodein.qode.navigation
 
 import androidx.navigation.NavController
-import com.qodein.feature.auth.navigation.navigateToAuth
+import com.qodein.core.ui.AuthPromptAction
+import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.post.navigation.navigateToPostSubmission
 import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
@@ -44,23 +45,14 @@ class NavigationHandler @Inject constructor() {
             NavigationActions.NavigateToProfile -> {
                 when (authState) {
                     is AuthState.Authenticated -> navController.navigateToProfile()
-                    is AuthState.Unauthenticated -> navController.navigateToAuth()
+                    is AuthState.Unauthenticated -> navController.navigateToAuthBottomSheet(AuthPromptAction.Profile)
                     null -> {
                         // Auth state is loading, wait for it to resolve
-                        // Could implement queue for pending actions
                     }
                 }
             }
 
             NavigationActions.NavigateToFavorites -> {
-                // TODO: Implement favorites navigation when feature exists
-                // For now, could navigate to profile or show coming soon
-                handleNavigation(
-                    NavigationActions.NavigateToProfile,
-                    navController,
-                    authState,
-                    navigateToTopLevel,
-                )
             }
 
             NavigationActions.NavigateToSettings -> {
@@ -83,11 +75,23 @@ class NavigationHandler @Inject constructor() {
             }
 
             NavigationActions.NavigateToPromocodeSubmission -> {
-                navController.navigateToPromocodeSubmission()
+                when (authState) {
+                    is AuthState.Authenticated -> navController.navigateToPromocodeSubmission()
+                    is AuthState.Unauthenticated -> navController.navigateToAuthBottomSheet(AuthPromptAction.SubmitPromocode)
+                    null -> {
+                        // Auth state is loading, wait for it to resolve
+                    }
+                }
             }
 
             NavigationActions.NavigateToPostSubmission -> {
-                navController.navigateToPostSubmission()
+                when (authState) {
+                    is AuthState.Authenticated -> navController.navigateToPostSubmission()
+                    is AuthState.Unauthenticated -> navController.navigateToAuthBottomSheet(AuthPromptAction.CreatePost)
+                    null -> {
+                        // Auth state is loading, wait for it to resolve
+                    }
+                }
             }
         }
     }

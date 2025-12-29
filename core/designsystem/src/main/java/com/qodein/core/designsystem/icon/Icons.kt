@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Filter9Plus
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
@@ -30,10 +31,12 @@ import androidx.compose.material.icons.outlined.Diversity1
 import androidx.compose.material.icons.outlined.EmojiObjects
 import androidx.compose.material.icons.outlined.EmojiSymbols
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.Money
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Radio
 import androidx.compose.material.icons.outlined.Sell
@@ -192,6 +195,10 @@ object QodeSocialIcons {
 }
 
 object UIIcons {
+    val MoreVert: ImageVector = Icons.Outlined.MoreVert
+    val Block: ImageVector = Icons.Outlined.Block
+    val Report: ImageVector = Icons.Outlined.Flag
+
     val AccountCircle: ImageVector = Icons.Outlined.AccountCircle
 
     val Popular: ImageVector = Icons.Filled.Diamond

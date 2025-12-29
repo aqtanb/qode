@@ -10,5 +10,8 @@ data class SettingsUiState(
     val showLanguageBottomSheet: Boolean = false,
     val showThemeBottomSheet: Boolean = false,
     val isLoading: Boolean = false,
-    val error: OperationError? = null
+    val error: OperationError? = null,
+    val showDeleteAccountDialog: Boolean = false,
+    val isDeleting: Boolean = false,
+    val deleteAccountError: OperationError? = null
 )

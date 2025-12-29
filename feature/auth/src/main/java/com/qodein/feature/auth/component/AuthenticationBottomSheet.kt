@@ -1,4 +1,4 @@
-package com.qodein.core.ui.component
+package com.qodein.feature.auth.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -29,62 +29,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.QodeActionIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.R
+import com.qodein.core.ui.component.QodeGoogleSignInButton
 import com.qodein.core.ui.error.asUiText
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.UserError
-
-/**
- * Authentication prompt actions that trigger contextual auth prompts
- */
-enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val iconVector: ImageVector) {
-    SubmitPromocode(
-        titleResId = R.string.auth_submit_promo_title,
-        messageResId = R.string.auth_submit_promo_message,
-        iconVector = QodeActionIcons.Add,
-    ),
-    UpvotePrompt(
-        titleResId = R.string.auth_upvote_title,
-        messageResId = R.string.auth_upvote_message,
-        iconVector = QodeActionIcons.Thumbs,
-    ),
-    DownvotePrompt(
-        titleResId = R.string.auth_downvote_title,
-        messageResId = R.string.auth_downvote_message,
-        iconVector = QodeActionIcons.ThumbsDown,
-    ),
-    WriteComment(
-        titleResId = R.string.auth_comment_title,
-        messageResId = R.string.auth_comment_message,
-        iconVector = QodeActionIcons.Comment,
-    ),
-    BookmarkPromoCode(
-        titleResId = R.string.auth_bookmark_promo_title,
-        messageResId = R.string.auth_bookmark_promo_message,
-        iconVector = QodeActionIcons.Bookmark,
-    ),
-    FollowStore(
-        titleResId = R.string.auth_follow_store_title,
-        messageResId = R.string.auth_follow_store_message,
-        iconVector = QodeActionIcons.Follow,
-    ),
-    CreatePost(
-        titleResId = R.string.auth_create_post_title,
-        messageResId = R.string.auth_create_post_message,
-        iconVector = QodeinIcons.PostAdd,
-    )
-}
 
 /**
  * Modern authentication prompt using bottom sheet instead of dialog
@@ -117,6 +76,7 @@ fun AuthenticationBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(
             topStart = ShapeTokens.Corner.extraLarge,
             topEnd = ShapeTokens.Corner.extraLarge,

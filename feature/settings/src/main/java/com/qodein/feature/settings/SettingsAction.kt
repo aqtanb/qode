@@ -18,4 +18,9 @@ sealed interface SettingsAction {
     data object AboutAppClicked : SettingsAction
     data object FeedbackClicked : SettingsAction
     data object RateAppClicked : SettingsAction
+
+    data object DeleteAccountClicked : SettingsAction
+    data object HideDeleteAccountDialog : SettingsAction
+    data object ConfirmDeleteAccount : SettingsAction
+    data object DismissDeleteAccountError : SettingsAction
 }

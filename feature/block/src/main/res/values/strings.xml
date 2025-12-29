@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dialog -->
+    <string name="block_user_title">Block User</string>
+    <string name="block_user_message">Do you want to block %s?</string>
+    <string name="block_user_message_no_username">Do you want to block this user?</string>
+    <string name="block_user_info">You won\'t see their content anymore.</string>
+
+    <!-- Actions -->
+    <string name="block_confirm">Block</string>
+
+    <!-- Success messages -->
+    <string name="user_blocked_success">User successfully blocked</string>
+</resources>

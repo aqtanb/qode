@@ -47,7 +47,6 @@
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>
     <string name="promocode_dates_end_placeholder">Выберите дату окончания</string>
     <string name="promocode_dates_confirm">ОК</string>
-    <string name="promocode_dates_cancel">Отмена</string>
 
     <string name="promocode_discount_percentage_helper">Введите процент (1–99%)</string>
     <string name="promocode_discount_amount_helper">Введите сумму в ₸ (тенге)</string>

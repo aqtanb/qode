@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
 import com.qodein.feature.post.submission.PostSubmissionScreen
@@ -49,16 +50,26 @@ fun NavGraphBuilder.feedSection(
     }
 }
 
-fun NavGraphBuilder.postSubmissionSection(onNavigateBack: () -> Unit) {
+fun NavGraphBuilder.postSubmissionSection(
+    onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit
+) {
     composable<PostSubmissionRoute> {
-        PostSubmissionScreen(onNavigateBack = onNavigateBack)
+        PostSubmissionScreen(
+            onNavigateBack = onNavigateBack,
+            onNavigateToAuth = onNavigateToAuth,
+        )
     }
 }
 
-fun NavGraphBuilder.postDetailSection(onNavigateBack: () -> Unit) {
+fun NavGraphBuilder.postDetailSection(
+    onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit
+) {
     composable<PostDetailRoute> {
         PostDetailRoute(
             onNavigateBack = onNavigateBack,
+            onNavigateToAuth = onNavigateToAuth,
         )
     }
 }

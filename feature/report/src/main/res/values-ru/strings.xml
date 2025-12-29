@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen titles -->
+    <string name="report_title">Пожаловаться</string>
+
+    <!-- Actions -->
+    <string name="submit_report">Отправить</string>
+    <string name="close">Закрыть</string>
+    <string name="retry">Повторить</string>
+
+    <!-- Preview section -->
+    <string name="reporting_label">Вы жалуетесь на</string>
+    <string name="content_type_post">Пост</string>
+    <string name="content_type_promocode">Промокод</string>
+    <string name="by_author">автор: %s</string>
+
+    <!-- Reason selection -->
+    <string name="select_reason_label">Почему вы жалуетесь?</string>
+
+    <!-- Reasons -->
+    <string name="reason_spam">Спам</string>
+    <string name="reason_spam_desc">Повторяющийся или нежелательный контент</string>
+
+    <string name="reason_scam">Мошенничество или Введение в заблуждение</string>
+    <string name="reason_scam_desc">Мошенническая или обманчивая информация</string>
+
+    <string name="reason_inappropriate">Неприемлемый Контент</string>
+    <string name="reason_inappropriate_desc">Оскорбительный или вредный материал</string>
+
+    <string name="reason_malicious">Вредоносная Ссылка</string>
+    <string name="reason_malicious_desc">Опасные или фишинговые ссылки</string>
+
+    <string name="reason_other">Другое</string>
+    <string name="reason_other_desc">Укажите вашу проблему</string>
+
+    <!-- Additional details -->
+    <string name="additional_details_label">Дополнительные Подробности</string>
+    <string name="additional_details_placeholder_required">Опишите проблему…</string>
+    <string name="additional_details_placeholder_optional">Добавьте больше контекста (необязательно)…</string>
+    <string name="character_count">%d / %d символов</string>
+
+    <!-- Success/Error -->
+    <string name="report_submitted_success">Спасибо за ваш отчет</string>
+
+    <!-- Validation errors -->
+    <string name="error_reason_required">Пожалуйста, выберите причину жалобы</string>
+    <string name="error_details_required">Пожалуйста, укажите дополнительные подробности</string>
+</resources>

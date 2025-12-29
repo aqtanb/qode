@@ -2,6 +2,7 @@ package com.qodein.qode.di
 
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -21,6 +22,7 @@ import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import dagger.Module
@@ -47,6 +49,13 @@ object KoinBridgeModule : KoinComponent {
     fun provideIdTokenProvider(): IdTokenProvider {
         val provider: IdTokenProvider by inject()
         return provider
+    }
+
+    @Provides
+    @Singleton
+    fun provideScreenRefreshCoordinator(): ScreenRefreshCoordinator {
+        val coordinator: ScreenRefreshCoordinator by inject()
+        return coordinator
     }
 
     @Provides
@@ -137,6 +146,13 @@ object KoinBridgeModule : KoinComponent {
     @Singleton
     fun provideSignOutUseCase(): SignOutUseCase {
         val useCase: SignOutUseCase by inject()
+        return useCase
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteUserAccountUseCase(): DeleteUserAccountUseCase {
+        val useCase: DeleteUserAccountUseCase by inject()
         return useCase
     }
 

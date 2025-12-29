@@ -6,9 +6,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.promocode.detail.PromocodeDetailRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
 @Serializable object PromocodeSubmissionRoute
@@ -23,15 +25,24 @@ fun NavController.navigateToPromocodeDetail(
     navOptions: NavOptions? = null
 ) = navigate(route = PromocodeDetailRoute(promoCodeId.value), navOptions = navOptions)
 
-fun NavGraphBuilder.promocodeSubmissionSection(onNavigateBack: () -> Unit) {
+fun NavGraphBuilder.promocodeSubmissionSection(
+    onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit
+) {
     composable<PromocodeSubmissionRoute> {
         PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
+            onNavigateToAuth = onNavigateToAuth,
         )
     }
 }
 
-fun NavGraphBuilder.promocodeDetailSection(onNavigateBack: () -> Unit) {
+fun NavGraphBuilder.promocodeDetailSection(
+    onNavigateBack: () -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToBlockUser: (UserId, String?, String?) -> Unit
+) {
     composable<PromocodeDetailRoute>(
         deepLinks = listOf(
             navDeepLink {
@@ -48,6 +59,9 @@ fun NavGraphBuilder.promocodeDetailSection(onNavigateBack: () -> Unit) {
         PromocodeDetailRoute(
             promoCodeId = PromocodeId(args.promoCodeId),
             onNavigateBack = onNavigateBack,
+            onNavigateToAuth = onNavigateToAuth,
+            onNavigateToReport = onNavigateToReport,
+            onNavigateToBlockUser = onNavigateToBlockUser,
         )
     }
 }

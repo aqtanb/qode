@@ -98,7 +98,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
 
     private fun mapSortBy(sortBy: ContentSortBy): Pair<String, Query.Direction> =
         when (sortBy) {
-            ContentSortBy.POPULARITY -> PromocodeDto.FIELD_UPVOTES to Query.Direction.DESCENDING
+            ContentSortBy.POPULARITY -> PromocodeDto.FIELD_VOTE_SCORE to Query.Direction.DESCENDING
             ContentSortBy.NEWEST -> PromocodeDto.FIELD_CREATED_AT to Query.Direction.DESCENDING
             ContentSortBy.EXPIRING_SOON -> PromocodeDto.FIELD_END_DATE to Query.Direction.ASCENDING
         }

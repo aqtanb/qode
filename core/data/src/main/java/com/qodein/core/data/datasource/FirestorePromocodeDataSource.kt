@@ -25,7 +25,6 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         startAfter: DocumentSnapshot? = null
     ): PagedPromocodesDto {
         val now = Timestamp.now()
-        // Fetch one extra to determine if there's another page.
         val fetchLimit = limit + 1
         val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
             .whereGreaterThanOrEqualTo(PromocodeDto.FIELD_END_DATE, now)

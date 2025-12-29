@@ -8,8 +8,10 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +36,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
+import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.icon.QodeActionIcons
@@ -71,6 +74,10 @@ fun SettingsRoute(
                         data = Uri.fromParts("package", context.packageName, null)
                     }
                     context.startActivity(intent)
+                }
+                SettingsEvent.AccountDeleted -> {
+                    // Navigate back (auth state change will handle navigation to auth screen)
+                    onBackClick()
                 }
             }
         }
@@ -160,12 +167,13 @@ private fun SettingsScreen(
 
             HorizontalDivider()
 
+            val feedbackTitle = stringResource(R.string.settings_feedback_title)
             SettingsItem(
-                title = stringResource(R.string.settings_feedback_title),
+                title = feedbackTitle,
                 leadingIcon = QodeNavigationIcons.Feedback,
                 trailingIcon = QodeActionIcons.Next,
                 onClick = {
-                    val subject = encode(context.getString(R.string.settings_feedback_title))
+                    val subject = encode(feedbackTitle)
                     val uri = "mailto:${AppConstants.FEEDBACK_EMAIL}?subject=$subject".toUri()
                     val intent = Intent(Intent.ACTION_VIEW, uri)
                     context.startActivity(intent)
@@ -177,6 +185,20 @@ private fun SettingsScreen(
                 leadingIcon = QodeNavigationIcons.Info,
                 trailingIcon = QodeActionIcons.Next,
                 onClick = onNavigateToAbout,
+            )
+
+            HorizontalDivider()
+
+            Spacer(modifier = Modifier.height(SpacingTokens.lg))
+
+            // Delete account button
+            QodeTextButton(
+                onClick = { onAction(SettingsAction.DeleteAccountClicked) },
+                text = stringResource(R.string.settings_delete_account_title),
+                contentColor = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingTokens.lg),
             )
         }
 
@@ -198,6 +220,26 @@ private fun SettingsScreen(
                 },
                 onDismiss = { onAction(SettingsAction.HideThemeBottomSheet) },
             )
+        }
+
+        // Delete account dialog
+        if (uiState.showDeleteAccountDialog) {
+            if (uiState.deleteAccountError == null) {
+                DeleteAccountDialog(
+                    isLoading = uiState.isDeleting,
+                    onConfirm = { onAction(SettingsAction.ConfirmDeleteAccount) },
+                    onDismiss = { onAction(SettingsAction.HideDeleteAccountDialog) },
+                )
+            } else {
+                DeleteAccountErrorDialog(
+                    error = uiState.deleteAccountError,
+                    onRetry = { onAction(SettingsAction.ConfirmDeleteAccount) },
+                    onDismiss = {
+                        onAction(SettingsAction.DismissDeleteAccountError)
+                        onAction(SettingsAction.HideDeleteAccountDialog)
+                    },
+                )
+            }
         }
     }
 }

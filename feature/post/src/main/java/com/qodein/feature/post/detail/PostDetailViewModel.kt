@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.auth.IdTokenProvider
-import com.qodein.core.ui.component.AuthPromptAction
 import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
@@ -62,7 +62,7 @@ class PostDetailViewModel @Inject constructor(
                 val currentUserId = _uiState.value.userId
                 if (currentUserId == null) {
                     viewModelScope.launch {
-                        _events.emit(PostDetailEvent.ShowAuthPrompt(authPromptAction = AuthPromptAction.UpvotePrompt))
+                        _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.UpvotePrompt))
                     }
                 } else {
                     handleUpvote(
@@ -76,7 +76,7 @@ class PostDetailViewModel @Inject constructor(
                 val currentUserId = _uiState.value.userId
                 if (currentUserId == null) {
                     viewModelScope.launch {
-                        _events.emit(PostDetailEvent.ShowAuthPrompt(AuthPromptAction.DownvotePrompt))
+                        _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.DownvotePrompt))
                     }
                 } else {
                     handleDownVote(

@@ -1,5 +1,6 @@
 package com.qodein.feature.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,12 +10,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,10 +58,24 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val serviceUiState by viewModel.serviceSelectionUiState.collectAsStateWithLifecycle()
 
-    val listState = rememberLazyListState()
+    val listState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState(
+            firstVisibleItemIndex = viewModel.getSavedScrollIndex(),
+            firstVisibleItemScrollOffset = viewModel.getSavedScrollOffset(),
+        )
+    }
 
     val context = LocalContext.current
     scrollStateRegistry?.RegisterScrollState(listState)
+
+    // Save scroll position when navigating away
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) ->
+            viewModel.saveScrollPosition(index, offset)
+        }
+    }
 
     LaunchedEffect(viewModel.events) {
         viewModel.events.collect { event ->
@@ -147,7 +164,9 @@ private fun HomeContent(
     ) {
         LazyColumn(
             state = listState,
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
         ) {
             // Hero Banner

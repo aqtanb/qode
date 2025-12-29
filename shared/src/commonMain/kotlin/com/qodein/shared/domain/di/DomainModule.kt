@@ -22,25 +22,38 @@ import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
+import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
+import com.qodein.shared.domain.usecase.user.AcceptLegalPoliciesUseCase
+import com.qodein.shared.domain.usecase.user.BlockUserUseCase
+import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
+import com.qodein.shared.domain.usecase.user.EnsureUserExists
+import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
-import com.qodein.shared.domain.usecase.user.ResolveUserUseCase
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 /**
  * Provides domain-layer use cases.
  */
 val domainModule = module {
-    single { GetAuthStateUseCase(get()) }
+    single<Clock> { Clock.System }
+
+    single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
 
-    single { ResolveUserUseCase(get()) }
+    single { EnsureUserExists(get()) }
     single { GetUserByIdUseCase(get()) }
     single { ObserveUserUseCase(get()) }
+    single { AcceptConsentAndCreateUserUseCase(get(), get()) }
+    single { AcceptLegalPoliciesUseCase(get()) }
+    single { BlockUserUseCase(get(), get()) }
+    single { GetBlockedUserIdsUseCase(get(), get()) }
+    single { DeleteUserAccountUseCase(get(), get()) }
 
     single { GetBannersUseCase(get()) }
-    single { GetPromocodesUseCase(get()) }
+    single { GetPromocodesUseCase(get(), get(), get()) }
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
 

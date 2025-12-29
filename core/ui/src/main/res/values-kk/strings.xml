@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close">Жабу</string>
+    <string name="cancel">Бас тарту</string>
     <string name="continue_with_google">Google арқылы жалғастыру</string>
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
     <string name="copy_code">Кодты көшіру</string>
@@ -32,6 +33,9 @@
     <string name="cd_expiring_soon">Жақында аяқталады</string>
     <string name="cd_verified">Тексерілді</string>
     <string name="cd_service_logo">Қызмет логотипі</string>
+    <string name="cd_more_options">Қосымша параметрлер</string>
+    <string name="action_block">Қолданушыны бұғаттау</string>
+    <string name="action_report">Арыздану</string>
 
     <string name="error_auth_required">Кіру қажет.</string>
     <string name="error_auth_service_unavailable">Кіру қызметі уақытша қолжетімсіз.</string>
@@ -55,6 +59,9 @@
     <string name="error_user_invalid_email">Электрондық пошта қате.</string>
     <string name="error_user_invalid_photo_url">Профиль фотосының сілтемесі қате.</string>
     <string name="error_user_invalid_id">Пайдаланушы идентификаторы қате.</string>
+    <string name="error_user_deletion_not_authenticated">Аккаунтты жою үшін кіру қажет.</string>
+    <string name="error_user_deletion_failed">Аккаунтты жою сәтсіз болды. Қайталап көріңіз.</string>
+    <string name="error_user_deletion_partial">Аккаунт толығымен жойылмады. Кейбір деректер қалуы мүмкін. Қолдау қызметіне хабарласыңыз.</string>
 
     <string name="error_service_no_results">Қызметтер табылмады.</string>
     <string name="error_service_query_too_short">Сұрау тым қысқа. Кемінде 2 таңба енгізіңіз.</string>
@@ -166,8 +173,10 @@
     <string name="auth_bottom_sheet_footer">Google арқылы жылдам әрі қауіпсіз кіру</string>
     <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
-    <string name="common_service">Қызмет</string>
-    <string name="common_promocode">Промокод</string>
+    <string name="auth_profile_title">Сіздің Qode-тағы бұрышыңыз</string>
+    <string name="auth_profile_message">Промкодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
+    <string name="auth_report_title">Шағымдану үшін кіріңіз</string>
+    <string name="auth_report_message">Орынсыз мазмұн туралы хабарлап, қауымдастықтың қауіпсіздігін сақтауға көмектесіңіз.</string>
     <string name="step_service_title">Қызметті таңдаңыз</string>
     <string name="step_service_short">Қызмет</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>
@@ -187,4 +196,13 @@
     <string name="step_end_date_title">Аяқталу күні</string>
     <string name="step_end_date_short">Аяқталу</string>
     <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
+
+    <string name="legal_consent_title">Шарттарды қабылдаңыз</string>
+    <string name="legal_consent_subtitle">Қолданбаны пайдалану үшін біздің шарттарымызды қабылдауыңыз керек.</string>
+    <string name="legal_consent_checkbox_prefix">Мен қабылдаймын</string>
+    <string name="legal_consent_accept">Қабылдау</string>
+    <string name="legal_consent_decline">Бас тарту</string>
+    <string name="terms_of_service">Қызмет көрсету шарттарын</string>
+    <string name="privacy_policy">Құпиялылық саясатын</string>
+    <string name="loading">Жүктелуде…</string>
 </resources>
