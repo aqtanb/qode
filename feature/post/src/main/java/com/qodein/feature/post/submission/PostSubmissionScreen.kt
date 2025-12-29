@@ -84,6 +84,10 @@ fun PostSubmissionScreen(
     var fullScreenImageIndex by remember { mutableStateOf(0) }
     val hazeState = remember { HazeState() }
 
+    // Extract string resources to avoid lint warnings
+    val imageLimitReachedMessage = stringResource(R.string.image_limit_reached)
+    val imagesPartiallyAddedFormat = stringResource(R.string.images_partially_added)
+
     val pickMediaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5),
     ) { uris ->
@@ -94,9 +98,10 @@ fun PostSubmissionScreen(
             val urisToAdd = uris.take(availableSlots)
 
             if (uris.size > availableSlots) {
+                val message = String.format(imagesPartiallyAddedFormat, urisToAdd.size)
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.images_partially_added, urisToAdd.size),
+                        message = message,
                         withDismissAction = true,
                     )
                 }
@@ -156,7 +161,7 @@ fun PostSubmissionScreen(
                             if (currentState.imageUris.size >= 5) {
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = context.getString(R.string.image_limit_reached),
+                                        message = imageLimitReachedMessage,
                                         withDismissAction = true,
                                     )
                                 }
@@ -189,7 +194,7 @@ fun PostSubmissionScreen(
                                 if (currentState.imageUris.size >= 5) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.image_limit_reached),
+                                            message = imageLimitReachedMessage,
                                             withDismissAction = true,
                                         )
                                     }
@@ -208,13 +213,14 @@ fun PostSubmissionScreen(
                         )
 
                         if (currentState.compression is ImageCompressionState.Compressing) {
+                            val message = stringResource(
+                                R.string.compressing_images,
+                                currentState.compression.current,
+                                currentState.compression.total,
+                            )
                             LaunchedEffect(currentState.compression) {
                                 snackbarHostState.showSnackbar(
-                                    message = context.getString(
-                                        R.string.compressing_images,
-                                        currentState.compression.current,
-                                        currentState.compression.total,
-                                    ),
+                                    message = message,
                                     withDismissAction = false,
                                     duration = SnackbarDuration.Indefinite,
                                 )

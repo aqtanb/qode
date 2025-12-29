@@ -8,6 +8,7 @@ import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.analytics.logLogin
 import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
@@ -43,7 +44,7 @@ class AuthBottomSheetViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<com.qodein.shared.common.error.OperationError?>(null)
+    private val _error = MutableStateFlow<OperationError?>(null)
     val error = _error.asStateFlow()
 
     fun signInWithGoogle(context: Context) {

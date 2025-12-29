@@ -50,6 +50,9 @@
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>
+    <string name="error_user_deletion_not_authenticated">Для удаления аккаунта необходимо войти.</string>
+    <string name="error_user_deletion_failed">Не удалось удалить аккаунт. Попробуйте ещё раз.</string>
+    <string name="error_user_deletion_partial">Удаление аккаунта завершено частично. Некоторые данные могут остаться. Обратитесь в поддержку.</string>
 
     <string name="error_service_no_results">Сервисы не найдены.</string>
     <string name="error_service_query_too_short">Слишком короткий запрос. Введите минимум 2 символа.</string>

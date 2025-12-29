@@ -59,6 +59,9 @@
     <string name="error_user_invalid_email">Электрондық пошта қате.</string>
     <string name="error_user_invalid_photo_url">Профиль фотосының сілтемесі қате.</string>
     <string name="error_user_invalid_id">Пайдаланушы идентификаторы қате.</string>
+    <string name="error_user_deletion_not_authenticated">Аккаунтты жою үшін кіру қажет.</string>
+    <string name="error_user_deletion_failed">Аккаунтты жою сәтсіз болды. Қайталап көріңіз.</string>
+    <string name="error_user_deletion_partial">Аккаунт толығымен жойылмады. Кейбір деректер қалуы мүмкін. Қолдау қызметіне хабарласыңыз.</string>
 
     <string name="error_service_no_results">Қызметтер табылмады.</string>
     <string name="error_service_query_too_short">Сұрау тым қысқа. Кемінде 2 таңба енгізіңіз.</string>

@@ -41,6 +41,7 @@ import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.report.component.ReasonSelectionSection
 import com.qodein.feature.report.component.ReportItemPreview
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.ReportReason
 import org.koin.androidx.compose.koinViewModel
@@ -262,7 +263,7 @@ private fun SuccessContent(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ErrorContent(
-    error: com.qodein.shared.common.error.OperationError,
+    error: OperationError,
     onDismiss: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier

@@ -167,12 +167,13 @@ private fun SettingsScreen(
 
             HorizontalDivider()
 
+            val feedbackTitle = stringResource(R.string.settings_feedback_title)
             SettingsItem(
-                title = stringResource(R.string.settings_feedback_title),
+                title = feedbackTitle,
                 leadingIcon = QodeNavigationIcons.Feedback,
                 trailingIcon = QodeActionIcons.Next,
                 onClick = {
-                    val subject = encode(context.getString(R.string.settings_feedback_title))
+                    val subject = encode(feedbackTitle)
                     val uri = "mailto:${AppConstants.FEEDBACK_EMAIL}?subject=$subject".toUri()
                     val intent = Intent(Intent.ACTION_VIEW, uri)
                     context.startActivity(intent)
