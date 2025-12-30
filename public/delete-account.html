@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delete Account - Qode</title>
+  <link rel="stylesheet" href="/delete-account.css">
+</head>
+<body>
+  <main class="card">
+    <!-- Step 1: Introduction -->
+    <div id="step-intro" class="step-container">
+      <div class="logo">Q</div>
+      <h1>Delete Your Qode Account</h1>
+      <p class="intro-text">You can permanently delete your Qode account from this page without using the app.</p>
+
+      <div class="warning-box">
+        <span class="warning-icon">⚠️</span>
+        <strong>Warning:</strong> This action is permanent and cannot be undone.
+      </div>
+
+      <h2>What will be deleted:</h2>
+      <ul class="data-list">
+        <li>Your authentication and profile data</li>
+        <li>All posts you've created</li>
+        <li>All promocodes you've shared</li>
+        <li>Your voting history (upvotes/downvotes)</li>
+        <li>Reports you've submitted</li>
+        <li>Your block list</li>
+        <li>All images you've uploaded</li>
+      </ul>
+
+      <button class="btn btn-primary" onclick="goToSignIn()">Continue</button>
+      <button class="btn btn-secondary" onclick="goToPlayStore()">Cancel</button>
+    </div>
+
+    <!-- Step 2: Sign In -->
+    <div id="step-signin" class="step-container hidden">
+      <div class="logo">Q</div>
+      <h1>Sign In to Continue</h1>
+      <p>Please sign in with the Google account associated with your Qode account.</p>
+
+      <button class="btn btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18L12.05 13.56c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9.003 18z" fill="#34A853"/>
+          <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
+        </svg>
+        Sign in with Google
+      </button>
+
+      <div id="signin-error" class="error-message hidden"></div>
+
+      <button class="btn btn-secondary" onclick="showStep('intro')">Back</button>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div id="step-confirm" class="step-container hidden">
+      <div class="logo">Q</div>
+      <h1>Confirm Account Deletion</h1>
+      <p>You are signed in as: <strong id="user-email"></strong></p>
+
+      <div class="warning-box danger">
+        <span class="warning-icon">⚠️</span>
+        <div>
+          <strong>WARNING:</strong> This will permanently delete your Qode account and all associated data:
+          <ul class="inline-list">
+            <li><strong>Posts:</strong> Will be permanently deleted</li>
+            <li><strong>Promocodes:</strong> Will be permanently deleted</li>
+            <li><strong>Images:</strong> Will be permanently deleted</li>
+            <li><strong>Votes & Interactions:</strong> Will be permanently deleted</li>
+            <li><strong>Reports:</strong> Will be permanently deleted</li>
+            <li><strong>Account:</strong> Will be permanently deleted</li>
+          </ul>
+          <p class="warning-emphasis">This action cannot be undone.</p>
+        </div>
+      </div>
+
+      <label class="checkbox-container">
+        <input type="checkbox" id="confirm-checkbox" onchange="toggleDeleteButton()">
+        <span class="checkbox-label">I understand that this action is permanent and cannot be reversed</span>
+      </label>
+
+      <button class="btn btn-danger" id="delete-btn" onclick="deleteAccount()" disabled>Delete My Account</button>
+      <button class="btn btn-secondary" onclick="signOut()">Cancel</button>
+    </div>
+
+    <!-- Step 4: Processing -->
+    <div id="step-processing" class="step-container hidden">
+      <div class="loader"></div>
+      <h1>Deleting your account...</h1>
+      <p>Please do not close this page.</p>
+    </div>
+
+    <!-- Step 5: Success -->
+    <div id="step-success" class="step-container hidden">
+      <div class="success-icon">✓</div>
+      <h1>Account Deleted Successfully</h1>
+      <p>Your Qode account has been permanently deleted.</p>
+
+      <div class="deletion-summary">
+        <h2>Deleted:</h2>
+        <ul class="data-list" id="deletion-results">
+          <!-- Dynamically populated -->
+        </ul>
+      </div>
+
+      <button class="btn btn-primary" onclick="goToPlayStore()">Go to Qode on Google Play</button>
+    </div>
+
+    <!-- Error Display -->
+    <div id="error-display" class="step-container hidden">
+      <div class="error-icon">⚠</div>
+      <h1>Error</h1>
+      <p id="error-message"></p>
+      <button class="btn btn-primary" onclick="retryFromError()">Retry</button>
+      <button class="btn btn-secondary" onclick="goToPlayStore()">Cancel</button>
+    </div>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
+
+  <!-- Firebase Hosting Auto-Config (no API key needed) -->
+  <script src="/__/firebase/init.js"></script>
+
+  <!-- Custom JavaScript -->
+  <script src="/delete-account.js"></script>
+</body>
+</html>
