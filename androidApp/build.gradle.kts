@@ -123,6 +123,7 @@ dependencies {
     implementation(projects.feature.promocode)
     implementation(projects.feature.report)
     implementation(projects.feature.settings)
+    implementation(projects.feature.service)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)

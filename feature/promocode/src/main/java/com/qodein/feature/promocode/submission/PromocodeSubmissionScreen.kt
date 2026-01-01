@@ -15,7 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,9 +33,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
@@ -45,9 +42,6 @@ import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.domain.service.selection.SelectionState
-import com.qodein.shared.domain.service.selection.ServiceSelectionAction
-import com.qodein.shared.domain.service.selection.ServiceSelectionState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +54,6 @@ fun PromocodeSubmissionScreen(
 
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val serviceSelectionState by viewModel.serviceSelectionState.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -76,16 +69,15 @@ fun PromocodeSubmissionScreen(
                 withDismissAction = true,
             )
             null -> { /* No event */ }
+            else -> {}
         }
     }
 
     PromocodeSubmissionScreenContent(
         uiState = uiState,
-        serviceSelectionState = serviceSelectionState,
         snackbarHostState = snackbarHostState,
         onNavigateBack = onNavigateBack,
         onAction = viewModel::onAction,
-        onServiceSelectionAction = viewModel::onServiceSelectionAction,
     )
 }
 
@@ -93,11 +85,9 @@ fun PromocodeSubmissionScreen(
 @Composable
 private fun PromocodeSubmissionScreenContent(
     uiState: PromocodeSubmissionUiState,
-    serviceSelectionState: ServiceSelectionState,
     snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit,
-    onAction: (PromocodeSubmissionAction) -> Unit,
-    onServiceSelectionAction: (ServiceSelectionAction) -> Unit
+    onAction: (PromocodeSubmissionAction) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -115,39 +105,17 @@ private fun PromocodeSubmissionScreenContent(
                     LoadingState()
                 }
                 is PromocodeSubmissionUiState.Success -> {
-                    val serviceSelectorSheetState = rememberModalBottomSheetState()
-
-                    LaunchedEffect(uiState.showServiceSelector) {
-                        if (uiState.showServiceSelector) {
-                            serviceSelectorSheetState.show()
-                        } else {
-                            serviceSelectorSheetState.hide()
-                        }
-                    }
-
                     SuccessState(
                         uiState = uiState,
                         onAction = onAction,
                     )
 
-                    if (uiState.showServiceSelector) {
-                        val updatedSelectionState = serviceSelectionState.copy(
-                            selection = SelectionState.Single(selectedId = uiState.wizardFlow.wizardData.selectedService?.id),
-                        )
-
-                        val selectorUiState = ServiceSelectionUiState(
-                            domainState = updatedSelectionState,
-                            isVisible = true,
-                        )
-
-                        ServiceSelectorBottomSheet(
-                            state = selectorUiState,
-                            onAction = onServiceSelectionAction,
-                            onDismiss = {
-                                onAction(PromocodeSubmissionAction.HideServiceSelector)
-                            },
-                        )
-                    }
+                    // TODO: Service selection UI removed during refactoring to feature:service module
+                    // The showServiceSelector flag in uiState is still present but not shown
+                    // Need to either:
+                    // 1. Navigate to the service selection dialog (similar to HomeScreen)
+                    // 2. Create a new inline service selector for the submission wizard
+                    // 3. Use the new feature:service module's ServiceSelectionBottomSheet when available
                 }
                 is PromocodeSubmissionUiState.Error -> {
                     ErrorState(

@@ -21,13 +21,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.ServiceSelectorBottomSheet
 import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
@@ -42,21 +40,23 @@ import com.qodein.feature.home.ui.component.PromocodeSectionHeader
 import com.qodein.feature.home.ui.component.PromocodeSectionLoadingState
 import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.SortFilter
 import com.qodein.shared.ui.FilterDialogType
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToPromoCodeDetail: (PromocodeId) -> Unit,
+    onShowServiceSelection: (Set<ServiceId>) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = koinViewModel(),
     scrollStateRegistry: ScrollStateRegistry? = null
 ) {
     TrackScreenViewEvent(screenName = HOME_SCREEN_NAME)
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val serviceUiState by viewModel.serviceSelectionUiState.collectAsStateWithLifecycle()
 
     val listState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
@@ -86,6 +86,9 @@ fun HomeScreen(
                     event.banner.ctaUrl?.takeIf { it.isNotBlank() }?.let { url ->
                         CustomTabsUtils.launchSmartUrl(context, url)
                     }
+                }
+                is HomeEvent.ShowServiceSelection -> {
+                    onShowServiceSelection(event.currentSelectedServiceIds)
                 }
                 is HomeEvent.PromoCodeCopied ->
                     {}
@@ -121,16 +124,6 @@ fun HomeScreen(
 
     uiState.activeFilterDialog?.let { dialogType ->
         when (dialogType) {
-            FilterDialogType.Service -> {
-                ServiceSelectorBottomSheet(
-                    state = serviceUiState,
-                    onAction = { action ->
-                        viewModel.onServiceSelectionAction(action)
-                    },
-                    onDismiss = { viewModel.onAction(HomeAction.DismissFilterDialog) },
-                )
-            }
-
             FilterDialogType.Sort -> {
                 val sheetState = rememberModalBottomSheetState()
                 SortFilterBottomSheet(
@@ -143,6 +136,10 @@ fun HomeScreen(
                     onDismiss = { viewModel.onAction(HomeAction.DismissFilterDialog) },
                     sheetState = sheetState,
                 )
+            }
+            FilterDialogType.Service -> {
+                // Service selection is handled via navigation through HomeEvent.ShowServiceSelection
+                // This branch should not be reached as the ViewModel emits an event instead
             }
         }
     }

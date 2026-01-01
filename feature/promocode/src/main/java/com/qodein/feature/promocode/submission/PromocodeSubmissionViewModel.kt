@@ -15,14 +15,10 @@ import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.service.selection.SearchStatus
-import com.qodein.shared.domain.service.selection.SelectionState
-import com.qodein.shared.domain.service.selection.ServiceSelectionAction
-import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
@@ -59,11 +55,11 @@ import kotlin.time.toKotlinInstant
 class PromocodeSubmissionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val submitPromocodeUseCase: SubmitPromocodeUseCase,
-    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
     private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val getUserByIdUseCase: GetUserByIdUseCase,
-    private val refreshCoordinator: ScreenRefreshCoordinator
+    private val refreshCoordinator: ScreenRefreshCoordinator,
+    private val getServicesByIdsUseCase: GetServicesByIdsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
@@ -132,18 +128,9 @@ class PromocodeSubmissionViewModel @Inject constructor(
         _uiState.update { PromocodeSubmissionUiState.Success.initial() }
     }
 
-    // Service selection state managed through ServiceSelectionManager - configured for single-selection
-    private val _serviceSelectionState = MutableStateFlow(
-        ServiceSelectionState(selection = SelectionState.Single()), // Submission allows only single service selection
-    )
-    val serviceSelectionState = _serviceSelectionState.asStateFlow()
-
     // MARK: - Service Selection
 
     private fun showServiceSelector() {
-        updateSuccessState { it.copy(showServiceSelector = true) }
-        // Setup service selection when showing the selector
-        setupServiceSelection()
     }
 
     private fun hideServiceSelector() {
@@ -281,42 +268,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
             it.copy(
                 validation = ValidationState.valid(),
             )
-        }
-    }
-
-    // MARK: - Service Selection Management
-
-    private fun setupServiceSelection() {
-        serviceSelectionCoordinator.setupServiceSelection(
-            scope = viewModelScope,
-            getCurrentState = { _serviceSelectionState.value },
-            onStateUpdate = { newState ->
-                _serviceSelectionState.update { newState }
-            },
-        )
-    }
-
-    fun onServiceSelectionAction(action: ServiceSelectionAction) {
-        val currentState = _serviceSelectionState.value
-        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
-
-        _serviceSelectionState.update { newState }
-
-        when (action) {
-            is ServiceSelectionAction.ToggleService -> {
-                // Get service from domain state (popular or search results)
-                val allServices = (
-                    newState.popular.services +
-                        (newState.search.status as? SearchStatus.Success)?.services.orEmpty()
-                    ).associateBy { it.id }
-
-                val service = allServices[action.id]
-                service?.let {
-                    updateWizardData { wizardData -> wizardData.copy(selectedService = it) }
-                    onAction(PromocodeSubmissionAction.HideServiceSelector)
-                }
-            }
-            else -> { /* Other actions don't need additional handling */ }
         }
     }
 

@@ -3,24 +3,18 @@ package com.qodein.feature.home
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.refresh.RefreshTarget
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
-import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
-import com.qodein.shared.domain.service.selection.SearchStatus
-import com.qodein.shared.domain.service.selection.SelectionState
-import com.qodein.shared.domain.service.selection.ServiceSelectionAction
-import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
+import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ContentSortBy
@@ -31,51 +25,32 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceFilter
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.ui.FilterDialogType
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import timber.log.Timber
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
-
-    // Service selection coordinator
-    private val serviceSelectionCoordinator: ServiceSelectionCoordinator,
-    // Refresh coordinator
     private val screenRefreshCoordinator: ScreenRefreshCoordinator,
-    // Analytics
-    private val analyticsHelper: AnalyticsHelper
+    private val analyticsHelper: AnalyticsHelper,
+    private val getServicesByIdsUseCase: GetServicesByIdsUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
-
-    val serviceSelectionUiState: StateFlow<ServiceSelectionUiState> = uiState.map { state ->
-        ServiceSelectionUiState(
-            domainState = state.serviceSelectionState,
-            isVisible = true,
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ServiceSelectionUiState(),
-    )
 
     companion object {
         private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
@@ -105,12 +80,27 @@ class HomeViewModel @Inject constructor(
         observeRefreshTrigger()
     }
 
+    fun applyServiceSelection(serviceIds: Set<ServiceId>) {
+        Timber.d("applyServiceSelection: ${serviceIds.size} service IDs")
+        if (serviceIds.isEmpty()) {
+            applyFilters(_uiState.value.currentFilters.applyServiceFilter(ServiceFilter.All))
+            return
+        }
+
+        viewModelScope.launch {
+            val services = getServicesByIdsUseCase(serviceIds)
+            Timber.d("getServicesByIdsUseCase returned ${services.size} services")
+            val serviceFilter = ServiceFilter.Selected(services)
+            applyFilters(_uiState.value.currentFilters.applyServiceFilter(serviceFilter))
+        }
+    }
+
     private fun observeRefreshTrigger() {
         viewModelScope.launch {
             screenRefreshCoordinator.refreshSignals
                 .filter { it == RefreshTarget.HOME }
                 .collect {
-                    Logger.d("HomeViewModel") { "Refresh signal received for HOME" }
+                    Timber.d("Refresh signal received for HOME")
                     loadHomeData()
                 }
         }
@@ -141,55 +131,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onServiceSelectionAction(action: ServiceSelectionAction) {
-        val currentState = _uiState.value.serviceSelectionState
-        val newState = serviceSelectionCoordinator.handleAction(currentState, action)
-
-        _uiState.update { state ->
-            state.copy(serviceSelectionState = newState)
-        }
-
-        if (action is ServiceSelectionAction.ToggleService) {
-            syncServiceFilterFromSelection()
-            dismissFilterDialog()
-        }
-    }
-
-    /**
-     * Derives ServiceFilter from serviceSelectionState (single source of truth)
-     * and updates currentFilters to keep them in sync
-     */
-    private fun syncServiceFilterFromSelection() {
-        val selectionState = _uiState.value.serviceSelectionState
-        val allServices = (
-            selectionState.popular.services +
-                (selectionState.search.status as? SearchStatus.Success)?.services.orEmpty()
-            ).associateBy { it.id }
-
-        val serviceFilter = when (val selection = selectionState.selection) {
-            is SelectionState.Multi -> {
-                if (selection.selectedIds.isEmpty()) {
-                    ServiceFilter.All
-                } else {
-                    val services = selection.selectedIds.mapNotNull { serviceId ->
-                        allServices[serviceId]
-                    }.toSet()
-                    ServiceFilter.Selected(services)
-                }
-            }
-            is SelectionState.Single -> {
-                selection.selectedId?.let { serviceId ->
-                    allServices[serviceId]?.let { service ->
-                        ServiceFilter.Selected(setOf(service))
-                    }
-                } ?: ServiceFilter.All
-            }
-        }
-
-        // Update the filter (which triggers promo code reload)
-        onAction(HomeAction.ApplyServiceFilter(serviceFilter))
-    }
-
     // MARK: Loading and Error Handling
     private fun loadHomeData() {
         loadBanners()
@@ -197,20 +138,20 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeLanguage() {
-        Logger.d("HomeViewModel") { "observeLanguage() called" }
+        Timber.d("observeLanguage() called")
         viewModelScope.launch {
-            Logger.d("HomeViewModel") { "Starting to collect language flow" }
+            Timber.d("Starting to collect language flow")
             observeLanguageUseCase().collect { result ->
-                Logger.d("HomeViewModel") { "Received language result: $result" }
+                Timber.d("Received language result: $result")
                 when (result) {
                     is Result.Error -> {
-                        Logger.d("HomeViewModel") { "Language error, defaulting to English" }
+                        Timber.d("Language error, defaulting to English")
                         _uiState.update { it.copy(userLanguage = Language.ENGLISH) }
                     }
                     is Result.Success -> {
-                        Logger.d("HomeViewModel") { "Language changed to: ${result.data}" }
+                        Timber.d("Language changed to: ${result.data}")
                         _uiState.update { it.copy(userLanguage = result.data) }
-                        Logger.d("HomeViewModel") { "UI state updated, new language: ${_uiState.value.userLanguage}" }
+                        Timber.d("UI state updated, new language: ${_uiState.value.userLanguage}")
                     }
                 }
             }
@@ -387,71 +328,37 @@ class HomeViewModel @Inject constructor(
     // MARK: - Specific Error Recovery Methods
 
     private fun retryBanners() {
-        Logger.d("HomeViewModel: Retrying banner load")
+        Timber.d("Retrying banner load")
         loadBanners()
     }
 
     private fun retryPromoCodes() {
-        Logger.d("HomeViewModel: Retrying promo codes load")
+        Timber.d("Retrying promo codes load")
         loadInitialPage()
     }
 
     // MARK: - Filter Actions
 
     private fun showFilterDialog(type: FilterDialogType) {
-        _uiState.update { state ->
-            state.copy(activeFilterDialog = type)
-        }
-
         if (type == FilterDialogType.Service) {
-            setupServiceSelection()
-            syncSelectionFromFilter()
-        }
-    }
-
-    /**
-     * Initializes serviceSelectionState from currentFilters when opening dialog
-     * This ensures the selection UI shows what's currently filtered
-     */
-    private fun syncSelectionFromFilter() {
-        when (val currentFilter = _uiState.value.currentFilters.serviceFilter) {
-            ServiceFilter.All -> {
-                // Clear selection
-                _uiState.update { state ->
-                    state.copy(
-                        serviceSelectionState = state.serviceSelectionState.copy(
-                            selection = SelectionState.Multi(selectedIds = emptySet()),
-                        ),
-                    )
-                }
+            val currentSelectedIds = when (val currentFilter = _uiState.value.currentFilters.serviceFilter) {
+                is ServiceFilter.Selected -> currentFilter.services.map { it.id }.toSet()
+                ServiceFilter.All -> emptySet()
             }
-            is ServiceFilter.Selected -> {
-                // Set selection from filter
-                val selectedIds = currentFilter.services.map { it.id }.toSet()
-                _uiState.update { state ->
-                    state.copy(
-                        serviceSelectionState = state.serviceSelectionState.copy(
-                            selection = SelectionState.Multi(selectedIds = selectedIds),
-                        ),
-                    )
-                }
+
+            viewModelScope.launch {
+                _events.emit(HomeEvent.ShowServiceSelection(currentSelectedIds))
+            }
+        } else {
+            _uiState.update { state ->
+                state.copy(activeFilterDialog = type)
             }
         }
     }
 
     private fun dismissFilterDialog() {
-        val currentDialog = _uiState.value.activeFilterDialog
-        if (currentDialog == FilterDialogType.Service) {
-            serviceSelectionCoordinator.deactivate()
-        }
         _uiState.update { state ->
-            state.copy(
-                activeFilterDialog = null,
-                // Reset selection state so a fresh sheet starts from defaults
-                serviceSelectionState = ServiceSelectionState(
-                    selection = SelectionState.Multi(),
-                ),
-            )
+            state.copy(activeFilterDialog = null)
         }
     }
 
@@ -470,25 +377,5 @@ class HomeViewModel @Inject constructor(
         }
 
         loadPromocodes(PaginationRequest.firstPage(GetPromocodesUseCase.DEFAULT_LIMIT))
-    }
-
-    // MARK: - Service Selection
-
-    private fun setupServiceSelection() {
-        serviceSelectionCoordinator.setupServiceSelection(
-            scope = viewModelScope,
-            getCurrentState = { _uiState.value.serviceSelectionState },
-            onStateUpdate = { newState ->
-                _uiState.update { state ->
-                    state.copy(serviceSelectionState = newState)
-                }
-            },
-        )
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        serviceSelectionCoordinator.deactivate()
-        Logger.d("HomeViewModel: Clearing resources")
     }
 }

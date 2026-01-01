@@ -3,7 +3,9 @@ package com.qodein.qode.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import co.touchlab.kermit.Logger
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.block.navigation.blockSection
@@ -21,6 +23,8 @@ import com.qodein.feature.promocode.navigation.promocodeDetailSection
 import com.qodein.feature.promocode.navigation.promocodeSubmissionSection
 import com.qodein.feature.report.navigation.navigateToReport
 import com.qodein.feature.report.navigation.reportSection
+import com.qodein.feature.service.selection.navigation.navigateToServiceSelection
+import com.qodein.feature.service.selection.navigation.serviceSelectionSection
 import com.qodein.feature.settings.navigation.navigateToAbout
 import com.qodein.feature.settings.navigation.navigateToLicenses
 import com.qodein.feature.settings.navigation.navigateToSettings
@@ -36,8 +40,7 @@ fun QodeNavHost(
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
-    // Capture the selectedTabDestination at composable level
-    val selectedTabDestination = appState.selectedTabDestination ?: TopLevelDestination.HOME
+    val selectedTabDestination = appState.selectedTabDestination
 
     NavHost(
         navController = navController,
@@ -47,6 +50,12 @@ fun QodeNavHost(
         homeSection(
             onPromoCodeClick = { promocodeId ->
                 navController.navigateToPromocodeDetail(promocodeId)
+            },
+            onShowServiceSelection = { initialServiceIds ->
+                navController.navigateToServiceSelection(
+                    initialServiceIds = initialServiceIds,
+                    isSingleSelection = false,
+                )
             },
             scrollStateRegistry = appState,
         )
@@ -104,6 +113,7 @@ fun QodeNavHost(
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
             },
+            onShowServiceSelection = {},
         )
 
         postSubmissionSection(
@@ -151,6 +161,19 @@ fun QodeNavHost(
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
                     else -> {}
                 }
+            },
+        )
+
+        serviceSelectionSection(
+            onNavigateBack = { navController.popBackStack() },
+            onResult = { selectedServiceIds ->
+                Logger.d("QodeNavHost") { "serviceSelectionSection onResult called with ${selectedServiceIds.size} services" }
+                val previousEntry = navController.previousBackStackEntry
+                Logger.d("QodeNavHost") { "previousBackStackEntry: ${previousEntry?.destination?.route}" }
+                previousEntry
+                    ?.savedStateHandle
+                    ?.set(ServiceSelectionResult.KEY_SELECTED_SERVICE_IDS, selectedServiceIds.map { it.value })
+                Logger.d("QodeNavHost") { "savedStateHandle.set completed" }
             },
         )
     }

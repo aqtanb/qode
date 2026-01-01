@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qodein.feature.home"
+    namespace = "com.qodein.feature.service"
     compileSdk =
         libs.versions.compileSdk
             .get()
@@ -35,7 +35,6 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
-    implementation(projects.core.data)
 
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
@@ -44,13 +43,9 @@ dependencies {
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.image.loading)
     implementation(libs.bundles.koin)
-    implementation(libs.haze)
-    implementation(libs.androidx.browser)
-    implementation(libs.timber)
-    implementation(libs.kotlinx.datetime)
+    implementation(libs.kermit)
 
     testImplementation(libs.bundles.testing.unit)
-    testImplementation(projects.core.testing)
     androidTestImplementation(libs.bundles.testing.android)
     debugImplementation(libs.bundles.debug)
 }

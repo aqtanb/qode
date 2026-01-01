@@ -3,7 +3,6 @@ package com.qodein.qode.di
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
-import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
@@ -22,6 +21,7 @@ import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
@@ -77,13 +77,6 @@ object KoinBridgeModule : KoinComponent {
     fun provideGetPromocodesUseCase(): GetPromocodesUseCase {
         val useCase: GetPromocodesUseCase by inject()
         return useCase
-    }
-
-    @Provides
-    @Singleton
-    fun provideServiceSelectionCoordinator(): ServiceSelectionCoordinator {
-        val coordinator: ServiceSelectionCoordinator by inject()
-        return coordinator
     }
 
     @Provides
@@ -209,6 +202,13 @@ object KoinBridgeModule : KoinComponent {
     @Singleton
     fun provideGetUserBookmarksUseCase(): GetUserBookmarksUseCase {
         val useCase: GetUserBookmarksUseCase by inject()
+        return useCase
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetServicesByIdsUseCase(): GetServicesByIdsUseCase {
+        val useCase: GetServicesByIdsUseCase by inject()
         return useCase
     }
 }

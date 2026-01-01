@@ -26,7 +26,6 @@ import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.datasource.LocalReportDataSource
-import com.qodein.core.data.manager.ServiceSelectionManagerImpl
 import com.qodein.core.data.mapper.UserInteractionMapper
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
@@ -38,7 +37,6 @@ import com.qodein.core.data.repository.ServiceRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.core.data.repository.UserRepositoryImpl
-import com.qodein.shared.domain.coordinator.ServiceSelectionCoordinator
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
@@ -49,8 +47,6 @@ import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.domain.repository.UserRepository
-import com.qodein.shared.domain.service.selection.ServiceSelectionManager
-import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -93,7 +89,4 @@ val coreDataModule = module {
     single<PostRepository> { PostRepositoryImpl(get()) }
     single<StorageRepository> { StorageRepositoryImpl(get()) }
     single<ReportRepository> { ReportRepositoryImpl(get(), get()) }
-
-    single<ServiceSelectionManager> { ServiceSelectionManagerImpl() }
-    single { ServiceSelectionCoordinator(get<SearchServicesUseCase>(), get()) }
 }

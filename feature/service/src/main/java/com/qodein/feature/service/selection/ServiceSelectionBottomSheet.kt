@@ -1,4 +1,4 @@
-package com.qodein.core.ui.component
+package com.qodein.feature.service.selection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +19,16 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Logger
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeOutlinedButton
@@ -42,52 +46,53 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.ServicePreviewData
-import com.qodein.core.ui.state.ServiceSelectionUiState
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.domain.service.selection.PopularServices
-import com.qodein.shared.domain.service.selection.PopularStatus
-import com.qodein.shared.domain.service.selection.SearchStatus
-import com.qodein.shared.domain.service.selection.ServiceSelectionAction
-import com.qodein.shared.domain.service.selection.ServiceSelectionState
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 
-/**
- * Centralized service selector bottom sheet component.
- * Uses unified state and action pattern for consistent behavior.
- */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ServiceSelectorBottomSheet(
-    state: ServiceSelectionUiState,
-    onAction: (ServiceSelectionAction) -> Unit,
-    onDismiss: () -> Unit,
+fun ServiceSelectionBottomSheet(
+    viewModel: ServiceSelectionViewModel,
+    onDismiss: (Set<ServiceId>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    if (state.isVisible) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            sheetState = sheetState,
-            modifier = modifier,
-        ) {
-            ServiceSelectorContent(
-                state = state,
-                onAction = onAction,
-            )
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ServiceSelectionEvent.ServiceSelected -> {
+                    onDismiss(event.selectedServiceIds)
+                }
+            }
         }
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            Logger.d("ServiceSelectionBottomSheet") { "onDismissRequest called with ${uiState.selectedServiceIds.size} services" }
+            onDismiss(uiState.selectedServiceIds)
+        },
+        sheetState = sheetState,
+        modifier = modifier,
+    ) {
+        ServiceSelectionContent(
+            uiState = uiState,
+            onAction = viewModel::onAction,
+        )
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ServiceSelectorContent(
-    state: ServiceSelectionUiState,
+private fun ServiceSelectionContent(
+    uiState: ServiceSelectionUiState,
     onAction: (ServiceSelectionAction) -> Unit
 ) {
-    val searchQuery = state.domainState.search.query
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,26 +100,24 @@ private fun ServiceSelectorContent(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         QodeinTextField(
-            value = searchQuery,
+            value = uiState.searchText,
             onValueChange = { query -> onAction(ServiceSelectionAction.UpdateQuery(query)) },
             placeholder = stringResource(R.string.search_services_placeholder),
             leadingIcon = QodeNavigationIcons.Search,
             modifier = Modifier.fillMaxWidth(),
         )
 
-        if (searchQuery.isEmpty()) {
+        if (uiState.searchText.isEmpty()) {
             PopularServicesSection(
-                popularStatus = state.domainState.popular.status,
-                popularServices = state.popularServices,
-                selectedServices = state.selectedServices,
-                onAction = { action -> onAction(action) },
+                popularStatus = uiState.popularStatus,
+                selectedServiceIds = uiState.selectedServiceIds,
+                onAction = onAction,
             )
         } else {
             SearchResultsSection(
-                searchStatus = state.domainState.search.status,
-                displayServices = state.displayServices,
-                selectedServices = state.selectedServices,
-                onServiceClick = { service -> onAction(ServiceSelectionAction.ToggleService(service)) },
+                searchStatus = uiState.searchStatus,
+                selectedServiceIds = uiState.selectedServiceIds,
+                onServiceClick = { serviceId -> onAction(ServiceSelectionAction.ToggleService(serviceId)) },
             )
         }
     }
@@ -124,8 +127,7 @@ private fun ServiceSelectorContent(
 @Composable
 private fun PopularServicesSection(
     popularStatus: PopularStatus,
-    popularServices: List<Service>,
-    selectedServices: List<Service>,
+    selectedServiceIds: Set<ServiceId>,
     onAction: (ServiceSelectionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -179,13 +181,14 @@ private fun PopularServicesSection(
                     Spacer(modifier = Modifier.size(SpacingTokens.sm))
 
                     QodeOutlinedButton(
-                        onClick = { onAction(ServiceSelectionAction.UpdateQuery("")) },
+                        onClick = { onAction(ServiceSelectionAction.RetryLoadServices) },
                         text = stringResource(R.string.action_retry),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
-            PopularStatus.Success -> {
+            is PopularStatus.Success -> {
+                val popularServices = popularStatus.services
                 if (popularServices.isNotEmpty()) {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -206,7 +209,7 @@ private fun PopularServicesSection(
                                         contentDescription = service.name,
                                     )
                                 },
-                                selected = selectedServices.any { it.id == service.id },
+                                selected = service.id in selectedServiceIds,
                                 onClick = { onAction(ServiceSelectionAction.ToggleService(service.id)) },
                             )
                         }
@@ -239,9 +242,8 @@ private fun PopularServicesSection(
 
 @Composable
 private fun SearchResultsSection(
-    searchStatus: SearchStatus,
-    displayServices: List<Service>,
-    selectedServices: List<Service>,
+    searchStatus: SearchUiState,
+    selectedServiceIds: Set<ServiceId>,
     onServiceClick: (ServiceId) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -250,19 +252,20 @@ private fun SearchResultsSection(
         modifier = modifier,
     ) {
         when (searchStatus) {
-            SearchStatus.Loading -> {
+            SearchUiState.Loading -> {
                 items(1) {
                     ServiceItemPlaceholder(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
-            is SearchStatus.Success -> {
-                if (displayServices.isNotEmpty()) {
-                    items(displayServices) { service ->
+            is SearchUiState.Success -> {
+                val searchResults = searchStatus.services
+                if (searchResults.isNotEmpty()) {
+                    items(searchResults) { service ->
                         ServiceItem(
                             service = service,
-                            isSelected = selectedServices.any { it.id == service.id },
+                            isSelected = service.id in selectedServiceIds,
                             onClick = { onServiceClick(service.id) },
                         )
                     }
@@ -277,7 +280,7 @@ private fun SearchResultsSection(
                     }
                 }
             }
-            is SearchStatus.Error -> {
+            is SearchUiState.Error -> {
                 item {
                     Text(
                         text = stringResource(R.string.search_error_message),
@@ -288,7 +291,7 @@ private fun SearchResultsSection(
                 }
             }
 
-            SearchStatus.Idle -> {
+            SearchUiState.Idle -> {
             }
         }
     }
@@ -386,15 +389,11 @@ private fun ServiceItemPlaceholder(modifier: Modifier = Modifier) {
 
 @ThemePreviews
 @Composable
-private fun ServiceSelectorContentPreview() {
+private fun ServiceSelectionContentPreview() {
     QodeTheme {
-        ServiceSelectorContent(
-            state = ServiceSelectionUiState(
-                domainState = ServiceSelectionState(
-                    popular = PopularServices(
-                        status = PopularStatus.Success,
-                    ),
-                ),
+        ServiceSelectionContent(
+            uiState = ServiceSelectionUiState(
+                popularStatus = PopularStatus.Success(ServicePreviewData.allSamples),
             ),
             onAction = { },
         )
@@ -407,8 +406,7 @@ private fun PopularServicesSectionLoadingPreview() {
     QodeTheme {
         PopularServicesSection(
             popularStatus = PopularStatus.Loading,
-            popularServices = emptyList(),
-            selectedServices = emptyList(),
+            selectedServiceIds = emptySet(),
             onAction = {},
         )
     }
@@ -419,9 +417,8 @@ private fun PopularServicesSectionLoadingPreview() {
 private fun PopularServicesSectionIdlePreview() {
     QodeTheme {
         PopularServicesSection(
-            popularStatus = PopularStatus.Success,
-            popularServices = ServicePreviewData.allSamples,
-            selectedServices = listOf(ServicePreviewData.yandex),
+            popularStatus = PopularStatus.Success(ServicePreviewData.allSamples),
+            selectedServiceIds = setOf(ServicePreviewData.yandex.id),
             onAction = {},
         )
     }
@@ -433,8 +430,7 @@ private fun PopularServicesSectionErrorPreview() {
     QodeTheme {
         PopularServicesSection(
             popularStatus = PopularStatus.Error(SystemError.Unknown),
-            popularServices = emptyList(),
-            selectedServices = emptyList(),
+            selectedServiceIds = emptySet(),
             onAction = {},
         )
     }
@@ -457,9 +453,8 @@ private fun ServiceItemPreview() {
 private fun SearchResultsSectionLoadingPreview() {
     QodeTheme {
         SearchResultsSection(
-            searchStatus = SearchStatus.Loading,
-            displayServices = emptyList(),
-            selectedServices = emptyList(),
+            searchStatus = SearchUiState.Loading,
+            selectedServiceIds = emptySet(),
             onServiceClick = {},
         )
     }

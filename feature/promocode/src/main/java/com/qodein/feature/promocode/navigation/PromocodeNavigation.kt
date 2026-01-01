@@ -10,6 +10,7 @@ import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.promocode.detail.PromocodeDetailRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
@@ -27,9 +28,11 @@ fun NavController.navigateToPromocodeDetail(
 
 fun NavGraphBuilder.promocodeSubmissionSection(
     onNavigateBack: () -> Unit,
-    onNavigateToAuth: (AuthPromptAction) -> Unit
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onShowServiceSelection: (Set<ServiceId>) -> Unit
 ) {
-    composable<PromocodeSubmissionRoute> {
+    composable<PromocodeSubmissionRoute> { backStackEntry ->
+
         PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
             onNavigateToAuth = onNavigateToAuth,
