@@ -117,7 +117,6 @@ dependencies {
     implementation(projects.feature.auth)
     implementation(projects.feature.block)
     implementation(projects.feature.home)
-    implementation(projects.feature.inbox)
     implementation(projects.feature.post)
     implementation(projects.feature.profile)
     implementation(projects.feature.promocode)

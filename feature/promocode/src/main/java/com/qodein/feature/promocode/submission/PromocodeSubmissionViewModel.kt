@@ -24,7 +24,6 @@ import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
 import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.User
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,25 +33,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
-import javax.inject.Inject
 import kotlin.time.toKotlinInstant
 
-/**
- * ViewModel for the progressive promo code submission wizard.
- *
- * Manages the multi-step submission flow with clean separation of concerns:
- * - UI state management and wizard navigation
- * - Authentication state and service selection
- * - Form validation and Promocode creation (UI → Domain mapping)
- * - Delegates business logic and analytics to SubmitPromocodeUseCase
- *
- * Architecture:
- * - ViewModel: UI state, navigation, form data → Promocode mapping
- * - SubmitPromocodeUseCase: Business logic, validation, persistence, analytics
- * - Clean dependency flow: UI → ViewModel → Use Case → Repository
- */
-@HiltViewModel
-class PromocodeSubmissionViewModel @Inject constructor(
+class PromocodeSubmissionViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val submitPromocodeUseCase: SubmitPromocodeUseCase,
     private val analyticsHelper: AnalyticsHelper,
@@ -73,8 +56,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "PromocodeSubmissionViewModel"
-
-        // UI Analytics constants (step navigation only)
         private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
         private const val PARAM_STEP_FROM = "step_from"
         private const val PARAM_STEP_TO = "step_to"
@@ -88,8 +69,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
         setupAuthStateMonitoring()
         observeAuthResult()
     }
-
-    // MARK: - Public API
 
     fun onAction(action: PromocodeSubmissionAction) {
         when (action) {
@@ -122,13 +101,9 @@ class PromocodeSubmissionViewModel @Inject constructor(
         }
     }
 
-    // MARK: - Initialization
-
     private fun initialize() {
         _uiState.update { PromocodeSubmissionUiState.Success.initial() }
     }
-
-    // MARK: - Service Selection
 
     private fun showServiceSelector() {
     }
@@ -149,8 +124,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
         }
     }
 
-    // MARK: - Navigation
-
     private fun goToNextProgressiveStep() {
         _uiState.update { currentState ->
             when (currentState) {
@@ -159,7 +132,6 @@ class PromocodeSubmissionViewModel @Inject constructor(
                         val currentStep = currentState.wizardFlow.currentStep
                         val nextStep = currentStep.next()
                         if (nextStep != null) {
-                            // Track progressive step navigation
                             analyticsHelper.logEvent(
                                 AnalyticsEvent(
                                     type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,

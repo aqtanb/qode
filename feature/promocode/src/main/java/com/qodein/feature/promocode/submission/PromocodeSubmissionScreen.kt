@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
@@ -42,13 +41,14 @@ import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
-    viewModel: PromocodeSubmissionViewModel = hiltViewModel()
+    viewModel: PromocodeSubmissionViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
 

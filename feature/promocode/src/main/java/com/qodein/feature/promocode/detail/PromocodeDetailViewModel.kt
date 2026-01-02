@@ -14,10 +14,6 @@ import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,9 +23,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = PromocodeDetailViewModel.Factory::class)
-class PromocodeDetailViewModel @AssistedInject constructor(
-    @Assisted promoCodeIdString: String,
+class PromocodeDetailViewModel(
+    promoCodeIdString: String,
     private val savedStateHandle: SavedStateHandle,
     private val getPromocodeUseCase: GetPromocodeUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
@@ -38,11 +33,6 @@ class PromocodeDetailViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     private val promocodeId = PromocodeId(promoCodeIdString)
-
-    @AssistedFactory
-    interface Factory {
-        fun create(promoCodeId: String): PromocodeDetailViewModel
-    }
 
     private val _uiState = MutableStateFlow(PromocodeDetailUiState(promocodeId = promocodeId))
     val uiState: StateFlow<PromocodeDetailUiState> = _uiState.asStateFlow()

@@ -11,6 +11,7 @@ import com.qodein.core.ui.di.coreUiModule
 import com.qodein.feature.auth.di.authModule
 import com.qodein.feature.block.di.blockModule
 import com.qodein.feature.home.di.homeModule
+import com.qodein.feature.promocode.di.promocodeModule
 import com.qodein.feature.report.di.reportModule
 import com.qodein.feature.service.selection.di.serviceModule
 import com.qodein.qode.di.appModule
@@ -68,6 +69,7 @@ class QodeApplication :
                 reportModule,
                 serviceModule,
                 homeModule,
+                promocodeModule,
             )
         }
         Timber.d("Koin initialized")

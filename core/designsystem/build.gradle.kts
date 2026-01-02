@@ -30,24 +30,15 @@ kotlin {
 }
 
 dependencies {
-    // Core Android
     implementation(libs.androidx.core.ktx)
 
-    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
-
-    // Icons
     implementation(libs.bundles.icons)
-
-    // Coil
     implementation(libs.bundles.image.loading)
 
-    // Testing
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-
-    // Debug Tools
     debugImplementation(libs.bundles.debug)
 }

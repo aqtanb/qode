@@ -33,34 +33,24 @@ kotlin {
 }
 
 dependencies {
-    // Shared multiplatform module
     implementation(projects.shared)
 
-    // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
-
     implementation(projects.core.data)
 
-    // Core Android & Compose
     implementation(libs.bundles.androidx.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     implementation(libs.bundles.navigation)
-
     implementation(libs.bundles.image.loading)
-
-    // Dependency Injection
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
-    // Testing
     testImplementation(libs.bundles.testing.unit)
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)
-
-    // Debug Tools
     debugImplementation(libs.bundles.debug)
 }

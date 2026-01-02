@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ShimmerBox
@@ -56,6 +55,8 @@ import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,11 +67,7 @@ fun PromocodeDetailRoute(
     onNavigateToAuth: (AuthPromptAction) -> Unit,
     onNavigateToReport: (String, String, String?) -> Unit,
     onNavigateToBlockUser: (UserId, String?, String?) -> Unit,
-    viewModel: PromocodeDetailViewModel = hiltViewModel(
-        creationCallback = { factory: PromocodeDetailViewModel.Factory ->
-            factory.create(promoCodeId.value)
-        },
-    )
+    viewModel: PromocodeDetailViewModel = koinViewModel { parametersOf(promoCodeId.value) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val localContext = LocalContext.current

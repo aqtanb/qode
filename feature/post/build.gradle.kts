@@ -33,10 +33,7 @@ kotlin {
 }
 
 dependencies {
-    // Shared multiplatform module
     implementation(projects.shared)
-
-    // Android-specific project modules
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.analytics)
@@ -51,7 +48,6 @@ dependencies {
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
     implementation(libs.bundles.work)
-
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.kermit)
     implementation(libs.haze)
