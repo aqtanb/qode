@@ -9,5 +9,5 @@ sealed interface PromocodeSubmissionEvent {
     data object NavigateBack : PromocodeSubmissionEvent
     data class NavigateToAuth(val action: AuthPromptAction) : PromocodeSubmissionEvent
     data class ShowError(val message: UiText) : PromocodeSubmissionEvent
-    data class ShowServiceSelection(val currentSelectedServiceIds: Set<ServiceId>) : PromocodeSubmissionEvent
+    data class ShowServiceSelection(val currentSelectedService: ServiceId?) : PromocodeSubmissionEvent
 }

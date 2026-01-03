@@ -41,6 +41,7 @@ import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.model.ServiceId
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,28 +49,29 @@ import org.koin.androidx.compose.koinViewModel
 fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onShowServiceSelection: (ServiceId?) -> Unit,
     viewModel: PromocodeSubmissionViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "SubmissionScreen")
 
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(events) {
-        when (val event = events) {
-            PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
-            PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
-            is PromocodeSubmissionEvent.NavigateToAuth -> {
-                onNavigateToAuth(event.action)
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
+                PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
+                is PromocodeSubmissionEvent.NavigateToAuth -> {
+                    onNavigateToAuth(event.action)
+                }
+                is PromocodeSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
+                    message = event.message.asString(context),
+                    withDismissAction = true,
+                )
+                is PromocodeSubmissionEvent.ShowServiceSelection -> onShowServiceSelection(event.currentSelectedService)
             }
-            is PromocodeSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
-                message = event.message.asString(context),
-                withDismissAction = true,
-            )
-            null -> { /* No event */ }
-            else -> {}
         }
     }
 

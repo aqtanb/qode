@@ -22,6 +22,7 @@ import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
+import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -105,7 +106,21 @@ class PromocodeSubmissionViewModel(
         _uiState.update { PromocodeSubmissionUiState.Success.initial() }
     }
 
+    internal fun applyServiceSelection(serviceId: ServiceId) {
+        viewModelScope.launch {
+            val result = getServicesByIdsUseCase(setOf(serviceId)).firstOrNull() ?: return@launch
+            updateWizardData { it.copy(selectedService = result) }
+            Logger.d(TAG) { "Service selected: ${result.name}" }
+        }
+    }
+
     private fun showServiceSelector() {
+        viewModelScope.launch {
+            val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return@launch
+            val currentServiceId = currentState.wizardFlow.wizardData.selectedService?.id
+            _events.emit(PromocodeSubmissionEvent.ShowServiceSelection(currentServiceId))
+            Logger.i(TAG) { "Service selection dialog shown" }
+        }
     }
 
     private fun hideServiceSelector() {
@@ -325,7 +340,6 @@ class PromocodeSubmissionViewModel(
                     refreshCoordinator.triggerRefresh(RefreshTarget.HOME)
                     viewModelScope.launch {
                         _events.emit(PromocodeSubmissionEvent.PromoCodeSubmitted)
-                        _events.emit(PromocodeSubmissionEvent.NavigateBack)
                     }
                     updateSuccessState { current ->
                         current.copy(submission = PromocodeSubmissionState.Success(request.code))

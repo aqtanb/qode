@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.bundles.koin)
     implementation(libs.kermit)
+    implementation(libs.timber)
 
     testImplementation(libs.bundles.testing.unit)
     testImplementation(projects.core.testing)
