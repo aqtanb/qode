@@ -27,16 +27,8 @@ kotlin {
 dependencies {
     api(project(":shared"))
     api(projects.core.data)
-    api(platform(libs.androidx.compose.bom))
-    api(libs.kotlinx.datetime)
     api(libs.kotlinx.coroutines.test)
-    api(libs.junit)
-    api(libs.mockk) {
-        exclude(group = "org.junit.jupiter")
-    }
-    api(libs.turbine)
-    api(libs.androidx.junit)
-    api(libs.androidx.espresso.core)
-    api(libs.androidx.ui.test.junit4)
-    api(libs.androidx.ui.test.manifest)
+
+    implementation(libs.junit)
+    implementation(libs.turbine)
 }

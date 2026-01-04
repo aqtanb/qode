@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.kermit)
 
     testImplementation(libs.bundles.testing.unit)
+    testImplementation(projects.core.testing)
     androidTestImplementation(libs.bundles.testing.android)
     debugImplementation(libs.bundles.debug)
 }

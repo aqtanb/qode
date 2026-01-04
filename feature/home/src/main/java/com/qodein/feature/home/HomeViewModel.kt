@@ -82,16 +82,37 @@ class HomeViewModel(
 
     fun applyServiceSelection(serviceIds: Set<ServiceId>) {
         Timber.d("applyServiceSelection: ${serviceIds.size} service IDs")
+        val currentFilter = _uiState.value.currentFilters.serviceFilter
+
         if (serviceIds.isEmpty()) {
-            applyFilters(_uiState.value.currentFilters.applyServiceFilter(ServiceFilter.All))
+            // Only apply if current filter is not already "All"
+            if (currentFilter !is ServiceFilter.All) {
+                applyFilters(_uiState.value.currentFilters.applyServiceFilter(ServiceFilter.All))
+            } else {
+                Timber.d("applyServiceSelection: Already showing all services, no change needed")
+            }
             return
         }
 
         viewModelScope.launch {
             val services = getServicesByIdsUseCase(serviceIds)
             Timber.d("getServicesByIdsUseCase returned ${services.size} services")
-            val serviceFilter = ServiceFilter.Selected(services)
-            applyFilters(_uiState.value.currentFilters.applyServiceFilter(serviceFilter))
+
+            // Check if the selection actually changed
+            val selectionChanged = when (currentFilter) {
+                is ServiceFilter.All -> true
+                is ServiceFilter.Selected -> {
+                    val currentIds = currentFilter.services.map { it.id }.toSet()
+                    currentIds != serviceIds
+                }
+            }
+
+            if (selectionChanged) {
+                val serviceFilter = ServiceFilter.Selected(services)
+                applyFilters(_uiState.value.currentFilters.applyServiceFilter(serviceFilter))
+            } else {
+                Timber.d("applyServiceSelection: Selection unchanged, no reload needed")
+            }
         }
     }
 

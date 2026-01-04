@@ -77,7 +77,9 @@ dependencies {
     implementation(libs.koin.core)
 
     testImplementation(libs.bundles.testing.unit)
+    testImplementation(projects.core.testing)
     androidTestImplementation(libs.bundles.testing.android)
+    androidTestImplementation(projects.core.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     debugImplementation(libs.bundles.debug)
 }

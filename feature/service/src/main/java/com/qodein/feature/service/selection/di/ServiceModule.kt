@@ -8,6 +8,7 @@ val serviceModule = module {
     viewModel {
         ServiceSelectionViewModel(
             savedStateHandle = get(),
+            getPopularServicesUseCase = get(),
             searchServicesUseCase = get(),
         )
     }

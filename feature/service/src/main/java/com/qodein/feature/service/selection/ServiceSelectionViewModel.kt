@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
@@ -13,11 +15,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ServiceSelectionViewModel(internal val savedStateHandle: SavedStateHandle, private val searchServicesUseCase: SearchServicesUseCase) :
-    ViewModel() {
+class ServiceSelectionViewModel(
+    internal val savedStateHandle: SavedStateHandle,
+    private val getPopularServicesUseCase: GetPopularServicesUseCase,
+    private val searchServicesUseCase: SearchServicesUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ServiceSelectionUiState())
     val uiState = _uiState.asStateFlow()
@@ -25,12 +31,13 @@ class ServiceSelectionViewModel(internal val savedStateHandle: SavedStateHandle,
     private val _events = MutableSharedFlow<ServiceSelectionEvent>()
     val events = _events.asSharedFlow()
 
-    private val queryFlow = MutableStateFlow("")
+    private val searchQueryFlow = MutableStateFlow("")
     private var isInitialized = false
 
     init {
         Logger.d("ServiceSelectionViewModel") { "init: Initializing ViewModel" }
-        observeServiceSearch()
+        loadPopularServices()
+        observeSearchQuery()
     }
 
     fun initialize(
@@ -60,38 +67,37 @@ class ServiceSelectionViewModel(internal val savedStateHandle: SavedStateHandle,
         }
     }
 
-    private fun observeServiceSearch() {
+    private fun loadPopularServices() {
         viewModelScope.launch {
-            searchServicesUseCase(queryFlow).collect { result ->
-                handleServiceSearchResult(result)
+            _uiState.update { it.copy(popularStatus = PopularStatus.Loading) }
+            try {
+                val result = getPopularServicesUseCase()
+                _uiState.update { it.copy(popularStatus = result.toPopularStatus()) }
+            } catch (e: Exception) {
+                Logger.e("ServiceSelectionViewModel", e) { "Failed to load popular services" }
+                _uiState.update { it.copy(popularStatus = PopularStatus.Error(SystemError.Unknown)) }
             }
         }
     }
 
-    private fun handleServiceSearchResult(result: Result<List<Service>, OperationError>) {
-        val isSearching = queryFlow.value.isNotEmpty()
-
-        _uiState.update { state ->
-            if (isSearching) {
-                state.copy(searchStatus = result.toSearchStatus())
-            } else {
-                state.copy(popularStatus = result.toPopularStatus())
-            }
+    private fun observeSearchQuery() {
+        viewModelScope.launch {
+            searchServicesUseCase(searchQueryFlow.filter { it.isNotEmpty() })
+                .collect { result ->
+                    _uiState.update { it.copy(searchStatus = result.toSearchStatus()) }
+                }
         }
     }
 
     private fun updateSearchQuery(query: String) {
-        val isSearching = query.isNotEmpty()
-
         _uiState.update { state ->
             state.copy(
                 searchText = query,
-                searchStatus = if (isSearching) SearchUiState.Loading else state.searchStatus,
-                popularStatus = if (!isSearching) PopularStatus.Loading else state.popularStatus,
+                searchStatus = if (query.isNotEmpty()) SearchUiState.Loading else SearchUiState.Idle,
             )
         }
 
-        queryFlow.value = query
+        searchQueryFlow.value = query
     }
 
     private fun toggleServiceSelection(serviceId: ServiceId) {
@@ -114,7 +120,11 @@ class ServiceSelectionViewModel(internal val savedStateHandle: SavedStateHandle,
     }
 
     private fun retryLoadServices() {
-        queryFlow.value = _uiState.value.searchText
+        if (_uiState.value.searchText.isEmpty()) {
+            loadPopularServices()
+        } else {
+            searchQueryFlow.value = _uiState.value.searchText
+        }
     }
 
     private fun emitSelectionComplete() {
