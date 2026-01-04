@@ -83,7 +83,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("release")
+            // Only use signing config if keystore is configured
+            if (properties.getProperty("KEYSTORE_FILE") != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             resValue(
                 "string",
                 "web_client_id",

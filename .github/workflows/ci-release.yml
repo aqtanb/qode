@@ -20,7 +20,7 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Write google-services.json
+      - name: Write google-services.json (production)
         run: |
           echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > androidApp/google-services.json
 
