@@ -48,10 +48,14 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(properties.getProperty("KEYSTORE_FILE"))
-            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
-            keyAlias = properties.getProperty("KEY_ALIAS")
-            keyPassword = properties.getProperty("KEY_PASSWORD")
+            // Allow keystore to be optional (for CI without signing)
+            val keystoreFile = properties.getProperty("KEYSTORE_FILE")
+            if (keystoreFile != null) {
+                storeFile = file(keystoreFile)
+                storePassword = properties.getProperty("KEYSTORE_PASSWORD")
+                keyAlias = properties.getProperty("KEY_ALIAS")
+                keyPassword = properties.getProperty("KEY_PASSWORD")
+            }
         }
     }
 

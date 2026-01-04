@@ -1,0 +1,49 @@
+name: CI - Release Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Write google-services.json
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > androidApp/google-services.json
+
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          echo "WEB_CLIENT_ID=${{ secrets.FIREBASE_WEB_CLIENT_ID }}" >> local.properties
+          echo "ALGOLIA_APP_ID=${{ secrets.ALGOLIA_APP_ID }}" >> local.properties
+          echo "ALGOLIA_SEARCH_API_KEY=${{ secrets.ALGOLIA_SEARCH_API_KEY }}" >> local.properties
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x ./gradlew
+
+      - name: Run Unit Tests on Release
+        run: ./gradlew testReleaseUnitTest --stacktrace
+
+      - name: Build Release AAB (unsigned)
+        run: ./gradlew bundleRelease --stacktrace
+
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: release-aab-unsigned
+          path: androidApp/build/outputs/bundle/release/androidApp-release.aab
+          retention-days: 30
