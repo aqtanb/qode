@@ -1,0 +1,44 @@
+package com.qodein.shared.domain.usecase.service
+
+import co.touchlab.kermit.Logger
+import com.qodein.shared.common.Result
+import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.common.error.ServiceError
+import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.config.AppConfig
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.HttpResponse
+
+class ValidateServiceLogoUseCase(private val httpClient: HttpClient, private val logoToken: String = AppConfig.logoDevKey) {
+    suspend operator fun invoke(domain: String): Result<String, OperationError> {
+        val normalizedDomain = domain.trim().lowercase()
+
+        if (!isValidDomain(normalizedDomain)) {
+            return Result.Error(ServiceError.CreationFailure.InvalidDomainFormat)
+        }
+
+        return try {
+            val logoUrl = "https://img.logo.dev/$normalizedDomain?token=$logoToken&fallback=404"
+
+            val response: HttpResponse = httpClient.get(logoUrl) {
+                header("User-Agent", "Mozilla/5.0 (Android)")
+            }
+
+            when (response.status.value) {
+                200 -> Result.Success(logoUrl)
+                404 -> Result.Error(ServiceError.CreationFailure.LogoNotFound)
+                else -> Result.Error(SystemError.Unknown)
+            }
+        } catch (e: Exception) {
+            Logger.e(e) { "Error validating logo for $domain" }
+            Result.Error(SystemError.Offline)
+        }
+    }
+
+    private fun isValidDomain(domain: String): Boolean {
+        val domainRegex = Regex("^[a-z0-9.-]+\\.[a-z]{2,}$")
+        return domain.isNotEmpty() && domainRegex.matches(domain)
+    }
+}
