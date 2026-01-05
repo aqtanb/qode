@@ -58,7 +58,7 @@ internal fun PromocodeDetails(
                 valueColor = MaterialTheme.colorScheme.primary,
             ) {
                 CircularImage(
-                    fallbackIcon = QodeIcons.Store,
+                    fallbackIcon = QodeIcons.Service,
                     imageUrl = promocode.serviceLogoUrl,
                     modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                 )

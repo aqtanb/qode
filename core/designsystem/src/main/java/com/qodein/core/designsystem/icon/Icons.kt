@@ -127,7 +127,7 @@ object QodeIcons {
     val Sale: ImageVector = FeatherIcons.Percent
     val Promocode: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
-    val Store: ImageVector = Icons.Outlined.Store
+    val Service: ImageVector = Icons.Outlined.Store
 }
 
 object QodeCategoryIcons {

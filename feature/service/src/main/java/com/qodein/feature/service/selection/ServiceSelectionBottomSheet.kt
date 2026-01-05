@@ -202,7 +202,7 @@ private fun PopularServicesSection(
                                     CircularImage(
                                         imageUrl = service.logoUrl,
                                         fallbackText = service.name,
-                                        fallbackIcon = QodeIcons.Store,
+                                        fallbackIcon = QodeIcons.Service,
                                         size = SizeTokens.Icon.sizeSmall,
                                         backgroundColor = MaterialTheme.colorScheme.surface,
                                         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -316,7 +316,7 @@ private fun ServiceItem(
             CircularImage(
                 imageUrl = service.logoUrl,
                 fallbackText = service.name,
-                fallbackIcon = QodeIcons.Store,
+                fallbackIcon = QodeIcons.Service,
                 size = SizeTokens.Icon.sizeMedium,
                 backgroundColor = if (isSelected) {
                     MaterialTheme.colorScheme.primaryContainer

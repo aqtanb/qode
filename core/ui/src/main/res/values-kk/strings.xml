@@ -26,6 +26,8 @@
     <string name="error_user_auth_unsupported_credential">Бұл кіру әдісі қолдамайды.</string>
 
     <string name="error_service_site_url_empty">Қызмет сайтының адресі қажет.</string>
+    <string name="error_service_logo_not_found">Бұл сервис үшін логотип табылмады. URL мекенжайын тексеріңіз.</string>
+    <string name="error_service_invalid_domain_format">Домен форматы жарамсыз. Жарамды домен енгізіңіз.</string>
 
     <string name="cd_close">Жабу</string>
     <string name="cd_first_user_only">Тек алғашқы пайдаланушыға</string>

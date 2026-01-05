@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +38,7 @@ import com.qodein.core.ui.text.asString
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
+import com.qodein.feature.promocode.submission.component.ServiceConfirmationDialog
 import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 import com.qodein.shared.common.error.OperationError
@@ -111,13 +113,6 @@ private fun PromocodeSubmissionScreenContent(
                         uiState = uiState,
                         onAction = onAction,
                     )
-
-                    // TODO: Service selection UI removed during refactoring to feature:service module
-                    // The showServiceSelector flag in uiState is still present but not shown
-                    // Need to either:
-                    // 1. Navigate to the service selection dialog (similar to HomeScreen)
-                    // 2. Create a new inline service selector for the submission wizard
-                    // 3. Use the new feature:service module's ServiceSelectionBottomSheet when available
                 }
                 is PromocodeSubmissionUiState.Error -> {
                     ErrorState(
@@ -145,6 +140,7 @@ private fun SuccessState(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .imePadding()
                 .verticalScroll(scrollState)
                 .padding(bottom = SpacingTokens.gigantic),
             verticalArrangement = Arrangement.Top,
@@ -195,6 +191,16 @@ private fun SuccessState(
             },
             modifier = Modifier.align(Alignment.BottomCenter),
         )
+
+        uiState.serviceConfirmationDialog?.let { dialogState ->
+            ServiceConfirmationDialog(
+                serviceName = dialogState.serviceName,
+                serviceUrl = dialogState.serviceUrl,
+                logoUrl = dialogState.logoUrl,
+                onConfirm = { onAction(PromocodeSubmissionAction.ConfirmServiceLogo) },
+                onDismiss = { onAction(PromocodeSubmissionAction.DismissServiceConfirmation) },
+            )
+        }
     }
 }
 
@@ -227,8 +233,6 @@ private fun ErrorState(
         )
     }
 }
-
-// MARK: - Previews
 
 @ThemePreviews
 @Composable

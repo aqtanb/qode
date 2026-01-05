@@ -22,6 +22,8 @@
     <string name="error_user_auth_unknown">Не удалось выполнить вход. Попробуйте ещё раз.</string>
     <string name="error_user_auth_unsupported_credential">Этот способ входа не поддерживается.</string>
     <string name="error_service_site_url_empty">Требуется адрес сайта сервиса.</string>
+    <string name="error_service_logo_not_found">Логотип для этого сервиса не найден. Проверьте URL.</string>
+    <string name="error_service_invalid_domain_format">Неверный формат домена. Введите действительный домен.</string>
     <string name="cd_close">Закрыть</string>
     <string name="cd_first_user_only">Только первому пользователю</string>
     <string name="cd_one_time_use">Одноразовое использование</string>

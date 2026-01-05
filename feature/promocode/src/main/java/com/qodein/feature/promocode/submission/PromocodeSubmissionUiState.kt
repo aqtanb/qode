@@ -45,7 +45,8 @@ sealed interface PromocodeSubmissionUiState {
         val wizardFlow: WizardFlowState,
         val validation: ValidationState,
         val submission: PromocodeSubmissionState,
-        val showServiceSelector: Boolean = false
+        val showServiceSelector: Boolean = false,
+        val serviceConfirmationDialog: ServiceConfirmationDialogState? = null
     ) : PromocodeSubmissionUiState {
 
         // Navigation capabilities
@@ -120,3 +121,5 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
 
     fun moveToStep(step: PromocodeSubmissionStep) = WizardFlowState(wizardData, step)
 }
+
+data class ServiceConfirmationDialogState(val serviceName: String, val serviceUrl: String, val logoUrl: String)

@@ -136,6 +136,8 @@ fun OperationError.toUiText(): UiText =
         ServiceError.CreationFailure.NameTooLong -> UiText.StringResource(R.string.error_service_name_too_long)
         ServiceError.CreationFailure.NameTooShort -> UiText.StringResource(R.string.error_service_name_too_short)
         ServiceError.CreationFailure.EmptySiteUrl -> UiText.StringResource(R.string.error_service_site_url_empty)
+        ServiceError.CreationFailure.InvalidDomainFormat -> UiText.StringResource(R.string.error_service_invalid_domain_format)
+        ServiceError.CreationFailure.LogoNotFound -> UiText.StringResource(R.string.error_service_logo_not_found)
         ServiceError.SubmissionFailure.DuplicateService -> UiText.StringResource(R.string.error_service_duplicate)
         ServiceError.SubmissionFailure.InvalidData -> UiText.StringResource(R.string.error_service_submission_invalid_data)
         ServiceError.SubmissionFailure.NotAuthorized -> UiText.StringResource(R.string.error_service_submission_not_authorized)

@@ -53,7 +53,7 @@ fun FiltersSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val (serviceIcon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
-            ServiceFilter.All -> Triple(QodeIcons.Store, null, null)
+            ServiceFilter.All -> Triple(QodeIcons.Service, null, null)
             is ServiceFilter.Selected -> {
                 when (filter.services.size) {
                     1 -> {

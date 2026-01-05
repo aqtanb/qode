@@ -88,4 +88,6 @@
     <string name="share_code_label">Code: %1$s</string>
     <string name="share_link_format" translatable="false">https://qodein.web.app/promocodes/%1$s</string>
     <string name="promocode_details_verified">Is verified?</string>
+
+    <string name="service_confirmation_question">Does this look correct?</string>
 </resources>

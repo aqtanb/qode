@@ -84,7 +84,7 @@ fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector 
     when {
         isCompleted -> QodeActionIcons.Check
         else -> when (this) {
-            PromocodeSubmissionStep.SERVICE -> QodeIcons.Store
+            PromocodeSubmissionStep.SERVICE -> QodeIcons.Service
             PromocodeSubmissionStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType
             PromocodeSubmissionStep.PROMOCODE -> QodeIcons.Promocode
             PromocodeSubmissionStep.DISCOUNT_VALUE -> PromocodeIcons.DiscountValue

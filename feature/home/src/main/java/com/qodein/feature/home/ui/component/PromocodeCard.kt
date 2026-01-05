@@ -207,7 +207,7 @@ private fun CouponHeader(
     ) {
         CircularImage(
             imageUrl = promocode.serviceLogoUrl,
-            fallbackIcon = QodeIcons.Store,
+            fallbackIcon = QodeIcons.Service,
             contentDescription = stringResource(CoreUiR.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
             modifier = Modifier.clip(CircleShape),

@@ -14,6 +14,8 @@ sealed interface PromocodeSubmissionAction {
     data object ShowServiceSelector : PromocodeSubmissionAction
     data object HideServiceSelector : PromocodeSubmissionAction
     data object ToggleManualEntry : PromocodeSubmissionAction
+    data object ConfirmServiceLogo : PromocodeSubmissionAction
+    data object DismissServiceConfirmation : PromocodeSubmissionAction
 
     data class UpdateServiceName(val serviceName: String) : PromocodeSubmissionAction
     data class UpdateServiceUrl(val serviceUrl: String) : PromocodeSubmissionAction

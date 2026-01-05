@@ -22,7 +22,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -116,6 +116,7 @@ private fun ManualServiceEntry(
         R.string.service_step_error_max_length,
         Service.NAME_MAX_LENGTH,
     )
+
     val blankUrlErrorText = stringResource(R.string.service_step_error_url_blank)
     val invalidUrlErrorText = stringResource(R.string.service_step_error_url_format)
 
@@ -123,9 +124,7 @@ private fun ManualServiceEntry(
     var urlErrorText by rememberSaveable { mutableStateOf<String?>(null) }
     val urlFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
@@ -142,7 +141,7 @@ private fun ManualServiceEntry(
                 onServiceNameChange(clamped)
             },
             placeholder = stringResource(R.string.service_step_placeholder_service_name),
-            leadingIcon = QodeIcons.Store,
+            leadingIcon = QodeIcons.Service,
             helperText = stringResource(R.string.service_step_helper_service_name),
             errorText = errorText,
             focusRequester = focusRequester,
@@ -166,7 +165,10 @@ private fun ManualServiceEntry(
         QodeinTextField(
             value = serviceUrl,
             onValueChange = { newValue ->
-                val trimmed = sanitizeServiceUrl(newValue)
+                val filtered = newValue
+                    .lowercase()
+                    .filter { it.isLetterOrDigit() || it in setOf('.', '-', '/') }
+                val trimmed = sanitizeServiceUrl(filtered)
                 urlErrorText = null
                 onServiceUrlChange(trimmed)
             },
@@ -182,6 +184,7 @@ private fun ManualServiceEntry(
             ),
             keyboardActions = KeyboardActions(
                 onNext = {
+                    keyboardController?.hide()
                     when {
                         serviceName.isBlank() -> {
                             errorText = blankErrorText
@@ -307,13 +310,13 @@ fun SelectServiceButton(
             if (hasSelection && selectedService.logoUrl != null) {
                 CircularImage(
                     imageUrl = selectedService.logoUrl,
-                    fallbackIcon = QodeIcons.Store,
+                    fallbackIcon = QodeIcons.Service,
                     contentDescription = stringResource(R.string.service_step_service_logo_cd),
                     size = SizeTokens.Icon.sizeMedium,
                 )
             } else {
                 Icon(
-                    imageVector = if (hasSelection) QodeIcons.Store else QodeNavigationIcons.Search,
+                    imageVector = if (hasSelection) QodeIcons.Service else QodeNavigationIcons.Search,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,

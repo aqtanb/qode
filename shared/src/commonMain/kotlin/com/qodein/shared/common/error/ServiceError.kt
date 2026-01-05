@@ -15,6 +15,8 @@ sealed interface ServiceError : OperationError {
         data object NameTooLong : CreationFailure
         data object InvalidServiceId : CreationFailure
         data object EmptySiteUrl : CreationFailure
+        data object LogoNotFound : CreationFailure
+        data object InvalidDomainFormat : CreationFailure
     }
 
     /**
