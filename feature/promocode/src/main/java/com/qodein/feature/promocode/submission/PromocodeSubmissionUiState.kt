@@ -18,7 +18,7 @@ data class SubmissionWizardData(
     val serviceUrl: String = "",
     val isManualServiceEntry: Boolean = false,
 
-    // Promo Code Details
+    // Promocode Details
     val code: String = "",
     val promocodeType: PromocodeType? = null,
     val discountPercentage: String = "",
@@ -70,7 +70,7 @@ sealed interface PromocodeSubmissionUiState {
 /**
  * Clean submission operation state without UI concerns.
  *
- * Represents the lifecycle of promo code submission operation.
+ * Represents the lifecycle of promocode submission operation.
  * UI behavior should be derived in presentation layer.
  */
 sealed interface PromocodeSubmissionState {

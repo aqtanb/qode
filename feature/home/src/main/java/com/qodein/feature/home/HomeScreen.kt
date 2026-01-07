@@ -195,7 +195,7 @@ private fun HomeContent(
                 )
             }
 
-            // Promo Codes Section Header
+            // Promocodes Section Header
             item(key = PROMO_CODES_HEADER_KEY) {
                 PromocodeSectionHeader(
                     currentFilters = uiState.currentFilters,
@@ -203,7 +203,7 @@ private fun HomeContent(
                 )
             }
 
-            // Promo Codes Content
+            // Promocodes Content
             when (val promoState = uiState.promocodeUiState) {
                 PromocodeUiState.Loading -> {
                     item(key = PROMO_CODES_LOADING_KEY) {

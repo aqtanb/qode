@@ -27,7 +27,7 @@ data class SubmitPromocodeRequest(
 )
 
 /**
- * Use case for submitting promo codes.
+ * Use case for submitting promocodes.
  * Handles:
  * - Getting or creating service
  * - Duplicate checking

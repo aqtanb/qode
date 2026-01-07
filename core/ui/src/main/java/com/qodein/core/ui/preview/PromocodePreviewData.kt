@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.hours
 object PromocodePreviewData {
 
     /**
-     * Sample percentage promo code with typical values
+     * Sample percentage promocode with typical values
      */
     val percentagePromocode = Promocode.fromDto(
         id = PromocodeId("glovo_save25"),
@@ -49,7 +49,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * Sample fixed amount promo code with typical values
+     * Sample fixed amount promocode with typical values
      */
     val fixedAmountPromocode = Promocode.fromDto(
         id = PromocodeId("kaspi_new1000"),
@@ -73,7 +73,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * Sample promo code that's expiring soon (within 24 hours)
+     * Sample promocode that's expiring soon (within 24 hours)
      */
     val expiringSoonPromocode = Promocode.fromDto(
         id = PromocodeId("wolt_flash15"),
@@ -97,7 +97,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * Sample promo code that's not active yet (starts in future)
+     * Sample promocode that's not active yet (starts in future)
      */
     val notYetActivePromocode = Promocode.fromDto(
         id = PromocodeId("technodom_summer500"),
@@ -121,7 +121,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * Sample high-value promo code with many votes
+     * Sample high-value promocode with many votes
      */
     val highValuePromocode = Promocode.fromDto(
         id = PromocodeId("sulpak_mega50"),
@@ -145,7 +145,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * Sample promo code with minimal engagement
+     * Sample promocode with minimal engagement
      */
     val lowEngagementPromocode = Promocode.fromDto(
         id = PromocodeId("small_shop_save100"),
@@ -169,7 +169,7 @@ object PromocodePreviewData {
     )
 
     /**
-     * List of all sample promo codes for testing various scenarios
+     * List of all sample promocodes for testing various scenarios
      */
     val allSamples = listOf(
         percentagePromocode,

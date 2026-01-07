@@ -4,7 +4,7 @@ import com.google.firebase.firestore.DocumentId
 
 /**
  * Firestore document model for Service.
- * Represents services/brands that offer promo codes.
+ * Represents services/brands that offer promocodes.
  */
 data class ServiceDto(
     @DocumentId

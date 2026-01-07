@@ -16,12 +16,12 @@ import com.qodein.shared.model.PromocodeId
 interface PromocodeRepository {
 
     /**
-     * Create a new promo code.
+     * Create a new promocode.
      */
     suspend fun createPromocode(promocode: Promocode): Result<Unit, OperationError>
 
     /**
-     * Get promo codes with filtering and sorting using cursor-based pagination.
+     * Get promocodes with filtering and sorting using cursor-based pagination.
      */
     suspend fun getPromocodes(
         sortBy: ContentSortBy = ContentSortBy.POPULARITY,
@@ -30,8 +30,8 @@ interface PromocodeRepository {
     ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError>
 
     /**
-     * Get a specific promo code by ID.
-     * Returns NotFound error if promo code doesn't exist.
+     * Get a specific promocode by ID.
+     * Returns NotFound error if promocode doesn't exist.
      */
     suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError>
 }

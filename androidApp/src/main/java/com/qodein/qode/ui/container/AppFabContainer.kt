@@ -28,7 +28,7 @@ import com.qodein.qode.ui.state.AppUiEvents
  * Container responsible for floating action button with auto-hiding behavior.
  *
  * Handles:
- * - Context-aware FAB actions per screen (Create promo code on home, Add to feed, etc.)
+ * - Context-aware FAB actions per screen (Create promocode on home, Add to feed, etc.)
  * - Auto-hiding behavior synchronized with bottom navigation
  * - Smart visibility logic (only shown on top-level destinations)
  * - Smooth animations and transitions
@@ -138,7 +138,7 @@ fun AppFabContainer(
  */
 private fun getFabIcon(destination: TopLevelDestination) =
     when (destination) {
-        TopLevelDestination.HOME -> QodeActionIcons.Add // Create new promo code
+        TopLevelDestination.HOME -> QodeActionIcons.Add // Create new promocode
         TopLevelDestination.FEED -> QodeActionIcons.Edit // Add content to feed
     }
 
@@ -161,7 +161,7 @@ private fun handleFabClick(
 ) {
     when (destination) {
         TopLevelDestination.HOME -> {
-            // Navigate to promo code creation flow
+            // Navigate to promocode creation flow
             onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPromocodeSubmission))
         }
         TopLevelDestination.FEED -> {

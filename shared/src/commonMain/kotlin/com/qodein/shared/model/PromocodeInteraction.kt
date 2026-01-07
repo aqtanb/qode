@@ -22,13 +22,13 @@ import kotlin.time.Instant
 @Serializable
 data class PromocodeInteraction(val promocode: Promocode, val userInteraction: UserInteraction?) {
     /**
-     * Whether the current user has upvoted this promo code
+     * Whether the current user has upvoted this promocode
      */
     val isUpvotedByCurrentUser: Boolean
         get() = userInteraction?.voteState == VoteState.UPVOTE
 
     /**
-     * Whether the current user has downvoted this promo code
+     * Whether the current user has downvoted this promocode
      */
     val isDownvotedByCurrentUser: Boolean
         get() = userInteraction?.voteState == VoteState.DOWNVOTE
@@ -43,7 +43,7 @@ data class PromocodeInteraction(val promocode: Promocode, val userInteraction: U
         ): PromocodeInteraction {
             userInteraction?.let { interaction ->
                 require(interaction.itemId == promocode.id.value) {
-                    "User interaction itemId (${interaction.itemId}) must match promo code ID (${promocode.id.value})"
+                    "User interaction itemId (${interaction.itemId}) must match promocode ID (${promocode.id.value})"
                 }
                 require(interaction.itemType == ContentType.PROMO_CODE) {
                     "User interaction must be for PROMO_CODE type, got ${interaction.itemType}"

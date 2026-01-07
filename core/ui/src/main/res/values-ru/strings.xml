@@ -174,7 +174,7 @@
     <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
     <string name="step_discount_type_short">Тип</string>
-    <string name="step_promo_code_title">Промокод</string>
+    <string name="step_promo_code_title">Введите промокод</string>
     <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Размер скидки</string>
     <string name="step_discount_value_short">Размер</string>

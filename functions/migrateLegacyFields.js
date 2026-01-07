@@ -12,15 +12,15 @@ async function removeLegacyUserFields() {
   console.log('Starting legacy user fields removal...');
 
   try {
-    // Get all promo codes
+    // Get all promocodes
     const promoCodesSnapshot = await db.collection('promocodes').get();
 
     if (promoCodesSnapshot.empty) {
-      console.log('No promo codes found');
+      console.log('No promocodes found');
       return;
     }
 
-    console.log(`Found ${promoCodesSnapshot.size} promo codes to check`);
+    console.log(`Found ${promoCodesSnapshot.size} promocodes to check`);
 
     // Process in batches (Firestore batch limit is 500 operations)
     const batch = db.batch();
@@ -54,14 +54,14 @@ async function removeLegacyUserFields() {
     if (updateCount > 0) {
       console.log(`Committing batch update for ${updateCount} documents...`);
       await batch.commit();
-      console.log(`✅ Successfully removed legacy fields from ${updateCount} promo codes`);
+      console.log(`✅ Successfully removed legacy fields from ${updateCount} promocodes`);
     } else {
       console.log('No documents needed updating');
     }
 
     console.log({
       success: true,
-      message: `Cleaned up legacy user fields from ${updateCount} promo codes`,
+      message: `Cleaned up legacy user fields from ${updateCount} promocodes`,
       updated: updateCount,
       total: promoCodesSnapshot.size
     });

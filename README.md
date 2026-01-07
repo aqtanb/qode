@@ -1,4 +1,4 @@
-# Qode – Promo Code Aggregation Platform
+# Qode – Promocode Aggregation Platform
 
 > Android app that connects users through promo codes, deals, and community discussions.  
 > Built with Jetpack Compose, Firebase, and Clean Architecture for scalability and future Kotlin Multiplatform support.

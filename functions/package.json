@@ -1,6 +1,6 @@
 {
   "name": "qode-functions",
-  "description": "Cloud Functions for Qode promo code app",
+  "description": "Cloud Functions for Qode promocode app",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",

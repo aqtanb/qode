@@ -8,7 +8,7 @@ package com.qodein.shared.common.error
 sealed interface PromocodeError : OperationError {
 
     /**
-     * Failures when user tries to create a promo code (domain validation).
+     * Failures when user tries to create a promocode (domain validation).
      */
     sealed interface CreationFailure : PromocodeError {
         data object EmptyCode : CreationFailure
@@ -24,7 +24,7 @@ sealed interface PromocodeError : OperationError {
     }
 
     /**
-     * Failures when submitting a promo code (business logic errors).
+     * Failures when submitting a promocode (business logic errors).
      */
     sealed interface SubmissionFailure : PromocodeError {
         data object DuplicateCode : SubmissionFailure

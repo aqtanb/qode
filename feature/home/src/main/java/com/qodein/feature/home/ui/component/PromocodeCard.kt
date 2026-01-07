@@ -83,7 +83,7 @@ private object CouponTokens {
 }
 
 /**
- * Coupon-style promo code card that looks like a real coupon with a detachable stub.
+ * Coupon-style promocode card that looks like a real coupon with a detachable stub.
  * Features Material 3 theming, circular cutouts, working copy functionality, and enhanced accessibility.
  */
 @Composable
@@ -159,7 +159,7 @@ fun PromocodeCard(
 
                     Spacer(modifier = Modifier.height(SpacingTokens.md))
 
-                    // Clean promo code section (no ugly background)
+                    // Clean promocode section (no ugly background)
                     PromoCodeRow(
                         code = promocode.code.value,
                         onCopyClick = {

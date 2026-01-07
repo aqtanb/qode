@@ -16,7 +16,7 @@ import com.qodein.shared.model.VoteState
 data class UserInteractionDto(
     @DocumentId
     val documentId: String = "", // Generated: sanitized_itemId_sanitized_userId
-    val itemId: String = "", // ID of the content (promo code, post, comment)
+    val itemId: String = "", // ID of the content (promocode, post, comment)
     val itemType: String = "", // ContentType as string for Firestore
     val userId: String = "", // User performing the interaction
     val voteState: String = "NONE", // VoteState as string

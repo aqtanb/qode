@@ -227,7 +227,7 @@ private fun AuthenticationBottomSheetContent(
 // MARK: - Previews
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Submit Promo Code Auth", showBackground = true)
+@Preview(name = "Submit Promocode Auth", showBackground = true)
 @Composable
 private fun AuthenticationBottomSheetSubmitPreview() {
     QodeTheme {
@@ -272,7 +272,7 @@ private fun AuthenticationBottomSheetCommentPreview() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Bookmark Promo Code Auth", showBackground = true)
+@Preview(name = "Bookmark Promocode Auth", showBackground = true)
 @Composable
 private fun AuthenticationBottomSheetBookmarkPreview() {
     QodeTheme {

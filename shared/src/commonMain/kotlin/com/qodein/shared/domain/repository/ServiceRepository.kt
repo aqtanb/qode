@@ -35,7 +35,7 @@ interface ServiceRepository {
     ): Result<List<Service>, OperationError>
 
     /**
-     * Get popular services sorted by promo code count.
+     * Get popular services sorted by promocode count.
      */
     suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError>
 }

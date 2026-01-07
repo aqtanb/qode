@@ -1,12 +1,12 @@
 # Qode Cloud Functions
 
-Enterprise-grade Cloud Functions for the Qode promo code application.
+Enterprise-grade Cloud Functions for the Qode promocode application.
 
 ## 🚀 Features
 
 - **Vote Score Management**: Automatic voteScore calculation and maintenance
-- **Data Population**: Enhanced populators for services and promo codes  
-- **Service Counters**: Maintain denormalized promo code counts
+- **Data Population**: Enhanced populators for services and promocodes  
+- **Service Counters**: Maintain denormalized promocode counts
 - **Kazakhstan Market Focus**: Localized sample data and targeting
 
 ## 📋 Prerequisites
@@ -68,9 +68,9 @@ npm run shell
 npm run populate
 ```
 
-### Populate Promo Codes
+### Populate Promocodes
 ```bash
-# Default: 100 promo codes
+# Default: 100 promocodes
 npm run populate:codes
 
 # Custom amount
@@ -91,7 +91,7 @@ npm run init:votescores
 - `npm run deploy` - Deploy to Firebase
 - `npm run logs` - View function logs
 - `npm run populate` - Populate services
-- `npm run populate:codes` - Populate promo codes
+- `npm run populate:codes` - Populate promocodes
 
 ## 🏗 Architecture
 
@@ -109,7 +109,7 @@ npm run init:votescores
 
 #### `updateServicePromoCounts`
 - **Type**: Callable HTTPS function
-- **Purpose**: Updates denormalized promo code counts on services
+- **Purpose**: Updates denormalized promocode counts on services
 - **Use Case**: Run periodically or after bulk operations
 
 #### `cleanupOldStorageFiles`
@@ -120,7 +120,7 @@ npm run init:votescores
 
 ### Data Structure
 
-#### Promo Code Document
+#### Promocode Document
 ```typescript
 {
   code: string;

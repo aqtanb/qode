@@ -11,7 +11,7 @@ import com.qodein.shared.model.PromocodeCode
  */
 
 /**
- * Validates promo code format with same rules as domain validation.
+ * Validates promocode format with same rules as domain validation.
  */
 fun isValidPromoCodeFormat(code: String): Boolean = PromocodeCode.create(code) is Result.Success
 
@@ -66,7 +66,7 @@ fun isValidServiceUrl(url: String): Boolean {
 }
 
 /**
- * Validates discount value based on promo code type.
+ * Validates discount value based on promocode type.
  */
 fun isValidDiscountValue(data: SubmissionWizardData): Boolean =
     when (data.promocodeType) {
@@ -76,7 +76,7 @@ fun isValidDiscountValue(data: SubmissionWizardData): Boolean =
     }
 
 /**
- * Validates business logic rules to prevent loss-making promo codes.
+ * Validates business logic rules to prevent loss-making promocodes.
  */
 fun isValidBusinessLogic(data: SubmissionWizardData): Boolean {
     // For fixed amount discounts, discount cannot exceed minimum order

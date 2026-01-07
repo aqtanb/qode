@@ -85,7 +85,7 @@ val PromocodeSubmissionStep.titleRes: Int
         PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_title
     }
 
-val PromocodeSubmissionStep.shortNameRes: Int
+val PromocodeSubmissionStep.indicatorRes: Int
     get() = when (this) {
         PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_short
         PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short

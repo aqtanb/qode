@@ -62,7 +62,9 @@
     <string name="promocode_submission_hide_tips">Hide helpful tips</string>
 
     <string name="promo_code_step_placeholder" translatable="false">PITOMOPOLIS</string>
-    <string name="promo_code_step_helper_text">Use the exact capitalization and characters</string>
+    <string name="promo_code_step_helper_text">Letters, numbers, hyphens, and underscores allowed</string>
+    <string name="promo_code_step_error_blank">Promocode cannot be blank</string>
+    <string name="promo_code_step_error_max_length">Maximum %1$d characters</string>
 
     <string name="promo_type_percentage_title">Percentage</string>
     <string name="promo_type_fixed_amount_title">Fixed Amount</string>

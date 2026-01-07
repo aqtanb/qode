@@ -9,31 +9,31 @@ const db = admin.firestore();
 
 async function initializeVoteScores() {
   console.log('🚀 Starting voteScore initialization...');
-  
+
   try {
-    // Get all promo codes
+    // Get all promocodes
     const promoCodesSnapshot = await db.collection('promocodes').get();
-    
+
     if (promoCodesSnapshot.empty) {
-      console.log('❌ No promo codes found in Firestore');
+      console.log('❌ No promocodes found in Firestore');
       return;
     }
-    
-    console.log(`📊 Found ${promoCodesSnapshot.size} promo codes`);
-    
+
+    console.log(`📊 Found ${promoCodesSnapshot.size} promocodes`);
+
     // Process in batches (Firestore batch limit is 500 operations)
     const batch = db.batch();
     let updateCount = 0;
-    
+
     promoCodesSnapshot.forEach((doc) => {
       const data = doc.data();
       const upvotes = data.upvotes || 0;
       const downvotes = data.downvotes || 0;
       const currentVoteScore = data.voteScore;
       const calculatedVoteScore = upvotes - downvotes;
-      
+
       console.log(`📝 ${doc.id}: upvotes=${upvotes}, downvotes=${downvotes}, current=${currentVoteScore}, calculated=${calculatedVoteScore}`);
-      
+
       // Only update if voteScore is missing or incorrect
       if (currentVoteScore === undefined || currentVoteScore !== calculatedVoteScore) {
         batch.update(doc.ref, {
@@ -46,17 +46,17 @@ async function initializeVoteScores() {
         console.log(`⏭️ Skipping ${doc.id} (already has correct voteScore)`);
       }
     });
-    
+
     if (updateCount > 0) {
       console.log(`📤 Committing batch update for ${updateCount} documents...`);
       await batch.commit();
-      console.log(`✨ Successfully updated ${updateCount} promo codes with voteScore`);
+      console.log(`✨ Successfully updated ${updateCount} promocodes with voteScore`);
     } else {
-      console.log('✅ All promo codes already have correct voteScore values');
+      console.log('✅ All promocodes already have correct voteScore values');
     }
-    
-    console.log(`🎉 Initialization complete! Updated ${updateCount}/${promoCodesSnapshot.size} promo codes`);
-    
+
+    console.log(`🎉 Initialization complete! Updated ${updateCount}/${promoCodesSnapshot.size} promocodes`);
+
   } catch (error) {
     console.error('💥 Error initializing voteScores:', error);
     throw error;

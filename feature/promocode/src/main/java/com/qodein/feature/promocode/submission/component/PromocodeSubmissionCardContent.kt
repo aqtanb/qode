@@ -17,7 +17,6 @@ import com.qodein.feature.promocode.submission.component.steps.PromocodeDescript
 import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
-import com.qodein.feature.promocode.submission.validation.SubmissionField
 import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
 
@@ -62,7 +61,6 @@ fun PromocodeSubmissionCardContent(
                 onPromocodeChange = { onAction(PromocodeSubmissionAction.UpdatePromocode(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
-                promocodeError = validation.fieldErrors[SubmissionField.PROMO_CODE],
             )
 
             PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStep(

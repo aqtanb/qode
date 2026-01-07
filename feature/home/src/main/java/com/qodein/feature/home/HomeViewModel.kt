@@ -354,7 +354,7 @@ class HomeViewModel(
     }
 
     private fun retryPromoCodes() {
-        Timber.d("Retrying promo codes load")
+        Timber.d("Retrying promocodes load")
         loadInitialPage()
     }
 

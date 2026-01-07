@@ -34,7 +34,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
-import com.qodein.feature.promocode.submission.wizard.shortNameRes
+import com.qodein.feature.promocode.submission.wizard.indicatorRes
 import com.qodein.feature.promocode.submission.wizard.stepIcon
 import com.qodein.feature.promocode.submission.wizard.titleRes
 
@@ -192,7 +192,7 @@ private fun StepLabel(
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = stringResource(step.shortNameRes),
+        text = stringResource(step.indicatorRes),
         style = MaterialTheme.typography.labelSmall,
         color = when {
             isCurrent -> MaterialTheme.colorScheme.secondary

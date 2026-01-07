@@ -394,7 +394,7 @@ private fun copyToClipboard(
     code: String
 ) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Promo Code", code)
+    val clip = ClipData.newPlainText("Promocode", code)
     clipboard.setPrimaryClip(clip)
 }
 

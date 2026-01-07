@@ -35,7 +35,7 @@ enum class ContentType {
 @Serializable
 data class UserInteraction(
     val id: String, // Generated: {itemId}_{userId}
-    val itemId: String, // ID of the content (promo code, post, comment)
+    val itemId: String, // ID of the content (promocode, post, comment)
     val itemType: ContentType, // Type of content being interacted with (reusing existing ContentType)
     val userId: UserId, // User performing the interaction
     val voteState: VoteState, // Vote state (UPVOTE, DOWNVOTE, or NONE for no vote)

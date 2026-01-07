@@ -318,7 +318,7 @@ class PromocodeSubmissionViewModel(
     // MARK: - Submission Logic
 
     /**
-     * Submit promo code with explicit user (for external calls)
+     * Submit promocode with explicit user (for external calls)
      */
     private fun submitPromoCode(user: User) {
         Logger.i(TAG) { "submitPromoCode() called with user: ${user.id.value}" }
@@ -338,7 +338,7 @@ class PromocodeSubmissionViewModel(
     }
 
     /**
-     * Submit promo code using authenticated user from current state
+     * Submit promocode using authenticated user from current state
      */
     private fun submitPromoCode() {
         Logger.i(TAG) { "submitPromoCode() called - using authenticated user" }

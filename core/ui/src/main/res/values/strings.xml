@@ -27,17 +27,17 @@
     <string name="error_user_update_failed">Failed to update user profile.</string>
     <string name="error_user_profile_access_denied">You don\'t have permission to update this profile.</string>
 
-    <string name="error_promo_code_already_exists">This promo code already exists.</string>
-    <string name="error_promo_code_empty">Promo code cannot be empty. Please enter a code.</string>
-    <string name="error_promo_code_too_short">Promo code is too short. Please use at least 2 characters.</string>
-    <string name="error_promo_code_too_long">Promo code is too long. Maximum 50 characters allowed.</string>
+    <string name="error_promo_code_already_exists">This promocode already exists.</string>
+    <string name="error_promo_code_empty">Promocode cannot be empty. Please enter a code.</string>
+    <string name="error_promo_code_too_short">Promocode is too short. Please use at least 2 characters.</string>
+    <string name="error_promo_code_too_long">Promocode is too long. Maximum 50 characters allowed.</string>
     <string name="error_promo_description_too_long">Description is too long. Maximum 1000 characters allowed.</string>
     <string name="error_promo_invalid_date_range">End date must be after the start date.</string>
     <string name="error_promo_invalid_percentage" formatted="false">Discount percentage must be between 1% and 100%.</string>
     <string name="error_promo_invalid_fixed_amount">Fixed discount amount must be greater than zero.</string>
     <string name="error_promo_invalid_minimum_amount">Minimum purchase amount must be greater than zero.</string>
     <string name="error_promo_discount_exceeds_minimum">Discount amount cannot exceed the minimum purchase amount.</string>
-    <string name="error_promo_invalid_id">Invalid promo code identifier.</string>
+    <string name="error_promo_invalid_id">Invalid promocode identifier.</string>
 
     <string name="error_user_not_found">User account not found.</string>
     <string name="error_user_invalid_email">Email address is invalid. Please enter a valid email.</string>
@@ -164,17 +164,17 @@
     <string name="sort_section_title_expiring">Expiring Soon</string>
 
     <string name="auth_submit_promo_title">Sign in to submit promocode</string>
-    <string name="auth_submit_promo_message">Join the community and share your amazing promo code finds with everyone.</string>
+    <string name="auth_submit_promo_message">Join the community and share your amazing promocode finds with everyone.</string>
     <string name="auth_upvote_title">Sign in to upvote</string>
     <string name="auth_upvote_message">Help others discover the best content</string>
     <string name="auth_downvote_title">Sign in to downvote</string>
     <string name="auth_downvote_message">Keep the community quality high</string>
     <string name="auth_comment_title">Sign in to comment</string>
-    <string name="auth_comment_message">Share your experience and help others with tips about this promo code</string>
+    <string name="auth_comment_message">Share your experience and help others with tips about this promocode</string>
     <string name="auth_bookmark_promo_title">Sign in to bookmark</string>
-    <string name="auth_bookmark_promo_message">Save this promo code to your personal collection for easy access</string>
+    <string name="auth_bookmark_promo_message">Save this promocode to your personal collection for easy access</string>
     <string name="auth_follow_store_title">Sign in to follow store</string>
-    <string name="auth_follow_store_message">Get notified when this store has new deals and promo codes available.</string>
+    <string name="auth_follow_store_message">Get notified when this store has new deals and promocodes available.</string>
     <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
@@ -186,7 +186,7 @@
     <string name="step_service_short">Service</string>
     <string name="step_discount_type_title">Discount Type</string>
     <string name="step_discount_type_short">Type</string>
-    <string name="step_promo_code_title">Promo Code</string>
+    <string name="step_promo_code_title">Enter promocode</string>
     <string name="step_promo_code_short">Code</string>
     <string name="step_discount_value_title">Discount Value</string>
     <string name="step_discount_value_short">Value</string>

@@ -6,7 +6,7 @@ import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.Promocode
 
 /**
- * Independent promo code state for home screen
+ * Independent promocode state for home screen
  */
 sealed class PromocodeUiState {
     data object Loading : PromocodeUiState()

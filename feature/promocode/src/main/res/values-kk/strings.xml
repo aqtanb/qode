@@ -56,7 +56,9 @@
     <string name="promocode_submission_show_tips">Пайдалы кеңестерді көрсету</string>
     <string name="promocode_submission_hide_tips">Пайдалы кеңестерді жасыру</string>
 
-    <string name="promo_code_step_helper_text">Дәл сол жазылуы мен регистрін қолданыңыз</string>
+    <string name="promo_code_step_helper_text">Әріптер, сандар, сызықшалар және асты сызылған белгілер рұқсат етілген</string>
+    <string name="promo_code_step_error_blank">Промокод бос бола алмайды</string>
+    <string name="promo_code_step_error_max_length">Максимум %1$d таңба</string>
 
     <string name="promo_type_percentage_title">Пайыздық</string>
     <string name="promo_type_fixed_amount_title">Белгіленген сома</string>

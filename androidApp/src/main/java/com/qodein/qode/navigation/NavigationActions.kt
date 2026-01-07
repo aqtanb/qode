@@ -47,7 +47,7 @@ sealed interface NavigationActions {
     data object NavigateToHome : NavigationActions
 
     /**
-     * Navigate to submission/promo code creation screen
+     * Navigate to submission/promocode creation screen
      */
     data object NavigateToPromocodeSubmission : NavigationActions
     data object NavigateToPostSubmission : NavigationActions

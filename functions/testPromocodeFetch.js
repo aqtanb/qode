@@ -11,12 +11,12 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 async function testPromocodeFetch() {
-  console.log('Testing promo code fetching after migration...');
+  console.log('Testing promocode fetching after migration...');
 
   try {
-    // Try to fetch one specific promo code
+    // Try to fetch one specific promocode
     const testPromoId = 'AIRBNB_SALE60'; // One from the migration logs
-    console.log(`\nFetching promo code: ${testPromoId}`);
+    console.log(`\nFetching promocode: ${testPromoId}`);
 
     const doc = await db.collection('promocodes').doc(testPromoId).get();
 
@@ -64,7 +64,7 @@ async function testPromocodeFetch() {
     }, null, 2));
 
   } catch (error) {
-    console.error('❌ Error testing promo code fetch:', error);
+    console.error('❌ Error testing promocode fetch:', error);
   }
 }
 

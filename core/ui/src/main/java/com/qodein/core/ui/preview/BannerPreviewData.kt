@@ -22,8 +22,8 @@ object BannerPreviewData {
             "ru" to "Откройте горячие предложения",
         ),
         ctaDescription = mapOf(
-            "default" to "Save big with verified promo codes",
-            "en" to "Save big with verified promo codes",
+            "default" to "Save big with verified promocodes",
+            "en" to "Save big with verified promocodes",
             "kk" to "Тексерілген промокодтармен үнемдеңіз",
             "ru" to "Экономьте с проверенными промокодами",
         ),
@@ -42,8 +42,8 @@ object BannerPreviewData {
             "en" to "Share Your Codes",
         ),
         ctaDescription = mapOf(
-            "default" to "Help others save money by sharing promo codes",
-            "en" to "Help others save money by sharing promo codes",
+            "default" to "Help others save money by sharing promocodes",
+            "en" to "Help others save money by sharing promocodes",
         ),
         ctaUrl = "qode://promocode/submit",
         priority = 90,
@@ -62,8 +62,8 @@ object BannerPreviewData {
             "ru" to "Добро пожаловать в Qode",
         ),
         ctaDescription = mapOf(
-            "default" to "Your source for the best promo codes in Kazakhstan",
-            "en" to "Your source for the best promo codes in Kazakhstan",
+            "default" to "Your source for the best promocodes in Kazakhstan",
+            "en" to "Your source for the best promocodes in Kazakhstan",
             "kk" to "Қазақстандағы ең жақсы промокодтар көзі",
             "ru" to "Ваш источник лучших промокодов в Казахстане",
         ),

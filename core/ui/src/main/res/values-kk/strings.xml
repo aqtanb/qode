@@ -183,7 +183,7 @@
     <string name="step_service_short">Қызмет</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>
     <string name="step_discount_type_short">Түрі</string>
-    <string name="step_promo_code_title">Промокод</string>
+    <string name="step_promo_code_title">Промокодты еңгізіңіз</string>
     <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Жеңілдік мөлшері</string>
     <string name="step_discount_value_short">Мөлшері</string>
