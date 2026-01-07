@@ -50,10 +50,37 @@ import com.qodein.core.ui.R as CoreUiR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromocodeDatesStep(
+    startDate: LocalDate?,
+    endDate: LocalDate?,
+    onStartDateSelected: (LocalDate) -> Unit,
+    onEndDateSelected: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    ) {
+        DatePickerField(
+            selectedDate = startDate,
+            onDateSelected = onStartDateSelected,
+            placeholder = stringResource(R.string.promocode_dates_start_placeholder),
+        )
+
+        DatePickerField(
+            selectedDate = endDate,
+            onDateSelected = onEndDateSelected,
+            placeholder = stringResource(R.string.promocode_dates_end_placeholder),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerField(
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: String = stringResource(R.string.promocode_dates_placeholder)
+    placeholder: String,
+    modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -79,61 +106,56 @@ fun PromocodeDatesStep(
         label = "borderColor",
     )
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(SizeTokens.Selector.height)
+            .border(
+                width = ShapeTokens.Border.thin,
+                color = animatedBorderColor,
+                shape = RoundedCornerShape(SizeTokens.Selector.shape),
+            )
+            .clip(RoundedCornerShape(SizeTokens.Selector.shape))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = { showDatePicker = true },
+            ),
+        color = animatedBackgroundColor,
+        shape = RoundedCornerShape(SizeTokens.Selector.shape),
+        tonalElevation = if (hasSelection) ElevationTokens.none else ElevationTokens.none,
+        shadowElevation = ElevationTokens.none,
     ) {
-        Surface(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(SizeTokens.Selector.height)
-                .border(
-                    width = ShapeTokens.Border.thin,
-                    color = animatedBorderColor,
-                    shape = RoundedCornerShape(SizeTokens.Selector.shape),
-                )
-                .clip(RoundedCornerShape(SizeTokens.Selector.shape))
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = ripple(),
-                    onClick = { showDatePicker = true },
-                ),
-            color = animatedBackgroundColor,
-            shape = RoundedCornerShape(SizeTokens.Selector.shape),
-            tonalElevation = if (hasSelection) ElevationTokens.none else ElevationTokens.none,
-            shadowElevation = ElevationTokens.none,
+                .padding(SizeTokens.Selector.padding),
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(SizeTokens.Selector.padding),
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = QodeCalendarIcons.Datepicker,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                    tint = if (hasSelection) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                )
+            Icon(
+                imageVector = QodeCalendarIcons.Datepicker,
+                contentDescription = null,
+                modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                tint = if (hasSelection) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
 
-                Text(
-                    text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
-                    fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
-                    color = if (hasSelection) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Text(
+                text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
+                fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (hasSelection) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 
@@ -175,15 +197,10 @@ private fun DatePickerStepPreview() {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
         ) {
             PromocodeDatesStep(
-                selectedDate = LocalDate.now(),
-                onDateSelected = {},
-                placeholder = "Select start date",
-            )
-
-            PromocodeDatesStep(
-                selectedDate = null,
-                onDateSelected = {},
-                placeholder = "Select end date",
+                startDate = LocalDate.now(),
+                endDate = LocalDate.now().plusDays(30),
+                onStartDateSelected = {},
+                onEndDateSelected = {},
             )
         }
     }

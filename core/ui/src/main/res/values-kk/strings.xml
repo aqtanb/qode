@@ -191,10 +191,10 @@
     <string name="step_minimum_order_short">Мин. тапсырыс</string>
     <string name="step_eligibility_title">Қолдану шарттары</string>
     <string name="step_eligibility_short">Шарттар</string>
-    <string name="step_description_title">Сипаттама</string>
+    <string name="step_description_title">Қосымша ақпарат беріңіз</string>
     <string name="step_description_short">Сипаттама</string>
-    <string name="step_start_date_title">Басталу күні</string>
-    <string name="step_start_date_short">Басталу</string>
+    <string name="step_start_date_title">Басталу және аяқталу күндерін талдаңыз</string>
+    <string name="step_start_date_short">Күндер</string>
     <string name="step_end_date_title">Аяқталу күні</string>
     <string name="step_end_date_short">Аяқталу</string>
     <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>

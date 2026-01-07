@@ -8,13 +8,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
-import com.qodein.feature.promocode.submission.component.steps.MinimumOrderAmountStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDescriptionStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
@@ -72,18 +69,20 @@ fun PromocodeSubmissionCardContent(
                 promoCodeType = wizardData.promocodeType,
                 discountPercentage = wizardData.discountPercentage,
                 discountAmount = wizardData.discountAmount,
+                minimumOrderAmount = wizardData.minimumOrderAmount,
+                wizardData = wizardData,
                 onDiscountPercentageChange = { onAction(PromocodeSubmissionAction.UpdateDiscountPercentage(it)) },
                 onDiscountAmountChange = { onAction(PromocodeSubmissionAction.UpdateDiscountAmount(it)) },
+                onMinimumOrderAmountChange = { onAction(PromocodeSubmissionAction.UpdateMinimumOrderAmount(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.MINIMUM_ORDER -> MinimumOrderAmountStep(
-                minimumOrderAmount = wizardData.minimumOrderAmount,
-                onMinimumOrderAmountChange = { onAction(PromocodeSubmissionAction.UpdateMinimumOrderAmount(it)) },
-                focusRequester = focusRequester,
-                wizardData = wizardData,
-                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+            PromocodeSubmissionStep.DATES -> PromocodeDatesStep(
+                startDate = wizardData.startDate,
+                endDate = wizardData.endDate,
+                onStartDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
+                onEndDateSelected = { onAction(PromocodeSubmissionAction.UpdateEndDate(it)) },
             )
 
             PromocodeSubmissionStep.DESCRIPTION -> PromocodeDescriptionStep(
@@ -91,20 +90,6 @@ fun PromocodeSubmissionCardContent(
                 onDescriptionChange = { onAction(PromocodeSubmissionAction.UpdateDescription(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.SubmitPromoCode) },
-            )
-
-            PromocodeSubmissionStep.START_DATE -> PromocodeDatesStep(
-                selectedDate = wizardData.startDate,
-                onDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
-                placeholder = stringResource(R.string.promocode_dates_start_placeholder),
-            )
-
-            PromocodeSubmissionStep.END_DATE -> PromocodeDatesStep(
-                selectedDate = wizardData.endDate,
-                onDateSelected = { date ->
-                    onAction(PromocodeSubmissionAction.UpdateEndDate(date))
-                },
-                placeholder = stringResource(R.string.promocode_dates_end_placeholder),
             )
         }
     }

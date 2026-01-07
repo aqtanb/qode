@@ -1,13 +1,9 @@
 package com.qodein.feature.promocode.submission.component
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -17,35 +13,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.icon.QodeCalendarIcons
-import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
-import com.qodein.feature.promocode.submission.wizard.hintRes
 import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
@@ -56,8 +42,6 @@ fun PromocodeSubmissionCard(
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isHintExpanded by remember { mutableStateOf(false) }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -78,29 +62,8 @@ fun PromocodeSubmissionCard(
         ) {
             StepHeader(
                 step = currentStep,
-                isHintExpanded = isHintExpanded,
-                onHintToggle = { isHintExpanded = !isHintExpanded },
                 modifier = Modifier.fillMaxWidth().padding(bottom = SpacingTokens.sm),
             )
-
-            AnimatedVisibility(
-                visible = isHintExpanded,
-                enter = expandVertically(
-                    animationSpec = spring(dampingRatio = 0.75f, stiffness = 600f),
-                    expandFrom = Alignment.Top,
-                ) + fadeIn(animationSpec = spring(dampingRatio = 0.75f)),
-                exit = shrinkVertically(
-                    animationSpec = spring(dampingRatio = 0.75f, stiffness = 600f),
-                    shrinkTowards = Alignment.Top,
-                ) + fadeOut(animationSpec = spring(dampingRatio = 0.75f)),
-            ) {
-                HintCard(
-                    step = currentStep,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = SpacingTokens.sm),
-                )
-            }
 
             AnimatedContent(
                 modifier = Modifier.padding(top = SpacingTokens.lg),
@@ -126,8 +89,6 @@ fun PromocodeSubmissionCard(
 @Composable
 private fun StepHeader(
     step: PromocodeSubmissionStep,
-    isHintExpanded: Boolean,
-    onHintToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -142,66 +103,6 @@ private fun StepHeader(
                 .weight(1f)
                 .padding(horizontal = SpacingTokens.sm),
         )
-
-        IconButton(
-            onClick = onHintToggle,
-            modifier = Modifier.size(SizeTokens.IconButton.sizeSmall),
-        ) {
-            Icon(
-                imageVector = if (isHintExpanded) {
-                    UIIcons.HintFilled
-                } else {
-                    UIIcons.Hint
-                },
-                contentDescription = stringResource(
-                    if (isHintExpanded) {
-                        R.string.promocode_submission_hide_tips
-                    } else {
-                        R.string.promocode_submission_show_tips
-                    },
-                ),
-                tint = if (isHintExpanded) {
-                    MaterialTheme.colorScheme.tertiary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            )
-        }
-    }
-}
-
-@Composable
-private fun HintCard(
-    step: PromocodeSubmissionStep,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(ShapeTokens.Corner.large),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.sm),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            Icon(
-                imageVector = QodeCalendarIcons.Info,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-            )
-
-            Text(
-                text = stringResource(step.hintRes),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
     }
 }
 

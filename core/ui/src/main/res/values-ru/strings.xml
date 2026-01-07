@@ -182,10 +182,10 @@
     <string name="step_minimum_order_short">Мин. заказ</string>
     <string name="step_eligibility_title">Условия применения</string>
     <string name="step_eligibility_short">Условия</string>
-    <string name="step_description_title">Описание</string>
+    <string name="step_description_title">Добавьте дополнительную информацию</string>
     <string name="step_description_short">Описание</string>
-    <string name="step_start_date_title">Дата начала</string>
-    <string name="step_start_date_short">Начало</string>
+    <string name="step_start_date_title">Выберите дни начала и окончания</string>
+    <string name="step_start_date_short">Дни</string>
     <string name="step_end_date_title">Дата окончания</string>
     <string name="step_end_date_short">Окончание</string>
     <string name="discount_percent">%1$s%% СКИДКА</string>
