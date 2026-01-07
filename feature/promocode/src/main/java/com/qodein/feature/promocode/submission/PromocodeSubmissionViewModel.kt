@@ -18,8 +18,8 @@ import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.service.GetServiceLogoUrlUseCase
 import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
-import com.qodein.shared.domain.usecase.service.ValidateServiceLogoUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
@@ -45,7 +45,7 @@ class PromocodeSubmissionViewModel(
     private val getUserByIdUseCase: GetUserByIdUseCase,
     private val refreshCoordinator: ScreenRefreshCoordinator,
     private val getServicesByIdsUseCase: GetServicesByIdsUseCase,
-    private val validateServiceLogoUseCase: ValidateServiceLogoUseCase
+    private val getServiceLogoUrlUseCase: GetServiceLogoUrlUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PromocodeSubmissionUiState>(PromocodeSubmissionUiState.Loading)
@@ -186,12 +186,13 @@ class PromocodeSubmissionViewModel(
         }
     }
 
+    // TODO: Check for the service duplication
     private fun validateServiceLogoAndProceed() {
         val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
         val domain = currentState.wizardFlow.wizardData.serviceUrl
 
         viewModelScope.launch {
-            when (val result = validateServiceLogoUseCase(domain)) {
+            when (val result = getServiceLogoUrlUseCase(domain)) {
                 is Result.Success -> {
                     // Logo found - show confirmation dialog
                     updateSuccessState { state ->

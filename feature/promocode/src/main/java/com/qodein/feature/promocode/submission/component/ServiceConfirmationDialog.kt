@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeAlertDialog
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.R
 import com.qodein.core.ui.R as CoreUiR
@@ -47,23 +47,13 @@ fun ServiceConfirmationDialog(
                 CircularImage(
                     imageUrl = logoUrl,
                     fallbackIcon = QodeIcons.Service,
-                    fallbackText = serviceName,
-                    size = 80.dp,
-                    modifier = Modifier.size(80.dp),
+                    size = SizeTokens.Avatar.sizeLarge,
                 )
 
                 Text(
                     text = serviceName,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Text(
-                    text = serviceUrl,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )

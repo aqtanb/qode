@@ -37,7 +37,7 @@
     <string name="service_step_error_blank">Service name cannot be blank</string>
     <string name="service_step_error_max_length">You have reached the maximum length (%1$d characters)</string>
     <string name="service_step_placeholder_service_url" translatable="false">halykmarket.kz</string>
-    <string name="service_step_helper_service_url">Official domain (no https://)</string>
+    <string name="service_step_helper_service_url">Official domain</string>
     <string name="service_step_error_url_blank">Service URL cannot be blank</string>
     <string name="service_step_error_url_format">Enter a valid domain (e.g., example.com)</string>
     <string name="service_step_service_logo_cd">Service logo</string>

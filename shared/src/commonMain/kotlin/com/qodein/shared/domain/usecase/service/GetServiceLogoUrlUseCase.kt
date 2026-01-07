@@ -11,7 +11,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 
-class ValidateServiceLogoUseCase(private val httpClient: HttpClient, private val logoToken: String = AppConfig.logoDevKey) {
+class GetServiceLogoUrlUseCase(private val httpClient: HttpClient, private val logoToken: String = AppConfig.logoDevKey) {
     suspend operator fun invoke(domain: String): Result<String, OperationError> {
         val normalizedDomain = domain.trim().lowercase()
 
@@ -20,7 +20,7 @@ class ValidateServiceLogoUseCase(private val httpClient: HttpClient, private val
         }
 
         return try {
-            val logoUrl = "https://img.logo.dev/$normalizedDomain?token=$logoToken&fallback=404"
+            val logoUrl = "https://img.logo.dev/$normalizedDomain?token=$logoToken&size=300&retina=true&fallback=404"
 
             val response: HttpResponse = httpClient.get(logoUrl) {
                 header("User-Agent", "Mozilla/5.0 (Android)")

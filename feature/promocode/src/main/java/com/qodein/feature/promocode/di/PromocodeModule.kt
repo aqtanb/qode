@@ -15,7 +15,7 @@ val promocodeModule = module {
             getUserByIdUseCase = get(),
             refreshCoordinator = get(),
             getServicesByIdsUseCase = get(),
-            validateServiceLogoUseCase = get(),
+            getServiceLogoUrlUseCase = get(),
         )
     }
 
