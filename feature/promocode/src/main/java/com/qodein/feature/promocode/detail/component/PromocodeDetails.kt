@@ -99,26 +99,6 @@ internal fun PromocodeDetails(
                 value = rememberFormattedRelativeTime(promocode.endDate),
                 valueColor = MaterialTheme.colorScheme.secondary,
             )
-            DetailItem(
-                icon = PromocodeIcons.NewUserOnly,
-                label = stringResource(R.string.promocode_details_new_user_only),
-                value = if (promocode.isFirstUseOnly) {
-                    stringResource(R.string.promocode_details_value_yes)
-                } else {
-                    stringResource(R.string.promocode_details_value_no)
-                },
-                valueColor = MaterialTheme.colorScheme.tertiary,
-            )
-            DetailItem(
-                icon = PromocodeIcons.OneTimeUse,
-                label = stringResource(R.string.promocode_details_one_time_use_only),
-                value = if (promocode.isOneTimeUseOnly) {
-                    stringResource(R.string.promocode_details_value_yes)
-                } else {
-                    stringResource(R.string.promocode_details_value_no)
-                },
-                valueColor = MaterialTheme.colorScheme.tertiary,
-            )
         }
     }
 }

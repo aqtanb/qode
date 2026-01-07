@@ -232,24 +232,6 @@ private fun CouponHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         ) {
-            if (promocode.isFirstUseOnly) {
-                Icon(
-                    imageVector = PromocodeIcons.NewUserOnly,
-                    contentDescription = stringResource(CoreUiR.string.cd_first_user_only),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            }
-
-            if (promocode.isOneTimeUseOnly) {
-                Icon(
-                    imageVector = PromocodeIcons.OneTimeUse,
-                    contentDescription = stringResource(CoreUiR.string.cd_one_time_use),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                )
-            }
-
             val isExpiringSoon = promocode.endDate < now.plus(3.days)
             if (isExpiringSoon) {
                 Icon(

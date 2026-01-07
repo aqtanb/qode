@@ -17,7 +17,6 @@ import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
 import com.qodein.feature.promocode.submission.component.steps.MinimumOrderAmountStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDescriptionStep
-import com.qodein.feature.promocode.submission.component.steps.PromocodeRulesStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
@@ -85,14 +84,6 @@ fun PromocodeSubmissionCardContent(
                 focusRequester = focusRequester,
                 wizardData = wizardData,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
-            )
-
-            PromocodeSubmissionStep.RULES -> PromocodeRulesStep(
-                isFirstUserOnly = wizardData.isFirstUserOnly,
-                isOneTimeUseOnly = wizardData.isOneTimeUseOnly,
-                onFirstUserOnlyChange = { onAction(PromocodeSubmissionAction.UpdateFirstUserOnly(it)) },
-                onOneTimeUseOnlyChange = { onAction(PromocodeSubmissionAction.UpdateOneTimeUseOnly(it)) },
-                focusRequester = focusRequester,
             )
 
             PromocodeSubmissionStep.DESCRIPTION -> PromocodeDescriptionStep(
