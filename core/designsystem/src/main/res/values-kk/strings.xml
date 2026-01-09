@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="profile_picture_description">Профиль суреті</string>
+    <string name="text_field_clear">Мәтінді тазалау</string>
+    <string name="text_field_paste">Мәтінді қою</string>
 </resources>

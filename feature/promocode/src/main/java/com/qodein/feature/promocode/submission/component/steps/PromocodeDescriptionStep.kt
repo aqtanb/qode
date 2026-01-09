@@ -16,7 +16,7 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 
 @Composable
 internal fun PromocodeDescriptionStep(
@@ -48,7 +48,7 @@ internal fun PromocodeDescriptionStep(
 private fun PromocodeRulesStep() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.DESCRIPTION,
+            currentStep = PromocodeWizardStep.DESCRIPTION,
             wizardData = SubmissionWizardData(),
             validation = ValidationState.valid(),
             onAction = {},

@@ -1,6 +1,6 @@
 package com.qodein.feature.promocode.submission
 
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.User
 import java.time.LocalDate
 
@@ -8,7 +8,7 @@ sealed interface PromocodeSubmissionAction {
     // Progressive step navigation
     data object NextProgressiveStep : PromocodeSubmissionAction
     data object PreviousProgressiveStep : PromocodeSubmissionAction
-    data class NavigateToStep(val step: PromocodeSubmissionStep) : PromocodeSubmissionAction
+    data class NavigateToStep(val step: PromocodeWizardStep) : PromocodeSubmissionAction
 
     // Service selection UI actions
     data object ShowServiceSelector : PromocodeSubmissionAction

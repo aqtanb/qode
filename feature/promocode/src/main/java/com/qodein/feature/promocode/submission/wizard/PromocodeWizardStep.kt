@@ -9,15 +9,13 @@ import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
 import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
 import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmount
 import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
-import com.qodein.feature.promocode.submission.validation.isValidServiceName
-import com.qodein.feature.promocode.submission.validation.isValidServiceUrl
 import com.qodein.core.ui.R as CoreUiR
 
-enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean = true) {
+enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = true) {
     SERVICE(1) {
         override fun canProceed(data: SubmissionWizardData): Boolean =
             data.selectedService != null ||
-                (isValidServiceName(data.serviceName) && isValidServiceUrl(data.serviceUrl))
+                (data.serviceName.isNotBlank() && data.serviceUrl.isNotBlank())
     },
     PROMOCODE(2) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.code.isNotBlank() && isValidPromoCodeFormat(data.code)
@@ -41,7 +39,7 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
     val isFirst: Boolean get() = this == SERVICE
     val isLast: Boolean get() = this == DESCRIPTION
 
-    fun next(): PromocodeSubmissionStep? =
+    fun next(): PromocodeWizardStep? =
         when (this) {
             SERVICE -> PROMOCODE
             PROMOCODE -> DISCOUNT_TYPE
@@ -51,7 +49,7 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
             DESCRIPTION -> null
         }
 
-    fun previous(): PromocodeSubmissionStep? =
+    fun previous(): PromocodeWizardStep? =
         when (this) {
             SERVICE -> null
             PROMOCODE -> SERVICE
@@ -62,35 +60,35 @@ enum class PromocodeSubmissionStep(val stepNumber: Int, val isRequired: Boolean 
         }
 }
 
-fun PromocodeSubmissionStep.stepIcon(isCompleted: Boolean = false): ImageVector =
+fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
     when {
         isCompleted -> QodeActionIcons.Check
         else -> when (this) {
-            PromocodeSubmissionStep.SERVICE -> QodeIcons.Service
-            PromocodeSubmissionStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType
-            PromocodeSubmissionStep.PROMOCODE -> QodeIcons.Promocode
-            PromocodeSubmissionStep.DISCOUNT_VALUE -> PromocodeIcons.DiscountValue
-            PromocodeSubmissionStep.DATES -> PromocodeIcons.StartDate
-            PromocodeSubmissionStep.DESCRIPTION -> PromocodeIcons.Description
+            PromocodeWizardStep.SERVICE -> QodeIcons.Service
+            PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType
+            PromocodeWizardStep.PROMOCODE -> QodeIcons.Promocode
+            PromocodeWizardStep.DISCOUNT_VALUE -> PromocodeIcons.DiscountValue
+            PromocodeWizardStep.DATES -> PromocodeIcons.StartDate
+            PromocodeWizardStep.DESCRIPTION -> PromocodeIcons.Description
         }
     }
 
-val PromocodeSubmissionStep.titleRes: Int
+val PromocodeWizardStep.titleRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_title
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_title
-        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_title
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_title
-        PromocodeSubmissionStep.DATES -> CoreUiR.string.step_start_date_title
-        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_title
+        PromocodeWizardStep.SERVICE -> CoreUiR.string.step_service_title
+        PromocodeWizardStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_title
+        PromocodeWizardStep.PROMOCODE -> CoreUiR.string.step_promo_code_title
+        PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_title
+        PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_title
+        PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.step_description_title
     }
 
-val PromocodeSubmissionStep.indicatorRes: Int
+val PromocodeWizardStep.indicatorRes: Int
     get() = when (this) {
-        PromocodeSubmissionStep.SERVICE -> CoreUiR.string.step_service_short
-        PromocodeSubmissionStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short
-        PromocodeSubmissionStep.PROMOCODE -> CoreUiR.string.step_promo_code_short
-        PromocodeSubmissionStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_short
-        PromocodeSubmissionStep.DATES -> CoreUiR.string.step_start_date_short
-        PromocodeSubmissionStep.DESCRIPTION -> CoreUiR.string.step_description_short
+        PromocodeWizardStep.SERVICE -> CoreUiR.string.step_service_short
+        PromocodeWizardStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short
+        PromocodeWizardStep.PROMOCODE -> CoreUiR.string.step_promo_code_short
+        PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_short
+        PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_short
+        PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.step_description_short
     }

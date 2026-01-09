@@ -19,8 +19,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,12 +29,12 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
 fun PromocodeSubmissionCard(
-    currentStep: PromocodeSubmissionStep,
+    currentStep: PromocodeWizardStep,
     wizardData: SubmissionWizardData,
     validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
@@ -88,7 +86,7 @@ fun PromocodeSubmissionCard(
 
 @Composable
 private fun StepHeader(
-    step: PromocodeSubmissionStep,
+    step: PromocodeWizardStep,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -111,7 +109,7 @@ private fun StepHeader(
 private fun PromocodeSubmissionCardPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.SERVICE,
+            currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(),
             validation = ValidationState.valid(),
             onAction = {},

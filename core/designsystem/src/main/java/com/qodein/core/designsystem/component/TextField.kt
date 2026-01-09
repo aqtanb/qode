@@ -43,15 +43,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.qodein.core.designsystem.R
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -75,6 +79,7 @@ import kotlinx.coroutines.launch
  * @param singleLine Whether the field is single line (default true)
  * @param minLines Minimum number of lines for multiline text field
  * @param maxLength Optional maximum character count; input is trimmed to this length when provided
+ * @param showPasteIcon Whether to show paste icon when text field is empty
  */
 @Composable
 fun QodeinTextField(
@@ -91,13 +96,15 @@ fun QodeinTextField(
     focusRequester: FocusRequester? = null,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    maxLength: Int? = null
+    maxLength: Int? = null,
+    showPasteIcon: Boolean = false
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
+    val clipboardManager = LocalClipboardManager.current
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -152,22 +159,41 @@ fun QodeinTextField(
                     )
                 }
             },
-            trailingIcon = if (value.isNotEmpty()) {
-                {
-                    QodeinOutlinedIconButton(
-                        onClick = {
-                            onValueChange("")
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        },
-                        icon = QodeActionIcons.Clear,
-                        contentDescription = "Clear text",
-                        size = ButtonSize.Small,
-                        modifier = Modifier.padding(end = SpacingTokens.lg),
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    )
+            trailingIcon = when {
+                value.isNotEmpty() -> {
+                    {
+                        QodeinOutlinedIconButton(
+                            onClick = {
+                                onValueChange("")
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            },
+                            icon = QodeActionIcons.Clear,
+                            contentDescription = stringResource(R.string.text_field_clear),
+                            size = ButtonSize.Small,
+                            modifier = Modifier.padding(end = SpacingTokens.lg),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            } else {
-                null
+                value.isEmpty() && showPasteIcon -> {
+                    {
+                        QodeinOutlinedIconButton(
+                            onClick = {
+                                val clipboardText = clipboardManager.getText()?.text
+                                if (clipboardText != null) {
+                                    onValueChange(clipboardText)
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
+                            },
+                            icon = UIIcons.Paste,
+                            contentDescription = stringResource(R.string.text_field_paste),
+                            size = ButtonSize.Small,
+                            modifier = Modifier.padding(end = SpacingTokens.lg),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+                else -> null
             },
             enabled = enabled,
             keyboardOptions = keyboardOptions,

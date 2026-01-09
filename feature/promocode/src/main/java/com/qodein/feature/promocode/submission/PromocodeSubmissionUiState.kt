@@ -1,7 +1,7 @@
 package com.qodein.feature.promocode.submission
 
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Service
 import java.time.LocalDate
@@ -86,7 +86,7 @@ sealed interface PromocodeSubmissionState {
  * This state encapsulates wizard progression logic with efficient computed properties
  * and safe navigation methods that don't break flow with nulls.
  */
-data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep: PromocodeSubmissionStep) {
+data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep: PromocodeWizardStep) {
     val canGoNext get() = (currentStep.canProceed(wizardData) || !currentStep.isRequired) && !currentStep.isLast
     val canGoPrevious get() = !currentStep.isFirst
     val canSubmit get() = allRequiredStepsComplete() &&
@@ -94,12 +94,12 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
         currentStep.stepNumber >= getLastRequiredStepNumber()
 
     private fun getLastRequiredStepNumber(): Int =
-        PromocodeSubmissionStep.entries
+        PromocodeWizardStep.entries
             .filter { it.isRequired }
             .maxOfOrNull { it.stepNumber } ?: 1
 
     private fun allRequiredStepsComplete(): Boolean =
-        PromocodeSubmissionStep.entries
+        PromocodeWizardStep.entries
             .filter { it.isRequired }
             .all { step ->
                 step.stepNumber <= currentStep.stepNumber && step.canProceed(wizardData)
@@ -109,7 +109,7 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
         fun initial() =
             WizardFlowState(
                 SubmissionWizardData(),
-                PromocodeSubmissionStep.SERVICE,
+                PromocodeWizardStep.SERVICE,
             )
     }
 
@@ -119,7 +119,7 @@ data class WizardFlowState(val wizardData: SubmissionWizardData, val currentStep
 
     fun moveToPrevious() = currentStep.previous()?.let { WizardFlowState(wizardData, it) } ?: this
 
-    fun moveToStep(step: PromocodeSubmissionStep) = WizardFlowState(wizardData, step)
+    fun moveToStep(step: PromocodeWizardStep) = WizardFlowState(wizardData, step)
 }
 
 data class ServiceConfirmationDialogState(val serviceName: String, val serviceUrl: String, val logoUrl: String)

@@ -22,7 +22,7 @@ import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 
 @Composable
 internal fun DiscountValueStep(
@@ -156,7 +156,7 @@ private fun MinimumOrderField(
 private fun FixedDiscountPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
+            currentStep = PromocodeWizardStep.DISCOUNT_VALUE,
             wizardData = SubmissionWizardData(promocodeType = PromocodeType.FIXED_AMOUNT),
             validation = ValidationState.valid(),
             onAction = {},
@@ -169,7 +169,7 @@ private fun FixedDiscountPreview() {
 private fun PercentageDiscountPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
+            currentStep = PromocodeWizardStep.DISCOUNT_VALUE,
             wizardData = SubmissionWizardData(promocodeType = PromocodeType.PERCENTAGE),
             validation = ValidationState.valid(),
             onAction = {},

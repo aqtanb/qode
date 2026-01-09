@@ -6,6 +6,8 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.ServiceError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.config.AppConfig
+import com.qodein.shared.model.Service.Companion.isValidUrl
+import com.qodein.shared.model.Service.Companion.sanitizeUrl
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -13,14 +15,14 @@ import io.ktor.client.statement.HttpResponse
 
 class GetServiceLogoUrlUseCase(private val httpClient: HttpClient, private val logoToken: String = AppConfig.logoDevKey) {
     suspend operator fun invoke(domain: String): Result<String, OperationError> {
-        val normalizedDomain = domain.trim().lowercase()
+        val sanitizedDomain = sanitizeUrl(domain)
 
-        if (!isValidDomain(normalizedDomain)) {
+        if (!isValidUrl(sanitizedDomain)) {
             return Result.Error(ServiceError.CreationFailure.InvalidDomainFormat)
         }
 
         return try {
-            val logoUrl = "https://img.logo.dev/$normalizedDomain?token=$logoToken&size=300&retina=true&fallback=404"
+            val logoUrl = "https://img.logo.dev/$sanitizedDomain?token=$logoToken&size=300&retina=true&fallback=404"
 
             val response: HttpResponse = httpClient.get(logoUrl) {
                 header("User-Agent", "Mozilla/5.0 (Android)")
@@ -35,10 +37,5 @@ class GetServiceLogoUrlUseCase(private val httpClient: HttpClient, private val l
             Logger.e(e) { "Error validating logo for $domain" }
             Result.Error(SystemError.Offline)
         }
-    }
-
-    private fun isValidDomain(domain: String): Boolean {
-        val domainRegex = Regex("^[a-z0-9.-]+\\.[a-z]{2,}$")
-        return domain.isNotEmpty() && domainRegex.matches(domain)
     }
 }

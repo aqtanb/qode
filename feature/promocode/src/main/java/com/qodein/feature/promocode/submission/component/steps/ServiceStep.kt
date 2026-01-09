@@ -57,10 +57,10 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.validation.isValidServiceUrl
-import com.qodein.feature.promocode.submission.validation.sanitizeServiceUrl
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.Service
+import com.qodein.shared.model.Service.Companion.isValidUrl
+import com.qodein.shared.model.Service.Companion.sanitizeUrl
 
 @Composable
 fun ServiceStep(
@@ -201,12 +201,9 @@ private fun ServiceUrlField(
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
-            val filtered = newValue
-                .lowercase()
-                .filter { it.isLetterOrDigit() || it in setOf('.', '-', '/') }
-            val trimmed = sanitizeServiceUrl(filtered)
+            val basicFilter = newValue.filter { !it.isWhitespace() }
             errorText = null
-            onValueChange(trimmed)
+            onValueChange(basicFilter)
         },
         placeholder = stringResource(R.string.service_step_placeholder_service_url),
         leadingIcon = QodeActionIcons.Share,
@@ -220,21 +217,21 @@ private fun ServiceUrlField(
         ),
         keyboardActions = KeyboardActions(
             onNext = {
+                val cleanUrl = sanitizeUrl(value)
+                onValueChange(cleanUrl)
                 keyboardController?.hide()
-                when {
-                    value.isBlank() -> {
-                        errorText = blankUrlErrorText
-                    }
-                    !isValidServiceUrl(value) -> {
-                        errorText = invalidUrlErrorText
-                    }
-                    else -> {
-                        errorText = null
-                        onSubmitForm()
-                    }
+
+                if (cleanUrl.isBlank()) {
+                    errorText = blankUrlErrorText
+                } else if (!isValidUrl(cleanUrl)) {
+                    errorText = invalidUrlErrorText
+                } else {
+                    errorText = null
+                    onSubmitForm()
                 }
             },
         ),
+        showPasteIcon = true,
     )
 }
 
@@ -363,7 +360,7 @@ fun SelectServiceButton(
 private fun ServiceSelectorPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.SERVICE,
+            currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(),
             validation = ValidationState.valid(),
             onAction = {},
@@ -376,7 +373,7 @@ private fun ServiceSelectorPreview() {
 private fun ServiceSelectedPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.SERVICE,
+            currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(selectedService = ServicePreviewData.yandex),
             validation = ValidationState.valid(),
             onAction = {},
@@ -389,7 +386,7 @@ private fun ServiceSelectedPreview() {
 private fun ServiceManualPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.SERVICE,
+            currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(isManualServiceEntry = true),
             validation = ValidationState.valid(),
             onAction = {},

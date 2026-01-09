@@ -51,6 +51,36 @@ data class Service private constructor(
         const val NAME_MAX_LENGTH = 40
         const val LOGO_DEV_BASE_URL = "https://img.logo.dev/"
 
+        fun sanitizeUrl(raw: String): String {
+            val trimmed = raw.trim().lowercase()
+            if (trimmed.isBlank()) return ""
+
+            // Strip prefix/www
+            val withoutScheme = trimmed
+                .removePrefix("https://")
+                .removePrefix("http://")
+                .removePrefix("www.")
+
+            // Strip path/query and illegal symbols
+            val hostPart = withoutScheme.split('/', '?', '#')[0]
+            val cleanHost = hostPart.replace(Regex("[^a-z0-9.-]"), "")
+
+            // Extract Root Domain (No subdomains)
+            val segments = cleanHost.split('.').filter { it.isNotBlank() }
+            return if (segments.size >= 2) {
+                "${segments[segments.size - 2]}.${segments.last()}"
+            } else {
+                cleanHost
+            }
+        }
+
+        fun isValidUrl(url: String): Boolean {
+            val clean = sanitizeUrl(url)
+            // Strict domain.tld regex
+            val rootDomainRegex = Regex("^[a-z0-9-]+\\.[a-z]{2,}$")
+            return clean.isNotBlank() && rootDomainRegex.matches(clean)
+        }
+
         fun create(
             name: String,
             siteUrl: String,
@@ -72,7 +102,7 @@ data class Service private constructor(
                 return Result.Error(ServiceError.CreationFailure.EmptySiteUrl)
             }
 
-            val normalizedSiteUrl = normalizeDomain(cleanSiteUrl)
+            val normalizedSiteUrl = sanitizeUrl(cleanSiteUrl)
             val resolvedLogoUrl = logoUrl ?: deriveLogoDevUrl(normalizedSiteUrl)
             val serviceId = generateRandomId()
 
@@ -101,27 +131,13 @@ data class Service private constructor(
             Service(
                 id = id,
                 name = name,
-                siteUrl = normalizeDomain(siteUrl),
+                siteUrl = sanitizeUrl(siteUrl),
                 logoUrl = logoUrl,
                 promocodeCount = promoCodeCount,
             )
 
         @OptIn(ExperimentalUuidApi::class)
         private fun generateRandomId(): String = Uuid.random().toHexString()
-
-        private fun normalizeDomain(rawUrl: String): String {
-            val trimmed = rawUrl.trim()
-            if (trimmed.isBlank()) return ""
-            val withoutScheme = trimmed
-                .removePrefix("https://")
-                .removePrefix("http://")
-                .removePrefix("www.")
-            return withoutScheme
-                .substringBefore('/')
-                .substringBefore('?')
-                .substringBefore('#')
-                .trim()
-        }
 
         private fun deriveLogoDevUrl(siteUrl: String): String? {
             if (siteUrl.isBlank()) return null

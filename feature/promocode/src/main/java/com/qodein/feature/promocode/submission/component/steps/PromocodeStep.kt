@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinTextField
@@ -19,7 +20,7 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.PromocodeCode
 
 @Composable
@@ -41,7 +42,6 @@ internal fun PromocodeStep(
         value = promocode,
         onValueChange = { newValue ->
             val sanitized = newValue
-                .uppercase()
                 .filter { it.isLetterOrDigit() || it in setOf('-', '_') }
                 .take(PromocodeCode.MAX_LENGTH)
 
@@ -57,9 +57,11 @@ internal fun PromocodeStep(
         errorText = errorText,
         helperText = stringResource(R.string.promo_code_step_helper_text),
         focusRequester = focusRequester,
+        showPasteIcon = true,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Characters,
         ),
         keyboardActions = KeyboardActions(
             onNext = {
@@ -82,7 +84,7 @@ internal fun PromocodeStep(
 private fun FixedDiscountPreview() {
     QodeTheme {
         PromocodeSubmissionCard(
-            currentStep = PromocodeSubmissionStep.PROMOCODE,
+            currentStep = PromocodeWizardStep.PROMOCODE,
             wizardData = SubmissionWizardData(),
             validation = ValidationState.valid(),
             onAction = {},

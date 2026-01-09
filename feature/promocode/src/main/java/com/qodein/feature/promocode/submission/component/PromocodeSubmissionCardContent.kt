@@ -18,11 +18,11 @@ import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 
 @Composable
 fun PromocodeSubmissionCardContent(
-    currentStep: PromocodeSubmissionStep,
+    currentStep: PromocodeWizardStep,
     wizardData: SubmissionWizardData,
     validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
@@ -39,7 +39,7 @@ fun PromocodeSubmissionCardContent(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         when (currentStep) {
-            PromocodeSubmissionStep.SERVICE -> ServiceStep(
+            PromocodeWizardStep.SERVICE -> ServiceStep(
                 selectedService = wizardData.selectedService,
                 serviceNameInput = wizardData.serviceName,
                 serviceUrlInput = wizardData.serviceUrl,
@@ -51,19 +51,19 @@ fun PromocodeSubmissionCardContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.DISCOUNT_TYPE -> PromocodeTypeStep(
+            PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeTypeStep(
                 selectedType = wizardData.promocodeType,
                 onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromocodeType(it)) },
             )
 
-            PromocodeSubmissionStep.PROMOCODE -> PromocodeStep(
+            PromocodeWizardStep.PROMOCODE -> PromocodeStep(
                 promocode = wizardData.code,
                 onPromocodeChange = { onAction(PromocodeSubmissionAction.UpdatePromocode(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.DISCOUNT_VALUE -> DiscountValueStep(
+            PromocodeWizardStep.DISCOUNT_VALUE -> DiscountValueStep(
                 promoCodeType = wizardData.promocodeType,
                 discountPercentage = wizardData.discountPercentage,
                 discountAmount = wizardData.discountAmount,
@@ -76,14 +76,14 @@ fun PromocodeSubmissionCardContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeSubmissionStep.DATES -> PromocodeDatesStep(
+            PromocodeWizardStep.DATES -> PromocodeDatesStep(
                 startDate = wizardData.startDate,
                 endDate = wizardData.endDate,
                 onStartDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
                 onEndDateSelected = { onAction(PromocodeSubmissionAction.UpdateEndDate(it)) },
             )
 
-            PromocodeSubmissionStep.DESCRIPTION -> PromocodeDescriptionStep(
+            PromocodeWizardStep.DESCRIPTION -> PromocodeDescriptionStep(
                 description = wizardData.description,
                 onDescriptionChange = { onAction(PromocodeSubmissionAction.UpdateDescription(it)) },
                 focusRequester = focusRequester,

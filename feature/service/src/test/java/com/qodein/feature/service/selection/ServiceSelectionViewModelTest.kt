@@ -109,7 +109,7 @@ class ServiceSelectionViewModelTest {
         }
 
     @Test
-    fun `initialize only works once`() =
+    fun `initialize can be called multiple times to reset state`() =
         runTest {
             // Given
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
@@ -118,14 +118,14 @@ class ServiceSelectionViewModelTest {
 
             val initialServiceIds = setOf(ServiceId("netflix"))
 
-            // When
+            // When - initialize twice with different values
             viewModel.initialize(initialServiceIds, isSingleSelection = true)
             viewModel.initialize(setOf(ServiceId("spotify")), isSingleSelection = false)
 
-            // Then - should still have the first initialization
+            // Then - should have the SECOND initialization (allows reinitialization)
             val state = viewModel.uiState.value
-            assertEquals(SelectionMode.Single, state.selectionMode)
-            assertEquals(initialServiceIds, state.selectedServiceIds)
+            assertEquals(SelectionMode.Multi, state.selectionMode)
+            assertEquals(setOf(ServiceId("spotify")), state.selectedServiceIds)
         }
 
     @Test

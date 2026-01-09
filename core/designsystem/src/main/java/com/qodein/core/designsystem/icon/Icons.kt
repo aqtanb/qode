@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Diversity1
@@ -195,6 +196,7 @@ object QodeSocialIcons {
 }
 
 object UIIcons {
+    val Paste: ImageVector = Icons.Outlined.ContentPaste
     val MoreVert: ImageVector = Icons.Outlined.MoreVert
     val Block: ImageVector = Icons.Outlined.Block
     val Report: ImageVector = Icons.Outlined.Flag

@@ -40,7 +40,7 @@ import com.qodein.feature.promocode.submission.component.ProgressIndicator
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.component.ServiceConfirmationDialog
 import com.qodein.feature.promocode.submission.component.WizardController
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.ServiceId
@@ -264,7 +264,7 @@ private fun SuccessStatePreview() {
                         selectedService = ServicePreviewData.netflix,
                         promocodeType = PromocodeType.PERCENTAGE,
                     ),
-                    currentStep = PromocodeSubmissionStep.DISCOUNT_VALUE,
+                    currentStep = PromocodeWizardStep.DISCOUNT_VALUE,
                 ),
             ),
             onAction = {},

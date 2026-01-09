@@ -41,25 +41,31 @@ fun NavGraphBuilder.promocodeSubmissionSection(
         val viewModel: PromocodeSubmissionViewModel = koinViewModel()
 
         LaunchedEffect(Unit) {
-            var lastProcessedIds: List<String>? = null
             backStackEntry.savedStateHandle
                 .getStateFlow<List<String>?>(ServiceSelectionResult.KEY_SELECTED_SERVICE_IDS, null)
                 .filterNotNull()
                 .collect { selectedServiceIds ->
                     Logger.d("PromocodeNavigation") { "StateFlow emitted: $selectedServiceIds" }
-                    if (selectedServiceIds != lastProcessedIds) {
-                        Logger.d("PromocodeNavigation") { "New value detected, processing..." }
-                        lastProcessedIds = selectedServiceIds
-                        val selectedServiceId = selectedServiceIds.firstOrNull()?.let { ServiceId(it) }
-                        Logger.d("PromocodeNavigation") { "Parsed serviceId: $selectedServiceId" }
-                        if (selectedServiceId != null) {
-                            Logger.d("PromocodeNavigation") { "Calling viewModel.applyServiceSelection" }
-                            viewModel.applyServiceSelection(selectedServiceId)
-                        }
-                        Logger.d("PromocodeNavigation") { "Processing complete" }
-                    } else {
-                        Logger.d("PromocodeNavigation") { "Duplicate value, skipping" }
+                    val selectedServiceId = selectedServiceIds.firstOrNull()?.let { ServiceId(it) }
+                    Logger.d("PromocodeNavigation") { "Parsed serviceId: $selectedServiceId" }
+                    if (selectedServiceId != null) {
+                        Logger.d("PromocodeNavigation") { "Calling viewModel.applyServiceSelection" }
+                        viewModel.applyServiceSelection(selectedServiceId)
                     }
+
+                    /*
+                     * CRITICAL: Clear SavedStateHandle after processing to allow re-selecting same service
+                     *
+                     * BUG FIX: StateFlow.getStateFlow() only emits when the value CHANGES.
+                     * If user selects BTV, then switches to manual entry (which clears the service in
+                     * ViewModel but NOT in SavedStateHandle), then tries to select BTV again:
+                     * - Without this clear: savedStateHandle.set([BTV]) does nothing (same value)
+                     *   → StateFlow doesn't emit → applyServiceSelection never called → BTV not selected
+                     * - With this clear: savedStateHandle goes null → [BTV] is a change
+                     *   → StateFlow emits → applyServiceSelection called → BTV selected ✓
+                     */
+                    backStackEntry.savedStateHandle.set<List<String>?>(ServiceSelectionResult.KEY_SELECTED_SERVICE_IDS, null)
+                    Logger.d("PromocodeNavigation") { "Processing complete, state cleared" }
                 }
         }
 

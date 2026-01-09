@@ -11,7 +11,7 @@ import com.qodein.core.ui.refresh.RefreshTarget
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.feature.promocode.submission.validation.SubmissionField
 import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.wizard.PromocodeSubmissionStep
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.AuthState
@@ -23,6 +23,7 @@ import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.PromocodeCode
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.User
@@ -147,7 +148,7 @@ class PromocodeSubmissionViewModel(
         val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
 
         // Special handling for SERVICE step with manual entry - validate logo first
-        if (currentState.wizardFlow.currentStep == PromocodeSubmissionStep.SERVICE &&
+        if (currentState.wizardFlow.currentStep == PromocodeWizardStep.SERVICE &&
             currentState.wizardFlow.wizardData.isManualServiceEntry &&
             currentState.canGoNext
         ) {
@@ -189,24 +190,25 @@ class PromocodeSubmissionViewModel(
     // TODO: Check for the service duplication
     private fun validateServiceLogoAndProceed() {
         val currentState = _uiState.value as? PromocodeSubmissionUiState.Success ?: return
-        val domain = currentState.wizardFlow.wizardData.serviceUrl
+        val rawDomain = currentState.wizardFlow.wizardData.serviceUrl
+
+        val sanitized = Service.sanitizeUrl(rawDomain)
+        updateWizardData { it.copy(serviceUrl = sanitized) }
 
         viewModelScope.launch {
-            when (val result = getServiceLogoUrlUseCase(domain)) {
+            when (val result = getServiceLogoUrlUseCase(sanitized)) {
                 is Result.Success -> {
-                    // Logo found - show confirmation dialog
                     updateSuccessState { state ->
                         state.copy(
                             serviceConfirmationDialog = ServiceConfirmationDialogState(
                                 serviceName = state.wizardFlow.wizardData.serviceName,
-                                serviceUrl = state.wizardFlow.wizardData.serviceUrl,
+                                serviceUrl = sanitized,
                                 logoUrl = result.data,
                             ),
                         )
                     }
                 }
                 is Result.Error -> {
-                    // Logo not found or error - show error toast
                     _events.emit(PromocodeSubmissionEvent.ShowError(result.error.toUiText()))
                 }
             }
@@ -245,7 +247,7 @@ class PromocodeSubmissionViewModel(
         }
     }
 
-    private fun navigateToStep(targetStep: PromocodeSubmissionStep) {
+    private fun navigateToStep(targetStep: PromocodeWizardStep) {
         _uiState.update { currentState ->
             when (currentState) {
                 is PromocodeSubmissionUiState.Success -> {
@@ -298,12 +300,6 @@ class PromocodeSubmissionViewModel(
             it.copy(
                 validation = ValidationState.valid(),
             )
-        }
-    }
-
-    private fun handleBack() {
-        viewModelScope.launch {
-            _events.emit(PromocodeSubmissionEvent.NavigateBack)
         }
     }
 

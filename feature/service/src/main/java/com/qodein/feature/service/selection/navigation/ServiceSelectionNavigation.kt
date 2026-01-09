@@ -1,5 +1,6 @@
 package com.qodein.feature.service.selection.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -46,12 +47,17 @@ fun NavGraphBuilder.serviceSelectionSection(
 ) {
     dialog<ServiceSelectionRoute> { backStackEntry ->
         val args = backStackEntry.toRoute<ServiceSelectionRoute>()
-        val viewModel: ServiceSelectionViewModel = koinViewModel()
+        val viewModel: ServiceSelectionViewModel = koinViewModel(viewModelStoreOwner = backStackEntry)
 
-        viewModel.initialize(
-            initialServiceIds = args.initialServiceIds.map { ServiceId(it) }.toSet(),
-            isSingleSelection = args.isSingleSelection,
-        )
+        LaunchedEffect(Unit) {
+            Logger.d("ServiceSelectionNavigation") {
+                "Initializing with ${args.initialServiceIds.size} services, singleSelection=${args.isSingleSelection}"
+            }
+            viewModel.initialize(
+                initialServiceIds = args.initialServiceIds.map { ServiceId(it) }.toSet(),
+                isSingleSelection = args.isSingleSelection,
+            )
+        }
 
         ServiceSelectionBottomSheet(
             viewModel = viewModel,

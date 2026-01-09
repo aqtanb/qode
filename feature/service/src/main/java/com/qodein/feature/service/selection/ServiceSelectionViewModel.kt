@@ -32,7 +32,6 @@ class ServiceSelectionViewModel(
     val events = _events.asSharedFlow()
 
     private val searchQueryFlow = MutableStateFlow("")
-    private var isInitialized = false
 
     init {
         Logger.d("ServiceSelectionViewModel") { "init: Initializing ViewModel" }
@@ -44,9 +43,6 @@ class ServiceSelectionViewModel(
         initialServiceIds: Set<ServiceId>,
         isSingleSelection: Boolean
     ) {
-        if (isInitialized) return
-        isInitialized = true
-
         Logger.d("ServiceSelectionViewModel") {
             "initialize: initialServiceIds=${initialServiceIds.size}, isSingleSelection=$isSingleSelection"
         }
