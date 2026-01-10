@@ -110,6 +110,11 @@ private fun PromocodeDescription(
             formatNumber(discount.value),
             formatNumber(promocode.minimumOrderAmount),
         )
+        is Discount.FreeItem -> stringResource(
+            id = R.string.promocode_free_item_discount,
+            discount.description,
+            formatNumber(promocode.minimumOrderAmount),
+        )
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs)) {
         Text(

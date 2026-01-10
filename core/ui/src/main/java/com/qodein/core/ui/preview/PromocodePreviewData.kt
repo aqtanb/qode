@@ -1,5 +1,6 @@
 package com.qodein.core.ui.preview
 
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
@@ -8,6 +9,18 @@ import com.qodein.shared.model.UserId
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+
+class PromocodePreviewParameterProvider : PreviewParameterProvider<Promocode> {
+    override val values: Sequence<Promocode>
+        get() = sequenceOf(
+            PromocodePreviewData.percentagePromocode,
+            PromocodePreviewData.fixedAmountPromocode,
+            PromocodePreviewData.expiringSoonPromocode,
+            PromocodePreviewData.notYetActivePromocode,
+            PromocodePreviewData.highValuePromocode,
+            PromocodePreviewData.lowEngagementPromocode,
+        )
+}
 
 /**
  * Centralized sample data for Promocode previews.
@@ -37,7 +50,6 @@ object PromocodePreviewData {
             "Don't wait! Dive into the world of flavor and enjoy significant savings on us. " +
             "This is a community-shared code, verified and upvoted by many, so you can be " +
             "confident it works. Happy eating!",
-        isFirstUserOnly = false,
         upvotes = 125,
         downvotes = 12,
         isVerified = true,
@@ -61,7 +73,6 @@ object PromocodePreviewData {
         authorId = UserId("user456"),
         serviceName = "Kaspi.kz",
         description = "1000 KZT discount for new users on first purchase above 10000 KZT",
-        isFirstUserOnly = true,
         upvotes = 89,
         downvotes = 5,
         isVerified = true,
@@ -85,7 +96,6 @@ object PromocodePreviewData {
         authorId = UserId("user789"),
         serviceName = "Wolt",
         description = "Flash sale! 15% off all restaurants for limited time",
-        isFirstUserOnly = false,
         upvotes = 45,
         downvotes = 3,
         isVerified = false,
@@ -109,7 +119,6 @@ object PromocodePreviewData {
         authorId = UserId("user101"),
         serviceName = "Technodom",
         description = "Summer sale! 500 KZT off electronics purchases over 50000 KZT",
-        isFirstUserOnly = false,
         upvotes = 0,
         downvotes = 0,
         isVerified = false,
@@ -133,7 +142,6 @@ object PromocodePreviewData {
         authorId = UserId("user202"),
         serviceName = "Sulpak",
         description = "Mega discount! 50% off selected electronics and appliances",
-        isFirstUserOnly = true,
         upvotes = 892,
         downvotes = 23,
         isVerified = true,
@@ -157,7 +165,6 @@ object PromocodePreviewData {
         authorId = UserId("user303"),
         serviceName = "Local Coffee Shop",
         description = "100 KZT off your coffee order",
-        isFirstUserOnly = false,
         upvotes = 2,
         downvotes = 0,
         isVerified = false,

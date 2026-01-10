@@ -372,6 +372,8 @@ private fun buildShareText(
             CoreUiR.string.discount_fixed,
             formatNumber(discount.value),
         )
+
+        is Discount.FreeItem -> discount.description
     }
 
     return buildString {

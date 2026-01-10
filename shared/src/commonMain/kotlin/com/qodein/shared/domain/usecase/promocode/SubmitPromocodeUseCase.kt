@@ -50,8 +50,6 @@ class SubmitPromocodeUseCase(private val repository: PromocodeRepository, privat
                 minimumOrderAmount = request.minimumOrderAmount,
                 startDate = request.startDate,
                 endDate = request.endDate,
-                isFirstUserOnly = request.isFirstUserOnly,
-                isOneTimeUseOnly = request.isOneTimeUseOnly,
                 isVerified = request.isVerified,
                 description = request.description,
             )

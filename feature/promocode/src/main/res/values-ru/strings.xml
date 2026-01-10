@@ -49,9 +49,19 @@
     <string name="promocode_dates_confirm">ОК</string>
 
     <string name="promocode_discount_percentage_helper">Введите процент (1–99%)</string>
-    <string name="promocode_discount_amount_helper">Введите сумму в ₸ (тенге)</string>
+    <string name="promocode_discount_percentage_error_blank">Процент не может быть пустым</string>
+    <string name="promocode_discount_percentage_error_range">Введите значение от 1 до 100</string>
+
+    <string name="promocode_discount_amount_helper">Введите скидку в ₸ (тенге)</string>
+    <string name="promocode_discount_amount_error_blank">Сумма скидки не может быть пустой</string>
+
+    <string name="promocode_free_item_placeholder">Бесплатная доставка</string>
+    <string name="promocode_free_item_helper">Какой бесплатный товар или преимущество дает этот код?</string>
+    <string name="promocode_free_item_error_blank">Описание не может быть пустым</string>
+    <string name="promocode_free_item_error_max_length">Максимум %1$d символов</string>
 
     <string name="promocode_minimum_order_helper">Минимальная сумма заказа в ₸ (тенге) для получения скидки</string>
+    <string name="promocode_minimum_order_error_max_length">Максимум %1$d символов</string>
 
     <string name="promocode_submission_show_tips">Показать подсказки</string>
     <string name="promocode_submission_hide_tips">Скрыть подсказки</string>
@@ -62,6 +72,7 @@
 
     <string name="promo_type_percentage_title">Процентная</string>
     <string name="promo_type_fixed_amount_title">Фиксированная сумма</string>
+    <string name="promo_type_free_item_title">Бесплатный товар</string>
     <string name="submit_promocode">Отправить промокод</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>

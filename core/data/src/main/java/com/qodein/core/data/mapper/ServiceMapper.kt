@@ -11,7 +11,7 @@ object ServiceMapper {
             name = dto.name,
             siteUrl = dto.siteUrl,
             logoUrl = dto.logoUrl,
-            promoCodeCount = dto.promoCodeCount,
+            promoCodeCount = dto.promocodeCount,
         )
 
     fun toDto(service: Service): ServiceDto =
@@ -20,6 +20,6 @@ object ServiceMapper {
             name = service.name,
             siteUrl = service.siteUrl,
             logoUrl = service.logoUrl,
-            promoCodeCount = service.promocodeCount,
+            promocodeCount = service.promocodeCount,
         )
 }

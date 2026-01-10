@@ -35,6 +35,9 @@
     <string name="error_promo_invalid_date_range">End date must be after the start date.</string>
     <string name="error_promo_invalid_percentage" formatted="false">Discount percentage must be between 1% and 100%.</string>
     <string name="error_promo_invalid_fixed_amount">Fixed discount amount must be greater than zero.</string>
+    <string name="error_promo_invalid_free_item_description">Free item description cannot be empty.</string>
+    <string name="error_promo_free_item_description_too_long">Free item description is too long. Maximum 50 characters allowed.</string>
+    <string name="error_promo_free_item_invalid_characters">Free item description contains invalid characters.</string>
     <string name="error_promo_invalid_minimum_amount">Minimum purchase amount must be greater than zero.</string>
     <string name="error_promo_discount_exceeds_minimum">Discount amount cannot exceed the minimum purchase amount.</string>
     <string name="error_promo_invalid_id">Invalid promocode identifier.</string>

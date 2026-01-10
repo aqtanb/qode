@@ -16,6 +16,9 @@ sealed interface PromocodeError : OperationError {
         data object CodeTooLong : CreationFailure
         data object InvalidPercentageDiscount : CreationFailure
         data object InvalidFixedAmountDiscount : CreationFailure
+        data object InvalidFreeItemDescription : CreationFailure
+        data object FreeItemDescriptionTooLong : CreationFailure
+        data object FreeItemDescriptionInvalidCharacters : CreationFailure
         data object DiscountExceedsMinimumAmount : CreationFailure
         data object InvalidMinimumAmount : CreationFailure
         data object DescriptionTooLong : CreationFailure

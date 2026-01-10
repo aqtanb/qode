@@ -104,6 +104,20 @@ sealed interface Discount {
                     Result.Success(Unit)
                 }
             }
+            is FreeItem -> {
+                val trimmed = description.trim()
+                when {
+                    trimmed.isBlank() -> Result.Error(PromocodeError.CreationFailure.InvalidFreeItemDescription)
+                    trimmed.length > FreeItem.MAX_DESCRIPTION_LENGTH -> Result.Error(
+                        PromocodeError.CreationFailure.FreeItemDescriptionTooLong,
+                    )
+                    trimmed.any { it.isISOControl() } -> Result.Error(PromocodeError.CreationFailure.InvalidFreeItemDescription)
+                    trimmed.any { !it.isLetterOrDigit() && it != ' ' && it != '-' } -> Result.Error(
+                        PromocodeError.CreationFailure.FreeItemDescriptionInvalidCharacters,
+                    )
+                    else -> Result.Success(Unit)
+                }
+            }
         }
 
     @Serializable
@@ -111,6 +125,15 @@ sealed interface Discount {
 
     @Serializable
     data class FixedAmount(override val value: Double) : Discount
+
+    @Serializable
+    data class FreeItem(val description: String) : Discount {
+        override val value: Double get() = 0.0
+
+        companion object {
+            const val MAX_DESCRIPTION_LENGTH = 50
+        }
+    }
 }
 
 @ConsistentCopyVisibility
@@ -126,14 +149,13 @@ data class Promocode private constructor(
     val serviceName: String,
     val description: String? = null,
 
-    val isFirstUseOnly: Boolean = false,
-    val isOneTimeUseOnly: Boolean = false,
     val upvotes: Int = 0,
     val downvotes: Int = 0,
     val isVerified: Boolean = false,
 
     val serviceId: ServiceId? = null,
     val serviceLogoUrl: String? = null,
+    val serviceSiteUrl: String? = null,
 
     val authorUsername: String? = null,
     val authorAvatarUrl: String? = null,
@@ -144,6 +166,7 @@ data class Promocode private constructor(
 
     companion object {
         const val DESCRIPTION_MAX_LENGTH = 1000
+        const val MINIMUM_ORDER_AMOUNT_MAX_LENGTH = 50
 
         fun create(
             code: String,
@@ -153,8 +176,6 @@ data class Promocode private constructor(
             minimumOrderAmount: Double,
             startDate: Instant,
             endDate: Instant,
-            isFirstUserOnly: Boolean,
-            isOneTimeUseOnly: Boolean,
             isVerified: Boolean,
             description: String? = null
         ): Result<Promocode, PromocodeError.CreationFailure> {
@@ -204,13 +225,12 @@ data class Promocode private constructor(
                     authorId = author.id,
                     serviceName = service.name,
                     description = cleanDescription,
-                    isFirstUseOnly = isFirstUserOnly,
-                    isOneTimeUseOnly = isOneTimeUseOnly,
                     upvotes = 0,
                     downvotes = 0,
                     isVerified = isVerified,
                     serviceId = service.id,
                     serviceLogoUrl = service.logoUrl,
+                    serviceSiteUrl = service.siteUrl,
                     authorUsername = author.displayName,
                     authorAvatarUrl = author.profile.photoUrl,
                     createdAt = Clock.System.now(),
@@ -232,13 +252,12 @@ data class Promocode private constructor(
             authorId: UserId,
             serviceName: String,
             description: String? = null,
-            isFirstUserOnly: Boolean = false,
-            isOneTimeUseOnly: Boolean = false,
             upvotes: Int = 0,
             downvotes: Int = 0,
             isVerified: Boolean = false,
             serviceId: ServiceId? = null,
             serviceLogoUrl: String? = null,
+            serviceSiteUrl: String? = null,
             authorUsername: String? = null,
             authorAvatarUrl: String? = null,
             createdAt: Instant
@@ -253,13 +272,12 @@ data class Promocode private constructor(
                 authorId = authorId,
                 serviceName = serviceName,
                 description = description,
-                isFirstUseOnly = isFirstUserOnly,
-                isOneTimeUseOnly = isOneTimeUseOnly,
                 upvotes = upvotes,
                 downvotes = downvotes,
                 isVerified = isVerified,
                 serviceId = serviceId,
                 serviceLogoUrl = serviceLogoUrl,
+                serviceSiteUrl = serviceSiteUrl,
                 authorUsername = authorUsername,
                 authorAvatarUrl = authorAvatarUrl,
                 createdAt = createdAt,

@@ -6,15 +6,7 @@ import com.qodein.shared.common.error.PromocodeError
  * Form validation field identifiers for type safety.
  */
 enum class SubmissionField {
-    SERVICE_NAME,
-    PROMO_CODE_TYPE,
-    PROMO_CODE,
-    DISCOUNT_PERCENTAGE,
-    DISCOUNT_AMOUNT,
-    MINIMUM_ORDER_AMOUNT,
-    START_DATE,
-    END_DATE,
-    DESCRIPTION
+    PROMO_CODE
 }
 
 /**

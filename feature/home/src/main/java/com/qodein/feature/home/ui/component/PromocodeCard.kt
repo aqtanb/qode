@@ -106,6 +106,7 @@ fun PromocodeCard(
     val discountText = when (val discount = promocode.discount) {
         is Discount.Percentage -> "${formatNumber(discount.value)} %"
         is Discount.FixedAmount -> "${formatNumber(discount.value)} ₸"
+        is Discount.FreeItem -> discount.description
     }
 
     // Create custom coupon shape with actual cuts
@@ -325,6 +326,8 @@ private fun StubContent(
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onTertiaryContainer,
             textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.align(Alignment.Center),
         )
 

@@ -92,6 +92,7 @@ class PromocodeSubmissionViewModel(
             is PromocodeSubmissionAction.UpdatePromocode -> updatePromocode(action.promocode)
             is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateWizardData { it.copy(discountPercentage = action.percentage) }
             is PromocodeSubmissionAction.UpdateDiscountAmount -> updateWizardData { it.copy(discountAmount = action.amount) }
+            is PromocodeSubmissionAction.UpdateFreeItemDescription -> updateWizardData { it.copy(freeItemDescription = action.description) }
             is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateWizardData { it.copy(minimumOrderAmount = action.amount) }
             is PromocodeSubmissionAction.UpdateFirstUserOnly -> updateWizardData { it.copy(isFirstUserOnly = action.isFirstUserOnly) }
             is PromocodeSubmissionAction.UpdateOneTimeUseOnly -> updateWizardData { it.copy(isOneTimeUseOnly = action.isOneTimeUseOnly) }
@@ -408,6 +409,7 @@ class PromocodeSubmissionViewModel(
         val discount = when (wizardData.promocodeType) {
             PromocodeType.PERCENTAGE -> Discount.Percentage(wizardData.discountPercentage.toDoubleOrNull() ?: 0.0)
             PromocodeType.FIXED_AMOUNT -> Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0)
+            PromocodeType.FREE_ITEM -> Discount.FreeItem(wizardData.freeItemDescription)
             null -> return null
         }
 

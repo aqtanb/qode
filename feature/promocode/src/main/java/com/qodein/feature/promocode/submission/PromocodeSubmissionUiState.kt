@@ -8,7 +8,8 @@ import java.time.LocalDate
 
 enum class PromocodeType {
     PERCENTAGE,
-    FIXED_AMOUNT
+    FIXED_AMOUNT,
+    FREE_ITEM
 }
 
 data class SubmissionWizardData(
@@ -23,6 +24,7 @@ data class SubmissionWizardData(
     val promocodeType: PromocodeType? = null,
     val discountPercentage: String = "",
     val discountAmount: String = "",
+    val freeItemDescription: String = "",
     val minimumOrderAmount: String = "",
 
     // Options

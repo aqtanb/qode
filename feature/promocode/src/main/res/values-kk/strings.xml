@@ -6,6 +6,7 @@
 
     <string name="promocode_fixed_amount_discount">%2$s₸-ден жоғары тапсырыстарға %1$s₸ жеңілдік алыңыз</string>
     <string name="promocode_percentage_discount">%2$s₸-ден жоғары тапсырыстарға %1$s%% жеңілдік алыңыз</string>
+    <string name="promocode_free_item_discount">%2$s₸-ден жоғары тапсырыстарға %1$s алыңыз</string>
     <string name="promocode_details_title">Промокод деректері</string>
     <string name="promocode_details_service">Сервис</string>
     <string name="promocode_details_discount">Жеңілдік</string>
@@ -49,9 +50,19 @@
     <string name="promocode_dates_confirm">ОК</string>
 
     <string name="promocode_discount_percentage_helper">Пайызды енгізіңіз (1–99%)</string>
-    <string name="promocode_discount_amount_helper">Соманы ₸ (теңге) түрінде енгізіңіз</string>
+    <string name="promocode_discount_percentage_error_blank">Пайыз бос бола алмайды</string>
+    <string name="promocode_discount_percentage_error_range">1 мен 100 арасындағы мәнді енгізіңіз</string>
+
+    <string name="promocode_discount_amount_helper">Жеңілдікті ₸ (теңге) түрінде енгізіңіз</string>
+    <string name="promocode_discount_amount_error_blank">Жеңілдік сомасы бос бола алмайды</string>
+
+    <string name="promocode_free_item_placeholder">Тегін жеткізу</string>
+    <string name="promocode_free_item_helper">Бұл код қандай тегін тауар немесе артықшылық береді?</string>
+    <string name="promocode_free_item_error_blank">Сипаттама бос бола алмайды</string>
+    <string name="promocode_free_item_error_max_length">Максимум %1$d таңба</string>
 
     <string name="promocode_minimum_order_helper">Жеңілдік алу үшін тапсырыстың минималды сомасы ₸ (теңге)</string>
+    <string name="promocode_minimum_order_error_max_length">Максимум %1$d таңба</string>
 
     <string name="promocode_submission_show_tips">Пайдалы кеңестерді көрсету</string>
     <string name="promocode_submission_hide_tips">Пайдалы кеңестерді жасыру</string>
@@ -62,6 +73,7 @@
 
     <string name="promo_type_percentage_title">Пайыздық</string>
     <string name="promo_type_fixed_amount_title">Белгіленген сома</string>
+    <string name="promo_type_free_item_title">Тегін тауар</string>
     <string name="submit_promocode">Промокодты жіберу</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>

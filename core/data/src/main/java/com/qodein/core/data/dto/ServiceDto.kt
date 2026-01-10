@@ -12,7 +12,7 @@ data class ServiceDto(
     val name: String = "",
     val siteUrl: String = "",
     val logoUrl: String? = null,
-    val promoCodeCount: Int = 0
+    val promocodeCount: Int = 0
 ) {
     companion object {
         const val COLLECTION_NAME = "services"

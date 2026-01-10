@@ -191,6 +191,90 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "engagement.voteScore",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "service.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "engagement.voteScore",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "service.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "service.name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "promocodes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "serviceName",
           "order": "ASCENDING"
         },

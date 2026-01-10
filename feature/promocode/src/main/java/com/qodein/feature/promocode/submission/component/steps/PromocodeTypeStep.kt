@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,12 +42,14 @@ val PromocodeType.titleRes: Int
     get() = when (this) {
         PromocodeType.PERCENTAGE -> R.string.promo_type_percentage_title
         PromocodeType.FIXED_AMOUNT -> R.string.promo_type_fixed_amount_title
+        PromocodeType.FREE_ITEM -> R.string.promo_type_free_item_title
     }
 
 val PromocodeType.icon: ImageVector
     get() = when (this) {
         PromocodeType.PERCENTAGE -> PromocodeIcons.Percentage
         PromocodeType.FIXED_AMOUNT -> PromocodeIcons.FixedAmount
+        PromocodeType.FREE_ITEM -> PromocodeIcons.FreeItem
     }
 
 @Composable
@@ -57,9 +58,9 @@ fun PromocodeTypeStep(
     onTypeSelected: (PromocodeType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
         PromocodeType.entries.forEach { type ->
             TypeToggleButton(
@@ -67,7 +68,7 @@ fun PromocodeTypeStep(
                 icon = type.icon,
                 isSelected = selectedType == type,
                 onClick = { onTypeSelected(type) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }

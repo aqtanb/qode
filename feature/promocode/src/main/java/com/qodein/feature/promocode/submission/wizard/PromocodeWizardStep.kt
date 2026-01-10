@@ -4,10 +4,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.validation.isValidBusinessLogic
-import com.qodein.feature.promocode.submission.validation.isValidDiscountValue
-import com.qodein.feature.promocode.submission.validation.isValidMinimumOrderAmount
 import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
 import com.qodein.core.ui.R as CoreUiR
 
@@ -24,8 +22,15 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null
     },
     DISCOUNT_VALUE(4) {
-        override fun canProceed(data: SubmissionWizardData): Boolean =
-            isValidDiscountValue(data) && isValidMinimumOrderAmount(data.minimumOrderAmount) && isValidBusinessLogic(data)
+        override fun canProceed(data: SubmissionWizardData): Boolean {
+            val hasDiscountValue = when (data.promocodeType) {
+                PromocodeType.PERCENTAGE -> data.discountPercentage.isNotBlank()
+                PromocodeType.FIXED_AMOUNT -> data.discountAmount.isNotBlank()
+                PromocodeType.FREE_ITEM -> data.freeItemDescription.isNotBlank()
+                null -> false
+            }
+            return hasDiscountValue && data.minimumOrderAmount.isNotBlank()
+        }
     },
     DATES(5, true) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.endDate != null && data.endDate.isAfter(data.startDate)

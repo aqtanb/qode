@@ -49,6 +49,9 @@
     <string name="error_promo_invalid_minimum_amount">Минимальная сумма заказа должна быть больше нуля.</string>
     <string name="error_promo_discount_exceeds_minimum">Скидка не может превышать минимальную сумму заказа.</string>
     <string name="error_promo_invalid_id">Некорректный идентификатор промокода.</string>
+    <string name="error_promo_invalid_free_item_description">Описание бесплатного товара не может быть пустым.</string>
+    <string name="error_promo_free_item_description_too_long">Описание бесплатного товара слишком длинное. Максимум 50 символов.</string>
+    <string name="error_promo_free_item_invalid_characters">Описание бесплатного товара содержит недопустимые символы.</string>
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>

@@ -6,6 +6,7 @@
 
     <string name="promocode_fixed_amount_discount">Get %1$s₸ OFF on orders above %2$s₸</string>
     <string name="promocode_percentage_discount">Get %1$s%% OFF on orders above %2$s₸</string>
+    <string name="promocode_free_item_discount">Get %1$s on orders above %2$s₸</string>
     <string name="promocode_details_title">Promocode Details</string>
     <string name="promocode_details_service">Service</string>
     <string name="promocode_details_discount">Discount</string>
@@ -52,11 +53,21 @@
 
     <string name="promocode_discount_percentage_placeholder" translatable="false">30</string>
     <string name="promocode_discount_percentage_helper">Enter the percentage (1–99%)</string>
+    <string name="promocode_discount_percentage_error_blank">Percentage cannot be empty</string>
+    <string name="promocode_discount_percentage_error_range">Enter a value between 1 and 100</string>
+
     <string name="promocode_discount_amount_placeholder" translatable="false">2000</string>
-    <string name="promocode_discount_amount_helper">Enter in ₸ (tenge)</string>
+    <string name="promocode_discount_amount_helper">Discount value in ₸ (tenge</string>
+    <string name="promocode_discount_amount_error_blank">Discount amount cannot be empty</string>
+
+    <string name="promocode_free_item_placeholder">Free delivery</string>
+    <string name="promocode_free_item_helper">What free item or benefit does this code provide?</string>
+    <string name="promocode_free_item_error_blank">Free item description cannot be empty</string>
+    <string name="promocode_free_item_error_max_length">Maximum %1$d characters allowed</string>
 
     <string name="promocode_minimum_order_placeholder" translatable="false">5000</string>
     <string name="promocode_minimum_order_helper">Minimum order in ₸ (tenge) to get the discount</string>
+    <string name="promocode_minimum_order_error_max_length">Maximum %1$d characters allowed</string>
 
     <string name="promocode_submission_show_tips">Show helpful tips</string>
     <string name="promocode_submission_hide_tips">Hide helpful tips</string>
@@ -68,6 +79,7 @@
 
     <string name="promo_type_percentage_title">Percentage</string>
     <string name="promo_type_fixed_amount_title">Fixed Amount</string>
+    <string name="promo_type_free_item_title">Free Item</string>
     <string name="submit_promocode">Submit Promocode</string>
     <string name="cd_upvote">Upvote, %1$d</string>
     <string name="cd_downvote">Downvote, %1$d</string>

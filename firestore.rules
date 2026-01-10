@@ -16,10 +16,14 @@ service cloud.firestore {
     }
 
     match /promocodes/{promoId} {
-      allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update, delete: if isOwner(resource.data.authorId);
-    }
+          allow read: if true;
+
+          allow create: if isSignedIn()
+                    && request.resource.data.author.id == request.auth.uid;
+
+          allow update, delete: if isSignedIn()
+                    && resource.data.author.id == request.auth.uid;
+        }
 
     match /services/{serviceId} {
       allow read: if true;

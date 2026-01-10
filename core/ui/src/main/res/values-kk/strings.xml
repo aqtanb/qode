@@ -57,6 +57,9 @@
     <string name="error_promo_invalid_minimum_amount">Минималды сома нөлден үлкен болуы керек.</string>
     <string name="error_promo_discount_exceeds_minimum">Жеңілдік минималды сомадан артық бола алмайды.</string>
     <string name="error_promo_invalid_id">Промокод идентификаторы қате.</string>
+    <string name="error_promo_invalid_free_item_description">Тегін тауар сипаттамасы бос болмауы керек.</string>
+    <string name="error_promo_free_item_description_too_long">Тегін тауар сипаттамасы тым ұзын. Ең көбі 50 таңба.</string>
+    <string name="error_promo_free_item_invalid_characters">Тегін тауар сипаттамасында жарамсыз таңбалар бар.</string>
 
     <string name="error_user_invalid_email">Электрондық пошта қате.</string>
     <string name="error_user_invalid_photo_url">Профиль фотосының сілтемесі қате.</string>

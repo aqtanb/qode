@@ -23,6 +23,7 @@ sealed interface PromocodeSubmissionAction {
     data class UpdatePromocode(val promocode: String) : PromocodeSubmissionAction
     data class UpdateDiscountPercentage(val percentage: String) : PromocodeSubmissionAction
     data class UpdateDiscountAmount(val amount: String) : PromocodeSubmissionAction
+    data class UpdateFreeItemDescription(val description: String) : PromocodeSubmissionAction
     data class UpdateMinimumOrderAmount(val amount: String) : PromocodeSubmissionAction
     data class UpdateFirstUserOnly(val isFirstUserOnly: Boolean) : PromocodeSubmissionAction
     data class UpdateOneTimeUseOnly(val isOneTimeUseOnly: Boolean) : PromocodeSubmissionAction

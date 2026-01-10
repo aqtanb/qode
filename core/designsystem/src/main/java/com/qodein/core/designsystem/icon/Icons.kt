@@ -67,6 +67,7 @@ import compose.icons.feathericons.Download
 import compose.icons.feathericons.Edit3
 import compose.icons.feathericons.Eye
 import compose.icons.feathericons.Filter
+import compose.icons.feathericons.Gift
 import compose.icons.feathericons.Heart
 import compose.icons.feathericons.Home
 import compose.icons.feathericons.Image
@@ -118,6 +119,7 @@ object PromocodeIcons {
     val Description: ImageVector = Icons.Outlined.Description
     val Percentage: ImageVector = FeatherIcons.Percent
     val FixedAmount: ImageVector = FeatherIcons.DollarSign
+    val FreeItem: ImageVector = FeatherIcons.Gift
 }
 
 object QodeIcons {

@@ -55,6 +55,7 @@ class HomeViewModel(
     companion object {
         private const val PROMO_CODE_TYPE_PERCENTAGE = "percentage"
         private const val PROMO_CODE_TYPE_FIXED_AMOUNT = "fixed_amount"
+        private const val PROMO_CODE_TYPE_FREE_ITEM = "free_item"
         private const val CONTENT_TYPE_BANNER = "banner"
         private const val EVENT_COPY_PROMOCODE = "copy_promocode"
         private const val KEY_SCROLL_INDEX = "scroll_index"
@@ -340,6 +341,7 @@ class HomeViewModel(
         when (this.discount) {
             is Discount.Percentage -> PROMO_CODE_TYPE_PERCENTAGE
             is Discount.FixedAmount -> PROMO_CODE_TYPE_FIXED_AMOUNT
+            is Discount.FreeItem -> PROMO_CODE_TYPE_FREE_ITEM
         }
 
     private fun dismissError() {
