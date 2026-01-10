@@ -33,7 +33,7 @@ export const onPromocodeCreatedUpdateUserStats = onDocumentCreated(
   `${PROMO_COLLECTION}/{promoId}`,
   async (event) => {
     const data = event.data?.data();
-    const authorId = data?.authorId as string | undefined;
+    const authorId = data?.author?.id as string | undefined;
     if (!authorId) return;
 
     await incrementUserStat(authorId, SUBMITTED_PROMOCODES_FIELD, 1, {
@@ -47,7 +47,7 @@ export const onPromocodeDeletedUpdateUserStats = onDocumentDeleted(
   `${PROMO_COLLECTION}/{promoId}`,
   async (event) => {
     const data = event.data?.data();
-    const authorId = data?.authorId as string | undefined;
+    const authorId = data?.author?.id as string | undefined;
     if (!authorId) return;
 
     await incrementUserStat(authorId, SUBMITTED_PROMOCODES_FIELD, -1, {
@@ -62,8 +62,8 @@ export const onPromocodeUpdatedUpdateUserStats = onDocumentUpdated(
   async (event) => {
     const before = event.data?.before.data();
     const after = event.data?.after.data();
-    const beforeAuthorId = before?.authorId as string | undefined;
-    const afterAuthorId = after?.authorId as string | undefined;
+    const beforeAuthorId = before?.author?.id as string | undefined;
+    const afterAuthorId = after?.author?.id as string | undefined;
 
     if (!beforeAuthorId && !afterAuthorId) return;
     if (beforeAuthorId === afterAuthorId) return;

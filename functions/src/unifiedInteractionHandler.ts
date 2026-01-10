@@ -141,8 +141,15 @@ export const updateContentVotesFromInteractions = onDocumentWritten(
         }
 
         const contentData = contentDoc.data()!;
-        const currentUpvotes = contentData.upvotes || 0;
-        const currentDownvotes = contentData.downvotes || 0;
+
+        // For PROMO_CODE, votes are nested under engagement object
+        const isPromoCode = itemType === 'PROMO_CODE';
+        const currentUpvotes = isPromoCode
+          ? (contentData.engagement?.upvotes || 0)
+          : (contentData.upvotes || 0);
+        const currentDownvotes = isPromoCode
+          ? (contentData.engagement?.downvotes || 0)
+          : (contentData.downvotes || 0);
 
         // Calculate new vote counts (ensure non-negative)
         const newUpvotes = Math.max(0, currentUpvotes + upvoteDelta);
@@ -150,12 +157,20 @@ export const updateContentVotesFromInteractions = onDocumentWritten(
         const newVoteScore = newUpvotes - newDownvotes;
 
         // Update content with new vote counts
-        transaction.update(contentRef, {
+        // For PROMO_CODE, update nested engagement fields
+        const updateData = isPromoCode ? {
+          'engagement.upvotes': newUpvotes,
+          'engagement.downvotes': newDownvotes,
+          'engagement.voteScore': newVoteScore,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        } : {
           upvotes: newUpvotes,
           downvotes: newDownvotes,
           voteScore: newVoteScore,
           updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+
+        transaction.update(contentRef, updateData);
 
         logger.info('Content vote counts updated successfully', {
           interactionId,

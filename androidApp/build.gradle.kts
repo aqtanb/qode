@@ -148,6 +148,7 @@ dependencies {
     implementation(libs.androidx.startup)
     implementation(libs.kermit)
     implementation(libs.timber)
+    implementation(libs.bundles.play.app.update)
 
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)

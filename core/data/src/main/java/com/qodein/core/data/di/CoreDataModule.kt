@@ -18,6 +18,7 @@ import com.qodein.core.data.BuildConfig
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
 import com.qodein.core.data.datasource.FirebaseAuthDataSource
 import com.qodein.core.data.datasource.FirebaseStorageDataSource
+import com.qodein.core.data.datasource.FirestoreAppUpdateConfigDataSource
 import com.qodein.core.data.datasource.FirestoreBannerDataSource
 import com.qodein.core.data.datasource.FirestorePostDataSource
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
@@ -27,6 +28,7 @@ import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.datasource.LocalReportDataSource
 import com.qodein.core.data.mapper.UserInteractionMapper
+import com.qodein.core.data.repository.AppUpdateConfigRepositoryImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
@@ -37,6 +39,7 @@ import com.qodein.core.data.repository.ServiceRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
 import com.qodein.core.data.repository.UnifiedUserInteractionRepositoryImpl
 import com.qodein.core.data.repository.UserRepositoryImpl
+import com.qodein.shared.domain.repository.AppUpdateConfigRepository
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
@@ -70,6 +73,7 @@ val coreDataModule = module {
     single { DevicePreferencesDataSource(get()) }
     single { FirebaseAuthDataSource(get()) }
     single { FirebaseStorageDataSource(get()) }
+    single { FirestoreAppUpdateConfigDataSource(get()) }
     single { FirestoreBannerDataSource(get()) }
     single { FirestorePostDataSource(get()) }
     single { FirestorePromocodeDataSource(get()) }
@@ -79,6 +83,7 @@ val coreDataModule = module {
     single { FirestoreReportDataSource(get()) }
     single { LocalReportDataSource(androidContext().reportDataStore) }
 
+    single<AppUpdateConfigRepository> { AppUpdateConfigRepositoryImpl(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<PromocodeRepository> { PromocodeRepositoryImpl(get()) }

@@ -25,14 +25,14 @@ async function incrementServiceCount(serviceId: string, delta: number) {
 
 export const onPromoCreated = onDocumentCreated(`${PROMO_COLLECTION}/{promoId}`, async (event) => {
   const data = event.data?.data();
-  const serviceId = data?.serviceId as string | undefined;
+  const serviceId = data?.service?.id as string | undefined;
   if (!serviceId) return;
   await incrementServiceCount(serviceId, 1);
 });
 
 export const onPromoDeleted = onDocumentDeleted(`${PROMO_COLLECTION}/{promoId}`, async (event) => {
   const data = event.data?.data();
-  const serviceId = data?.serviceId as string | undefined;
+  const serviceId = data?.service?.id as string | undefined;
   if (!serviceId) return;
   await incrementServiceCount(serviceId, -1);
 });
@@ -40,8 +40,8 @@ export const onPromoDeleted = onDocumentDeleted(`${PROMO_COLLECTION}/{promoId}`,
 export const onPromoUpdated = onDocumentUpdated(`${PROMO_COLLECTION}/{promoId}`, async (event) => {
   const before = event.data?.before.data();
   const after = event.data?.after.data();
-  const beforeService = before?.serviceId as string | undefined;
-  const afterService = after?.serviceId as string | undefined;
+  const beforeService = before?.service?.id as string | undefined;
+  const afterService = after?.service?.id as string | undefined;
 
   if (!beforeService && !afterService) return;
   if (beforeService === afterService) return;

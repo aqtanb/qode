@@ -61,7 +61,7 @@ export const deleteUserAccount = onCall(async (request) => {
 
     // 2. Delete promocodes
     const promocodesSnapshot = await db.collection('promocodes')
-      .where('authorId', '==', userId)
+      .where('author.id', '==', userId)
       .get();
 
     if (!promocodesSnapshot.empty) {
