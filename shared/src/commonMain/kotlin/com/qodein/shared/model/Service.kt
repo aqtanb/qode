@@ -48,8 +48,18 @@ data class Service private constructor(
 ) {
     companion object {
         const val NAME_MIN_LENGTH = 1
-        const val NAME_MAX_LENGTH = 40
+        const val NAME_MAX_LENGTH = 50
+        const val SITE_URL_MAX_LENGTH = 50
         const val LOGO_DEV_BASE_URL = "https://img.logo.dev/"
+
+        /**
+         * Allowed characters in service names:
+         * - Letters from any alphabet (Unicode letters: Latin, Cyrillic, Arabic, Chinese, etc.)
+         * - Digits (0-9)
+         * - Space
+         * - Common business name symbols: & ' - . , ( )
+         */
+        val ALLOWED_NAME_CHARS_REGEX = Regex("^[\\p{L}\\p{N} &'\\-.,()]+$")
 
         fun sanitizeUrl(raw: String): String {
             val trimmed = raw.trim().lowercase()
@@ -97,6 +107,9 @@ data class Service private constructor(
             }
             if (cleanName.length > NAME_MAX_LENGTH) {
                 return Result.Error(ServiceError.CreationFailure.NameTooLong)
+            }
+            if (!ALLOWED_NAME_CHARS_REGEX.matches(cleanName)) {
+                return Result.Error(ServiceError.CreationFailure.InvalidNameCharacters)
             }
             if (cleanSiteUrl.isBlank()) {
                 return Result.Error(ServiceError.CreationFailure.EmptySiteUrl)

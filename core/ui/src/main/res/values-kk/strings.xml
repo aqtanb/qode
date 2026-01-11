@@ -77,6 +77,7 @@
     <string name="error_service_name_empty">Қызмет атауы бос болмауы керек.</string>
     <string name="error_service_name_too_short">Қызмет атауы кемінде 1 таңба болуы керек.</string>
     <string name="error_service_name_too_long">Қызмет атауы тым ұзын. Ең көбі 100 таңба.</string>
+    <string name="error_service_name_invalid_characters">Атауда жарамсыз таңбалар бар. Тек әріптер, сандар және &amp; \' - . , ( ) таңбаларына рұқсат етіледі.</string>
     <string name="error_service_invalid_id">Қызмет идентификаторын жасау мүмкін болмады.</string>
     <string name="error_service_duplicate">Бұл қызмет жүйеде бар.</string>
     <string name="error_service_submission_invalid_data">Қызмет деректері қате.</string>

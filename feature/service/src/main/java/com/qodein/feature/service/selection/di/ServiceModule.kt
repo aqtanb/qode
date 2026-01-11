@@ -7,7 +7,6 @@ import org.koin.dsl.module
 val serviceModule = module {
     viewModel {
         ServiceSelectionViewModel(
-            savedStateHandle = get(),
             getPopularServicesUseCase = get(),
             searchServicesUseCase = get(),
         )

@@ -3,4 +3,6 @@
     <string name="profile_picture_description">Profile Picture</string>
     <string name="text_field_clear">Clear text</string>
     <string name="text_field_paste">Paste text</string>
+    <string name="text_field_max_length_error">Maximum %1$d characters allowed</string>
+    <string name="text_field_cannot_be_blank">This field cannot be empty</string>
 </resources>

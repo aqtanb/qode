@@ -167,6 +167,12 @@ data class Promocode private constructor(
     companion object {
         const val DESCRIPTION_MAX_LENGTH = 1000
         const val MINIMUM_ORDER_AMOUNT_MAX_LENGTH = 50
+        const val DISCOUNT_AMOUNT_MAX_LENGTH = 50
+        const val DISCOUNT_PERCENTAGE_MAX_LENGTH = 50
+        const val MINIMUM_MONETARY_VALUE = 1.0
+        const val MAX_DECIMAL_PLACES = 2
+        const val PERCENTAGE_MIN_VALUE = 1.0
+        const val PERCENTAGE_MAX_VALUE = 100.0
 
         fun create(
             code: String,

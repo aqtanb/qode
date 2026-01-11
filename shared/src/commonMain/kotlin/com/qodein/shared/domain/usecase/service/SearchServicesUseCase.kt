@@ -14,10 +14,7 @@ import kotlinx.coroutines.flow.mapLatest
 /**
  * Use case for searching services by query text.
  */
-class SearchServicesUseCase(
-    private val serviceRepository: ServiceRepository,
-    private val getPopularServicesUseCase: GetPopularServicesUseCase
-) {
+class SearchServicesUseCase(private val serviceRepository: ServiceRepository) {
 
     companion object {
         private const val DEFAULT_LIMIT = 5
@@ -28,7 +25,7 @@ class SearchServicesUseCase(
      * Search for services matching the query stream.
      *
      * @param queryFlow Stream of user-entered queries to search for
-     * @return Flow<Result<List<Service>, OperationError>> with search or popular results
+     * @return Flow<Result<List<Service>, OperationError>> with search results
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     operator fun invoke(queryFlow: Flow<String>): Flow<Result<List<Service>, OperationError>> =
@@ -36,10 +33,10 @@ class SearchServicesUseCase(
             .debounce(SEARCH_DEBOUNCE_MS)
             .distinctUntilChanged()
             .mapLatest { query ->
-                if (query.isBlank()) {
-                    getPopularServicesUseCase(GetPopularServicesUseCase.DEFAULT_LIMIT)
-                } else {
+                if (query.any { it.isLetterOrDigit() }) {
                     serviceRepository.searchServices(query, DEFAULT_LIMIT)
+                } else {
+                    Result.Success(emptyList())
                 }
             }
 }

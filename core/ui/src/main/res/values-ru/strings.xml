@@ -68,6 +68,7 @@
     <string name="error_service_name_empty">Название сервиса не может быть пустым.</string>
     <string name="error_service_name_too_short">Название сервиса должно содержать минимум 1 символ.</string>
     <string name="error_service_name_too_long">Название сервиса слишком длинное. Максимум 100 символов.</string>
+    <string name="error_service_name_invalid_characters">Название содержит недопустимые символы. Разрешены только буквы, цифры и символы &amp; \' - . , ( )</string>
     <string name="error_service_invalid_id">Не удалось сгенерировать корректный идентификатор сервиса.</string>
     <string name="error_service_duplicate">Такой сервис уже существует.</string>
     <string name="error_service_submission_invalid_data">Данные сервиса некорректны.</string>

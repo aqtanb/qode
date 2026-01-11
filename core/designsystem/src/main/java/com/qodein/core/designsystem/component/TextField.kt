@@ -1,5 +1,6 @@
 package com.qodein.core.designsystem.component
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -43,7 +44,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,6 +65,18 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import kotlinx.coroutines.launch
 
+private const val DEFAULT_MAX_LENGTH = 50
+
+/**
+ * Extension function to get text from ClipEntry using coerceToText
+ */
+private fun ClipEntry.getText(context: Context): String? =
+    try {
+        clipData.getItemAt(0)?.coerceToText(context)?.toString()?.takeIf { it.isNotEmpty() }
+    } catch (_: Exception) {
+        null
+    }
+
 /**
  * Qode text field component with submission-style design
  *
@@ -70,7 +85,7 @@ import kotlinx.coroutines.launch
  * @param modifier Modifier to be applied to the text field
  * @param placeholder Placeholder text
  * @param helperText Optional helper text below the field
- * @param errorText Optional error text (takes priority over helperText)
+ * @param errorText Optional error text (takes priority over helperText and max length error)
  * @param enabled Whether the text field is enabled
  * @param leadingIcon Optional leading icon
  * @param keyboardOptions Software keyboard options
@@ -78,8 +93,9 @@ import kotlinx.coroutines.launch
  * @param focusRequester Optional focus requester
  * @param singleLine Whether the field is single line (default true)
  * @param minLines Minimum number of lines for multiline text field
- * @param maxLength Optional maximum character count; input is trimmed to this length when provided
+ * @param maxLength Maximum character count; input exceeding this shows error automatically
  * @param showPasteIcon Whether to show paste icon when text field is empty
+ * @param canBeBlank Whether the field can be empty (default false); parent should validate and pass errorText
  */
 @Composable
 fun QodeinTextField(
@@ -96,15 +112,67 @@ fun QodeinTextField(
     focusRequester: FocusRequester? = null,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    maxLength: Int? = null,
-    showPasteIcon: Boolean = false
+    maxLength: Int = DEFAULT_MAX_LENGTH,
+    showPasteIcon: Boolean = false,
+    canBeBlank: Boolean = false
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    var hasAttemptedSubmit by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val context = LocalContext.current
+
+    val maxLengthErrorText = stringResource(R.string.text_field_max_length_error, maxLength)
+    val blankErrorText = stringResource(R.string.text_field_cannot_be_blank)
+    val isMaxLengthExceeded = value.length >= maxLength
+    val isBlankError = !canBeBlank && hasAttemptedSubmit && value.isBlank()
+    val displayErrorText = when {
+        errorText != null -> errorText
+        isBlankError -> blankErrorText
+        isMaxLengthExceeded -> maxLengthErrorText
+        else -> null
+    }
+
+    val wrappedKeyboardActions = KeyboardActions(
+        onDone = {
+            if (!canBeBlank && value.isBlank()) {
+                hasAttemptedSubmit = true
+            } else {
+                keyboardActions.onDone?.invoke(this)
+            }
+        },
+        onGo = {
+            if (!canBeBlank && value.isBlank()) {
+                hasAttemptedSubmit = true
+            } else {
+                keyboardActions.onGo?.invoke(this)
+            }
+        },
+        onNext = {
+            if (!canBeBlank && value.isBlank()) {
+                hasAttemptedSubmit = true
+            } else {
+                keyboardActions.onNext?.invoke(this)
+            }
+        },
+        onSearch = {
+            if (!canBeBlank && value.isBlank()) {
+                hasAttemptedSubmit = true
+            } else {
+                keyboardActions.onSearch?.invoke(this)
+            }
+        },
+        onSend = {
+            if (!canBeBlank && value.isBlank()) {
+                hasAttemptedSubmit = true
+            } else {
+                keyboardActions.onSend?.invoke(this)
+            }
+        },
+    )
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -126,8 +194,9 @@ fun QodeinTextField(
         OutlinedTextField(
             value = value,
             onValueChange = { newValue ->
-                val clamped = maxLength?.let { newValue.take(it) } ?: newValue
+                val clamped = newValue.take(maxLength)
                 onValueChange(clamped)
+                hasAttemptedSubmit = false
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,7 +205,7 @@ fun QodeinTextField(
                 .bringIntoViewRequester(bringIntoViewRequester)
                 .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                 .onFocusChanged { isFocused = it.isFocused },
-            isError = errorText != null,
+            isError = displayErrorText != null,
             placeholder = placeholder?.let {
                 {
                     Text(
@@ -179,10 +248,13 @@ fun QodeinTextField(
                     {
                         QodeinOutlinedIconButton(
                             onClick = {
-                                val clipboardText = clipboardManager.getText()?.text
-                                if (clipboardText != null) {
-                                    onValueChange(clipboardText)
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                coroutineScope.launch {
+                                    val clipEntry = clipboard.getClipEntry()
+                                    val clipboardText = clipEntry?.getText(context)
+                                    if (clipboardText != null) {
+                                        onValueChange(clipboardText)
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    }
                                 }
                             },
                             icon = UIIcons.Paste,
@@ -197,7 +269,7 @@ fun QodeinTextField(
             },
             enabled = enabled,
             keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
+            keyboardActions = wrappedKeyboardActions,
             interactionSource = interactionSource,
             shape = RoundedCornerShape(SizeTokens.Selector.shape),
             colors = OutlinedTextFieldDefaults.colors(
@@ -221,7 +293,7 @@ fun QodeinTextField(
         )
 
         AnimatedVisibility(
-            visible = errorText != null || helperText != null,
+            visible = displayErrorText != null || helperText != null,
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut(),
         ) {
@@ -229,10 +301,9 @@ fun QodeinTextField(
                 modifier = Modifier.padding(top = SpacingTokens.xs),
             ) {
                 when {
-                    // Error has highest priority
-                    errorText != null -> {
+                    displayErrorText != null -> {
                         Text(
-                            text = errorText,
+                            text = displayErrorText,
                             modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.lg),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
@@ -241,7 +312,6 @@ fun QodeinTextField(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                    // Helper text has medium priority
                     helperText != null -> {
                         Text(
                             text = helperText,

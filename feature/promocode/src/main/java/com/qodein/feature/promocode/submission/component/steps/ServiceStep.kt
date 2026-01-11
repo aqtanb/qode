@@ -147,26 +147,20 @@ private fun ServiceNameField(
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val blankErrorText = stringResource(R.string.service_step_error_blank)
-    val maxLengthErrorText = stringResource(
-        R.string.service_step_error_max_length,
-        Service.NAME_MAX_LENGTH,
-    )
+    val invalidCharsErrorText = stringResource(com.qodein.core.ui.R.string.error_service_name_invalid_characters)
 
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
-            val clamped = newValue.take(Service.NAME_MAX_LENGTH)
-            errorText = when {
-                newValue.length >= Service.NAME_MAX_LENGTH -> maxLengthErrorText
-                else -> null
-            }
-            onValueChange(clamped)
+            errorText = null
+            onValueChange(newValue)
         },
         placeholder = stringResource(R.string.service_step_placeholder_service_name),
         leadingIcon = QodeIcons.Service,
         helperText = stringResource(R.string.service_step_helper_service_name),
         errorText = errorText,
+        maxLength = Service.NAME_MAX_LENGTH,
+        canBeBlank = false,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.Text,
@@ -174,8 +168,8 @@ private fun ServiceNameField(
         ),
         keyboardActions = KeyboardActions(
             onNext = {
-                if (value.isBlank()) {
-                    errorText = blankErrorText
+                if (!Service.ALLOWED_NAME_CHARS_REGEX.matches(value)) {
+                    errorText = invalidCharsErrorText
                 } else {
                     errorText = null
                     onMoveToNext()
@@ -201,9 +195,8 @@ private fun ServiceUrlField(
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
-            val basicFilter = newValue.filter { !it.isWhitespace() }
             errorText = null
-            onValueChange(basicFilter)
+            onValueChange(newValue)
         },
         placeholder = stringResource(R.string.service_step_placeholder_service_url),
         leadingIcon = QodeActionIcons.Share,
@@ -211,7 +204,7 @@ private fun ServiceUrlField(
         errorText = errorText,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
-            imeAction = if (value.isEmpty()) ImeAction.Previous else ImeAction.Next,
+            imeAction = ImeAction.Next,
             keyboardType = KeyboardType.Uri,
             capitalization = KeyboardCapitalization.None,
         ),
@@ -232,6 +225,7 @@ private fun ServiceUrlField(
             },
         ),
         showPasteIcon = true,
+        maxLength = Service.SITE_URL_MAX_LENGTH,
     )
 }
 

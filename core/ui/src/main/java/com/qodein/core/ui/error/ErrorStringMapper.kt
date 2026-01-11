@@ -141,6 +141,7 @@ fun OperationError.toUiText(): UiText =
         ServiceError.CreationFailure.InvalidServiceId -> StringResource(R.string.error_service_invalid_id)
         ServiceError.CreationFailure.NameTooLong -> StringResource(R.string.error_service_name_too_long)
         ServiceError.CreationFailure.NameTooShort -> StringResource(R.string.error_service_name_too_short)
+        ServiceError.CreationFailure.InvalidNameCharacters -> StringResource(R.string.error_service_name_invalid_characters)
         ServiceError.CreationFailure.EmptySiteUrl -> StringResource(R.string.error_service_site_url_empty)
         ServiceError.CreationFailure.InvalidDomainFormat -> StringResource(R.string.error_service_invalid_domain_format)
         ServiceError.CreationFailure.LogoNotFound -> StringResource(R.string.error_service_logo_not_found)

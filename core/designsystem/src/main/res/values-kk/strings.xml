@@ -3,4 +3,6 @@
     <string name="profile_picture_description">Профиль суреті</string>
     <string name="text_field_clear">Мәтінді тазалау</string>
     <string name="text_field_paste">Мәтінді қою</string>
+    <string name="text_field_max_length_error">Ең көбі %1$d таңба</string>
+    <string name="text_field_cannot_be_blank">Бұл өріс бос болмауы керек</string>
 </resources>

@@ -59,6 +59,7 @@
     <string name="promocode_discount_amount_placeholder" translatable="false">2000</string>
     <string name="promocode_discount_amount_helper">Discount value in ₸ (tenge</string>
     <string name="promocode_discount_amount_error_blank">Discount amount cannot be empty</string>
+    <string name="promocode_discount_amount_error_min_value">Enter an amount of at least %1$d₸</string>
 
     <string name="promocode_free_item_placeholder">Free delivery</string>
     <string name="promocode_free_item_helper">What free item or benefit does this code provide?</string>

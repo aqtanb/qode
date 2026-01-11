@@ -74,7 +74,7 @@ val domainModule = module {
     single { GetUserInteractionUseCase(get()) }
 
     single { GetPopularServicesUseCase(get()) }
-    single { SearchServicesUseCase(get(), get()) }
+    single { SearchServicesUseCase(get()) }
     single { GetOrCreateServiceUseCase(get()) }
     single { GetServicesByIdsUseCase(get()) }
     single { GetServiceLogoUrlUseCase(get()) }

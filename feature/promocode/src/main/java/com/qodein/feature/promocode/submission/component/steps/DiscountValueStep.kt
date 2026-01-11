@@ -32,6 +32,29 @@ import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 
+/**
+ * Formats a decimal number string to have at most the specified number of decimal places.
+ * Also validates that the value is >= minimum value.
+ */
+private fun formatDecimalInput(
+    input: String,
+    maxLength: Int,
+    maxDecimalPlaces: Int = Promocode.MAX_DECIMAL_PLACES,
+    minValue: Double = Promocode.MINIMUM_MONETARY_VALUE
+): String {
+    if (input.isEmpty() || input == ".") return input
+
+    val parts = input.split(".")
+    return when {
+        parts.size > 2 -> input.dropLast(1)
+        parts.size == 2 -> {
+            val decimal = parts[1].take(maxDecimalPlaces)
+            "${parts[0]}.$decimal".take(maxLength)
+        }
+        else -> input.take(maxLength)
+    }
+}
+
 @Composable
 internal fun DiscountValueStep(
     promoCodeType: PromocodeType?,
@@ -101,39 +124,41 @@ private fun DiscountPercentageField(
     onMoveToNext: () -> Unit
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val blankErrorText = stringResource(R.string.promocode_discount_percentage_error_blank)
     val invalidRangeText = stringResource(R.string.promocode_discount_percentage_error_range)
 
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
-            val numValue = newValue.toDoubleOrNull()
-            if (numValue == null || numValue <= 100) {
+            val filtered = newValue.filter { it.isDigit() || it == '.' }
+            val formatted = formatDecimalInput(
+                filtered,
+                maxLength = Promocode.DISCOUNT_PERCENTAGE_MAX_LENGTH,
+            )
+            val numValue = formatted.toDoubleOrNull()
+            if (numValue == null || (numValue >= Promocode.PERCENTAGE_MIN_VALUE && numValue <= Promocode.PERCENTAGE_MAX_VALUE)) {
+                onValueChange(formatted)
                 errorText = null
-                onValueChange(newValue)
-            } else {
-                errorText = invalidRangeText
             }
         },
         placeholder = stringResource(R.string.promocode_discount_percentage_placeholder),
         leadingIcon = QodeIcons.Sale,
         helperText = stringResource(R.string.promocode_discount_percentage_helper),
+        maxLength = Promocode.DISCOUNT_PERCENTAGE_MAX_LENGTH,
         errorText = errorText,
+        canBeBlank = false,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Number,
+            keyboardType = KeyboardType.Decimal,
         ),
         keyboardActions = KeyboardActions(
             onNext = {
-                if (value.isBlank()) {
-                    errorText = blankErrorText
-                } else {
-                    val numValue = value.toDoubleOrNull()
-                    if (numValue == null || numValue <= 0 || numValue > 100) {
+                val numValue = value.toDoubleOrNull()
+                when {
+                    numValue == null || numValue < Promocode.PERCENTAGE_MIN_VALUE || numValue > Promocode.PERCENTAGE_MAX_VALUE -> {
                         errorText = invalidRangeText
-                    } else {
+                    }
+                    else -> {
                         errorText = null
                         onMoveToNext()
                     }
@@ -151,28 +176,47 @@ private fun DiscountAmountField(
     onMoveToNext: () -> Unit
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val blankErrorText = stringResource(R.string.promocode_discount_amount_error_blank)
+    val minValueErrorText = stringResource(
+        R.string.promocode_discount_amount_error_min_value,
+        Promocode.MINIMUM_MONETARY_VALUE.toInt(),
+    )
 
     QodeinTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            val filtered = newValue.filter { it.isDigit() || it == '.' }
+            val formatted = formatDecimalInput(
+                filtered,
+                maxLength = Promocode.DISCOUNT_AMOUNT_MAX_LENGTH,
+            )
+            val numValue = formatted.toDoubleOrNull()
+            if (numValue == null || numValue >= Promocode.MINIMUM_MONETARY_VALUE) {
+                onValueChange(formatted)
+                errorText = null
+            }
+        },
         placeholder = stringResource(R.string.promocode_discount_amount_placeholder),
         leadingIcon = QodeIcons.Dollar,
         helperText = stringResource(R.string.promocode_discount_amount_helper),
+        maxLength = Promocode.DISCOUNT_AMOUNT_MAX_LENGTH,
         errorText = errorText,
+        canBeBlank = false,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Number,
+            keyboardType = KeyboardType.Decimal,
         ),
         keyboardActions = KeyboardActions(
             onNext = {
-                if (value.isBlank()) {
-                    errorText = blankErrorText
-                } else {
-                    errorText = null
-                    onMoveToNext()
+                val numValue = value.toDoubleOrNull()
+                when {
+                    numValue == null || numValue < Promocode.MINIMUM_MONETARY_VALUE -> {
+                        errorText = minValueErrorText
+                    }
+                    else -> {
+                        errorText = null
+                        onMoveToNext()
+                    }
                 }
             },
         ),
@@ -186,29 +230,17 @@ private fun FreeItemDescriptionField(
     focusRequester: FocusRequester,
     onMoveToNext: () -> Unit
 ) {
-    var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val blankErrorText = stringResource(R.string.promocode_free_item_error_blank)
-    val maxLengthErrorText = stringResource(
-        R.string.promocode_free_item_error_max_length,
-        Discount.FreeItem.MAX_DESCRIPTION_LENGTH,
-    )
-
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
             val filtered = newValue.filter { it.isLetterOrDigit() || it == ' ' || it == '-' }
-            val clamped = filtered.take(Discount.FreeItem.MAX_DESCRIPTION_LENGTH)
-            errorText = when {
-                filtered.length >= Discount.FreeItem.MAX_DESCRIPTION_LENGTH -> maxLengthErrorText
-                else -> null
-            }
-            onValueChange(clamped)
+            onValueChange(filtered)
         },
         placeholder = stringResource(R.string.promocode_free_item_placeholder),
         leadingIcon = PromocodeIcons.FreeItem,
         helperText = stringResource(R.string.promocode_free_item_helper),
-        errorText = errorText,
+        maxLength = Discount.FreeItem.MAX_DESCRIPTION_LENGTH,
+        canBeBlank = false,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
@@ -216,14 +248,7 @@ private fun FreeItemDescriptionField(
             capitalization = KeyboardCapitalization.Sentences,
         ),
         keyboardActions = KeyboardActions(
-            onNext = {
-                if (value.isBlank()) {
-                    errorText = blankErrorText
-                } else {
-                    errorText = null
-                    onMoveToNext()
-                }
-            },
+            onNext = { onMoveToNext() },
         ),
     )
 }
@@ -237,32 +262,30 @@ private fun MinimumOrderField(
     onSubmitForm: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val maxLengthErrorText = stringResource(
-        R.string.promocode_minimum_order_error_max_length,
-        Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH,
-    )
     val businessLogicError = getBusinessLogicValidationError(wizardData)
 
     QodeinTextField(
         value = value,
         onValueChange = { newValue ->
-            val clamped = newValue.take(Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH)
-            errorText = when {
-                newValue.length >= Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH -> maxLengthErrorText
-                else -> null
+            val filtered = newValue.filter { it.isDigit() || it == '.' }
+            val formatted = formatDecimalInput(
+                filtered,
+                maxLength = Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH,
+            )
+            val numValue = formatted.toDoubleOrNull()
+            if (numValue == null || numValue >= Promocode.MINIMUM_MONETARY_VALUE) {
+                onValueChange(formatted)
             }
-            onValueChange(clamped)
         },
         placeholder = stringResource(R.string.promocode_minimum_order_placeholder),
         leadingIcon = QodeIcons.Dollar,
         helperText = stringResource(R.string.promocode_minimum_order_helper),
-        errorText = errorText ?: businessLogicError,
+        maxLength = Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH,
+        errorText = businessLogicError,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
-            imeAction = if (value.isEmpty()) ImeAction.Previous else ImeAction.Next,
-            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Decimal,
         ),
         keyboardActions = KeyboardActions(
             onNext = {

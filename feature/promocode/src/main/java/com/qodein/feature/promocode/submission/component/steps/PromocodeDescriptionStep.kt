@@ -17,6 +17,7 @@ import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
+import com.qodein.shared.model.Promocode
 
 @Composable
 internal fun PromocodeDescriptionStep(
@@ -31,6 +32,7 @@ internal fun PromocodeDescriptionStep(
         placeholder = stringResource(R.string.promocode_description_placeholder),
         helperText = stringResource(R.string.promocode_description_helper),
         leadingIcon = PromocodeIcons.Description,
+        maxLength = Promocode.DESCRIPTION_MAX_LENGTH,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
@@ -40,6 +42,7 @@ internal fun PromocodeDescriptionStep(
         keyboardActions = KeyboardActions(
             onDone = { onNextStep() },
         ),
+        canBeBlank = false,
     )
 }
 

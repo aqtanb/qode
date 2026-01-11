@@ -1,6 +1,5 @@
 package com.qodein.feature.service.selection
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ServiceSelectionViewModel(
-    internal val savedStateHandle: SavedStateHandle,
     private val getPopularServicesUseCase: GetPopularServicesUseCase,
     private val searchServicesUseCase: SearchServicesUseCase
 ) : ViewModel() {

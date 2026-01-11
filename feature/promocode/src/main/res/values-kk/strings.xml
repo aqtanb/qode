@@ -55,6 +55,7 @@
 
     <string name="promocode_discount_amount_helper">Жеңілдікті ₸ (теңге) түрінде енгізіңіз</string>
     <string name="promocode_discount_amount_error_blank">Жеңілдік сомасы бос бола алмайды</string>
+    <string name="promocode_discount_amount_error_min_value">Кем дегенде %1$d₸ сомасын енгізіңіз</string>
 
     <string name="promocode_free_item_placeholder">Тегін жеткізу</string>
     <string name="promocode_free_item_helper">Бұл код қандай тегін тауар немесе артықшылық береді?</string>

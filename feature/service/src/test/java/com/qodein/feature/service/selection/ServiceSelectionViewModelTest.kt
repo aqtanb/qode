@@ -1,6 +1,5 @@
 package com.qodein.feature.service.selection
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.qodein.core.testing.data.ServiceMother
 import com.qodein.core.testing.rule.MainDispatcherRule
@@ -32,7 +31,6 @@ class ServiceSelectionViewModelTest {
 
     private lateinit var getPopularServicesUseCase: GetPopularServicesUseCase
     private lateinit var searchServicesUseCase: SearchServicesUseCase
-    private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: ServiceSelectionViewModel
 
     private val testServices = listOf(
@@ -45,7 +43,6 @@ class ServiceSelectionViewModelTest {
     fun setup() {
         getPopularServicesUseCase = mockk(relaxed = true)
         searchServicesUseCase = mockk(relaxed = true)
-        savedStateHandle = SavedStateHandle()
 
         // Default mock for popular services - tests can override if needed
         coEvery { getPopularServicesUseCase() } returns Result.Success(testServices)
@@ -58,7 +55,7 @@ class ServiceSelectionViewModelTest {
             coEvery { getPopularServicesUseCase() } returns Result.Success(testServices)
 
             // When
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // Then
@@ -76,7 +73,7 @@ class ServiceSelectionViewModelTest {
             // Given
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
 
             val initialServiceIds = setOf(ServiceId("netflix"))
 
@@ -95,7 +92,7 @@ class ServiceSelectionViewModelTest {
             // Given
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
 
             val initialServiceIds = setOf(ServiceId("netflix"), ServiceId("spotify"))
 
@@ -114,7 +111,7 @@ class ServiceSelectionViewModelTest {
             // Given
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
 
             val initialServiceIds = setOf(ServiceId("netflix"))
 
@@ -136,7 +133,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = MutableStateFlow<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // When
@@ -156,7 +153,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = MutableStateFlow<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // When
@@ -179,7 +176,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = MutableStateFlow<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // When
@@ -200,7 +197,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // Popular services should be loaded on init
@@ -231,7 +228,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(emptySet(), isSingleSelection = false)
             advanceUntilIdle()
 
@@ -251,7 +248,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(setOf(ServiceId("netflix")), isSingleSelection = false)
             advanceUntilIdle()
 
@@ -271,7 +268,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(emptySet(), isSingleSelection = false)
             advanceUntilIdle()
 
@@ -293,7 +290,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(setOf(ServiceId("netflix")), isSingleSelection = true)
             advanceUntilIdle()
 
@@ -314,7 +311,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(emptySet(), isSingleSelection = true)
             advanceUntilIdle()
 
@@ -335,7 +332,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = flowOf<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             viewModel.initialize(emptySet(), isSingleSelection = false)
             advanceUntilIdle()
 
@@ -354,7 +351,7 @@ class ServiceSelectionViewModelTest {
             // Given - initial load fails
             coEvery { getPopularServicesUseCase() } returns Result.Error(SystemError.Unknown)
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // Verify error state
@@ -377,7 +374,7 @@ class ServiceSelectionViewModelTest {
             // Given - initial load fails
             coEvery { getPopularServicesUseCase() } returns Result.Error(SystemError.Unknown)
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // Verify error state
@@ -401,7 +398,7 @@ class ServiceSelectionViewModelTest {
             val resultFlow = MutableStateFlow<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // User searches but gets error
@@ -430,7 +427,7 @@ class ServiceSelectionViewModelTest {
             coEvery { getPopularServicesUseCase() } returns Result.Error(error)
 
             // When
-            viewModel = ServiceSelectionViewModel(savedStateHandle, getPopularServicesUseCase, searchServicesUseCase)
+            viewModel = ServiceSelectionViewModel(getPopularServicesUseCase, searchServicesUseCase)
             advanceUntilIdle()
 
             // Then

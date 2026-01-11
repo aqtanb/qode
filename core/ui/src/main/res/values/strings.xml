@@ -67,6 +67,7 @@
     <string name="error_service_name_empty">Service name cannot be empty.</string>
     <string name="error_service_name_too_short">Service name must be at least 1 character long.</string>
     <string name="error_service_name_too_long">Service name is too long. Maximum 100 characters allowed.</string>
+    <string name="error_service_name_invalid_characters">Service name contains invalid characters. Only letters, digits, and symbols like &amp; \' - . , ( ) are allowed.</string>
     <string name="error_service_invalid_id">Could not generate a valid service identifier.</string>
     <string name="error_service_site_url_empty">Service website is required.</string>
     <string name="error_service_logo_not_found">Logo not found for this service. Please check the URL.</string>

@@ -54,6 +54,7 @@
 
     <string name="promocode_discount_amount_helper">Введите скидку в ₸ (тенге)</string>
     <string name="promocode_discount_amount_error_blank">Сумма скидки не может быть пустой</string>
+    <string name="promocode_discount_amount_error_min_value">Введите сумму не менее %1$d₸</string>
 
     <string name="promocode_free_item_placeholder">Бесплатная доставка</string>
     <string name="promocode_free_item_helper">Какой бесплатный товар или преимущество дает этот код?</string>
