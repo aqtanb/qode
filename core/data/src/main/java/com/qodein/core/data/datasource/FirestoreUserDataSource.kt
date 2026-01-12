@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 import com.google.firebase.functions.FirebaseFunctions
 import com.qodein.core.data.dto.UserDto
+import com.qodein.core.data.dto.UserInteractionDto
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -98,6 +99,39 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore, private 
         functions
             .getHttpsCallable("deleteUserAccount")
             .call()
+            .await()
+    }
+
+    suspend fun getUserInteraction(
+        documentId: String,
+        userId: String
+    ): UserInteractionDto? =
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(userId)
+            .collection(UserDto.SUBCOLLECTION_INTERACTIONS)
+            .document(documentId)
+            .get()
+            .await()
+            .toObject<UserInteractionDto>()
+
+    suspend fun setUserInteraction(dto: UserInteractionDto) {
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(dto.userId)
+            .collection(UserDto.SUBCOLLECTION_INTERACTIONS)
+            .document(dto.documentId)
+            .set(dto)
+            .await()
+    }
+
+    suspend fun deleteUserInteraction(
+        documentId: String,
+        userId: String
+    ) {
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(userId)
+            .collection(UserDto.SUBCOLLECTION_INTERACTIONS)
+            .document(documentId)
+            .delete()
             .await()
     }
 }

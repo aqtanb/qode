@@ -7,10 +7,8 @@ import * as admin from 'firebase-admin';
  */
 function getCollectionName(itemType: string): string {
   switch (itemType) {
-    case 'PROMO_CODE': return 'promocodes';
+    case 'PROMOCODE': return 'promocodes';
     case 'POST': return 'posts';
-    case 'COMMENT': return 'comments';
-    case 'PROMO': return 'promos';
     default: throw new Error(`Unsupported item type: ${itemType}`);
   }
 }
@@ -47,11 +45,11 @@ function calculateVoteDeltas(
 
 /**
  * Cloud Function: Update content vote counts when user interactions change
- * Triggers: When any document in user_interactions/{interactionId} is written (created/updated/deleted)
+ * Triggers: When any document in users/{userId}/interactions/{interactionId} is written (created/updated/deleted)
  * Purpose: Maintain accurate vote counts on content based on unified interaction system
  */
 export const updateContentVotesFromInteractions = onDocumentWritten(
-  'user_interactions/{interactionId}',
+  'users/{userId}/interactions/{interactionId}',
   async (event) => {
     const change = event.data;
     const interactionId = event.params.interactionId;
@@ -142,8 +140,8 @@ export const updateContentVotesFromInteractions = onDocumentWritten(
 
         const contentData = contentDoc.data()!;
 
-        // For PROMO_CODE, votes are nested under engagement object
-        const isPromoCode = itemType === 'PROMO_CODE';
+        // For PROMOCODE, votes are nested under engagement object
+        const isPromoCode = itemType === 'PROMOCODE';
         const currentUpvotes = isPromoCode
           ? (contentData.engagement?.upvotes || 0)
           : (contentData.upvotes || 0);

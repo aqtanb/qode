@@ -492,9 +492,9 @@ private fun InteractionErrorPreview() {
 private fun InteractionSuccessPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
-        val interaction = UserInteraction.create(
+        val interaction = UserInteraction(
             itemId = samplePromoCode.id.value,
-            itemType = ContentType.PROMO_CODE,
+            itemType = ContentType.PROMOCODE,
             userId = UserId("preview-user"),
             voteState = VoteState.UPVOTE,
             isBookmarked = false,

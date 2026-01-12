@@ -24,10 +24,8 @@ import com.qodein.core.data.datasource.FirestorePostDataSource
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
 import com.qodein.core.data.datasource.FirestoreReportDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
-import com.qodein.core.data.datasource.FirestoreUnifiedUserInteractionDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.datasource.LocalReportDataSource
-import com.qodein.core.data.mapper.UserInteractionMapper
 import com.qodein.core.data.repository.AppUpdateConfigRepositoryImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
@@ -62,7 +60,6 @@ val coreDataModule = module {
     single<FirebaseFunctions> { Firebase.functions }
     single<FirebaseStorage> { Firebase.storage }
     single<DataStore<Preferences>> { androidContext().preferencesDataStore }
-    single { UserInteractionMapper() }
     single {
         SearchClient(
             appId = BuildConfig.ALGOLIA_APP_ID,
@@ -78,7 +75,6 @@ val coreDataModule = module {
     single { FirestorePostDataSource(get()) }
     single { FirestorePromocodeDataSource(get()) }
     single { FirestoreServiceDataSource(get(), get()) }
-    single { FirestoreUnifiedUserInteractionDataSource(get()) }
     single { FirestoreUserDataSource(get(), get()) }
     single { FirestoreReportDataSource(get()) }
     single { LocalReportDataSource(androidContext().reportDataStore) }
@@ -90,7 +86,7 @@ val coreDataModule = module {
     single<ServiceRepository> { ServiceRepositoryImpl(get()) }
     single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(androidContext(), get()) }
     single<BannerRepository> { BannerRepositoryImpl(get()) }
-    single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get(), get()) }
+    single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get()) }
     single<PostRepository> { PostRepositoryImpl(get()) }
     single<StorageRepository> { StorageRepositoryImpl(get()) }
     single<ReportRepository> { ReportRepositoryImpl(get(), get()) }

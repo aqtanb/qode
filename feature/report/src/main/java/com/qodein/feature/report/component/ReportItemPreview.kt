@@ -37,7 +37,7 @@ internal fun ReportItemPreview(
                 Text(
                     text = when (itemType) {
                         ContentType.POST -> stringResource(R.string.content_type_post)
-                        ContentType.PROMO_CODE -> stringResource(R.string.content_type_promocode)
+                        ContentType.PROMOCODE -> stringResource(R.string.content_type_promocode)
                         else -> itemType.name
                     },
                     style = MaterialTheme.typography.labelSmall,

@@ -175,10 +175,11 @@ class PromocodeDetailViewModel(
             when (
                 val result = toggleVoteUseCase(
                     itemId = promocodeId.value,
-                    itemType = ContentType.PROMO_CODE,
+                    itemType = ContentType.PROMOCODE,
                     userId = _uiState.value.userId,
                     currentVoteState = currentVoteState,
                     targetVoteState = targetVoteState,
+                    isBookmarked = false,
                 )
             ) {
                 is Result.Success -> {

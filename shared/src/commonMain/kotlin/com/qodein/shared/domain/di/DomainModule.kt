@@ -4,9 +4,7 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
-import com.qodein.shared.domain.usecase.interaction.GetUserBookmarksUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
-import com.qodein.shared.domain.usecase.interaction.ToggleBookmarkUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
@@ -69,8 +67,6 @@ val domainModule = module {
     single { SetLanguageUseCase(get()) }
 
     single { ToggleVoteUseCase(get()) }
-    single { ToggleBookmarkUseCase(get()) }
-    single { GetUserBookmarksUseCase(get()) }
     single { GetUserInteractionUseCase(get()) }
 
     single { GetPopularServicesUseCase(get()) }

@@ -68,13 +68,13 @@ fun QodeNavHost(
             onNavigateToReport = { reportedItemId, itemTitle, itemAuthor ->
                 navController.navigateToReport(
                     reportedItemId = reportedItemId,
-                    reportedItemType = ContentType.PROMO_CODE,
+                    reportedItemType = ContentType.PROMOCODE,
                     itemTitle = itemTitle,
                     itemAuthor = itemAuthor,
                 )
             },
             onNavigateToBlockUser = { userId, username, photoUrl ->
-                navController.navigateToBlockUserDialog(userId, username, photoUrl, ContentType.PROMO_CODE)
+                navController.navigateToBlockUserDialog(userId, username, photoUrl, ContentType.PROMOCODE)
             },
         )
 
@@ -151,7 +151,7 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onReportSubmitted = { contentType ->
                 when (contentType) {
-                    ContentType.PROMO_CODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
                     else -> {}
                 }
@@ -162,7 +162,7 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onUserBlocked = { contentType ->
                 when (contentType) {
-                    ContentType.PROMO_CODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
                     else -> {}
                 }

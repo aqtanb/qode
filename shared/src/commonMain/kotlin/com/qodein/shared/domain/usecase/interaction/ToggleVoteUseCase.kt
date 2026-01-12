@@ -19,25 +19,27 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
         itemType: ContentType,
         userId: UserId?,
         currentVoteState: VoteState,
+        isBookmarked: Boolean,
         targetVoteState: VoteState
     ): Result<UserInteraction, OperationError> {
         if (userId == null) {
             return Result.Error(InteractionError.VotingFailure.NotAuthorized)
         }
 
-        val newVoteState = when (targetVoteState) {
-            VoteState.UPVOTE ->
-                if (currentVoteState == VoteState.UPVOTE) VoteState.NONE else VoteState.UPVOTE
-            VoteState.DOWNVOTE ->
-                if (currentVoteState == VoteState.DOWNVOTE) VoteState.NONE else VoteState.DOWNVOTE
-            VoteState.NONE -> VoteState.NONE
-        }
-
-        return repository.toggleVote(
+        val currentInteraction = UserInteraction(
             itemId = itemId,
             itemType = itemType,
             userId = userId,
-            newVoteState,
+            voteState = currentVoteState,
+            isBookmarked = isBookmarked,
         )
+
+        val updatedInteraction = when (targetVoteState) {
+            VoteState.UPVOTE -> currentInteraction.toggleUpvote()
+            VoteState.DOWNVOTE -> currentInteraction.toggleDownvote()
+            VoteState.NONE -> currentInteraction.copy(voteState = VoteState.NONE)
+        }
+
+        return repository.toggleVote(updatedInteraction)
     }
 }

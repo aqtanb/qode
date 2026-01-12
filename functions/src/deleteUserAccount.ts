@@ -17,7 +17,7 @@ const db = admin.firestore();
  * Deletes:
  * 1. All posts by user from posts collection
  * 2. All promocodes by user from promocodes collection
- * 3. All user_interactions by user from user_interactions collection
+ * 3. Interactions subcollection (users/{userId}/interactions)
  * 4. All reports by user from reports collection
  * 5. Blocks subcollection (users/{userId}/blocks)
  * 6. User document from users collection
@@ -72,9 +72,10 @@ export const deleteUserAccount = onCall(async (request) => {
       logger.info(`Deleted ${promocodesSnapshot.size} promocodes`, { userId });
     }
 
-    // 3. Delete user_interactions
-    const interactionsSnapshot = await db.collection('user_interactions')
-      .where('userId', '==', userId)
+    // 3. Delete interactions subcollection
+    const interactionsSnapshot = await db.collection('users')
+      .doc(userId)
+      .collection('interactions')
       .get();
 
     if (!interactionsSnapshot.empty) {
