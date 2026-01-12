@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinTextField
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
@@ -199,7 +199,7 @@ private fun ServiceUrlField(
             onValueChange(newValue)
         },
         placeholder = stringResource(R.string.service_step_placeholder_service_url),
-        leadingIcon = QodeActionIcons.Share,
+        leadingIcon = ActionIcons.Share,
         helperText = stringResource(R.string.service_step_helper_service_url),
         errorText = errorText,
         focusRequester = focusRequester,
@@ -340,7 +340,7 @@ fun SelectServiceButton(
             )
 
             Icon(
-                imageVector = QodeActionIcons.Next,
+                imageVector = ActionIcons.Next,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(SizeTokens.Icon.sizeMedium),

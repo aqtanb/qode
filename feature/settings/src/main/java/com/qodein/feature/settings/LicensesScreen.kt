@@ -14,7 +14,7 @@ import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +28,7 @@ fun LicensesScreen(onBackClick: () -> Unit) {
         topBar = {
             QodeTopAppBar(
                 title = stringResource(R.string.settings_open_source_licences_title),
-                navigationIcon = QodeActionIcons.Back,
+                navigationIcon = ActionIcons.Back,
                 onNavigationClick = onBackClick,
             )
         },

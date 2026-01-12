@@ -39,7 +39,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -152,7 +152,7 @@ fun FeedSearchBar(
                     modifier = Modifier.size(SizeTokens.IconButton.sizeMedium),
                 ) {
                     Icon(
-                        imageVector = QodeActionIcons.ClearCircled,
+                        imageVector = ActionIcons.ClearCircled,
                         contentDescription = "Clear search",
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,

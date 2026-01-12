@@ -15,6 +15,7 @@ import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
+import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
@@ -102,7 +103,7 @@ class PostDetailViewModel @Inject constructor(
         itemId: String,
         userId: UserId
     ) {
-        when (val result = getUserInteractionUseCase(itemId, userId)) {
+        when (val result = getUserInteractionUseCase(itemId, ContentType.POST, userId)) {
             is Result.Error -> _events.emit(PostDetailEvent.ShowError(result.error))
             is Result.Success -> _uiState.update {
                 it.copy(

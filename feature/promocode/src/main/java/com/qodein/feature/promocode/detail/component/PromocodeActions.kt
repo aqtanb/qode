@@ -14,7 +14,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinFilterChip
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -29,6 +29,7 @@ fun PromocodeActions(
     currentVoting: VoteState?,
     onVote: (VoteState) -> Unit,
     onShareClicked: () -> Unit,
+    isSharing: Boolean,
     modifier: Modifier = Modifier
 ) {
     val upvoteContentDescription = stringResource(R.string.cd_upvote, upvoteCount)
@@ -49,7 +50,7 @@ fun PromocodeActions(
             selected = vote == VoteState.UPVOTE,
             leadingIcon = {
                 Icon(
-                    imageVector = QodeActionIcons.Up,
+                    imageVector = ActionIcons.Up,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -66,7 +67,7 @@ fun PromocodeActions(
             selected = vote == VoteState.DOWNVOTE,
             leadingIcon = {
                 Icon(
-                    imageVector = QodeActionIcons.Down,
+                    imageVector = ActionIcons.Down,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -85,11 +86,12 @@ fun PromocodeActions(
             selected = false,
             leadingIcon = {
                 Icon(
-                    imageVector = QodeActionIcons.Share,
+                    imageVector = ActionIcons.Share,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
             },
+            isLoading = isSharing,
             modifier = Modifier.semantics {
                 contentDescription = shareContentDescription
             },
@@ -108,6 +110,7 @@ private fun PromocodeActionsPreview() {
             onVote = {},
             onShareClicked = {},
             currentVoting = null,
+            isSharing = false,
         )
     }
 }

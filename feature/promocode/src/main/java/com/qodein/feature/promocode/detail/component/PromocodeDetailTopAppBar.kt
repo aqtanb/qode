@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.QodeDropdownMenuItem
 import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.shared.model.PromocodeId
@@ -32,6 +32,7 @@ internal fun PromocodeDetailTopAppBar(
     currentUserId: UserId?,
     authorId: UserId?,
     onNavigateBack: () -> Unit,
+    onCopyClick: () -> Unit,
     onBlockUserClick: (UserId) -> Unit,
     onReportPromocodeClick: (PromocodeId) -> Unit
 ) {
@@ -40,24 +41,36 @@ internal fun PromocodeDetailTopAppBar(
 
     QodeTopAppBar(
         title = title,
-        navigationIcon = QodeActionIcons.Back,
+        navigationIcon = ActionIcons.Back,
         onNavigationClick = onNavigateBack,
-        customActions = if (!isOwnPromocode) {
-            {
-                Box {
-                    IconButton(onClick = { isMenuExpanded = true }) {
-                        Icon(
-                            imageVector = UIIcons.MoreVert,
-                            contentDescription = stringResource(CoreUiR.string.cd_more_options),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+        customActions = {
+            Box {
+                IconButton(onClick = { isMenuExpanded = true }) {
+                    Icon(
+                        imageVector = UIIcons.MoreVert,
+                        contentDescription = stringResource(CoreUiR.string.cd_more_options),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
 
-                    DropdownMenu(
-                        expanded = isMenuExpanded,
-                        onDismissRequest = { isMenuExpanded = false },
-                        modifier = Modifier.widthIn(min = SizeTokens.Menu.minWidth),
-                    ) {
+                DropdownMenu(
+                    expanded = isMenuExpanded,
+                    onDismissRequest = { isMenuExpanded = false },
+                    modifier = Modifier.widthIn(min = SizeTokens.Menu.minWidth),
+                ) {
+                    QodeDropdownMenuItem(
+                        text = stringResource(CoreUiR.string.copy_code),
+                        leadingIcon = ActionIcons.Copy,
+                        minHeight = SizeTokens.Button.heightXL,
+                        onClick = {
+                            isMenuExpanded = false
+                            onCopyClick()
+                        },
+                    )
+
+                    if (!isOwnPromocode) {
+                        HorizontalDivider()
+
                         QodeDropdownMenuItem(
                             text = stringResource(CoreUiR.string.action_block),
                             leadingIcon = UIIcons.Block,
@@ -84,8 +97,6 @@ internal fun PromocodeDetailTopAppBar(
                     }
                 }
             }
-        } else {
-            null
         },
     )
 }

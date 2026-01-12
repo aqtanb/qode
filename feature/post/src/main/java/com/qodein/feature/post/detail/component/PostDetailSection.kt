@@ -16,7 +16,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinFilterChip
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -92,7 +92,7 @@ private fun PostInteractionsRow(
             selected = userVoteState == VoteState.UPVOTE,
             leadingIcon = {
                 Icon(
-                    imageVector = QodeActionIcons.Up,
+                    imageVector = ActionIcons.Up,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )
@@ -117,7 +117,7 @@ private fun PostInteractionsRow(
             selected = userVoteState == VoteState.DOWNVOTE,
             leadingIcon = {
                 Icon(
-                    imageVector = QodeActionIcons.Down,
+                    imageVector = ActionIcons.Down,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
                 )

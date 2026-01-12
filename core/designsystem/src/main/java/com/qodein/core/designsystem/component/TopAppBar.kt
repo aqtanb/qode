@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -127,8 +127,8 @@ fun QodeTopAppBar(
                 Icon(
                     imageVector = icon,
                     contentDescription = when (icon) {
-                        QodeActionIcons.Back -> "Navigate back"
-                        QodeActionIcons.Close -> "Close"
+                        ActionIcons.Back -> "Navigate back"
+                        ActionIcons.Close -> "Close"
                         else -> "Navigation"
                     },
                     tint = navigationIconTint,
@@ -262,8 +262,8 @@ private fun QodeTransparentTopAppBar(
                     Icon(
                         imageVector = icon,
                         contentDescription = when (icon) {
-                            QodeActionIcons.Back -> "Navigate back"
-                            QodeActionIcons.Close -> "Close"
+                            ActionIcons.Back -> "Navigate back"
+                            ActionIcons.Close -> "Close"
                             else -> "Navigation"
                         },
                         tint = navigationIconTint,
@@ -321,7 +321,7 @@ private fun QodeTopAppBarStatesPreview() {
                 onNavigationClick = {},
                 actions = listOf(
                     TopAppBarAction(
-                        icon = QodeActionIcons.Share,
+                        icon = ActionIcons.Share,
                         contentDescription = "Share",
                         onClick = {},
                     ),
@@ -331,13 +331,13 @@ private fun QodeTopAppBarStatesPreview() {
                         onClick = {},
                     ),
                     TopAppBarAction(
-                        icon = QodeActionIcons.Download,
+                        icon = ActionIcons.Download,
                         contentDescription = "Download",
                         onClick = {},
                         showAsAction = false, // This will go to overflow menu
                     ),
                     TopAppBarAction(
-                        icon = QodeActionIcons.Delete,
+                        icon = ActionIcons.Delete,
                         contentDescription = "Delete",
                         onClick = {},
                         showAsAction = false, // This will go to overflow menu
@@ -352,7 +352,7 @@ private fun QodeTopAppBarStatesPreview() {
                 title = "Profile",
                 actions = listOf(
                     TopAppBarAction(
-                        icon = QodeActionIcons.Edit,
+                        icon = ActionIcons.Edit,
                         contentDescription = "Edit profile",
                         onClick = {},
                         enabled = false,

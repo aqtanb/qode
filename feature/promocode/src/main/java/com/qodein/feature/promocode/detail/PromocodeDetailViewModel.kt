@@ -55,28 +55,13 @@ class PromocodeDetailViewModel(
                 handleVote(action.voteState)
             }
             is PromocodeDetailAction.ShareClicked -> handleShare()
+            is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.BackClicked -> handleBack()
             is PromocodeDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
             is PromocodeDetailAction.ReportPromocodeClicked -> handleReportPromocode(action.promocodeId)
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
         }
     }
-
-    private fun computeVoteCounts(
-        previousVote: VoteState,
-        newVote: VoteState,
-        currentUpvotes: Int,
-        currentDownvotes: Int
-    ): Pair<Int, Int> =
-        when (previousVote to newVote) {
-            VoteState.NONE to VoteState.UPVOTE -> (currentUpvotes + 1) to currentDownvotes
-            VoteState.NONE to VoteState.DOWNVOTE -> currentUpvotes to (currentDownvotes + 1)
-            VoteState.UPVOTE to VoteState.NONE -> (currentUpvotes - 1).coerceAtLeast(0) to currentDownvotes
-            VoteState.DOWNVOTE to VoteState.NONE -> currentUpvotes to (currentDownvotes - 1).coerceAtLeast(0)
-            VoteState.UPVOTE to VoteState.DOWNVOTE -> (currentUpvotes - 1).coerceAtLeast(0) to (currentDownvotes + 1)
-            VoteState.DOWNVOTE to VoteState.UPVOTE -> (currentUpvotes + 1) to (currentDownvotes - 1).coerceAtLeast(0)
-            else -> currentUpvotes to currentDownvotes
-        }
 
     private suspend fun loadPromocode(promocodeId: PromocodeId) {
         _uiState.update { it.copy(promocodeState = PromocodeUiState.Loading) }
@@ -104,6 +89,7 @@ class PromocodeDetailViewModel(
             when (
                 val result = getUserInteractionUseCase(
                     itemId = promocodeId.value,
+                    itemType = ContentType.PROMOCODE,
                     userId = userId,
                 )
             ) {
@@ -120,6 +106,9 @@ class PromocodeDetailViewModel(
     private fun refreshPromocode() {
         viewModelScope.launch {
             loadPromocode(promocodeId)
+            _uiState.value.userId?.let { userId ->
+                loadUserInteraction(promocodeId, userId)
+            }
         }
     }
 
@@ -171,6 +160,7 @@ class PromocodeDetailViewModel(
 
             // Voting
             val currentVoteState = _uiState.value.userInteraction?.voteState ?: VoteState.NONE
+            val currentBookmarkState = _uiState.value.userInteraction?.isBookmarked ?: false
             _uiState.update { it.copy(currentVoting = targetVoteState) }
             when (
                 val result = toggleVoteUseCase(
@@ -179,7 +169,7 @@ class PromocodeDetailViewModel(
                     userId = _uiState.value.userId,
                     currentVoteState = currentVoteState,
                     targetVoteState = targetVoteState,
-                    isBookmarked = false,
+                    isBookmarked = currentBookmarkState,
                 )
             ) {
                 is Result.Success -> {
@@ -189,7 +179,7 @@ class PromocodeDetailViewModel(
                     if (promo != null) {
                         val baseUpvotes = _uiState.value.optimisticUpvotes ?: promo.upvotes
                         val baseDownvotes = _uiState.value.optimisticDownvotes ?: promo.downvotes
-                        val (newUpvotes, newDownvotes) = computeVoteCounts(
+                        val (newUpvotes, newDownvotes) = VoteState.computeVoteCounts(
                             previousVote = currentVoteState,
                             newVote = newInteraction.voteState,
                             currentUpvotes = baseUpvotes,
@@ -223,6 +213,16 @@ class PromocodeDetailViewModel(
         viewModelScope.launch {
             _events.emit(PromocodeDetailEvent.SharePromocode(currentPromoCode))
             _uiState.update { it.copy(isSharing = false) }
+        }
+    }
+
+    private fun handleCopyCode() {
+        val promoState = _uiState.value.promocodeState
+        if (promoState !is PromocodeUiState.Success) return
+        val currentPromoCode = promoState.data
+
+        viewModelScope.launch {
+            _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code.value))
         }
     }
 

@@ -11,6 +11,8 @@ sealed class PromocodeDetailAction {
 
     data object ShareClicked : PromocodeDetailAction()
 
+    data object CopyCodeClicked : PromocodeDetailAction()
+
     data object BackClicked : PromocodeDetailAction()
 
     data class BlockUserClicked(val userId: UserId) : PromocodeDetailAction()

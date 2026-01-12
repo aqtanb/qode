@@ -11,7 +11,7 @@ import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
@@ -26,7 +26,7 @@ internal fun PostCreationTopBar(
 ) {
     QodeTopAppBar(
         title = "",
-        navigationIcon = QodeActionIcons.Back,
+        navigationIcon = ActionIcons.Back,
         onNavigationClick = onNavigateBack,
         variant = QodeTopAppBarVariant.CenterAligned,
         navigationIconTint = MaterialTheme.colorScheme.onSurface,

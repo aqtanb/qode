@@ -35,7 +35,6 @@ import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.LooksOne
 import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PostAdd
@@ -95,7 +94,6 @@ import compose.icons.simpleicons.Twitter
 import compose.icons.tablericons.Certificate
 import compose.icons.tablericons.CurrencyDollar
 import compose.icons.tablericons.Language
-import compose.icons.tablericons.Seeding
 import compose.icons.tablericons.Ticket
 
 object QodeinIcons {
@@ -108,8 +106,6 @@ object QodeinIcons {
 
 object PromocodeIcons {
     val Verified: ImageVector = Icons.Outlined.Verified
-    val OneTimeUse: ImageVector = Icons.Outlined.LooksOne
-    val NewUserOnly: ImageVector = TablerIcons.Seeding
     val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
     val DiscountValue: ImageVector = Icons.Outlined.Sell
     val MinimumOrder: ImageVector = Icons.Outlined.Money
@@ -140,7 +136,7 @@ object QodeCategoryIcons {
     val Consulting: ImageVector = FeatherIcons.MessageCircle
 }
 
-object QodeActionIcons {
+object ActionIcons {
     val Add: ImageVector = FeatherIcons.Plus
     val Delete: ImageVector = FeatherIcons.Trash2
     val Clear: ImageVector = Icons.Outlined.Clear

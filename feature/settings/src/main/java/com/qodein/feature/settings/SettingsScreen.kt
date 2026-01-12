@@ -39,7 +39,7 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeinElevatedCard
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
@@ -107,7 +107,7 @@ private fun SettingsScreen(
         topBar = {
             QodeTopAppBar(
                 title = stringResource(R.string.settings_title),
-                navigationIcon = QodeActionIcons.Back,
+                navigationIcon = ActionIcons.Back,
                 onNavigationClick = onBackClick,
             )
         },
@@ -123,21 +123,21 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_language_title),
                 leadingIcon = QodeCategoryIcons.Language,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = { onAction(SettingsAction.ShowLanguageBottomSheet) },
             )
 
             SettingsItem(
                 title = stringResource(R.string.settings_theme_title),
                 leadingIcon = QodeinIcons.DarkMode,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = { onAction(SettingsAction.ShowThemeBottomSheet) },
             )
 
             SettingsItem(
                 title = stringResource(R.string.settings_notifications_title),
                 leadingIcon = QodeNavigationIcons.Notifications,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = {
                     val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -151,7 +151,7 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_source_code_title),
                 leadingIcon = QodeCategoryIcons.Tech,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, AppConstants.GITHUB_URL.toUri())
                     context.startActivity(intent)
@@ -161,7 +161,7 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_open_source_licences_title),
                 leadingIcon = QodeCategoryIcons.Certification,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = onNavigateToLicenses,
             )
 
@@ -171,7 +171,7 @@ private fun SettingsScreen(
             SettingsItem(
                 title = feedbackTitle,
                 leadingIcon = QodeNavigationIcons.Feedback,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = {
                     val subject = encode(feedbackTitle)
                     val uri = "mailto:${AppConstants.FEEDBACK_EMAIL}?subject=$subject".toUri()
@@ -183,7 +183,7 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_about_title),
                 leadingIcon = QodeNavigationIcons.Info,
-                trailingIcon = QodeActionIcons.Next,
+                trailingIcon = ActionIcons.Next,
                 onClick = onNavigateToAbout,
             )
 

@@ -34,7 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeinBasicTextField
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.toUiText
@@ -73,7 +73,7 @@ fun ReportScreen(
         topBar = {
             QodeTopAppBar(
                 title = stringResource(R.string.report_title),
-                navigationIcon = QodeActionIcons.Close,
+                navigationIcon = ActionIcons.Close,
                 onNavigationClick = onNavigateBack,
             )
         },
@@ -248,7 +248,7 @@ private fun SuccessContent(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             Icon(
-                imageVector = QodeActionIcons.Check,
+                imageVector = ActionIcons.Check,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(48.dp),

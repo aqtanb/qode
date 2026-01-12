@@ -42,7 +42,7 @@ internal fun PromocodeDescriptionStep(
         keyboardActions = KeyboardActions(
             onDone = { onNextStep() },
         ),
-        canBeBlank = false,
+        canBeBlank = true,
     )
 }
 

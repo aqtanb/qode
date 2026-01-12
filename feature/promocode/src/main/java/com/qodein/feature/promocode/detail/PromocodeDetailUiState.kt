@@ -18,7 +18,7 @@ data class PromocodeDetailUiState(
     val optimisticDownvotes: Int? = null,
     val isSharing: Boolean = false,
     val isCopying: Boolean = false,
-    val transientError: OperationError? = null
+    val isRefreshing: Boolean = false
 )
 
 sealed interface PromocodeUiState {

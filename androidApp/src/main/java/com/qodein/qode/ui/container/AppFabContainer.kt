@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.qode.R
@@ -138,8 +138,8 @@ fun AppFabContainer(
  */
 private fun getFabIcon(destination: TopLevelDestination) =
     when (destination) {
-        TopLevelDestination.HOME -> QodeActionIcons.Add // Create new promocode
-        TopLevelDestination.FEED -> QodeActionIcons.Edit // Add content to feed
+        TopLevelDestination.HOME -> ActionIcons.Add // Create new promocode
+        TopLevelDestination.FEED -> ActionIcons.Edit // Add content to feed
     }
 
 /**

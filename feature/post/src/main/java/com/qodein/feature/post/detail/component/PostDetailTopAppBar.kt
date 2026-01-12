@@ -5,7 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -13,7 +13,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 internal fun PostDetailTopAppBar(onNavigationClick: () -> Unit) {
     QodeTopAppBar(
         title = "Post Detail",
-        navigationIcon = QodeActionIcons.Back,
+        navigationIcon = ActionIcons.Back,
         onNavigationClick = onNavigationClick,
     )
 }

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -398,7 +398,7 @@ private fun QodeinChipPreview() {
                 QodeinAssistChip(
                     label = "With Icon",
                     onClick = {},
-                    leadingIcon = QodeActionIcons.Next,
+                    leadingIcon = ActionIcons.Next,
                 )
             }
 

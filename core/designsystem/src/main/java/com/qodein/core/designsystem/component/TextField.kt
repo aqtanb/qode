@@ -56,7 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.qodein.core.designsystem.R
 import com.qodein.core.designsystem.ThemePreviews
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
@@ -236,7 +236,7 @@ fun QodeinTextField(
                                 onValueChange("")
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             },
-                            icon = QodeActionIcons.Clear,
+                            icon = ActionIcons.Clear,
                             contentDescription = stringResource(R.string.text_field_clear),
                             size = ButtonSize.Small,
                             modifier = Modifier.padding(end = SpacingTokens.lg),

@@ -34,7 +34,7 @@ import com.qodein.core.designsystem.component.QodeLogoStyle
 import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinIconButton
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -253,7 +253,7 @@ private fun AuthErrorMessage(
 
             QodeinIconButton(
                 onClick = onDismiss,
-                icon = QodeActionIcons.Close,
+                icon = ActionIcons.Close,
                 contentDescription = stringResource(CoreUiR.string.cd_close),
                 size = ButtonSize.Small,
             )

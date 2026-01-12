@@ -2,7 +2,7 @@ package com.qodein.core.ui
 
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.icon.UIIcons
 
@@ -14,32 +14,32 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
     SubmitPromocode(
         titleResId = R.string.auth_submit_promo_title,
         messageResId = R.string.auth_submit_promo_message,
-        iconVector = QodeActionIcons.Add,
+        iconVector = ActionIcons.Add,
     ),
     UpvotePrompt(
         titleResId = R.string.auth_upvote_title,
         messageResId = R.string.auth_upvote_message,
-        iconVector = QodeActionIcons.Thumbs,
+        iconVector = ActionIcons.Thumbs,
     ),
     DownvotePrompt(
         titleResId = R.string.auth_downvote_title,
         messageResId = R.string.auth_downvote_message,
-        iconVector = QodeActionIcons.ThumbsDown,
+        iconVector = ActionIcons.ThumbsDown,
     ),
     WriteComment(
         titleResId = R.string.auth_comment_title,
         messageResId = R.string.auth_comment_message,
-        iconVector = QodeActionIcons.Comment,
+        iconVector = ActionIcons.Comment,
     ),
     BookmarkPromoCode(
         titleResId = R.string.auth_bookmark_promo_title,
         messageResId = R.string.auth_bookmark_promo_message,
-        iconVector = QodeActionIcons.Bookmark,
+        iconVector = ActionIcons.Bookmark,
     ),
     FollowStore(
         titleResId = R.string.auth_follow_store_title,
         messageResId = R.string.auth_follow_store_message,
-        iconVector = QodeActionIcons.Follow,
+        iconVector = ActionIcons.Follow,
     ),
     CreatePost(
         titleResId = R.string.auth_create_post_title,

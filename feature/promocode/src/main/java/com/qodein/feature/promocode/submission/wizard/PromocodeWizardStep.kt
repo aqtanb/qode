@@ -1,8 +1,8 @@
 package com.qodein.feature.promocode.submission.wizard
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
@@ -67,7 +67,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
 
 fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
     when {
-        isCompleted -> QodeActionIcons.Check
+        isCompleted -> ActionIcons.Check
         else -> when (this) {
             PromocodeWizardStep.SERVICE -> QodeIcons.Service
             PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType

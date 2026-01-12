@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -162,7 +162,7 @@ private fun AuthenticationBottomSheetContent(
                 enabled = !isLoading, // Disable dismiss during loading
             ) {
                 Icon(
-                    imageVector = QodeActionIcons.Close,
+                    imageVector = ActionIcons.Close,
                     contentDescription = stringResource(R.string.close),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

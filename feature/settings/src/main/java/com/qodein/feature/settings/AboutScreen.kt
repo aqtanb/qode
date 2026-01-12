@@ -28,7 +28,7 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -52,7 +52,7 @@ internal fun AboutScreen(onNavigateBack: () -> Unit) {
         topBar = {
             QodeTopAppBar(
                 title = stringResource(R.string.settings_about_title),
-                navigationIcon = QodeActionIcons.Back,
+                navigationIcon = ActionIcons.Back,
                 onNavigationClick = onNavigateBack,
             )
         },

@@ -6,7 +6,25 @@ import kotlinx.serialization.Serializable
 enum class VoteState {
     UPVOTE,
     DOWNVOTE,
-    NONE
+    NONE;
+
+    companion object {
+        fun computeVoteCounts(
+            previousVote: VoteState,
+            newVote: VoteState,
+            currentUpvotes: Int,
+            currentDownvotes: Int
+        ): Pair<Int, Int> =
+            when (previousVote to newVote) {
+                NONE to UPVOTE -> (currentUpvotes + 1) to currentDownvotes
+                NONE to DOWNVOTE -> currentUpvotes to (currentDownvotes + 1)
+                UPVOTE to NONE -> (currentUpvotes - 1).coerceAtLeast(0) to currentDownvotes
+                DOWNVOTE to NONE -> currentUpvotes to (currentDownvotes - 1).coerceAtLeast(0)
+                UPVOTE to DOWNVOTE -> (currentUpvotes - 1).coerceAtLeast(0) to (currentDownvotes + 1)
+                DOWNVOTE to UPVOTE -> (currentUpvotes + 1) to (currentDownvotes - 1).coerceAtLeast(0)
+                else -> currentUpvotes to currentDownvotes
+            }
+    }
 }
 
 @Serializable
@@ -27,7 +45,7 @@ data class UserInteraction(
     val voteState: VoteState,
     val isBookmarked: Boolean
 ) {
-    val id: String get() = "${itemType.name}_$itemId"
+    val id: String get() = generateDocumentId(itemType, itemId)
 
     init {
         require(itemId.isNotBlank()) { "Item ID cannot be blank" }
@@ -50,4 +68,11 @@ data class UserInteraction(
         )
 
     fun toggleBookmark(): UserInteraction = copy(isBookmarked = !isBookmarked)
+
+    companion object {
+        fun generateDocumentId(
+            itemType: ContentType,
+            itemId: String
+        ): String = "${itemType.name}_$itemId"
+    }
 }

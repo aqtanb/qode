@@ -26,7 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -96,7 +96,7 @@ fun WizardController(
                     ),
                 ) {
                     Icon(
-                        imageVector = QodeActionIcons.Previous,
+                        imageVector = ActionIcons.Previous,
                         contentDescription = stringResource(CoreUiR.string.action_back),
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     )
@@ -128,11 +128,11 @@ fun WizardController(
                     } else {
                         Icon(
                             imageVector = if (canGoNext) {
-                                QodeActionIcons.Next
+                                ActionIcons.Next
                             } else if (canSubmit && onSubmit != null) {
-                                QodeActionIcons.Check
+                                ActionIcons.Check
                             } else {
-                                QodeActionIcons.Next
+                                ActionIcons.Next
                             },
                             contentDescription = if (canGoNext) {
                                 nextButtonText

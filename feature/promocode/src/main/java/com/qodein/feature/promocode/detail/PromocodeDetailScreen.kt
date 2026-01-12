@@ -21,6 +21,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -118,12 +120,13 @@ fun PromocodeDetailScreen(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val title = when (val state = uiState.promocodeState) {
         is PromocodeUiState.Success -> state.data.code.value
         else -> ""
     }
     val authorId = (uiState.promocodeState as? PromocodeUiState.Success)?.data?.authorId
+
+    val pullToRefreshState = rememberPullToRefreshState()
 
     Scaffold(
         modifier = modifier,
@@ -134,6 +137,7 @@ fun PromocodeDetailScreen(
                 currentUserId = uiState.userId,
                 authorId = authorId,
                 onNavigateBack = onNavigateBack,
+                onCopyClick = { onAction(PromocodeDetailAction.CopyCodeClicked) },
                 onBlockUserClick = { userId ->
                     onAction(PromocodeDetailAction.BlockUserClicked(userId))
                 },
@@ -144,22 +148,30 @@ fun PromocodeDetailScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
-        when (val promoState = uiState.promocodeState) {
-            PromocodeUiState.Loading -> PromocodeLoadingState()
-            is PromocodeUiState.Error -> PromocodeErrorState(error = promoState.error, onRetry = {
-                onAction(PromocodeDetailAction.RetryClicked)
-            })
-            is PromocodeUiState.Success -> PromocodeSuccessState(
-                promocode = promoState.data,
-                userInteraction = uiState.userInteraction,
-                currentVoting = uiState.currentVoting,
-                optimisticUpvotes = uiState.optimisticUpvotes,
-                optimisticDownvotes = uiState.optimisticDownvotes,
-                onAction = onAction,
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(horizontal = SpacingTokens.sm),
-            )
+        PullToRefreshBox(
+            state = pullToRefreshState,
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { onAction(PromocodeDetailAction.RefreshData) },
+            modifier = modifier,
+        ) {
+            when (val promocodeUiState = uiState.promocodeState) {
+                PromocodeUiState.Loading -> PromocodeLoadingState()
+                is PromocodeUiState.Error -> PromocodeErrorState(error = promocodeUiState.error, onRetry = {
+                    onAction(PromocodeDetailAction.RetryClicked)
+                })
+                is PromocodeUiState.Success -> PromocodeSuccessState(
+                    promocode = promocodeUiState.data,
+                    userInteraction = uiState.userInteraction,
+                    currentVoting = uiState.currentVoting,
+                    optimisticUpvotes = uiState.optimisticUpvotes,
+                    optimisticDownvotes = uiState.optimisticDownvotes,
+                    isSharing = uiState.isSharing,
+                    onAction = onAction,
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(horizontal = SpacingTokens.sm),
+                )
+            }
         }
     }
 }
@@ -171,6 +183,7 @@ private fun PromocodeSuccessState(
     currentVoting: VoteState?,
     optimisticUpvotes: Int?,
     optimisticDownvotes: Int?,
+    isSharing: Boolean,
     onAction: (PromocodeDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -196,6 +209,7 @@ private fun PromocodeSuccessState(
             currentVoting = currentVoting,
             optimisticUpvotes = optimisticUpvotes,
             optimisticDownvotes = optimisticDownvotes,
+            isSharing = isSharing,
             onAction = onAction,
         )
     }
@@ -221,6 +235,7 @@ private fun InteractionsSuccessState(
     currentVoting: VoteState?,
     optimisticUpvotes: Int?,
     optimisticDownvotes: Int?,
+    isSharing: Boolean,
     onAction: (PromocodeDetailAction) -> Unit
 ) {
     val voteState = userInteraction?.voteState ?: VoteState.NONE
@@ -234,6 +249,7 @@ private fun InteractionsSuccessState(
         currentVoting = currentVoting,
         onVote = { vote -> onAction(PromocodeDetailAction.VoteClicked(vote)) },
         onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
+        isSharing = isSharing,
     )
 }
 
@@ -478,7 +494,6 @@ private fun InteractionErrorPreview() {
             uiState = PromocodeDetailUiState(
                 promocodeId = samplePromoCode.id,
                 promocodeState = PromocodeUiState.Success(samplePromoCode),
-                transientError = SystemError.Unknown,
             ),
             onAction = {},
             onNavigateBack = {},

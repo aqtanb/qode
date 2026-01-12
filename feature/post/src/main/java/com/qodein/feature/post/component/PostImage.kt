@@ -26,7 +26,7 @@ import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeinIconButton
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -84,7 +84,7 @@ internal fun PostImage(
         if (onRemove != null) {
             QodeinIconButton(
                 onClick = onRemove,
-                icon = QodeActionIcons.Close,
+                icon = ActionIcons.Close,
                 contentDescription = stringResource(R.string.cd_remove_image),
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface,

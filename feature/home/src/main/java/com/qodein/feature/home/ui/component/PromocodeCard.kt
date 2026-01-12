@@ -53,8 +53,8 @@ import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
 import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
-import com.qodein.core.designsystem.icon.QodeActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.shape.CouponShape
@@ -290,7 +290,7 @@ private fun PromoCodeRow(
 
         QodeinOutlinedIconButton(
             onClick = onCopyClick,
-            icon = QodeActionIcons.Copy,
+            icon = ActionIcons.Copy,
             contentDescription = stringResource(CoreUiR.string.copy_code),
             size = ButtonSize.Small,
         )

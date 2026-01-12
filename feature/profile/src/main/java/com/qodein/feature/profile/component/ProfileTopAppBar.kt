@@ -12,7 +12,7 @@ import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeTopAppBarVariant
 import com.qodein.core.designsystem.component.rememberAutoHidingState
-import com.qodein.core.designsystem.icon.QodeActionIcons
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +29,7 @@ internal fun ProfileTopAppBar(
     ) {
         QodeTopAppBar(
             title = "",
-            navigationIcon = QodeActionIcons.Back,
+            navigationIcon = ActionIcons.Back,
             onNavigationClick = onBackClick,
             variant = QodeTopAppBarVariant.Transparent,
             statusBarPadding = true,
