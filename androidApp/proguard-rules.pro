@@ -14,7 +14,7 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
@@ -48,3 +48,18 @@
     @com.google.firebase.firestore.DocumentId <fields>;
     @com.google.firebase.firestore.ServerTimestamp <fields>;
 }
+
+# Ktor client - keep only essentials for coroutines and reflection
+-keepclassmembers class io.ktor.** { volatile <fields>; }
+-keepclassmembers class kotlinx.coroutines.** { volatile <fields>; }
+
+# Suppress warnings for optional dependencies not used in your app
+-dontwarn kotlinx.atomicfu.**
+-dontwarn io.netty.**
+-dontwarn com.typesafe.**
+-dontwarn org.slf4j.**
+-dontwarn okhttp3.internal.platform.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+-dontwarn org.codehaus.mojo.animal_sniffer.**
