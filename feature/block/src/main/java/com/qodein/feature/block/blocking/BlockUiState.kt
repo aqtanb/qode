@@ -1,4 +1,4 @@
-package com.qodein.feature.block
+package com.qodein.feature.block.blocking
 
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.UserId

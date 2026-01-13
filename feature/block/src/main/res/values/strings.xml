@@ -11,4 +11,14 @@
 
     <!-- Success messages -->
     <string name="user_blocked_success">User successfully blocked</string>
+
+    <!-- Blocked Users List -->
+    <string name="blocked_users_title">Blocked Users</string>
+    <string name="blocked_users_empty">No blocked users</string>
+    <string name="blocked_users_empty_description">Users you block will appear here</string>
+    <string name="unblock_button">Unblock</string>
+    <string name="anonymous_user">Anonymous</string>
+
+    <string name="unblock_user_title">Do you want to unblock %s?</string>
+    <string name="unblock_user_info">You\'ll be able to see their content again</string>
 </resources>

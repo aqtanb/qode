@@ -2,13 +2,11 @@
 <resources>
     <string name="profile_sign_out_button">Шығу</string>
     <string name="profile_loading_description">Профиль жүктелуде</string>
-    <string name="profile_error_unknown">Белгісіз қате</string>
-    <string name="edit_profile_button">Профильді өңдеу</string>
-    <string name="profile_stats_title">Сіздің статистикаңыз</string>
     <string name="profile_promocodes_label">Промокодтар</string>
-    <string name="profile_upvotes_label">Қолдау дауыстары</string>
-    <string name="profile_downvotes_label">Қарсы дауыстар</string>
-    <string name="profile_activity_title">Соңғы белсенділік</string>
-    <string name="profile_achievements_title">Жетістіктер</string>
     <string name="posts">Жазба</string>
+
+
+    <string name="settings_your_activity_title">Сіздің белсенділігіңіз</string>
+    <string name="settings_reported_title">Шағымдар</string>
+    <string name="settings_blocked_title">Бұғатталғандар</string>
 </resources>

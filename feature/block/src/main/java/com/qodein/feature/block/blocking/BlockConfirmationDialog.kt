@@ -1,4 +1,4 @@
-package com.qodein.feature.block
+package com.qodein.feature.block.blocking
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,9 +27,9 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.text.asString
+import com.qodein.feature.block.R
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.UserId
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -40,7 +40,6 @@ fun BlockConfirmationDialog(
     userId: UserId,
     username: String?,
     photoUrl: String?,
-    contentType: ContentType,
     onNavigateBack: () -> Unit,
     onUserBlocked: () -> Unit,
     viewModel: BlockViewModel = koinViewModel { parametersOf(userId, username, photoUrl) }

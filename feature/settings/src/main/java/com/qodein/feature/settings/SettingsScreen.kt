@@ -123,21 +123,21 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_language_title),
                 leadingIcon = QodeCategoryIcons.Language,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = { onAction(SettingsAction.ShowLanguageBottomSheet) },
             )
 
             SettingsItem(
                 title = stringResource(R.string.settings_theme_title),
                 leadingIcon = QodeinIcons.DarkMode,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = { onAction(SettingsAction.ShowThemeBottomSheet) },
             )
 
             SettingsItem(
                 title = stringResource(R.string.settings_notifications_title),
                 leadingIcon = QodeNavigationIcons.Notifications,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = {
                     val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -149,29 +149,17 @@ private fun SettingsScreen(
             HorizontalDivider()
 
             SettingsItem(
-                title = stringResource(R.string.settings_source_code_title),
-                leadingIcon = QodeCategoryIcons.Tech,
-                trailingIcon = ActionIcons.Next,
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, AppConstants.GITHUB_URL.toUri())
-                    context.startActivity(intent)
-                },
-            )
-
-            SettingsItem(
                 title = stringResource(R.string.settings_open_source_licences_title),
                 leadingIcon = QodeCategoryIcons.Certification,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = onNavigateToLicenses,
             )
 
-            HorizontalDivider()
-
             val feedbackTitle = stringResource(R.string.settings_feedback_title)
             SettingsItem(
-                title = feedbackTitle,
+                title = stringResource(R.string.settings_feedback_title),
                 leadingIcon = QodeNavigationIcons.Feedback,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = {
                     val subject = encode(feedbackTitle)
                     val uri = "mailto:${AppConstants.FEEDBACK_EMAIL}?subject=$subject".toUri()
@@ -183,7 +171,7 @@ private fun SettingsScreen(
             SettingsItem(
                 title = stringResource(R.string.settings_about_title),
                 leadingIcon = QodeNavigationIcons.Info,
-                trailingIcon = ActionIcons.Next,
+
                 onClick = onNavigateToAbout,
             )
 
@@ -191,7 +179,6 @@ private fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
-            // Delete account button
             QodeTextButton(
                 onClick = { onAction(SettingsAction.DeleteAccountClicked) },
                 text = stringResource(R.string.settings_delete_account_title),
@@ -250,7 +237,7 @@ private fun SettingsItem(
     title: String,
     leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
-    trailingIcon: ImageVector? = null
+    trailingIcon: ImageVector? = ActionIcons.Next
 ) {
     QodeinElevatedCard(
         modifier = modifier.fillMaxWidth(),

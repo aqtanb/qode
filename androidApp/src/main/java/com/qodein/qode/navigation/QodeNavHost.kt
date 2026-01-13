@@ -9,7 +9,9 @@ import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.block.navigation.blockSection
+import com.qodein.feature.block.navigation.blockedUsersSection
 import com.qodein.feature.block.navigation.navigateToBlockUserDialog
+import com.qodein.feature.block.navigation.navigateToBlockedUsers
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.home.navigation.homeSection
 import com.qodein.feature.post.navigation.feedSection
@@ -100,6 +102,9 @@ fun QodeNavHost(
             onSignOut = {
                 appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
             },
+            onNavigateToBlockedUsers = {
+                navController.navigateToBlockedUsers()
+            },
         )
 
         authSection(
@@ -153,7 +158,6 @@ fun QodeNavHost(
                 when (contentType) {
                     ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
-                    else -> {}
                 }
             },
         )
@@ -164,9 +168,12 @@ fun QodeNavHost(
                 when (contentType) {
                     ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
                     ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
-                    else -> {}
                 }
             },
+        )
+
+        blockedUsersSection(
+            onNavigateBack = { navController.popBackStack() },
         )
 
         serviceSelectionSection(

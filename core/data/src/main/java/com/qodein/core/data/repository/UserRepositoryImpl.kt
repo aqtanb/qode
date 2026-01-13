@@ -113,6 +113,27 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
             Result.Error(SystemError.Unknown)
         }
 
+    override suspend fun unblockUser(
+        currentUserId: String,
+        blockedUserId: String
+    ): Result<Unit, OperationError> {
+        try {
+            Timber.i("Unblocking user: $blockedUserId by $currentUserId")
+            dataSource.unblockUser(currentUserId, blockedUserId)
+            Timber.i("Successfully unblocked user: $blockedUserId")
+            return Result.Success(Unit)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error unblocking user: $blockedUserId")
+            return Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error unblocking user: $blockedUserId")
+            return Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error unblocking user: $blockedUserId")
+            return Result.Error(SystemError.Unknown)
+        }
+    }
+
     override fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> = dataSource.getBlockedUserIds(currentUserId)
 
     override suspend fun deleteUserAccount(userId: String): Result<Unit, OperationError> =

@@ -1,6 +1,7 @@
 package com.qodein.feature.block.di
 
-import com.qodein.feature.block.BlockViewModel
+import com.qodein.feature.block.blocked.BlockedUsersViewModel
+import com.qodein.feature.block.blocking.BlockViewModel
 import com.qodein.shared.model.UserId
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -15,6 +16,14 @@ val blockModule = module {
             blockUserUseCase = get(),
             analyticsHelper = get(),
             refreshCoordinator = get(),
+        )
+    }
+
+    viewModel {
+        BlockedUsersViewModel(
+            getBlockedUserIdsUseCase = get(),
+            getUserByIdUseCase = get(),
+            unblockUserUseCase = get(),
         )
     }
 }

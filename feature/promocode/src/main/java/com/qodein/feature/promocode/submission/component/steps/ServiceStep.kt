@@ -61,6 +61,7 @@ import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.Service.Companion.isValidUrl
 import com.qodein.shared.model.Service.Companion.sanitizeUrl
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun ServiceStep(
@@ -147,7 +148,7 @@ private fun ServiceNameField(
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val invalidCharsErrorText = stringResource(com.qodein.core.ui.R.string.error_service_name_invalid_characters)
+    val invalidCharsErrorText = stringResource(CoreUiR.string.error_service_name_invalid_characters)
 
     QodeinTextField(
         value = value,

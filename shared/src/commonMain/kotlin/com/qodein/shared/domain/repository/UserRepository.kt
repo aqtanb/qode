@@ -27,6 +27,11 @@ interface UserRepository {
         blockedUserId: String
     ): Result<Unit, OperationError>
 
+    suspend fun unblockUser(
+        currentUserId: String,
+        blockedUserId: String
+    ): Result<Unit, OperationError>
+
     fun getBlockedUserIds(currentUserId: String): Flow<Set<String>>
 
     /**

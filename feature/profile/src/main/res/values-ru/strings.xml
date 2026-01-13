@@ -2,13 +2,11 @@
 <resources>
     <string name="profile_sign_out_button">Выйти</string>
     <string name="profile_loading_description">Загрузка профиля</string>
-    <string name="profile_error_unknown">Неизвестная ошибка</string>
-    <string name="edit_profile_button">Редактировать профиль</string>
-    <string name="profile_stats_title">Ваша статистика</string>
     <string name="profile_promocodes_label">Промокоды</string>
-    <string name="profile_upvotes_label">Голоса за</string>
-    <string name="profile_downvotes_label">Голоса против</string>
-    <string name="profile_activity_title">Недавняя активность</string>
-    <string name="profile_achievements_title">Достижения</string>
     <string name="posts">Пост</string>
+
+
+    <string name="settings_your_activity_title">Ваша активность</string>
+    <string name="settings_reported_title">Жалобы</string>
+    <string name="settings_blocked_title">Заблокированные</string>
 </resources>

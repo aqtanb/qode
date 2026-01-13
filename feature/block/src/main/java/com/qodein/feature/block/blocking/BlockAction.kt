@@ -1,4 +1,4 @@
-package com.qodein.feature.block
+package com.qodein.feature.block.blocking
 
 sealed interface BlockAction {
     data object ConfirmBlock : BlockAction

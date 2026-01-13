@@ -50,10 +50,10 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeinElevatedCard
+import com.qodein.core.designsystem.component.QodeinOutlinedCard
 import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -70,6 +70,7 @@ import com.qodein.shared.model.UserStats
 fun ProfileRoute(
     onBackClick: () -> Unit,
     onSignOut: () -> Unit,
+    onNavigateToBlockedUsers: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -87,6 +88,7 @@ fun ProfileRoute(
 
     ProfileScreen(
         onBackClick = onBackClick,
+        onNavigateToBlockedUsers = onNavigateToBlockedUsers,
         onAction = viewModel::onAction,
         uiState = uiState,
         modifier = modifier,
@@ -97,6 +99,7 @@ fun ProfileRoute(
 @Composable
 private fun ProfileScreen(
     onBackClick: () -> Unit,
+    onNavigateToBlockedUsers: () -> Unit,
     onAction: (ProfileAction) -> Unit,
     uiState: ProfileUiState,
     modifier: Modifier = Modifier
@@ -124,6 +127,7 @@ private fun ProfileScreen(
                     ProfileContent(
                         user = uiState.user,
                         scrollState = scrollState,
+                        onNavigateToBlockedUsers = onNavigateToBlockedUsers,
                         onAction = onAction,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -144,12 +148,11 @@ private fun ProfileScreen(
     }
 }
 
-// MARK: - Success Content
-
 @Composable
 private fun ProfileContent(
     user: User,
     scrollState: ScrollState,
+    onNavigateToBlockedUsers: () -> Unit,
     onAction: (ProfileAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -165,15 +168,21 @@ private fun ProfileContent(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        Spacer(modifier = Modifier.height(SpacingTokens.huge))
-
         AnimatedProfileHeader(
             user = user,
             onAction = onAction,
             isVisible = isContentVisible,
         )
 
-        AnimatedSignOutButton(
+        Spacer(modifier = Modifier.height(SpacingTokens.lg))
+
+        AnimatedActionsSection(
+            onNavigateToBlockedUsers = onNavigateToBlockedUsers,
+            onAction = onAction,
+            isVisible = isContentVisible,
+        )
+
+        SignOutButton(
             onAction = onAction,
             isVisible = isContentVisible,
         )
@@ -248,6 +257,7 @@ private fun AnimatedProfileHeader(
 
 @Composable
 private fun AnimatedActionsSection(
+    onNavigateToBlockedUsers: () -> Unit,
     onAction: (ProfileAction) -> Unit,
     isVisible: Boolean,
     modifier: Modifier = Modifier
@@ -263,6 +273,7 @@ private fun AnimatedActionsSection(
         ) + fadeIn(animationSpec = tween(1000, 400)),
     ) {
         LeaderboardCard(
+            onNavigateToBlockedUsers = onNavigateToBlockedUsers,
             onAction = onAction,
             modifier = modifier.fillMaxWidth(),
         )
@@ -271,6 +282,7 @@ private fun AnimatedActionsSection(
 
 @Composable
 private fun LeaderboardCard(
+    onNavigateToBlockedUsers: () -> Unit,
     onAction: (ProfileAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -279,11 +291,10 @@ private fun LeaderboardCard(
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         ActivityCard(
-            title = "Leaderboard",
-            content = "Here is the leaderboard, see how you rank!",
-            icon = QodeinIcons.Leaderboard,
+            title = stringResource(R.string.settings_blocked_title),
+            icon = UIIcons.Block,
             iconTint = MaterialTheme.colorScheme.primary,
-            onClick = { },
+            onClick = onNavigateToBlockedUsers,
         )
     }
 }
@@ -291,56 +302,38 @@ private fun LeaderboardCard(
 @Composable
 private fun ActivityCard(
     title: String,
-    content: String,
     icon: ImageVector,
     iconTint: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    QodeinElevatedCard(
+    QodeinOutlinedCard(
         modifier = modifier
             .fillMaxWidth(),
         onClick = onClick,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        Row(
+            modifier = Modifier.padding(SpacingTokens.md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         ) {
-            Row(
-                modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+            )
             Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = modifier,
+                text = title,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
 }
 
-// MARK: Sign Out
-
 @Composable
-private fun AnimatedSignOutButton(
+private fun SignOutButton(
     onAction: (ProfileAction) -> Unit,
     isVisible: Boolean,
     modifier: Modifier = Modifier
@@ -349,28 +342,22 @@ private fun AnimatedSignOutButton(
         visible = isVisible,
         enter = fadeIn(animationSpec = tween(800)),
     ) {
-        SignOutButton(
-            onAction = onAction,
+        Box(
             modifier = modifier.fillMaxWidth(),
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            QodeButton(
+                text = stringResource(R.string.profile_sign_out_button),
+                onClick = { onAction(ProfileAction.SignOutClicked) },
+                size = ButtonSize.Large,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = modifier
+                    .fillMaxWidth(0.8f)
+                    .testTag("sign_out_button"),
+            )
+        }
     }
-}
-
-@Composable
-private fun SignOutButton(
-    onAction: (ProfileAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    QodeButton(
-        text = stringResource(R.string.profile_sign_out_button),
-        onClick = { onAction(ProfileAction.SignOutClicked) },
-        size = ButtonSize.Large,
-        containerColor = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag("sign_out_button"),
-    )
 }
 
 // MARK: Header
@@ -507,7 +494,10 @@ private fun LeaderboardCardPreview() {
         Surface(
             modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.lg),
         ) {
-            LeaderboardCard(onAction = {})
+            LeaderboardCard(
+                onNavigateToBlockedUsers = {},
+                onAction = {},
+            )
         }
     }
 }
@@ -519,6 +509,7 @@ private fun ProfileContentPreview() {
         ProfileContent(
             user = UserPreviewData.powerUser,
             scrollState = rememberScrollState(),
+            onNavigateToBlockedUsers = {},
             onAction = {},
         )
     }

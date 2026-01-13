@@ -1,4 +1,4 @@
-package com.qodein.feature.block
+package com.qodein.feature.block.blocking
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

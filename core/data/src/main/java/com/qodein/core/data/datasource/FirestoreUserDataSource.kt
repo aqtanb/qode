@@ -74,6 +74,17 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore, private 
             .await()
     }
 
+    suspend fun unblockUser(
+        currentUserId: String,
+        blockedUserId: String
+    ) {
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(currentUserId)
+            .collection(UserDto.SUBCOLLECTION_BLOCKS)
+            .document(blockedUserId)
+            .delete()
+    }
+
     fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> =
         callbackFlow {
             var registration: ListenerRegistration? = null

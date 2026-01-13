@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import compose.icons.FeatherIcons
 import compose.icons.SimpleIcons
 import compose.icons.TablerIcons
+import compose.icons.feathericons.Activity
 import compose.icons.feathericons.AlertCircle
 import compose.icons.feathericons.ArrowDown
 import compose.icons.feathericons.ArrowLeft
@@ -232,4 +233,8 @@ object QodeCalendarIcons {
 
 object QodeBusinessIcons {
     val Asset: ImageVector = FeatherIcons.Box
+}
+
+object UserIcons {
+    val Activity = FeatherIcons.Activity
 }

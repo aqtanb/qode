@@ -11,4 +11,12 @@
 
     <!-- Success messages -->
     <string name="user_blocked_success">Пользователь успешно заблокирован</string>
+
+    <string name="blocked_users_title">Заблокированные пользователи</string>
+    <string name="blocked_users_empty">Нет заблокированных пользователей</string>
+    <string name="blocked_users_empty_description">Заблокированные вами пользователи появятся здесь</string>
+    <string name="unblock_button">Разблокировать</string>
+    <string name="anonymous_user">Аноним</string>
+    <string name="unblock_user_title">Вы хотите разблокировать %s?</string>
+    <string name="unblock_user_info">Вы снова сможете видеть их контент</string>
 </resources>
