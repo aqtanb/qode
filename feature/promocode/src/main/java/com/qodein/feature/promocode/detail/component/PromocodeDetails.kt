@@ -36,7 +36,6 @@ internal fun PromocodeDetails(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
-    val isPercentage = promocode.discount is Discount.Percentage
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
@@ -65,9 +64,17 @@ internal fun PromocodeDetails(
             }
 
             DetailItem(
-                icon = if (isPercentage) PromocodeIcons.Percentage else PromocodeIcons.FixedAmount,
+                icon = when (promocode.discount) {
+                    is Discount.Percentage -> PromocodeIcons.Percentage
+                    is Discount.FixedAmount -> PromocodeIcons.FixedAmount
+                    is Discount.FreeItem -> PromocodeIcons.FreeItem
+                },
                 label = stringResource(R.string.promocode_details_discount),
-                value = formatNumber(promocode.discount.value) + if (isPercentage) "%" else "₸",
+                value = when (val discount = promocode.discount) {
+                    is Discount.Percentage -> "${formatNumber(discount.value)}%"
+                    is Discount.FixedAmount -> "${formatNumber(discount.value)}₸"
+                    is Discount.FreeItem -> discount.description
+                },
                 valueColor = MaterialTheme.colorScheme.primary,
             )
 
