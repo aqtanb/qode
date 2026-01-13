@@ -25,6 +25,5 @@
     <string name="image_load_failed">Ошибка загрузки изображения</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>
-    <string name="cd_comments">Комментарии, %1$d</string>
     <string name="cd_share">Поделиться</string>
 </resources>

@@ -129,7 +129,7 @@ class ServiceSelectionViewModelTest {
     fun `updating search query triggers search with loading state`() =
         runTest {
             // Given
-            val searchResults = listOf(testServices[0]) // Netflix only
+            listOf(testServices[0]) // Netflix only
             val resultFlow = MutableStateFlow<Result<List<Service>, SystemError>>(Result.Success(testServices))
             coEvery { searchServicesUseCase(any()) } returns resultFlow
 

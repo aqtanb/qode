@@ -30,8 +30,6 @@
     <string name="error_service_invalid_domain_format">Домен форматы жарамсыз. Жарамды домен енгізіңіз.</string>
 
     <string name="cd_close">Жабу</string>
-    <string name="cd_first_user_only">Тек алғашқы пайдаланушыға</string>
-    <string name="cd_one_time_use">Бір рет қолдану</string>
     <string name="cd_expiring_soon">Жақында аяқталады</string>
     <string name="cd_verified">Тексерілді</string>
     <string name="cd_service_logo">Қызмет логотипі</string>
@@ -191,16 +189,10 @@
     <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Жеңілдік мөлшері</string>
     <string name="step_discount_value_short">Мөлшері</string>
-    <string name="step_minimum_order_title">Ең төменгі тапсырыс</string>
-    <string name="step_minimum_order_short">Мин. тапсырыс</string>
-    <string name="step_eligibility_title">Қолдану шарттары</string>
-    <string name="step_eligibility_short">Шарттар</string>
     <string name="step_description_title">Қосымша ақпарат беріңіз</string>
     <string name="step_description_short">Сипаттама</string>
     <string name="step_start_date_title">Басталу және аяқталу күндерін талдаңыз</string>
     <string name="step_start_date_short">Күндер</string>
-    <string name="step_end_date_title">Аяқталу күні</string>
-    <string name="step_end_date_short">Аяқталу</string>
     <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
 
     <string name="legal_consent_title">Шарттарды қабылдаңыз</string>

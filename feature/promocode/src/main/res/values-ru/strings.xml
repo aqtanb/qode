@@ -6,27 +6,15 @@
 
     <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
     <string name="promocode_percentage_discount">Получите скидку %1$s%% на заказы от %2$s₸</string>
+    <string name="promocode_free_item_discount">Получите %1$s при заказе на сумму свыше %2$s₸</string>
     <string name="promocode_details_title">Детали промокода</string>
     <string name="promocode_details_service">Сервис</string>
     <string name="promocode_details_discount">Скидка</string>
     <string name="promocode_details_minimum_order">Минимальный заказ</string>
     <string name="promocode_details_start_date">Дата начала</string>
     <string name="promocode_details_end_date">Дата окончания</string>
-    <string name="promocode_details_new_user_only">Только для новых пользователей</string>
-    <string name="promocode_details_one_time_use_only">Только однократное использование</string>
     <string name="promocode_details_value_yes">Да</string>
     <string name="promocode_details_value_no">Нет</string>
-
-    <string name="promocode_rules_customer_eligibility_title">Доступность для клиентов</string>
-    <string name="promocode_rules_customer_eligibility_all">Все покупатели</string>
-    <string name="promocode_rules_customer_eligibility_all_description">Любой покупатель может использовать этот промокод</string>
-    <string name="promocode_rules_customer_eligibility_new">Только новые покупатели</string>
-    <string name="promocode_rules_customer_eligibility_new_description">Только новые покупатели могут использовать этот код</string>
-    <string name="promocode_rules_usage_limitation_title">Ограничение использования</string>
-    <string name="promocode_rules_usage_limitation_multiple">Многократное использование</string>
-    <string name="promocode_rules_usage_limitation_multiple_description">Любой покупатель может использовать этот промокод</string>
-    <string name="promocode_rules_usage_limitation_one_time">Одноразовое использование</string>
-    <string name="promocode_rules_usage_limitation_one_time_description">Код может использовать один пользователь, затем он удаляется</string>
 
     <string name="service_step_helper_service_name">Имя сервиса, дающего код</string>
     <string name="service_step_browse_services_instead">Вместо этого просмотреть сервисы</string>
@@ -34,8 +22,6 @@
     <string name="service_step_cant_find_service">Не нашли сервис?</string>
     <string name="service_step_type_manually">Ввести вручную</string>
     <string name="service_step_service_logo_cd">Логотип сервиса (CD-ссылка)</string>
-    <string name="service_step_error_blank">Заполните это поле</string>
-    <string name="service_step_error_max_length">Достигнута максимальная длина (%1$d символов)</string>
     <string name="service_step_helper_service_url">Официальный домен</string>
     <string name="service_step_error_url_blank">Ссылка на сервис обязательна</string>
     <string name="service_step_error_url_format">Введите домен в формате example.com</string>
@@ -43,29 +29,20 @@
     <string name="promocode_description_placeholder">Отличный промокод!</string>
     <string name="promocode_description_helper">Добавьте описание, чтобы пользователи лучше поняли предложение</string>
 
-    <string name="promocode_dates_placeholder">Выберите дату</string>
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>
     <string name="promocode_dates_end_placeholder">Выберите дату окончания</string>
     <string name="promocode_dates_confirm">ОК</string>
 
     <string name="promocode_discount_percentage_helper">Введите процент (1–99%)</string>
-    <string name="promocode_discount_percentage_error_blank">Процент не может быть пустым</string>
     <string name="promocode_discount_percentage_error_range">Введите значение от 1 до 100</string>
 
     <string name="promocode_discount_amount_helper">Введите скидку в ₸ (тенге)</string>
-    <string name="promocode_discount_amount_error_blank">Сумма скидки не может быть пустой</string>
     <string name="promocode_discount_amount_error_min_value">Введите сумму не менее %1$d₸</string>
 
     <string name="promocode_free_item_placeholder">Бесплатная доставка</string>
     <string name="promocode_free_item_helper">Какой бесплатный товар или преимущество дает этот код?</string>
-    <string name="promocode_free_item_error_blank">Описание не может быть пустым</string>
-    <string name="promocode_free_item_error_max_length">Максимум %1$d символов</string>
 
     <string name="promocode_minimum_order_helper">Минимальная сумма заказа в ₸ (тенге) для получения скидки</string>
-    <string name="promocode_minimum_order_error_max_length">Максимум %1$d символов</string>
-
-    <string name="promocode_submission_show_tips">Показать подсказки</string>
-    <string name="promocode_submission_hide_tips">Скрыть подсказки</string>
 
     <string name="promo_code_step_helper_text">Разрешены буквы, цифры, дефисы и подчеркивания</string>
     <string name="promo_code_step_error_blank">Промокод не может быть пустым</string>
@@ -77,18 +54,8 @@
     <string name="submit_promocode">Отправить промокод</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>
-    <string name="cd_comments">Посмотреть комментарии</string>
     <string name="cd_share">Поделиться промокодом</string>
 
-    <string name="step_service_hint">Выберите или введите сервис</string>
-    <string name="step_discount_type_hint">Процентная — растёт вместе с суммой заказа.\nФиксированная — одинаковая скидка вне зависимости от суммы.</string>
-    <string name="step_promo_code_hint">Введите код, который дает скидку</string>
-    <string name="step_discount_value_hint">Какую скидку дает этот код?</string>
-    <string name="step_minimum_order_hint">Минимальная сумма для скидки</string>
-    <string name="step_start_date_hint">Дата, с которой промокод начал или начнет работать</string>
-    <string name="step_end_date_hint">День когда промокод перестает действовать</string>
-    <string name="step_eligibility_hint">Некоторые промокоды предоставляются только новым пользователям, некоторые могут использоваться в целом только один раз.</string>
-    <string name="step_description_hint">Добавьте какие-нибудь полезные подробности об этой сделке, возможно, какие-то дополнительные правила</string>
     <string name="action_share_promocode">Поделиться Промокодом</string>
     <string name="share_subject_format">%1$s Промокод</string>
     <string name="share_code_label">Код: %1$s</string>

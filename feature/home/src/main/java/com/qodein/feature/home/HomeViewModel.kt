@@ -184,8 +184,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(bannerState = BannerState.Loading) }
 
-            val bannersResult = getBannersUseCase()
-            when (bannersResult) {
+            when (val bannersResult = getBannersUseCase()) {
                 is Result.Error -> {
                     _uiState.update { it.copy(bannerState = BannerState.Error(bannersResult.error)) }
                 }

@@ -13,21 +13,8 @@
     <string name="promocode_details_minimum_order">Minimum Order</string>
     <string name="promocode_details_start_date">Start Date</string>
     <string name="promocode_details_end_date">End Date</string>
-    <string name="promocode_details_new_user_only">New users only?</string>
-    <string name="promocode_details_one_time_use_only">For one user only?</string>
     <string name="promocode_details_value_yes">Yes</string>
     <string name="promocode_details_value_no">No</string>
-
-    <string name="promocode_rules_customer_eligibility_title">Customer Eligibility</string>
-    <string name="promocode_rules_customer_eligibility_all">All customers</string>
-    <string name="promocode_rules_customer_eligibility_all_description">Any customer can use this promocode</string>
-    <string name="promocode_rules_customer_eligibility_new">New customers only</string>
-    <string name="promocode_rules_customer_eligibility_new_description">Only new customers can use this code</string>
-    <string name="promocode_rules_usage_limitation_title">Usage Limitation</string>
-    <string name="promocode_rules_usage_limitation_multiple">Multiple uses</string>
-    <string name="promocode_rules_usage_limitation_multiple_description">Any customer can use this promocode</string>
-    <string name="promocode_rules_usage_limitation_one_time">One-time use</string>
-    <string name="promocode_rules_usage_limitation_one_time_description">Code can be used only by one customer and gets deleted</string>
 
     <string name="service_step_placeholder_service_name" translatable="false">Halyk Market</string>
     <string name="service_step_helper_service_name">Name of the service issuing the code</string>
@@ -35,8 +22,6 @@
     <string name="service_step_search_placeholder">Click to search</string>
     <string name="service_step_cant_find_service">Cannot find the service?</string>
     <string name="service_step_type_manually">Type manually</string>
-    <string name="service_step_error_blank">Service name cannot be blank</string>
-    <string name="service_step_error_max_length">You have reached the maximum length (%1$d characters)</string>
     <string name="service_step_placeholder_service_url" translatable="false">halykmarket.kz</string>
     <string name="service_step_helper_service_url">Official domain</string>
     <string name="service_step_error_url_blank">Service URL cannot be blank</string>
@@ -46,32 +31,23 @@
     <string name="promocode_description_placeholder">Great promocode!</string>
     <string name="promocode_description_helper">Add a description to help customers understand the offer better</string>
 
-    <string name="promocode_dates_placeholder">Select date</string>
     <string name="promocode_dates_start_placeholder">Select start date</string>
     <string name="promocode_dates_end_placeholder">Select end date</string>
     <string name="promocode_dates_confirm">OK</string>
 
     <string name="promocode_discount_percentage_placeholder" translatable="false">30</string>
     <string name="promocode_discount_percentage_helper">Enter the percentage (1–99%)</string>
-    <string name="promocode_discount_percentage_error_blank">Percentage cannot be empty</string>
     <string name="promocode_discount_percentage_error_range">Enter a value between 1 and 100</string>
 
     <string name="promocode_discount_amount_placeholder" translatable="false">2000</string>
     <string name="promocode_discount_amount_helper">Discount value in ₸ (tenge</string>
-    <string name="promocode_discount_amount_error_blank">Discount amount cannot be empty</string>
     <string name="promocode_discount_amount_error_min_value">Enter an amount of at least %1$d₸</string>
 
     <string name="promocode_free_item_placeholder">Free delivery</string>
     <string name="promocode_free_item_helper">What free item or benefit does this code provide?</string>
-    <string name="promocode_free_item_error_blank">Free item description cannot be empty</string>
-    <string name="promocode_free_item_error_max_length">Maximum %1$d characters allowed</string>
 
     <string name="promocode_minimum_order_placeholder" translatable="false">5000</string>
     <string name="promocode_minimum_order_helper">Minimum order in ₸ (tenge) to get the discount</string>
-    <string name="promocode_minimum_order_error_max_length">Maximum %1$d characters allowed</string>
-
-    <string name="promocode_submission_show_tips">Show helpful tips</string>
-    <string name="promocode_submission_hide_tips">Hide helpful tips</string>
 
     <string name="promo_code_step_placeholder" translatable="false">PITOMOPOLIS</string>
     <string name="promo_code_step_helper_text">Letters, numbers, hyphens, and underscores allowed</string>
@@ -84,18 +60,7 @@
     <string name="submit_promocode">Submit Promocode</string>
     <string name="cd_upvote">Upvote, %1$d</string>
     <string name="cd_downvote">Downvote, %1$d</string>
-    <string name="cd_comments">View comments</string>
     <string name="cd_share">Share promocode</string>
-
-    <string name="step_service_hint">Search for the service, manually enter if can\'t find it</string>
-    <string name="step_discount_type_hint">Percentage – discount rise with the order amount.\nFixed – same discount no matter the order amount.</string>
-    <string name="step_promo_code_hint">Enter the code that gives the discount</string>
-    <string name="step_discount_value_hint">How much discount does this code give?</string>
-    <string name="step_minimum_order_hint">Some promocodes are only issued to new users, some can only be used once.</string>
-    <string name="step_start_date_hint">The date on which the promocode started or will start working</string>
-    <string name="step_end_date_hint">The day when the promocode ceases to be valid</string>
-    <string name="step_eligibility_hint">Who can use this code and how often?</string>
-    <string name="step_description_hint">Add any helpful details about this deal, maybe some additional rules</string>
 
     <string name="action_share_promocode">Share Promocode</string>
     <string name="share_subject_format">%1$s Promocode</string>

@@ -44,7 +44,6 @@ fun AppBottomBarContainer(
     appState.UpdateAutoHidingContext()
 
     // Get centralized auto-hiding state
-    val autoHidingState by appState.bottomBarAutoHidingState
 
     // Set up scroll observation to feed into centralized manager
     LaunchedEffect(currentScrollableState) {

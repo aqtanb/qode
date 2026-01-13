@@ -9,7 +9,6 @@
     <string name="retry">Қайталау</string>
 
     <!-- Preview section -->
-    <string name="reporting_label">Сіз шағымданып жатырсыз</string>
     <string name="content_type_post">Жазба</string>
     <string name="content_type_promocode">Промокод</string>
     <string name="by_author">автор: %s</string>

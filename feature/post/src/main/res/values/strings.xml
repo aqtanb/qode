@@ -25,6 +25,5 @@
     <string name="image_load_failed">Failed to load the image</string>
     <string name="cd_upvote">Upvote, %1$d</string>
     <string name="cd_downvote">Downvote, %1$d</string>
-    <string name="cd_comments">Comments, %1$d</string>
     <string name="cd_share">Share</string>
 </resources>

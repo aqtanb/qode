@@ -132,7 +132,7 @@ fun QodeTelegramFollowButton(
 ) {
     // Official Telegram brand colors
     val telegramBlue = Color(0xFF0088CC)
-    val telegramBlueDark = Color(0xFF0077B3)
+    Color(0xFF0077B3)
 
     val buttonBackgroundColor = telegramBlue
     val buttonTextColor = Color.White

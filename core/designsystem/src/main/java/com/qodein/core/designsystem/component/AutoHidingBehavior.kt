@@ -299,8 +299,7 @@ class AutoHidingState(private val config: AutoHideConfig) {
         get() = visibilityState.isVisible
 
     fun updateScroll(scrollInfo: ScrollInfo) {
-        val decision = logic.processScrollUpdate(scrollInfo)
-        val newState = when (decision) {
+        val newState = when (val decision = logic.processScrollUpdate(scrollInfo)) {
             is VisibilityDecision.Show -> {
                 if (!isVisible) {
                     VisibilityState.Visible(decision.reason)

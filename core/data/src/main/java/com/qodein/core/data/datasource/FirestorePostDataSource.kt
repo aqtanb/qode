@@ -23,7 +23,7 @@ import com.qodein.shared.model.Tag
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 
-class FirestorePostDataSource constructor(
+class FirestorePostDataSource(
     private val firestore: FirebaseFirestore
     // TODO: add caching
 ) {

@@ -7,7 +7,7 @@ import com.qodein.shared.domain.repository.StorageRepository
 import com.qodein.shared.model.StoragePath
 import com.qodein.shared.platform.PlatformUri
 
-internal class StorageRepositoryImpl constructor(private val firebaseStorage: FirebaseStorageDataSource) : StorageRepository {
+internal class StorageRepositoryImpl(private val firebaseStorage: FirebaseStorageDataSource) : StorageRepository {
     override suspend fun uploadImage(
         uri: PlatformUri,
         storagePath: StoragePath

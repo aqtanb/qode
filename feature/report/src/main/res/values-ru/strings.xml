@@ -9,7 +9,6 @@
     <string name="retry">Повторить</string>
 
     <!-- Preview section -->
-    <string name="reporting_label">Вы жалуетесь на</string>
     <string name="content_type_post">Пост</string>
     <string name="content_type_promocode">Промокод</string>
     <string name="by_author">автор: %s</string>

@@ -92,7 +92,7 @@ fun BottomNavigation(
     showLabels: Boolean = true,
     autoHidingState: AutoHidingState? = null
 ) {
-    val density = LocalDensity.current
+    LocalDensity.current
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
 
     // Calculate dynamic height for container using navigation tokens

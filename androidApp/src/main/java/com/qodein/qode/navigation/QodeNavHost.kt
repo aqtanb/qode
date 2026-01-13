@@ -183,9 +183,6 @@ fun QodeNavHost(
                 val previousEntry = navController.previousBackStackEntry
                 Logger.d("QodeNavHost") { "previousBackStackEntry: ${previousEntry?.destination?.route}" }
                 Logger.d("QodeNavHost") { "previousBackStackEntry ID: ${previousEntry?.id}" }
-                Logger.d("QodeNavHost") {
-                    "Full backstack: ${navController.currentBackStack.value.map { "${it.destination.route} (id=${it.id})" }}"
-                }
                 previousEntry
                     ?.savedStateHandle
                     ?.set(ServiceSelectionResult.KEY_SELECTED_SERVICE_IDS, selectedServiceIds.map { it.value })

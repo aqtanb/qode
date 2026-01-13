@@ -9,7 +9,6 @@
     <string name="retry">Retry</string>
 
     <!-- Preview section -->
-    <string name="reporting_label">You are reporting</string>
     <string name="content_type_post">Post</string>
     <string name="content_type_promocode">Promo Code</string>
     <string name="by_author">by %s</string>

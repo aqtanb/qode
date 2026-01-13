@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="profile_sign_out_button">Sign Out</string>
-    <string name="profile_loading_description">Loading profile</string>
     <string name="profile_promocodes_label">Promocodes</string>
     <string name="posts">Posts</string>
 
-    <string name="settings_your_activity_title">Your activity</string>
-    <string name="settings_reported_title">Reported</string>
     <string name="settings_blocked_title">Blocked</string>
 </resources>

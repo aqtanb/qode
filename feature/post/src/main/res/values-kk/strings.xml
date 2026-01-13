@@ -25,6 +25,5 @@
     <string name="image_load_failed">Суретті жүктеу сәтсіз аяқталды</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>
-    <string name="cd_comments">Пікірлер, %1$d</string>
     <string name="cd_share">Бөлісу</string>
 </resources>

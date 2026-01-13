@@ -25,8 +25,6 @@
     <string name="error_service_logo_not_found">Логотип для этого сервиса не найден. Проверьте URL.</string>
     <string name="error_service_invalid_domain_format">Неверный формат домена. Введите действительный домен.</string>
     <string name="cd_close">Закрыть</string>
-    <string name="cd_first_user_only">Только первому пользователю</string>
-    <string name="cd_one_time_use">Одноразовое использование</string>
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
     <string name="cd_service_logo">Логотип сервиса</string>
@@ -182,16 +180,10 @@
     <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Размер скидки</string>
     <string name="step_discount_value_short">Размер</string>
-    <string name="step_minimum_order_title">Минимальный заказ</string>
-    <string name="step_minimum_order_short">Мин. заказ</string>
-    <string name="step_eligibility_title">Условия применения</string>
-    <string name="step_eligibility_short">Условия</string>
     <string name="step_description_title">Добавьте дополнительную информацию</string>
     <string name="step_description_short">Описание</string>
     <string name="step_start_date_title">Выберите дни начала и окончания</string>
     <string name="step_start_date_short">Дни</string>
-    <string name="step_end_date_title">Дата окончания</string>
-    <string name="step_end_date_short">Окончание</string>
     <string name="discount_percent">%1$s%% СКИДКА</string>
 
     <string name="legal_consent_title">Примите условия</string>

@@ -20,8 +20,7 @@ import kotlinx.coroutines.flow.first
  */
 class DeleteUserAccountUseCase(private val userRepository: UserRepository, private val getAuthStateUseCase: GetAuthStateUseCase) {
     suspend operator fun invoke(): Result<Unit, OperationError> {
-        val authState = getAuthStateUseCase().first()
-        val currentUserId = when (authState) {
+        val currentUserId = when (val authState = getAuthStateUseCase().first()) {
             is AuthState.Authenticated -> authState.userId.value
             AuthState.Unauthenticated ->
                 return Result.Error(UserError.DeletionFailure.NotAuthenticated)
