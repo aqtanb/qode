@@ -21,9 +21,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.SortFilterBottomSheet
@@ -271,7 +271,7 @@ private const val PROMO_CODES_LOADING_MORE_KEY = "promo_codes_loading_more"
 
 // MARK: - Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun HomeScreenPreview() {
     QodeTheme {

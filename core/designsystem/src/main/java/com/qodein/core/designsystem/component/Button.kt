@@ -47,8 +47,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.MotionTokens
 import com.qodein.core.designsystem.theme.OpacityTokens
@@ -610,7 +610,7 @@ private fun IconButtonContent(
 
 // MARK: - Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeButtonVariantsPreview() {
     QodeTheme {
@@ -636,7 +636,7 @@ private fun QodeButtonVariantsPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeButtonSizesPreview() {
     QodeTheme {
@@ -665,7 +665,7 @@ private fun QodeButtonSizesPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeButtonWithIconPreview() {
     QodeTheme {
@@ -689,7 +689,7 @@ private fun QodeButtonWithIconPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeButtonLoadingPreview() {
     QodeTheme {
@@ -719,7 +719,7 @@ private fun QodeButtonLoadingPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeButtonDisabledPreview() {
     QodeTheme {
@@ -749,7 +749,7 @@ private fun QodeButtonDisabledPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeinIconButtonPreview() {
     QodeTheme {
@@ -787,7 +787,7 @@ private fun QodeinIconButtonPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeinOutlinedIconButtonPreview() {
     QodeTheme {

@@ -22,9 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.QodeErrorCard
@@ -200,7 +200,7 @@ private fun FeedErrorState(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun FeedScreenPreview() {
     QodeTheme {
@@ -219,7 +219,7 @@ private fun FeedScreenPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun FeedScreenLoadingStatePreview() {
     QodeTheme {
@@ -234,7 +234,7 @@ private fun FeedScreenLoadingStatePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun FeedScreenErrorStatePreview() {
     QodeTheme {

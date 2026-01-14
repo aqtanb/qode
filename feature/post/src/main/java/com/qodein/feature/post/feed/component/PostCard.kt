@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -181,7 +181,7 @@ private fun PostTagsRow(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostCardPreview() {
     QodeTheme {

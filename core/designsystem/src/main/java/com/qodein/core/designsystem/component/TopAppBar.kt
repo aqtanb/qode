@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -309,7 +309,7 @@ private fun QodeTransparentTopAppBar(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeTopAppBarStatesPreview() {
     QodeTheme {

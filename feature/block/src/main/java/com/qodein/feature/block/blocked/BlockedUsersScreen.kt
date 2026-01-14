@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
@@ -222,7 +222,7 @@ private fun BlockedUserItem(
 
 // MARK: Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BlockedUsersScreenLoadingPreview() {
     QodeTheme {
@@ -234,7 +234,7 @@ private fun BlockedUsersScreenLoadingPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BlockedUsersScreenEmptyPreview() {
     QodeTheme {
@@ -249,7 +249,7 @@ private fun BlockedUsersScreenEmptyPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BlockedUsersScreenSuccessPreview() {
     QodeTheme {

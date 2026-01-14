@@ -24,8 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.theme.AnimationTokens
@@ -209,7 +209,7 @@ private fun StepLabel(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProgressIndicatorPreview() {
     QodeTheme {

@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -67,7 +67,7 @@ fun QodeDropdownMenuItem(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeDropdownMenuItemPreview() {
     QodeTheme {

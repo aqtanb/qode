@@ -42,11 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.TextUnit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -381,7 +381,7 @@ private fun ErrorState(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostCreationTopBarPreview() {
     QodeTheme {
@@ -393,7 +393,7 @@ private fun PostCreationTopBarPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostSubmissionContentPreview() {
     QodeTheme {

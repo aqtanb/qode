@@ -19,10 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeinIconButton
@@ -130,7 +130,7 @@ private fun PostImageErrorStateContent() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ImageCarouselItemPreview() {
     QodeTheme {
@@ -144,7 +144,7 @@ private fun ImageCarouselItemPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostImageErrorStatePreview() {
     QodeTheme {

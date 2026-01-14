@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 
@@ -51,7 +51,7 @@ internal fun BottomSheetRadioItem(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BottomSheetRadioItemPreview() {
     QodeTheme {

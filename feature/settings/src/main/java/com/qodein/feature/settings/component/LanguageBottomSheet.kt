@@ -10,7 +10,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -72,7 +72,7 @@ private fun LanguageBottomSheetContent(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun LanguageBottomSheetContentPreview() {
     QodeTheme {

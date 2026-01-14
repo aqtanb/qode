@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeIcons
@@ -160,7 +160,7 @@ private fun DetailItem(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun DetailsSectionPreview() {
     QodeTheme {

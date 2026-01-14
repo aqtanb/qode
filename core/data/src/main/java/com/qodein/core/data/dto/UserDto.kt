@@ -2,6 +2,7 @@ package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.IgnoreExtraProperties
 
 /**
  * Firestore DTO for user profile data.
@@ -25,6 +26,7 @@ data class UserConsentDto(val legalPoliciesAcceptedAt: Timestamp? = null)
  * Firestore DTO for complete user document.
  * Maps to the "users/{userId}" collection.
  */
+@IgnoreExtraProperties
 data class UserDto(
     @DocumentId
     val documentId: String = "",

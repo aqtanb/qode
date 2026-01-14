@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeAlertDialog
 import com.qodein.core.designsystem.icon.QodeIcons
@@ -69,7 +69,7 @@ fun ServiceConfirmationDialog(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceConfirmationDialogPreview() {
     QodeTheme {

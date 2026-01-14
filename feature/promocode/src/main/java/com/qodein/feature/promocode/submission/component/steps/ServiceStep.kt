@@ -41,7 +41,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.ActionIcons
@@ -350,7 +350,7 @@ fun SelectServiceButton(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceSelectorPreview() {
     QodeTheme {
@@ -363,7 +363,7 @@ private fun ServiceSelectorPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceSelectedPreview() {
     QodeTheme {
@@ -376,7 +376,7 @@ private fun ServiceSelectedPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceManualPreview() {
     QodeTheme {

@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
@@ -186,7 +186,7 @@ private fun FilterChip(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun FiltersSectionPreview() {
     QodeTheme {

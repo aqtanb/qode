@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeIcons
@@ -296,7 +296,7 @@ private fun MinimumOrderField(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun FixedDiscountPreview() {
     QodeTheme {
@@ -309,7 +309,7 @@ private fun FixedDiscountPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PercentageDiscountPreview() {
     QodeTheme {

@@ -51,6 +51,11 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    match /app_config/{configId} {
+        allow read: if true;
+     }
+
+
     match /{document=**} {
       allow read, write: if false;
     }

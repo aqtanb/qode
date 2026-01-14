@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.ElevationTokens
@@ -160,7 +160,7 @@ private fun PromoTypeCardNonePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PromoTypeCardPercentagePreview() {
     QodeTheme {
@@ -172,7 +172,7 @@ private fun PromoTypeCardPercentagePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PromoTypeCardFixedAmountPreview() {
     QodeTheme {

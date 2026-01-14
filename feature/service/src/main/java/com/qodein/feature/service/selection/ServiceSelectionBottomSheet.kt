@@ -30,10 +30,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeOutlinedButton
 import com.qodein.core.designsystem.component.QodeinElevatedCard
@@ -404,7 +404,7 @@ private fun ServiceItemPlaceholder(modifier: Modifier = Modifier) {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceSelectionContentPreview() {
     QodeTheme {
@@ -417,7 +417,7 @@ private fun ServiceSelectionContentPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PopularServicesSectionLoadingPreview() {
     QodeTheme {
@@ -429,7 +429,7 @@ private fun PopularServicesSectionLoadingPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PopularServicesSectionIdlePreview() {
     QodeTheme {
@@ -441,7 +441,7 @@ private fun PopularServicesSectionIdlePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PopularServicesSectionErrorPreview() {
     QodeTheme {
@@ -453,7 +453,7 @@ private fun PopularServicesSectionErrorPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ServiceItemPreview() {
     QodeTheme {
@@ -465,7 +465,7 @@ private fun ServiceItemPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun SearchResultsSectionLoadingPreview() {
     QodeTheme {

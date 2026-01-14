@@ -27,8 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeStatusIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -338,7 +338,7 @@ fun QodeinSuggestionChip(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeinChipPreview() {
     QodeTheme {

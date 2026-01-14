@@ -6,7 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
 import com.qodein.core.designsystem.component.QodeTopAppBar
@@ -38,7 +38,7 @@ internal fun ProfileTopAppBar(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProfileTopAppBarPreview() {
     QodeTheme {

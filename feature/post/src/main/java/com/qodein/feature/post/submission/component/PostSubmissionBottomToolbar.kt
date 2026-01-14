@@ -13,7 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -50,7 +50,7 @@ internal fun PostSubmissionBottomToolbar(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostSubmissionBottomToolbarEnabledPreview() {
     QodeTheme {
@@ -61,7 +61,7 @@ private fun PostSubmissionBottomToolbarEnabledPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostSubmissionBottomToolbarDisabledPreview() {
     QodeTheme {

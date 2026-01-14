@@ -54,8 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.R
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.icon.UIIcons
@@ -408,7 +408,7 @@ fun QodeinBasicTextField(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeTextFieldPreview() {
     QodeTheme {
@@ -439,7 +439,7 @@ private fun QodeTextFieldPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun QodeBasicTextFieldPreview() {
     QodeTheme {

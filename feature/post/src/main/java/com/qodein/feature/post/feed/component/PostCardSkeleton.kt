@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.ShimmerBox
 import com.qodein.core.designsystem.component.ShimmerLine
@@ -109,7 +109,7 @@ fun PostCardSkeleton(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostCardSkeletonPreview() {
     QodeTheme {

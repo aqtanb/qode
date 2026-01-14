@@ -43,11 +43,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeinOutlinedCard
@@ -472,7 +472,7 @@ private fun StatItem(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProfileHeaderPreview() {
     QodeTheme {
@@ -487,7 +487,7 @@ private fun ProfileHeaderPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun LeaderboardCardPreview() {
     QodeTheme {
@@ -502,7 +502,7 @@ private fun LeaderboardCardPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProfileContentPreview() {
     QodeTheme {
@@ -515,7 +515,7 @@ private fun ProfileContentPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProfileLoadingPreview() {
     QodeTheme {
@@ -528,7 +528,7 @@ private fun ProfileLoadingPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ProfileErrorPreview() {
     QodeTheme {

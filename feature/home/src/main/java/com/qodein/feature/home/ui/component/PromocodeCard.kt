@@ -45,9 +45,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
@@ -343,7 +343,7 @@ private fun StubContent(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 fun CouponPromoCodeCardPreview() {
     QodeTheme {
@@ -441,7 +441,7 @@ fun PromocodeCardSkeleton(modifier: Modifier = Modifier) {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 fun CouponPromoCodeCardFixedAmountPreview() {
     QodeTheme {
@@ -456,7 +456,7 @@ fun CouponPromoCodeCardFixedAmountPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 fun CouponPromoCodeCardExpiringSoonPreview() {
     QodeTheme {

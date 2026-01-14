@@ -31,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeinElevatedCard
@@ -279,7 +279,7 @@ private fun SettingsItem(
 
 // MARK: Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun SettingsContentPreview() {
     QodeTheme {

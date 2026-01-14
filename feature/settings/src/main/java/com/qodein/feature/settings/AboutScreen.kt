@@ -22,8 +22,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeTopAppBar
@@ -108,7 +108,7 @@ internal fun AboutScreen(onNavigateBack: () -> Unit) {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun AboutScreenPreview() {
     QodeTheme {

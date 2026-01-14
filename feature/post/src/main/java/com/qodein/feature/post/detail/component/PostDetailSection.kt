@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -129,7 +129,7 @@ private fun PostInteractionsRow(
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostDetailCardPreview() {
     QodeTheme {

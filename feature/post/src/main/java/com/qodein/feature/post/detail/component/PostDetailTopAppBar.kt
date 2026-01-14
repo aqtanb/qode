@@ -3,7 +3,7 @@ package com.qodein.feature.post.detail.component
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import com.qodein.core.designsystem.ThemePreviews
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -18,7 +18,7 @@ internal fun PostDetailTopAppBar(onNavigationClick: () -> Unit) {
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun PostDetailTopAppBarPreview() {
     QodeTheme {

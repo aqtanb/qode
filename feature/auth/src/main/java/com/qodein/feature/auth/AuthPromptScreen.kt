@@ -22,9 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -237,7 +237,7 @@ private fun ConsentDialog(
     )
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun ConsentDialogPreview() {
     QodeTheme {

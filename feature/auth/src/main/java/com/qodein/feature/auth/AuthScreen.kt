@@ -24,9 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
@@ -263,7 +263,7 @@ private fun AuthErrorMessage(
 
 // MARK: - Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun AuthIdleStatePreview() {
     QodeTheme {
@@ -277,7 +277,7 @@ private fun AuthIdleStatePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun AuthLoadingStatePreview() {
     QodeTheme {
@@ -291,7 +291,7 @@ private fun AuthLoadingStatePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun AuthErrorStatePreview() {
     QodeTheme {

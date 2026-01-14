@@ -20,9 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.m3.Markdown
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.UIIcons
@@ -175,7 +175,7 @@ private fun LegalDocumentError(
 
 // MARK: - Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun LegalDocumentSkeletonPreview() {
     QodeTheme {
@@ -183,7 +183,7 @@ private fun LegalDocumentSkeletonPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun LegalDocumentContentPreview() {
     QodeTheme {
@@ -210,7 +210,7 @@ private fun LegalDocumentContentPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun LegalDocumentErrorPreview() {
     QodeTheme {

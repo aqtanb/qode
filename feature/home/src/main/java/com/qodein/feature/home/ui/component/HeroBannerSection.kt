@@ -31,9 +31,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.PageIndicator
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.icon.QodeBusinessIcons
@@ -386,7 +386,7 @@ private fun BannerCallToAction(
 
 // MARK: - Previews
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun HeroBannerLoadingPreview() {
     QodeTheme {
@@ -399,7 +399,7 @@ private fun HeroBannerLoadingPreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BannerErrorStatePreview() {
     QodeTheme {
@@ -414,7 +414,7 @@ private fun BannerErrorStatePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BannerEmptyStatePreview() {
     QodeTheme {
@@ -427,7 +427,7 @@ private fun BannerEmptyStatePreview() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 private fun BannerSuccessStatePreview() {
     QodeTheme {

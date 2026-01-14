@@ -11,6 +11,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +31,7 @@ import com.qodein.core.analytics.LocalAnalyticsHelper
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.util.LocaleManager
 import com.qodein.qode.ui.QodeApp
+import com.qodein.qode.ui.UpdateRequiredScreen
 import com.qodein.qode.ui.rememberQodeAppState
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.repository.AppUpdateConfigRepository
@@ -49,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var appUpdateManager: AppUpdateManager
     private var updateListener: InstallStateUpdatedListener? = null
+    private var isUpdateRequired by mutableStateOf(false)
 
     private val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult(),
@@ -85,13 +89,21 @@ class MainActivity : ComponentActivity() {
             QodeTheme(
                 darkTheme = darkTheme,
             ) {
-                CompositionLocalProvider(
-                    LocalAnalyticsHelper provides analyticsHelper,
-                ) {
-                    QodeApp(
-                        appState = rememberQodeAppState(),
-                        modifier = Modifier,
+                if (isUpdateRequired) {
+                    UpdateRequiredScreen(
+                        onUpdateClick = {
+                            checkForUpdates()
+                        },
                     )
+                } else {
+                    CompositionLocalProvider(
+                        LocalAnalyticsHelper provides analyticsHelper,
+                    ) {
+                        QodeApp(
+                            appState = rememberQodeAppState(),
+                            modifier = Modifier,
+                        )
+                    }
                 }
             }
         }
@@ -129,9 +141,19 @@ class MainActivity : ComponentActivity() {
         val currentVersion = BuildConfig.VERSION_CODE
         val staleDays = appUpdateInfo.clientVersionStalenessDays() ?: 0
 
+        Timber.d("handleUpdateAvailable - currentVersion: $currentVersion, minimumVersionCode: ${config.minimumVersionCode}")
+        Timber.d("handleUpdateAvailable - staleDays: $staleDays, flexibleUpdateStaleDays: ${config.flexibleUpdateStaleDays}")
+        Timber.d(
+            "handleUpdateAvailable - Check immediate: $currentVersion < ${config.minimumVersionCode} = ${currentVersion < config.minimumVersionCode}",
+        )
+        Timber.d(
+            "handleUpdateAvailable - Check flexible: $staleDays >= ${config.flexibleUpdateStaleDays} = ${staleDays >= config.flexibleUpdateStaleDays}",
+        )
+
         when {
             currentVersion < config.minimumVersionCode -> {
                 Timber.i("Forcing IMMEDIATE update: current=$currentVersion, minimum=${config.minimumVersionCode}")
+                isUpdateRequired = true
                 startImmediateUpdate(appUpdateInfo)
             }
 
@@ -141,12 +163,15 @@ class MainActivity : ComponentActivity() {
             }
 
             else -> {
-                Timber.d("Update available, but not urgent yet")
+                Timber.d(
+                    "Update available, but not urgent yet - currentVersion=$currentVersion, minimumVersionCode=${config.minimumVersionCode}, staleDays=$staleDays",
+                )
             }
         }
     }
 
     private fun startImmediateUpdate(appUpdateInfo: AppUpdateInfo) {
+        isUpdateRequired = true
         appUpdateManager.startUpdateFlowForResult(
             appUpdateInfo,
             updateLauncher,
@@ -185,24 +210,34 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkForStalledUpdates() {
-        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
-
-            // Resume immediate update if user backed out
-            if (appUpdateInfo.updateAvailability() ==
-                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
-            ) {
-                Timber.w("Resuming stalled immediate update")
-                appUpdateManager.startUpdateFlowForResult(
-                    appUpdateInfo,
-                    updateLauncher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build(),
-                )
+        lifecycleScope.launch {
+            val config = when (val configResult = appUpdateConfigRepository.getAppUpdateConfig()) {
+                is Result.Success -> configResult.data
+                is Result.Error -> AppUpdateConfig()
             }
 
-            // Auto-install if flexible update already downloaded
-            if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
-                Timber.i("Update already downloaded, installing now")
-                appUpdateManager.completeUpdate()
+            appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+                val currentVersion = BuildConfig.VERSION_CODE
+
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        updateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build(),
+                    )
+                    return@addOnSuccessListener
+                }
+
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+                    currentVersion < config.minimumVersionCode
+                ) {
+                    startImmediateUpdate(appUpdateInfo)
+                    return@addOnSuccessListener
+                }
+
+                if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                    appUpdateManager.completeUpdate()
+                }
             }
         }
     }

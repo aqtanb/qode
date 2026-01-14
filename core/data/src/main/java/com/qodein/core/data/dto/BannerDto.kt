@@ -2,7 +2,9 @@ package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.IgnoreExtraProperties
 
+@IgnoreExtraProperties
 data class BannerDto(
     @DocumentId
     val documentId: String = "",
