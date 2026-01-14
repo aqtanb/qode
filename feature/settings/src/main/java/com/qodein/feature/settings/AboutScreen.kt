@@ -1,6 +1,5 @@
 package com.qodein.feature.settings
 
-import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,18 +18,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.ThemePreviews
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
 import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.icon.QodeSocialIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.shared.common.AppConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +61,8 @@ internal fun AboutScreen(onNavigateBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Spacer(modifier = Modifier.weight(1f))
+
             QodeLogo(size = QodeLogoSize.XLarge)
 
             Spacer(modifier = Modifier.height(SpacingTokens.lg))
@@ -91,23 +89,21 @@ internal fun AboutScreen(onNavigateBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(modifier = Modifier.height(SpacingTokens.xxxl))
+            Spacer(modifier = Modifier.weight(1f))
 
-            OutlinedButton(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, AppConstants.TELEGRAM_URL.toUri())
-                    context.startActivity(intent)
+            Text(
+                text = buildAnnotatedString {
+                    append("Author: ")
+
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                        append("Aktanberdi Ybyraiym")
+                    }
                 },
-                modifier = Modifier.padding(horizontal = SpacingTokens.xl),
-            ) {
-                Icon(
-                    imageVector = QodeSocialIcons.Telegram,
-                    contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-                )
-                Spacer(modifier = Modifier.width(SpacingTokens.xs))
-                Text(stringResource(R.string.about_join_telegram))
-            }
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+
+            Spacer(modifier = Modifier.height(SpacingTokens.xxl))
         }
     }
 }

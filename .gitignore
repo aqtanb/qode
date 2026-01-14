@@ -110,6 +110,7 @@ functions/src/*-service-account.json
 **/*-service-account.json
 
 /AGENTS.md
+tmpclaude-*
 
 *.jks
 /.firebase/

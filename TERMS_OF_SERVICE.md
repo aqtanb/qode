@@ -45,7 +45,7 @@ You agree not to:
 * Attempt to gain unauthorized access to any part of the Service, server, or database.
 * Upload viruses, malicious code, or attempt to hack or disrupt the app's performance.
 * Impersonate others or misrepresent your affiliation with a person or entity.
-* Post content that is misleading, defamatory, harassing, abusive, or violates others' rights.
+* Post content that is misleading, defamatory, harassing, abusive, or violates others' rights or any other objectionable content as determined by the developer..
 * Abuse the reporting or blocking features to harass other users.
 
 ## 6. Disclaimer of Warranties and Liability
@@ -60,7 +60,7 @@ You agree to defend, indemnify, and hold harmless the developer (Ybyraiym Aktanb
 
 ## 7. Content Moderation and Reporting
 ### A. Reporting Mechanism
-Users may report content that violates these Terms or applicable laws. All reports are manually reviewed by the developer.
+Users may report content that violates these Terms or applicable laws. All reports are manually reviewed by the developer. The developer aims to review all reports and take appropriate action within 24 hours of submission.
 
 By submitting a report, you agree that:
 * Reports should be made in good faith
