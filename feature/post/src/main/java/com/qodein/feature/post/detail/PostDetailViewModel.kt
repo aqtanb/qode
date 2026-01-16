@@ -19,7 +19,6 @@ import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,10 +28,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PostDetailViewModel @Inject constructor(
+class PostDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val getPostByIdUseCase: GetPostByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,

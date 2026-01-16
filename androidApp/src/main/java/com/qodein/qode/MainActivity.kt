@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -36,19 +35,15 @@ import com.qodein.qode.ui.rememberQodeAppState
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.repository.AppUpdateConfigRepository
 import com.qodein.shared.model.AppUpdateConfig
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var analyticsHelper: AnalyticsHelper
-
+    private val analyticsHelper: AnalyticsHelper by inject()
     private val appUpdateConfigRepository: AppUpdateConfigRepository by inject()
-    private val viewModel: MainActivityViewModel by viewModels()
+    private val viewModel: MainActivityViewModel by viewModel()
 
     private lateinit var appUpdateManager: AppUpdateManager
     private var updateListener: InstallStateUpdatedListener? = null
@@ -183,8 +178,13 @@ class MainActivity : ComponentActivity() {
         updateListener = InstallStateUpdatedListener { state ->
             when (state.installStatus()) {
                 InstallStatus.DOWNLOADING -> {
-                    val progress = (state.bytesDownloaded * 100 / state.totalBytesToDownload).toInt()
-                    Timber.d("Downloading update: %d%%", progress)
+                    val totalBytes = state.totalBytesToDownload
+                    if (totalBytes > 0) {
+                        val progress = (state.bytesDownloaded * 100 / totalBytes).toInt()
+                        Timber.d("Downloading update: %d%%", progress)
+                    } else {
+                        Timber.d("Downloading update: bytes=%d, total unknown", state.bytesDownloaded)
+                    }
                 }
                 InstallStatus.DOWNLOADED -> {
                     Timber.i("Update downloaded, installing automatically")

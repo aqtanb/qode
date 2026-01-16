@@ -5,15 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.Theme
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(devicePreferencesRepository: DevicePreferencesRepository) : ViewModel() {
+class MainActivityViewModel(devicePreferencesRepository: DevicePreferencesRepository) : ViewModel() {
     val uiState: StateFlow<MainActivityUiState> = combine(
         devicePreferencesRepository.getTheme(),
         devicePreferencesRepository.getLanguage(),

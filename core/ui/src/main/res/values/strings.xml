@@ -12,6 +12,7 @@
     <string name="cd_service_logo">Service logo</string>
     <string name="cd_more_options">More options</string>
 
+    <string name="profile_picture_description">Profile Picture</string>
     <string name="action_block">Block user</string>
     <string name="action_report">Report problem</string>
 

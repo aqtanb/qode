@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.ButtonSize
-import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
@@ -154,16 +154,10 @@ private fun FilterChip(
             border = border,
             content = logoUrlOrNull?.let {
                 {
-                    CircularImage(
+                    QodeinAsyncImage(
                         imageUrl = it,
-                        fallbackText = fallbackText,
-                        fallbackIcon = icon,
+                        fallbackText = fallbackText ?: "",
                         size = SizeTokens.IconButton.sizeXL,
-                        contentColor = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
                         contentDescription = stringResource(nameRes),
                     )
                 }

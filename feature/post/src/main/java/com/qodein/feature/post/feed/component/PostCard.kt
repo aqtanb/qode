@@ -21,9 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinElevatedCard
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -113,10 +112,9 @@ private fun PostHeader(
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CircularImage(
-            imageUrl = authorAvatarUrl,
+        QodeinAsyncImage(
+            imageUrl = authorAvatarUrl ?: "",
             fallbackText = authorName,
-            fallbackIcon = QodeNavigationIcons.Profile,
             size = SizeTokens.Avatar.sizeSmall,
             contentDescription = authorName,
         )

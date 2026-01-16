@@ -49,13 +49,12 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qodein.core.designsystem.component.ButtonSize
-import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
 import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
-import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.shape.CouponShape
 import com.qodein.core.designsystem.theme.ElevationTokens
@@ -206,12 +205,12 @@ private fun CouponHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CircularImage(
-            imageUrl = promocode.serviceLogoUrl,
-            fallbackIcon = QodeIcons.Service,
+        QodeinAsyncImage(
+            imageUrl = promocode.serviceLogoUrl ?: "",
             contentDescription = stringResource(CoreUiR.string.cd_service_logo),
             size = SizeTokens.Icon.sizeMedium,
             modifier = Modifier.clip(CircleShape),
+            fallbackText = promocode.serviceName,
         )
 
         Spacer(modifier = Modifier.width(SpacingTokens.sm))

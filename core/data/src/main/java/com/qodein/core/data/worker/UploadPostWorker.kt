@@ -2,7 +2,6 @@ package com.qodein.core.data.worker
 
 import android.content.Context
 import androidx.core.net.toUri
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
@@ -13,8 +12,8 @@ import com.qodein.core.notifications.Notifier
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.model.UserId
 import com.qodein.shared.platform.PlatformUri
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import com.qodein.shared.common.Result as DomainResult
 
 private const val KEY_TITLE = "title"
@@ -25,13 +24,12 @@ private const val KEY_AUTHOR_ID = "authorId"
 private const val KEY_AUTHOR_USERNAME = "authorUsername"
 private const val KEY_AUTHOR_AVATAR_URL = "authorAvatarUrl"
 
-@HiltWorker
-class UploadPostWorker @AssistedInject constructor(
-    @Assisted private val appContext: Context,
-    @Assisted private val workerParams: WorkerParameters,
-    private val submitPostUseCase: SubmitPostUseCase,
-    private val notifier: Notifier
-) : CoroutineWorker(appContext, workerParams) {
+class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(appContext, workerParams),
+    KoinComponent {
+
+    private val submitPostUseCase: SubmitPostUseCase by inject()
+    private val notifier: Notifier by inject()
 
     override suspend fun doWork(): ListenableWorker.Result {
         val uploadId = id.toString()

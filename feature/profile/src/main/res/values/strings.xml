@@ -4,5 +4,5 @@
     <string name="profile_promocodes_label">Promocodes</string>
     <string name="posts">Posts</string>
 
-    <string name="settings_blocked_title">Blocked</string>
+    <string name="profile_blocked_title">Blocked</string>
 </resources>

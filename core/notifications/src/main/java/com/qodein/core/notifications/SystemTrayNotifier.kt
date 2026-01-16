@@ -13,9 +13,6 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The fully qualified name of the main activity to launch when tapping notifications.
@@ -54,8 +51,7 @@ private const val DEEP_LINK_POST_PATH = "post"
  * Implementation of [Notifier] that displays notifications in the system tray.
  */
 @SuppressLint("MissingPermission")
-@Singleton
-internal class SystemTrayNotifier @Inject constructor(@param:ApplicationContext private val context: Context) : Notifier {
+internal class SystemTrayNotifier(private val context: Context) : Notifier {
     override fun showUploadProgress(
         uploadId: String,
         progress: Int,

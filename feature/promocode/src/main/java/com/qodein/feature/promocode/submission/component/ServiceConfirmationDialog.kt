@@ -3,7 +3,6 @@ package com.qodein.feature.promocode.submission.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,9 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeAlertDialog
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -44,10 +42,11 @@ fun ServiceConfirmationDialog(
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                CircularImage(
+                QodeinAsyncImage(
                     imageUrl = logoUrl,
-                    fallbackIcon = QodeIcons.Service,
                     size = SizeTokens.Avatar.sizeLarge,
+                    fallbackText = serviceName,
+                    contentDescription = serviceName,
                 )
 
                 Text(

@@ -6,7 +6,6 @@ import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Enhanced ViewModel for app-level state management and navigation coordination.
@@ -27,8 +25,7 @@ import javax.inject.Inject
  *
  * Following enterprise patterns with proper separation of concerns.
  */
-@HiltViewModel
-class QodeAppViewModel @Inject constructor(getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
+class QodeAppViewModel(getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
     private val authStateFlow = getAuthStateUseCase()
         .catch { emit(AuthState.Unauthenticated) }
 

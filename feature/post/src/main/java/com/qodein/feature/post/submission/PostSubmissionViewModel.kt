@@ -12,8 +12,6 @@ import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.model.Tag
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,13 +19,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PostSubmissionViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-    private val getAuthStateUseCase: GetAuthStateUseCase
-) : ViewModel() {
+class PostSubmissionViewModel(private val context: Context, private val getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PostSubmissionUiState>(PostSubmissionUiState.Success.initial())
     val uiState: StateFlow<PostSubmissionUiState> = _uiState.asStateFlow()

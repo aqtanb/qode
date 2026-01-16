@@ -7,7 +7,6 @@ import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,11 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class FeedViewModel @Inject constructor(private val getPostsUseCase: GetPostsUseCase, private val getUserByIdUseCase: GetUserByIdUseCase) :
-    ViewModel() {
+class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val getUserByIdUseCase: GetUserByIdUseCase) : ViewModel() {
     private val _uiState: MutableStateFlow<FeedUiState> = MutableStateFlow(FeedUiState.Loading)
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 

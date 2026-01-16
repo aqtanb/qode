@@ -8,8 +8,6 @@ import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.shared.domain.AuthState
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Centralized navigation handler that converts NavigationActions to actual navigation calls.
@@ -24,8 +22,7 @@ import javax.inject.Singleton
  * Following enterprise patterns for separation of concerns.
  * Located in app module to access TopLevelDestination without architecture violations.
  */
-@Singleton
-class NavigationHandler @Inject constructor() {
+class NavigationHandler {
 
     /**
      * Handle navigation action with auth state awareness

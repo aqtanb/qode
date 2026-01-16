@@ -42,7 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.QodeIcons
@@ -316,11 +316,11 @@ fun SelectServiceButton(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (hasSelection && selectedService.logoUrl != null) {
-                CircularImage(
-                    imageUrl = selectedService.logoUrl,
-                    fallbackIcon = QodeIcons.Service,
+                QodeinAsyncImage(
+                    imageUrl = selectedService.logoUrl ?: "",
                     contentDescription = stringResource(R.string.service_step_service_logo_cd),
                     size = SizeTokens.Icon.sizeMedium,
+                    fallbackText = selectedService.name,
                 )
             } else {
                 Icon(

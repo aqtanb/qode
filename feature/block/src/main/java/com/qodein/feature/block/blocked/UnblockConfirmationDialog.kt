@@ -15,12 +15,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
-import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeOutlinedButton
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SizeTokens.Avatar
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.text.asString
@@ -47,12 +46,11 @@ internal fun UnblockConfirmationDialog(
                     .fillMaxWidth()
                     .padding(top = SpacingTokens.md),
             ) {
-                CircularImage(
-                    imageUrl = photoUrl,
+                QodeinAsyncImage(
+                    imageUrl = photoUrl ?: "",
                     fallbackText = username,
-                    fallbackIcon = QodeNavigationIcons.Profile,
-                    size = 80.dp,
-                    contentDescription = null,
+                    size = Avatar.sizeLarge,
+                    contentDescription = stringResource(CoreUiR.string.profile_picture_description),
                 )
 
                 Text(

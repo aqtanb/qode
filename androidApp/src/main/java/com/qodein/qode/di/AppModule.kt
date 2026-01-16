@@ -3,10 +3,12 @@ package com.qodein.qode.di
 import androidx.credentials.CredentialManager
 import com.qodein.core.ui.auth.GoogleIdTokenProvider
 import com.qodein.core.ui.auth.IdTokenProvider
+import com.qodein.qode.navigation.NavigationHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val appModule = module {
     single { CredentialManager.create(androidContext()) }
     single<IdTokenProvider> { GoogleIdTokenProvider(get()) }
+    single { NavigationHandler() }
 }

@@ -18,9 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.CircularImage
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.icon.PromocodeIcons
-import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -56,10 +55,11 @@ internal fun PromocodeDetails(
                 value = promocode.serviceName,
                 valueColor = MaterialTheme.colorScheme.primary,
             ) {
-                CircularImage(
-                    fallbackIcon = QodeIcons.Service,
-                    imageUrl = promocode.serviceLogoUrl,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                QodeinAsyncImage(
+                    imageUrl = promocode.serviceLogoUrl ?: "",
+                    size = SizeTokens.Icon.sizeMedium,
+                    fallbackText = promocode.serviceName,
+                    contentDescription = promocode.serviceName,
                 )
             }
 

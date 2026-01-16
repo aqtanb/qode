@@ -16,6 +16,7 @@
     <string name="error_unknown">Бірдеңе дұрыс болмады. Қайтадан көріңіз.</string>
     <string name="error_retry">Қайтадан байқап көріңіз</string>
     <string name="action_retry">Қайталау</string>
+    <string name="profile_picture_description">Профиль суреті</string>
 
     <string name="error_user_display_name_too_long">Көрсетілетін атау тым ұзын.</string>
     <string name="error_user_auth_account_conflict">Бұл деректер басқа аккаунтпен байланыстырылған.</string>

@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeTextButton
@@ -50,6 +49,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.settings.component.LanguageBottomSheet
 import com.qodein.feature.settings.component.ThemeBottomSheet
 import com.qodein.shared.common.AppConstants
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("InlinedApi")
 @Composable
@@ -57,7 +57,7 @@ fun SettingsRoute(
     onBackClick: () -> Unit,
     onNavigateToLicenses: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Settings")
 

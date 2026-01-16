@@ -5,5 +5,5 @@
     <string name="posts">Пост</string>
 
 
-    <string name="settings_blocked_title">Заблокированные</string>
+    <string name="profile_blocked_title">Заблокированные</string>
 </resources>

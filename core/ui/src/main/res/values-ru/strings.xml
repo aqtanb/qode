@@ -4,6 +4,7 @@
     <string name="cancel">Отмена</string>
     <string name="continue_with_google">Продолжить с Google</string>
     <string name="error_default_title">Что-то пошло не так</string>
+    <string name="profile_picture_description">Фото профиля</string>
     <string name="copy_code">Копировать код</string>
     <string name="error_network_no_connection">Нет подключения к интернету. Проверьте сеть.</string>
     <string name="error_auth_user_cancelled">Вход был отменен.</string>

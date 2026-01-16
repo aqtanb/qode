@@ -14,8 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.CircularImage
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -52,10 +51,9 @@ private fun PromocodeHeader(
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CircularImage(
-            imageUrl = promocode.authorAvatarUrl,
+        QodeinAsyncImage(
+            imageUrl = promocode.authorAvatarUrl ?: "",
             fallbackText = promocode.authorUsername ?: "",
-            fallbackIcon = QodeNavigationIcons.Profile,
             size = SizeTokens.Avatar.sizeSmall,
             contentDescription = promocode.authorUsername ?: "",
         )

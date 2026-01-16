@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.theme.LocalDarkTheme
 import com.qodein.qode.navigation.NavigationHandler
@@ -24,6 +23,7 @@ import com.qodein.qode.ui.container.AppBottomBarContainer
 import com.qodein.qode.ui.container.AppFabContainer
 import com.qodein.qode.ui.state.AppUiEvents
 import com.qodein.shared.domain.AuthState
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +32,7 @@ internal fun QodeApp(
     appState: QodeAppState,
     modifier: Modifier = Modifier
 ) {
-    val appViewModel: QodeAppViewModel = hiltViewModel()
+    val appViewModel: QodeAppViewModel = koinViewModel()
     val authState by appViewModel.authState.collectAsStateWithLifecycle()
     val userId = (authState as? AuthState.Authenticated)?.userId
 

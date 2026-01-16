@@ -19,12 +19,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -37,20 +35,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeinOutlinedCard
 import com.qodein.core.designsystem.component.ShimmerCircle
 import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.icon.UIIcons
@@ -65,6 +59,7 @@ import com.qodein.feature.profile.component.ProfileTopAppBar
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserStats
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileRoute(
@@ -72,7 +67,7 @@ fun ProfileRoute(
     onSignOut: () -> Unit,
     onNavigateToBlockedUsers: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "Profile")
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -168,17 +163,15 @@ private fun ProfileContent(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        AnimatedProfileHeader(
+        ProfileHeader(
             user = user,
-            onAction = onAction,
             isVisible = isContentVisible,
         )
 
         Spacer(modifier = Modifier.height(SpacingTokens.lg))
 
-        AnimatedActionsSection(
+        ActionsSection(
             onNavigateToBlockedUsers = onNavigateToBlockedUsers,
-            onAction = onAction,
             isVisible = isContentVisible,
         )
 
@@ -231,9 +224,8 @@ private fun ProfileLoadingState(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun AnimatedProfileHeader(
+private fun ProfileHeader(
     user: User,
-    onAction: (ProfileAction) -> Unit,
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -247,18 +239,25 @@ private fun AnimatedProfileHeader(
             ),
         ) + fadeIn(animationSpec = tween(600)),
     ) {
-        ProfileHeader(
-            user = user,
-            onAction = onAction,
-            modifier = modifier.fillMaxWidth(),
-        )
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        ) {
+            ProfileAvatar(
+                user = user,
+                size = SizeTokens.Avatar.sizeXLarge,
+                modifier = Modifier.testTag("profile_avatar"),
+            )
+            UserInfo(user = user)
+            UserStatsRow(userStats = user.stats, modifier = Modifier.fillMaxWidth(0.7f))
+        }
     }
 }
 
 @Composable
-private fun AnimatedActionsSection(
+private fun ActionsSection(
     onNavigateToBlockedUsers: () -> Unit,
-    onAction: (ProfileAction) -> Unit,
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -272,63 +271,14 @@ private fun AnimatedActionsSection(
             ),
         ) + fadeIn(animationSpec = tween(1000, 400)),
     ) {
-        LeaderboardCard(
-            onNavigateToBlockedUsers = onNavigateToBlockedUsers,
-            onAction = onAction,
-            modifier = modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@Composable
-private fun LeaderboardCard(
-    onNavigateToBlockedUsers: () -> Unit,
-    onAction: (ProfileAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
-        ActivityCard(
-            title = stringResource(R.string.settings_blocked_title),
-            icon = UIIcons.Block,
-            iconTint = MaterialTheme.colorScheme.primary,
+        QodeButton(
             onClick = onNavigateToBlockedUsers,
+            text = stringResource(R.string.profile_blocked_title),
+            modifier = modifier.fillMaxWidth(),
+            leadingIcon = UIIcons.Block,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         )
-    }
-}
-
-@Composable
-private fun ActivityCard(
-    title: String,
-    icon: ImageVector,
-    iconTint: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    QodeinOutlinedCard(
-        modifier = modifier
-            .fillMaxWidth(),
-        onClick = onClick,
-    ) {
-        Row(
-            modifier = Modifier.padding(SpacingTokens.md),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-            )
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
     }
 }
 
@@ -360,29 +310,6 @@ private fun SignOutButton(
     }
 }
 
-// MARK: Header
-
-@Composable
-internal fun ProfileHeader(
-    user: User,
-    onAction: (ProfileAction) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
-        ProfileAvatar(
-            user = user,
-            size = SizeTokens.Avatar.sizeXLarge,
-            modifier = Modifier.testTag("profile_avatar"),
-        )
-        UserInfo(user = user)
-        UserStatsRow(userStats = user.stats, modifier = Modifier.fillMaxWidth(0.7f))
-    }
-}
-
 @Composable
 private fun UserInfo(
     user: User,
@@ -393,26 +320,16 @@ private fun UserInfo(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
     ) {
-        UserName(
-            displayName = user.displayName,
+        Text(
+            text = user.displayName ?: "",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+            ),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center,
+            modifier = modifier,
         )
     }
-}
-
-@Composable
-private fun UserName(
-    displayName: String?,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = displayName ?: "",
-        style = MaterialTheme.typography.headlineMedium.copy(
-            fontWeight = FontWeight.Bold,
-        ),
-        color = MaterialTheme.colorScheme.onPrimaryContainer,
-        textAlign = TextAlign.Center,
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -474,44 +391,16 @@ private fun StatItem(
 
 @PreviewLightDark
 @Composable
-private fun ProfileHeaderPreview() {
+private fun ProfileScreenPreview() {
     QodeTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            ProfileHeader(
-                user = UserPreviewData.powerUser,
-                onAction = {},
-            )
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun LeaderboardCardPreview() {
-    QodeTheme {
-        Surface(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.lg),
-        ) {
-            LeaderboardCard(
+        Surface {
+            ProfileScreen(
+                onBackClick = {},
                 onNavigateToBlockedUsers = {},
                 onAction = {},
+                uiState = ProfileUiState.Success(user = UserPreviewData.powerUser),
             )
         }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun ProfileContentPreview() {
-    QodeTheme {
-        ProfileContent(
-            user = UserPreviewData.powerUser,
-            scrollState = rememberScrollState(),
-            onNavigateToBlockedUsers = {},
-            onAction = {},
-        )
     }
 }
 
@@ -519,11 +408,13 @@ private fun ProfileContentPreview() {
 @Composable
 private fun ProfileLoadingPreview() {
     QodeTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            ProfileLoadingState()
+        Surface {
+            ProfileScreen(
+                onBackClick = {},
+                onNavigateToBlockedUsers = {},
+                onAction = {},
+                uiState = ProfileUiState.Loading,
+            )
         }
     }
 }
@@ -532,20 +423,13 @@ private fun ProfileLoadingPreview() {
 @Composable
 private fun ProfileErrorPreview() {
     QodeTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                QodeErrorCard(
-                    error = SystemError.Offline,
-                    onRetry = {},
-                    modifier = Modifier.padding(SpacingTokens.lg),
-                )
-            }
+        Surface {
+            ProfileScreen(
+                onBackClick = {},
+                onNavigateToBlockedUsers = {},
+                onAction = {},
+                uiState = ProfileUiState.Error(SystemError.Unknown),
+            )
         }
     }
 }

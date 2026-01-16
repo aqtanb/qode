@@ -1,45 +1,48 @@
 package com.qodein.qode
 
 import android.app.Application
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.WorkerFactory
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import com.qodein.core.analytics.di.analyticsModule
 import com.qodein.core.data.di.coreDataModule
+import com.qodein.core.notifications.di.notificationsModule
 import com.qodein.core.ui.di.coreUiModule
 import com.qodein.feature.auth.di.authModule
 import com.qodein.feature.block.di.blockModule
 import com.qodein.feature.home.di.homeModule
+import com.qodein.feature.post.di.postModule
+import com.qodein.feature.profile.di.profileModule
 import com.qodein.feature.promocode.di.promocodeModule
 import com.qodein.feature.report.di.reportModule
 import com.qodein.feature.service.selection.di.serviceModule
+import com.qodein.feature.settings.di.settingsModule
 import com.qodein.qode.di.appModule
+import com.qodein.qode.di.viewModelModule
 import com.qodein.qode.logging.CrashlyticsTree
 import com.qodein.qode.logging.KermitTimberWriter
 import com.qodein.shared.data.di.sharedDataModule
 import com.qodein.shared.domain.di.domainModule
-import dagger.hilt.android.HiltAndroidApp
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * Application class for Qode.
  *
  * Firebase initialization is handled by FirebaseInitializer via androidx.startup
- * to ensure it's initialized before any Dagger/Hilt components are created.
+ * to ensure it's initialized before any Koin setup begins.
  */
-@HiltAndroidApp
 class QodeApplication :
     Application(),
     Configuration.Provider {
 
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+    private val workerFactory: WorkerFactory by inject()
 
     override val workManagerConfiguration: Configuration by lazy {
         Configuration.Builder()
@@ -57,11 +60,14 @@ class QodeApplication :
         startKoin {
             androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.ERROR)
             androidContext(this@QodeApplication)
+            workManagerFactory()
             modules(
                 appModule,
+                viewModelModule,
                 coreDataModule,
                 coreUiModule,
                 analyticsModule,
+                notificationsModule,
                 sharedDataModule,
                 domainModule,
                 authModule,
@@ -69,6 +75,9 @@ class QodeApplication :
                 reportModule,
                 serviceModule,
                 homeModule,
+                postModule,
+                profileModule,
+                settingsModule,
                 promocodeModule,
             )
         }

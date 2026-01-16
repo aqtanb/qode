@@ -1,11 +1,9 @@
 package com.qodein.core.notifications
 
-import javax.inject.Inject
-
 /**
  * Implementation of [Notifier] which does nothing. Useful for tests and previews.
  */
-internal class NoOpNotifier @Inject constructor() : Notifier {
+internal class NoOpNotifier : Notifier {
     override fun showUploadProgress(
         uploadId: String,
         progress: Int,

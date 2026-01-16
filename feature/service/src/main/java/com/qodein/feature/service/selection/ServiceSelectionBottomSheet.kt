@@ -34,13 +34,12 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
-import com.qodein.core.designsystem.component.CircularImage
 import com.qodein.core.designsystem.component.QodeOutlinedButton
+import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.component.ShimmerBox
-import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -216,13 +215,10 @@ private fun PopularServicesSection(
                             QodeinFilterChip(
                                 label = service.name,
                                 leadingIcon = {
-                                    CircularImage(
-                                        imageUrl = service.logoUrl,
+                                    QodeinAsyncImage(
+                                        imageUrl = service.logoUrl ?: "",
                                         fallbackText = service.name,
-                                        fallbackIcon = QodeIcons.Service,
                                         size = SizeTokens.Icon.sizeSmall,
-                                        backgroundColor = MaterialTheme.colorScheme.surface,
-                                        contentColor = MaterialTheme.colorScheme.onSurface,
                                         contentDescription = service.name,
                                     )
                                 },
@@ -330,21 +326,10 @@ private fun ServiceItem(
             horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
             modifier = Modifier.padding(SpacingTokens.md),
         ) {
-            CircularImage(
-                imageUrl = service.logoUrl,
+            QodeinAsyncImage(
+                imageUrl = service.logoUrl ?: "",
                 fallbackText = service.name,
-                fallbackIcon = QodeIcons.Service,
                 size = SizeTokens.Icon.sizeMedium,
-                backgroundColor = if (isSelected) {
-                    MaterialTheme.colorScheme.primaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surface
-                },
-                contentColor = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
                 contentDescription = service.name,
             )
 
