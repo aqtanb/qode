@@ -6,6 +6,9 @@
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
     <string name="copy_code">Кодты көшіру</string>
 
+    <string name="ui_profile">Аккаунт</string>
+    <string name="ui_settings">Баптаулар</string>
+    <string name="ui_feed">Арна</string>
     <string name="error_network_no_connection">Интернет қосылымы жоқ. Желіні тексеріңіз.</string>
     <string name="error_auth_user_cancelled">Кіру болдырылмады.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
@@ -154,7 +157,7 @@
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>
     <string name="popular_services_title">Танымал қызметтер</string>
     <string name="no_services_found_message">Қызметтер табылмады</string>
-    <string name="action_back">Артқа</string>
+    <string name="ds_navigation_back">Артқа</string>
     <string name="search_error_message">Қызметтерді іздеу сәтсіз аяқталды.</string>
     <string name="sort_popularity">Ең танымал</string>
     <string name="sort_newest">Алдымен жаңалары</string>

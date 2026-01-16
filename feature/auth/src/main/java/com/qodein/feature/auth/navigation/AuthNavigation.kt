@@ -8,7 +8,6 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.auth.AuthPromptScreen
-import com.qodein.feature.auth.AuthRoute
 import kotlinx.serialization.Serializable
 
 @Serializable object AuthBaseRoute
@@ -16,10 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable object AuthRoute
 
 @Serializable data class AuthBottomSheetRoute(val authPromptAction: AuthPromptAction)
-
-fun NavController.navigateToAuth(navOptions: NavOptions? = null) {
-    navigate(route = AuthRoute, navOptions = navOptions)
-}
 
 fun NavController.navigateToAuthBottomSheet(
     authPromptAction: AuthPromptAction,

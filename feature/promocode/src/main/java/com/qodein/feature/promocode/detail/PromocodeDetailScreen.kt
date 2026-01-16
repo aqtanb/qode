@@ -152,7 +152,9 @@ fun PromocodeDetailScreen(
             state = pullToRefreshState,
             isRefreshing = uiState.isRefreshing,
             onRefresh = { onAction(PromocodeDetailAction.RefreshData) },
-            modifier = modifier,
+            modifier = modifier
+                .padding(paddingValues)
+                .padding(SpacingTokens.lg),
         ) {
             when (val promocodeUiState = uiState.promocodeState) {
                 PromocodeUiState.Loading -> PromocodeLoadingState()
@@ -167,9 +169,6 @@ fun PromocodeDetailScreen(
                     optimisticDownvotes = uiState.optimisticDownvotes,
                     isSharing = uiState.isSharing,
                     onAction = onAction,
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .padding(horizontal = SpacingTokens.sm),
                 )
             }
         }

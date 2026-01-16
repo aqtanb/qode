@@ -92,7 +92,7 @@ private fun AsyncImageFallback(
 @Composable
 private fun AsyncImageLoading(size: Dp) {
     ContainedLoadingIndicator(
-        modifier = Modifier.size(size * 0.5f),
+        modifier = Modifier.size(size),
         polygons = listOf(
             MaterialShapes.Circle,
             MaterialShapes.Pentagon,

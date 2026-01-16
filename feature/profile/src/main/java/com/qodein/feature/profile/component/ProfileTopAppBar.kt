@@ -6,14 +6,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.AutoHideDirection
 import com.qodein.core.designsystem.component.AutoHidingContent
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBarVariant
+import com.qodein.core.designsystem.component.QodeinBackIconButton
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.component.rememberAutoHidingState
-import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.ui.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,13 +28,10 @@ internal fun ProfileTopAppBar(
         state = autoHidingState,
         direction = AutoHideDirection.DOWN,
     ) {
-        QodeTopAppBar(
-            title = "",
-            navigationIcon = ActionIcons.Back,
-            onNavigationClick = onBackClick,
-            variant = QodeTopAppBarVariant.Transparent,
-            statusBarPadding = true,
+        QodeinTopAppBar(
+            title = stringResource(R.string.ui_profile),
             modifier = modifier,
+            navigationIcon = { QodeinBackIconButton(onClick = onBackClick) },
         )
     }
 }

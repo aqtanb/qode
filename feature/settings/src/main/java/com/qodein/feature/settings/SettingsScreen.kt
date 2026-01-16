@@ -36,11 +36,12 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeTextButton
-import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeinBackIconButton
 import com.qodein.core.designsystem.component.QodeinElevatedCard
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -105,10 +106,9 @@ private fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            QodeTopAppBar(
+            QodeinTopAppBar(
                 title = stringResource(R.string.settings_title),
-                navigationIcon = ActionIcons.Back,
-                onNavigationClick = onBackClick,
+                navigationIcon = { QodeinBackIconButton({ onBackClick() }) },
             )
         },
     ) { innerPadding ->
@@ -136,7 +136,7 @@ private fun SettingsScreen(
 
             SettingsItem(
                 title = stringResource(R.string.settings_notifications_title),
-                leadingIcon = QodeNavigationIcons.Notifications,
+                leadingIcon = NavigationIcons.Notifications,
 
                 onClick = {
                     val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
@@ -158,7 +158,7 @@ private fun SettingsScreen(
             val feedbackTitle = stringResource(R.string.settings_feedback_title)
             SettingsItem(
                 title = stringResource(R.string.settings_feedback_title),
-                leadingIcon = QodeNavigationIcons.Feedback,
+                leadingIcon = NavigationIcons.Feedback,
 
                 onClick = {
                     val subject = encode(feedbackTitle)
@@ -170,7 +170,7 @@ private fun SettingsScreen(
 
             SettingsItem(
                 title = stringResource(R.string.settings_about_title),
-                leadingIcon = QodeNavigationIcons.Info,
+                leadingIcon = NavigationIcons.Info,
 
                 onClick = onNavigateToAbout,
             )

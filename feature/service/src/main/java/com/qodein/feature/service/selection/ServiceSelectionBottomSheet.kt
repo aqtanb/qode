@@ -40,7 +40,7 @@ import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.component.ShimmerBox
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -111,7 +111,7 @@ private fun ServiceSelectionContent(
                 onAction(ServiceSelectionAction.UpdateQuery(filtered))
             },
             placeholder = stringResource(R.string.search_services_placeholder),
-            leadingIcon = QodeNavigationIcons.Search,
+            leadingIcon = NavigationIcons.Search,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search,
             ),

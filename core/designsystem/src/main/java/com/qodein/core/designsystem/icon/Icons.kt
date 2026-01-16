@@ -1,8 +1,9 @@
 package com.qodein.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
-import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Diversity1
 import androidx.compose.material.icons.filled.EmojiObjects
@@ -63,12 +64,10 @@ import compose.icons.feathericons.Clock
 import compose.icons.feathericons.Code
 import compose.icons.feathericons.Coffee
 import compose.icons.feathericons.DollarSign
-import compose.icons.feathericons.Download
 import compose.icons.feathericons.Edit3
 import compose.icons.feathericons.Eye
 import compose.icons.feathericons.Filter
 import compose.icons.feathericons.Gift
-import compose.icons.feathericons.Heart
 import compose.icons.feathericons.Home
 import compose.icons.feathericons.Image
 import compose.icons.feathericons.Info
@@ -83,7 +82,6 @@ import compose.icons.feathericons.Settings
 import compose.icons.feathericons.Share2
 import compose.icons.feathericons.ThumbsDown
 import compose.icons.feathericons.ThumbsUp
-import compose.icons.feathericons.Trash2
 import compose.icons.feathericons.User
 import compose.icons.feathericons.UserPlus
 import compose.icons.feathericons.X
@@ -138,8 +136,9 @@ object QodeCategoryIcons {
 }
 
 object ActionIcons {
+    val MoreVert = Icons.Outlined.MoreVert
+
     val Add: ImageVector = FeatherIcons.Plus
-    val Delete: ImageVector = FeatherIcons.Trash2
     val Clear: ImageVector = Icons.Outlined.Clear
     val Edit: ImageVector = FeatherIcons.Edit3
     val Check: ImageVector = FeatherIcons.Check
@@ -148,7 +147,6 @@ object ActionIcons {
     val Back: ImageVector = FeatherIcons.ArrowLeft
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown
-    val Home: ImageVector = FeatherIcons.Home
     val Close: ImageVector = FeatherIcons.X
     val Next: ImageVector = FeatherIcons.ChevronRight
     val Previous: ImageVector = FeatherIcons.ChevronLeft
@@ -158,21 +156,18 @@ object ActionIcons {
     val Comment: ImageVector = FeatherIcons.MessageCircle
     val Follow: ImageVector = FeatherIcons.UserPlus
     val Bookmark: ImageVector = Icons.Outlined.BookmarkAdd
-    val BookmarkFilled: ImageVector = Icons.Filled.Bookmark
-    val Download: ImageVector = FeatherIcons.Download
     val Preview: ImageVector = FeatherIcons.Eye
 }
 
-object QodeNavigationIcons {
-    val Home: ImageVector = FeatherIcons.Home
+object NavigationIcons {
+    val Back = Icons.AutoMirrored.Default.ArrowBack
+    val Close = Icons.Default.Close
+
     val Search: ImageVector = FeatherIcons.Search
-    val Favorites: ImageVector = FeatherIcons.Heart
     val Profile: ImageVector = FeatherIcons.User
     val Settings: ImageVector = FeatherIcons.Settings
     val Notifications: ImageVector = FeatherIcons.Bell
-    val Messages: ImageVector = FeatherIcons.MessageSquare
     val Gallery: ImageVector = FeatherIcons.Image
-
     val Filter: ImageVector = FeatherIcons.Filter
     val Refresh: ImageVector = FeatherIcons.RefreshCw
     val Loading: ImageVector = FeatherIcons.Loader

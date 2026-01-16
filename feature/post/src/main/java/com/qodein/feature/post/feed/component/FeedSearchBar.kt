@@ -40,7 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -92,7 +92,7 @@ fun FeedSearchBar(
         ) {
             // Search Icon
             Icon(
-                imageVector = QodeNavigationIcons.Search,
+                imageVector = NavigationIcons.Search,
                 contentDescription = "Search",
                 modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                 tint = if (isActive || isFocused) {
@@ -166,7 +166,7 @@ fun FeedSearchBar(
                 modifier = Modifier.size(SizeTokens.IconButton.sizeMedium),
             ) {
                 Icon(
-                    imageVector = QodeNavigationIcons.Filter,
+                    imageVector = NavigationIcons.Filter,
                     contentDescription = "Filter posts",
                     modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -200,7 +200,7 @@ fun CompactSearchBar(
         ) {
             // Search Icon
             Icon(
-                imageVector = QodeNavigationIcons.Search,
+                imageVector = NavigationIcons.Search,
                 contentDescription = "Search",
                 modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -220,7 +220,7 @@ fun CompactSearchBar(
                 modifier = Modifier.size(SizeTokens.IconButton.sizeSmall),
             ) {
                 Icon(
-                    imageVector = QodeNavigationIcons.Filter,
+                    imageVector = NavigationIcons.Filter,
                     contentDescription = "Filter posts",
                     modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,

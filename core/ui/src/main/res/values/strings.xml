@@ -16,6 +16,11 @@
     <string name="action_block">Block user</string>
     <string name="action_report">Report problem</string>
 
+    <string name="ui_profile">Account</string>
+    <string name="ui_settings">Settings</string>
+    <string name="ui_feed">Feed</string>
+
+
     <string name="error_network_no_connection">No internet connection. Please check your network.</string>
     <string name="error_auth_user_cancelled">Sign-in was cancelled.</string>
     <string name="error_auth_invalid_credentials">Invalid credentials. Please try signing in again.</string>
@@ -155,7 +160,7 @@
     <string name="search_services_placeholder">Search services…</string>
     <string name="popular_services_title">Popular Services</string>
     <string name="no_services_found_message">No services found</string>
-    <string name="action_back">Back</string>
+    <string name="ds_navigation_back">Back</string>
     <string name="search_error_message">Failed to search services.</string>
 
     <string name="sort_popularity">Most Popular</string>

@@ -32,10 +32,10 @@ object SpacingTokens {
     /** 16dp - Medium (default): card padding, list item spacing */
     val md = 16.dp
 
-    /** 24dp - Large: section spacing, card margins */
+    /** 24dp - Large: section spacing, card margins, screen edge padding */
     val lg = 24.dp
 
-    /** 32dp - Extra large: screen edge padding, large components */
+    /** 32dp - Extra large: large components */
     val xl = 32.dp
 
     /** 40dp - Double extra large: modal spacing, wide gutters */

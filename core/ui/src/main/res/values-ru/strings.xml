@@ -6,6 +6,9 @@
     <string name="error_default_title">Что-то пошло не так</string>
     <string name="profile_picture_description">Фото профиля</string>
     <string name="copy_code">Копировать код</string>
+    <string name="ui_profile">Аккаунта</string>
+    <string name="ui_settings">Настройки</string>
+    <string name="ui_feed">Лента</string>
     <string name="error_network_no_connection">Нет подключения к интернету. Проверьте сеть.</string>
     <string name="error_auth_user_cancelled">Вход был отменен.</string>
     <string name="error_auth_invalid_credentials">Неверные учетные данные. Попробуйте войти снова.</string>
@@ -145,7 +148,7 @@
     <string name="search_services_placeholder">Поиск сервисов…</string>
     <string name="popular_services_title">Популярные сервисы</string>
     <string name="no_services_found_message">Сервисы не найдены</string>
-    <string name="action_back">Назад</string>
+    <string name="ds_navigation_back">Назад</string>
     <string name="search_error_message">Не удалось выполнить поиск сервисов.</string>
     <string name="sort_popularity">Самые популярные</string>
     <string name="sort_newest">Сначала новые</string>

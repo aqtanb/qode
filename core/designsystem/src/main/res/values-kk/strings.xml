@@ -4,4 +4,7 @@
     <string name="text_field_paste">Мәтінді қою</string>
     <string name="text_field_max_length_error">Ең көбі %1$d таңба</string>
     <string name="text_field_cannot_be_blank">Бұл өріс бос болмауы керек</string>
+    <string name="ds_navigation_back">Артқа</string>
+    <string name="ds_navigation_close">Жабу</string>
+    <string name="ds_action_more">Қосымша</string>
 </resources>

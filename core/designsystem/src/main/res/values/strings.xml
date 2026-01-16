@@ -4,4 +4,9 @@
     <string name="text_field_paste">Paste text</string>
     <string name="text_field_max_length_error">Maximum %1$d characters allowed</string>
     <string name="text_field_cannot_be_blank">This field cannot be empty</string>
+
+    <string name="ds_navigation_back">Back</string>
+    <string name="ds_navigation_close">Close</string>
+
+    <string name="ds_action_more">More</string>
 </resources>

@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeAlertDialog
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.error.toUiText
@@ -53,7 +53,7 @@ fun DeleteAccountDialog(
 
     QodeAlertDialog(
         onDismissRequest = onDismiss,
-        icon = QodeNavigationIcons.Error,
+        icon = NavigationIcons.Error,
         title = stringResource(R.string.delete_account_dialog_title),
         confirmButtonText = stringResource(R.string.delete_account_confirm),
         onConfirmClick = onConfirm,
@@ -117,7 +117,7 @@ fun DeleteAccountErrorDialog(
 ) {
     QodeAlertDialog(
         onDismissRequest = onDismiss,
-        icon = QodeNavigationIcons.Error,
+        icon = NavigationIcons.Error,
         title = stringResource(R.string.delete_account_error_title),
         text = error.toUiText().asString(),
         confirmButtonText = stringResource(CoreUiR.string.action_retry),

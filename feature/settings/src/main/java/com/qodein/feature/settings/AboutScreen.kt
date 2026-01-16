@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,8 +25,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeLogo
 import com.qodein.core.designsystem.component.QodeLogoSize
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.component.QodeinBackIconButton
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 
@@ -46,10 +45,9 @@ internal fun AboutScreen(onNavigateBack: () -> Unit) {
 
     Scaffold(
         topBar = {
-            QodeTopAppBar(
+            QodeinTopAppBar(
                 title = stringResource(R.string.settings_about_title),
-                navigationIcon = ActionIcons.Back,
-                onNavigationClick = onNavigateBack,
+                navigationIcon = { QodeinBackIconButton({ onNavigateBack() }) },
             )
         },
     ) { innerPadding ->

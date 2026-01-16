@@ -109,6 +109,7 @@ private fun ProfileScreen(
                 onBackClick = onBackClick,
             )
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Box(
             modifier = Modifier

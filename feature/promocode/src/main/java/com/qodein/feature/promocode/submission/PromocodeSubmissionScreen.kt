@@ -27,8 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.component.QodeinBackIconButton
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
@@ -96,10 +96,9 @@ private fun PromocodeSubmissionScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            QodeTopAppBar(
+            QodeinTopAppBar(
                 title = stringResource(R.string.submit_promocode),
-                navigationIcon = ActionIcons.Back,
-                onNavigationClick = onNavigateBack,
+                navigationIcon = { QodeinBackIconButton({ onNavigateBack }) },
             )
         },
     ) { paddingValues ->

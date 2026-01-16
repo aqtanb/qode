@@ -32,8 +32,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeTopAppBar
 import com.qodein.core.designsystem.component.QodeinBasicTextField
+import com.qodein.core.designsystem.component.QodeinCloseIconButton
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -71,10 +72,9 @@ fun ReportScreen(
 
     Scaffold(
         topBar = {
-            QodeTopAppBar(
+            QodeinTopAppBar(
                 title = stringResource(R.string.report_title),
-                navigationIcon = ActionIcons.Close,
-                onNavigationClick = onNavigateBack,
+                navigationIcon = { QodeinCloseIconButton(onClick = onNavigateBack) },
             )
         },
         floatingActionButton = {

@@ -45,8 +45,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeIcons
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
 import com.qodein.core.designsystem.theme.AnimationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -324,7 +324,7 @@ fun SelectServiceButton(
                 )
             } else {
                 Icon(
-                    imageVector = if (hasSelection) QodeIcons.Service else QodeNavigationIcons.Search,
+                    imageVector = if (hasSelection) QodeIcons.Service else NavigationIcons.Search,
                     contentDescription = null,
                     modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,

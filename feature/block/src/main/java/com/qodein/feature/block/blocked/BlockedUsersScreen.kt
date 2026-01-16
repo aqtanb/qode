@@ -29,9 +29,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeinBackIconButton
 import com.qodein.core.designsystem.component.QodeinOutlinedCard
-import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -70,10 +70,9 @@ private fun BlockedUsersScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            QodeTopAppBar(
+            QodeinTopAppBar(
                 title = stringResource(R.string.blocked_users_title),
-                navigationIcon = ActionIcons.Back,
-                onNavigationClick = onBackClick,
+                navigationIcon = { QodeinBackIconButton({ onBackClick() }) },
             )
         },
     ) { paddingValues ->

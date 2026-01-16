@@ -1,10 +1,15 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.buildkonfig)
 }
 
 val localProperties = Properties()
@@ -15,7 +20,18 @@ if (localPropertiesFile.exists()) {
 
 kotlin {
     jvmToolchain(17)
-    androidTarget {
+
+    androidLibrary {
+        namespace = "com.qodein.shared"
+        compileSdk =
+            libs.versions.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
@@ -38,29 +54,15 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
     }
+
+    sourceSets.remove(sourceSets.getByName("commonTest"))
 }
 
-android {
-    namespace = "com.qodein.shared"
-    compileSdk =
-        libs.versions.compileSdk
-            .get()
-            .toInt()
+buildkonfig {
+    packageName = "com.qodein.shared"
 
-    buildFeatures {
-        buildConfig = true
-    }
-
-    defaultConfig {
-        minSdk =
-            libs.versions.minSdk
-                .get()
-                .toInt()
+    defaultConfigs {
         val logoKey = localProperties.getProperty("LOGO_DEV_PUBLIC_KEY") ?: ""
-        buildConfigField("String", "LOGO_DEV_PUBLIC_KEY", "\"$logoKey\"")
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        buildConfigField(STRING, "LOGO_DEV_PUBLIC_KEY", logoKey)
     }
 }

@@ -1,6 +1,5 @@
 package com.qodein.feature.post.feed.component
 
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -9,12 +8,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.qodein.core.designsystem.component.QodeTopAppBar
-import com.qodein.core.designsystem.component.QodeTopAppBarVariant
-import com.qodein.core.designsystem.icon.QodeNavigationIcons
+import com.qodein.core.designsystem.component.QodeinTopAppBar
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.theme.SizeTokens
+import com.qodein.core.ui.R
 import com.qodein.core.ui.component.ProfileAvatar
-import com.qodein.feature.post.R
 import com.qodein.shared.model.User
 
 /**
@@ -33,13 +31,11 @@ fun FeedTopAppBar(
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    QodeTopAppBar(
-        title = stringResource(R.string.feed_title),
+    QodeinTopAppBar(
+        title = stringResource(R.string.ui_feed),
         navigationIcon = null,
-        onNavigationClick = null,
-        variant = QodeTopAppBarVariant.CenterAligned,
         modifier = modifier,
-        customActions = {
+        actions = {
             FeedAppBarActions(
                 user = user,
                 onProfileClick = onProfileClick,
@@ -50,7 +46,7 @@ fun FeedTopAppBar(
 }
 
 @Composable
-private fun RowScope.FeedAppBarActions(
+private fun FeedAppBarActions(
     user: User?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit
@@ -59,14 +55,14 @@ private fun RowScope.FeedAppBarActions(
         ProfileAvatar(
             user = user,
             size = SizeTokens.Icon.sizeXLarge,
-            contentDescription = stringResource(R.string.cd_profile),
+            contentDescription = stringResource(R.string.ui_profile),
         )
     }
 
     IconButton(onClick = onSettingsClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
         Icon(
-            imageVector = QodeNavigationIcons.Settings,
-            contentDescription = stringResource(R.string.cd_settings),
+            imageVector = NavigationIcons.Settings,
+            contentDescription = stringResource(R.string.ui_settings),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
         )

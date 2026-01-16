@@ -16,7 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.QodeDropdownMenuItem
-import com.qodein.core.designsystem.component.QodeTopAppBar
+import com.qodein.core.designsystem.component.QodeinBackIconButton
+import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -39,11 +40,10 @@ internal fun PromocodeDetailTopAppBar(
     var isMenuExpanded by rememberSaveable { mutableStateOf(false) }
     val isOwnPromocode = currentUserId != null && currentUserId == authorId
 
-    QodeTopAppBar(
+    QodeinTopAppBar(
         title = title,
-        navigationIcon = ActionIcons.Back,
-        onNavigationClick = onNavigateBack,
-        customActions = {
+        navigationIcon = { QodeinBackIconButton({ onNavigateBack() }) },
+        actions = {
             Box {
                 IconButton(onClick = { isMenuExpanded = true }) {
                     Icon(
