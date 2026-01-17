@@ -35,8 +35,11 @@ class ProfileViewModel(
 
     fun onAction(action: ProfileAction) {
         when (action) {
-            is ProfileAction.SignOutClicked -> signOut()
-            is ProfileAction.RetryClicked -> observeAuthState()
+            ProfileAction.SignOutClicked -> signOut()
+            ProfileAction.RetryClicked -> observeAuthState()
+            ProfileAction.BlockedClicked -> {
+                emitEvent(ProfileEvent.NavigateToBlockedUsers)
+            }
         }
     }
 

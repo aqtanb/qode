@@ -2,7 +2,10 @@ package com.qodein.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Diversity1
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.Filter8
 import androidx.compose.material.icons.filled.Filter9
 import androidx.compose.material.icons.filled.Filter9Plus
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Block
@@ -51,7 +55,6 @@ import compose.icons.TablerIcons
 import compose.icons.feathericons.Activity
 import compose.icons.feathericons.AlertCircle
 import compose.icons.feathericons.ArrowDown
-import compose.icons.feathericons.ArrowLeft
 import compose.icons.feathericons.ArrowUp
 import compose.icons.feathericons.Bell
 import compose.icons.feathericons.Box
@@ -137,6 +140,7 @@ object QodeCategoryIcons {
 
 object ActionIcons {
     val MoreVert = Icons.Outlined.MoreVert
+    val SignOut = Icons.AutoMirrored.Filled.Logout
 
     val Add: ImageVector = FeatherIcons.Plus
     val Clear: ImageVector = Icons.Outlined.Clear
@@ -144,7 +148,6 @@ object ActionIcons {
     val Check: ImageVector = FeatherIcons.Check
     val ClearCircled: ImageVector = FeatherIcons.XCircle
     val Copy: ImageVector = Icons.Outlined.ContentCopy
-    val Back: ImageVector = FeatherIcons.ArrowLeft
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown
     val Close: ImageVector = FeatherIcons.X
@@ -162,6 +165,8 @@ object ActionIcons {
 object NavigationIcons {
     val Back = Icons.AutoMirrored.Default.ArrowBack
     val Close = Icons.Default.Close
+    val ChevronLeft = Icons.Default.ChevronLeft
+    val ChevronRight = Icons.Default.ChevronRight
 
     val Search: ImageVector = FeatherIcons.Search
     val Profile: ImageVector = FeatherIcons.User

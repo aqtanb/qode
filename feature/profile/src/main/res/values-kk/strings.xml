@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="profile_sign_out_button">Шығу</string>
+    <string name="profile_action_signout">Шығу</string>
     <string name="profile_promocodes_label">Промокодтар</string>
     <string name="posts">Жазба</string>
 
 
-    <string name="profile_blocked_title">Бұғатталғандар</string>
+    <string name="profile_action_blocked">Бұғатталғандар</string>
 </resources>
