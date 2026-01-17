@@ -5,7 +5,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
-import com.qodein.core.data.dto.PagedPromocodesDto
+import com.qodein.core.data.dto.PagedFirestoreResult
 import com.qodein.core.data.dto.PromocodeDto
 import kotlinx.coroutines.tasks.await
 
@@ -23,7 +23,7 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         filterByServices: List<String>?,
         limit: Int,
         startAfter: DocumentSnapshot? = null
-    ): PagedPromocodesDto {
+    ): PagedFirestoreResult<PromocodeDto> {
         val now = Timestamp.now()
         val fetchLimit = limit + 1
         val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
@@ -51,16 +51,15 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
 
     private fun Query.applyPaginationCursor(cursor: DocumentSnapshot?): Query = cursor?.let { startAfter(it) } ?: this
 
-    private fun List<DocumentSnapshot>.toPagedResult(limit: Int): PagedPromocodesDto {
+    private fun List<DocumentSnapshot>.toPagedResult(limit: Int): PagedFirestoreResult<PromocodeDto> {
         val hasMore = size > limit
         val pagedDocuments = take(limit)
         val items = pagedDocuments.mapNotNull { it.toObject<PromocodeDto>() }
-        val lastDocument = pagedDocuments.lastOrNull()
+        val nextCursor = if (hasMore) pagedDocuments.lastOrNull() else null
 
-        return PagedPromocodesDto(
+        return PagedFirestoreResult(
             items = items,
-            lastDocument = lastDocument,
-            hasMore = hasMore,
+            nextCursor = nextCursor,
         )
     }
 
@@ -70,4 +69,22 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
             .get()
             .await()
             .toObject<PromocodeDto>()
+
+    suspend fun getPromocodesByUser(
+        userId: String,
+        limit: Int,
+        startAfter: DocumentSnapshot? = null
+    ): PagedFirestoreResult<PromocodeDto> {
+        val fetchLimit = limit + 1
+        val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
+            .whereEqualTo(PromocodeDto.FIELD_AUTHOR_ID, userId)
+            .orderBy(PromocodeDto.FIELD_CREATED_AT, Query.Direction.DESCENDING)
+            .applyPaginationCursor(startAfter)
+            .limit(fetchLimit.toLong())
+            .get()
+            .await()
+            .documents
+
+        return documents.toPagedResult(limit)
+    }
 }

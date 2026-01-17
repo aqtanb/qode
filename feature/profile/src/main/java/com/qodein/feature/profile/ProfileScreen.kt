@@ -1,30 +1,35 @@
 package com.qodein.feature.profile
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,18 +37,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.ProfileAvatar
+import com.qodein.core.ui.component.PromocodeCard
+import com.qodein.core.ui.component.PromocodeCardSkeleton
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.PostCardSkeleton
+import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.preview.UserPreviewData
-import com.qodein.feature.profile.component.ProfileSceleton
+import com.qodein.feature.profile.component.ProfileSkeleton
 import com.qodein.feature.profile.component.ProfileTopAppBar
 import com.qodein.shared.common.error.SystemError
+import com.qodein.shared.model.Post
+import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.User
-import com.qodein.shared.model.UserStats
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -63,6 +74,8 @@ fun ProfileRoute(
                 ProfileEvent.SignedOut -> onSignOut()
                 ProfileEvent.NavigateToAuth -> onBackClick()
                 ProfileEvent.NavigateToBlockedUsers -> onNavigateToBlockedUsers()
+                is ProfileEvent.NavigateToPostDetail -> TODO()
+                is ProfileEvent.NavigateToPromocodeDetail -> TODO()
             }
         }
     }
@@ -83,8 +96,6 @@ private fun ProfileScreen(
     uiState: ProfileUiState,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -99,20 +110,20 @@ private fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingTokens.lg),
+                .padding(horizontal = SpacingTokens.sm),
             contentAlignment = Alignment.Center,
         ) {
             when (uiState) {
                 is ProfileUiState.Success -> {
                     ProfileContent(
-                        user = uiState.user,
-                        scrollState = scrollState,
+                        successState = uiState,
+                        onAction = onAction,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
 
                 is ProfileUiState.Loading -> {
-                    ProfileSceleton()
+                    ProfileSkeleton()
                 }
 
                 is ProfileUiState.Error -> {
@@ -128,21 +139,181 @@ private fun ProfileScreen(
 
 @Composable
 private fun ProfileContent(
-    user: User,
-    scrollState: ScrollState,
+    successState: ProfileUiState.Success,
+    onAction: (ProfileAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+        contentPadding = PaddingValues(vertical = SpacingTokens.lg),
     ) {
-        ProfileHeader(user = user)
+        item {
+            ProfileHeader(user = successState.user, modifier = Modifier.fillMaxWidth())
+        }
+
+        item {
+            SecondaryTabRow(
+                selectedTabIndex = successState.selectedTab.ordinal,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                ProfileTab.entries.forEach { tab ->
+                    Tab(
+                        selected = successState.selectedTab == tab,
+                        onClick = { onAction(ProfileAction.TabSelected(tab)) },
+                        text = {
+                            Text(
+                                text = when (tab) {
+                                    ProfileTab.PROMOCODES -> stringResource(R.string.profile_promocodes)
+                                    ProfileTab.POSTS -> stringResource(R.string.profile_posts)
+                                },
+                            )
+                        },
+                    )
+                }
+            }
+        }
+
+        when (successState.selectedTab) {
+            ProfileTab.PROMOCODES -> promocodesTabItems(
+                state = successState.promocodesState,
+                onAction = onAction,
+            )
+            ProfileTab.POSTS -> postsTabItems(
+                state = successState.postsState,
+                onAction = onAction,
+            )
+        }
     }
 }
 
+private fun LazyListScope.promocodesTabItems(
+    state: PaginatedDataState<Promocode>,
+    onAction: (ProfileAction) -> Unit
+) {
+    when (state) {
+        is PaginatedDataState.Loading -> {
+            items(5) {
+                PromocodeCardSkeleton()
+            }
+        }
+
+        is PaginatedDataState.Success -> {
+            if (state.items.isEmpty()) {
+                item {
+                    EmptyState(
+                        icon = QodeIcons.Promocode,
+                        title = stringResource(R.string.profile_empty_promocodes_title),
+                        description = stringResource(R.string.profile_empty_promocodes_description),
+                    )
+                }
+            } else {
+                items(state.items, key = { it.id.value }) { promocode ->
+                    PromocodeCard(
+                        promocode = promocode,
+                        onCardClick = { onAction(ProfileAction.PromocodeClicked(promocode.id)) },
+                        onCopyCodeClick = { },
+                    )
+                }
+
+                if (state.hasMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = SpacingTokens.md),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (state.isLoadingMore) {
+                                CircularProgressIndicator()
+                            } else {
+                                LaunchedEffect(Unit) {
+                                    onAction(ProfileAction.LoadMorePromocodes)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        is PaginatedDataState.Error -> {
+            item {
+                QodeErrorCard(
+                    error = state.error,
+                    onRetry = { onAction(ProfileAction.RetryPromocodesClicked) },
+                    modifier = Modifier.padding(SpacingTokens.lg),
+                )
+            }
+        }
+    }
+}
+
+private fun LazyListScope.postsTabItems(
+    state: PaginatedDataState<Post>,
+    onAction: (ProfileAction) -> Unit
+) {
+    when (state) {
+        is PaginatedDataState.Loading -> {
+            items(5) {
+                PostCardSkeleton()
+            }
+        }
+
+        is PaginatedDataState.Success -> {
+            if (state.items.isEmpty()) {
+                item {
+                    EmptyState(
+                        icon = QodeinIcons.Post,
+                        title = stringResource(R.string.profile_empty_posts_title),
+                        description = stringResource(R.string.profile_empty_posts_description),
+                    )
+                }
+            } else {
+                items(state.items, key = { it.id.value }) { post ->
+                    Text(
+                        text = "Post: ${post.id.value}",
+                        modifier = Modifier.padding(
+                            horizontal = SpacingTokens.lg,
+                            vertical = SpacingTokens.sm,
+                        ),
+                    )
+                }
+
+                if (state.hasMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = SpacingTokens.md),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (state.isLoadingMore) {
+                                CircularProgressIndicator()
+                            } else {
+                                LaunchedEffect(Unit) {
+                                    onAction(ProfileAction.LoadMorePosts)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        is PaginatedDataState.Error -> {
+            item {
+                QodeErrorCard(
+                    error = state.error,
+                    onRetry = { onAction(ProfileAction.RetryPostsClicked) },
+                    modifier = Modifier.padding(SpacingTokens.lg),
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ProfileHeader(
     user: User,
@@ -155,11 +326,11 @@ private fun ProfileHeader(
     ) {
         ProfileAvatar(
             user = user,
+            shape = MaterialShapes.Cookie9Sided.toShape(),
             size = SizeTokens.Avatar.sizeXLarge,
             modifier = Modifier.testTag("profile_avatar"),
         )
         UserInfo(user = user)
-        UserStatsRow(userStats = user.stats, modifier = Modifier.fillMaxWidth(0.7f))
     }
 }
 
@@ -186,71 +357,101 @@ private fun UserInfo(
 }
 
 @Composable
-private fun UserStatsRow(
-    userStats: UserStats,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        StatItem(
-            value = userStats.submittedPromocodesCount,
-            contentDescription = stringResource(R.string.profile_promocodes_label),
-            modifier = Modifier.weight(1f),
-        )
-
-        Box(
-            modifier = Modifier
-                .width(ShapeTokens.Border.thin)
-                .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.outline),
-        )
-
-        StatItem(
-            value = userStats.submittedPostsCount,
-            contentDescription = stringResource(R.string.posts),
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun StatItem(
-    value: Int,
-    contentDescription: String,
+private fun EmptyState(
+    icon: ImageVector,
+    title: String,
+    description: String,
     modifier: Modifier = Modifier
 ) {
     Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(SpacingTokens.xxl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
-        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
     ) {
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Bold,
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            text = contentDescription,
-            style = MaterialTheme.typography.labelSmall,
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
         )
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun ProfileScreenPreview() {
+private fun ProfilePromocodesLoadingPreview() = ProfilePromocodesPreview(PaginatedDataState.Loading)
+
+@PreviewLightDark
+@Composable
+private fun ProfilePromocodesEmptyPreview() =
+    ProfilePromocodesPreview(
+        PaginatedDataState.Success(
+            items = emptyList(),
+            hasMore = false,
+            nextCursor = null,
+        ),
+    )
+
+@PreviewLightDark
+@Composable
+private fun ProfilePromocodesErrorPreview() =
+    ProfilePromocodesPreview(
+        PaginatedDataState.Error(SystemError.Offline),
+    )
+
+@PreviewLightDark
+@Composable
+private fun ProfilePromocodesSuccessPreview() =
+    ProfilePromocodesPreview(
+        PaginatedDataState.Success(
+            items = PromocodePreviewData.allSamples,
+            hasMore = false,
+            nextCursor = null,
+        ),
+    )
+
+@Composable
+private fun ProfilePromocodesPreview(promocodesState: PaginatedDataState<Promocode>) {
     QodeTheme {
         Surface {
             ProfileScreen(
                 onBackClick = {},
                 onAction = {},
-                uiState = ProfileUiState.Success(user = UserPreviewData.powerUser),
+                uiState = ProfileUiState.Success(
+                    user = UserPreviewData.powerUser,
+                    promocodesState = promocodesState,
+                ),
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ProfileScreenPostsPreview() {
+    QodeTheme {
+        Surface {
+            ProfileScreen(
+                onBackClick = {},
+                onAction = {},
+                uiState = ProfileUiState.Success(
+                    user = UserPreviewData.powerUser,
+                    selectedTab = ProfileTab.POSTS,
+                ),
             )
         }
     }

@@ -20,10 +20,10 @@ import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.R
 import com.qodein.feature.post.detail.PostDetailAction
-import com.qodein.feature.post.feed.component.PostCard
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId

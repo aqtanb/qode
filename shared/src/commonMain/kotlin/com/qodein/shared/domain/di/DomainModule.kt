@@ -15,6 +15,7 @@ import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
@@ -33,10 +34,12 @@ import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
 import org.koin.dsl.module
 import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * Provides domain-layer use cases.
  */
+@OptIn(ExperimentalTime::class)
 val domainModule = module {
     single<Clock> { Clock.System }
 
@@ -57,6 +60,8 @@ val domainModule = module {
     single { DeleteUserAccountUseCase(get(), get()) }
 
     single { GetBannersUseCase(get()) }
+
+    single { GetPromocodesByUserUseCase(get()) }
     single { GetPromocodesUseCase(get(), get(), get()) }
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }

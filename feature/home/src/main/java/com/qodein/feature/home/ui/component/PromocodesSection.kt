@@ -24,10 +24,11 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.PromocodeCardSkeleton
 import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.error.asUiText
+import com.qodein.feature.home.PromocodeUiState
 import com.qodein.feature.home.R
-import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.core.ui.R as CoreUiR

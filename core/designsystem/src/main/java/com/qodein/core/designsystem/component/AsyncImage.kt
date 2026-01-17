@@ -42,7 +42,7 @@ fun QodeinAsyncImage(
     shape: Shape = CircleShape
 ) {
     Box(
-        modifier = modifier.size(size).clip(shape).background(color = MaterialTheme.colorScheme.inverseSurface),
+        modifier = modifier.clip(shape).size(size).background(color = MaterialTheme.colorScheme.inverseSurface),
         contentAlignment = Alignment.Center,
     ) {
         SubcomposeAsyncImage(

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_home_title">Үй</string>
     <string name="error_image_not_available">Сурет қол жетімді емес</string>
     <string name="empty_no_promo_codes">Промокодтар жоқ</string>
     <string name="empty_check_back_later">Жеңілдіктер үшін кейінірек келіңіз!</string>

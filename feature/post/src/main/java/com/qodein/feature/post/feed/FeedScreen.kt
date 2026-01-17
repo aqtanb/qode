@@ -26,12 +26,12 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.PostCard
+import com.qodein.core.ui.component.post.PostCardSkeleton
 import com.qodein.core.ui.preview.PostPreviewData
-import com.qodein.feature.post.component.FullScreenImageViewer
 import com.qodein.feature.post.feed.component.FeedTopAppBar
-import com.qodein.feature.post.feed.component.PostCard
-import com.qodein.feature.post.feed.component.PostCardSkeleton
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post

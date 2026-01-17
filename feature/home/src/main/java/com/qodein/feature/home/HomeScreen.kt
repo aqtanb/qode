@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.PromocodeCard
 import com.qodein.core.ui.component.SortFilterBottomSheet
 import com.qodein.core.ui.scroll.RegisterScrollState
 import com.qodein.core.ui.scroll.ScrollStateRegistry
@@ -33,12 +34,10 @@ import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
 import com.qodein.feature.home.ui.component.LoadingMoreIndicator
-import com.qodein.feature.home.ui.component.PromocodeCard
 import com.qodein.feature.home.ui.component.PromocodeSectionEmptyState
 import com.qodein.feature.home.ui.component.PromocodeSectionErrorState
 import com.qodein.feature.home.ui.component.PromocodeSectionHeader
 import com.qodein.feature.home.ui.component.PromocodeSectionLoadingState
-import com.qodein.feature.home.ui.state.PromocodeUiState
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.SortFilter

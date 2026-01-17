@@ -1,4 +1,4 @@
-package com.qodein.feature.post.feed.component
+package com.qodein.core.ui.component.post
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +29,6 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
-import com.qodein.feature.post.component.PostImage
 import com.qodein.shared.model.Post
 import kotlin.time.Instant
 

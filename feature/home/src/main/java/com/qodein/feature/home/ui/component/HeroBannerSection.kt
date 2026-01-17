@@ -47,8 +47,8 @@ import com.qodein.core.ui.component.AutoScrollingBanner
 import com.qodein.core.ui.component.rememberBackdropBlurState
 import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.BannerPreviewData
+import com.qodein.feature.home.BannerState
 import com.qodein.feature.home.R
-import com.qodein.feature.home.ui.state.BannerState
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language

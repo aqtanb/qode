@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_home_title">Главная</string>
     <string name="error_image_not_available">Изображение недоступно</string>
     <string name="empty_no_promo_codes">Промокодов нет</string>
     <string name="empty_check_back_later">Заходите позже ради свежих предложений!</string>

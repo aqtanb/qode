@@ -1,4 +1,4 @@
-package com.qodein.feature.post.component
+package com.qodein.core.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,14 +19,14 @@ import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.feature.post.R
+import com.qodein.core.ui.R
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
 @Composable
-internal fun FullScreenImageViewer(
+fun FullScreenImageViewer(
     uri: String,
     onDismiss: () -> Unit,
     hazeState: HazeState,
@@ -53,7 +53,7 @@ internal fun FullScreenImageViewer(
                 .data(uri.toUri())
                 .crossfade(true)
                 .build(),
-            contentDescription = stringResource(R.string.cd_post_image),
+            contentDescription = stringResource(R.string.ui_image_post),
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .fillMaxHeight(0.7f),

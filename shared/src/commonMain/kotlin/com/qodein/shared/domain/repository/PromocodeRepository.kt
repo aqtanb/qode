@@ -7,6 +7,7 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.UserId
 
 /**
  * Repository interface for Promocode operations.
@@ -34,4 +35,14 @@ interface PromocodeRepository {
      * Returns NotFound error if promocode doesn't exist.
      */
     suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError>
+
+    /**
+     * Get promocodes by a specific user with cursor-based pagination.
+     * Returns promocodes sorted by creation date (most recent first).
+     */
+    suspend fun getPromocodesByUser(
+        userId: UserId,
+        cursor: Any?,
+        limit: Int
+    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError>
 }

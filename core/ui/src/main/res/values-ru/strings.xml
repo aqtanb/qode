@@ -9,6 +9,9 @@
     <string name="ui_profile">Аккаунта</string>
     <string name="ui_settings">Настройки</string>
     <string name="ui_feed">Лента</string>
+    <string name="ui_home">Главная</string>
+    <string name="ui_promocode">Промокод</string>
+    <string name="ui_image_failed">Загрузка изображения провалилась</string>
     <string name="error_network_no_connection">Нет подключения к интернету. Проверьте сеть.</string>
     <string name="error_auth_user_cancelled">Вход был отменен.</string>
     <string name="error_auth_invalid_credentials">Неверные учетные данные. Попробуйте войти снова.</string>
@@ -198,4 +201,6 @@
     <string name="terms_of_service">Условия использования</string>
     <string name="privacy_policy">Политику конфиденциальности</string>
     <string name="loading">Загрузка…</string>
+    <string name="ui_image_remove">Удалить изображение</string>
+    <string name="ui_image_post">Добавить изображение</string>
 </resources>

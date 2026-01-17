@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="profile_action_signout">Выйти</string>
-    <string name="profile_promocodes_label">Промокоды</string>
-    <string name="posts">Пост</string>
+    <string name="profile_promocodes">Промокоды</string>
+    <string name="profile_posts">Посты</string>
 
 
     <string name="profile_action_blocked">Заблокированные</string>
+
+    <string name="profile_empty_promocodes_title">Промокодов пока нет</string>
+    <string name="profile_empty_promocodes_description">Поделитесь своим первым промокодом с сообществом</string>
+
+    <string name="profile_empty_posts_title">Постов пока нет</string>
+    <string name="profile_empty_posts_description">Создайте свой первый пост, чтобы поделиться с другими</string>
 </resources>

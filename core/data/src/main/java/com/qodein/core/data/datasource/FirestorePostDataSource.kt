@@ -73,8 +73,9 @@ class FirestorePostDataSource(
 
             // Apply cursor-based pagination
             paginationRequest.cursor?.let { cursor ->
-                cursor.documentSnapshot.let { docSnapshot ->
-                    firestoreQuery = firestoreQuery.startAfter(docSnapshot as DocumentSnapshot)
+                val docSnapshot = cursor.value as? DocumentSnapshot
+                if (docSnapshot != null) {
+                    firestoreQuery = firestoreQuery.startAfter(docSnapshot)
                 }
             }
 
@@ -95,7 +96,7 @@ class FirestorePostDataSource(
             val nextCursor = if (documents.isNotEmpty() && documents.size == paginationRequest.limit) {
                 val lastDoc = documents.last()
                 PaginationCursor(
-                    documentSnapshot = lastDoc,
+                    value = lastDoc,
                     sortBy = sortBy,
                 )
             } else {
@@ -105,7 +106,6 @@ class FirestorePostDataSource(
             val paginatedResult = PaginatedResult(
                 data = results,
                 nextCursor = nextCursor,
-                hasMore = nextCursor != null,
             )
 
             Result.Success(paginatedResult)

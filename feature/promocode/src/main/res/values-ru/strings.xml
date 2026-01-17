@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_continue">Продолжить</string>
-    <string name="action_share">Поделиться</string>
     <string name="action_submit">Отправить</string>
 
     <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
@@ -54,9 +53,6 @@
     <string name="submit_promocode">Отправить промокод</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>
-    <string name="cd_share">Поделиться промокодом</string>
-
-    <string name="action_share_promocode">Поделиться Промокодом</string>
     <string name="share_subject_format">%1$s Промокод</string>
     <string name="share_code_label">Код: %1$s</string>
     <string name="promocode_details_verified">Верифицированный?</string>

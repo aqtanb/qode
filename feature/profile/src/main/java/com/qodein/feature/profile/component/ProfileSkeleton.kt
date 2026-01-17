@@ -17,7 +17,7 @@ import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 
 @Composable
-internal fun ProfileSceleton(modifier: Modifier = Modifier) {
+internal fun ProfileSkeleton(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -7,8 +7,8 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.refresh.RefreshTarget
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
-import com.qodein.feature.home.ui.state.BannerState
-import com.qodein.feature.home.ui.state.PromocodeUiState
+import com.qodein.feature.home.BannerState
+import com.qodein.feature.home.PromocodeUiState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase

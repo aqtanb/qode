@@ -1,4 +1,4 @@
-package com.qodein.feature.post.component
+package com.qodein.core.ui.component.post
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,10 +31,10 @@ import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.feature.post.R
+import com.qodein.core.ui.R
 
 @Composable
-internal fun PostImage(
+fun PostImage(
     uri: String,
     currentPage: Int,
     totalPages: Int,
@@ -55,7 +55,7 @@ internal fun PostImage(
                 .data(uri.toUri())
                 .crossfade(true)
                 .build(),
-            contentDescription = stringResource(R.string.cd_post_image),
+            contentDescription = stringResource(R.string.ui_image_post),
             modifier = Modifier
                 .fillMaxSize()
                 .then(
@@ -85,7 +85,7 @@ internal fun PostImage(
             QodeinIconButton(
                 onClick = onRemove,
                 icon = ActionIcons.Close,
-                contentDescription = stringResource(R.string.cd_remove_image),
+                contentDescription = stringResource(R.string.ui_image_remove),
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 size = ButtonSize.Small,
@@ -117,12 +117,12 @@ private fun PostImageErrorStateContent() {
         ) {
             Icon(
                 imageVector = UIIcons.Error,
-                contentDescription = stringResource(R.string.cd_image_load_failed),
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
             )
             Text(
-                text = stringResource(R.string.image_load_failed),
+                text = stringResource(R.string.ui_image_failed),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
             )

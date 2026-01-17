@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="profile_promocodes_label">Promocodes</string>
-    <string name="posts">Posts</string>
+    <string name="profile_promocodes">Promocodes</string>
+    <string name="profile_posts">Posts</string>
 
     <string name="profile_action_blocked">Blocked</string>
     <string name="profile_action_signout">Sign Out</string>
+
+    <string name="profile_empty_promocodes_title">No promocodes yet</string>
+    <string name="profile_empty_promocodes_description">Share your first promocode with the community</string>
+
+    <string name="profile_empty_posts_title">No posts yet</string>
+    <string name="profile_empty_posts_description">Create your first post to share with others</string>
 </resources>

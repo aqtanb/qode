@@ -1,7 +1,9 @@
 package com.qodein.core.ui.component
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.qodein.core.designsystem.component.QodeinAsyncImage
@@ -17,6 +19,7 @@ fun ProfileAvatar(
     user: User?,
     modifier: Modifier = Modifier,
     size: Dp = SizeTokens.Avatar.sizeLarge,
+    shape: Shape = CircleShape,
     contentDescription: String = stringResource(R.string.profile_picture_description)
 ) {
     QodeinAsyncImage(
@@ -24,6 +27,7 @@ fun ProfileAvatar(
         fallbackText = user?.profile?.displayName ?: "",
         modifier = modifier,
         size = size,
+        shape = shape,
         contentDescription = contentDescription,
     )
 }

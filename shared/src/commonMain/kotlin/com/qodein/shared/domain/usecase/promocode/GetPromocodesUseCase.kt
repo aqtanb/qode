@@ -42,10 +42,9 @@ class GetPromocodesUseCase(
                 }
 
                 Result.Success(
-                    PaginatedResult.of(
+                    PaginatedResult(
                         data = filteredPromocodes,
                         nextCursor = promocodes.data.nextCursor,
-                        hasMore = promocodes.data.hasMore,
                     ),
                 )
             }

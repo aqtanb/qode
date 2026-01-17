@@ -9,6 +9,9 @@
     <string name="ui_profile">Аккаунт</string>
     <string name="ui_settings">Баптаулар</string>
     <string name="ui_feed">Арна</string>
+    <string name="ui_home">Басты бет</string>
+    <string name="ui_promocode">Промокод</string>
+    <string name="ui_image_failed">Суретті жүктеу сәтсіз аяқталды</string>
     <string name="error_network_no_connection">Интернет қосылымы жоқ. Желіні тексеріңіз.</string>
     <string name="error_auth_user_cancelled">Кіру болдырылмады.</string>
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
@@ -207,4 +210,6 @@
     <string name="terms_of_service">Қызмет көрсету шарттарын</string>
     <string name="privacy_policy">Құпиялылық саясатын</string>
     <string name="loading">Жүктелуде…</string>
+    <string name="ui_image_remove">Суретті өшіру</string>
+    <string name="ui_image_post">Сурет қосу</string>
 </resources>

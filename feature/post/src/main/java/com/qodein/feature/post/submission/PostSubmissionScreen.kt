@@ -50,11 +50,11 @@ import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.PostImage
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.R
-import com.qodein.feature.post.component.FullScreenImageViewer
-import com.qodein.feature.post.component.PostImage
 import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
 import com.qodein.feature.post.submission.component.TagSelector

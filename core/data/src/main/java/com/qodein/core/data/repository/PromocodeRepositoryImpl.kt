@@ -1,5 +1,6 @@
 package com.qodein.core.data.repository
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.qodein.core.data.datasource.FirestorePromocodeDataSource
@@ -17,6 +18,7 @@ import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.UserId
 import timber.log.Timber
 import java.io.IOException
 
@@ -56,7 +58,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
             Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
 
             val (sortByField, sortDirection) = mapSortBy(sortBy)
-            val cursor = paginationRequest.cursor?.documentSnapshot
+            val cursor = paginationRequest.cursor?.value as? DocumentSnapshot
 
             val pagedDto = dataSource.getPromoCodes(
                 sortByField = sortByField,
@@ -68,22 +70,19 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
 
             val promocodes = pagedDto.items.map { PromocodeMapper.toDomain(it) }
 
-            val nextCursor = if (pagedDto.hasMore && pagedDto.lastDocument != null) {
+            val nextCursor = pagedDto.nextCursor?.let {
                 PaginationCursor(
-                    documentSnapshot = pagedDto.lastDocument,
+                    value = it,
                     sortBy = sortBy,
                 )
-            } else {
-                null
             }
 
-            val result = PaginatedResult.of(
+            val result = PaginatedResult(
                 data = promocodes,
                 nextCursor = nextCursor,
-                hasMore = pagedDto.hasMore,
             )
 
-            Timber.i("Retrieved %d promocodes, hasMore=%s", promocodes.size, pagedDto.hasMore)
+            Timber.i("Retrieved %d promocodes, hasMore=%s", promocodes.size, result.hasMore)
             Result.Success(result)
         } catch (e: FirebaseFirestoreException) {
             Timber.e(e, "Firestore error getting promocodes [%s]", e.code.name)
@@ -123,6 +122,49 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
             Result.Error(SystemError.Offline)
         } catch (e: Exception) {
             Timber.e(e, "Unknown error getting Promocode: %s - %s", id.value, e::class.simpleName)
+            Result.Error(SystemError.Unknown)
+        }
+
+    override suspend fun getPromocodesByUser(
+        userId: UserId,
+        cursor: Any?,
+        limit: Int
+    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
+        try {
+            Timber.d("Getting promocodes for user: %s", userId.value)
+
+            val snapshot = cursor as? DocumentSnapshot
+
+            val pagedDto = dataSource.getPromocodesByUser(
+                userId = userId.value,
+                limit = limit,
+                startAfter = snapshot,
+            )
+
+            val promocodes = pagedDto.items.map { PromocodeMapper.toDomain(it) }
+
+            val nextCursor = pagedDto.nextCursor?.let {
+                PaginationCursor(
+                    value = it,
+                    sortBy = ContentSortBy.NEWEST,
+                )
+            }
+
+            val result = PaginatedResult(
+                data = promocodes,
+                nextCursor = nextCursor,
+            )
+
+            Timber.i("Retrieved %d promocodes for user, hasMore=%s", promocodes.size, result.hasMore)
+            Result.Success(result)
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error getting user promocodes [%s]", e.code.name)
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: IOException) {
+            Timber.e(e, "Network error getting user promocodes")
+            Result.Error(SystemError.Offline)
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error getting user promocodes: %s", e::class.simpleName)
             Result.Error(SystemError.Unknown)
         }
 }

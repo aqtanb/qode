@@ -173,6 +173,7 @@ data class Promocode private constructor(
         const val MAX_DECIMAL_PLACES = 2
         const val PERCENTAGE_MIN_VALUE = 1.0
         const val PERCENTAGE_MAX_VALUE = 100.0
+        const val DEFAULT_PAGE_SIZE = 5
 
         fun create(
             code: String,

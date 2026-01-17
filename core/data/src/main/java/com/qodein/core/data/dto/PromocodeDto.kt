@@ -2,7 +2,6 @@ package com.qodein.core.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 
@@ -72,7 +71,6 @@ data class PromocodeDto(
         const val FIELD_VOTE_SCORE = "engagement.voteScore"
         const val FIELD_CREATED_AT = "createdAt"
         const val FIELD_END_DATE = "endDate"
+        const val FIELD_AUTHOR_ID = "author.id"
     }
 }
-
-data class PagedPromocodesDto(val items: List<PromocodeDto>, val lastDocument: DocumentSnapshot?, val hasMore: Boolean)
