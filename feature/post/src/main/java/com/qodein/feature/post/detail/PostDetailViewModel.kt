@@ -133,7 +133,7 @@ class PostDetailViewModel(
                         _uiState.update { it.copy(userId = authState.userId) }
                         loadUserInteractions(
                             userId = authState.userId,
-                            itemId = args.postId,
+                            itemId = postId.value,
                         )
                     }
 

@@ -25,7 +25,7 @@ sealed class ServiceFilter : FilterState {
 /**
  * Sort filter for content ordering
  */
-data class SortFilter(val sortBy: ContentSortBy) : FilterState {
+data class SortFilter(val sortBy: PromocodeSortBy) : FilterState {
     override val isEmpty: Boolean = false // Sort is always selected
 }
 
@@ -34,7 +34,7 @@ data class SortFilter(val sortBy: ContentSortBy) : FilterState {
  */
 data class CompleteFilterState(
     val serviceFilter: ServiceFilter = ServiceFilter.All,
-    val sortFilter: SortFilter = SortFilter(ContentSortBy.POPULARITY)
+    val sortFilter: SortFilter = SortFilter(PromocodeSortBy.POPULARITY)
 ) {
     /**
      * Apply service filter with validation

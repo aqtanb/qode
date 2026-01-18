@@ -5,6 +5,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.qodein.core.data.datasource.util.applyPaginationCursor
+import com.qodein.core.data.datasource.util.toPagedResult
 import com.qodein.core.data.dto.PagedFirestoreResult
 import com.qodein.core.data.dto.PromocodeDto
 import kotlinx.coroutines.tasks.await
@@ -17,7 +19,7 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
             .await()
     }
 
-    suspend fun getPromoCodes(
+    suspend fun getPromocodes(
         sortByField: String,
         sortDirection: Query.Direction,
         filterByServices: List<String>?,
@@ -39,30 +41,6 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         return documents.toPagedResult(limit)
     }
 
-    private fun Query.applyServiceFilter(services: List<String>?): Query {
-        if (services.isNullOrEmpty()) return this
-
-        return if (services.size == 1) {
-            whereEqualTo(PromocodeDto.FIELD_SERVICE_NAME, services.first())
-        } else {
-            whereIn(PromocodeDto.FIELD_SERVICE_NAME, services)
-        }
-    }
-
-    private fun Query.applyPaginationCursor(cursor: DocumentSnapshot?): Query = cursor?.let { startAfter(it) } ?: this
-
-    private fun List<DocumentSnapshot>.toPagedResult(limit: Int): PagedFirestoreResult<PromocodeDto> {
-        val hasMore = size > limit
-        val pagedDocuments = take(limit)
-        val items = pagedDocuments.mapNotNull { it.toObject<PromocodeDto>() }
-        val nextCursor = if (hasMore) pagedDocuments.lastOrNull() else null
-
-        return PagedFirestoreResult(
-            items = items,
-            nextCursor = nextCursor,
-        )
-    }
-
     suspend fun getPromocodeById(id: String): PromocodeDto? =
         firestore.collection(PromocodeDto.COLLECTION_NAME)
             .document(id)
@@ -73,7 +51,7 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
     suspend fun getPromocodesByUser(
         userId: String,
         limit: Int,
-        startAfter: DocumentSnapshot? = null
+        startAfter: DocumentSnapshot?
     ): PagedFirestoreResult<PromocodeDto> {
         val fetchLimit = limit + 1
         val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
@@ -86,5 +64,15 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
             .documents
 
         return documents.toPagedResult(limit)
+    }
+
+    private fun Query.applyServiceFilter(services: List<String>?): Query {
+        if (services.isNullOrEmpty()) return this
+
+        return if (services.size == 1) {
+            whereEqualTo(PromocodeDto.FIELD_SERVICE_NAME, services.first())
+        } else {
+            whereIn(PromocodeDto.FIELD_SERVICE_NAME, services)
+        }
     }
 }

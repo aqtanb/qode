@@ -6,6 +6,7 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
+import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
 import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,7 +21,8 @@ class ProfileViewModel(
     private val observeUserUseCase: ObserveUserUseCase,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signOutUseCase: SignOutUseCase,
-    private val getPromocodesByUserUseCase: GetPromocodesByUserUseCase
+    private val getPromocodesByUserUseCase: GetPromocodesByUserUseCase,
+    private val getPostsByUserUseCase: GetPostsByUserUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -51,8 +53,7 @@ class ProfileViewModel(
             ProfileAction.RetryPostsClicked -> getPosts()
             ProfileAction.RetryPromocodesClicked -> getPromocodes()
             is ProfileAction.TabSelected -> {
-                val currentState = _uiState.value as? ProfileUiState.Success ?: return
-                _uiState.update { currentState.copy(selectedTab = action.tab) }
+                switchTabs(action.tab)
             }
         }
     }
@@ -148,11 +149,55 @@ class ProfileViewModel(
     }
 
     private fun getPosts() {
-        // TODO: Implement once GetPostsByUserUseCase is created
+        val currentState = _uiState.value as? ProfileUiState.Success ?: return
+        _uiState.update { currentState.copy(postsState = PaginatedDataState.Loading) }
+        viewModelScope.launch {
+            when (val result = getPostsByUserUseCase(userId = currentState.user.id)) {
+                is Result.Error -> _uiState.update { currentState.copy(postsState = PaginatedDataState.Error(result.error)) }
+                is Result.Success -> _uiState.update {
+                    currentState.copy(
+                        postsState = PaginatedDataState.Success(
+                            result.data.data,
+                            result.data.hasMore,
+                            result.data.nextCursor,
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     private fun loadMorePosts() {
-        // TODO: Implement once GetPostsByUserUseCase is created
+        val currentState = _uiState.value as? ProfileUiState.Success ?: return
+        val postsState = currentState.postsState as? PaginatedDataState.Success ?: return
+
+        if (!postsState.hasMore || postsState.isLoadingMore) return
+
+        _uiState.update { currentState.copy(postsState = postsState.copy(isLoadingMore = true)) }
+
+        viewModelScope.launch {
+            when (val result = getPostsByUserUseCase(userId = currentState.user.id, cursor = postsState.nextCursor)) {
+                is Result.Error -> _uiState.update { currentState.copy(postsState = postsState.copy(isLoadingMore = false)) }
+                is Result.Success -> _uiState.update {
+                    currentState.copy(
+                        postsState = PaginatedDataState.Success(
+                            postsState.items + result.data.data,
+                            result.data.hasMore,
+                            result.data.nextCursor,
+                            isLoadingMore = false,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun switchTabs(tab: ProfileTab) {
+        val currentState = _uiState.value as? ProfileUiState.Success ?: return
+        _uiState.update { currentState.copy(selectedTab = tab) }
+        if (tab == ProfileTab.POSTS && currentState.postsState !is PaginatedDataState.Success) {
+            getPosts()
+        }
     }
 
     private fun signOut() {

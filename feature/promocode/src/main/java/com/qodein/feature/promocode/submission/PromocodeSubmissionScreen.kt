@@ -98,7 +98,7 @@ private fun PromocodeSubmissionScreenContent(
         topBar = {
             QodeinTopAppBar(
                 title = stringResource(R.string.submit_promocode),
-                navigationIcon = { QodeinBackIconButton({ onNavigateBack }) },
+                navigationIcon = { QodeinBackIconButton({ onNavigateBack() }) },
             )
         },
     ) { paddingValues ->

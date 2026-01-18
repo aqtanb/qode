@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
-import com.qodein.shared.model.ContentSortBy
+import com.qodein.shared.model.PromocodeSortBy
 
 /**
  * Sort filter bottom sheet component
@@ -29,8 +29,8 @@ import com.qodein.shared.model.ContentSortBy
 @Composable
 fun SortFilterBottomSheet(
     isVisible: Boolean,
-    currentSortBy: ContentSortBy,
-    onSortBySelected: (ContentSortBy) -> Unit,
+    currentSortBy: PromocodeSortBy,
+    onSortBySelected: (PromocodeSortBy) -> Unit,
     onDismiss: () -> Unit,
     sheetState: SheetState,
     modifier: Modifier = Modifier
@@ -48,33 +48,33 @@ fun SortFilterBottomSheet(
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
             ) {
                 SortOption(
-                    sortBy = ContentSortBy.POPULARITY,
+                    sortBy = PromocodeSortBy.POPULARITY,
                     text = stringResource(R.string.sort_popularity),
-                    isSelected = currentSortBy == ContentSortBy.POPULARITY,
+                    isSelected = currentSortBy == PromocodeSortBy.POPULARITY,
                     onClick = {
-                        onSortBySelected(ContentSortBy.POPULARITY)
+                        onSortBySelected(PromocodeSortBy.POPULARITY)
                         onDismiss()
                     },
                 )
 
                 // Newest sort option
                 SortOption(
-                    sortBy = ContentSortBy.NEWEST,
+                    sortBy = PromocodeSortBy.NEWEST,
                     text = stringResource(R.string.sort_newest),
-                    isSelected = currentSortBy == ContentSortBy.NEWEST,
+                    isSelected = currentSortBy == PromocodeSortBy.NEWEST,
                     onClick = {
-                        onSortBySelected(ContentSortBy.NEWEST)
+                        onSortBySelected(PromocodeSortBy.NEWEST)
                         onDismiss()
                     },
                 )
 
                 // Expiring soon sort option
                 SortOption(
-                    sortBy = ContentSortBy.EXPIRING_SOON,
+                    sortBy = PromocodeSortBy.EXPIRING_SOON,
                     text = stringResource(R.string.sort_expiring_soon),
-                    isSelected = currentSortBy == ContentSortBy.EXPIRING_SOON,
+                    isSelected = currentSortBy == PromocodeSortBy.EXPIRING_SOON,
                     onClick = {
-                        onSortBySelected(ContentSortBy.EXPIRING_SOON)
+                        onSortBySelected(PromocodeSortBy.EXPIRING_SOON)
                         onDismiss()
                     },
                 )
@@ -85,7 +85,7 @@ fun SortFilterBottomSheet(
 
 @Composable
 private fun SortOption(
-    sortBy: ContentSortBy,
+    sortBy: PromocodeSortBy,
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit,

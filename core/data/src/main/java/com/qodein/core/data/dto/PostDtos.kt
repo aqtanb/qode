@@ -8,35 +8,15 @@ import com.google.firebase.firestore.ServerTimestamp
 data class PostDto(
     @DocumentId
     val id: String = "",
-
-    @PropertyName("authorId")
     val authorId: String = "",
-
-    @PropertyName("authorName")
     val authorName: String = "",
-
-    @PropertyName("authorAvatarUrl")
     val authorAvatarUrl: String? = null,
-
-    @PropertyName("title")
     val title: String = "",
-
-    @PropertyName("content")
     val content: String? = null,
-
-    @PropertyName("imageUrls")
     val imageUrls: List<String> = emptyList(),
-
-    @PropertyName("tags")
     val tags: List<String> = emptyList(),
-
-    @PropertyName("upvotes")
     val upvotes: Int = 0,
-
-    @PropertyName("downvotes")
     val downvotes: Int = 0,
-
-    @PropertyName("voteScore")
     val voteScore: Int = 0,
 
     @PropertyName("createdAt")
@@ -47,19 +27,11 @@ data class PostDto(
     @ServerTimestamp
     val updatedAt: Timestamp? = null
 ) {
-    constructor() : this(
-        id = "",
-        authorId = "",
-        authorName = "",
-        authorAvatarUrl = null,
-        title = "",
-        content = "",
-        imageUrls = emptyList(),
-        tags = emptyList(),
-        upvotes = 0,
-        downvotes = 0,
-        voteScore = 0,
-        createdAt = null,
-        updatedAt = null,
-    )
+    companion object {
+        const val COLLECTION_NAME = "posts"
+        const val FIELD_VOTE_SCORE = "voteScore"
+        const val FIELD_CREATED_AT = "createdAt"
+        const val FIELD_UPDATED_AT = "updatedAt"
+        const val FIELD_AUTHOR_ID = "authorId"
+    }
 }

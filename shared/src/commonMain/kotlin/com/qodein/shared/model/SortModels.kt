@@ -6,11 +6,7 @@ package com.qodein.shared.model
  */
 sealed interface SortBy
 
-/**
- * Generic sorting options for content
- * Can be used across different content types (Promocode, Promos, etc.)
- */
-enum class ContentSortBy : SortBy {
+enum class PromocodeSortBy : SortBy {
     /**
      * Sort by popularity/score (most popular first)
      */

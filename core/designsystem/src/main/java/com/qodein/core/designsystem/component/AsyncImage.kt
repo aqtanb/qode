@@ -66,6 +66,7 @@ fun QodeinAsyncImage(
                     size = size,
                 )
             },
+            modifier = Modifier.matchParentSize(),
         )
     }
 }

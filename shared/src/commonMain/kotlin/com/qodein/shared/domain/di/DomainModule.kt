@@ -8,6 +8,7 @@ import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
+import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
@@ -66,8 +67,9 @@ val domainModule = module {
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
 
-    single { GetPostsUseCase(get()) }
     single { GetPostByIdUseCase(get()) }
+    single { GetPostsByUserUseCase(get()) }
+    single { GetPostsUseCase(get()) }
     single { SubmitPostUseCase(get(), get()) }
 
     single { GetThemeUseCase(get()) }

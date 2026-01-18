@@ -62,7 +62,9 @@ import com.qodein.feature.profile.component.ProfileSkeleton
 import com.qodein.feature.profile.component.ProfileTopAppBar
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Promocode
+import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -76,6 +78,8 @@ fun ProfileRoute(
     onBackClick: () -> Unit,
     onSignOut: () -> Unit,
     onNavigateToBlockedUsers: () -> Unit,
+    onNavigateToPostDetail: (PostId) -> Unit,
+    onNavigateToPromocodeDetail: (PromocodeId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = koinViewModel()
 ) {
@@ -88,8 +92,8 @@ fun ProfileRoute(
                 ProfileEvent.SignedOut -> onSignOut()
                 ProfileEvent.NavigateToAuth -> onBackClick()
                 ProfileEvent.NavigateToBlockedUsers -> onNavigateToBlockedUsers()
-                is ProfileEvent.NavigateToPostDetail -> TODO()
-                is ProfileEvent.NavigateToPromocodeDetail -> TODO()
+                is ProfileEvent.NavigateToPostDetail -> onNavigateToPostDetail(event.postId)
+                is ProfileEvent.NavigateToPromocodeDetail -> onNavigateToPromocodeDetail(event.promocodeId)
             }
         }
     }

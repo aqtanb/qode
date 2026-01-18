@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.ui.R
-import com.qodein.shared.model.ContentSortBy
+import com.qodein.shared.model.PromocodeSortBy
 
 /**
  * Centralized helper for sort-related icons and titles across all features
@@ -15,21 +15,21 @@ object SortIconHelper {
     /**
      * Gets icon for generic content sort type
      */
-    fun getSortIcon(sortBy: ContentSortBy): ImageVector =
+    fun getSortIcon(sortBy: PromocodeSortBy): ImageVector =
         when (sortBy) {
-            ContentSortBy.POPULARITY -> UIIcons.Popular
-            ContentSortBy.NEWEST -> UIIcons.Newest
-            ContentSortBy.EXPIRING_SOON -> UIIcons.Expiring
+            PromocodeSortBy.POPULARITY -> UIIcons.Popular
+            PromocodeSortBy.NEWEST -> UIIcons.Newest
+            PromocodeSortBy.EXPIRING_SOON -> UIIcons.Expiring
         }
 
     /**
      * Gets section title resource for sort type
      */
     @StringRes
-    fun getSortSectionTitleRes(sortBy: ContentSortBy): Int =
+    fun getSortSectionTitleRes(sortBy: PromocodeSortBy): Int =
         when (sortBy) {
-            ContentSortBy.POPULARITY -> R.string.sort_section_title_popularity
-            ContentSortBy.NEWEST -> R.string.sort_section_title_newest
-            ContentSortBy.EXPIRING_SOON -> R.string.sort_section_title_expiring
+            PromocodeSortBy.POPULARITY -> R.string.sort_section_title_popularity
+            PromocodeSortBy.NEWEST -> R.string.sort_section_title_newest
+            PromocodeSortBy.EXPIRING_SOON -> R.string.sort_section_title_expiring
         }
 }

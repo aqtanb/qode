@@ -47,7 +47,7 @@ fun FeedRoute(
     userId: UserId?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onPostClick: (String) -> Unit,
+    onPostClick: (PostId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel()
 ) {

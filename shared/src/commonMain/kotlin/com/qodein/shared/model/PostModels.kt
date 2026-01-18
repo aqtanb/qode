@@ -1,4 +1,4 @@
-@file:UseContextualSerialization(Instant::class)
+@file:OptIn(ExperimentalTime::class)
 
 package com.qodein.shared.model
 
@@ -6,9 +6,9 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
 import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
 import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid

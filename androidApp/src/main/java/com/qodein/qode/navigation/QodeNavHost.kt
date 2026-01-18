@@ -1,5 +1,7 @@
 package com.qodein.qode.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -48,6 +50,10 @@ fun QodeNavHost(
         navController = navController,
         startDestination = HomeBaseRoute,
         modifier = modifier,
+        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
     ) {
         homeSection(
             onPromoCodeClick = { promocodeId ->
@@ -104,6 +110,12 @@ fun QodeNavHost(
             },
             onNavigateToBlockedUsers = {
                 navController.navigateToBlockedUsers()
+            },
+            onNavigateToPostDetail = { postId ->
+                navController.navigateToPostDetail(postId)
+            },
+            onNavigateToPromocodeDetail = { promocodeId ->
+                navController.navigateToPromocodeDetail(promocodeId)
             },
         )
 

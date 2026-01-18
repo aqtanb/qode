@@ -31,7 +31,7 @@ sealed interface PaginatedDataState<out T> {
     data class Success<T>(
         val items: List<T>,
         val hasMore: Boolean,
-        val nextCursor: PaginationCursor<SortBy>??,
+        val nextCursor: PaginationCursor<SortBy>?,
         val isLoadingMore: Boolean = false
     ) : PaginatedDataState<T>
 

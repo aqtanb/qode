@@ -12,12 +12,12 @@ import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.repository.PromocodeRepository
-import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.PromocodeSortBy
 import com.qodein.shared.model.UserId
 import timber.log.Timber
 import java.io.IOException
@@ -50,17 +50,17 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
         }
 
     override suspend fun getPromocodes(
-        sortBy: ContentSortBy,
+        sortBy: PromocodeSortBy,
         filterByServices: List<String>?,
-        paginationRequest: PaginationRequest<ContentSortBy>
-    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
+        paginationRequest: PaginationRequest<PromocodeSortBy>
+    ): Result<PaginatedResult<Promocode, PromocodeSortBy>, OperationError> =
         try {
             Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
 
             val (sortByField, sortDirection) = mapSortBy(sortBy)
             val cursor = paginationRequest.cursor?.value as? DocumentSnapshot
 
-            val pagedDto = dataSource.getPromoCodes(
+            val pagedDto = dataSource.getPromocodes(
                 sortByField = sortByField,
                 sortDirection = sortDirection,
                 filterByServices = filterByServices,
@@ -95,13 +95,6 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
             Result.Error(SystemError.Unknown)
         }
 
-    private fun mapSortBy(sortBy: ContentSortBy): Pair<String, Query.Direction> =
-        when (sortBy) {
-            ContentSortBy.POPULARITY -> PromocodeDto.FIELD_VOTE_SCORE to Query.Direction.DESCENDING
-            ContentSortBy.NEWEST -> PromocodeDto.FIELD_CREATED_AT to Query.Direction.DESCENDING
-            ContentSortBy.EXPIRING_SOON -> PromocodeDto.FIELD_END_DATE to Query.Direction.ASCENDING
-        }
-
     override suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError> =
         try {
             val dto = dataSource.getPromocodeById(id.value)
@@ -129,7 +122,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
         userId: UserId,
         cursor: Any?,
         limit: Int
-    ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
+    ): Result<PaginatedResult<Promocode, PromocodeSortBy>, OperationError> =
         try {
             Timber.d("Getting promocodes for user: %s, cursor: %s", userId.value, cursor)
 
@@ -146,7 +139,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
             val nextCursor = pagedDto.nextCursor?.let {
                 PaginationCursor(
                     value = it,
-                    sortBy = ContentSortBy.NEWEST,
+                    sortBy = PromocodeSortBy.NEWEST,
                 )
             }
 
@@ -166,5 +159,12 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
         } catch (e: Exception) {
             Timber.e(e, "Unknown error getting user promocodes: %s", e::class.simpleName)
             Result.Error(SystemError.Unknown)
+        }
+
+    private fun mapSortBy(sortBy: PromocodeSortBy): Pair<String, Query.Direction> =
+        when (sortBy) {
+            PromocodeSortBy.POPULARITY -> PromocodeDto.FIELD_VOTE_SCORE to Query.Direction.DESCENDING
+            PromocodeSortBy.NEWEST -> PromocodeDto.FIELD_CREATED_AT to Query.Direction.DESCENDING
+            PromocodeSortBy.EXPIRING_SOON -> PromocodeDto.FIELD_END_DATE to Query.Direction.ASCENDING
         }
 }

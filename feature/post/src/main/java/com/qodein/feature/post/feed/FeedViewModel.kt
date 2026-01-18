@@ -55,12 +55,12 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ge
     private fun loadPosts() {
         viewModelScope.launch {
             _uiState.value = FeedUiState.Loading
-            getPostsUseCase().collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _uiState.value = FeedUiState.Success(result.data.data)
-                    }
-                    is Result.Error -> _uiState.value = FeedUiState.Error(result.error)
+            when (val result = getPostsUseCase()) {
+                is Result.Error -> {
+                    _uiState.value = FeedUiState.Error(result.error)
+                }
+                is Result.Success -> {
+                    _uiState.value = FeedUiState.Success(result.data.data)
                 }
             }
         }

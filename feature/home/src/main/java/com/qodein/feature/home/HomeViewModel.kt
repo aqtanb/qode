@@ -7,8 +7,6 @@ import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.refresh.RefreshTarget
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
-import com.qodein.feature.home.BannerState
-import com.qodein.feature.home.PromocodeUiState
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
@@ -17,13 +15,13 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CompleteFilterState
-import com.qodein.shared.model.ContentSortBy
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.PromocodeSortBy
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.ui.FilterDialogType
@@ -195,7 +193,7 @@ class HomeViewModel(
         }
     }
 
-    private fun loadPromocodes(paginationRequest: PaginationRequest<ContentSortBy>) {
+    private fun loadPromocodes(paginationRequest: PaginationRequest<PromocodeSortBy>) {
         viewModelScope.launch {
             val filters = _uiState.value.currentFilters
             val isLoadMore = paginationRequest.cursor != null
@@ -247,7 +245,7 @@ class HomeViewModel(
     }
 
     private fun handlePromoCodesSuccess(
-        paginatedResult: PaginatedResult<Promocode, ContentSortBy>,
+        paginatedResult: PaginatedResult<Promocode, PromocodeSortBy>,
         isLoadMore: Boolean,
         currentState: HomeUiState
     ): HomeUiState =

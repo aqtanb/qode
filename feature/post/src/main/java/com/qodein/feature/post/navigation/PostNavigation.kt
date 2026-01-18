@@ -8,6 +8,7 @@ import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
 import com.qodein.feature.post.submission.PostSubmissionScreen
+import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
@@ -25,10 +26,10 @@ fun NavController.navigateToPostSubmission(navOptions: NavOptions? = null) {
 }
 
 fun NavController.navigateToPostDetail(
-    postId: String,
+    postId: PostId,
     navOptions: NavOptions? = null
 ) {
-    navigate(route = PostDetailRoute(postId), navOptions)
+    navigate(route = PostDetailRoute(postId.value), navOptions)
 }
 
 /**
@@ -38,7 +39,7 @@ fun NavGraphBuilder.feedSection(
     userId: UserId?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onPostClick: (String) -> Unit
+    onPostClick: (PostId) -> Unit
 ) {
     composable<FeedRoute> {
         FeedRoute(

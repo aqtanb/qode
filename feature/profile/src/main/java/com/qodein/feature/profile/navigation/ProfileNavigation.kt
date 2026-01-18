@@ -6,6 +6,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.qodein.feature.profile.ProfileRoute
+import com.qodein.shared.model.PostId
+import com.qodein.shared.model.PromocodeId
 import kotlinx.serialization.Serializable
 
 @Serializable object ProfileBaseRoute
@@ -17,9 +19,11 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.profileSection(
-    onBackClick: () -> Unit = {},
-    onSignOut: () -> Unit = {},
-    onNavigateToBlockedUsers: () -> Unit = {}
+    onBackClick: () -> Unit,
+    onSignOut: () -> Unit,
+    onNavigateToBlockedUsers: () -> Unit,
+    onNavigateToPostDetail: (PostId) -> Unit,
+    onNavigateToPromocodeDetail: (PromocodeId) -> Unit
 ) {
     navigation<ProfileBaseRoute>(startDestination = ProfileRoute) {
         composable<ProfileRoute> {
@@ -27,6 +31,8 @@ fun NavGraphBuilder.profileSection(
                 onBackClick = onBackClick,
                 onSignOut = onSignOut,
                 onNavigateToBlockedUsers = onNavigateToBlockedUsers,
+                onNavigateToPostDetail = onNavigateToPostDetail,
+                onNavigateToPromocodeDetail = onNavigateToPromocodeDetail,
             )
         }
     }
