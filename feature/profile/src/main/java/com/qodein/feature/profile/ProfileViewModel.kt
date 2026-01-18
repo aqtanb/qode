@@ -31,7 +31,6 @@ class ProfileViewModel(
 
     init {
         observeAuthState()
-        getPromocodes()
     }
 
     fun onAction(action: ProfileAction) {
@@ -41,13 +40,16 @@ class ProfileViewModel(
             ProfileAction.BlockedClicked -> {
                 emitEvent(ProfileEvent.NavigateToBlockedUsers)
             }
-
-            ProfileAction.LoadMorePosts -> TODO()
-            ProfileAction.LoadMorePromocodes -> TODO()
-            is ProfileAction.PostClicked -> TODO()
-            is ProfileAction.PromocodeClicked -> TODO()
-            ProfileAction.RetryPostsClicked -> TODO()
-            ProfileAction.RetryPromocodesClicked -> TODO()
+            ProfileAction.LoadMorePosts -> loadMorePosts()
+            ProfileAction.LoadMorePromocodes -> loadMorePromocodes()
+            is ProfileAction.PostClicked -> {
+                emitEvent(ProfileEvent.NavigateToPostDetail(action.postId))
+            }
+            is ProfileAction.PromocodeClicked -> {
+                emitEvent(ProfileEvent.NavigateToPromocodeDetail(action.promocodeId))
+            }
+            ProfileAction.RetryPostsClicked -> getPosts()
+            ProfileAction.RetryPromocodesClicked -> getPromocodes()
             is ProfileAction.TabSelected -> {
                 val currentState = _uiState.value as? ProfileUiState.Success ?: return
                 _uiState.update { currentState.copy(selectedTab = action.tab) }
@@ -70,7 +72,10 @@ class ProfileViewModel(
                             observeUserUseCase(authState.userId.value)
                                 .collectLatest { userResult ->
                                     when (userResult) {
-                                        is Result.Success -> _uiState.value = ProfileUiState.Success(userResult.data)
+                                        is Result.Success -> {
+                                            _uiState.value = ProfileUiState.Success(userResult.data)
+                                            getPromocodes()
+                                        }
                                         is Result.Error -> _uiState.value = ProfileUiState.Error(userResult.error)
                                     }
                                 }
@@ -102,6 +107,52 @@ class ProfileViewModel(
                 }
             }
         }
+    }
+
+    private fun loadMorePromocodes() {
+        val currentState = _uiState.value as? ProfileUiState.Success ?: return
+        val promocodesState = currentState.promocodesState as? PaginatedDataState.Success ?: return
+
+        if (!promocodesState.hasMore || promocodesState.isLoadingMore) return
+
+        _uiState.update {
+            currentState.copy(
+                promocodesState = promocodesState.copy(isLoadingMore = true),
+            )
+        }
+
+        viewModelScope.launch {
+            when (
+                val result = getPromocodesByUserUseCase(
+                    userId = currentState.user.id,
+                    cursor = promocodesState.nextCursor,
+                )
+            ) {
+                is Result.Error -> _uiState.update {
+                    currentState.copy(
+                        promocodesState = promocodesState.copy(isLoadingMore = false),
+                    )
+                }
+                is Result.Success -> _uiState.update {
+                    currentState.copy(
+                        promocodesState = PaginatedDataState.Success(
+                            items = promocodesState.items + result.data.data,
+                            hasMore = result.data.hasMore,
+                            nextCursor = result.data.nextCursor,
+                            isLoadingMore = false,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getPosts() {
+        // TODO: Implement once GetPostsByUserUseCase is created
+    }
+
+    private fun loadMorePosts() {
+        // TODO: Implement once GetPostsByUserUseCase is created
     }
 
     private fun signOut() {

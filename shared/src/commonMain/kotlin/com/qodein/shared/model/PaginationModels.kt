@@ -19,7 +19,7 @@ data class PaginationRequest<out S : SortBy>(val limit: Int, val cursor: Paginat
     }
 
     companion object {
-        const val DEFAULT_PAGE_SIZE = 5
+        const val DEFAULT_PAGE_SIZE = 3
 
         /**
          * Create a request for the first page.

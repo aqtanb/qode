@@ -12,9 +12,13 @@ import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.UserRepository
 import com.qodein.shared.model.User
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import timber.log.Timber
 import java.io.IOException
 
@@ -75,6 +79,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
 
     override fun observeUser(userId: String): Flow<Result<User, OperationError>> =
         dataSource.observeUser(userId)
+            .onStart { Timber.d("Starting to observe user: $userId") }
             .map { dto ->
                 if (dto != null) {
                     Result.Success(UserMapper.toDomain(dto))
@@ -82,6 +87,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
                     Result.Error(UserError.ProfileFailure.NotFound as OperationError)
                 }
             }
+            .distinctUntilChanged()
             .catch { e ->
                 if (e is CancellationException) throw e
                 Timber.e(e, "Error observing user: $userId")
@@ -92,6 +98,7 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
                 }
                 emit(Result.Error(opError))
             }
+            .flowOn(Dispatchers.IO)
 
     override suspend fun blockUser(
         currentUserId: String,

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -26,7 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.component.QodeinFab
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.core.designsystem.icon.QodeinIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -46,7 +53,9 @@ import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.PromocodeCard
 import com.qodein.core.ui.component.PromocodeCardSkeleton
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
+import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.preview.UserPreviewData
 import com.qodein.feature.profile.component.ProfileSkeleton
@@ -55,7 +64,12 @@ import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.User
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+
+private const val PAGINATION_LOAD_THRESHOLD = 1
 
 @Composable
 fun ProfileRoute(
@@ -143,45 +157,107 @@ private fun ProfileContent(
     onAction: (ProfileAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-        contentPadding = PaddingValues(vertical = SpacingTokens.lg),
-    ) {
-        item {
-            ProfileHeader(user = successState.user, modifier = Modifier.fillMaxWidth())
-        }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
-        item {
-            SecondaryTabRow(
-                selectedTabIndex = successState.selectedTab.ordinal,
-                modifier = Modifier.fillMaxWidth(),
+    val showScrollToTopButton by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 2
+        }
+    }
+
+    LaunchedEffect(listState, successState.promocodesState, successState.postsState) {
+        snapshotFlow {
+            val paginatedState = when (successState.selectedTab) {
+                ProfileTab.PROMOCODES -> successState.promocodesState
+                ProfileTab.POSTS -> successState.postsState
+            }
+
+            if (paginatedState is PaginatedDataState.Success &&
+                paginatedState.hasMore &&
+                !paginatedState.isLoadingMore
             ) {
-                ProfileTab.entries.forEach { tab ->
-                    Tab(
-                        selected = successState.selectedTab == tab,
-                        onClick = { onAction(ProfileAction.TabSelected(tab)) },
-                        text = {
-                            Text(
-                                text = when (tab) {
-                                    ProfileTab.PROMOCODES -> stringResource(R.string.profile_promocodes)
-                                    ProfileTab.POSTS -> stringResource(R.string.profile_posts)
-                                },
-                            )
-                        },
-                    )
+                val layoutInfo = listState.layoutInfo
+                val totalItems = layoutInfo.totalItemsCount
+                val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+
+                if (lastVisibleItem == null || totalItems == 0) {
+                    false
+                } else {
+                    lastVisibleItem.index >= totalItems - PAGINATION_LOAD_THRESHOLD
                 }
+            } else {
+                false
+            }
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect {
+                val action = when (successState.selectedTab) {
+                    ProfileTab.PROMOCODES -> ProfileAction.LoadMorePromocodes
+                    ProfileTab.POSTS -> ProfileAction.LoadMorePosts
+                }
+                onAction(action)
+            }
+    }
+
+    Box(modifier = modifier) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+            contentPadding = PaddingValues(vertical = SpacingTokens.lg),
+        ) {
+            item {
+                ProfileHeader(user = successState.user, modifier = Modifier.fillMaxWidth())
+            }
+
+            item {
+                SecondaryTabRow(
+                    selectedTabIndex = successState.selectedTab.ordinal,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    ProfileTab.entries.forEach { tab ->
+                        Tab(
+                            selected = successState.selectedTab == tab,
+                            onClick = { onAction(ProfileAction.TabSelected(tab)) },
+                            text = {
+                                Text(
+                                    text = when (tab) {
+                                        ProfileTab.PROMOCODES -> stringResource(R.string.profile_promocodes)
+                                        ProfileTab.POSTS -> stringResource(R.string.profile_posts)
+                                    },
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+
+            when (successState.selectedTab) {
+                ProfileTab.PROMOCODES -> promocodesTabItems(
+                    state = successState.promocodesState,
+                    onAction = onAction,
+                )
+                ProfileTab.POSTS -> postsTabItems(
+                    state = successState.postsState,
+                    onAction = onAction,
+                )
             }
         }
 
-        when (successState.selectedTab) {
-            ProfileTab.PROMOCODES -> promocodesTabItems(
-                state = successState.promocodesState,
-                onAction = onAction,
-            )
-            ProfileTab.POSTS -> postsTabItems(
-                state = successState.postsState,
-                onAction = onAction,
+        if (showScrollToTopButton) {
+            QodeinFab(
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+                icon = NavigationIcons.Upward,
+                contentDescription = stringResource(R.string.profile_fab_scroll_to_top),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = SpacingTokens.md, bottom = SpacingTokens.gigantic),
             )
         }
     }
@@ -208,7 +284,10 @@ private fun LazyListScope.promocodesTabItems(
                     )
                 }
             } else {
-                items(state.items, key = { it.id.value }) { promocode ->
+                items(
+                    items = state.items,
+                    key = { it.id.value },
+                ) { promocode ->
                     PromocodeCard(
                         promocode = promocode,
                         onCardClick = { onAction(ProfileAction.PromocodeClicked(promocode.id)) },
@@ -216,7 +295,7 @@ private fun LazyListScope.promocodesTabItems(
                     )
                 }
 
-                if (state.hasMore) {
+                if (state.hasMore && state.isLoadingMore) {
                     item {
                         Box(
                             modifier = Modifier
@@ -224,13 +303,7 @@ private fun LazyListScope.promocodesTabItems(
                                 .padding(vertical = SpacingTokens.md),
                             contentAlignment = Alignment.Center,
                         ) {
-                            if (state.isLoadingMore) {
-                                CircularProgressIndicator()
-                            } else {
-                                LaunchedEffect(Unit) {
-                                    onAction(ProfileAction.LoadMorePromocodes)
-                                }
-                            }
+                            CircularProgressIndicator()
                         }
                     }
                 }
@@ -242,7 +315,6 @@ private fun LazyListScope.promocodesTabItems(
                 QodeErrorCard(
                     error = state.error,
                     onRetry = { onAction(ProfileAction.RetryPromocodesClicked) },
-                    modifier = Modifier.padding(SpacingTokens.lg),
                 )
             }
         }
@@ -270,17 +342,18 @@ private fun LazyListScope.postsTabItems(
                     )
                 }
             } else {
-                items(state.items, key = { it.id.value }) { post ->
-                    Text(
-                        text = "Post: ${post.id.value}",
-                        modifier = Modifier.padding(
-                            horizontal = SpacingTokens.lg,
-                            vertical = SpacingTokens.sm,
-                        ),
+                items(
+                    items = state.items,
+                    key = { it.id.value },
+                ) { post ->
+                    PostCard(
+                        post = post,
+                        onPostClick = { onAction(ProfileAction.PostClicked(post.id)) },
+                        onImageClick = { },
                     )
                 }
 
-                if (state.hasMore) {
+                if (state.hasMore && state.isLoadingMore) {
                     item {
                         Box(
                             modifier = Modifier
@@ -288,13 +361,7 @@ private fun LazyListScope.postsTabItems(
                                 .padding(vertical = SpacingTokens.md),
                             contentAlignment = Alignment.Center,
                         ) {
-                            if (state.isLoadingMore) {
-                                CircularProgressIndicator()
-                            } else {
-                                LaunchedEffect(Unit) {
-                                    onAction(ProfileAction.LoadMorePosts)
-                                }
-                            }
+                            CircularProgressIndicator()
                         }
                     }
                 }
@@ -306,7 +373,6 @@ private fun LazyListScope.postsTabItems(
                 QodeErrorCard(
                     error = state.error,
                     onRetry = { onAction(ProfileAction.RetryPostsClicked) },
-                    modifier = Modifier.padding(SpacingTokens.lg),
                 )
             }
         }
@@ -442,7 +508,39 @@ private fun ProfilePromocodesPreview(promocodesState: PaginatedDataState<Promoco
 
 @PreviewLightDark
 @Composable
-private fun ProfileScreenPostsPreview() {
+private fun ProfilePostsLoadingPreview() = ProfilePostsPreview(PaginatedDataState.Loading)
+
+@PreviewLightDark
+@Composable
+private fun ProfilePostsEmptyPreview() =
+    ProfilePostsPreview(
+        PaginatedDataState.Success(
+            items = emptyList(),
+            hasMore = false,
+            nextCursor = null,
+        ),
+    )
+
+@PreviewLightDark
+@Composable
+private fun ProfilePostsErrorPreview() =
+    ProfilePostsPreview(
+        PaginatedDataState.Error(SystemError.Offline),
+    )
+
+@PreviewLightDark
+@Composable
+private fun ProfilePostsSuccessPreview() =
+    ProfilePostsPreview(
+        PaginatedDataState.Success(
+            items = PostPreviewData.allPosts,
+            hasMore = false,
+            nextCursor = null,
+        ),
+    )
+
+@Composable
+private fun ProfilePostsPreview(postsState: PaginatedDataState<Post>) {
     QodeTheme {
         Surface {
             ProfileScreen(
@@ -451,6 +549,7 @@ private fun ProfileScreenPostsPreview() {
                 uiState = ProfileUiState.Success(
                     user = UserPreviewData.powerUser,
                     selectedTab = ProfileTab.POSTS,
+                    postsState = postsState,
                 ),
             )
         }

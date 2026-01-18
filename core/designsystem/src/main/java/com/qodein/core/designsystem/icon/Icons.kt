@@ -4,12 +4,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Diversity1
-import androidx.compose.material.icons.filled.EmojiObjects
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.Filter2
@@ -22,7 +23,6 @@ import androidx.compose.material.icons.filled.Filter8
 import androidx.compose.material.icons.filled.Filter9
 import androidx.compose.material.icons.filled.Filter9Plus
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Block
@@ -34,16 +34,13 @@ import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Diversity1
-import androidx.compose.material.icons.outlined.EmojiObjects
 import androidx.compose.material.icons.outlined.EmojiSymbols
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material.icons.outlined.Radio
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
@@ -63,15 +60,11 @@ import compose.icons.feathericons.Check
 import compose.icons.feathericons.CheckCircle
 import compose.icons.feathericons.ChevronLeft
 import compose.icons.feathericons.ChevronRight
-import compose.icons.feathericons.Clock
-import compose.icons.feathericons.Code
 import compose.icons.feathericons.Coffee
 import compose.icons.feathericons.DollarSign
 import compose.icons.feathericons.Edit3
 import compose.icons.feathericons.Eye
-import compose.icons.feathericons.Filter
 import compose.icons.feathericons.Gift
-import compose.icons.feathericons.Home
 import compose.icons.feathericons.Image
 import compose.icons.feathericons.Info
 import compose.icons.feathericons.Loader
@@ -85,10 +78,8 @@ import compose.icons.feathericons.Settings
 import compose.icons.feathericons.Share2
 import compose.icons.feathericons.ThumbsDown
 import compose.icons.feathericons.ThumbsUp
-import compose.icons.feathericons.User
 import compose.icons.feathericons.UserPlus
 import compose.icons.feathericons.X
-import compose.icons.feathericons.XCircle
 import compose.icons.simpleicons.Discord
 import compose.icons.simpleicons.Google
 import compose.icons.simpleicons.Telegram
@@ -102,7 +93,6 @@ object QodeinIcons {
     val PostAdd: ImageVector = Icons.Outlined.PostAdd
     val Hashtag: ImageVector = Icons.Outlined.Tag
     val Post: ImageVector = Icons.AutoMirrored.Outlined.TextSnippet
-    val Leaderboard: ImageVector = Icons.Outlined.Leaderboard
     val DarkMode: ImageVector = Icons.Outlined.DarkMode
 }
 
@@ -113,7 +103,6 @@ object PromocodeIcons {
     val MinimumOrder: ImageVector = Icons.Outlined.Money
     val StartDate: ImageVector = Icons.Outlined.CalendarToday
     val EndDate: ImageVector = Icons.Outlined.EventBusy
-    val Rules: ImageVector = Icons.Outlined.Radio
     val Description: ImageVector = Icons.Outlined.Description
     val Percentage: ImageVector = FeatherIcons.Percent
     val FixedAmount: ImageVector = FeatherIcons.DollarSign
@@ -134,7 +123,6 @@ object QodeIcons {
 object QodeCategoryIcons {
     val Language: ImageVector = TablerIcons.Language
     val Certification: ImageVector = TablerIcons.Certificate
-    val Tech: ImageVector = FeatherIcons.Code
     val Consulting: ImageVector = FeatherIcons.MessageCircle
 }
 
@@ -146,7 +134,6 @@ object ActionIcons {
     val Clear: ImageVector = Icons.Outlined.Clear
     val Edit: ImageVector = FeatherIcons.Edit3
     val Check: ImageVector = FeatherIcons.Check
-    val ClearCircled: ImageVector = FeatherIcons.XCircle
     val Copy: ImageVector = Icons.Outlined.ContentCopy
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown
@@ -165,15 +152,16 @@ object ActionIcons {
 object NavigationIcons {
     val Back = Icons.AutoMirrored.Default.ArrowBack
     val Close = Icons.Default.Close
+
     val ChevronLeft = Icons.Default.ChevronLeft
     val ChevronRight = Icons.Default.ChevronRight
+    val Upward = Icons.Default.ArrowUpward
+    val Downward = Icons.Default.ArrowDownward
 
     val Search: ImageVector = FeatherIcons.Search
-    val Profile: ImageVector = FeatherIcons.User
     val Settings: ImageVector = FeatherIcons.Settings
     val Notifications: ImageVector = FeatherIcons.Bell
     val Gallery: ImageVector = FeatherIcons.Image
-    val Filter: ImageVector = FeatherIcons.Filter
     val Refresh: ImageVector = FeatherIcons.RefreshCw
     val Loading: ImageVector = FeatherIcons.Loader
     val Error: ImageVector = FeatherIcons.AlertCircle
@@ -184,7 +172,6 @@ object NavigationIcons {
 
 object QodeStatusIcons {
     val Trending: ImageVector = FeatherIcons.ArrowUp
-    val Limited: ImageVector = FeatherIcons.Clock
 }
 
 object QodeSocialIcons {
@@ -196,7 +183,6 @@ object QodeSocialIcons {
 
 object UIIcons {
     val Paste: ImageVector = Icons.Outlined.ContentPaste
-    val MoreVert: ImageVector = Icons.Outlined.MoreVert
     val Block: ImageVector = Icons.Outlined.Block
     val Report: ImageVector = Icons.Outlined.Flag
 
@@ -205,9 +191,6 @@ object UIIcons {
     val Popular: ImageVector = Icons.Filled.Diamond
     val Newest: ImageVector = Icons.Filled.FiberNew
     val Expiring: ImageVector = Icons.Filled.Timelapse
-
-    val Hint: ImageVector = Icons.Outlined.EmojiObjects
-    val HintFilled: ImageVector = Icons.Filled.EmojiObjects
 
     val Empty: ImageVector = FeatherIcons.Coffee
     val Error: ImageVector = FeatherIcons.AlertCircle
@@ -227,8 +210,6 @@ object UIIcons {
 object QodeCalendarIcons {
 
     val Datepicker: ImageVector = FeatherIcons.Calendar
-
-    val Info: ImageVector = FeatherIcons.Info
 }
 
 object QodeBusinessIcons {

@@ -3,7 +3,7 @@ package com.qodein.feature.profile.component
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +56,7 @@ internal fun ProfileTopAppBar(
                     trailingIcon = NavigationIcons.ChevronRight,
                 ),
             ),
-            containerColor = MenuDefaults.groupVibrantContainerColor,
+            containerColor = MaterialTheme.colorScheme.errorContainer,
         ),
     )
 

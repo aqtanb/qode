@@ -5,6 +5,8 @@
 
     <string name="profile_action_blocked">Blocked</string>
     <string name="profile_action_signout">Sign Out</string>
+    
+    <string name="profile_fab_scroll_to_top">Scroll to top</string>
 
     <string name="profile_empty_promocodes_title">No promocodes yet</string>
     <string name="profile_empty_promocodes_description">Share your first promocode with the community</string>

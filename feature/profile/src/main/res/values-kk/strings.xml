@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="profile_action_signout">Шығу</string>
-    <string name="profile_promocodes">Промокодтар</string>
-    <string name="profile_posts">Жазбалар</string>
-
-
     <string name="profile_action_blocked">Бұғатталғандар</string>
+    <string name="profile_action_signout">Шығу</string>
+    
+    <string name="profile_fab_scroll_to_top">Жоғарыға өту</string>
 
+    <string name="profile_promocodes">Промокодтар</string>
     <string name="profile_empty_promocodes_title">Промокодтар әлі жоқ</string>
     <string name="profile_empty_promocodes_description">Қауымдастықпен алғашқы промокодыңызбен бөлісіңіз</string>
 
+    <string name="profile_posts">Жазбалар</string>
     <string name="profile_empty_posts_title">Жазбалар әлі жоқ</string>
     <string name="profile_empty_posts_description">Басқалармен бөлісу үшін алғашқы жазбаңызды жасаңыз</string>
 </resources>

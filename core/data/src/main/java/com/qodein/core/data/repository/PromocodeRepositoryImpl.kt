@@ -131,9 +131,9 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
         limit: Int
     ): Result<PaginatedResult<Promocode, ContentSortBy>, OperationError> =
         try {
-            Timber.d("Getting promocodes for user: %s", userId.value)
+            Timber.d("Getting promocodes for user: %s, cursor: %s", userId.value, cursor)
 
-            val snapshot = cursor as? DocumentSnapshot
+            val snapshot = (cursor as? PaginationCursor<*>)?.value as? DocumentSnapshot
 
             val pagedDto = dataSource.getPromocodesByUser(
                 userId = userId.value,

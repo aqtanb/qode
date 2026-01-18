@@ -1,23 +1,13 @@
 package com.qodein.qode.ui.container
 
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.AutoHideDirection
-import com.qodein.core.designsystem.component.AutoHidingContent
+import com.qodein.core.designsystem.component.QodeinFab
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.theme.ElevationTokens
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
 import com.qodein.qode.navigation.TopLevelDestination
@@ -69,67 +59,19 @@ fun AppFabContainer(
     // Only show FAB for top-level destinations (Home and Feed)
     val currentTopLevelDestination = appState.currentTopLevelDestination
     if (currentTopLevelDestination != null && currentTopLevelDestination != TopLevelDestination.FEED) {
-        // Capture delegated property for smart casting
-        val currentFabState = fabAutoHidingState
-        if (currentFabState != null) {
-            // Use AutoHidingContent for smooth animations
-            AutoHidingContent(
-                state = currentFabState,
-                direction = AutoHideDirection.UP,
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        handleFabClick(
-                            destination = currentTopLevelDestination,
-                            onEvent = onEvent,
-                        )
-                    },
-                    modifier = Modifier.size(
-                        SizeTokens.Fab.sizeSmall,
-                    ).clip(CircleShape),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = ElevationTokens.large,
-                        pressedElevation = ElevationTokens.extraLarge,
-                        focusedElevation = ElevationTokens.large,
-                        hoveredElevation = ElevationTokens.extraLarge,
-                    ),
-                ) {
-                    Icon(
-                        imageVector = getFabIcon(currentTopLevelDestination),
-                        contentDescription = getFabContentDescription(currentTopLevelDestination),
-                        modifier = Modifier.size(SizeTokens.Fab.iconSize),
-                    )
-                }
-            }
-        } else {
-            // No scrollable state - always show FAB
-            FloatingActionButton(
-                onClick = {
-                    handleFabClick(
-                        destination = currentTopLevelDestination,
-                        onEvent = onEvent,
-                    )
-                },
-                modifier = Modifier.size(SizeTokens.Fab.sizeSmall),
-                shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = ElevationTokens.large,
-                    pressedElevation = ElevationTokens.extraLarge,
-                    focusedElevation = ElevationTokens.large,
-                    hoveredElevation = ElevationTokens.extraLarge,
-                ),
-            ) {
-                Icon(
-                    imageVector = getFabIcon(currentTopLevelDestination),
-                    contentDescription = getFabContentDescription(currentTopLevelDestination),
-                    modifier = Modifier.size(SizeTokens.Fab.iconSize),
+        QodeinFab(
+            onClick = {
+                handleFabClick(
+                    destination = currentTopLevelDestination,
+                    onEvent = onEvent,
                 )
-            }
-        }
+            },
+            icon = getFabIcon(currentTopLevelDestination),
+            contentDescription = getFabContentDescription(currentTopLevelDestination),
+            autoHide = fabAutoHidingState != null,
+            autoHideState = fabAutoHidingState,
+            autoHideDirection = AutoHideDirection.UP,
+        )
     }
 }
 
