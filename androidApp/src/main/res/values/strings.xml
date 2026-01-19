@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name" translatable="false">Qode</string>
-    <string name="create_promo_code">Create Promocode</string>
-    <string name="add_to_feed">Add to Feed</string>
-    <string name="navigate_to">Navigate to %1$s</string>
 
+    <string name="app_submit_promocode">Submit Promocode</string>
+    <string name="app_create_post">Create Post</string>
+    <string name="app_fab_tooltip">Add content</string>
+
+    <string name="navigate_to">Navigate to %1$s</string>
     <string name="update_required_title">Update Required</string>
     <string name="update_required_message">A new version of the app is available. Please update to continue using the app.</string>
     <string name="update_required_button">Update Now</string>

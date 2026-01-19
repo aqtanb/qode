@@ -1,11 +1,5 @@
 package com.qodein.feature.post.submission.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -16,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -32,46 +25,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinFilterChip
 import com.qodein.core.designsystem.component.QodeinTextField
-import com.qodein.core.designsystem.icon.QodeinIcons
-import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
-import com.qodein.shared.common.Result
-import com.qodein.shared.model.Tag
+import com.qodein.shared.model.Post
 
 // TODO: Fix scrolling and imepadding
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TagSelectorBottomSheet(
-    selectedTags: List<Tag>,
-    onTagSelected: (Tag) -> Unit,
-    onTagRemoved: (Tag) -> Unit,
+    onTitleChange: (String) -> Unit,
+    selectedTags: List<String>,
+    onTagSelected: (String) -> Unit,
+    onTagRemoved: (String) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    popularTags: List<String> = emptyList()
+    modifier: Modifier = Modifier
 ) {
-    var customTagInput by remember { mutableStateOf("") }
-
     ModalBottomSheet(
         onDismissRequest = onDismiss,
     ) {
         TagSelectorContent(
             selectedTags = selectedTags,
-            customTagInput = customTagInput,
-            onCustomTagInputChange = { customTagInput = it.lowercase().trim() },
-            onAddCustomTag = {
-                val tagResult = Tag.create(customTagInput)
-                if (tagResult is Result.Success) {
-                    onTagSelected(tagResult.data)
-                    customTagInput = ""
-                }
-            },
+            onTitleChange = onTitleChange,
             onTagSelected = onTagSelected,
             onTagRemoved = onTagRemoved,
-            popularTags = popularTags,
+            onDismiss = onDismiss,
             modifier = modifier,
         )
     }
@@ -79,36 +59,15 @@ internal fun TagSelectorBottomSheet(
 
 @Composable
 private fun TagSelectorContent(
-    selectedTags: List<Tag>,
-    customTagInput: String,
-    onCustomTagInputChange: (String) -> Unit,
-    onAddCustomTag: () -> Unit,
-    onTagSelected: (Tag) -> Unit,
-    onTagRemoved: (Tag) -> Unit,
-    popularTags: List<String>,
-    modifier: Modifier = Modifier,
-    onClearAll: (() -> Unit)? = null
+    selectedTags: List<String>,
+    onTitleChange: (String) -> Unit,
+    onTagSelected: (String) -> Unit,
+    onTagRemoved: (String) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
-
-    val isMaxTagsReached = selectedTags.size >= Tag.MAX_TAGS_SELECTED
-    val isExistingTag = selectedTags.any { it.value == customTagInput }
-    val containsInvalidCharacters = customTagInput.isNotEmpty() && !customTagInput.matches(Tag.VALID_PATTERN)
-    val isTagTooLong = customTagInput.length > Tag.MAX_LENGTH
-
-    // Error and helper text logic
-    val errorText = when {
-        isTagTooLong -> stringResource(R.string.tag_too_long)
-        containsInvalidCharacters -> stringResource(R.string.tag_invalid_characters)
-        isExistingTag && customTagInput.isNotEmpty() -> stringResource(R.string.tag_already_added)
-        else -> null
-    }
-
-    val helperText = when {
-        errorText != null -> null // Error takes priority
-        isMaxTagsReached -> stringResource(R.string.max_tags_reached, Tag.MAX_TAGS_SELECTED)
-        else -> stringResource(R.string.tag_helper_text)
-    }
+    var tagText by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -120,156 +79,52 @@ private fun TagSelectorContent(
     ) {
         // TODO: Add imepadding, move out from the column
         QodeinTextField(
-            value = customTagInput.lowercase().trim(),
-            onValueChange = onCustomTagInputChange,
-            placeholder = stringResource(R.string.type_tag),
-            leadingIcon = QodeinIcons.Hashtag,
-            helperText = helperText,
-            errorText = errorText,
-            enabled = !isMaxTagsReached,
+            value = tagText,
+            onValueChange = { onTitleChange(tagText) },
+            placeholder = stringResource(R.string.post_tag_placeholder),
+            leadingIcon = PostIcons.Hashtag,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.None,
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    if (!isMaxTagsReached && errorText == null && customTagInput.isNotEmpty()) {
-                        onAddCustomTag()
-                    }
+                    if (tagText.isBlank()) onDismiss()
                 },
             ),
+            canBeBlank = true,
         )
 
-        val validPopularTags = remember(popularTags) {
-            popularTags.mapNotNull { tagValue ->
-                when (val result = Tag.create(tagValue)) {
-                    is Result.Success -> result.data to tagValue
-                    is Result.Error -> null
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            visible = validPopularTags.isNotEmpty(),
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            Column {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = SpacingTokens.sm),
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                )
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Text(
-                        text = stringResource(R.string.popular_tags),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    // TODO: Implement moving chip to the selected section when selected
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                    ) {
-                        validPopularTags.forEach { (tag, displayValue) ->
-                            val isSelected = selectedTags.contains(tag)
-                            val canAdd = selectedTags.size < Tag.MAX_TAGS_SELECTED
-                            // TODO: Improve QodeinChip
-                            QodeinFilterChip(
-                                label = "#$displayValue",
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    if (isSelected) {
-                                        onTagRemoved(tag)
-                                    } else if (canAdd) {
-                                        onTagSelected(tag)
-                                    }
-                                },
-                                selected = isSelected,
-                                filled = isSelected,
-                                enabled = isSelected || canAdd,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
         if (selectedTags.isNotEmpty()) {
-            Column {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = SpacingTokens.sm),
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            ) {
+                Text(
+                    text = stringResource(R.string.selected_tags_label) + " (${selectedTags.size}/${Post.MAX_TAGS})",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
                 )
-                // TODO: Implement onClearAll
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
                 ) {
-                    Text(
-                        text = stringResource(R.string.selected_tags_label) + " (${selectedTags.size}/${Tag.MAX_TAGS_SELECTED})",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    // TODO: Implementing editing on long press
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-                    ) {
-                        selectedTags.forEach { tag ->
-                            QodeinFilterChip(
-                                label = "#${tag.value}",
-                                onClick = { },
-                                selected = true,
-                                filled = true,
-                                onClose = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    onTagRemoved(tag)
-                                },
-                            )
-                        }
+                    selectedTags.forEach { tag ->
+                        QodeinFilterChip(
+                            label = "#$tag",
+                            onClick = { },
+                            selected = true,
+                            filled = true,
+                            onClose = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onTagRemoved(tag)
+                            },
+                        )
                     }
                 }
             }
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun TagSelectorContentPreview() {
-    QodeTheme {
-        Column(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.lg),
-        ) {
-            TagSelectorContent(
-                selectedTags = listOf(
-                    Tag("tech"),
-                    Tag("lifestyle"),
-                ),
-                customTagInput = "",
-                onCustomTagInputChange = {},
-                onAddCustomTag = {},
-                onTagSelected = {},
-                onTagRemoved = {},
-                popularTags = listOf(
-                    "tech",
-                    "food",
-                    "travel",
-                    "lifestyle",
-                    "fashion",
-                    "gaming",
-                    "music",
-                    "sports",
-                ),
-            )
         }
     }
 }

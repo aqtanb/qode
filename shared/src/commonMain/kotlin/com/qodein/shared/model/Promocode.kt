@@ -1,13 +1,13 @@
-@file:UseContextualSerialization(Instant::class)
+@file:OptIn(ExperimentalTime::class)
 
 package com.qodein.shared.model
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
 import kotlin.jvm.JvmInline
 import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 /**
@@ -138,31 +138,34 @@ sealed interface Discount {
 
 @ConsistentCopyVisibility
 @Serializable
-data class Promocode private constructor(
+data class Promocode
+@OptIn(ExperimentalTime::class)
+private constructor(
     val id: PromocodeId,
     val code: PromocodeCode,
     val discount: Discount,
     val minimumOrderAmount: Double,
     val startDate: Instant,
     val endDate: Instant,
-    val authorId: UserId,
     val serviceName: String,
     val description: String? = null,
 
-    val upvotes: Int = 0,
-    val downvotes: Int = 0,
+    val upvotes: Int,
+    val downvotes: Int,
+    val voteScore: Int,
+
     val isVerified: Boolean = false,
 
-    val serviceId: ServiceId? = null,
-    val serviceLogoUrl: String? = null,
-    val serviceSiteUrl: String? = null,
+    val serviceId: ServiceId?,
+    val serviceLogoUrl: String?,
+    val serviceSiteUrl: String?,
 
-    val authorUsername: String? = null,
-    val authorAvatarUrl: String? = null,
+    val authorId: UserId,
+    val authorUsername: String?,
+    val authorAvatarUrl: String?,
 
-    val createdAt: Instant = Clock.System.now()
+    val createdAt: Instant
 ) {
-    val voteScore: Int get() = upvotes - downvotes
 
     companion object {
         const val DESCRIPTION_MAX_LENGTH = 1000
@@ -175,6 +178,7 @@ data class Promocode private constructor(
         const val PERCENTAGE_MAX_VALUE = 100.0
         const val DEFAULT_PAGE_SIZE = 5
 
+        @OptIn(ExperimentalTime::class)
         fun create(
             code: String,
             service: Service,
@@ -241,6 +245,7 @@ data class Promocode private constructor(
                     authorUsername = author.displayName,
                     authorAvatarUrl = author.profile.photoUrl,
                     createdAt = Clock.System.now(),
+                    voteScore = 0,
                 ),
             )
         }
@@ -249,6 +254,7 @@ data class Promocode private constructor(
          * Reconstruct a Promocode from storage/DTO (for mappers/repositories only).
          * Assumes data is already validated. No sanitization performed.
          */
+        @OptIn(ExperimentalTime::class)
         fun fromDto(
             id: PromocodeId,
             code: String,
@@ -267,7 +273,8 @@ data class Promocode private constructor(
             serviceSiteUrl: String? = null,
             authorUsername: String? = null,
             authorAvatarUrl: String? = null,
-            createdAt: Instant
+            createdAt: Instant,
+            voteScore: Int
         ): Promocode =
             Promocode(
                 id = id,
@@ -288,6 +295,7 @@ data class Promocode private constructor(
                 authorUsername = authorUsername,
                 authorAvatarUrl = authorAvatarUrl,
                 createdAt = createdAt,
+                voteScore = voteScore,
             )
     }
 }

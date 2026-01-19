@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="post">Post</string>
+
+    <string name="post_empty_state_title">No posts</string>
+    <string name="post_empty_state_description">You can fix this by creating a post :)</string>
+
     <string name="select_tags">Select tags</string>
     <string name="popular_tags">Popular Tags</string>
-    <string name="type_tag">Type a tag</string>
+    <string name="post_tag_placeholder">discount</string>
     <string name="selected_tags_label">Selected</string>
     <string name="max_tags_reached">Maximum %d tags</string>
-    <string name="tag_helper_text">Use lowercase letters, numbers and underscores</string>
+    <string name="post_tag_helper_text">Enter a tag</string>
     <string name="tag_too_long">Tag cannot exceed 50 characters</string>
     <string name="tag_invalid_characters">Only lowercase letters, numbers, dashes, and underscores allowed</string>
     <string name="tag_already_added">Tag already added</string>

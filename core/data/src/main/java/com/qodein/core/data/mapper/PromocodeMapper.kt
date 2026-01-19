@@ -44,6 +44,7 @@ object PromocodeMapper {
             authorUsername = dto.author.username,
             authorAvatarUrl = dto.author.avatarUrl,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
+            voteScore = dto.engagement.voteScore,
         )
     }
 

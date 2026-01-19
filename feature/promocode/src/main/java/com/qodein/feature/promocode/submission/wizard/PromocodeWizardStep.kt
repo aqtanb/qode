@@ -71,7 +71,7 @@ fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
         else -> when (this) {
             PromocodeWizardStep.SERVICE -> QodeIcons.Service
             PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType
-            PromocodeWizardStep.PROMOCODE -> QodeIcons.Promocode
+            PromocodeWizardStep.PROMOCODE -> PromocodeIcons.Promocode
             PromocodeWizardStep.DISCOUNT_VALUE -> PromocodeIcons.DiscountValue
             PromocodeWizardStep.DATES -> PromocodeIcons.StartDate
             PromocodeWizardStep.DESCRIPTION -> PromocodeIcons.Description

@@ -1,8 +1,6 @@
 package com.qodein.feature.post.submission
 
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.model.Tag
-import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 
 /**
  * Top-level UI state for Post Submission screen.
@@ -18,16 +16,14 @@ sealed interface PostSubmissionUiState {
      * Success state with all form data and computed properties.
      */
     data class Success(
-        // Input fields
         val title: String = "",
         val content: String = "",
-        val tags: List<Tag> = emptyList(),
+
+        val tagInput: String = "",
+
+        val tags: List<String> = emptyList(),
         val imageUris: List<String> = emptyList(),
 
-        val tagSearchQuery: String = "",
-        val availableTags: List<Tag> = emptyList(),
-
-        // Submission state
         val submission: PostSubmissionState = PostSubmissionState.Idle,
 
         // Compression state
@@ -41,13 +37,11 @@ sealed interface PostSubmissionUiState {
 
         val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= 200
         val isContentValid: Boolean get() = content.length <= 2000
-        val areTagsValid: Boolean get() = tags.size <= MAX_TAGS_SELECTED
         val areImagesValid: Boolean get() = imageUris.size <= 5
 
         val canSubmit: Boolean get() =
             isTitleValid &&
                 isContentValid &&
-                areTagsValid &&
                 areImagesValid &&
                 submission is PostSubmissionState.Idle &&
                 compression is ImageCompressionState.Idle

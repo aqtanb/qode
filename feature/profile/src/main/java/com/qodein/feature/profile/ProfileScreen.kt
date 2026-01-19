@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,7 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,11 +42,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeinFab
 import com.qodein.core.designsystem.icon.NavigationIcons
-import com.qodein.core.designsystem.icon.QodeIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.PostIcons
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.EmptyState
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.PromocodeCard
 import com.qodein.core.ui.component.PromocodeCardSkeleton
@@ -282,7 +281,7 @@ private fun LazyListScope.promocodesTabItems(
             if (state.items.isEmpty()) {
                 item {
                     EmptyState(
-                        icon = QodeIcons.Promocode,
+                        icon = PromocodeIcons.Promocode,
                         title = stringResource(R.string.profile_empty_promocodes_title),
                         description = stringResource(R.string.profile_empty_promocodes_description),
                     )
@@ -340,7 +339,7 @@ private fun LazyListScope.postsTabItems(
             if (state.items.isEmpty()) {
                 item {
                     EmptyState(
-                        icon = QodeinIcons.Post,
+                        icon = PostIcons.Post,
                         title = stringResource(R.string.profile_empty_posts_title),
                         description = stringResource(R.string.profile_empty_posts_description),
                     )
@@ -422,41 +421,6 @@ private fun UserInfo(
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
             modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun EmptyState(
-    icon: ImageVector,
-    title: String,
-    description: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(SpacingTokens.xxl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(SizeTokens.Icon.sizeXLarge),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
         )
     }
 }

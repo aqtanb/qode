@@ -1,15 +1,12 @@
 package com.qodein.feature.post.submission
 
-import com.qodein.shared.model.Tag
-
 sealed interface PostSubmissionAction {
-    // Input actions
     data class UpdateTitle(val title: String) : PostSubmissionAction
     data class UpdateContent(val content: String) : PostSubmissionAction
 
-    // Tag actions
-    data class AddTag(val tag: Tag) : PostSubmissionAction
-    data class RemoveTag(val tag: Tag) : PostSubmissionAction
+    data class UpdateTag(val tagInput: String) : PostSubmissionAction
+    data class AddTag(val tag: String) : PostSubmissionAction
+    data class RemoveTag(val tag: String) : PostSubmissionAction
 
     // Image actions
     data class RemoveImage(val index: Int) : PostSubmissionAction

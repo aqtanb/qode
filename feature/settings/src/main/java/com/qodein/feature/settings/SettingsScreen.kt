@@ -42,7 +42,7 @@ import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -129,7 +129,7 @@ private fun SettingsScreen(
 
             SettingsItem(
                 title = stringResource(R.string.settings_theme_title),
-                leadingIcon = QodeinIcons.DarkMode,
+                leadingIcon = UIIcons.DarkMode,
 
                 onClick = { onAction(SettingsAction.ShowThemeBottomSheet) },
             )

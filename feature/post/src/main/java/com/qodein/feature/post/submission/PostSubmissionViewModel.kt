@@ -10,8 +10,7 @@ import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.model.Tag
-import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
+import com.qodein.shared.model.Post
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,10 +28,6 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
     val events = _events.asSharedFlow()
 
     private var currentAuthState: AuthState = AuthState.Unauthenticated
-
-    companion object {
-        private const val TAG = "PostSubmissionVM"
-    }
 
     init {
         observeAuthState()
@@ -52,11 +47,16 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
 
     fun onAction(action: PostSubmissionAction) {
         when (action) {
-            // Input actions
-            is PostSubmissionAction.UpdateTitle -> updateTitle(action.title)
-            is PostSubmissionAction.UpdateContent -> updateContent(action.content)
+            is PostSubmissionAction.UpdateTitle -> {
+                updateSuccessState { it.copy(title = Post.filterTitle(action.title)) }
+            }
+            is PostSubmissionAction.UpdateContent -> {
+                updateSuccessState { it.copy(content = Post.filterContent(action.content)) }
+            }
 
-            // Tag actions
+            is PostSubmissionAction.UpdateTag -> {
+                updateTag(action.tagInput)
+            }
             is PostSubmissionAction.AddTag -> addTag(action.tag)
             is PostSubmissionAction.RemoveTag -> removeTag(action.tag)
 
@@ -75,6 +75,18 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
         }
     }
 
+    private fun updateTag(tagInput: String) {
+        if (tagInput.endsWith(" ") || tagInput.endsWith(",")) {
+            val cleanTag = Post.filterTagInput(tagInput)
+            if (cleanTag.isNotEmpty()) {
+                onAction(PostSubmissionAction.AddTag(cleanTag))
+            }
+        } else {
+            val filtered = Post.filterTagInput(tagInput)
+            updateSuccessState { it.copy(tagInput = filtered) }
+        }
+    }
+
     private fun observeAuthState() {
         viewModelScope.launch {
             getAuthStateUseCase().collect { authState ->
@@ -82,26 +94,10 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
             }
         }
     }
-
-    private fun updateTitle(title: String) {
-        updateSuccessState { it.copy(title = title) }
+    private fun addTag(tag: String) {
     }
 
-    private fun updateContent(content: String) {
-        updateSuccessState { it.copy(content = content) }
-    }
-
-    private fun addTag(tag: Tag) {
-        updateSuccessState { state ->
-            if (state.tags.size < MAX_TAGS_SELECTED && tag !in state.tags) {
-                state.copy(tags = state.tags + tag)
-            } else {
-                state
-            }
-        }
-    }
-
-    private fun removeTag(tag: Tag) {
+    private fun removeTag(tag: String) {
         updateSuccessState { state ->
             state.copy(tags = state.tags - tag)
         }
@@ -123,7 +119,7 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
 
             if (urisToCompress.isEmpty()) return@launch
 
-            Logger.d(TAG) { "Starting compression for ${urisToCompress.size} images" }
+            Logger.d { "Starting compression for ${urisToCompress.size} images" }
 
             // Update state to show compression progress
             updateSuccessState {
@@ -142,7 +138,7 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
 
             when (result) {
                 is Result.Success -> {
-                    Logger.i(TAG) { "Successfully compressed ${result.data.size} images" }
+                    Logger.i { "Successfully compressed ${result.data.size} images" }
                     val compressedUriStrings = result.data.map { it.toString() }
                     updateSuccessState { state ->
                         state.copy(
@@ -152,7 +148,7 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
                     }
                 }
                 is Result.Error -> {
-                    Logger.e(TAG) { "Image compression failed: ${result.error}" }
+                    Logger.e { "Image compression failed: ${result.error}" }
                     updateSuccessState {
                         it.copy(compression = ImageCompressionState.Idle)
                     }
@@ -169,7 +165,7 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
 
             val userId = (currentAuthState as? AuthState.Authenticated)?.userId
             if (userId == null) {
-                Logger.w(TAG) { "Cannot submit: user is not authenticated" }
+                Logger.w { "Cannot submit: user is not authenticated" }
                 return@launch
             }
 
@@ -205,12 +201,6 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
             contentError = "Content is required"
         } else if (state.content.length > 2000) {
             contentError = "Content is too long (max 2000 characters)"
-        }
-
-        if (state.tags.isEmpty()) {
-            tagsError = "At least one tag is required"
-        } else if (state.tags.size > MAX_TAGS_SELECTED) {
-            tagsError = "Too many tags (max 10)"
         }
 
         if (state.imageUris.size > 5) {

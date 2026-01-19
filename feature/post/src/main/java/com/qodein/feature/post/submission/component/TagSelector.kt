@@ -25,18 +25,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
-import com.qodein.shared.model.Tag
 
 @Composable
 internal fun TagSelector(
-    selectedTags: List<Tag>,
+    selectedTags: List<String>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -62,7 +61,7 @@ internal fun TagSelector(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = QodeinIcons.Hashtag,
+                imageVector = PostIcons.Hashtag,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
@@ -73,7 +72,7 @@ internal fun TagSelector(
             text = if (selectedTags.isEmpty()) {
                 stringResource(R.string.select_tags)
             } else {
-                selectedTags.joinToString(", ") { it.value }
+                selectedTags.joinToString(", ")
             },
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = if (selectedTags.isEmpty()) FontWeight.Normal else FontWeight.Medium,
@@ -112,15 +111,14 @@ private fun TagSelectorPreview() {
                 )
 
                 TagSelector(
-                    selectedTags = listOf(Tag("tech")),
+                    selectedTags = listOf("ew"),
                     onClick = {},
                 )
 
                 TagSelector(
                     selectedTags = listOf(
-                        Tag("tech"),
-                        Tag("lifestyle"),
-                        Tag("coding"),
+                        "check",
+                        "qode",
                     ),
                     onClick = {},
                 )

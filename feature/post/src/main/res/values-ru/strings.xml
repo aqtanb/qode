@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="post">Пост</string>
+    <string name="post_empty_state_description">Станьте первым автором, создайте пост :)</string>
     <string name="select_tags">Выбрать теги</string>
     <string name="popular_tags">Популярные теги</string>
-    <string name="type_tag">Введите тег</string>
+    <string name="post_tag_placeholder">скидка</string>
     <string name="selected_tags_label">Выбрано</string>
     <string name="max_tags_reached">Максимум %d тегов</string>
-    <string name="tag_helper_text">Используйте строчные буквы, цифры и подчёркивания</string>
+    <string name="post_tag_helper_text">Введите тэг</string>
     <string name="tag_too_long">Тег не может быть длиннее 50 символов</string>
     <string name="tag_invalid_characters">Допустимы только строчные буквы, цифры, дефисы и подчёркивания</string>
     <string name="tag_already_added">Тег уже добавлен</string>
@@ -18,4 +19,5 @@
     <string name="placeholder_description">Описание</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>
+    <string name="post_empty_state_title">Постов нет</string>
 </resources>

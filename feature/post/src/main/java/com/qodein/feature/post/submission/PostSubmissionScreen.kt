@@ -230,21 +230,10 @@ fun PostSubmissionScreen(
                         if (showTagBottomSheet) {
                             TagSelectorBottomSheet(
                                 selectedTags = currentState.tags,
+                                onTitleChange = { viewModel.onAction(PostSubmissionAction.UpdateTitle(it)) },
                                 onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
                                 onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
                                 onDismiss = { showTagBottomSheet = false },
-                                popularTags = listOf(
-                                    "tech",
-                                    "food",
-                                    "travel",
-                                    "lifestyle",
-                                    "fashion",
-                                    "gaming",
-                                    "music",
-                                    "sports",
-                                    "fitness",
-                                    "beauty",
-                                ),
                             )
                         }
                     }
@@ -281,12 +270,13 @@ private fun PostSubmissionContent(
     modifier: Modifier = Modifier
 ) {
     val contentFocusRequester = remember { FocusRequester() }
-
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState)
+            .imePadding(),
     ) {
         TagSelector(
             selectedTags = uiState.tags,

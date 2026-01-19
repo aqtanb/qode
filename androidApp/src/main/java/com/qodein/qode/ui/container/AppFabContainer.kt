@@ -1,16 +1,41 @@
 package com.qodein.qode.ui.container
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import com.qodein.core.designsystem.component.AutoHideDirection
-import com.qodein.core.designsystem.component.QodeinFab
-import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.component.AutoHidingContent
+import com.qodein.core.designsystem.component.AutoHidingState
+import com.qodein.core.designsystem.icon.PostIcons
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.qode.R
 import com.qodein.qode.navigation.NavigationActions
-import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.qode.ui.state.AppUiEvents
 
@@ -35,14 +60,8 @@ fun AppFabContainer(
     onEvent: (AppUiEvents) -> Unit
 ) {
     val currentScrollableState by appState.currentScrollableState
-
-    // Update auto-hiding context (shared with bottom bar)
     appState.UpdateAutoHidingContext()
-
-    // Get centralized FAB auto-hiding state
     val fabAutoHidingState by appState.fabAutoHidingState
-
-    // Share the same scroll observation setup with AppBottomBarContainer
     LaunchedEffect(currentScrollableState) {
         val extractor = appState.getScrollExtractor()
         val scrollState = currentScrollableState
@@ -56,59 +75,90 @@ fun AppFabContainer(
         }
     }
 
-    // Only show FAB for top-level destinations (Home and Feed)
+    var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
+    BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
+
     val currentTopLevelDestination = appState.currentTopLevelDestination
-    if (currentTopLevelDestination != null && currentTopLevelDestination != TopLevelDestination.FEED) {
-        QodeinFab(
-            onClick = {
-                handleFabClick(
-                    destination = currentTopLevelDestination,
-                    onEvent = onEvent,
-                )
-            },
-            icon = getFabIcon(currentTopLevelDestination),
-            contentDescription = getFabContentDescription(currentTopLevelDestination),
-            autoHide = fabAutoHidingState != null,
-            autoHideState = fabAutoHidingState,
-            autoHideDirection = AutoHideDirection.UP,
+    if (currentTopLevelDestination != null) {
+        AppFabMenu(
+            fabMenuExpanded = fabMenuExpanded,
+            onFabMenuExpandedChange = { fabMenuExpanded = it },
+            fabAutoHidingState = fabAutoHidingState,
+            onEvent = onEvent,
         )
     }
 }
 
-/**
- * Get context-aware FAB icon based on current destination
- */
-private fun getFabIcon(destination: TopLevelDestination) =
-    when (destination) {
-        TopLevelDestination.HOME -> ActionIcons.Add // Create new promocode
-        TopLevelDestination.FEED -> ActionIcons.Edit // Add content to feed
-    }
-
-/**
- * Get context-aware FAB content description based on current destination
- */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun getFabContentDescription(destination: TopLevelDestination): String =
-    when (destination) {
-        TopLevelDestination.HOME -> stringResource(R.string.create_promo_code)
-        TopLevelDestination.FEED -> stringResource(R.string.add_to_feed)
-    }
-
-/**
- * Handle context-aware FAB clicks for different destinations
- */
-private fun handleFabClick(
-    destination: TopLevelDestination,
+private fun AppFabMenu(
+    fabMenuExpanded: Boolean,
+    onFabMenuExpandedChange: (Boolean) -> Unit,
+    fabAutoHidingState: AutoHidingState?,
     onEvent: (AppUiEvents) -> Unit
 ) {
-    when (destination) {
-        TopLevelDestination.HOME -> {
-            // Navigate to promocode creation flow
-            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPromocodeSubmission))
+    val fabContent: @Composable () -> Unit = {
+        FloatingActionButtonMenu(
+            expanded = fabMenuExpanded,
+            modifier = Modifier,
+            button = {
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        if (fabMenuExpanded) {
+                            TooltipAnchorPosition.Start
+                        } else {
+                            TooltipAnchorPosition.Above
+                        },
+                    ),
+                    tooltip = { PlainTooltip { Text(stringResource(R.string.app_fab_tooltip)) } },
+                    state = rememberTooltipState(),
+                ) {
+                    ToggleFloatingActionButton(
+                        checked = fabMenuExpanded,
+                        onCheckedChange = { onFabMenuExpandedChange(!fabMenuExpanded) },
+                    ) {
+                        val imageVector by remember {
+                            derivedStateOf {
+                                if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
+                            }
+                        }
+                        Icon(
+                            painter = rememberVectorPainter(imageVector),
+                            contentDescription = null,
+                            modifier = Modifier.animateIcon({ checkedProgress }),
+                        )
+                    }
+                }
+            },
+        ) {
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onFabMenuExpandedChange(false)
+                    onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPromocodeSubmission))
+                },
+                icon = { Icon(PromocodeIcons.Promocode, contentDescription = null) },
+                text = { Text(text = stringResource(R.string.app_submit_promocode)) },
+            )
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onFabMenuExpandedChange(false)
+                    onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPostSubmission))
+                },
+                icon = { Icon(PostIcons.Post, contentDescription = null) },
+                text = { Text(text = stringResource(R.string.app_create_post)) },
+            )
         }
-        TopLevelDestination.FEED -> {
-            // Handle feed-specific action (could be add post, bookmark, etc.)
-            onEvent(AppUiEvents.Navigate(NavigationActions.NavigateToPostSubmission))
+    }
+
+    if (fabAutoHidingState != null) {
+        AutoHidingContent(
+            state = fabAutoHidingState,
+            direction = AutoHideDirection.UP,
+        ) {
+            fabContent()
         }
+    } else {
+        fabContent()
     }
 }

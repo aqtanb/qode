@@ -3,6 +3,7 @@ package com.qodein.core.designsystem.icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.TextSnippet
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -89,14 +90,9 @@ import compose.icons.tablericons.CurrencyDollar
 import compose.icons.tablericons.Language
 import compose.icons.tablericons.Ticket
 
-object QodeinIcons {
-    val PostAdd: ImageVector = Icons.Outlined.PostAdd
-    val Hashtag: ImageVector = Icons.Outlined.Tag
-    val Post: ImageVector = Icons.AutoMirrored.Outlined.TextSnippet
-    val DarkMode: ImageVector = Icons.Outlined.DarkMode
-}
-
 object PromocodeIcons {
+    val Promocode: ImageVector = TablerIcons.Ticket
+
     val Verified: ImageVector = Icons.Outlined.Verified
     val DiscountType: ImageVector = Icons.Outlined.EmojiSymbols
     val DiscountValue: ImageVector = Icons.Outlined.Sell
@@ -109,13 +105,18 @@ object PromocodeIcons {
     val FreeItem: ImageVector = FeatherIcons.Gift
 }
 
+object PostIcons {
+    val Post = Icons.AutoMirrored.Outlined.TextSnippet
+    val Hashtag: ImageVector = Icons.Outlined.Tag
+    val PostAdd: ImageVector = Icons.Outlined.PostAdd
+}
+
 object QodeIcons {
     val Feed: ImageVector = Icons.Outlined.Diversity1
     val FeedFilled: ImageVector = Icons.Filled.Diversity1
     val Home: ImageVector = Icons.Outlined.Home
     val HomeFilled: ImageVector = Icons.Filled.Home
     val Sale: ImageVector = FeatherIcons.Percent
-    val Promocode: ImageVector = TablerIcons.Ticket
     val Dollar: ImageVector = TablerIcons.CurrencyDollar
     val Service: ImageVector = Icons.Outlined.Store
 }
@@ -182,6 +183,7 @@ object QodeSocialIcons {
 }
 
 object UIIcons {
+    val DarkMode: ImageVector = Icons.Outlined.DarkMode
     val Paste: ImageVector = Icons.Outlined.ContentPaste
     val Block: ImageVector = Icons.Outlined.Block
     val Report: ImageVector = Icons.Outlined.Flag

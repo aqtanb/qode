@@ -57,7 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.R
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -112,6 +112,7 @@ fun QodeinTextField(
     focusRequester: FocusRequester? = null,
     singleLine: Boolean = true,
     minLines: Int = 1,
+    maxLines: Int = if (singleLine) 1 else 10,
     maxLength: Int = DEFAULT_MAX_LENGTH,
     showPasteIcon: Boolean = false,
     canBeBlank: Boolean = false
@@ -289,6 +290,7 @@ fun QodeinTextField(
                 textAlign = TextAlign.Start,
             ),
             singleLine = singleLine,
+            maxLines = maxLines,
             minLines = minLines,
         )
 
@@ -304,7 +306,9 @@ fun QodeinTextField(
                     displayErrorText != null -> {
                         Text(
                             text = displayErrorText,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.lg),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = SpacingTokens.lg),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
@@ -362,7 +366,7 @@ fun QodeinBasicTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else 10,
     focusRequester: FocusRequester = FocusRequester.Default
 ) {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -379,18 +383,22 @@ fun QodeinBasicTextField(
 
     BasicTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            val enterCount = newValue.count { it == '\n' } + 1
+            if (enterCount <= maxLines || newValue.length < value.length) {
+                onValueChange(newValue)
+            }
+        },
         textStyle = textStyle,
         modifier = modifier
             .padding(vertical = SpacingTokens.xs)
             .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { isFocused = it.isFocused }
             .focusRequester(focusRequester),
         enabled = enabled,
         readOnly = readOnly,
         singleLine = singleLine,
-        minLines = if (singleLine) 1 else minLines,
-        maxLines = if (singleLine) 1 else maxLines,
+        minLines = minLines,
+        maxLines = maxLines,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         decorationBox = { innerTextField ->
@@ -413,7 +421,9 @@ fun QodeinBasicTextField(
 private fun QodeTextFieldPreview() {
     QodeTheme {
         Column(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(SpacingTokens.md),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(SpacingTokens.md),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
         ) {
             var value by remember { mutableStateOf("aaa") }
@@ -422,7 +432,7 @@ private fun QodeTextFieldPreview() {
                 onValueChange = { value = it },
                 placeholder = "Enter text...",
                 helperText = "Helper text",
-                leadingIcon = QodeinIcons.Hashtag,
+                leadingIcon = PostIcons.Hashtag,
             )
 
             Spacer(modifier = Modifier.height(SpacingTokens.md))
@@ -433,7 +443,7 @@ private fun QodeTextFieldPreview() {
                 onValueChange = { errorValue = it },
                 placeholder = "Enter text...",
                 errorText = "This field has a really looooooooooooooooooooong error message\nType here...",
-                leadingIcon = QodeinIcons.Hashtag,
+                leadingIcon = PostIcons.Hashtag,
             )
         }
     }

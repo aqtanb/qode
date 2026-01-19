@@ -1,7 +1,8 @@
 <resources>
 
-    <string name="create_promo_code">Добавить промокод</string>
-    <string name="add_to_feed">Добавить в ленту</string>
+    <string name="app_submit_promocode">Добавить промокод</string>
+    <string name="app_create_post">Написать пост</string>
+    <string name="app_fab_tooltip">Добавить контента</string>
     <string name="navigate_to">Перейти к %1$s</string>
 
     <string name="update_required_title">Требуется обновление</string>

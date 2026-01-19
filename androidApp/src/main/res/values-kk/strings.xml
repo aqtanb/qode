@@ -1,7 +1,8 @@
 <resources>
 
-    <string name="create_promo_code">Промокод тапсыру</string>
-    <string name="add_to_feed">Арнаға қосу</string>
+    <string name="app_submit_promocode">Промокод қосу</string>
+    <string name="app_create_post">Жаңа жазба</string>
+    <string name="app_fab_tooltip">Контент қосу</string>
     <string name="navigate_to">%1$s бетіне өту</string>
 
     <string name="update_required_title">Жаңарту қажет</string>

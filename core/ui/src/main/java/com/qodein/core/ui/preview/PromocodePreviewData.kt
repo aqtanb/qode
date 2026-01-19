@@ -58,6 +58,7 @@ object PromocodePreviewData {
         authorUsername = "Алина Жунусова",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(2.days),
+        voteScore = 123,
     )
 
     /**
@@ -81,6 +82,7 @@ object PromocodePreviewData {
         authorUsername = "Арман Нурланов",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(5.days),
+        voteScore = 123,
     )
 
     /**
@@ -104,6 +106,7 @@ object PromocodePreviewData {
         authorUsername = "Жанар Токтарбекова",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(2.days),
+        voteScore = 123,
     )
 
     /**
@@ -127,6 +130,7 @@ object PromocodePreviewData {
         authorUsername = "Ерлан Жұмабайұлы",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(1.days),
+        voteScore = 123,
     )
 
     /**
@@ -150,6 +154,7 @@ object PromocodePreviewData {
         authorUsername = "Айгерим Смағұлова",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(4.days),
+        voteScore = 123,
     )
 
     /**
@@ -173,6 +178,7 @@ object PromocodePreviewData {
         authorUsername = "Дарын Көшербаев",
         authorAvatarUrl = "https://res.cloudinary.com/dzbq1jcvr/image/upload/v1755544080/play_store_512_tvjckr.png",
         createdAt = Clock.System.now().minus(1.days),
+        voteScore = 123,
     )
 
     /**

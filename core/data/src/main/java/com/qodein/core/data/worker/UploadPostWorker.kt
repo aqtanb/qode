@@ -47,7 +47,7 @@ class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
         when (
             val result = submitPostUseCase(
                 authorId = UserId(authorId),
-                authorUsername = authorUsername,
+                authorName = authorUsername,
                 title = title,
                 content = content,
                 imageUris = imageUris,

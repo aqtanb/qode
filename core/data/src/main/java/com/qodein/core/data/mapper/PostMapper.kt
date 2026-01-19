@@ -1,16 +1,15 @@
 package com.qodein.core.data.mapper
 
-import com.google.firebase.Timestamp
 import com.qodein.core.data.dto.PostDto
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
-import com.qodein.shared.model.Tag
 import com.qodein.shared.model.UserId
-import kotlin.time.Instant
+import kotlin.time.Clock
 import kotlin.time.toKotlinInstant
 
 object PostMapper {
 
+    val now = Clock.System.now()
     fun toDomain(dto: PostDto): Post =
         Post.fromDto(
             id = PostId(dto.id),
@@ -20,11 +19,12 @@ object PostMapper {
             title = dto.title,
             content = dto.content,
             imageUrls = dto.imageUrls,
-            tags = dto.tags.map { Tag(value = it, postCount = 0) },
+            tags = dto.tags,
             upvotes = dto.upvotes,
             downvotes = dto.downvotes,
-            createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Instant.fromEpochSeconds(0),
-            updatedAt = dto.updatedAt?.toInstant()?.toKotlinInstant() ?: Instant.fromEpochSeconds(0),
+            voteScore = dto.voteScore,
+            createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: now,
+            updatedAt = dto.updatedAt?.toInstant()?.toKotlinInstant() ?: now,
         )
 
     fun toDto(post: Post): PostDto =
@@ -36,10 +36,11 @@ object PostMapper {
             title = post.title,
             content = post.content,
             imageUrls = post.imageUrls,
-            tags = post.tags.map { it.value },
+            tags = post.tags,
             upvotes = post.upvotes,
             downvotes = post.downvotes,
-            createdAt = Timestamp(post.createdAt.epochSeconds, 0),
-            updatedAt = Timestamp(post.updatedAt.epochSeconds, 0),
+            voteScore = post.voteScore,
+            createdAt = null,
+            updatedAt = null,
         )
 }

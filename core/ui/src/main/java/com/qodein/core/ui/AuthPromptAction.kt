@@ -3,7 +3,7 @@ package com.qodein.core.ui
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.ActionIcons
-import com.qodein.core.designsystem.icon.QodeinIcons
+import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.UIIcons
 
 /**
@@ -44,7 +44,7 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
     CreatePost(
         titleResId = R.string.auth_create_post_title,
         messageResId = R.string.auth_create_post_message,
-        iconVector = QodeinIcons.PostAdd,
+        iconVector = PostIcons.PostAdd,
     ),
     Profile(
         titleResId = R.string.auth_profile_title,

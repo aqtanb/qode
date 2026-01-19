@@ -13,7 +13,7 @@ import com.qodein.shared.platform.PlatformUri
 class SubmitPostUseCase(private val postRepository: PostRepository, private val storageRepository: StorageRepository) {
     suspend operator fun invoke(
         authorId: UserId,
-        authorUsername: String,
+        authorName: String,
         title: String,
         content: String? = null,
         imageUris: List<PlatformUri> = emptyList(),
@@ -21,7 +21,7 @@ class SubmitPostUseCase(private val postRepository: PostRepository, private val 
         authorAvatarUrl: String? = null,
         onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }
     ): Result<Unit, OperationError> {
-        Logger.i { "Creating post: $title by $authorUsername with ${imageUris.size} images" }
+        Logger.i { "Creating post: $title by $authorName with ${imageUris.size} images" }
 
         val imageUrls = mutableListOf<String>()
         imageUris.forEachIndexed { index, uri ->
@@ -43,9 +43,9 @@ class SubmitPostUseCase(private val postRepository: PostRepository, private val 
         return when (
             val createResult = Post.create(
                 authorId = authorId,
-                authorUsername = authorUsername,
+                authorName = authorName,
                 title = title,
-                content = content,
+                content = content ?: "",
                 imageUrls = imageUrls,
                 tags = tags,
                 authorAvatarUrl = authorAvatarUrl,

@@ -14,7 +14,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinTextField
-import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
@@ -53,7 +53,7 @@ internal fun PromocodeStep(
             onPromocodeChange(sanitized)
         },
         placeholder = stringResource(R.string.promo_code_step_placeholder),
-        leadingIcon = QodeIcons.Promocode,
+        leadingIcon = PromocodeIcons.Promocode,
         errorText = errorText,
         helperText = stringResource(R.string.promo_code_step_helper_text),
         focusRequester = focusRequester,

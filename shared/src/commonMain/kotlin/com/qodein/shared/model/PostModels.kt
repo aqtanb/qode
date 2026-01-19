@@ -4,9 +4,7 @@ package com.qodein.shared.model
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PostError
-import com.qodein.shared.model.Tag.Companion.MAX_TAGS_SELECTED
 import kotlinx.serialization.Serializable
-import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -18,43 +16,13 @@ import kotlin.uuid.Uuid
 value class PostId(val value: String) {
     init {
         require(value.isNotBlank()) { "Post ID cannot be blank" }
-        require(value.length == 32) { "Post ID must be 32 characters (UUID without hyphens)" }
-        require(value.matches(Regex("^[a-f0-9]+$"))) { "Post ID must be lowercase hex (UUID format)" }
-    }
-
-    override fun toString(): String = value
-}
-
-@Serializable
-data class Tag(val value: String, val postCount: Int = 0, val createdAt: Instant = Clock.System.now()) {
-    init {
-        require(value.isNotBlank()) { "Tag cannot be blank" }
-        require(value.length <= MAX_LENGTH) { "Tag cannot exceed $MAX_LENGTH characters" }
-        require(value == value.lowercase()) { "Tag must be lowercase" }
-        require(value.matches(VALID_PATTERN)) { "Tag contains invalid characters" }
-        require(postCount >= 0) { "Post count cannot be negative" }
     }
 
     companion object {
-        const val MAX_LENGTH = 50
-        const val MAX_TAGS_SELECTED = 5
-        val VALID_PATTERN = Regex("^[a-z0-9_]+$")
-
-        fun create(
-            name: String,
-            postCount: Int = 0,
-            createdAt: Instant = Clock.System.now()
-        ): Result<Tag, PostError.CreationFailure> {
-            val cleanName = name.trim()
-                .lowercase()
-                .replace(Regex("\\s+"), "_")
-                .replace(Regex("[^a-z0-9_]"), "")
-
-            return if (cleanName.isBlank()) {
-                Result.Error(PostError.CreationFailure.InvalidTagData)
-            } else {
-                Result.Success(Tag(cleanName, postCount, createdAt))
-            }
+        @OptIn(ExperimentalUuidApi::class)
+        fun generate(): PostId {
+            val raw = Uuid.random().toHexString()
+            return PostId(raw)
         }
     }
 }
@@ -65,114 +33,89 @@ data class Post private constructor(
     val id: PostId,
     val authorId: UserId,
     val authorName: String,
-    val authorAvatarUrl: String? = null,
+    val authorAvatarUrl: String?,
     val title: String,
-    val content: String?,
-    val imageUrls: List<String> = emptyList(),
-    val tags: List<Tag> = emptyList(),
-    val upvotes: Int = 0,
-    val downvotes: Int = 0,
+    val content: String,
+    val imageUrls: List<String>,
+    val tags: List<String>,
+    val upvotes: Int,
+    val downvotes: Int,
+    val voteScore: Int,
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
-    val voteScore: Int get() = upvotes - downvotes
-
     companion object {
+        const val TITLE_MAX_LENGTH = 50
+        const val CONTENT_MAX_LENGTH = 1000
+        const val MAX_TAGS = 5
+        const val TAG_MAX_LENGTH = 15
+        const val MAX_IMAGES = 5
+
         fun create(
             authorId: UserId,
-            authorUsername: String,
+            authorName: String,
             title: String,
-            content: String? = null,
-            imageUrls: List<String> = emptyList(),
-            tags: List<String> = emptyList(),
-            authorAvatarUrl: String? = null
+            content: String,
+            imageUrls: List<String>,
+            tags: List<String>,
+            authorAvatarUrl: String?
         ): Result<Post, PostError.CreationFailure> {
-            val cleanTitle = title.trim()
-            val cleanContent = content?.trim()
-            val cleanAuthorName = authorUsername.trim()
+            val cleanTitle = filterTitle(title.trim())
+            if (cleanTitle.isBlank()) return Result.Error(PostError.CreationFailure.EmptyTitle)
+
+            val cleanContent = filterContent(content.trim())
+
+            if (tags.size > MAX_TAGS) return Result.Error(PostError.CreationFailure.TooManyTags)
+            val cleanTags = tags.map { filterTagInput(it).trim() }.filter { it.isNotBlank() }.distinct()
+
             val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
+            if (cleanImageUrls.size > MAX_IMAGES) return Result.Error(PostError.CreationFailure.TooManyImages)
 
-            // Validate inputs
-            if (cleanTitle.isBlank()) {
-                return Result.Error(PostError.CreationFailure.EmptyTitle)
-            }
-            if (cleanTitle.length > 200) {
-                return Result.Error(PostError.CreationFailure.TitleTooLong)
-            }
-            cleanContent?.length?.let {
-                if (it > 2000) {
-                    return Result.Error(PostError.CreationFailure.ContentTooLong)
-                }
-            }
-            if (cleanAuthorName.isBlank()) {
-                return Result.Error(PostError.CreationFailure.EmptyAuthorName)
-            }
-            if (tags.size > MAX_TAGS_SELECTED) {
-                return Result.Error(PostError.CreationFailure.TooManyTags)
-            }
-            if (cleanImageUrls.size > 5) {
-                return Result.Error(PostError.CreationFailure.TooManyImages)
-            }
-
-            // Process tags
-            val cleanTags = mutableListOf<Tag>()
-            for (tagName in tags) {
-                when (val tagResult = Tag.create(tagName)) {
-                    is Result.Success -> cleanTags.add(tagResult.data)
-                    is Result.Error -> return Result.Error(tagResult.error)
-                }
-            }
-
+            val now = Clock.System.now()
             return Result.Success(
                 Post(
-                    id = PostId(generateRandomId()),
+                    id = PostId.generate(),
                     authorId = authorId,
-                    authorName = cleanAuthorName,
-                    authorAvatarUrl = authorAvatarUrl?.trim(),
+                    authorName = authorName,
+                    authorAvatarUrl = authorAvatarUrl,
                     title = cleanTitle,
                     content = cleanContent,
                     imageUrls = cleanImageUrls,
                     tags = cleanTags,
-                    createdAt = Clock.System.now(),
-                    updatedAt = Clock.System.now(),
+                    upvotes = 0,
+                    downvotes = 0,
+                    voteScore = 0,
+                    createdAt = now,
+                    updatedAt = now,
                 ),
             )
         }
 
-        /**
-         * Reconstruct a Post from storage/DTO (for mappers/repositories only).
-         * Assumes data is already validated. No sanitization performed.
-         */
         fun fromDto(
             id: PostId,
             authorId: UserId,
             authorName: String,
-            authorAvatarUrl: String? = null,
+            authorAvatarUrl: String?,
             title: String,
-            content: String?,
-            imageUrls: List<String> = emptyList(),
-            tags: List<Tag> = emptyList(),
-            upvotes: Int = 0,
-            downvotes: Int = 0,
+            content: String,
+            imageUrls: List<String>,
+            tags: List<String>,
+            upvotes: Int,
+            downvotes: Int,
+            voteScore: Int,
             createdAt: Instant,
             updatedAt: Instant
         ): Post =
             Post(
-                id = id,
-                authorId = authorId,
-                authorName = authorName,
-                authorAvatarUrl = authorAvatarUrl,
-                title = title,
-                content = content,
-                imageUrls = imageUrls,
-                tags = tags,
-                upvotes = upvotes,
-                downvotes = downvotes,
-                createdAt = createdAt,
-                updatedAt = updatedAt,
+                id, authorId, authorName, authorAvatarUrl, title, content,
+                imageUrls, tags, upvotes, downvotes, voteScore, createdAt, updatedAt,
             )
 
-        @OptIn(ExperimentalUuidApi::class)
-        private fun generateRandomId(): String = Uuid.random().toHexString()
+        fun filterTitle(input: String): String = input.take(TITLE_MAX_LENGTH)
+        fun filterContent(input: String): String = input.take(CONTENT_MAX_LENGTH)
+        fun filterTagInput(input: String): String =
+            input.lowercase()
+                .filter { it.isLetterOrDigit() || it == '_' }
+                .take(TAG_MAX_LENGTH)
     }
 }

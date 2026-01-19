@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="post">Жазба</string>
+    <string name="post_empty_state_description">Бірінші жазбаны сіз қосыңыз :)</string>
     <string name="select_tags">Тегтерді таңдаңыз</string>
     <string name="popular_tags">Танымал тегтер</string>
-    <string name="type_tag">Тег енгізіңіз</string>
+    <string name="post_tag_placeholder">жеңілдік</string>
     <string name="selected_tags_label">Таңдалды</string>
     <string name="max_tags_reached">Ең көп %d тег</string>
-    <string name="tag_helper_text">Кіші әріп, сан және асты сызу қолданыңыз</string>
+    <string name="post_tag_helper_text">Тэгты енгізіңіз</string>
     <string name="tag_too_long">Тег 50 таңбадан аспауы керек</string>
     <string name="tag_invalid_characters">Тек кіші әріптер, сандар, сызықша және асты сызу рұқсат</string>
     <string name="tag_already_added">Тег қосылған</string>
@@ -18,4 +19,5 @@
     <string name="placeholder_description">Сипаттама</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>
+    <string name="post_empty_state_title">Жазбалар жоқ</string>
 </resources>

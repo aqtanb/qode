@@ -51,7 +51,7 @@ fun PostCard(
                 authorName = post.authorName,
                 authorAvatarUrl = post.authorAvatarUrl,
                 createdAt = post.createdAt,
-                tags = post.tags.map { it.value },
+                tags = post.tags,
                 voteScore = post.voteScore,
             )
 

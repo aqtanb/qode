@@ -19,7 +19,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user123"),
-                authorUsername = "John Doe",
+                authorName = "John Doe",
                 title = "Amazing new features in Android 14 that will change everything",
                 content = "Android 14 brings incredible new features that will revolutionize " +
                     "how we develop mobile apps. From enhanced privacy controls to better performance " +
@@ -43,7 +43,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user456"),
-                authorUsername = "Sarah Smith",
+                authorName = "Sarah Smith",
                 title = "Best coding practices for clean architecture",
                 content = "Clean architecture is essential for maintainable code. Here are the " +
                     "top practices that every developer should follow to write better, more organized " +
@@ -62,7 +62,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user789"),
-                authorUsername = "Alex Chen",
+                authorName = "Alex Chen",
                 title = "Jetpack Compose state management deep dive",
                 content = "Understanding state in Compose is crucial for building reactive UIs. " +
                     "This guide covers everything from remember to derivedStateOf and beyond.",
@@ -80,7 +80,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user999"),
-                authorUsername = "Maria Garcia",
+                authorName = "Maria Garcia",
                 title = "Kotlin coroutines: From basics to advanced patterns",
                 content = "Master coroutines with this comprehensive guide covering flows, " +
                     "channels, and structured concurrency patterns that will make your async code shine.",
@@ -101,7 +101,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user111"),
-                authorUsername = "Dev Newbie",
+                authorName = "Dev Newbie",
                 title = "My first Android app journey",
                 content = "Just published my first app to the Play Store! Here's what I learned " +
                     "along the way and mistakes I made so you don't have to.",
@@ -116,7 +116,7 @@ object PostPreviewData {
         (
             Post.create(
                 authorId = UserId("user123"),
-                authorUsername = "VeryLongUsernameToTestWrapping",
+                authorName = "VeryLongUsernameToTestWrapping",
                 title = "A".repeat(200), // Exactly 200 chars - max title length
                 content = "B".repeat(2000), // Exactly 2000 chars - max content length
                 imageUrls = listOf(
