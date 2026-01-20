@@ -15,8 +15,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -32,13 +30,13 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.post.R
 import com.qodein.shared.model.Post
 
-// TODO: Fix scrolling and imepadding
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TagSelectorBottomSheet(
-    onTitleChange: (String) -> Unit,
     selectedTags: List<String>,
-    onTagSelected: (String) -> Unit,
+    currentTagInput: String,
+    onTagChange: (String) -> Unit,
+    onTagAdded: (String) -> Unit,
     onTagRemoved: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -48,8 +46,9 @@ internal fun TagSelectorBottomSheet(
     ) {
         TagSelectorContent(
             selectedTags = selectedTags,
-            onTitleChange = onTitleChange,
-            onTagSelected = onTagSelected,
+            currentTagInput = currentTagInput,
+            onTagChange = onTagChange,
+            onTagAdded = onTagAdded,
             onTagRemoved = onTagRemoved,
             onDismiss = onDismiss,
             modifier = modifier,
@@ -60,14 +59,14 @@ internal fun TagSelectorBottomSheet(
 @Composable
 private fun TagSelectorContent(
     selectedTags: List<String>,
-    onTitleChange: (String) -> Unit,
-    onTagSelected: (String) -> Unit,
+    currentTagInput: String,
+    onTagChange: (String) -> Unit,
+    onTagAdded: (String) -> Unit,
     onTagRemoved: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
-    var tagText by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -77,10 +76,9 @@ private fun TagSelectorContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        // TODO: Add imepadding, move out from the column
         QodeinTextField(
-            value = tagText,
-            onValueChange = { onTitleChange(tagText) },
+            value = currentTagInput,
+            onValueChange = { onTagChange(it) },
             placeholder = stringResource(R.string.post_tag_placeholder),
             leadingIcon = PostIcons.Hashtag,
             keyboardOptions = KeyboardOptions(
@@ -89,7 +87,8 @@ private fun TagSelectorContent(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    if (tagText.isBlank()) onDismiss()
+                    if (currentTagInput.isBlank()) onDismiss()
+                    onTagAdded(currentTagInput)
                 },
             ),
             canBeBlank = true,

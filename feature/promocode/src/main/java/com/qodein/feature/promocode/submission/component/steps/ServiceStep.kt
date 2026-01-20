@@ -341,7 +341,7 @@ fun SelectServiceButton(
             )
 
             Icon(
-                imageVector = ActionIcons.Next,
+                imageVector = NavigationIcons.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(SizeTokens.Icon.sizeMedium),

@@ -39,7 +39,6 @@ import com.qodein.core.designsystem.component.QodeTextButton
 import com.qodein.core.designsystem.component.QodeinBackIconButton
 import com.qodein.core.designsystem.component.QodeinElevatedCard
 import com.qodein.core.designsystem.component.QodeinTopAppBar
-import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeCategoryIcons
 import com.qodein.core.designsystem.icon.UIIcons
@@ -237,7 +236,7 @@ private fun SettingsItem(
     title: String,
     leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
-    trailingIcon: ImageVector? = ActionIcons.Next
+    trailingIcon: ImageVector? = NavigationIcons.ChevronRight
 ) {
     QodeinElevatedCard(
         modifier = modifier.fillMaxWidth(),

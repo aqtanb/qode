@@ -47,6 +47,7 @@ data class Post private constructor(
     companion object {
         const val TITLE_MAX_LENGTH = 50
         const val CONTENT_MAX_LENGTH = 1000
+        const val CONTENT_MAX_LINES = 10
         const val MAX_TAGS = 5
         const val TAG_MAX_LENGTH = 15
         const val MAX_IMAGES = 5
@@ -66,7 +67,7 @@ data class Post private constructor(
             val cleanContent = filterContent(content.trim())
 
             if (tags.size > MAX_TAGS) return Result.Error(PostError.CreationFailure.TooManyTags)
-            val cleanTags = tags.map { filterTagInput(it).trim() }.filter { it.isNotBlank() }.distinct()
+            val cleanTags = filterTags(tags.map { filterTagInput(it).trim() })
 
             val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
             if (cleanImageUrls.size > MAX_IMAGES) return Result.Error(PostError.CreationFailure.TooManyImages)
@@ -112,10 +113,23 @@ data class Post private constructor(
             )
 
         fun filterTitle(input: String): String = input.take(TITLE_MAX_LENGTH)
-        fun filterContent(input: String): String = input.take(CONTENT_MAX_LENGTH)
+
+        fun filterContent(input: String): String {
+            val withoutDoubleNewlines = input.replace(Regex("\n{2,}"), "\n")
+            val lines = withoutDoubleNewlines.split('\n')
+            val limitedLines = if (lines.size > CONTENT_MAX_LINES) {
+                lines.take(CONTENT_MAX_LINES).joinToString("\n")
+            } else {
+                withoutDoubleNewlines
+            }
+            return limitedLines.take(CONTENT_MAX_LENGTH)
+        }
+
         fun filterTagInput(input: String): String =
             input.lowercase()
                 .filter { it.isLetterOrDigit() || it == '_' }
                 .take(TAG_MAX_LENGTH)
+
+        fun filterTags(tags: List<String>): List<String> = tags.filter { it.isNotBlank() }.distinct()
     }
 }

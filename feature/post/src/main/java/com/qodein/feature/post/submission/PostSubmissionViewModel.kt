@@ -1,8 +1,8 @@
 package com.qodein.feature.post.submission
 
-import android.content.Context
+import android.app.Application
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.ui.error.toUiText
@@ -10,7 +10,9 @@ import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.domain.usecase.post.EnqueuePostSubmissionUseCase
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.Post.Companion.filterTags
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PostSubmissionViewModel(private val context: Context, private val getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
+class PostSubmissionViewModel(
+    application: Application,
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val enqueuePostSubmissionUseCase: EnqueuePostSubmissionUseCase
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow<PostSubmissionUiState>(PostSubmissionUiState.Success.initial())
     val uiState: StateFlow<PostSubmissionUiState> = _uiState.asStateFlow()
@@ -63,14 +69,9 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
             is PostSubmissionAction.RemoveImage -> removeImage(action.index)
             is PostSubmissionAction.UpdateImageUris -> updateImageUris(action.uris)
 
-            // Submission
             PostSubmissionAction.Submit -> submitPost()
 
-            // Navigation
             PostSubmissionAction.NavigateBack -> navigateBack()
-
-            // Error handling
-            PostSubmissionAction.ClearValidationErrors -> clearValidationErrors()
             PostSubmissionAction.RetryPostSubmission -> submitPost()
         }
     }
@@ -95,6 +96,9 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
         }
     }
     private fun addTag(tag: String) {
+        updateSuccessState { state ->
+            state.copy(tags = filterTags(state.tags + tag), tagInput = "")
+        }
     }
 
     private fun removeTag(tag: String) {
@@ -127,7 +131,7 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
             }
 
             val result = ImageCompressor.compressImages(
-                context = context,
+                context = getApplication(),
                 uris = urisToCompress,
                 onProgress = { current, total ->
                     updateSuccessState {
@@ -159,69 +163,34 @@ class PostSubmissionViewModel(private val context: Context, private val getAuthS
     }
 
     private fun submitPost() {
+        val currentState = _uiState.value as? PostSubmissionUiState.Success ?: return
+        val userId = (currentAuthState as? AuthState.Authenticated)?.userId ?: return
+
         viewModelScope.launch {
-            val currentState = uiState.value
-            if (currentState !is PostSubmissionUiState.Success) return@launch
-
-            val userId = (currentAuthState as? AuthState.Authenticated)?.userId
-            if (userId == null) {
-                Logger.w { "Cannot submit: user is not authenticated" }
-                return@launch
+            when (
+                val result = enqueuePostSubmissionUseCase(
+                    authorId = userId,
+                    title = currentState.title,
+                    content = currentState.content,
+                    imageUris = currentState.imageUris,
+                    tags = currentState.tags,
+                )
+            ) {
+                is Result.Success -> {
+                    Logger.i { "Post submission scheduled successfully" }
+                    _events.emit(PostSubmissionEvent.PostSubmitted)
+                }
+                is Result.Error -> {
+                    Logger.e { "Failed to schedule post submission: ${result.error}" }
+                    _events.emit(PostSubmissionEvent.ShowError(result.error.toUiText()))
+                }
             }
-
-            _uiState.update { PostSubmissionUiState.Loading }
-
-            /*val workRequest = UploadPostWorker.createWorkRequest(
-                title = currentState.title,
-                content = currentState.content,
-                tags = currentState.tags.map { it.value },
-                imageUris = currentState.imageUris,
-                authorId = userId.value,
-                authorUsername = userId.displayName.orEmpty(),
-                authorAvatarUrl = userId.profile.photoUrl,
-            )
-            WorkManager.getInstance(context).enqueue(workRequest)
-            _events.emit(PostSubmissionEvent.PostSubmitted)*/
         }
-    }
-
-    private fun validateInputs(state: PostSubmissionUiState.Success): ValidationErrors {
-        var titleError: String? = null
-        var contentError: String? = null
-        var tagsError: String? = null
-        var imagesError: String? = null
-
-        if (state.title.isBlank()) {
-            titleError = "Title is required"
-        } else if (state.title.length > 200) {
-            titleError = "Title is too long (max 200 characters)"
-        }
-
-        if (state.content.isBlank()) {
-            contentError = "Content is required"
-        } else if (state.content.length > 2000) {
-            contentError = "Content is too long (max 2000 characters)"
-        }
-
-        if (state.imageUris.size > 5) {
-            imagesError = "Too many images (max 5)"
-        }
-
-        return ValidationErrors(
-            titleError = titleError,
-            contentError = contentError,
-            tagsError = tagsError,
-            imagesError = imagesError,
-        )
     }
 
     private fun navigateBack() {
         viewModelScope.launch {
             _events.emit(PostSubmissionEvent.NavigateBack)
         }
-    }
-
-    private fun clearValidationErrors() {
-        updateSuccessState { it.copy(validationErrors = ValidationErrors()) }
     }
 }

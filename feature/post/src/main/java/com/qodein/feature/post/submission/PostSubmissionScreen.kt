@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,7 +82,7 @@ fun PostSubmissionScreen(
     val scope = rememberCoroutineScope()
     var showTagBottomSheet by remember { mutableStateOf(false) }
     var showFullScreenImage by remember { mutableStateOf(false) }
-    var fullScreenImageIndex by remember { mutableStateOf(0) }
+    var fullScreenImageIndex by remember { mutableIntStateOf(0) }
     val hazeState = remember { HazeState() }
 
     // Extract string resources to avoid lint warnings
@@ -230,8 +231,9 @@ fun PostSubmissionScreen(
                         if (showTagBottomSheet) {
                             TagSelectorBottomSheet(
                                 selectedTags = currentState.tags,
-                                onTitleChange = { viewModel.onAction(PostSubmissionAction.UpdateTitle(it)) },
-                                onTagSelected = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
+                                currentTagInput = currentState.tagInput,
+                                onTagChange = { viewModel.onAction(PostSubmissionAction.UpdateTag(it)) },
+                                onTagAdded = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
                                 onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
                                 onDismiss = { showTagBottomSheet = false },
                             )

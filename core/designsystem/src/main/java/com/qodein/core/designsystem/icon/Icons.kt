@@ -139,7 +139,6 @@ object ActionIcons {
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown
     val Close: ImageVector = FeatherIcons.X
-    val Next: ImageVector = FeatherIcons.ChevronRight
     val Previous: ImageVector = FeatherIcons.ChevronLeft
     val Thumbs: ImageVector = FeatherIcons.ThumbsUp
     val ThumbsDown: ImageVector = FeatherIcons.ThumbsDown

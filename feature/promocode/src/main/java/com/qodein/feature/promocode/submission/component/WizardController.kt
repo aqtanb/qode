@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
@@ -128,11 +129,11 @@ fun WizardController(
                     } else {
                         Icon(
                             imageVector = if (canGoNext) {
-                                ActionIcons.Next
+                                NavigationIcons.ChevronRight
                             } else if (canSubmit && onSubmit != null) {
                                 ActionIcons.Check
                             } else {
-                                ActionIcons.Next
+                                NavigationIcons.ChevronRight
                             },
                             contentDescription = if (canGoNext) {
                                 nextButtonText

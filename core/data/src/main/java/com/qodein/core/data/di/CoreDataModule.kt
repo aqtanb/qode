@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.work.WorkManager
 import com.algolia.client.api.SearchClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +27,7 @@ import com.qodein.core.data.datasource.FirestoreReportDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.datasource.LocalReportDataSource
+import com.qodein.core.data.post.WorkManagerPostSubmissionScheduler
 import com.qodein.core.data.repository.AppUpdateConfigRepositoryImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
@@ -42,6 +44,7 @@ import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.repository.BannerRepository
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
+import com.qodein.shared.domain.repository.PostSubmissionScheduler
 import com.qodein.shared.domain.repository.PromocodeRepository
 import com.qodein.shared.domain.repository.ReportRepository
 import com.qodein.shared.domain.repository.ServiceRepository
@@ -60,6 +63,7 @@ val coreDataModule = module {
     single<FirebaseFunctions> { Firebase.functions }
     single<FirebaseStorage> { Firebase.storage }
     single<DataStore<Preferences>> { androidContext().preferencesDataStore }
+    single<WorkManager> { WorkManager.getInstance(androidContext()) }
     single {
         SearchClient(
             appId = BuildConfig.ALGOLIA_APP_ID,
@@ -90,4 +94,5 @@ val coreDataModule = module {
     single<PostRepository> { PostRepositoryImpl(get()) }
     single<StorageRepository> { StorageRepositoryImpl(get()) }
     single<ReportRepository> { ReportRepositoryImpl(get(), get()) }
+    single<PostSubmissionScheduler> { WorkManagerPostSubmissionScheduler(get()) }
 }

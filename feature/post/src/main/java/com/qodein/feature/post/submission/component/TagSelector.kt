@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.icon.ActionIcons
+import com.qodein.core.designsystem.icon.NavigationIcons.ChevronRight
 import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -88,7 +88,7 @@ internal fun TagSelector(
         )
 
         Icon(
-            imageVector = ActionIcons.Next,
+            imageVector = ChevronRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(SizeTokens.Icon.sizeMedium),

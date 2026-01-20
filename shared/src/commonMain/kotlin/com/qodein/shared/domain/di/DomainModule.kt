@@ -7,6 +7,7 @@ import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
+import com.qodein.shared.domain.usecase.post.EnqueuePostSubmissionUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
@@ -71,6 +72,7 @@ val domainModule = module {
     single { GetPostsByUserUseCase(get()) }
     single { GetPostsUseCase(get()) }
     single { SubmitPostUseCase(get(), get()) }
+    single { EnqueuePostSubmissionUseCase(get(), get()) }
 
     single { GetThemeUseCase(get()) }
     single { ObserveLanguageUseCase(get()) }
