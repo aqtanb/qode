@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import co.touchlab.kermit.Logger
-import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
@@ -35,12 +34,10 @@ import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.feature.settings.navigation.settingsSection
 import com.qodein.qode.ui.QodeAppState
 import com.qodein.shared.model.ContentType
-import com.qodein.shared.model.UserId
 
 @Composable
 fun QodeNavHost(
     appState: QodeAppState,
-    userId: UserId?,
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
@@ -87,14 +84,7 @@ fun QodeNavHost(
         )
 
         feedSection(
-            userId = userId,
-            onProfileClick = {
-                if (userId != null) {
-                    navController.navigateToProfile()
-                } else {
-                    navController.navigateToAuthBottomSheet(AuthPromptAction.Profile)
-                }
-            },
+            onProfileClick = { navController.navigateToProfile() },
             onSettingsClick = { navController.navigateToSettings() },
             onPostClick = { postId ->
                 navController.navigateToPostDetail(postId)

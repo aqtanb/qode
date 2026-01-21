@@ -9,7 +9,6 @@ import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
 import com.qodein.feature.post.submission.PostSubmissionScreen
 import com.qodein.shared.model.PostId
-import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
 /**
@@ -36,14 +35,12 @@ fun NavController.navigateToPostDetail(
  * Navigation graph builder extension for feed feature
  */
 fun NavGraphBuilder.feedSection(
-    userId: UserId?,
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPostClick: (PostId) -> Unit
 ) {
     composable<FeedRoute> {
         FeedRoute(
-            userId = userId,
             onProfileClick = onProfileClick,
             onSettingsClick = onSettingsClick,
             onPostClick = onPostClick,

@@ -4,9 +4,7 @@ import androidx.navigation.NavController
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
 import com.qodein.feature.post.navigation.navigateToPostSubmission
-import com.qodein.feature.profile.navigation.navigateToProfile
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
-import com.qodein.feature.settings.navigation.navigateToSettings
 import com.qodein.shared.domain.AuthState
 
 /**
@@ -39,23 +37,6 @@ class NavigationHandler {
         navigateToTopLevel: (TopLevelDestination) -> Unit
     ) {
         when (action) {
-            NavigationActions.NavigateToProfile -> {
-                when (authState) {
-                    is AuthState.Authenticated -> navController.navigateToProfile()
-                    is AuthState.Unauthenticated -> navController.navigateToAuthBottomSheet(AuthPromptAction.Profile)
-                    null -> {
-                        // Auth state is loading, wait for it to resolve
-                    }
-                }
-            }
-
-            NavigationActions.NavigateToFavorites -> {
-            }
-
-            NavigationActions.NavigateToSettings -> {
-                navController.navigateToSettings()
-            }
-
             is NavigationActions.NavigateToTab -> {
                 navigateToTopLevel(action.destination)
             }
@@ -65,10 +46,6 @@ class NavigationHandler {
                     // If no back stack, navigate to home
                     navigateToTopLevel(TopLevelDestination.HOME)
                 }
-            }
-
-            NavigationActions.NavigateToHome -> {
-                navigateToTopLevel(TopLevelDestination.HOME)
             }
 
             NavigationActions.NavigateToPromocodeSubmission -> {

@@ -8,7 +8,7 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
-import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
+import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val observeUserUseCase: ObserveUserUseCase,
+    private val observeCurrentUserUseCase: ObserveCurrentUserUseCase,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getPromocodesByUserUseCase: GetPromocodesByUserUseCase,
@@ -70,7 +70,7 @@ class ProfileViewModel(
                 .collectLatest { authState ->
                     when (authState) {
                         is AuthState.Authenticated -> {
-                            observeUserUseCase(authState.userId.value)
+                            observeCurrentUserUseCase(authState.userId.value)
                                 .collectLatest { userResult ->
                                     when (userResult) {
                                         is Result.Success -> {

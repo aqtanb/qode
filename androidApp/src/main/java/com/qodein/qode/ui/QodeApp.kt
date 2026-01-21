@@ -22,7 +22,6 @@ import com.qodein.qode.navigation.TopLevelDestination
 import com.qodein.qode.ui.container.AppBottomBarContainer
 import com.qodein.qode.ui.container.AppFabContainer
 import com.qodein.qode.ui.state.AppUiEvents
-import com.qodein.shared.domain.AuthState
 import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -34,7 +33,6 @@ internal fun QodeApp(
 ) {
     val appViewModel: QodeAppViewModel = koinViewModel()
     val authState by appViewModel.authState.collectAsStateWithLifecycle()
-    val userId = (authState as? AuthState.Authenticated)?.userId
 
     val navigationHandler = NavigationHandler()
 
@@ -85,14 +83,12 @@ internal fun QodeApp(
             ) { _ ->
                 QodeNavHost(
                     appState = appState,
-                    userId = userId,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
         } else {
             QodeNavHost(
                 appState = appState,
-                userId = userId,
                 modifier = Modifier.fillMaxSize(),
             )
         }

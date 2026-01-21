@@ -32,7 +32,7 @@ import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.EnsureUserExists
 import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
-import com.qodein.shared.domain.usecase.user.ObserveUserUseCase
+import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
 import org.koin.dsl.module
 import kotlin.time.Clock
@@ -51,7 +51,7 @@ val domainModule = module {
 
     single { EnsureUserExists(get()) }
     single { GetUserByIdUseCase(get()) }
-    single { ObserveUserUseCase(get()) }
+    single { ObserveCurrentUserUseCase(get()) }
     single { AcceptConsentAndCreateUserUseCase(get(), get()) }
     single { AcceptLegalPoliciesUseCase(get()) }
 
