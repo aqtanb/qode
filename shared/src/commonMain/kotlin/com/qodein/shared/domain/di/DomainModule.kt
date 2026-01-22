@@ -51,7 +51,7 @@ val domainModule = module {
 
     single { EnsureUserExists(get()) }
     single { GetUserByIdUseCase(get()) }
-    single { ObserveCurrentUserUseCase(get()) }
+    single { ObserveCurrentUserUseCase(get(), get()) }
     single { AcceptConsentAndCreateUserUseCase(get(), get()) }
     single { AcceptLegalPoliciesUseCase(get()) }
 

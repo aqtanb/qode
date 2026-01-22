@@ -3,8 +3,7 @@ package com.qodein.feature.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.shared.common.Result
-import com.qodein.shared.domain.AuthState
-import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
@@ -13,13 +12,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val observeCurrentUserUseCase: ObserveCurrentUserUseCase,
-    private val getAuthStateUseCase: GetAuthStateUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getPromocodesByUserUseCase: GetPromocodesByUserUseCase,
     private val getPostsByUserUseCase: GetPostsByUserUseCase
@@ -32,13 +31,13 @@ class ProfileViewModel(
     val events = _events.asSharedFlow()
 
     init {
-        observeAuthState()
+        observeUser()
     }
 
     fun onAction(action: ProfileAction) {
         when (action) {
             ProfileAction.SignOutClicked -> signOut()
-            ProfileAction.RetryClicked -> observeAuthState()
+            ProfileAction.RetryClicked -> observeUser()
             ProfileAction.BlockedClicked -> {
                 emitEvent(ProfileEvent.NavigateToBlockedUsers)
             }
@@ -64,31 +63,25 @@ class ProfileViewModel(
         }
     }
 
-    private fun observeAuthState() {
-        viewModelScope.launch {
-            getAuthStateUseCase()
-                .collectLatest { authState ->
-                    when (authState) {
-                        is AuthState.Authenticated -> {
-                            observeCurrentUserUseCase(authState.userId.value)
-                                .collectLatest { userResult ->
-                                    when (userResult) {
-                                        is Result.Success -> {
-                                            _uiState.value = ProfileUiState.Success(userResult.data)
-                                            getPromocodes()
-                                        }
-                                        is Result.Error -> _uiState.value = ProfileUiState.Error(userResult.error)
-                                    }
-                                }
+    private fun observeUser() {
+        observeCurrentUserUseCase()
+            .onEach { result ->
+                _uiState.value = when (result) {
+                    is Result.Success -> {
+                        if (_uiState.value !is ProfileUiState.Success) {
+                            getPromocodes()
                         }
-
-                        AuthState.Unauthenticated -> {
-                            _uiState.value = ProfileUiState.Loading
+                        ProfileUiState.Success(result.data)
+                    }
+                    is Result.Error -> {
+                        if (result.error is UserError.AuthenticationFailure) {
                             emitEvent(ProfileEvent.NavigateToAuth)
                         }
+                        ProfileUiState.Error(result.error)
                     }
                 }
-        }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun getPromocodes() {

@@ -36,35 +36,22 @@ fun FeedTopAppBar(
         navigationIcon = null,
         modifier = modifier,
         actions = {
-            FeedAppBarActions(
-                user = user,
-                onProfileClick = onProfileClick,
-                onSettingsClick = onSettingsClick,
-            )
+            IconButton(onClick = onProfileClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
+                ProfileAvatar(
+                    user = user,
+                    size = SizeTokens.Icon.sizeXLarge,
+                    contentDescription = stringResource(R.string.ui_profile),
+                )
+            }
+
+            IconButton(onClick = onSettingsClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
+                Icon(
+                    imageVector = NavigationIcons.Settings,
+                    contentDescription = stringResource(R.string.ui_settings),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
+                )
+            }
         },
     )
-}
-
-@Composable
-private fun FeedAppBarActions(
-    user: User?,
-    onProfileClick: () -> Unit,
-    onSettingsClick: () -> Unit
-) {
-    IconButton(onClick = onProfileClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
-        ProfileAvatar(
-            user = user,
-            size = SizeTokens.Icon.sizeXLarge,
-            contentDescription = stringResource(R.string.ui_profile),
-        )
-    }
-
-    IconButton(onClick = onSettingsClick, modifier = Modifier.size(SizeTokens.IconButton.sizeLarge)) {
-        Icon(
-            imageVector = NavigationIcons.Settings,
-            contentDescription = stringResource(R.string.ui_settings),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-        )
-    }
 }

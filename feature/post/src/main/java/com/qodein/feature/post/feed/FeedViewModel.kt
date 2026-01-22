@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
-import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
-import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,13 +16,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class FeedViewModel(
-    private val getPostsUseCase: GetPostsUseCase,
-    private val getUserByIdUseCase: GetUserByIdUseCase,
-    private val observeCurrentUserUseCase: ObserveCurrentUserUseCase,
-) : ViewModel() {
+class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val observeCurrentUserUseCase: ObserveCurrentUserUseCase) :
+    ViewModel() {
 
-    private val _uiState: MutableStateFlow<FeedUiState> = MutableStateFlow(FeedUiState.Loading)
+    private val _uiState: MutableStateFlow<FeedUiState> = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 
     private val _events: MutableSharedFlow<FeedEvent> = MutableSharedFlow()
@@ -46,40 +41,26 @@ class FeedViewModel(
     }
 
     private fun observeCurrentUser() {
-        viewModelScope.launch {
-            observeCurrentUserUseCase().onEach { result ->
-                _uiState.update { currentState ->
-                    val user = (result as? Result.Success)?.data
-
-                    when (currentState) {
-                        is FeedUiState.Success -> {
-                            currentState.copy(currentUser = user)
-                        }
-                        else -> {
-                            FeedUiState.Success(currentUser = user)
-                        }
-                    }
-                }
+        observeCurrentUserUseCase()
+            .onEach { result ->
+                val user = (result as? Result.Success)?.data
+                _uiState.update { it.copy(currentUser = user) }
             }
-                .launchIn(viewModelScope)
-        }
+            .launchIn(viewModelScope)
     }
 
     private fun loadPosts(cursor: Any? = null) {
         viewModelScope.launch {
-            _uiState.update { FeedUiState.Loading }
+            _uiState.update { it.copy(postsState = PostsUiState.Loading) }
+
             val result = getPostsUseCase(cursor)
 
             _uiState.update { currentState ->
-                val postsState = when (result) {
+                val newPostsState = when (result) {
                     is Result.Success -> PostsUiState.Success(result.data.data)
                     is Result.Error -> PostsUiState.Error(result.error)
                 }
-
-                when (currentState) {
-                    is FeedUiState.Success -> currentState.copy(posts = postsState)
-                    else -> FeedUiState.Success(posts = postsState)
-                }
+                currentState.copy(postsState = newPostsState)
             }
         }
     }

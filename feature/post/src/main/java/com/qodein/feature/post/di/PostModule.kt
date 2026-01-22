@@ -8,7 +8,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val postModule = module {
-    viewModel { FeedViewModel(get(), get(), get()) }
+    viewModel { FeedViewModel(get(), get()) }
     viewModel { PostDetailViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { PostSubmissionViewModel(androidApplication(), get(), get()) }
 }

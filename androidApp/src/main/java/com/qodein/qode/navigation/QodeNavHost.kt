@@ -65,6 +65,14 @@ fun QodeNavHost(
             scrollStateRegistry = appState,
         )
 
+        feedSection(
+            onProfileClick = { navController.navigateToProfile() },
+            onSettingsClick = { navController.navigateToSettings() },
+            onPostClick = { postId ->
+                navController.navigateToPostDetail(postId)
+            },
+        )
+
         promocodeDetailSection(
             onNavigateBack = { navController.popBackStack() },
             onNavigateToAuth = { authPromptAction ->
@@ -80,14 +88,6 @@ fun QodeNavHost(
             },
             onNavigateToBlockUser = { userId, username, photoUrl ->
                 navController.navigateToBlockUserDialog(userId, username, photoUrl, ContentType.PROMOCODE)
-            },
-        )
-
-        feedSection(
-            onProfileClick = { navController.navigateToProfile() },
-            onSettingsClick = { navController.navigateToSettings() },
-            onPostClick = { postId ->
-                navController.navigateToPostDetail(postId)
             },
         )
 

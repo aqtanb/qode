@@ -1,9 +1,7 @@
 package com.qodein.feature.post.feed
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,25 +20,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.EmptyState
 import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
 import com.qodein.core.ui.preview.PostPreviewData
-import com.qodein.feature.post.R
 import com.qodein.feature.post.feed.component.FeedTopAppBar
-import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
-import com.qodein.shared.model.User
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import org.koin.androidx.compose.koinViewModel
@@ -76,7 +68,6 @@ fun FeedRoute(
 @Composable
 internal fun FeedScreen(
     uiState: FeedUiState,
-    user: User?,
     onAction: (FeedAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -93,7 +84,7 @@ internal fun FeedScreen(
                 .hazeSource(state = hazeState),
             topBar = {
                 FeedTopAppBar(
-                    user = user,
+                    user = uiState.currentUser,
                     onProfileClick = { onAction(FeedAction.ProfileClicked) },
                     onSettingsClick = { onAction(FeedAction.SettingsClicked) },
                 )
@@ -106,31 +97,25 @@ internal fun FeedScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
-                when (uiState) {
-                    is FeedUiState.Loading -> FeedLoadingState()
-                    is FeedUiState.Success -> {
-                        if (uiState.posts.isNotEmpty()) {
-                            FeedContent(
-                                posts = uiState.posts,
-                                onImageClick = { uri ->
-                                    focusManager.clearFocus()
-                                    fullScreenImageUri = uri
-                                    showFullScreenImage = true
-                                },
-                                onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
-                            )
-                        } else {
-                            EmptyState(
-                                icon = PostIcons.Post,
-                                title = stringResource(R.string.post_empty_state_title),
-                                description = stringResource(R.string.post_empty_state_description),
-                            )
-                        }
+                when (uiState.postsState) {
+                    is PostsUiState.Loading -> FeedLoadingState()
+                    is PostsUiState.Success -> {
+                        PostsContent(
+                            posts = uiState.postsState.posts,
+                            onImageClick = { uri ->
+                                focusManager.clearFocus()
+                                fullScreenImageUri = uri
+                                showFullScreenImage = true
+                            },
+                            onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
+                        )
                     }
-                    is FeedUiState.Error -> FeedErrorState(
-                        error = uiState.error,
-                        onRetry = { onAction(FeedAction.RetryClicked) },
-                    )
+                    is PostsUiState.Error -> {
+                        QodeErrorCard(
+                            error = uiState.postsState.error,
+                            onRetry = { onAction(FeedAction.RetryClicked) },
+                        )
+                    }
                 }
             }
         }
@@ -146,7 +131,7 @@ internal fun FeedScreen(
 }
 
 @Composable
-private fun FeedContent(
+private fun PostsContent(
     posts: List<Post>,
     onPostClick: (PostId) -> Unit,
     onImageClick: (String) -> Unit,
@@ -190,67 +175,37 @@ private fun FeedLoadingState(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun FeedErrorState(
-    error: OperationError,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    QodeErrorCard(
-        error = error,
-        onRetry = onRetry,
-        modifier = modifier,
-    )
-}
-
 @PreviewLightDark
 @Composable
-private fun FeedScreenPreview() {
+private fun PostsSuccessPreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            FeedContent(
-                posts = PostPreviewData.allPosts,
-                onImageClick = {},
-                onPostClick = {},
-            )
-        }
+        FeedScreen(
+            uiState = FeedUiState(
+                postsState = PostsUiState.Success(posts = PostPreviewData.allPosts),
+            ),
+            onAction = {},
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun FeedScreenLoadingStatePreview() {
+private fun PostsLoadingPreview() {
     QodeTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center,
-        ) {
-            FeedLoadingState()
-        }
+        FeedScreen(
+            uiState = FeedUiState(),
+            onAction = {},
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun FeedScreenErrorStatePreview() {
+private fun PostsErrorPreview() {
     QodeTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center,
-        ) {
-            FeedErrorState(
-                error = SystemError.Offline,
-                onRetry = {},
-            )
-        }
+        FeedScreen(
+            uiState = FeedUiState(postsState = PostsUiState.Error(SystemError.Unknown)),
+            onAction = {},
+        )
     }
 }
