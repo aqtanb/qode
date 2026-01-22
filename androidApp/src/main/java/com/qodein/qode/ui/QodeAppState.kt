@@ -233,8 +233,7 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
                     saveState = true
                 }
                 launchSingleTop = true
-                // Remove restoreState to always go to base route
-                restoreState = false
+                restoreState = true
             }
 
             when (topLevelDestination) {

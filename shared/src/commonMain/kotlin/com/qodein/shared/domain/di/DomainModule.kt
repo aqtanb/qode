@@ -34,6 +34,10 @@ import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.dsl.module
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -45,13 +49,15 @@ import kotlin.time.ExperimentalTime
 val domainModule = module {
     single<Clock> { Clock.System }
 
+    single { CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineName("DomainScope")) }
+
     single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
 
     single { EnsureUserExists(get()) }
     single { GetUserByIdUseCase(get()) }
-    single { ObserveCurrentUserUseCase(get(), get()) }
+    single { ObserveCurrentUserUseCase(get(), get(), get()) }
     single { AcceptConsentAndCreateUserUseCase(get(), get()) }
     single { AcceptLegalPoliciesUseCase(get()) }
 

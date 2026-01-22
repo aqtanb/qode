@@ -52,10 +52,6 @@ class QodeAppViewModel(getAuthStateUseCase: GetAuthStateUseCase) : ViewModel() {
                     // Delegate navigation events to the navigation flow
                     _navigationEvents.emit(event.action)
                 }
-                else -> {
-                    // Other UI events (dialogs, etc.) go to UI events flow
-                    _uiEvents.emit(event)
-                }
             }
         }
     }

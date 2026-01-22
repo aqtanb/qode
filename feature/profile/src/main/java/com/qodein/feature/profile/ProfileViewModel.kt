@@ -24,7 +24,7 @@ class ProfileViewModel(
     private val getPostsByUserUseCase: GetPostsByUserUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
+    private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<ProfileEvent>()
@@ -37,7 +37,6 @@ class ProfileViewModel(
     fun onAction(action: ProfileAction) {
         when (action) {
             ProfileAction.SignOutClicked -> signOut()
-            ProfileAction.RetryClicked -> observeUser()
             ProfileAction.BlockedClicked -> {
                 emitEvent(ProfileEvent.NavigateToBlockedUsers)
             }
@@ -66,18 +65,19 @@ class ProfileViewModel(
     private fun observeUser() {
         observeCurrentUserUseCase()
             .onEach { result ->
-                _uiState.value = when (result) {
+                when (result) {
                     is Result.Success -> {
-                        if (_uiState.value !is ProfileUiState.Success) {
+                        val shouldLoadData = _uiState.value.user == null
+                        _uiState.update { it.copy(user = result.data) }
+
+                        if (shouldLoadData) {
                             getPromocodes()
                         }
-                        ProfileUiState.Success(result.data)
                     }
                     is Result.Error -> {
                         if (result.error is UserError.AuthenticationFailure) {
                             emitEvent(ProfileEvent.NavigateToAuth)
                         }
-                        ProfileUiState.Error(result.error)
                     }
                 }
             }
@@ -85,13 +85,13 @@ class ProfileViewModel(
     }
 
     private fun getPromocodes() {
-        val currentState = _uiState.value as? ProfileUiState.Success ?: return
-        _uiState.update { currentState.copy(promocodesState = PaginatedDataState.Loading) }
+        val user = _uiState.value.user ?: return
+        _uiState.update { it.copy(promocodesState = PaginatedDataState.Loading) }
         viewModelScope.launch {
-            when (val result = getPromocodesByUserUseCase(userId = currentState.user.id)) {
-                is Result.Error -> _uiState.update { currentState.copy(promocodesState = PaginatedDataState.Error(result.error)) }
+            when (val result = getPromocodesByUserUseCase(userId = user.id)) {
+                is Result.Error -> _uiState.update { it.copy(promocodesState = PaginatedDataState.Error(result.error)) }
                 is Result.Success -> _uiState.update {
-                    currentState.copy(
+                    it.copy(
                         promocodesState = PaginatedDataState.Success(
                             items = result.data.data,
                             hasMore = result.data.hasMore,
@@ -104,31 +104,27 @@ class ProfileViewModel(
     }
 
     private fun loadMorePromocodes() {
-        val currentState = _uiState.value as? ProfileUiState.Success ?: return
-        val promocodesState = currentState.promocodesState as? PaginatedDataState.Success ?: return
+        val user = _uiState.value.user ?: return
+        val promocodesState = _uiState.value.promocodesState as? PaginatedDataState.Success ?: return
 
         if (!promocodesState.hasMore || promocodesState.isLoadingMore) return
 
         _uiState.update {
-            currentState.copy(
-                promocodesState = promocodesState.copy(isLoadingMore = true),
-            )
+            it.copy(promocodesState = promocodesState.copy(isLoadingMore = true))
         }
 
         viewModelScope.launch {
             when (
                 val result = getPromocodesByUserUseCase(
-                    userId = currentState.user.id,
+                    userId = user.id,
                     cursor = promocodesState.nextCursor,
                 )
             ) {
                 is Result.Error -> _uiState.update {
-                    currentState.copy(
-                        promocodesState = promocodesState.copy(isLoadingMore = false),
-                    )
+                    it.copy(promocodesState = promocodesState.copy(isLoadingMore = false))
                 }
                 is Result.Success -> _uiState.update {
-                    currentState.copy(
+                    it.copy(
                         promocodesState = PaginatedDataState.Success(
                             items = promocodesState.items + result.data.data,
                             hasMore = result.data.hasMore,
@@ -142,13 +138,13 @@ class ProfileViewModel(
     }
 
     private fun getPosts() {
-        val currentState = _uiState.value as? ProfileUiState.Success ?: return
-        _uiState.update { currentState.copy(postsState = PaginatedDataState.Loading) }
+        val user = _uiState.value.user ?: return
+        _uiState.update { it.copy(postsState = PaginatedDataState.Loading) }
         viewModelScope.launch {
-            when (val result = getPostsByUserUseCase(userId = currentState.user.id)) {
-                is Result.Error -> _uiState.update { currentState.copy(postsState = PaginatedDataState.Error(result.error)) }
+            when (val result = getPostsByUserUseCase(userId = user.id)) {
+                is Result.Error -> _uiState.update { it.copy(postsState = PaginatedDataState.Error(result.error)) }
                 is Result.Success -> _uiState.update {
-                    currentState.copy(
+                    it.copy(
                         postsState = PaginatedDataState.Success(
                             result.data.data,
                             result.data.hasMore,
@@ -161,18 +157,18 @@ class ProfileViewModel(
     }
 
     private fun loadMorePosts() {
-        val currentState = _uiState.value as? ProfileUiState.Success ?: return
-        val postsState = currentState.postsState as? PaginatedDataState.Success ?: return
+        val user = _uiState.value.user ?: return
+        val postsState = _uiState.value.postsState as? PaginatedDataState.Success ?: return
 
         if (!postsState.hasMore || postsState.isLoadingMore) return
 
-        _uiState.update { currentState.copy(postsState = postsState.copy(isLoadingMore = true)) }
+        _uiState.update { it.copy(postsState = postsState.copy(isLoadingMore = true)) }
 
         viewModelScope.launch {
-            when (val result = getPostsByUserUseCase(userId = currentState.user.id, cursor = postsState.nextCursor)) {
-                is Result.Error -> _uiState.update { currentState.copy(postsState = postsState.copy(isLoadingMore = false)) }
+            when (val result = getPostsByUserUseCase(userId = user.id, cursor = postsState.nextCursor)) {
+                is Result.Error -> _uiState.update { it.copy(postsState = postsState.copy(isLoadingMore = false)) }
                 is Result.Success -> _uiState.update {
-                    currentState.copy(
+                    it.copy(
                         postsState = PaginatedDataState.Success(
                             postsState.items + result.data.data,
                             result.data.hasMore,
@@ -186,9 +182,8 @@ class ProfileViewModel(
     }
 
     private fun switchTabs(tab: ProfileTab) {
-        val currentState = _uiState.value as? ProfileUiState.Success ?: return
-        _uiState.update { currentState.copy(selectedTab = tab) }
-        if (tab == ProfileTab.POSTS && currentState.postsState !is PaginatedDataState.Success) {
+        _uiState.update { it.copy(selectedTab = tab) }
+        if (tab == ProfileTab.POSTS && _uiState.value.postsState !is PaginatedDataState.Success) {
             getPosts()
         }
     }

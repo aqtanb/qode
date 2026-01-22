@@ -12,18 +12,12 @@ enum class ProfileTab {
     POSTS
 }
 
-sealed interface ProfileUiState {
-    data class Success(
-        val user: User,
-        val selectedTab: ProfileTab = ProfileTab.PROMOCODES,
-        val promocodesState: PaginatedDataState<Promocode> = PaginatedDataState.Loading,
-        val postsState: PaginatedDataState<Post> = PaginatedDataState.Loading
-    ) : ProfileUiState
-
-    data object Loading : ProfileUiState
-
-    data class Error(val errorType: OperationError) : ProfileUiState
-}
+data class ProfileUiState(
+    val user: User? = null,
+    val selectedTab: ProfileTab = ProfileTab.PROMOCODES,
+    val promocodesState: PaginatedDataState<Promocode> = PaginatedDataState.Loading,
+    val postsState: PaginatedDataState<Post> = PaginatedDataState.Loading
+)
 
 sealed interface PaginatedDataState<out T> {
     data object Loading : PaginatedDataState<Nothing>

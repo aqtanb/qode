@@ -1,6 +1,5 @@
 package com.qodein.feature.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -130,25 +128,14 @@ private fun ProfileScreen(
                 .padding(horizontal = SpacingTokens.sm),
             contentAlignment = Alignment.Center,
         ) {
-            when (uiState) {
-                is ProfileUiState.Success -> {
-                    ProfileContent(
-                        successState = uiState,
-                        onAction = onAction,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-
-                is ProfileUiState.Loading -> {
-                    ProfileSkeleton()
-                }
-
-                is ProfileUiState.Error -> {
-                    QodeErrorCard(
-                        error = uiState.errorType,
-                        onRetry = { onAction(ProfileAction.RetryClicked) },
-                    )
-                }
+            if (uiState.user == null) {
+                ProfileSkeleton()
+            } else {
+                ProfileContent(
+                    uiState = uiState,
+                    onAction = onAction,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
@@ -156,10 +143,11 @@ private fun ProfileScreen(
 
 @Composable
 private fun ProfileContent(
-    successState: ProfileUiState.Success,
+    uiState: ProfileUiState,
     onAction: (ProfileAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val user = uiState.user ?: return
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -169,11 +157,11 @@ private fun ProfileContent(
         }
     }
 
-    LaunchedEffect(listState, successState.promocodesState, successState.postsState) {
+    LaunchedEffect(listState, uiState.promocodesState, uiState.postsState) {
         snapshotFlow {
-            val paginatedState = when (successState.selectedTab) {
-                ProfileTab.PROMOCODES -> successState.promocodesState
-                ProfileTab.POSTS -> successState.postsState
+            val paginatedState = when (uiState.selectedTab) {
+                ProfileTab.PROMOCODES -> uiState.promocodesState
+                ProfileTab.POSTS -> uiState.postsState
             }
 
             if (paginatedState is PaginatedDataState.Success &&
@@ -196,7 +184,7 @@ private fun ProfileContent(
             .distinctUntilChanged()
             .filter { it }
             .collect {
-                val action = when (successState.selectedTab) {
+                val action = when (uiState.selectedTab) {
                     ProfileTab.PROMOCODES -> ProfileAction.LoadMorePromocodes
                     ProfileTab.POSTS -> ProfileAction.LoadMorePosts
                 }
@@ -212,17 +200,17 @@ private fun ProfileContent(
             contentPadding = PaddingValues(vertical = SpacingTokens.lg),
         ) {
             item {
-                ProfileHeader(user = successState.user, modifier = Modifier.fillMaxWidth())
+                ProfileHeader(user = user, modifier = Modifier.fillMaxWidth())
             }
 
             item {
                 SecondaryTabRow(
-                    selectedTabIndex = successState.selectedTab.ordinal,
+                    selectedTabIndex = uiState.selectedTab.ordinal,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     ProfileTab.entries.forEach { tab ->
                         Tab(
-                            selected = successState.selectedTab == tab,
+                            selected = uiState.selectedTab == tab,
                             onClick = { onAction(ProfileAction.TabSelected(tab)) },
                             text = {
                                 Text(
@@ -237,13 +225,13 @@ private fun ProfileContent(
                 }
             }
 
-            when (successState.selectedTab) {
+            when (uiState.selectedTab) {
                 ProfileTab.PROMOCODES -> promocodesTabItems(
-                    state = successState.promocodesState,
+                    state = uiState.promocodesState,
                     onAction = onAction,
                 )
                 ProfileTab.POSTS -> postsTabItems(
-                    state = successState.postsState,
+                    state = uiState.postsState,
                     onAction = onAction,
                 )
             }
@@ -465,7 +453,7 @@ private fun ProfilePromocodesPreview(promocodesState: PaginatedDataState<Promoco
             ProfileScreen(
                 onBackClick = {},
                 onAction = {},
-                uiState = ProfileUiState.Success(
+                uiState = ProfileUiState(
                     user = UserPreviewData.powerUser,
                     promocodesState = promocodesState,
                 ),
@@ -514,7 +502,7 @@ private fun ProfilePostsPreview(postsState: PaginatedDataState<Post>) {
             ProfileScreen(
                 onBackClick = {},
                 onAction = {},
-                uiState = ProfileUiState.Success(
+                uiState = ProfileUiState(
                     user = UserPreviewData.powerUser,
                     selectedTab = ProfileTab.POSTS,
                     postsState = postsState,
@@ -532,21 +520,7 @@ private fun ProfileLoadingPreview() {
             ProfileScreen(
                 onBackClick = {},
                 onAction = {},
-                uiState = ProfileUiState.Loading,
-            )
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun ProfileErrorPreview() {
-    QodeTheme {
-        Surface {
-            ProfileScreen(
-                onBackClick = {},
-                onAction = {},
-                uiState = ProfileUiState.Error(SystemError.Unknown),
+                uiState = ProfileUiState(),
             )
         }
     }
