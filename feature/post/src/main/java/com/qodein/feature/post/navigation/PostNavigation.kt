@@ -37,13 +37,15 @@ fun NavController.navigateToPostDetail(
 fun NavGraphBuilder.feedSection(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onPostClick: (PostId) -> Unit
+    onPostClick: (PostId) -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit
 ) {
     composable<FeedRoute> {
         FeedRoute(
             onProfileClick = onProfileClick,
             onSettingsClick = onSettingsClick,
             onPostClick = onPostClick,
+            onNavigateToAuth = onNavigateToAuth,
         )
     }
 }

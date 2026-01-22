@@ -71,6 +71,9 @@ fun QodeNavHost(
             onPostClick = { postId ->
                 navController.navigateToPostDetail(postId)
             },
+            onNavigateToAuth = { authPromptAction ->
+                navController.navigateToAuthBottomSheet(authPromptAction)
+            },
         )
 
         promocodeDetailSection(
@@ -92,21 +95,11 @@ fun QodeNavHost(
         )
 
         profileSection(
-            onBackClick = {
-                appState.navigateToTopLevelDestination(selectedTabDestination)
-            },
-            onSignOut = {
-                appState.navigateToTopLevelDestination(TopLevelDestination.HOME)
-            },
-            onNavigateToBlockedUsers = {
-                navController.navigateToBlockedUsers()
-            },
-            onNavigateToPostDetail = { postId ->
-                navController.navigateToPostDetail(postId)
-            },
-            onNavigateToPromocodeDetail = { promocodeId ->
-                navController.navigateToPromocodeDetail(promocodeId)
-            },
+            onBackClick = { navController.popBackStack() },
+            onSignOut = { appState.navigateToTopLevelDestination(TopLevelDestination.HOME) },
+            onNavigateToBlockedUsers = { navController.navigateToBlockedUsers() },
+            onNavigateToPostDetail = { postId -> navController.navigateToPostDetail(postId) },
+            onNavigateToPromocodeDetail = { promocodeId -> navController.navigateToPromocodeDetail(promocodeId) },
         )
 
         authSection(

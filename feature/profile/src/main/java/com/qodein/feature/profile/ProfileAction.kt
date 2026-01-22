@@ -21,7 +21,6 @@ sealed interface ProfileAction {
 
 sealed interface ProfileEvent {
     data object SignedOut : ProfileEvent
-    data object NavigateToAuth : ProfileEvent
     data object NavigateToBlockedUsers : ProfileEvent
 
     data class NavigateToPromocodeDetail(val promocodeId: PromocodeId) : ProfileEvent

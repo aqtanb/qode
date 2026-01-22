@@ -29,7 +29,13 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
         when (action) {
             is FeedAction.LoadPosts -> loadPosts()
             is FeedAction.PostClicked -> emitEvent(FeedEvent.NavigateToPost(action.postId))
-            FeedAction.ProfileClicked -> emitEvent(FeedEvent.NavigateToProfile)
+            FeedAction.ProfileClicked -> {
+                if (_uiState.value.currentUser == null) {
+                    emitEvent(FeedEvent.NavigateToAuth)
+                } else {
+                    emitEvent(FeedEvent.NavigateToProfile)
+                }
+            }
             FeedAction.SettingsClicked -> emitEvent(FeedEvent.NavigateToSettings)
             FeedAction.RetryClicked -> loadPosts()
         }

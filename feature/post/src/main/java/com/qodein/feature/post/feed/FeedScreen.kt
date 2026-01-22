@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
@@ -42,6 +43,7 @@ fun FeedRoute(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPostClick: (PostId) -> Unit,
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel()
 ) {
@@ -52,8 +54,8 @@ fun FeedRoute(
             when (event) {
                 FeedEvent.NavigateToProfile -> onProfileClick()
                 FeedEvent.NavigateToSettings -> onSettingsClick()
-                is FeedEvent.NavigateToPost -> {
-                }
+                FeedEvent.NavigateToAuth -> onNavigateToAuth(AuthPromptAction.Profile)
+                is FeedEvent.NavigateToPost -> {}
             }
         }
     }

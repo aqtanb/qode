@@ -1,6 +1,7 @@
 package com.qodein.feature.profile.component
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,7 @@ import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.feature.profile.ProfileAction
 import com.qodein.feature.profile.R
 import com.qodein.core.ui.R as CoreUiR
@@ -65,7 +67,9 @@ internal fun ProfileTopAppBar(
         modifier = modifier,
         navigationIcon = { QodeinBackIconButton(onClick = onBackClick) },
         actions = {
-            Box {
+            Box(
+                modifier = Modifier.padding(top = SpacingTokens.sm),
+            ) {
                 QodeinMoreIconButton(onClick = { isMenuExpanded = true })
                 QodeinDropdownMenuGrouped(
                     expanded = isMenuExpanded,

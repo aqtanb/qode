@@ -87,7 +87,6 @@ fun ProfileRoute(
         viewModel.events.collect { event ->
             when (event) {
                 ProfileEvent.SignedOut -> onSignOut()
-                ProfileEvent.NavigateToAuth -> onBackClick()
                 ProfileEvent.NavigateToBlockedUsers -> onNavigateToBlockedUsers()
                 is ProfileEvent.NavigateToPostDetail -> onNavigateToPostDetail(event.postId)
                 is ProfileEvent.NavigateToPromocodeDetail -> onNavigateToPromocodeDetail(event.promocodeId)

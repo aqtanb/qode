@@ -76,7 +76,7 @@ class ProfileViewModel(
                     }
                     is Result.Error -> {
                         if (result.error is UserError.AuthenticationFailure) {
-                            emitEvent(ProfileEvent.NavigateToAuth)
+                            emitEvent(ProfileEvent.SignedOut)
                         }
                     }
                 }
