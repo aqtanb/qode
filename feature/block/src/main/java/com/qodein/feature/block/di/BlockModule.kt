@@ -21,8 +21,7 @@ val blockModule = module {
 
     viewModel {
         BlockedUsersViewModel(
-            getBlockedUserIdsUseCase = get(),
-            getUserByIdUseCase = get(),
+            getBlockedUsersUseCase = get(),
             unblockUserUseCase = get(),
         )
     }

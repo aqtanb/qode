@@ -37,3 +37,7 @@ enum class PostSortBy : SortBy {
      */
     NEWEST
 }
+
+enum class BlocksSortBy : SortBy {
+    NEWEST
+}

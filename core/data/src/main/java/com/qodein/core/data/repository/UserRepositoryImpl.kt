@@ -1,5 +1,6 @@
 package com.qodein.core.data.repository
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.qodein.core.data.datasource.FirestoreUserDataSource
@@ -10,6 +11,9 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.common.error.UserError
 import com.qodein.shared.domain.repository.UserRepository
+import com.qodein.shared.model.BlocksSortBy
+import com.qodein.shared.model.PaginatedResult
+import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.User
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -141,7 +145,52 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
         }
     }
 
-    override fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> = dataSource.getBlockedUserIds(currentUserId)
+    override suspend fun getBlockedUserIds(currentUserId: String): Set<String> =
+        try {
+            dataSource.getBlockedUserIds(currentUserId)
+        } catch (e: Exception) {
+            Timber.e(e, "Error getting blocked user IDs: $currentUserId")
+            emptySet()
+        }
+
+    override suspend fun getBlockedUsers(
+        currentUserId: String,
+        cursor: Any?,
+        limit: Int
+    ): Result<PaginatedResult<User, BlocksSortBy>, OperationError> =
+        try {
+            Timber.d("Getting blocked users for: $currentUserId, cursor: $cursor, limit: $limit")
+            val snapshot = (cursor as? PaginationCursor<*>)?.value as? DocumentSnapshot
+            Timber.d("Parsed cursor snapshot: $snapshot")
+
+            Timber.d("Calling dataSource.getBlockedUsers...")
+            val pagedBlocks = dataSource.getBlockedUsers(
+                currentUserId = currentUserId,
+                limit = limit,
+                startAfter = snapshot,
+            )
+            Timber.d("Fetched ${pagedBlocks.items.size} blocked user records")
+
+            val users = pagedBlocks.items.mapNotNull { blockDto ->
+                Timber.d("Fetching user: ${blockDto.blockedUserId}")
+                val userDto = dataSource.getUserById(blockDto.blockedUserId)
+                userDto?.let { UserMapper.toDomain(it) }
+            }
+
+            Timber.d("Resolved ${users.size} user objects")
+
+            val nextCursor = pagedBlocks.nextCursor?.let {
+                PaginationCursor(it, BlocksSortBy.NEWEST)
+            }
+
+            Result.Success(PaginatedResult(users, nextCursor))
+        } catch (e: FirebaseFirestoreException) {
+            Timber.e(e, "Firestore error getting blocked users: $currentUserId")
+            Result.Error(ErrorMapper.mapFirestoreException(e))
+        } catch (e: Exception) {
+            Timber.e(e, "Unknown error getting blocked users: $currentUserId")
+            Result.Error(SystemError.Unknown)
+        }
 
     override suspend fun deleteUserAccount(userId: String): Result<Unit, OperationError> =
         try {

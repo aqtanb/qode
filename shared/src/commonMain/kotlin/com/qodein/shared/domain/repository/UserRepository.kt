@@ -2,6 +2,8 @@ package com.qodein.shared.domain.repository
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.BlocksSortBy
+import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.Flow
 
@@ -32,7 +34,13 @@ interface UserRepository {
         blockedUserId: String
     ): Result<Unit, OperationError>
 
-    fun getBlockedUserIds(currentUserId: String): Flow<Set<String>>
+    suspend fun getBlockedUserIds(currentUserId: String): Set<String>
+
+    suspend fun getBlockedUsers(
+        currentUserId: String,
+        cursor: Any?,
+        limit: Int
+    ): Result<PaginatedResult<User, BlocksSortBy>, OperationError>
 
     /**
      * Deletes the user account and all associated data.

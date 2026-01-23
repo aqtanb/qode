@@ -2,26 +2,18 @@ package com.qodein.feature.block.blocked
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
-import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
+import com.qodein.shared.domain.usecase.user.GetBlockedUsersUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
 import com.qodein.shared.model.User
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BlockedUsersViewModel(
-    private val getBlockedUserIdsUseCase: GetBlockedUserIdsUseCase,
-    private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val getBlockedUsersUseCase: GetBlockedUsersUseCase,
     private val unblockUserUseCase: UnblockUserUseCase
 ) : ViewModel() {
 
@@ -29,12 +21,13 @@ class BlockedUsersViewModel(
     val uiState: StateFlow<BlockedUsersUiState> = _uiState.asStateFlow()
 
     init {
-        observeBlockedUsers()
+        loadBlockedUsers()
     }
 
     fun onAction(action: BlockedUsersAction) {
         when (action) {
-            BlockedUsersAction.RetryLoadingUsers -> observeBlockedUsers()
+            BlockedUsersAction.RetryLoadingUsers -> loadBlockedUsers()
+            BlockedUsersAction.LoadMoreUsers -> loadMoreBlockedUsers()
 
             is BlockedUsersAction.ShowConfirmationDialog -> openConfirmationDialog(action.user)
             BlockedUsersAction.ConfirmUnblock -> handleUnblock()
@@ -42,36 +35,48 @@ class BlockedUsersViewModel(
         }
     }
 
-    private fun observeBlockedUsers() {
+    private fun loadBlockedUsers() {
         viewModelScope.launch {
-            // Only show the full-screen shimmer if we don't have data yet.
-            // If we already have a Success state, we stay in it to avoid flickering.
-            if (_uiState.value !is BlockedUsersUiState.Success) {
-                _uiState.value = BlockedUsersUiState.Loading
+            _uiState.update { BlockedUsersUiState.Loading }
+
+            val result = getBlockedUsersUseCase(cursor = null)
+
+            _uiState.update { currentState ->
+                when (result) {
+                    is Result.Success -> BlockedUsersUiState.Success(
+                        blockedUsers = result.data.data,
+                        hasMore = result.data.hasMore,
+                        nextCursor = result.data.nextCursor,
+                        dialogState = UnblockDialogState.Hidden,
+                    )
+                    is Result.Error -> BlockedUsersUiState.Error(result.error)
+                }
             }
+        }
+    }
 
-            // TODO: Add pagination to avoid fetching too many users at once
-            // TODO: Add blocked users limit to prevent abuse (e.g., Firestore read limits)
-            getBlockedUserIdsUseCase().collectLatest { blockedUserIds ->
-                try {
-                    // Use coroutineScope to ensure parallel work is cancelled if the flow restarts
-                    val users = coroutineScope {
-                        blockedUserIds.map { userId ->
-                            async { getUserByIdUseCase(userId) }
-                        }.awaitAll().mapNotNull { result ->
-                            (result as? Result.Success)?.data
-                        }
-                    }
+    private fun loadMoreBlockedUsers() {
+        val currentState = _uiState.value as? BlockedUsersUiState.Success ?: return
 
-                    _uiState.update { currentState ->
-                        val currentDialog = (currentState as? BlockedUsersUiState.Success)?.dialogState
-                            ?: UnblockDialogState.Hidden
+        if (!currentState.hasMore || currentState.isLoadingMore) return
 
-                        BlockedUsersUiState.Success(users, currentDialog)
-                    }
-                } catch (e: Exception) {
-                    Logger.e(e) { "Failed to fetch blocked users" }
-                    _uiState.value = BlockedUsersUiState.Error(SystemError.Unknown)
+        _uiState.update {
+            it as BlockedUsersUiState.Success
+            it.copy(isLoadingMore = true)
+        }
+
+        viewModelScope.launch {
+            when (val result = getBlockedUsersUseCase(cursor = currentState.nextCursor)) {
+                is Result.Error -> _uiState.update {
+                    (it as BlockedUsersUiState.Success).copy(isLoadingMore = false)
+                }
+                is Result.Success -> _uiState.update {
+                    (it as BlockedUsersUiState.Success).copy(
+                        blockedUsers = currentState.blockedUsers + result.data.data,
+                        hasMore = result.data.hasMore,
+                        nextCursor = result.data.nextCursor,
+                        isLoadingMore = false,
+                    )
                 }
             }
         }
@@ -93,7 +98,6 @@ class BlockedUsersViewModel(
         val user = dialog.user
 
         viewModelScope.launch {
-            // 1. Move the DIALOG state to Loading immediately
             _uiState.update { state ->
                 if (state is BlockedUsersUiState.Success) {
                     state.copy(dialogState = UnblockDialogState.Loading(user))
@@ -102,7 +106,6 @@ class BlockedUsersViewModel(
                 }
             }
 
-            // 2. Perform the unblock
             when (val result = unblockUserUseCase(user.id.value)) {
                 is Result.Success -> {
                     _uiState.update { state ->
@@ -112,6 +115,7 @@ class BlockedUsersViewModel(
                             state
                         }
                     }
+                    loadBlockedUsers()
                 }
                 is Result.Error -> {
                     _uiState.update { state ->

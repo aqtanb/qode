@@ -1,11 +1,19 @@
 package com.qodein.feature.block.blocked
 
 import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.BlocksSortBy
+import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.User
 
 sealed interface BlockedUsersUiState {
     data object Loading : BlockedUsersUiState
-    data class Success(val blockedUsers: List<User> = emptyList(), val dialogState: UnblockDialogState) : BlockedUsersUiState
+    data class Success(
+        val blockedUsers: List<User> = emptyList(),
+        val hasMore: Boolean = false,
+        val nextCursor: PaginationCursor<BlocksSortBy>? = null,
+        val isLoadingMore: Boolean = false,
+        val dialogState: UnblockDialogState
+    ) : BlockedUsersUiState
     data class Error(val error: OperationError) : BlockedUsersUiState
 }
 

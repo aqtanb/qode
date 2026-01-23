@@ -34,7 +34,7 @@ class GetPromocodesUseCase(
             is Result.Error -> promocodes
             is Result.Success -> {
                 val hiddenIds = reportRepository.getHiddenContentIds(ContentType.PROMOCODE).first()
-                val blockedUserIds = getBlockedUserIdsUseCase().first()
+                val blockedUserIds = getBlockedUserIdsUseCase()
 
                 val filteredPromocodes = promocodes.data.data.filterNot { promocode ->
                     promocode.id.value in hiddenIds ||

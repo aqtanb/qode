@@ -31,6 +31,7 @@ import com.qodein.shared.domain.usecase.user.BlockUserUseCase
 import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.EnsureUserExists
 import com.qodein.shared.domain.usecase.user.GetBlockedUserIdsUseCase
+import com.qodein.shared.domain.usecase.user.GetBlockedUsersUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
@@ -64,6 +65,7 @@ val domainModule = module {
     single { BlockUserUseCase(get(), get()) }
     single { UnblockUserUseCase(get(), get()) }
     single { GetBlockedUserIdsUseCase(get(), get()) }
+    single { GetBlockedUsersUseCase(get(), get()) }
 
     single { DeleteUserAccountUseCase(get(), get()) }
 

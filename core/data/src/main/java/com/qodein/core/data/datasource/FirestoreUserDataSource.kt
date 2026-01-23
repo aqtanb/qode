@@ -1,10 +1,16 @@
 package com.qodein.core.data.datasource
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.google.firebase.functions.FirebaseFunctions
+import com.qodein.core.data.datasource.util.applyPaginationCursor
+import com.qodein.core.data.datasource.util.toPagedResult
+import com.qodein.core.data.dto.BlockedUserDto
+import com.qodein.core.data.dto.PagedFirestoreResult
 import com.qodein.core.data.dto.UserDto
 import com.qodein.core.data.dto.UserInteractionDto
 import kotlinx.coroutines.channels.awaitClose
@@ -68,7 +74,6 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore, private 
             .set(
                 hashMapOf(
                     "blockedAt" to Timestamp.now(),
-                    "blockedUserId" to blockedUserId,
                 ),
             )
             .await()
@@ -85,26 +90,34 @@ class FirestoreUserDataSource(private val firestore: FirebaseFirestore, private 
             .delete()
     }
 
-    fun getBlockedUserIds(currentUserId: String): Flow<Set<String>> =
-        callbackFlow {
-            var registration: ListenerRegistration? = null
-            try {
-                registration = firestore.collection(UserDto.COLLECTION_NAME)
-                    .document(currentUserId)
-                    .collection("blocks")
-                    .addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            close(error)
-                            return@addSnapshotListener
-                        }
-                        val blockedIds = snapshot?.documents?.map { it.id }?.toSet() ?: emptySet()
-                        trySend(blockedIds)
-                    }
-            } catch (e: Exception) {
-                close(e)
-            }
-            awaitClose { registration?.remove() }
-        }
+    suspend fun getBlockedUserIds(currentUserId: String): Set<String> =
+        firestore.collection(UserDto.COLLECTION_NAME)
+            .document(currentUserId)
+            .collection(UserDto.SUBCOLLECTION_BLOCKS)
+            .get()
+            .await()
+            .documents
+            .map { it.id }
+            .toSet()
+
+    suspend fun getBlockedUsers(
+        currentUserId: String,
+        limit: Int,
+        startAfter: DocumentSnapshot?
+    ): PagedFirestoreResult<BlockedUserDto> {
+        val fetchLimit = limit + 1
+        val documents = firestore.collection(UserDto.COLLECTION_NAME)
+            .document(currentUserId)
+            .collection(UserDto.SUBCOLLECTION_BLOCKS)
+            .orderBy(BlockedUserDto.FIELD_BLOCKED_AT, Query.Direction.DESCENDING)
+            .applyPaginationCursor(startAfter)
+            .limit(fetchLimit.toLong())
+            .get()
+            .await()
+            .documents
+
+        return documents.toPagedResult<BlockedUserDto>(limit)
+    }
 
     suspend fun deleteUserAccount(userId: String) {
         functions

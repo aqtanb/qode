@@ -2,7 +2,6 @@ package com.qodein.feature.block.blocked
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,18 +11,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
@@ -32,14 +33,18 @@ import com.qodein.core.designsystem.component.QodeButton
 import com.qodein.core.designsystem.component.QodeinBackIconButton
 import com.qodein.core.designsystem.component.QodeinOutlinedCard
 import com.qodein.core.designsystem.component.QodeinTopAppBar
+import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.EmptyState
 import com.qodein.core.ui.component.ProfileAvatar
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.preview.UserPreviewData
 import com.qodein.feature.block.R
 import com.qodein.shared.model.User
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -89,13 +94,20 @@ private fun BlockedUsersScreen(
 
                 is BlockedUsersUiState.Success -> {
                     if (uiState.blockedUsers.isEmpty()) {
-                        EmptyState()
+                        EmptyState(
+                            icon = UIIcons.Block,
+                            title = stringResource(R.string.blocked_users_empty),
+                            description = stringResource(R.string.blocked_users_empty_description),
+                        )
                     } else {
                         BlockedUsersList(
                             blockedUsers = uiState.blockedUsers,
+                            hasMore = uiState.hasMore,
+                            isLoadingMore = uiState.isLoadingMore,
                             onUnblockClick = { user ->
                                 onAction(BlockedUsersAction.ShowConfirmationDialog(user))
                             },
+                            onLoadMore = { onAction(BlockedUsersAction.LoadMoreUsers) },
                         )
                         val dialogState = uiState.dialogState
                         if (dialogState is UnblockDialogState.Visible) {
@@ -122,39 +134,41 @@ private fun BlockedUsersScreen(
 }
 
 @Composable
-private fun EmptyState(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SpacingTokens.xl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = stringResource(R.string.blocked_users_empty),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.padding(SpacingTokens.xs))
-        Text(
-            text = stringResource(R.string.blocked_users_empty_description),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
 private fun BlockedUsersList(
     blockedUsers: List<User>,
+    hasMore: Boolean,
+    isLoadingMore: Boolean,
     onUnblockClick: (User) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Add pagination to avoid fetching too many users at once
-    // TODO: Add blocked users limit to prevent abuse (e.g., Firestore read limits)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, hasMore, isLoadingMore) {
+        snapshotFlow {
+            if (hasMore && !isLoadingMore) {
+                val layoutInfo = listState.layoutInfo
+                val totalItems = layoutInfo.totalItemsCount
+                val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+
+                if (lastVisibleItem == null || totalItems == 0) {
+                    false
+                } else {
+                    lastVisibleItem.index >= totalItems - 1
+                }
+            } else {
+                false
+            }
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect {
+                onLoadMore()
+            }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(SpacingTokens.md),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
@@ -167,6 +181,19 @@ private fun BlockedUsersList(
                 user = user,
                 onUnblockClick = { onUnblockClick(user) },
             )
+        }
+
+        if (hasMore && isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SpacingTokens.md),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
@@ -241,8 +268,11 @@ private fun BlockedUsersScreenEmptyPreview() {
             onBackClick = {},
             onAction = {},
             uiState = BlockedUsersUiState.Success(
-                emptyList(),
-                dialogState = UnblockDialogState.Idle(user = UserPreviewData.newUser),
+                blockedUsers = emptyList(),
+                hasMore = false,
+                nextCursor = null,
+                isLoadingMore = false,
+                dialogState = UnblockDialogState.Hidden,
             ),
         )
     }
@@ -256,14 +286,16 @@ private fun BlockedUsersScreenSuccessPreview() {
             onBackClick = {},
             onAction = {},
             uiState = BlockedUsersUiState.Success(
-                listOf(
+                blockedUsers = listOf(
                     UserPreviewData.newUser,
                     UserPreviewData.powerUser,
                     UserPreviewData.activeContributor,
                 ),
+                hasMore = true,
+                nextCursor = null,
+                isLoadingMore = false,
                 dialogState = UnblockDialogState.Idle(user = UserPreviewData.newUser),
             ),
-
         )
     }
 }

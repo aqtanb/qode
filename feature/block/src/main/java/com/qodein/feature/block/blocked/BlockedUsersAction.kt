@@ -4,6 +4,7 @@ import com.qodein.shared.model.User
 
 sealed interface BlockedUsersAction {
     data object RetryLoadingUsers : BlockedUsersAction
+    data object LoadMoreUsers : BlockedUsersAction
 
     data class ShowConfirmationDialog(val user: User) : BlockedUsersAction
     data object DismissConfirmationDialog : BlockedUsersAction
