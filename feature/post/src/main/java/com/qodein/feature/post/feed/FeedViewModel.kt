@@ -2,6 +2,7 @@ package com.qodein.feature.post.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
@@ -41,7 +42,13 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
         }
     }
 
+    fun onPostSubmitted() {
+        Logger.d { "Post submitted, reloading posts" }
+        loadPosts()
+    }
+
     init {
+        Logger.d { "Initializing feed view model" }
         observeCurrentUser()
         loadPosts()
     }

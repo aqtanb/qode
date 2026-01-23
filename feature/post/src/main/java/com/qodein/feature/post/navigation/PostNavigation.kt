@@ -40,23 +40,26 @@ fun NavGraphBuilder.feedSection(
     onPostClick: (PostId) -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit
 ) {
-    composable<FeedRoute> {
+    composable<FeedRoute> { backStackEntry ->
         FeedRoute(
             onProfileClick = onProfileClick,
             onSettingsClick = onSettingsClick,
             onPostClick = onPostClick,
             onNavigateToAuth = onNavigateToAuth,
+            backStackEntry = backStackEntry,
         )
     }
 }
 
 fun NavGraphBuilder.postSubmissionSection(
     onNavigateBack: () -> Unit,
+    onPostSubmitted: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit
 ) {
     composable<PostSubmissionRoute> {
         PostSubmissionScreen(
             onNavigateBack = onNavigateBack,
+            onPostSubmitted = onPostSubmitted,
             onNavigateToAuth = onNavigateToAuth,
         )
     }

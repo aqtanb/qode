@@ -15,7 +15,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 
-class ObserveCurrentUserUseCase(getAuthStateUseCase: GetAuthStateUseCase, userRepository: UserRepository, scope: CoroutineScope) {
+class ObserveCurrentUserUseCase(
+    getAuthStateUseCase: GetAuthStateUseCase,
+    private val userRepository: UserRepository,
+    scope: CoroutineScope
+) {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val sharedFlow = getAuthStateUseCase().flatMapLatest { authState ->
         when (authState) {

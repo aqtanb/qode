@@ -45,7 +45,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.TextUnit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -70,12 +73,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PostSubmissionScreen(
     onNavigateBack: () -> Unit,
+    onPostSubmitted: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: PostSubmissionViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
-
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -112,18 +115,19 @@ fun PostSubmissionScreen(
         }
     }
 
-    val events by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
-
-    LaunchedEffect(events) {
-        when (val event = events) {
-            is PostSubmissionEvent.NavigateBack -> onNavigateBack()
-            is PostSubmissionEvent.PostSubmitted -> onNavigateBack()
-            is PostSubmissionEvent.NavigateToAuth -> onNavigateToAuth(event.action)
-            is PostSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
-                message = event.message.asString(context),
-                withDismissAction = true,
-            )
-            null -> { /* No event yet */ }
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(Unit) {
+        viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
+            when (event) {
+                is PostSubmissionEvent.NavigateBack -> onNavigateBack()
+                is PostSubmissionEvent.PostSubmitted -> onPostSubmitted()
+                is PostSubmissionEvent.NavigateToAuth -> onNavigateToAuth(event.action)
+                is PostSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
+                    message = event.message.asString(context),
+                    withDismissAction = true,
+                )
+            }
         }
     }
 

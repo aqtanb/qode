@@ -21,7 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
@@ -29,6 +33,7 @@ import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
+import com.qodein.core.ui.navigation.PostSubmissionResult
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.feed.component.FeedTopAppBar
 import com.qodein.shared.common.error.SystemError
@@ -44,19 +49,33 @@ fun FeedRoute(
     onSettingsClick: () -> Unit,
     onPostClick: (PostId) -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
+    backStackEntry: NavBackStackEntry,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
+        viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
                 FeedEvent.NavigateToProfile -> onProfileClick()
                 FeedEvent.NavigateToSettings -> onSettingsClick()
                 FeedEvent.NavigateToAuth -> onNavigateToAuth(AuthPromptAction.Profile)
                 is FeedEvent.NavigateToPost -> {}
             }
+        }
+    }
+
+    val postSubmitted by backStackEntry.savedStateHandle
+        .getStateFlow(PostSubmissionResult.KEY_POST_SUBMITTED, false)
+        .collectAsStateWithLifecycle()
+
+    LaunchedEffect(postSubmitted) {
+        if (postSubmitted) {
+            viewModel.onPostSubmitted()
+            backStackEntry.savedStateHandle.remove<Boolean>(PostSubmissionResult.KEY_POST_SUBMITTED)
         }
     }
 

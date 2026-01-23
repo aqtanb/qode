@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_continue">Продолжить</string>
+    <string name="action_share">Поделиться</string>
     <string name="action_submit">Отправить</string>
 
     <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
@@ -26,7 +27,7 @@
     <string name="service_step_error_url_format">Введите домен в формате example.com</string>
 
     <string name="promocode_description_placeholder">Отличный промокод!</string>
-    <string name="promocode_description_helper">Добавьте описание, чтобы пользователи лучше поняли предложение</string>
+    <string name="promocode_description_helper">Необязательный шаг, который вы можете пропустить</string>
 
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>
     <string name="promocode_dates_end_placeholder">Выберите дату окончания</string>

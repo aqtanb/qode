@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import co.touchlab.kermit.Logger
+import com.qodein.core.ui.navigation.PostSubmissionResult
 import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
@@ -123,6 +124,16 @@ fun QodeNavHost(
 
         postSubmissionSection(
             onNavigateBack = navController::popBackStack,
+            onPostSubmitted = {
+                Logger.d("Setting post submitted on previous entry")
+                val handle = navController.previousBackStackEntry?.savedStateHandle
+                Logger.d("Previous entry: ${navController.previousBackStackEntry?.destination?.route}")
+                Logger.d("Before set - keys: ${handle?.keys()}")
+                handle?.set(PostSubmissionResult.KEY_POST_SUBMITTED, true)
+                Logger.d("After set - keys: ${handle?.keys()}")
+                Logger.d("Value set: ${handle?.get<Boolean>(PostSubmissionResult.KEY_POST_SUBMITTED)}")
+                navController.popBackStack()
+            },
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
             },

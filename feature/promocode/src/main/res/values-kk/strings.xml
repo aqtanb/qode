@@ -27,7 +27,7 @@
     <string name="service_step_error_url_format">Дұрыс домен енгізіңіз (мысалы, example.com)</string>
 
     <string name="promocode_description_placeholder">Керемет промокод!</string>
-    <string name="promocode_description_helper">Ұсынысты клиенттерге түсінікті ету үшін сипаттама қосыңыз</string>
+    <string name="promocode_description_helper">Қосымша қадам, өткізіп жібере аласыз</string>
 
     <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
     <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
