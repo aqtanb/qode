@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -37,10 +41,11 @@ import com.qodein.core.ui.navigation.PostSubmissionResult
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.feed.component.FeedTopAppBar
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -118,22 +123,23 @@ internal fun FeedScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
-                when (uiState.postsState) {
+                when (val state = uiState.postsState) {
                     is PostsUiState.Loading -> FeedLoadingState()
                     is PostsUiState.Success -> {
                         PostsContent(
-                            posts = uiState.postsState.posts,
+                            state = state,
                             onImageClick = { uri ->
                                 focusManager.clearFocus()
                                 fullScreenImageUri = uri
                                 showFullScreenImage = true
                             },
                             onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
+                            onLoadMore = { onAction(FeedAction.LoadMorePosts) },
                         )
                     }
                     is PostsUiState.Error -> {
                         QodeErrorCard(
-                            error = uiState.postsState.error,
+                            error = state.error,
                             onRetry = { onAction(FeedAction.RetryClicked) },
                         )
                     }
@@ -153,17 +159,44 @@ internal fun FeedScreen(
 
 @Composable
 private fun PostsContent(
-    posts: List<Post>,
+    state: PostsUiState.Success,
     onPostClick: (PostId) -> Unit,
     onImageClick: (String) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, state) {
+        snapshotFlow {
+            if (state.hasMore && !state.isLoadingMore) {
+                val layoutInfo = listState.layoutInfo
+                val totalItems = layoutInfo.totalItemsCount
+                val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+
+                if (lastVisibleItem == null || totalItems == 0) {
+                    false
+                } else {
+                    lastVisibleItem.index >= totalItems - 1
+                }
+            } else {
+                false
+            }
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect {
+                onLoadMore()
+            }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
     ) {
-        items(posts.size) { index ->
-            if (index < posts.size) {
+        items(state.posts.size) { index ->
+            if (index < state.posts.size) {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = SpacingTokens.sm),
                     color = MaterialTheme.colorScheme.outlineVariant,
@@ -171,11 +204,24 @@ private fun PostsContent(
             }
 
             PostCard(
-                post = posts[index],
-                onPostClick = { onPostClick(posts[index].id) },
+                post = state.posts[index],
+                onPostClick = { onPostClick(state.posts[index].id) },
                 onImageClick = onImageClick,
                 modifier = Modifier.padding(horizontal = SpacingTokens.sm),
             )
+        }
+
+        if (state.hasMore && state.isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SpacingTokens.md),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
@@ -202,7 +248,11 @@ private fun PostsSuccessPreview() {
     QodeTheme {
         FeedScreen(
             uiState = FeedUiState(
-                postsState = PostsUiState.Success(posts = PostPreviewData.allPosts),
+                postsState = PostsUiState.Success(
+                    posts = PostPreviewData.allPosts,
+                    hasMore = false,
+                    nextCursor = null,
+                ),
             ),
             onAction = {},
         )

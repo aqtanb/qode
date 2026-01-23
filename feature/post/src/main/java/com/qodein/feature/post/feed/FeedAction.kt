@@ -4,6 +4,7 @@ import com.qodein.shared.model.PostId
 
 sealed interface FeedAction {
     data object LoadPosts : FeedAction
+    data object LoadMorePosts : FeedAction
     data class PostClicked(val postId: PostId) : FeedAction
     data object ProfileClicked : FeedAction
     data object SettingsClicked : FeedAction

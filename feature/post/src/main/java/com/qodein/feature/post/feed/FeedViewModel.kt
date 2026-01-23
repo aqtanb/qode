@@ -29,6 +29,7 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
     fun onAction(action: FeedAction) {
         when (action) {
             is FeedAction.LoadPosts -> loadPosts()
+            is FeedAction.LoadMorePosts -> loadMorePosts()
             is FeedAction.PostClicked -> emitEvent(FeedEvent.NavigateToPost(action.postId))
             FeedAction.ProfileClicked -> {
                 if (_uiState.value.currentUser == null) {
@@ -62,18 +63,48 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
             .launchIn(viewModelScope)
     }
 
-    private fun loadPosts(cursor: Any? = null) {
+    private fun loadPosts() {
         viewModelScope.launch {
             _uiState.update { it.copy(postsState = PostsUiState.Loading) }
 
-            val result = getPostsUseCase(cursor)
+            val result = getPostsUseCase(cursor = null)
 
             _uiState.update { currentState ->
                 val newPostsState = when (result) {
-                    is Result.Success -> PostsUiState.Success(result.data.data)
+                    is Result.Success -> PostsUiState.Success(
+                        posts = result.data.data,
+                        hasMore = result.data.hasMore,
+                        nextCursor = result.data.nextCursor,
+                    )
                     is Result.Error -> PostsUiState.Error(result.error)
                 }
                 currentState.copy(postsState = newPostsState)
+            }
+        }
+    }
+
+    private fun loadMorePosts() {
+        val postsState = _uiState.value.postsState as? PostsUiState.Success ?: return
+
+        if (!postsState.hasMore || postsState.isLoadingMore) return
+
+        _uiState.update { it.copy(postsState = postsState.copy(isLoadingMore = true)) }
+
+        viewModelScope.launch {
+            when (val result = getPostsUseCase(cursor = postsState.nextCursor)) {
+                is Result.Error -> _uiState.update {
+                    it.copy(postsState = postsState.copy(isLoadingMore = false))
+                }
+                is Result.Success -> _uiState.update {
+                    it.copy(
+                        postsState = PostsUiState.Success(
+                            posts = postsState.posts + result.data.data,
+                            hasMore = result.data.hasMore,
+                            nextCursor = result.data.nextCursor,
+                            isLoadingMore = false,
+                        ),
+                    )
+                }
             }
         }
     }
