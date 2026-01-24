@@ -12,16 +12,20 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
-import com.qodein.core.ui.error.asUiText
+import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.detail.component.PostDetailSection
 import com.qodein.feature.post.detail.component.PostDetailTopAppBar
 import com.qodein.shared.common.error.OperationError
@@ -35,36 +39,40 @@ import org.koin.androidx.compose.koinViewModel
 internal fun PostDetailRoute(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToBlockUser: (UserId, String?, String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PostDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var errorToShow by remember { mutableStateOf<OperationError?>(null) }
-
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val localContext = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
+        viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
                 is PostDetailEvent.ShowError -> {
-                    errorToShow = event.error
+                    snackbarHostState.showSnackbar(
+                        message = event.error.toUiText().asString(localContext),
+                        duration = SnackbarDuration.Short,
+                    )
                 }
                 is PostDetailEvent.NavigateToAuth -> {
                     onNavigateToAuth(event.action)
                 }
-            }
-        }
-    }
 
-    errorToShow?.let { error ->
-        val errorMessage = error.asUiText()
-        LaunchedEffect(error) {
-            snackbarHostState.showSnackbar(
-                message = errorMessage,
-                duration = SnackbarDuration.Short,
-                withDismissAction = true,
-            )
-            errorToShow = null
+                is PostDetailEvent.NavigateToBlockUser -> onNavigateToBlockUser(
+                    event.userId,
+                    event.username,
+                    event.photoUrl,
+                )
+                is PostDetailEvent.NavigateToReport -> onNavigateToReport(
+                    event.reportedItemId,
+                    event.itemTitle,
+                    event.itemAuthor,
+                )
+            }
         }
     }
 
@@ -87,10 +95,23 @@ private fun PostDetailScreen(
 ) {
     TrackScreenViewEvent(screenName = "Post Detail")
 
+    val title = when (val state = uiState.postState) {
+        is DataState.Success -> state.data.title
+        else -> ""
+    }
+    val postId = (uiState.postState as? DataState.Success)?.data?.id
+    val authorId = (uiState.postState as? DataState.Success)?.data?.authorId
+
     Scaffold(
         topBar = {
             PostDetailTopAppBar(
-                onNavigationClick = onNavigateBack,
+                title = title,
+                postId = postId,
+                currentUserId = uiState.userId,
+                authorId = authorId,
+                onNavigateBack = onNavigateBack,
+                onBlockUserClick = { userId -> onAction(PostDetailAction.BlockUserClicked(userId)) },
+                onReportPostClick = { postId -> onAction(PostDetailAction.ReportPostClicked(postId.value)) },
             )
         },
         modifier = modifier,

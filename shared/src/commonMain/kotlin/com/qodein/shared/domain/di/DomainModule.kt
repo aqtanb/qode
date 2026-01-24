@@ -78,7 +78,7 @@ val domainModule = module {
 
     single { GetPostByIdUseCase(get()) }
     single { GetPostsByUserUseCase(get()) }
-    single { GetPostsUseCase(get()) }
+    single { GetPostsUseCase(get(), get()) }
     single { SubmitPostUseCase(get(), get()) }
     single { EnqueuePostSubmissionUseCase(get(), get()) }
 

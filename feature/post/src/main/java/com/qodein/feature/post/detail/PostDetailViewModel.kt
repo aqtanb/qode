@@ -86,6 +86,8 @@ class PostDetailViewModel(
             }
 
             is PostDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
+            is PostDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
+            is PostDetailAction.ReportPostClicked -> handleReportPost(action.postId)
         }
     }
 
@@ -165,6 +167,43 @@ class PostDetailViewModel(
                     }
                 }
             }
+        }
+    }
+
+    private fun handleBlockUser(userId: UserId) {
+        val postState = _uiState.value.postState
+        if (postState !is DataState.Success) return
+        val currentPost = postState.data
+
+        viewModelScope.launch {
+            _events.emit(
+                PostDetailEvent.NavigateToBlockUser(
+                    userId = userId,
+                    username = currentPost.authorName,
+                    photoUrl = currentPost.authorAvatarUrl,
+                ),
+            )
+        }
+    }
+
+    private fun handleReportPost(postId: String) {
+        val postState = _uiState.value.postState
+        if (postState !is DataState.Success) return
+        val currentPost = postState.data
+
+        viewModelScope.launch {
+            _uiState.value.userId ?: run {
+                _events.emit(PostDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
+                return@launch
+            }
+
+            _events.emit(
+                PostDetailEvent.NavigateToReport(
+                    reportedItemId = postId,
+                    itemTitle = currentPost.title,
+                    itemAuthor = currentPost.authorName,
+                ),
+            )
         }
     }
 }

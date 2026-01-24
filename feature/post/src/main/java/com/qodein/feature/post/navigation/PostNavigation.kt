@@ -9,6 +9,7 @@ import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
 import com.qodein.feature.post.submission.PostSubmissionScreen
 import com.qodein.shared.model.PostId
+import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
 
 /**
@@ -67,12 +68,16 @@ fun NavGraphBuilder.postSubmissionSection(
 
 fun NavGraphBuilder.postDetailSection(
     onNavigateBack: () -> Unit,
-    onNavigateToAuth: (AuthPromptAction) -> Unit
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToBlockUser: (UserId, String?, String?) -> Unit
 ) {
     composable<PostDetailRoute> {
         PostDetailRoute(
             onNavigateBack = onNavigateBack,
             onNavigateToAuth = onNavigateToAuth,
+            onNavigateToReport = onNavigateToReport,
+            onNavigateToBlockUser = onNavigateToBlockUser,
         )
     }
 }

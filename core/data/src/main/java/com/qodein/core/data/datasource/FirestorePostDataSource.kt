@@ -20,12 +20,19 @@ class FirestorePostDataSource(private val firestore: FirebaseFirestore) {
 
     suspend fun getPosts(
         limit: Int,
+        blockedUserIds: List<String>,
         startAfter: DocumentSnapshot?
     ): PagedFirestoreResult<PostDto> {
         val fetchLimit = limit + 1
-        val documents = firestore.collection(PostDto.COLLECTION_NAME)
+        var query = firestore.collection(PostDto.COLLECTION_NAME)
             .orderBy(PostDto.FIELD_CREATED_AT, Query.Direction.DESCENDING)
             .applyPaginationCursor(startAfter)
+
+        if (blockedUserIds.isNotEmpty()) {
+            query = query.whereNotIn(PostDto.FIELD_AUTHOR_ID, blockedUserIds)
+        }
+
+        val documents = query
             .limit(fetchLimit.toLong())
             .get()
             .await()

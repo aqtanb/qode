@@ -12,8 +12,9 @@ interface PostRepository {
     suspend fun createPost(post: Post): Result<Unit, OperationError>
 
     suspend fun getPosts(
-        cursor: Any?,
-        limit: Int
+        limit: Int,
+        blockedUserIds: Set<UserId>,
+        cursor: Any?
     ): Result<PaginatedResult<Post, PostSortBy>, OperationError>
 
     suspend fun getPostById(id: PostId): Result<Post, OperationError>

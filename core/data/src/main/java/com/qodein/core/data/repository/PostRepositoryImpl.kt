@@ -41,14 +41,16 @@ class PostRepositoryImpl(private val dataSource: FirestorePostDataSource) : Post
     }
 
     override suspend fun getPosts(
-        cursor: Any?,
-        limit: Int
+        limit: Int,
+        blockedUserIds: Set<UserId>,
+        cursor: Any?
     ): Result<PaginatedResult<Post, PostSortBy>, OperationError> {
         try {
             Logger.d { "Fetching posts: cursor=$cursor, limit=$limit" }
             val snapshot = (cursor as? PaginationCursor<*>)?.value as? DocumentSnapshot
             val pagedData = dataSource.getPosts(
                 limit = limit,
+                blockedUserIds = blockedUserIds.map { it.value }.toMutableList().take(10),
                 startAfter = snapshot,
             )
             val posts = pagedData.items.map { PostMapper.toDomain(it) }

@@ -15,6 +15,7 @@ import com.qodein.shared.model.BlocksSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -145,9 +146,9 @@ class UserRepositoryImpl(private val dataSource: FirestoreUserDataSource) : User
         }
     }
 
-    override suspend fun getBlockedUserIds(currentUserId: String): Set<String> =
+    override suspend fun getBlockedUserIds(currentUserId: UserId): Set<UserId> =
         try {
-            dataSource.getBlockedUserIds(currentUserId)
+            dataSource.getBlockedUserIds(currentUserId.value).map { UserId(it) }.toSet()
         } catch (e: Exception) {
             Timber.e(e, "Error getting blocked user IDs: $currentUserId")
             emptySet()

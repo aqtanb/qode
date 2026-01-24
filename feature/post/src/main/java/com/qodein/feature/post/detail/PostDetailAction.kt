@@ -8,4 +8,6 @@ sealed class PostDetailAction {
     data class UpvoteClicked(val postId: String, val currentVoteState: VoteState, val userId: UserId?) : PostDetailAction()
     data class DownvoteClicked(val postId: String, val currentVoteState: VoteState, val userId: UserId?) : PostDetailAction()
     data class SignInWithGoogleClicked(val context: Context) : PostDetailAction()
+    data class BlockUserClicked(val userId: UserId) : PostDetailAction()
+    data class ReportPostClicked(val postId: String) : PostDetailAction()
 }

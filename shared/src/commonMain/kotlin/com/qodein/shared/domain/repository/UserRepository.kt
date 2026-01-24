@@ -5,6 +5,7 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.BlocksSortBy
 import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -34,7 +35,7 @@ interface UserRepository {
         blockedUserId: String
     ): Result<Unit, OperationError>
 
-    suspend fun getBlockedUserIds(currentUserId: String): Set<String>
+    suspend fun getBlockedUserIds(currentUserId: UserId): Set<UserId>
 
     suspend fun getBlockedUsers(
         currentUserId: String,

@@ -42,8 +42,6 @@ fun QodeNavHost(
     modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
-    val selectedTabDestination = appState.selectedTabDestination
-
     NavHost(
         navController = navController,
         startDestination = HomeBaseRoute,
@@ -156,6 +154,18 @@ fun QodeNavHost(
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
             },
+            onNavigateToReport = { reportedItemId, itemTitle, itemAuthor ->
+                navController.navigateToReport(
+                    reportedItemId = reportedItemId,
+                    reportedItemType = ContentType.POST,
+                    itemTitle = itemTitle,
+                    itemAuthor = itemAuthor,
+                )
+            },
+            onNavigateToBlockUser = { userId, username, photoUrl ->
+                navController.navigateToBlockUserDialog(userId, username, photoUrl, ContentType.POST)
+            },
+
         )
 
         reportSection(

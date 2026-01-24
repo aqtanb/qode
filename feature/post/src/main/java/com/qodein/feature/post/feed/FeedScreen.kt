@@ -61,14 +61,13 @@ fun FeedRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-
     LaunchedEffect(Unit) {
         viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
                 FeedEvent.NavigateToProfile -> onProfileClick()
                 FeedEvent.NavigateToSettings -> onSettingsClick()
                 FeedEvent.NavigateToAuth -> onNavigateToAuth(AuthPromptAction.Profile)
-                is FeedEvent.NavigateToPost -> {}
+                is FeedEvent.NavigateToPost -> onPostClick(event.postId)
             }
         }
     }

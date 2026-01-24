@@ -38,7 +38,7 @@ class GetPromocodesUseCase(
 
                 val filteredPromocodes = promocodes.data.data.filterNot { promocode ->
                     promocode.id.value in hiddenIds ||
-                        promocode.authorId.value in blockedUserIds
+                        promocode.authorId in blockedUserIds
                 }
 
                 Result.Success(
