@@ -57,7 +57,7 @@ class PostDetailViewModel(
     internal fun onAction(action: PostDetailAction) {
         when (action) {
             is PostDetailAction.UpvoteClicked -> {
-                val currentUserId = _uiState.value.userId
+                val currentUserId = _uiState.value.currentUserId
                 if (currentUserId == null) {
                     viewModelScope.launch {
                         _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.UpvotePrompt))
@@ -71,7 +71,7 @@ class PostDetailViewModel(
                 }
             }
             is PostDetailAction.DownvoteClicked -> {
-                val currentUserId = _uiState.value.userId
+                val currentUserId = _uiState.value.currentUserId
                 if (currentUserId == null) {
                     viewModelScope.launch {
                         _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.DownvotePrompt))
@@ -93,8 +93,8 @@ class PostDetailViewModel(
 
     private suspend fun loadPost() {
         when (val result = getPostByIdUseCase(postId)) {
-            is Result.Error -> _uiState.update { it.copy(postState = DataState.Error(result.error)) }
-            is Result.Success -> _uiState.update { it.copy(postState = DataState.Success(result.data)) }
+            is Result.Error -> _uiState.update { it.copy(postState = PostUiState.Error(result.error)) }
+            is Result.Success -> _uiState.update { it.copy(postState = PostUiState.Success(result.data)) }
         }
     }
 
@@ -132,7 +132,7 @@ class PostDetailViewModel(
             getAuthStateUseCase().collectLatest { authState ->
                 when (authState) {
                     is AuthState.Authenticated -> {
-                        _uiState.update { it.copy(userId = authState.userId) }
+                        _uiState.update { it.copy(currentUserId = authState.userId) }
                         loadUserInteractions(
                             userId = authState.userId,
                             itemId = postId.value,
@@ -140,7 +140,7 @@ class PostDetailViewModel(
                     }
 
                     AuthState.Unauthenticated -> {
-                        _uiState.update { it.copy(userId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
+                        _uiState.update { it.copy(currentUserId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
                     }
                 }
             }
@@ -172,8 +172,8 @@ class PostDetailViewModel(
 
     private fun handleBlockUser(userId: UserId) {
         val postState = _uiState.value.postState
-        if (postState !is DataState.Success) return
-        val currentPost = postState.data
+        if (postState !is PostUiState.Success) return
+        val currentPost = postState.post
 
         viewModelScope.launch {
             _events.emit(
@@ -188,11 +188,11 @@ class PostDetailViewModel(
 
     private fun handleReportPost(postId: String) {
         val postState = _uiState.value.postState
-        if (postState !is DataState.Success) return
-        val currentPost = postState.data
+        if (postState !is PostUiState.Success) return
+        val currentPost = postState.post
 
         viewModelScope.launch {
-            _uiState.value.userId ?: run {
+            _uiState.value.currentUserId ?: run {
                 _events.emit(PostDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
                 return@launch
             }

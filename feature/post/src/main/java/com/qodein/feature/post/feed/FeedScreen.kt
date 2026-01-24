@@ -10,8 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -210,16 +208,11 @@ private fun PostsContent(
 
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic),
+        modifier = modifier.fillMaxSize().padding(horizontal = SpacingTokens.xs),
+        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.lg),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         items(state.posts.size) { index ->
-            if (index < state.posts.size) {
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                )
-            }
-
             PostCard(
                 post = state.posts[index],
                 onPostClick = { onPostClick(state.posts[index].id) },

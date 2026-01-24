@@ -13,18 +13,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
+import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.detail.component.PostDetailSection
 import com.qodein.feature.post.detail.component.PostDetailTopAppBar
@@ -90,24 +92,24 @@ private fun PostDetailScreen(
     onNavigateBack: () -> Unit,
     onAction: (PostDetailAction) -> Unit,
     uiState: PostDetailUiState,
-    snackbarHostState: SnackbarHostState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     TrackScreenViewEvent(screenName = "Post Detail")
 
     val title = when (val state = uiState.postState) {
-        is DataState.Success -> state.data.title
+        is PostUiState.Success -> state.post.title
         else -> ""
     }
-    val postId = (uiState.postState as? DataState.Success)?.data?.id
-    val authorId = (uiState.postState as? DataState.Success)?.data?.authorId
+    val postId = (uiState.postState as? PostUiState.Success)?.post?.id
+    val authorId = (uiState.postState as? PostUiState.Success)?.post?.authorId
 
     Scaffold(
         topBar = {
             PostDetailTopAppBar(
                 title = title,
                 postId = postId,
-                currentUserId = uiState.userId,
+                currentUserId = uiState.currentUserId,
                 authorId = authorId,
                 onNavigateBack = onNavigateBack,
                 onBlockUserClick = { userId -> onAction(PostDetailAction.BlockUserClicked(userId)) },
@@ -118,12 +120,12 @@ private fun PostDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         when (val postState = uiState.postState) {
-            is DataState.Error -> PostDetailErrorState(
+            is PostUiState.Error -> PostDetailErrorState(
                 error = postState.error,
                 onRetry = {},
                 modifier = Modifier.padding(paddingValues),
             )
-            DataState.Loading -> Box(
+            PostUiState.Loading -> Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
@@ -131,11 +133,11 @@ private fun PostDetailScreen(
             ) {
                 CircularProgressIndicator()
             }
-            is DataState.Success -> PostDetailSuccessState(
-                post = postState.data,
+            is PostUiState.Success -> PostDetailSuccessState(
+                post = postState.post,
                 onAction = onAction,
                 userVoteState = uiState.userVoteState,
-                userId = uiState.userId,
+                userId = uiState.currentUserId,
                 onImageClick = {},
                 modifier = Modifier.padding(paddingValues),
             )
@@ -173,4 +175,18 @@ private fun PostDetailErrorState(
         onRetry = onRetry,
         modifier = modifier,
     )
+}
+
+@PreviewLightDark
+@Composable
+private fun PostDetailScreenPreview() {
+    QodeTheme {
+        PostDetailScreen(
+            onNavigateBack = {},
+            onAction = {},
+            uiState = PostDetailUiState(
+                postState = PostUiState.Success(PostPreviewData.popularPost),
+            ),
+        )
+    }
 }

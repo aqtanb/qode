@@ -45,9 +45,7 @@ object PostPreviewData {
                 authorId = UserId("user456"),
                 authorName = "Sarah Smith",
                 title = "Best coding practices for clean architecture",
-                content = "Clean architecture is essential for maintainable code. Here are the " +
-                    "top practices that every developer should follow to write better, more organized " +
-                    "code that scales.",
+                content = "",
                 imageUrls = emptyList(),
                 tags = listOf("coding", "architecture", "best_practices"),
                 authorAvatarUrl = "https://picsum.photos/100/100?random=10",

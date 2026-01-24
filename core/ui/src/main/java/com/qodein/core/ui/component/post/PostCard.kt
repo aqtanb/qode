@@ -41,7 +41,7 @@ fun PostCard(
 ) {
     QodeinElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ShapeTokens.Corner.small),
+        shape = RoundedCornerShape(ShapeTokens.Corner.large),
         onClick = { onPostClick(post.id.value) },
     ) {
         Column(
@@ -57,7 +57,7 @@ fun PostCard(
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                modifier = Modifier.padding(top = SpacingTokens.sm),
+                modifier = Modifier.padding(top = SpacingTokens.md),
             ) {
                 Text(
                     text = post.title,
@@ -83,9 +83,9 @@ fun PostCard(
                             onClick = { onImageClick(post.imageUrls[page]) },
                         )
                     }
-                } else if (!post.content.isNullOrBlank()) {
+                } else if (post.content.isNotBlank()) {
                     Text(
-                        text = post.content!!,
+                        text = post.content,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 5,
