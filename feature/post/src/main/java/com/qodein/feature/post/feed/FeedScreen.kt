@@ -209,7 +209,7 @@ private fun PostsContent(
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize().padding(horizontal = SpacingTokens.xs),
-        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.lg),
+        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.xs),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
         items(state.posts.size) { index ->
