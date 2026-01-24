@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +40,7 @@ import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
-import com.qodein.core.ui.navigation.PostSubmissionResult
+import com.qodein.core.ui.navigation.PostKeys
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.feed.component.FeedTopAppBar
 import com.qodein.shared.common.error.SystemError
@@ -73,13 +76,24 @@ fun FeedRoute(
     }
 
     val postSubmitted by backStackEntry.savedStateHandle
-        .getStateFlow(PostSubmissionResult.KEY_POST_SUBMITTED, false)
+        .getStateFlow(PostKeys.KEY_POST_SUBMITTED, false)
         .collectAsStateWithLifecycle()
 
     LaunchedEffect(postSubmitted) {
         if (postSubmitted) {
-            viewModel.onPostSubmitted()
-            backStackEntry.savedStateHandle.remove<Boolean>(PostSubmissionResult.KEY_POST_SUBMITTED)
+            viewModel.handleRefresh()
+            backStackEntry.savedStateHandle.remove<Boolean>(PostKeys.KEY_POST_SUBMITTED)
+        }
+    }
+
+    val userBlocked by backStackEntry.savedStateHandle
+        .getStateFlow(PostKeys.KEY_POST_AUTHOR_BLOCKED, false)
+        .collectAsStateWithLifecycle()
+
+    LaunchedEffect(userBlocked) {
+        if (userBlocked) {
+            viewModel.handleRefresh()
+            backStackEntry.savedStateHandle.remove<Boolean>(PostKeys.KEY_POST_AUTHOR_BLOCKED)
         }
     }
 
@@ -90,6 +104,7 @@ fun FeedRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FeedScreen(
     uiState: FeedUiState,
@@ -101,6 +116,7 @@ internal fun FeedScreen(
     var showFullScreenImage by remember { mutableStateOf(false) }
     var fullScreenImageUri by remember { mutableStateOf("") }
     val hazeState = remember { HazeState() }
+    val pullToRefreshState = rememberPullToRefreshState()
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -116,11 +132,14 @@ internal fun FeedScreen(
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+            PullToRefreshBox(
+                state = pullToRefreshState,
+                isRefreshing = uiState.isRefreshing,
                 contentAlignment = Alignment.Center,
+                onRefresh = { onAction(FeedAction.RefreshData) },
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
             ) {
                 when (val state = uiState.postsState) {
                     is PostsUiState.Loading -> FeedLoadingState()
@@ -197,7 +216,6 @@ private fun PostsContent(
         items(state.posts.size) { index ->
             if (index < state.posts.size) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = SpacingTokens.sm),
                     color = MaterialTheme.colorScheme.outlineVariant,
                 )
             }
@@ -206,7 +224,6 @@ private fun PostsContent(
                 post = state.posts[index],
                 onPostClick = { onPostClick(state.posts[index].id) },
                 onImageClick = onImageClick,
-                modifier = Modifier.padding(horizontal = SpacingTokens.sm),
             )
         }
 

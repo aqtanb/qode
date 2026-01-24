@@ -39,12 +39,14 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
                 }
             }
             FeedAction.SettingsClicked -> emitEvent(FeedEvent.NavigateToSettings)
-            FeedAction.RetryClicked -> loadPosts()
+            FeedAction.RetryClicked -> handleRefresh()
+            FeedAction.RefreshData -> handleRefresh()
         }
     }
 
-    fun onPostSubmitted() {
-        Logger.d { "Post submitted, reloading posts" }
+    fun handleRefresh() {
+        Logger.d { "Refreshing posts" }
+        _uiState.update { it.copy(isRefreshing = true) }
         loadPosts()
     }
 
@@ -78,7 +80,7 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
                     )
                     is Result.Error -> PostsUiState.Error(result.error)
                 }
-                currentState.copy(postsState = newPostsState)
+                currentState.copy(postsState = newPostsState, isRefreshing = false)
             }
         }
     }

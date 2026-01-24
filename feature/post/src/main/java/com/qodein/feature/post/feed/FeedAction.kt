@@ -9,6 +9,7 @@ sealed interface FeedAction {
     data object ProfileClicked : FeedAction
     data object SettingsClicked : FeedAction
     data object RetryClicked : FeedAction
+    data object RefreshData : FeedAction
 }
 
 sealed interface FeedEvent {

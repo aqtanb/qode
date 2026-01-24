@@ -6,7 +6,11 @@ import com.qodein.shared.model.Post
 import com.qodein.shared.model.SortBy
 import com.qodein.shared.model.User
 
-data class FeedUiState(val currentUser: User? = null, val postsState: PostsUiState = PostsUiState.Loading)
+data class FeedUiState(
+    val currentUser: User? = null,
+    val postsState: PostsUiState = PostsUiState.Loading,
+    val isRefreshing: Boolean = false
+)
 
 sealed interface PostsUiState {
     object Loading : PostsUiState
