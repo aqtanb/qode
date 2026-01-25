@@ -23,7 +23,7 @@ object SpacingTokens {
     /** 4dp - Extra small: compact chip spacing, dense lists */
     val xxs = 4.dp
 
-    /** 8dp - Small: icon + text spacing, compact padding */
+    /** 8dp - Small: icon + text spacing, compact padding, screen edge padding */
     val xs = 8.dp
 
     /** 12dp - Small-medium: button inner padding, comfortable gaps */
@@ -32,7 +32,7 @@ object SpacingTokens {
     /** 16dp - Medium (default): card padding, list item spacing */
     val md = 16.dp
 
-    /** 24dp - Large: section spacing, card margins, screen edge padding */
+    /** 24dp - Large: section spacing, card margins */
     val lg = 24.dp
 
     /** 32dp - Extra large: large components */

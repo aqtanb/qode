@@ -37,7 +37,8 @@ fun PostCard(
     post: Post,
     onPostClick: (String) -> Unit,
     onImageClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    voteScore: Int = post.voteScore
 ) {
     QodeinElevatedCard(
         modifier = modifier.fillMaxWidth(),
@@ -52,7 +53,7 @@ fun PostCard(
                 authorAvatarUrl = post.authorAvatarUrl,
                 createdAt = post.createdAt,
                 tags = post.tags,
-                voteScore = post.voteScore,
+                voteScore = voteScore,
             )
 
             Column(
@@ -138,7 +139,7 @@ private fun PostHeader(
             horizontalAlignment = Alignment.End,
         ) {
             Text(
-                text = if (voteScore > 0) "+$voteScore" else voteScore.toString(),
+                text = "$voteScore",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.End,

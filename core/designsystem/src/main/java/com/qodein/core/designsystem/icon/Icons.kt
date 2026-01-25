@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -43,6 +42,7 @@ import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material.icons.outlined.Verified
@@ -63,7 +63,6 @@ import compose.icons.feathericons.ChevronLeft
 import compose.icons.feathericons.ChevronRight
 import compose.icons.feathericons.Coffee
 import compose.icons.feathericons.DollarSign
-import compose.icons.feathericons.Edit3
 import compose.icons.feathericons.Eye
 import compose.icons.feathericons.Gift
 import compose.icons.feathericons.Image
@@ -77,9 +76,6 @@ import compose.icons.feathericons.RefreshCw
 import compose.icons.feathericons.Search
 import compose.icons.feathericons.Settings
 import compose.icons.feathericons.Share2
-import compose.icons.feathericons.ThumbsDown
-import compose.icons.feathericons.ThumbsUp
-import compose.icons.feathericons.UserPlus
 import compose.icons.feathericons.X
 import compose.icons.simpleicons.Discord
 import compose.icons.simpleicons.Google
@@ -133,19 +129,13 @@ object ActionIcons {
 
     val Add: ImageVector = FeatherIcons.Plus
     val Clear: ImageVector = Icons.Outlined.Clear
-    val Edit: ImageVector = FeatherIcons.Edit3
     val Check: ImageVector = FeatherIcons.Check
     val Copy: ImageVector = Icons.Outlined.ContentCopy
     val Up: ImageVector = FeatherIcons.ArrowUp
     val Down: ImageVector = FeatherIcons.ArrowDown
     val Close: ImageVector = FeatherIcons.X
     val Previous: ImageVector = FeatherIcons.ChevronLeft
-    val Thumbs: ImageVector = FeatherIcons.ThumbsUp
-    val ThumbsDown: ImageVector = FeatherIcons.ThumbsDown
     val Share: ImageVector = FeatherIcons.Share2
-    val Comment: ImageVector = FeatherIcons.MessageCircle
-    val Follow: ImageVector = FeatherIcons.UserPlus
-    val Bookmark: ImageVector = Icons.Outlined.BookmarkAdd
     val Preview: ImageVector = FeatherIcons.Eye
 }
 
@@ -183,6 +173,7 @@ object QodeSocialIcons {
 
 object UIIcons {
     val DarkMode: ImageVector = Icons.Outlined.DarkMode
+    val VoteScore = Icons.Outlined.Star
     val Paste: ImageVector = Icons.Outlined.ContentPaste
     val Block: ImageVector = Icons.Outlined.Block
     val Report: ImageVector = Icons.Outlined.Flag

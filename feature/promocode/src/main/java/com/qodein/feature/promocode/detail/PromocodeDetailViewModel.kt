@@ -146,61 +146,53 @@ class PromocodeDetailViewModel(
 
     private fun handleVote(targetVoteState: VoteState) {
         viewModelScope.launch {
-            // Auth check
-            val authPrompt = when (targetVoteState) {
-                VoteState.UPVOTE -> AuthPromptAction.UpvotePrompt
-                else -> AuthPromptAction.DownvotePrompt
-            }
-            _uiState.value.userId ?: run {
-                // Store the pending action before navigating to auth
-                pendingVoteAction = targetVoteState
-                _events.emit(PromocodeDetailEvent.NavigateToAuth(authPrompt))
-                return@launch
-            }
-
-            // Voting
+            val userId = _uiState.value.userId
             val currentVoteState = _uiState.value.userInteraction?.voteState ?: VoteState.NONE
             val currentBookmarkState = _uiState.value.userInteraction?.isBookmarked ?: false
             _uiState.update { it.copy(currentVoting = targetVoteState) }
-            when (
-                val result = toggleVoteUseCase(
-                    itemId = promocodeId.value,
-                    itemType = ContentType.PROMOCODE,
-                    userId = _uiState.value.userId,
-                    currentVoteState = currentVoteState,
-                    targetVoteState = targetVoteState,
-                    isBookmarked = currentBookmarkState,
-                )
-            ) {
-                is Result.Success -> {
-                    val newInteraction = result.data
-                    val promoState = _uiState.value.promocodeState
-                    val promo = (promoState as? PromocodeUiState.Success)?.data
-                    if (promo != null) {
-                        val baseUpvotes = _uiState.value.optimisticUpvotes ?: promo.upvotes
-                        val baseDownvotes = _uiState.value.optimisticDownvotes ?: promo.downvotes
-                        val (newUpvotes, newDownvotes) = VoteState.computeVoteCounts(
-                            previousVote = currentVoteState,
-                            newVote = newInteraction.voteState,
-                            currentUpvotes = baseUpvotes,
-                            currentDownvotes = baseDownvotes,
-                        )
-                        _uiState.update {
-                            it.copy(
-                                userInteraction = newInteraction,
-                                optimisticUpvotes = newUpvotes,
-                                optimisticDownvotes = newDownvotes,
+            if (userId == null) {
+                _events.emit(PromocodeDetailEvent.NavigateToAuth(AuthPromptAction.Vote))
+            } else {
+                when (
+                    val result = toggleVoteUseCase(
+                        itemId = promocodeId.value,
+                        itemType = ContentType.PROMOCODE,
+                        userId = userId,
+                        currentVoteState = currentVoteState,
+                        targetVoteState = targetVoteState,
+                        isBookmarked = currentBookmarkState,
+                    )
+                ) {
+                    is Result.Success -> {
+                        val newInteraction = result.data
+                        val promoState = _uiState.value.promocodeState
+                        val promo = (promoState as? PromocodeUiState.Success)?.data
+                        if (promo != null) {
+                            val baseUpvotes = _uiState.value.optimisticUpvotes ?: promo.upvotes
+                            val baseDownvotes = _uiState.value.optimisticDownvotes ?: promo.downvotes
+                            val (newUpvotes, newDownvotes) = VoteState.computeVoteCounts(
+                                previousVote = currentVoteState,
+                                newVote = newInteraction.voteState,
+                                currentUpvotes = baseUpvotes,
+                                currentDownvotes = baseDownvotes,
                             )
+                            _uiState.update {
+                                it.copy(
+                                    userInteraction = newInteraction,
+                                    optimisticUpvotes = newUpvotes,
+                                    optimisticDownvotes = newDownvotes,
+                                )
+                            }
+                        } else {
+                            _uiState.update { it.copy(userInteraction = newInteraction) }
                         }
-                    } else {
-                        _uiState.update { it.copy(userInteraction = newInteraction) }
+                    }
+                    is Result.Error -> {
+                        _events.emit(PromocodeDetailEvent.ShowError(result.error))
                     }
                 }
-                is Result.Error -> {
-                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
-                }
+                _uiState.update { it.copy(currentVoting = null) }
             }
-            _uiState.update { it.copy(currentVoting = null) }
         }
     }
 

@@ -1,17 +1,14 @@
 package com.qodein.feature.post.detail
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.qodein.core.ui.AuthPromptAction
-import com.qodein.core.ui.auth.IdTokenProvider
 import com.qodein.feature.post.navigation.PostDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
-import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
@@ -34,9 +31,7 @@ class PostDetailViewModel(
     private val getPostByIdUseCase: GetPostByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
-    private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val idTokenProvider: IdTokenProvider,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val getAuthStateUseCase: GetAuthStateUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState())
     val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
@@ -56,38 +51,9 @@ class PostDetailViewModel(
 
     internal fun onAction(action: PostDetailAction) {
         when (action) {
-            is PostDetailAction.UpvoteClicked -> {
-                val currentUserId = _uiState.value.currentUserId
-                if (currentUserId == null) {
-                    viewModelScope.launch {
-                        _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.UpvotePrompt))
-                    }
-                } else {
-                    handleUpvote(
-                        itemId = action.postId,
-                        userId = currentUserId,
-                        currentVoteState = action.currentVoteState,
-                    )
-                }
-            }
-            is PostDetailAction.DownvoteClicked -> {
-                val currentUserId = _uiState.value.currentUserId
-                if (currentUserId == null) {
-                    viewModelScope.launch {
-                        _events.emit(PostDetailEvent.NavigateToAuth(action = AuthPromptAction.DownvotePrompt))
-                    }
-                } else {
-                    handleDownVote(
-                        itemId = action.postId,
-                        userId = currentUserId,
-                        currentVoteState = action.currentVoteState,
-                    )
-                }
-            }
-
-            is PostDetailAction.SignInWithGoogleClicked -> signInWithGoogle(action.context)
             is PostDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
             is PostDetailAction.ReportPostClicked -> handleReportPost(action.postId)
+            is PostDetailAction.ToggleVoteClicked -> toggleVote(action.voteState)
         }
     }
 
@@ -113,18 +79,55 @@ class PostDetailViewModel(
         }
     }
 
-    private fun handleUpvote(
-        itemId: String,
-        userId: UserId,
-        currentVoteState: VoteState
-    ) {
-    }
+    private fun toggleVote(targetVoteState: VoteState) {
+        viewModelScope.launch {
+            val userId = _uiState.value.currentUserId
+            if (userId == null) {
+                _events.emit(PostDetailEvent.NavigateToAuth(AuthPromptAction.Vote))
+                return@launch
+            }
 
-    private fun handleDownVote(
-        itemId: String,
-        userId: UserId,
-        currentVoteState: VoteState
-    ) {
+            val currentVoteState = _uiState.value.userVoteState
+            val optimisticVoteState = currentVoteState.toggleTo(targetVoteState)
+            val scoreDelta = VoteState.computeScoreDelta(currentVoteState, optimisticVoteState)
+            val currentDelta = _uiState.value.voteScoreDelta
+
+            _uiState.update {
+                it.copy(
+                    userVoteState = optimisticVoteState,
+                    voteScoreDelta = currentDelta + scoreDelta,
+                )
+            }
+
+            when (
+                val result = toggleVoteUseCase(
+                    itemId = postId.value,
+                    itemType = ContentType.POST,
+                    userId = userId,
+                    currentVoteState = currentVoteState,
+                    isBookmarked = _uiState.value.isBookmarked,
+                    targetVoteState = targetVoteState,
+                )
+            ) {
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            userVoteState = currentVoteState,
+                            voteScoreDelta = currentDelta,
+                        )
+                    }
+                    _events.emit(PostDetailEvent.ShowError(result.error))
+                }
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            userVoteState = result.data.voteState,
+                            isBookmarked = result.data.isBookmarked,
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private fun observeAuthState() {
@@ -141,29 +144,6 @@ class PostDetailViewModel(
 
                     AuthState.Unauthenticated -> {
                         _uiState.update { it.copy(currentUserId = null, userVoteState = VoteState.NONE, isBookmarked = false) }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun signInWithGoogle(context: Context) {
-        _uiState.update { it.copy(isSigningIn = true) }
-        viewModelScope.launch {
-            when (val tokenResult = idTokenProvider.getIdToken(context)) {
-                is Result.Error -> {
-                    _uiState.update { it.copy(isSigningIn = false) }
-                    _events.emit(PostDetailEvent.ShowError(tokenResult.error))
-                }
-                is Result.Success -> {
-                    when (val signInResult = signInWithGoogleUseCase(tokenResult.data)) {
-                        is Result.Success -> {
-                            _uiState.update { it.copy(isSigningIn = false) }
-                        }
-                        is Result.Error -> {
-                            _uiState.update { it.copy(isSigningIn = false) }
-                            _events.emit(PostDetailEvent.ShowError(signInResult.error))
-                        }
                     }
                 }
             }

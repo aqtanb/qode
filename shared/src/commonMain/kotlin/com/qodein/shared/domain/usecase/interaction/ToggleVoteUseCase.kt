@@ -1,7 +1,6 @@
 package com.qodein.shared.domain.usecase.interaction
 
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.repository.UnifiedUserInteractionRepository
 import com.qodein.shared.model.ContentType
@@ -17,15 +16,11 @@ class ToggleVoteUseCase(private val repository: UnifiedUserInteractionRepository
     suspend operator fun invoke(
         itemId: String,
         itemType: ContentType,
-        userId: UserId?,
+        userId: UserId,
         currentVoteState: VoteState,
         isBookmarked: Boolean,
         targetVoteState: VoteState
     ): Result<UserInteraction, OperationError> {
-        if (userId == null) {
-            return Result.Error(InteractionError.VotingFailure.NotAuthorized)
-        }
-
         val currentInteraction = UserInteraction(
             itemId = itemId,
             itemType = itemType,

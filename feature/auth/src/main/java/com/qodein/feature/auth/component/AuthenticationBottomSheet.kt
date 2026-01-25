@@ -20,6 +20,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -32,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
@@ -43,7 +44,6 @@ import com.qodein.core.ui.R
 import com.qodein.core.ui.component.QodeGoogleSignInButton
 import com.qodein.core.ui.error.asUiText
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.common.error.UserError
 
 /**
  * Modern authentication prompt using bottom sheet instead of dialog
@@ -224,111 +224,19 @@ private fun AuthenticationBottomSheetContent(
     }
 }
 
-// MARK: - Previews
-
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Submit Promocode Auth", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetSubmitPreview() {
-    QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.SubmitPromocode,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Upvote Auth", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetUpvotePreview() {
-    QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.UpvotePrompt,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Comment Auth", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetCommentPreview() {
-    QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.WriteComment,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Bookmark Promocode Auth", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetBookmarkPreview() {
-    QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.BookmarkPromoCode,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Loading State", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetLoadingPreview() {
-    QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.FollowStore,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Error State", showBackground = true)
-@Composable
-private fun AuthenticationBottomSheetErrorPreview() {
-    QodeTheme {
-        AuthenticationBottomSheet(
-            authPromptAction = AuthPromptAction.UpvotePrompt,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            error = UserError.AuthenticationFailure.Cancelled,
-            onErrorDismissed = {},
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Post Submission Auth", showBackground = true)
+@PreviewLightDark
 @Composable
 private fun AuthenticationBottomSheetPostSubmissionPreview() {
     QodeTheme {
-        AuthenticationBottomSheetContent(
-            action = AuthPromptAction.CreatePost,
-            onSignInClick = {},
-            onDismiss = {},
-            isLoading = false,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Surface {
+            AuthenticationBottomSheetContent(
+                action = AuthPromptAction.CreatePost,
+                onSignInClick = {},
+                onDismiss = {},
+                isLoading = false,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -137,6 +136,7 @@ internal fun FeedScreen(
                 onRefresh = { onAction(FeedAction.RefreshData) },
                 modifier = Modifier
                     .padding(paddingValues)
+                    .padding(horizontal = SpacingTokens.xs)
                     .fillMaxSize(),
             ) {
                 when (val state = uiState.postsState) {
@@ -208,7 +208,7 @@ private fun PostsContent(
 
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize().padding(horizontal = SpacingTokens.xs),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.xs),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
@@ -228,7 +228,7 @@ private fun PostsContent(
                         .padding(vertical = SpacingTokens.md),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    PostCardSkeleton(showImage = true)
                 }
             }
         }
@@ -239,9 +239,9 @@ private fun PostsContent(
 private fun FeedLoadingState(modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = SpacingTokens.sm),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.xs),
     ) {
         items(3) { index ->
             PostCardSkeleton(

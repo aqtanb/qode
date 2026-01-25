@@ -219,4 +219,11 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="loading">Loading…</string>
 
+    <string name="ui_action_upvote">Upvote</string>
+    <string name="ui_action_downvote">Downvote</string>
+    <string name="ui_label_upvoted">Upvoted</string>
+    <string name="ui_label_downvoted">Downvoted</string>"
+
+    <string name="ui_auth_vote_title">Sign in to vote</string>
+    <string name="ui_auth_vote_message">Help others discover the best content by voting</string>
 </resources>

@@ -212,4 +212,10 @@
     <string name="loading">Жүктелуде…</string>
     <string name="ui_image_remove">Суретті өшіру</string>
     <string name="ui_image_post">Сурет қосу</string>
+    <string name="ui_action_downvote">Рейтинг төмендету</string>
+    <string name="ui_label_upvoted">Көтерілді</string>
+    <string name="ui_label_downvoted">Төмендетілді</string>
+    <string name="ui_action_upvote">Рейтинг көтеру</string>
+    <string name="ui_auth_vote_title">Дауыс беру үшін жүйеге кіріңіз</string>
+    <string name="ui_auth_vote_message">Үздік контентті анықтауға көмектесіп, рейтингке әсер етіңіз</string>
 </resources>

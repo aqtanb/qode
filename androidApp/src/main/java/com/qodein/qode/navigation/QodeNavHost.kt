@@ -95,7 +95,7 @@ fun QodeNavHost(
 
         profileSection(
             onBackClick = { navController.popBackStack() },
-            onSignOut = { appState.navigateToTopLevelDestination(TopLevelDestination.HOME) },
+            onSignOut = { navController.popBackStack() },
             onNavigateToBlockedUsers = { navController.navigateToBlockedUsers() },
             onNavigateToPostDetail = { postId -> navController.navigateToPostDetail(postId) },
             onNavigateToPromocodeDetail = { promocodeId -> navController.navigateToPromocodeDetail(promocodeId) },

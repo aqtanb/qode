@@ -1,15 +1,12 @@
 package com.qodein.feature.post.detail
 
-import android.content.Context
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 
 sealed interface PostDetailAction {
-    data class UpvoteClicked(val postId: String, val currentVoteState: VoteState, val userId: UserId?) : PostDetailAction
-    data class DownvoteClicked(val postId: String, val currentVoteState: VoteState, val userId: UserId?) : PostDetailAction
-    data class SignInWithGoogleClicked(val context: Context) : PostDetailAction
+    data class ToggleVoteClicked(val voteState: VoteState) : PostDetailAction
     data class BlockUserClicked(val userId: UserId) : PostDetailAction
     data class ReportPostClicked(val postId: String) : PostDetailAction
 }

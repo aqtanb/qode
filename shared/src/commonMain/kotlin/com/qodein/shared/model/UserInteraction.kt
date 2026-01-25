@@ -8,6 +8,13 @@ enum class VoteState {
     DOWNVOTE,
     NONE;
 
+    fun toggleTo(target: VoteState): VoteState =
+        when (target) {
+            UPVOTE -> if (this == UPVOTE) NONE else UPVOTE
+            DOWNVOTE -> if (this == DOWNVOTE) NONE else DOWNVOTE
+            NONE -> NONE
+        }
+
     companion object {
         fun computeVoteCounts(
             previousVote: VoteState,
@@ -23,6 +30,20 @@ enum class VoteState {
                 UPVOTE to DOWNVOTE -> (currentUpvotes - 1).coerceAtLeast(0) to (currentDownvotes + 1)
                 DOWNVOTE to UPVOTE -> (currentUpvotes + 1) to (currentDownvotes - 1).coerceAtLeast(0)
                 else -> currentUpvotes to currentDownvotes
+            }
+
+        fun computeScoreDelta(
+            from: VoteState,
+            to: VoteState
+        ): Int =
+            when (from to to) {
+                NONE to UPVOTE -> 1
+                NONE to DOWNVOTE -> -1
+                UPVOTE to NONE -> -1
+                UPVOTE to DOWNVOTE -> -2
+                DOWNVOTE to NONE -> 1
+                DOWNVOTE to UPVOTE -> 2
+                else -> 0
             }
     }
 }

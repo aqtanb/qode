@@ -203,4 +203,10 @@
     <string name="loading">Загрузка…</string>
     <string name="ui_image_remove">Удалить изображение</string>
     <string name="ui_image_post">Добавить изображение</string>
+    <string name="ui_action_downvote">Понизить рейтинг</string>
+    <string name="ui_label_upvoted">Поднято</string>
+    <string name="ui_label_downvoted">Понижено</string>
+    <string name="ui_action_upvote">Поднять рейтинг</string>
+    <string name="ui_auth_vote_title">Войдите, чтобы проголосовать</string>
+    <string name="ui_auth_vote_message">Помогите другим находить лучший контент, влияя на рейтинг</string>
 </resources>

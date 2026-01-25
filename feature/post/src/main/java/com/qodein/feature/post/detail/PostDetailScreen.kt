@@ -20,14 +20,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.Lifecycle
@@ -45,11 +42,9 @@ import com.qodein.core.ui.component.post.VoteButtonGroup
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.text.asString
-import com.qodein.feature.post.R
 import com.qodein.feature.post.detail.component.PostDetailTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
-import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 import org.koin.androidx.compose.koinViewModel
@@ -153,9 +148,9 @@ private fun PostDetailScreen(
             }
             is PostUiState.Success -> PostDetailSuccessState(
                 post = postState.post,
-                onAction = onAction,
                 userVoteState = uiState.userVoteState,
-                userId = uiState.currentUserId,
+                voteScoreDelta = uiState.voteScoreDelta,
+                onAction = onAction,
                 onImageClick = {},
                 modifier = Modifier.padding(paddingValues),
             )
@@ -166,9 +161,9 @@ private fun PostDetailScreen(
 @Composable
 private fun PostDetailSuccessState(
     post: Post,
-    onAction: (PostDetailAction) -> Unit,
     userVoteState: VoteState,
-    userId: UserId?,
+    voteScoreDelta: Int,
+    onAction: (PostDetailAction) -> Unit,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -182,14 +177,11 @@ private fun PostDetailSuccessState(
             post = post,
             onPostClick = {},
             onImageClick = onImageClick,
+            voteScore = post.voteScore + voteScoreDelta,
         )
 
         PostInteractionsRow(
-            postId = post.id,
-            upvotes = post.upvotes,
-            downvotes = post.downvotes,
             userVoteState = userVoteState,
-            userId = userId,
             onAction = onAction,
         )
     }
@@ -211,66 +203,25 @@ private fun PostDetailErrorState(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PostInteractionsRow(
-    postId: PostId,
-    upvotes: Int,
-    downvotes: Int,
     userVoteState: VoteState,
-    userId: UserId?,
     onAction: (PostDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val upvoteContentDescription = stringResource(R.string.cd_upvote, upvotes)
-    val downvoteContentDescription = stringResource(R.string.cd_downvote, downvotes)
-
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        var voteCount by remember { mutableIntStateOf(0) }
-        var mockVoteState by remember { mutableStateOf(VoteState.NONE) }
-
         VoteButtonGroup(
-            voteCount = voteCount,
-            voteState = mockVoteState,
-            onUpvote = {
-                when (mockVoteState) {
-                    VoteState.UPVOTE -> {
-                        mockVoteState = VoteState.NONE
-                        voteCount--
-                    }
-                    VoteState.DOWNVOTE -> {
-                        mockVoteState = VoteState.UPVOTE
-                        voteCount += 2
-                    }
-                    VoteState.NONE -> {
-                        mockVoteState = VoteState.UPVOTE
-                        voteCount++
-                    }
-                }
-            },
-            onDownvote = {
-                when (mockVoteState) {
-                    VoteState.UPVOTE -> {
-                        mockVoteState = VoteState.DOWNVOTE
-                        voteCount -= 2
-                    }
-                    VoteState.DOWNVOTE -> {
-                        mockVoteState = VoteState.NONE
-                        voteCount++
-                    }
-                    VoteState.NONE -> {
-                        mockVoteState = VoteState.DOWNVOTE
-                        voteCount--
-                    }
-                }
-            },
+            voteState = userVoteState,
+            onUpvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.UPVOTE)) },
+            onDownvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.DOWNVOTE)) },
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         FilledTonalIconButton(
-            onClick = { /* TODO: Share functionality */ },
+            onClick = {},
         ) {
             Icon(
                 imageVector = ActionIcons.Share,
