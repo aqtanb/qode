@@ -10,7 +10,6 @@
     <string name="cd_expiring_soon">Expiring soon</string>
     <string name="cd_verified">Verified</string>
     <string name="cd_service_logo">Service logo</string>
-    <string name="cd_more_options">More options</string>
 
     <string name="profile_picture_description">Profile Picture</string>
     <string name="action_block">Block user</string>
@@ -180,16 +179,6 @@
 
     <string name="auth_submit_promo_title">Sign in to submit promocode</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promocode finds with everyone.</string>
-    <string name="auth_upvote_title">Sign in to upvote</string>
-    <string name="auth_upvote_message">Help others discover the best content</string>
-    <string name="auth_downvote_title">Sign in to downvote</string>
-    <string name="auth_downvote_message">Keep the community quality high</string>
-    <string name="auth_comment_title">Sign in to comment</string>
-    <string name="auth_comment_message">Share your experience and help others with tips about this promocode</string>
-    <string name="auth_bookmark_promo_title">Sign in to bookmark</string>
-    <string name="auth_bookmark_promo_message">Save this promocode to your personal collection for easy access</string>
-    <string name="auth_follow_store_title">Sign in to follow store</string>
-    <string name="auth_follow_store_message">Get notified when this store has new deals and promocodes available.</string>
     <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
@@ -221,9 +210,21 @@
 
     <string name="ui_action_upvote">Upvote</string>
     <string name="ui_action_downvote">Downvote</string>
+    <string name="ui_action_share">Share</string>
+
     <string name="ui_label_upvoted">Upvoted</string>
-    <string name="ui_label_downvoted">Downvoted</string>"
+    <string name="ui_label_downvoted">Downvoted</string>
 
     <string name="ui_auth_vote_title">Sign in to vote</string>
     <string name="ui_auth_vote_message">Help others discover the best content by voting</string>
+    <string name="ui_auth_block_title">Sign in to block</string>
+    <string name="ui_auth_block_message">Block users from viewing your content</string>
+    <string name="ui_share_post_header">Check out this post: %1$s</string>
+    <string name="ui_share_author_attribution">By %1$s</string>
+    <string name="ui_share_post_cta">Read more on Qodein</string>
+    <string name="ui_share_promocode_header">%1$s: %2$s</string>
+    <string name="ui_share_code_label">Code: %1$s</string>
+    <string name="ui_action_share_post">Share Post</string>
+    <string name="ui_action_share_promocode">Share Promocode</string>
+
 </resources>

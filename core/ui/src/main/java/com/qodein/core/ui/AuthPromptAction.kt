@@ -35,5 +35,10 @@ enum class AuthPromptAction(val titleResId: Int, val messageResId: Int, val icon
         titleResId = R.string.ui_auth_vote_title,
         messageResId = R.string.ui_auth_vote_message,
         iconVector = UIIcons.VoteScore,
+    ),
+    Block(
+        titleResId = R.string.ui_auth_block_title,
+        messageResId = R.string.ui_auth_block_message,
+        iconVector = UIIcons.Block,
     )
 }

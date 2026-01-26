@@ -9,6 +9,7 @@ import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeShareContentUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PromocodeId
@@ -29,7 +30,8 @@ class PromocodeDetailViewModel(
     private val getPromocodeUseCase: GetPromocodeUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
-    private val getAuthStateUseCase: GetAuthStateUseCase
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val getPromocodeShareContentUseCase: GetPromocodeShareContentUseCase
 ) : ViewModel() {
 
     private val promocodeId = PromocodeId(promoCodeIdString)
@@ -197,13 +199,18 @@ class PromocodeDetailViewModel(
     }
 
     private fun handleShare() {
-        val promoState = _uiState.value.promocodeState
-        if (promoState !is PromocodeUiState.Success) return
-        val currentPromoCode = promoState.data
-        _uiState.update { it.copy(isSharing = true) }
-
         viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.SharePromocode(currentPromoCode))
+            _uiState.update { it.copy(isSharing = true) }
+
+            when (val result = getPromocodeShareContentUseCase(promocodeId)) {
+                is Result.Success -> {
+                    _events.emit(PromocodeDetailEvent.SharePromocode(result.data))
+                }
+                is Result.Error -> {
+                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
+                }
+            }
+
             _uiState.update { it.copy(isSharing = false) }
         }
     }

@@ -27,6 +27,7 @@ val promocodeModule = module {
             getUserInteractionUseCase = get(),
             toggleVoteUseCase = get(),
             getAuthStateUseCase = get(),
+            getPromocodeShareContentUseCase = get(),
         )
     }
 }

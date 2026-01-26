@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
@@ -293,7 +292,7 @@ private fun LazyListScope.promocodesTabItems(
                                 .padding(vertical = SpacingTokens.md),
                             contentAlignment = Alignment.Center,
                         ) {
-                            CircularProgressIndicator()
+                            PromocodeCardSkeleton()
                         }
                     }
                 }
@@ -351,7 +350,7 @@ private fun LazyListScope.postsTabItems(
                                 .padding(vertical = SpacingTokens.md),
                             contentAlignment = Alignment.Center,
                         ) {
-                            CircularProgressIndicator()
+                            PostCardSkeleton()
                         }
                     }
                 }

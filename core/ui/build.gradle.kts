@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.androidx.exifinterface)
     implementation(libs.koin.core)
+    implementation(libs.koin.android)
 
     testImplementation(libs.bundles.testing.unit)
     testImplementation(projects.core.testing)

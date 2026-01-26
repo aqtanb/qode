@@ -42,8 +42,6 @@ import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.text.asString
-import com.qodein.core.ui.util.formatNumber
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.detail.component.PromocodeActions
 import com.qodein.feature.promocode.detail.component.PromocodeDetailTopAppBar
 import com.qodein.feature.promocode.detail.component.PromocodeDetails
@@ -51,7 +49,6 @@ import com.qodein.feature.promocode.detail.component.PromocodeInfo
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.ContentType
-import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.UserId
@@ -90,7 +87,7 @@ fun PromocodeDetailRoute(
                     event.username,
                     event.photoUrl,
                 )
-                is PromocodeDetailEvent.SharePromocode -> sharePromocode(localContext, event.promocode)
+                is PromocodeDetailEvent.SharePromocode -> shareContent(localContext, event.shareContent)
                 is PromocodeDetailEvent.CopyCodeToClipboard -> copyToClipboard(localContext, event.code)
                 is PromocodeDetailEvent.ShowError -> {
                     snackbarHostState.showSnackbar(
@@ -349,60 +346,20 @@ private fun PromocodeLoadingState() {
     }
 }
 
-// Helper functions
-private fun sharePromocode(
+private fun shareContent(
     context: Context,
-    promoCode: Promocode
+    shareContent: com.qodein.shared.model.ShareContent
 ) {
-    val shareText = buildShareText(context, promoCode)
-
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, shareText)
-        putExtra(
-            Intent.EXTRA_SUBJECT,
-            context.getString(R.string.share_subject_format, promoCode.serviceName),
-        )
+        putExtra(Intent.EXTRA_TEXT, shareContent.text)
+        putExtra(Intent.EXTRA_SUBJECT, shareContent.title)
     }
 
-    val chooserTitle = context.getString(R.string.action_share_promocode)
+    val chooserTitle = context.getString(CoreUiR.string.ui_action_share_promocode)
     try {
         context.startActivity(Intent.createChooser(shareIntent, chooserTitle))
     } catch (_: Exception) {
-        // Swallow to avoid crashes if no activity can handle the intent.
-    }
-}
-
-private fun buildShareText(
-    context: Context,
-    promoCode: Promocode
-): String {
-    val discountText = when (val discount = promoCode.discount) {
-        is Discount.Percentage -> context.getString(
-            CoreUiR.string.discount_percent,
-            formatNumber(discount.value),
-        )
-
-        is Discount.FixedAmount -> context.getString(
-            CoreUiR.string.discount_fixed,
-            formatNumber(discount.value),
-        )
-
-        is Discount.FreeItem -> discount.description
-    }
-
-    return buildString {
-        append(context.getString(R.string.share_header_format, promoCode.serviceName, discountText))
-        append("\n")
-        append(context.getString(R.string.share_code_label, promoCode.code.value))
-        append("\n\n")
-
-        promoCode.description?.takeIf { it.isNotBlank() }?.let { description ->
-            append(description.trim())
-            append("\n\n")
-        }
-
-        append(context.getString(R.string.share_link_format, promoCode.id.value))
     }
 }
 

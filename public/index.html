@@ -106,30 +106,39 @@
   <script>
     (function () {
       var path = window.location.pathname.split("/").filter(Boolean);
-      var isPromocodePath = path[0] === "promocodes";
-      var promocodeId = isPromocodePath ? path[1] : null;
+      var contentType = path[0];
+      var contentId = path[1];
 
-      var scheme = promocodeId ? "qodein://promocode/" + promocodeId : "qodein://promocode";
-      var playStore = "https://play.google.com/store/apps/details?id=com.qodein";
+      var scheme, playStore, label, text;
 
-      // Update text to reflect the promocode id when present
-      if (promocodeId) {
-        document.getElementById("promoLabel").textContent = "Promocode · " + promocodeId;
-        document.getElementById("promoText").textContent = "You are opening promocode " + promocodeId + " in Qodein.";
+      if (contentType === "posts" && contentId) {
+        scheme = "qodein://post/" + contentId;
+        label = "Post · " + contentId;
+        text = "You are opening a post in Qodein.";
+      } else if (contentType === "promocodes" && contentId) {
+        scheme = "qodein://promocode/" + contentId;
+        label = "Promocode · " + contentId;
+        text = "You are opening promocode " + contentId + " in Qodein.";
+      } else {
+        scheme = "qodein://";
+        label = "Qodein";
+        text = "Share and find the best promocodes.";
       }
+
+      playStore = "https://play.google.com/store/apps/details?id=com.qodein.qode";
+
+      document.getElementById("promoLabel").textContent = label;
+      document.getElementById("promoText").textContent = text;
 
       document.getElementById("deepLinkBtn").onclick = function (event) {
         event.preventDefault();
-        var now = Date.now();
+
         var timeout = setTimeout(function () {
-          // If the app is not installed, send user to Play Store.
           window.location.href = playStore;
         }, 900);
 
-        // Attempt to open the app.
         window.location.href = scheme;
 
-        // If the page loses visibility quickly, assume the app opened and cancel fallback.
         document.addEventListener("visibilitychange", function handleVisibility() {
           if (document.visibilityState === "hidden") {
             clearTimeout(timeout);

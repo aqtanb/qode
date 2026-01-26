@@ -1,18 +1,16 @@
 package com.qodein.feature.post.detail
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -21,40 +19,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.InteractionsRow
 import com.qodein.core.ui.component.post.PostCard
-import com.qodein.core.ui.component.post.VoteButtonGroup
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.detail.component.PostDetailTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
+import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 import org.koin.androidx.compose.koinViewModel
+import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun PostDetailRoute(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
-    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToReport: (PostId, String, String?) -> Unit,
     onNavigateToBlockUser: (UserId, String?, String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PostDetailViewModel = koinViewModel()
@@ -87,6 +84,9 @@ internal fun PostDetailRoute(
                     event.itemTitle,
                     event.itemAuthor,
                 )
+                is PostDetailEvent.SharePost -> {
+                    sharePost(localContext, event.shareContent)
+                }
             }
         }
     }
@@ -125,8 +125,8 @@ private fun PostDetailScreen(
                 currentUserId = uiState.currentUserId,
                 authorId = authorId,
                 onNavigateBack = onNavigateBack,
-                onBlockUserClick = { userId -> onAction(PostDetailAction.BlockUserClicked(userId)) },
-                onReportPostClick = { postId -> onAction(PostDetailAction.ReportPostClicked(postId.value)) },
+                onBlockUserClick = { onAction(PostDetailAction.BlockUserClicked) },
+                onReportPostClick = { onAction(PostDetailAction.ReportPostClicked) },
             )
         },
         modifier = modifier,
@@ -180,9 +180,11 @@ private fun PostDetailSuccessState(
             voteScore = post.voteScore + voteScoreDelta,
         )
 
-        PostInteractionsRow(
-            userVoteState = userVoteState,
-            onAction = onAction,
+        InteractionsRow(
+            voteState = userVoteState,
+            onUpvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.UPVOTE)) },
+            onDownvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.DOWNVOTE)) },
+            onShare = { onAction(PostDetailAction.SharePostClicked) },
         )
     }
 }
@@ -200,34 +202,21 @@ private fun PostDetailErrorState(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun PostInteractionsRow(
-    userVoteState: VoteState,
-    onAction: (PostDetailAction) -> Unit,
-    modifier: Modifier = Modifier
+private fun sharePost(
+    context: Context,
+    shareContent: com.qodein.shared.model.ShareContent
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        VoteButtonGroup(
-            voteState = userVoteState,
-            onUpvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.UPVOTE)) },
-            onDownvote = { onAction(PostDetailAction.ToggleVoteClicked(VoteState.DOWNVOTE)) },
-        )
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TITLE, shareContent.title)
+        putExtra(Intent.EXTRA_TEXT, shareContent.text)
+        putExtra(Intent.EXTRA_SUBJECT, shareContent.title)
+    }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        FilledTonalIconButton(
-            onClick = {},
-        ) {
-            Icon(
-                imageVector = ActionIcons.Share,
-                contentDescription = "Share post",
-            )
-        }
+    val chooserTitle = context.getString(CoreUiR.string.ui_action_share_post)
+    try {
+        context.startActivity(Intent.createChooser(shareIntent, chooserTitle))
+    } catch (_: Exception) {
     }
 }
 

@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
@@ -69,10 +70,21 @@ fun NavGraphBuilder.postSubmissionSection(
 fun NavGraphBuilder.postDetailSection(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
-    onNavigateToReport: (String, String, String?) -> Unit,
+    onNavigateToReport: (PostId, String, String?) -> Unit,
     onNavigateToBlockUser: (UserId, String?, String?) -> Unit
 ) {
-    composable<PostDetailRoute> {
+    composable<PostDetailRoute>(
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "https://qodein.web.app/posts/{postId}"
+                action = "android.intent.action.VIEW"
+            },
+            navDeepLink {
+                uriPattern = "qodein://post/{postId}"
+                action = "android.intent.action.VIEW"
+            },
+        ),
+    ) {
         PostDetailRoute(
             onNavigateBack = onNavigateBack,
             onNavigateToAuth = onNavigateToAuth,

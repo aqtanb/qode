@@ -1,5 +1,6 @@
 package com.qodein.shared.domain.di
 
+import com.qodein.shared.domain.DeeplinkConfig
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
@@ -9,6 +10,7 @@ import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.domain.usecase.post.EnqueuePostSubmissionUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
+import com.qodein.shared.domain.usecase.post.GetPostShareContentUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
@@ -16,6 +18,7 @@ import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
+import com.qodein.shared.domain.usecase.promocode.GetPromocodeShareContentUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
@@ -52,6 +55,13 @@ val domainModule = module {
 
     single { CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineName("DomainScope")) }
 
+    single {
+        DeeplinkConfig(
+            webBaseUrl = "https://qodein.web.app",
+            appScheme = "qodein",
+        )
+    }
+
     single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
@@ -75,12 +85,14 @@ val domainModule = module {
     single { GetPromocodesUseCase(get(), get(), get()) }
     single { GetPromocodeUseCase(get()) }
     single { SubmitPromocodeUseCase(get(), get()) }
+    single { GetPromocodeShareContentUseCase(get(), get(), get()) }
 
     single { GetPostByIdUseCase(get()) }
     single { GetPostsByUserUseCase(get()) }
     single { GetPostsUseCase(get(), get()) }
     single { SubmitPostUseCase(get(), get()) }
     single { EnqueuePostSubmissionUseCase(get(), get()) }
+    single { GetPostShareContentUseCase(get(), get(), get()) }
 
     single { GetThemeUseCase(get()) }
     single { ObserveLanguageUseCase(get()) }

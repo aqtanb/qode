@@ -11,7 +11,8 @@ data class PostDetailUiState(
     val userVoteState: VoteState = VoteState.NONE,
     val voteScoreDelta: Int = 0,
     val isBookmarked: Boolean = false,
-    val isSigningIn: Boolean = false
+    val isSigningIn: Boolean = false,
+    val isSharing: Boolean = false
 )
 
 sealed interface PostUiState {

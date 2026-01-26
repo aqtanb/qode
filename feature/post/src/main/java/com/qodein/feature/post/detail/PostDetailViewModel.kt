@@ -12,6 +12,7 @@ import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.interaction.GetUserInteractionUseCase
 import com.qodein.shared.domain.usecase.interaction.ToggleVoteUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
+import com.qodein.shared.domain.usecase.post.GetPostShareContentUseCase
 import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
@@ -31,7 +32,8 @@ class PostDetailViewModel(
     private val getPostByIdUseCase: GetPostByIdUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
-    private val getAuthStateUseCase: GetAuthStateUseCase
+    private val getAuthStateUseCase: GetAuthStateUseCase,
+    private val getPostShareContentUseCase: GetPostShareContentUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<PostDetailUiState> = MutableStateFlow(PostDetailUiState())
     val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
@@ -51,8 +53,9 @@ class PostDetailViewModel(
 
     internal fun onAction(action: PostDetailAction) {
         when (action) {
-            is PostDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
-            is PostDetailAction.ReportPostClicked -> handleReportPost(action.postId)
+            PostDetailAction.BlockUserClicked -> handleBlockUser()
+            PostDetailAction.ReportPostClicked -> handleReportPost()
+            PostDetailAction.SharePostClicked -> handleShare()
             is PostDetailAction.ToggleVoteClicked -> toggleVote(action.voteState)
         }
     }
@@ -150,15 +153,17 @@ class PostDetailViewModel(
         }
     }
 
-    private fun handleBlockUser(userId: UserId) {
-        val postState = _uiState.value.postState
-        if (postState !is PostUiState.Success) return
+    private fun handleBlockUser() {
+        val postState = _uiState.value.postState as? PostUiState.Success ?: return
         val currentPost = postState.post
-
         viewModelScope.launch {
+            _uiState.value.currentUserId ?: run {
+                _events.emit(PostDetailEvent.NavigateToAuth(AuthPromptAction.Block))
+                return@launch
+            }
             _events.emit(
                 PostDetailEvent.NavigateToBlockUser(
-                    userId = userId,
+                    userId = currentPost.authorId,
                     username = currentPost.authorName,
                     photoUrl = currentPost.authorAvatarUrl,
                 ),
@@ -166,11 +171,9 @@ class PostDetailViewModel(
         }
     }
 
-    private fun handleReportPost(postId: String) {
-        val postState = _uiState.value.postState
-        if (postState !is PostUiState.Success) return
+    private fun handleReportPost() {
+        val postState = _uiState.value.postState as? PostUiState.Success ?: return
         val currentPost = postState.post
-
         viewModelScope.launch {
             _uiState.value.currentUserId ?: run {
                 _events.emit(PostDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
@@ -179,11 +182,28 @@ class PostDetailViewModel(
 
             _events.emit(
                 PostDetailEvent.NavigateToReport(
-                    reportedItemId = postId,
+                    reportedItemId = currentPost.id,
                     itemTitle = currentPost.title,
                     itemAuthor = currentPost.authorName,
                 ),
             )
+        }
+    }
+
+    private fun handleShare() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSharing = true) }
+
+            when (val result = getPostShareContentUseCase(postId)) {
+                is Result.Success -> {
+                    _events.emit(PostDetailEvent.SharePost(result.data))
+                }
+                is Result.Error -> {
+                    _events.emit(PostDetailEvent.ShowError(result.error))
+                }
+            }
+
+            _uiState.update { it.copy(isSharing = false) }
         }
     }
 }

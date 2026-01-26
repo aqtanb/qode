@@ -151,7 +151,7 @@ fun QodeNavHost(
             },
             onNavigateToReport = { reportedItemId, itemTitle, itemAuthor ->
                 navController.navigateToReport(
-                    reportedItemId = reportedItemId,
+                    reportedItemId = reportedItemId.value,
                     reportedItemType = ContentType.POST,
                     itemTitle = itemTitle,
                     itemAuthor = itemAuthor,

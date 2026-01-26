@@ -35,7 +35,6 @@
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
     <string name="cd_service_logo">Логотип сервиса</string>
-    <string name="cd_more_options">Дополнительные параметры</string>
     <string name="action_block">Заблокировать пользователя</string>
     <string name="action_report">Пожаловаться</string>
     <string name="error_auth_required">Требуется вход в систему.</string>
@@ -162,16 +161,6 @@
 
     <string name="auth_submit_promo_title">Войдите, чтобы добавить промокод</string>
     <string name="auth_submit_promo_message">Присоединяйтесь и делитесь находками промокодов.</string>
-    <string name="auth_upvote_title">Войдите, чтобы поставить лайк</string>
-    <string name="auth_upvote_message">Помогите другим найти лучшее</string>
-    <string name="auth_downvote_title">Войдите, чтобы дизлайкнуть</string>
-    <string name="auth_downvote_message">Поддерживайте качество сообщества</string>
-    <string name="auth_comment_title">Войдите, чтобы комментировать</string>
-    <string name="auth_comment_message">Поделитесь опытом и советами</string>
-    <string name="auth_bookmark_promo_title">Войдите, чтобы сохранить</string>
-    <string name="auth_bookmark_promo_message">Сохраните промокод в коллекцию</string>
-    <string name="auth_follow_store_title">Войдите, чтобы подписаться на магазин</string>
-    <string name="auth_follow_store_message">Получайте уведомления о новых акциях</string>
     <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход через Google</string>
     <string name="auth_create_post_message">Делитесь горячими предложениями и общайтесь</string>
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
@@ -204,9 +193,19 @@
     <string name="ui_image_remove">Удалить изображение</string>
     <string name="ui_image_post">Добавить изображение</string>
     <string name="ui_action_downvote">Понизить рейтинг</string>
+    <string name="ui_action_share">Поделиться</string>
     <string name="ui_label_upvoted">Поднято</string>
     <string name="ui_label_downvoted">Понижено</string>
     <string name="ui_action_upvote">Поднять рейтинг</string>
     <string name="ui_auth_vote_title">Войдите, чтобы проголосовать</string>
     <string name="ui_auth_vote_message">Помогите другим находить лучший контент, влияя на рейтинг</string>
+    <string name="ui_auth_block_title">Войдите, чтобы заблокировать</string>
+    <string name="ui_auth_block_message">Блокируйте пользователей, чтобы они не могли видеть ваш контент</string>
+    <string name="ui_share_post_header">Посмотрите этот пост: %1$s</string>
+    <string name="ui_share_author_attribution">Автор: %1$s</string>
+    <string name="ui_share_post_cta">Читать больше в Qodein</string>
+    <string name="ui_share_promocode_header">%1$s: %2$s</string>
+    <string name="ui_share_code_label">Код: %1$s</string>
+    <string name="ui_action_share_post">Поделиться</string>
+    <string name="ui_action_share_promocode">Поделиться промокодом</string>
 </resources>

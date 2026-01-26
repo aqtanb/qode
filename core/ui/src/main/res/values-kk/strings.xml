@@ -40,7 +40,6 @@
     <string name="cd_expiring_soon">Жақында аяқталады</string>
     <string name="cd_verified">Тексерілді</string>
     <string name="cd_service_logo">Қызмет логотипі</string>
-    <string name="cd_more_options">Қосымша параметрлер</string>
     <string name="action_block">Қолданушыны бұғаттау</string>
     <string name="action_report">Арыздану</string>
 
@@ -171,16 +170,6 @@
 
     <string name="auth_submit_promo_title">Промокод қосу үшін кіріңіз</string>
     <string name="auth_submit_promo_message">Қауымдастыққа қосылып, табылған промокодтармен бөлісіңіз.</string>
-    <string name="auth_upvote_title">Ұнату үшін кіріңіз</string>
-    <string name="auth_upvote_message">Басқаларға үздігін табуға көмектесіңіз</string>
-    <string name="auth_downvote_title">Ұнатпау үшін кіріңіз</string>
-    <string name="auth_downvote_message">Қауымдастық сапасын сақтаңыз</string>
-    <string name="auth_comment_title">Пікір жазу үшін кіріңіз</string>
-    <string name="auth_comment_message">Тәжірибеңізбен және кеңестеріңізбен бөлісіңіз</string>
-    <string name="auth_bookmark_promo_title">Сақтау үшін кіріңіз</string>
-    <string name="auth_bookmark_promo_message">Промокодты жеке жинаққа қосыңыз</string>
-    <string name="auth_follow_store_title">Дүкенге жазылу үшін кіріңіз</string>
-    <string name="auth_follow_store_message">Жаңа акциялар туралы хабарламалар алыңыз</string>
     <string name="auth_bottom_sheet_footer">Google арқылы жылдам әрі қауіпсіз кіру</string>
     <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
@@ -213,9 +202,19 @@
     <string name="ui_image_remove">Суретті өшіру</string>
     <string name="ui_image_post">Сурет қосу</string>
     <string name="ui_action_downvote">Рейтинг төмендету</string>
+    <string name="ui_action_share">Бөлісу</string>
     <string name="ui_label_upvoted">Көтерілді</string>
     <string name="ui_label_downvoted">Төмендетілді</string>
     <string name="ui_action_upvote">Рейтинг көтеру</string>
     <string name="ui_auth_vote_title">Дауыс беру үшін жүйеге кіріңіз</string>
     <string name="ui_auth_vote_message">Үздік контентті анықтауға көмектесіп, рейтингке әсер етіңіз</string>
+    <string name="ui_auth_block_title">Бұғаттау үшін жүйеге кіріңіз</string>
+    <string name="ui_auth_block_message">Басқалар сіздің контентіңізді көрмеуі үшін пайдаланушыларды бұғаттаңыз</string>
+    <string name="ui_share_post_header">Бұл постты қараңыз: %1$s</string>
+    <string name="ui_share_author_attribution">Автор: %1$s</string>
+    <string name="ui_share_post_cta">Qodein-де толығырақ оқыңыз</string>
+    <string name="ui_share_promocode_header">%1$s: %2$s</string>
+    <string name="ui_share_code_label">Код: %1$s</string>
+    <string name="ui_action_share_post">Бөлісу</string>
+    <string name="ui_action_share_promocode">Промокодпен бөлісу</string>
 </resources>
