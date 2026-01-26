@@ -61,7 +61,7 @@ fun QodeNavHost(
                     isSingleSelection = false,
                 )
             },
-            scrollStateRegistry = appState,
+            registerScrollState = appState::registerScrollState,
         )
 
         feedSection(
@@ -73,6 +73,7 @@ fun QodeNavHost(
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
             },
+            registerScrollState = appState::registerScrollState,
         )
 
         promocodeDetailSection(

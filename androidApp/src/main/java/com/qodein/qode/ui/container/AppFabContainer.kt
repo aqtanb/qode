@@ -60,7 +60,6 @@ fun AppFabContainer(
     onEvent: (AppUiEvents) -> Unit
 ) {
     val currentScrollableState by appState.currentScrollableState
-    appState.UpdateAutoHidingContext()
     val fabAutoHidingState by appState.fabAutoHidingState
     LaunchedEffect(currentScrollableState) {
         val extractor = appState.getScrollExtractor()

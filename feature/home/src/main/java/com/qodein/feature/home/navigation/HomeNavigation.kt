@@ -1,11 +1,11 @@
 package com.qodein.feature.home.navigation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.qodein.core.ui.navigation.ServiceSelectionResult
-import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.home.HomeScreen
 import com.qodein.feature.home.HomeViewModel
 import com.qodein.shared.model.PromocodeId
@@ -23,7 +23,7 @@ import timber.log.Timber
 fun NavGraphBuilder.homeSection(
     onPromoCodeClick: (PromocodeId) -> Unit,
     onShowServiceSelection: (Set<ServiceId>) -> Unit,
-    scrollStateRegistry: ScrollStateRegistry
+    registerScrollState: ((LazyListState?) -> Unit)?
 ) {
     navigation<HomeBaseRoute>(startDestination = HomeRoute) {
         composable<HomeRoute> { backStackEntry ->
@@ -44,7 +44,7 @@ fun NavGraphBuilder.homeSection(
             HomeScreen(
                 onNavigateToPromoCodeDetail = onPromoCodeClick,
                 onShowServiceSelection = onShowServiceSelection,
-                scrollStateRegistry = scrollStateRegistry,
+                registerScrollState = registerScrollState,
                 viewModel = viewModel,
             )
         }

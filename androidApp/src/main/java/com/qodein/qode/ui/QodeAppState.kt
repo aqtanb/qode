@@ -23,13 +23,11 @@ import androidx.navigation.navOptions
 import com.qodein.core.designsystem.component.AutoHideConfig
 import com.qodein.core.designsystem.component.AutoHidingState
 import com.qodein.core.designsystem.component.HidingBehavior
-import com.qodein.core.designsystem.component.HidingSensitivity
 import com.qodein.core.designsystem.component.LazyListScrollExtractor
 import com.qodein.core.designsystem.component.ScrollInfo
 import com.qodein.core.designsystem.component.ScrollStateExtractor
 import com.qodein.core.ui.refresh.RefreshTarget
 import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
-import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.post.navigation.FeedRoute
@@ -58,27 +56,23 @@ fun rememberQodeAppState(
     }
 
 @Stable
-class QodeAppState(val navController: NavHostController, private val refreshCoordinator: ScreenRefreshCoordinator) : ScrollStateRegistry {
+class QodeAppState(val navController: NavHostController, private val refreshCoordinator: ScreenRefreshCoordinator) {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
     private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
 
     // Centralized Auto-Hiding Manager
     private val autoHidingManager = AutoHidingManager()
 
-    // Dynamic scroll state for auto-hiding behavior
+    // Current scroll state for auto-hiding and scroll-to-top
     private val _currentScrollableState = mutableStateOf<ScrollableState?>(null)
     val currentScrollableState: State<ScrollableState?> get() = _currentScrollableState
 
-    // ScrollStateRegistry implementation
-    override fun registerScrollState(scrollableState: ScrollableState?) {
+    /**
+     * Register scroll state from screens for auto-hiding and scroll-to-top functionality
+     */
+    fun registerScrollState(scrollableState: ScrollableState?) {
         _currentScrollableState.value = scrollableState
         autoHidingManager.updateScrollState(scrollableState)
-    }
-
-    override fun unregisterScrollState() {
-        // Don't set to null during tab switches to prevent auto-hiding state destruction
-        // The new screen registration will override this value anyway
-        // Only set to null if we're truly going to a screen without scrollable content
     }
 
     val currentDestination: NavDestination?
@@ -173,26 +167,10 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
             return currentDestination?.hasRoute<PostSubmissionRoute>() == true
         }
 
-    // MARK: - Auto-Hiding Public API
-
-    /**
-     * Get the centralized auto-hiding state for bottom navigation
-     */
-    val bottomBarAutoHidingState: State<AutoHidingState?> = autoHidingManager.bottomBarState
-
     /**
      * Get the centralized auto-hiding state for floating action button
      */
     val fabAutoHidingState: State<AutoHidingState?> = autoHidingManager.fabState
-
-    /**
-     * Update screen context for auto-hiding behavior
-     */
-    @Composable
-    fun UpdateAutoHidingContext() {
-        val currentScreenType = getScreenType()
-        autoHidingManager.updateScreenType(currentScreenType)
-    }
 
     /**
      * Update scroll info to the centralized auto-hiding manager
@@ -205,23 +183,6 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
      * Get the scroll extractor for current scroll state
      */
     fun getScrollExtractor(): ((ScrollableState) -> ScrollInfo)? = autoHidingManager.getScrollExtractor()
-
-    /**
-     * Determine current screen type for context-aware auto-hiding
-     */
-    @Composable
-    private fun getScreenType(): ScreenType =
-        when {
-            currentTopLevelDestination == HOME -> ScreenType.HOME
-            currentTopLevelDestination == FEED -> ScreenType.FEED
-            isProfileScreen -> ScreenType.PROFILE
-            isAuthScreen -> ScreenType.AUTH
-            isPromocodeSubmissionScreen -> ScreenType.SUBMISSION
-            isPostSubmissionScreen -> ScreenType.POST_SUBMISSION
-            isSettingsScreen -> ScreenType.SETTINGS
-            isPromocodeDetailScreen -> ScreenType.DETAIL
-            else -> ScreenType.OTHER
-        }
 
     fun navigateToTopLevelDestination(
         topLevelDestination: TopLevelDestination,
@@ -320,11 +281,13 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
 @Stable
 private class AutoHidingManager {
     private var currentScrollState by mutableStateOf<ScrollableState?>(null)
-    private var currentScreenType by mutableStateOf(ScreenType.OTHER)
 
     // Cached extractors to prevent recreation
     private val lazyListExtractor = LazyListScrollExtractor()
     private val scrollStateExtractor = ScrollStateExtractor()
+
+    // Simple IMMEDIATE config for both bottom bar and FAB
+    private val autoHideConfig = AutoHideConfig(behavior = HidingBehavior.IMMEDIATE)
 
     // The manager owns the auto-hiding states
     private var _bottomBarState by mutableStateOf<AutoHidingState?>(null)
@@ -340,21 +303,11 @@ private class AutoHidingManager {
         }
     }
 
-    fun updateScreenType(screenType: ScreenType) {
-        if (currentScreenType != screenType) {
-            currentScreenType = screenType
-            recreateState()
-        }
-    }
-
     private fun recreateState() {
         val scrollState = currentScrollState
-        val bottomBarConfig = getBottomBarConfig(currentScreenType)
-        val fabConfig = getFabConfig(currentScreenType)
-
-        // Create new states based on current scroll state and screen type
-        _bottomBarState = createAutoHidingState(scrollState, bottomBarConfig)
-        _fabState = createAutoHidingState(scrollState, fabConfig)
+        // Create new states with same config for both
+        _bottomBarState = createAutoHidingState(scrollState)
+        _fabState = createAutoHidingState(scrollState)
     }
 
     fun updateScrollInfo(scrollInfo: ScrollInfo) {
@@ -370,45 +323,9 @@ private class AutoHidingManager {
             else -> null
         }
 
-    private fun createAutoHidingState(
-        scrollableState: ScrollableState?,
-        config: AutoHideConfig
-    ): AutoHidingState? =
+    private fun createAutoHidingState(scrollableState: ScrollableState?): AutoHidingState? =
         when (scrollableState) {
-            is LazyListState, is ScrollState, is LazyGridState -> AutoHidingState(config)
+            is LazyListState, is ScrollState, is LazyGridState -> AutoHidingState(autoHideConfig)
             else -> null
         }
-
-    private fun getBottomBarConfig(screenType: ScreenType): AutoHideConfig =
-        when (screenType) {
-            ScreenType.HOME -> AutoHideConfig.Sensitive // More sensitive hiding on home
-            ScreenType.FEED -> AutoHideConfig.Default // Balanced behavior on feed
-            ScreenType.PROFILE -> AutoHideConfig.Relaxed // Gentle hiding on profile
-            ScreenType.DETAIL -> AutoHideConfig(
-                sensitivity = HidingSensitivity.LOW,
-                behavior = HidingBehavior.VELOCITY_BASED,
-            ) // Only hide on fast scrolls for detail screens
-            else -> AutoHideConfig.Default
-        }
-
-    private fun getFabConfig(screenType: ScreenType): AutoHideConfig =
-        // FAB should hide immediately like Telegram for better UX
-        AutoHideConfig(behavior = HidingBehavior.IMMEDIATE)
-}
-
-// MARK: - Screen Types
-
-/**
- * Context-aware screen types for auto-hiding behavior customization
- */
-private enum class ScreenType {
-    HOME,
-    FEED,
-    PROFILE,
-    AUTH,
-    SUBMISSION,
-    POST_SUBMISSION,
-    SETTINGS,
-    DETAIL,
-    OTHER
 }

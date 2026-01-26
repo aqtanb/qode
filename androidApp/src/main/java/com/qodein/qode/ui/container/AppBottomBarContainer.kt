@@ -25,7 +25,6 @@ fun AppBottomBarContainer(
     val currentScrollableState by appState.currentScrollableState
     val coroutineScope = rememberCoroutineScope()
 
-    appState.UpdateAutoHidingContext()
     LaunchedEffect(currentScrollableState) {
         val extractor = appState.getScrollExtractor()
         val scrollState = currentScrollableState

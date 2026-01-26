@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -15,6 +16,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,7 +24,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -52,7 +53,8 @@ fun FeedRoute(
     onNavigateToAuth: (AuthPromptAction) -> Unit,
     backStackEntry: NavBackStackEntry,
     modifier: Modifier = Modifier,
-    viewModel: FeedViewModel = koinViewModel()
+    viewModel: FeedViewModel = koinViewModel(),
+    registerScrollState: ((LazyListState?) -> Unit)?
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -90,10 +92,30 @@ fun FeedRoute(
         }
     }
 
+    val listState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState(
+            firstVisibleItemIndex = viewModel.getSavedScrollIndex(),
+            firstVisibleItemScrollOffset = viewModel.getSavedScrollOffset(),
+        )
+    }
+
+    DisposableEffect(listState) {
+        registerScrollState?.invoke(listState)
+        onDispose { }
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) ->
+            viewModel.saveScrollPosition(index, offset)
+        }
+    }
+
     FeedScreen(
         uiState = uiState,
+        listState = listState,
         onAction = { viewModel.onAction(it) },
-        viewModel = viewModel,
         modifier = modifier,
     )
 }
@@ -102,28 +124,10 @@ fun FeedRoute(
 @Composable
 internal fun FeedScreen(
     uiState: FeedUiState,
+    listState: LazyListState,
     onAction: (FeedAction) -> Unit,
-    viewModel: FeedViewModel? = null,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    val pullToRefreshState = rememberPullToRefreshState()
-    val listState = rememberSaveable(saver = LazyListState.Saver) {
-        LazyListState(
-            firstVisibleItemIndex = viewModel?.getSavedScrollIndex() ?: 0,
-            firstVisibleItemScrollOffset = viewModel?.getSavedScrollOffset() ?: 0,
-        )
-    }
-
-    LaunchedEffect(listState, viewModel) {
-        snapshotFlow {
-            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        }.collect { (index, offset) ->
-            viewModel?.saveScrollPosition(index, offset)
-        }
-    }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -133,10 +137,10 @@ internal fun FeedScreen(
                 onSettingsClick = { onAction(FeedAction.SettingsClicked) },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(remember { SnackbarHostState() }) },
     ) { paddingValues ->
         PullToRefreshBox(
-            state = pullToRefreshState,
+            state = rememberPullToRefreshState(),
             isRefreshing = uiState.isRefreshing,
             contentAlignment = Alignment.Center,
             onRefresh = { onAction(FeedAction.RefreshData) },
@@ -151,10 +155,7 @@ internal fun FeedScreen(
                     PostsContent(
                         state = state,
                         listState = listState,
-                        onPostClick = { postId ->
-                            focusManager.clearFocus()
-                            onAction(FeedAction.PostClicked(postId))
-                        },
+                        onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
                         onLoadMore = { onAction(FeedAction.LoadMorePosts) },
                     )
                 }
@@ -256,6 +257,7 @@ private fun PostsSuccessPreview() {
                     nextCursor = null,
                 ),
             ),
+            listState = rememberLazyListState(),
             onAction = {},
         )
     }
@@ -267,6 +269,7 @@ private fun PostsLoadingPreview() {
     QodeTheme {
         FeedScreen(
             uiState = FeedUiState(),
+            listState = rememberLazyListState(),
             onAction = {},
         )
     }
@@ -278,6 +281,7 @@ private fun PostsErrorPreview() {
     QodeTheme {
         FeedScreen(
             uiState = FeedUiState(postsState = PostsUiState.Error(SystemError.Unknown)),
+            listState = rememberLazyListState(),
             onAction = {},
         )
     }

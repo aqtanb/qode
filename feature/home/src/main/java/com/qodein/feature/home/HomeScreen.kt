@@ -15,6 +15,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,8 +29,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.PromocodeCard
 import com.qodein.core.ui.component.SortFilterBottomSheet
-import com.qodein.core.ui.scroll.RegisterScrollState
-import com.qodein.core.ui.scroll.ScrollStateRegistry
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
@@ -51,7 +50,7 @@ fun HomeScreen(
     onShowServiceSelection: (Set<ServiceId>) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
-    scrollStateRegistry: ScrollStateRegistry? = null
+    registerScrollState: ((LazyListState?) -> Unit)?
 ) {
     TrackScreenViewEvent(screenName = HOME_SCREEN_NAME)
 
@@ -65,7 +64,13 @@ fun HomeScreen(
     }
 
     val context = LocalContext.current
-    scrollStateRegistry?.RegisterScrollState(listState)
+
+    DisposableEffect(listState) {
+        registerScrollState?.invoke(listState)
+        onDispose {
+            // Don't unregister - let next screen override
+        }
+    }
 
     // Save scroll position when navigating away
     LaunchedEffect(listState) {

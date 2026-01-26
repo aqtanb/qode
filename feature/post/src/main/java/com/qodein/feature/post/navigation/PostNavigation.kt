@@ -1,5 +1,6 @@
 package com.qodein.feature.post.navigation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -40,7 +41,8 @@ fun NavGraphBuilder.feedSection(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onPostClick: (PostId) -> Unit,
-    onNavigateToAuth: (AuthPromptAction) -> Unit
+    onNavigateToAuth: (AuthPromptAction) -> Unit,
+    registerScrollState: ((LazyListState?) -> Unit)? = null
 ) {
     composable<FeedRoute> { backStackEntry ->
         FeedRoute(
@@ -49,6 +51,7 @@ fun NavGraphBuilder.feedSection(
             onPostClick = onPostClick,
             onNavigateToAuth = onNavigateToAuth,
             backStackEntry = backStackEntry,
+            registerScrollState = registerScrollState,
         )
     }
 }
