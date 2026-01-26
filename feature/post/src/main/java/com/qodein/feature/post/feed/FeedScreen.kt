@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -17,9 +17,8 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +32,6 @@ import androidx.navigation.NavBackStackEntry
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
-import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
@@ -42,8 +40,6 @@ import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.feature.post.feed.component.FeedTopAppBar
 import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.model.PostId
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import org.koin.androidx.compose.koinViewModel
@@ -97,6 +93,7 @@ fun FeedRoute(
     FeedScreen(
         uiState = uiState,
         onAction = { viewModel.onAction(it) },
+        viewModel = viewModel,
         modifier = modifier,
     )
 }
@@ -106,69 +103,68 @@ fun FeedRoute(
 internal fun FeedScreen(
     uiState: FeedUiState,
     onAction: (FeedAction) -> Unit,
+    viewModel: FeedViewModel? = null,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
-    var showFullScreenImage by remember { mutableStateOf(false) }
-    var fullScreenImageUri by remember { mutableStateOf("") }
-    val hazeState = remember { HazeState() }
     val pullToRefreshState = rememberPullToRefreshState()
+    val listState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState(
+            firstVisibleItemIndex = viewModel?.getSavedScrollIndex() ?: 0,
+            firstVisibleItemScrollOffset = viewModel?.getSavedScrollOffset() ?: 0,
+        )
+    }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Scaffold(
+    LaunchedEffect(listState, viewModel) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) ->
+            viewModel?.saveScrollPosition(index, offset)
+        }
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            FeedTopAppBar(
+                user = uiState.currentUser,
+                onProfileClick = { onAction(FeedAction.ProfileClicked) },
+                onSettingsClick = { onAction(FeedAction.SettingsClicked) },
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { paddingValues ->
+        PullToRefreshBox(
+            state = pullToRefreshState,
+            isRefreshing = uiState.isRefreshing,
+            contentAlignment = Alignment.Center,
+            onRefresh = { onAction(FeedAction.RefreshData) },
             modifier = Modifier
-                .fillMaxSize()
-                .hazeSource(state = hazeState),
-            topBar = {
-                FeedTopAppBar(
-                    user = uiState.currentUser,
-                    onProfileClick = { onAction(FeedAction.ProfileClicked) },
-                    onSettingsClick = { onAction(FeedAction.SettingsClicked) },
-                )
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { paddingValues ->
-            PullToRefreshBox(
-                state = pullToRefreshState,
-                isRefreshing = uiState.isRefreshing,
-                contentAlignment = Alignment.Center,
-                onRefresh = { onAction(FeedAction.RefreshData) },
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(horizontal = SpacingTokens.xs)
-                    .fillMaxSize(),
-            ) {
-                when (val state = uiState.postsState) {
-                    is PostsUiState.Loading -> FeedLoadingState()
-                    is PostsUiState.Success -> {
-                        PostsContent(
-                            state = state,
-                            onImageClick = { uri ->
-                                focusManager.clearFocus()
-                                fullScreenImageUri = uri
-                                showFullScreenImage = true
-                            },
-                            onPostClick = { postId -> onAction(FeedAction.PostClicked(postId)) },
-                            onLoadMore = { onAction(FeedAction.LoadMorePosts) },
-                        )
-                    }
-                    is PostsUiState.Error -> {
-                        QodeErrorCard(
-                            error = state.error,
-                            onRetry = { onAction(FeedAction.RetryClicked) },
-                        )
-                    }
+                .padding(paddingValues)
+                .padding(horizontal = SpacingTokens.xs)
+                .fillMaxSize(),
+        ) {
+            when (val state = uiState.postsState) {
+                is PostsUiState.Loading -> FeedLoadingState()
+                is PostsUiState.Success -> {
+                    PostsContent(
+                        state = state,
+                        listState = listState,
+                        onPostClick = { postId ->
+                            focusManager.clearFocus()
+                            onAction(FeedAction.PostClicked(postId))
+                        },
+                        onLoadMore = { onAction(FeedAction.LoadMorePosts) },
+                    )
+                }
+                is PostsUiState.Error -> {
+                    QodeErrorCard(
+                        error = state.error,
+                        onRetry = { onAction(FeedAction.RetryClicked) },
+                    )
                 }
             }
-        }
-
-        if (showFullScreenImage) {
-            FullScreenImageViewer(
-                uri = fullScreenImageUri,
-                onDismiss = { showFullScreenImage = false },
-                hazeState = hazeState,
-            )
         }
     }
 }
@@ -176,13 +172,11 @@ internal fun FeedScreen(
 @Composable
 private fun PostsContent(
     state: PostsUiState.Success,
+    listState: LazyListState,
     onPostClick: (PostId) -> Unit,
-    onImageClick: (String) -> Unit,
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState()
-
     LaunchedEffect(listState, state) {
         snapshotFlow {
             if (state.hasMore && !state.isLoadingMore) {
@@ -216,7 +210,6 @@ private fun PostsContent(
             PostCard(
                 post = state.posts[index],
                 onPostClick = { onPostClick(state.posts[index].id) },
-                onImageClick = onImageClick,
             )
         }
 

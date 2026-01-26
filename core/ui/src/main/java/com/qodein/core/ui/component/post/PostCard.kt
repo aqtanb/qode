@@ -36,8 +36,8 @@ import kotlin.time.Instant
 fun PostCard(
     post: Post,
     onPostClick: (String) -> Unit,
-    onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onImageClick: ((String) -> Unit)? = null,
     voteScore: Int = post.voteScore
 ) {
     QodeinElevatedCard(
@@ -81,7 +81,7 @@ fun PostCard(
                             currentPage = page + 1,
                             totalPages = post.imageUrls.size,
                             ratio = null,
-                            onClick = { onImageClick(post.imageUrls[page]) },
+                            onClick = onImageClick?.let { { it(post.imageUrls[page]) } },
                         )
                     }
                 } else if (post.content.isNotBlank()) {
@@ -190,13 +190,11 @@ private fun PostCardPreview() {
             PostCard(
                 post = PostPreviewData.postWithLongEverything,
                 onPostClick = {},
-                onImageClick = {},
             )
 
             PostCard(
                 post = PostPreviewData.postWithoutImages,
                 onPostClick = {},
-                onImageClick = {},
             )
         }
     }

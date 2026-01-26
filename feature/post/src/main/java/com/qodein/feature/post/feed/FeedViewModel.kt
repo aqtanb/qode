@@ -26,6 +26,20 @@ class FeedViewModel(private val getPostsUseCase: GetPostsUseCase, private val ob
     private val _events: MutableSharedFlow<FeedEvent> = MutableSharedFlow()
     val events: SharedFlow<FeedEvent> = _events.asSharedFlow()
 
+    private var savedScrollIndex = 0
+    private var savedScrollOffset = 0
+
+    fun getSavedScrollIndex(): Int = savedScrollIndex
+    fun getSavedScrollOffset(): Int = savedScrollOffset
+
+    fun saveScrollPosition(
+        index: Int,
+        offset: Int
+    ) {
+        savedScrollIndex = index
+        savedScrollOffset = offset
+    }
+
     fun onAction(action: FeedAction) {
         when (action) {
             is FeedAction.LoadPosts -> loadPosts()

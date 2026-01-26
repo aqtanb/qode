@@ -18,7 +18,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +33,7 @@ import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.InteractionsRow
 import com.qodein.core.ui.component.post.PostCard
@@ -43,6 +46,8 @@ import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import org.koin.androidx.compose.koinViewModel
 import com.qodein.core.ui.R as CoreUiR
 
@@ -110,6 +115,10 @@ private fun PostDetailScreen(
 ) {
     TrackScreenViewEvent(screenName = "Post Detail")
 
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageUri by remember { mutableStateOf("") }
+    val hazeState = remember { HazeState() }
+
     val title = when (val state = uiState.postState) {
         is PostUiState.Success -> state.post.title
         else -> ""
@@ -117,42 +126,57 @@ private fun PostDetailScreen(
     val postId = (uiState.postState as? PostUiState.Success)?.post?.id
     val authorId = (uiState.postState as? PostUiState.Success)?.post?.authorId
 
-    Scaffold(
-        topBar = {
-            PostDetailTopAppBar(
-                title = title,
-                postId = postId,
-                currentUserId = uiState.currentUserId,
-                authorId = authorId,
-                onNavigateBack = onNavigateBack,
-                onBlockUserClick = { onAction(PostDetailAction.BlockUserClicked) },
-                onReportPostClick = { onAction(PostDetailAction.ReportPostClicked) },
-            )
-        },
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { paddingValues ->
-        when (val postState = uiState.postState) {
-            is PostUiState.Error -> PostDetailErrorState(
-                error = postState.error,
-                onRetry = {},
-                modifier = Modifier.padding(paddingValues),
-            )
-            PostUiState.Loading -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                PostDetailTopAppBar(
+                    title = title,
+                    postId = postId,
+                    currentUserId = uiState.currentUserId,
+                    authorId = authorId,
+                    onNavigateBack = onNavigateBack,
+                    onBlockUserClick = { onAction(PostDetailAction.BlockUserClicked) },
+                    onReportPostClick = { onAction(PostDetailAction.ReportPostClicked) },
+                )
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(state = hazeState),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { paddingValues ->
+            when (val postState = uiState.postState) {
+                is PostUiState.Error -> PostDetailErrorState(
+                    error = postState.error,
+                    onRetry = {},
+                    modifier = Modifier.padding(paddingValues),
+                )
+                PostUiState.Loading -> Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+                is PostUiState.Success -> PostDetailSuccessState(
+                    post = postState.post,
+                    userVoteState = uiState.userVoteState,
+                    voteScoreDelta = uiState.voteScoreDelta,
+                    onAction = onAction,
+                    onImageClick = { uri ->
+                        fullScreenImageUri = uri
+                        showFullScreenImage = true
+                    },
+                    modifier = Modifier.padding(paddingValues),
+                )
             }
-            is PostUiState.Success -> PostDetailSuccessState(
-                post = postState.post,
-                userVoteState = uiState.userVoteState,
-                voteScoreDelta = uiState.voteScoreDelta,
-                onAction = onAction,
-                onImageClick = {},
-                modifier = Modifier.padding(paddingValues),
+        }
+
+        if (showFullScreenImage) {
+            FullScreenImageViewer(
+                uri = fullScreenImageUri,
+                onDismiss = { showFullScreenImage = false },
+                hazeState = hazeState,
             )
         }
     }
