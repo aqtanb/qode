@@ -169,7 +169,15 @@ fun QodeNavHost(
             onReportSubmitted = { contentType ->
                 when (contentType) {
                     ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
-                    ContentType.POST -> appState.navigateToTopLevelDestination(TopLevelDestination.FEED, triggerRefresh = true)
+                    ContentType.POST -> {
+                        // Pop back to PostDetail
+                        navController.popBackStack()
+                        // Now previousBackStackEntry is Feed
+                        val handle = navController.previousBackStackEntry?.savedStateHandle
+                        handle?.set(PostKeys.KEY_POST_REPORTED, true)
+                        // Pop back to Feed
+                        navController.popBackStack()
+                    }
                 }
             },
         )

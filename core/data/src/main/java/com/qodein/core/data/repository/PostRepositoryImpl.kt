@@ -43,21 +43,22 @@ class PostRepositoryImpl(private val dataSource: FirestorePostDataSource) : Post
     override suspend fun getPosts(
         limit: Int,
         blockedUserIds: Set<UserId>,
+        reportedPostIds: Set<PostId>,
         cursor: Any?
     ): Result<PaginatedResult<Post, PostSortBy>, OperationError> {
         try {
-            Logger.d { "Fetching posts: cursor=$cursor, limit=$limit" }
             val snapshot = (cursor as? PaginationCursor<*>)?.value as? DocumentSnapshot
             val pagedData = dataSource.getPosts(
                 limit = limit,
                 blockedUserIds = blockedUserIds.map { it.value }.toMutableList().take(10),
+                reportedPostIds = reportedPostIds.map { it.value }.toMutableList().take(10),
                 startAfter = snapshot,
             )
             val posts = pagedData.items.map { PostMapper.toDomain(it) }
             val nextCursor = pagedData.nextCursor?.let { PaginationCursor(it, PostSortBy.NEWEST) }
             val result = PaginatedResult(posts, nextCursor)
 
-            Logger.d { "Successfully fetched posts by user: $result" }
+            Logger.d { "Successfully fetched $limit posts by user" }
             return Result.Success(result)
         } catch (e: FirebaseFirestoreException) {
             Logger.e(e) { "Error fetching posts" }

@@ -7,4 +7,5 @@ object ServiceSelectionResult {
 object PostKeys {
     const val KEY_POST_SUBMITTED = "post_submitted"
     const val KEY_POST_AUTHOR_BLOCKED = "post_author_blocked"
+    const val KEY_POST_REPORTED = "post_reported"
 }

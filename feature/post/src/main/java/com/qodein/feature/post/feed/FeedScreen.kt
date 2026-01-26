@@ -92,6 +92,17 @@ fun FeedRoute(
         }
     }
 
+    val postReported by backStackEntry.savedStateHandle
+        .getStateFlow(PostKeys.KEY_POST_REPORTED, false)
+        .collectAsStateWithLifecycle()
+
+    LaunchedEffect(postReported) {
+        if (postReported) {
+            viewModel.handleRefresh()
+            backStackEntry.savedStateHandle.remove<Boolean>(PostKeys.KEY_POST_REPORTED)
+        }
+    }
+
     val listState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
             firstVisibleItemIndex = viewModel.getSavedScrollIndex(),

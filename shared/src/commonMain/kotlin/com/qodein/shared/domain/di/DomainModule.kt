@@ -23,6 +23,7 @@ import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
+import com.qodein.shared.domain.usecase.report.GetReportedContentIdsUseCase
 import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.GetServiceLogoUrlUseCase
@@ -89,10 +90,12 @@ val domainModule = module {
 
     single { GetPostByIdUseCase(get()) }
     single { GetPostsByUserUseCase(get()) }
-    single { GetPostsUseCase(get(), get()) }
+    single { GetPostsUseCase(get(), get(), get()) }
     single { SubmitPostUseCase(get(), get()) }
     single { EnqueuePostSubmissionUseCase(get(), get()) }
     single { GetPostShareContentUseCase(get(), get(), get()) }
+
+    single { GetReportedContentIdsUseCase(get()) }
 
     single { GetThemeUseCase(get()) }
     single { ObserveLanguageUseCase(get()) }

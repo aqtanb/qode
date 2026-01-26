@@ -14,6 +14,7 @@ interface PostRepository {
     suspend fun getPosts(
         limit: Int,
         blockedUserIds: Set<UserId>,
+        reportedPostIds: Set<PostId>,
         cursor: Any?
     ): Result<PaginatedResult<Post, PostSortBy>, OperationError>
 
