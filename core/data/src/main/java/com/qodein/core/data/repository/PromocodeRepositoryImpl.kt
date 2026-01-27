@@ -52,7 +52,8 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
     override suspend fun getPromocodes(
         sortBy: PromocodeSortBy,
         filterByServices: List<String>?,
-        paginationRequest: PaginationRequest<PromocodeSortBy>
+        paginationRequest: PaginationRequest<PromocodeSortBy>,
+        blockedUserIds: Set<UserId>
     ): Result<PaginatedResult<Promocode, PromocodeSortBy>, OperationError> =
         try {
             Timber.d("Getting promocodes: sortBy=%s, services=%s", sortBy, filterByServices?.size)
@@ -66,6 +67,7 @@ class PromocodeRepositoryImpl(private val dataSource: FirestorePromocodeDataSour
                 filterByServices = filterByServices,
                 limit = paginationRequest.limit,
                 startAfter = cursor,
+                blockedUserIds = blockedUserIds.map { it.value }.take(10),
             )
 
             val promocodes = pagedDto.items.map { PromocodeMapper.toDomain(it) }

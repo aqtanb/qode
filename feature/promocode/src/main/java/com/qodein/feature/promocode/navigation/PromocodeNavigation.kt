@@ -34,6 +34,7 @@ fun NavController.navigateToPromocodeDetail(
 
 fun NavGraphBuilder.promocodeSubmissionSection(
     onNavigateBack: () -> Unit,
+    onPromocodeSubmitted: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
     onShowServiceSelection: (ServiceId?) -> Unit
 ) {
@@ -71,6 +72,7 @@ fun NavGraphBuilder.promocodeSubmissionSection(
 
         PromocodeSubmissionScreen(
             onNavigateBack = onNavigateBack,
+            onPromocodeSubmitted = onPromocodeSubmitted,
             onNavigateToAuth = onNavigateToAuth,
             onShowServiceSelection = onShowServiceSelection,
             viewModel = viewModel,

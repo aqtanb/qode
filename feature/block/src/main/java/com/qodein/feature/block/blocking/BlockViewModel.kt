@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.ui.refresh.RefreshTarget
-import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.usecase.user.BlockUserUseCase
 import com.qodein.shared.model.UserId
@@ -21,8 +19,7 @@ class BlockViewModel(
     private val username: String?,
     private val photoUrl: String?,
     private val blockUserUseCase: BlockUserUseCase,
-    private val analyticsHelper: AnalyticsHelper,
-    private val refreshCoordinator: ScreenRefreshCoordinator
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BlockUiState>(
@@ -51,7 +48,6 @@ class BlockViewModel(
                             ),
                         ),
                     )
-                    refreshCoordinator.triggerRefresh(RefreshTarget.HOME)
                     _uiState.value = BlockUiState.Success
                 }
                 is Result.Error -> _uiState.value = BlockUiState.Error(result.error)

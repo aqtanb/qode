@@ -218,7 +218,10 @@ private fun PostsContent(
         contentPadding = PaddingValues(bottom = SpacingTokens.gigantic, top = SpacingTokens.xs),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        items(state.posts.size) { index ->
+        items(
+            count = state.posts.size,
+            key = { index -> state.posts[index].id.value },
+        ) { index ->
             PostCard(
                 post = state.posts[index],
                 onPostClick = { onPostClick(state.posts[index].id) },

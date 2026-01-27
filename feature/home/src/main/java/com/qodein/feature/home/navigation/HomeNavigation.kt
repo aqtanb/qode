@@ -2,9 +2,12 @@ package com.qodein.feature.home.navigation
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.qodein.core.ui.navigation.PromocodeKeys
 import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.home.HomeScreen
 import com.qodein.feature.home.HomeViewModel
@@ -39,6 +42,39 @@ fun NavGraphBuilder.homeSection(
                         viewModel.applyServiceSelection(serviceIds)
                         backStackEntry.savedStateHandle.remove<List<String>>(ServiceSelectionResult.KEY_SELECTED_SERVICE_IDS)
                     }
+            }
+
+            val promocodeAuthorBlocked by backStackEntry.savedStateHandle
+                .getStateFlow(PromocodeKeys.KEY_PROMOCODE_AUTHOR_BLOCKED, false)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(promocodeAuthorBlocked) {
+                if (promocodeAuthorBlocked) {
+                    viewModel.handleRefresh()
+                    backStackEntry.savedStateHandle.remove<Boolean>(PromocodeKeys.KEY_PROMOCODE_AUTHOR_BLOCKED)
+                }
+            }
+
+            val promocodeReported by backStackEntry.savedStateHandle
+                .getStateFlow(PromocodeKeys.KEY_PROMOCODE_REPORTED, false)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(promocodeReported) {
+                if (promocodeReported) {
+                    viewModel.handleRefresh()
+                    backStackEntry.savedStateHandle.remove<Boolean>(PromocodeKeys.KEY_PROMOCODE_REPORTED)
+                }
+            }
+
+            val promocodeSubmitted by backStackEntry.savedStateHandle
+                .getStateFlow(PromocodeKeys.KEY_PROMOCODE_SUBMITTED, false)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(promocodeSubmitted) {
+                if (promocodeSubmitted) {
+                    viewModel.handleRefresh()
+                    backStackEntry.savedStateHandle.remove<Boolean>(PromocodeKeys.KEY_PROMOCODE_SUBMITTED)
+                }
             }
 
             HomeScreen(

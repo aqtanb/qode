@@ -24,20 +24,21 @@ class GetPromocodesUseCase(
         filterByServices: List<String>? = null,
         paginationRequest: PaginationRequest<PromocodeSortBy> = PaginationRequest.firstPage(DEFAULT_LIMIT)
     ): Result<PaginatedResult<Promocode, PromocodeSortBy>, OperationError> {
+        val blockedUserIds = getBlockedUserIdsUseCase()
         val promocodes = promocodeRepository.getPromocodes(
             sortBy = sortBy,
             filterByServices = filterByServices,
             paginationRequest = paginationRequest,
+            blockedUserIds = blockedUserIds,
         )
         return when (promocodes) {
             is Result.Error -> promocodes
             is Result.Success -> {
                 val hiddenIds = getReportedContentIdsUseCase(ContentType.PROMOCODE)
-                val blockedUserIds = getBlockedUserIdsUseCase()
 
+                // Only filter reported content (client-side)
                 val filteredPromocodes = promocodes.data.data.filterNot { promocode ->
-                    promocode.id.value in hiddenIds ||
-                        promocode.authorId in blockedUserIds
+                    promocode.id.value in hiddenIds
                 }
 
                 Result.Success(

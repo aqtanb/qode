@@ -26,8 +26,6 @@ import com.qodein.core.designsystem.component.HidingBehavior
 import com.qodein.core.designsystem.component.LazyListScrollExtractor
 import com.qodein.core.designsystem.component.ScrollInfo
 import com.qodein.core.designsystem.component.ScrollStateExtractor
-import com.qodein.core.ui.refresh.RefreshTarget
-import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.feature.auth.navigation.AuthRoute
 import com.qodein.feature.home.navigation.HomeBaseRoute
 import com.qodein.feature.post.navigation.FeedRoute
@@ -41,22 +39,17 @@ import com.qodein.qode.navigation.TopLevelDestination.FEED
 import com.qodein.qode.navigation.TopLevelDestination.HOME
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 
 @Composable
-fun rememberQodeAppState(
-    navController: NavHostController = rememberNavController(),
-    refreshCoordinator: ScreenRefreshCoordinator = koinInject()
-): QodeAppState =
-    remember(navController, refreshCoordinator) {
+fun rememberQodeAppState(navController: NavHostController = rememberNavController()): QodeAppState =
+    remember(navController) {
         QodeAppState(
             navController = navController,
-            refreshCoordinator = refreshCoordinator,
         )
     }
 
 @Stable
-class QodeAppState(val navController: NavHostController, private val refreshCoordinator: ScreenRefreshCoordinator) {
+class QodeAppState(val navController: NavHostController) {
     private val previewsDestination = mutableStateOf<NavDestination?>(null)
     private val lastTopLevelDestination = mutableStateOf<TopLevelDestination?>(null)
 
@@ -184,10 +177,7 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
      */
     fun getScrollExtractor(): ((ScrollableState) -> ScrollInfo)? = autoHidingManager.getScrollExtractor()
 
-    fun navigateToTopLevelDestination(
-        topLevelDestination: TopLevelDestination,
-        triggerRefresh: Boolean = false
-    ) {
+    fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         trace("Navigation: ${topLevelDestination.name}") {
             val topLevelNavOptions = navOptions {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -203,18 +193,12 @@ class QodeAppState(val navController: NavHostController, private val refreshCoor
                         route = HomeBaseRoute,
                         navOptions = topLevelNavOptions,
                     )
-                    if (triggerRefresh) {
-                        refreshCoordinator.tryTriggerRefresh(RefreshTarget.HOME)
-                    }
                 }
                 FEED -> {
                     navController.navigate(
                         route = FeedRoute,
                         navOptions = topLevelNavOptions,
                     )
-                    if (triggerRefresh) {
-                        refreshCoordinator.tryTriggerRefresh(RefreshTarget.FEED)
-                    }
                 }
             }
         }

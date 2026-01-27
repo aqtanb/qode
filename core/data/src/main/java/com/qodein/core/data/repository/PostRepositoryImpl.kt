@@ -51,12 +51,17 @@ class PostRepositoryImpl(private val dataSource: FirestorePostDataSource) : Post
             val pagedData = dataSource.getPosts(
                 limit = limit,
                 blockedUserIds = blockedUserIds.map { it.value }.toMutableList().take(10),
-                reportedPostIds = reportedPostIds.map { it.value }.toMutableList().take(10),
                 startAfter = snapshot,
             )
-            val posts = pagedData.items.map { PostMapper.toDomain(it) }
+            val allPosts = pagedData.items.map { PostMapper.toDomain(it) }
+
+            // Client-side filtering for reported posts (Firestore allows only one whereNotIn)
+            val filteredPosts = allPosts.filterNot { post ->
+                post.id in reportedPostIds
+            }
+
             val nextCursor = pagedData.nextCursor?.let { PaginationCursor(it, PostSortBy.NEWEST) }
-            val result = PaginatedResult(posts, nextCursor)
+            val result = PaginatedResult(filteredPosts, nextCursor)
 
             Logger.d { "Successfully fetched $limit posts by user" }
             return Result.Success(result)

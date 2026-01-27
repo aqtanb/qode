@@ -11,7 +11,6 @@ val homeModule = module {
             getBannersUseCase = get(),
             getPromocodesUseCase = get(),
             observeLanguageUseCase = get(),
-            screenRefreshCoordinator = get(),
             analyticsHelper = get(),
             getServicesByIdsUseCase = get(),
         )

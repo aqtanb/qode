@@ -24,12 +24,20 @@ class FirestorePromocodeDataSource(private val firestore: FirebaseFirestore) {
         sortDirection: Query.Direction,
         filterByServices: List<String>?,
         limit: Int,
-        startAfter: DocumentSnapshot? = null
+        startAfter: DocumentSnapshot? = null,
+        blockedUserIds: List<String>
     ): PagedFirestoreResult<PromocodeDto> {
         val now = Timestamp.now()
         val fetchLimit = limit + 1
-        val documents = firestore.collection(PromocodeDto.COLLECTION_NAME)
+        var query = firestore.collection(PromocodeDto.COLLECTION_NAME)
             .whereGreaterThanOrEqualTo(PromocodeDto.FIELD_END_DATE, now)
+
+        // Apply blocked users filter at server level (Firestore limit: max 10 items in whereNotIn)
+        if (blockedUserIds.isNotEmpty()) {
+            query = query.whereNotIn(PromocodeDto.FIELD_AUTHOR_ID, blockedUserIds.take(10))
+        }
+
+        val documents = query
             .applyServiceFilter(filterByServices)
             .orderBy(sortByField, sortDirection)
             .applyPaginationCursor(startAfter)

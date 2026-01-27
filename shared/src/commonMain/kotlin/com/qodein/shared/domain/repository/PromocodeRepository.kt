@@ -15,7 +15,8 @@ interface PromocodeRepository {
     suspend fun getPromocodes(
         sortBy: PromocodeSortBy = PromocodeSortBy.POPULARITY,
         filterByServices: List<String>? = null,
-        paginationRequest: PaginationRequest<PromocodeSortBy>
+        paginationRequest: PaginationRequest<PromocodeSortBy>,
+        blockedUserIds: Set<UserId>
     ): Result<PaginatedResult<Promocode, PromocodeSortBy>, OperationError>
 
     suspend fun getPromocodeById(id: PromocodeId): Result<Promocode, OperationError>

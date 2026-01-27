@@ -13,7 +13,6 @@ val promocodeModule = module {
             analyticsHelper = get(),
             getAuthStateUseCase = get(),
             getUserByIdUseCase = get(),
-            refreshCoordinator = get(),
             getServicesByIdsUseCase = get(),
             getServiceLogoUrlUseCase = get(),
         )

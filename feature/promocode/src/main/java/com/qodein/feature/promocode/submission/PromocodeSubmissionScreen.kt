@@ -50,6 +50,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PromocodeSubmissionScreen(
     onNavigateBack: () -> Unit,
+    onPromocodeSubmitted: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
     onShowServiceSelection: (ServiceId?) -> Unit,
     viewModel: PromocodeSubmissionViewModel = koinViewModel()
@@ -64,7 +65,7 @@ fun PromocodeSubmissionScreen(
         viewModel.events.collect { event ->
             when (event) {
                 PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
-                PromocodeSubmissionEvent.PromoCodeSubmitted -> onNavigateBack()
+                PromocodeSubmissionEvent.PromoCodeSubmitted -> onPromocodeSubmitted()
                 is PromocodeSubmissionEvent.NavigateToAuth -> {
                     onNavigateToAuth(event.action)
                 }

@@ -15,7 +15,6 @@ val blockModule = module {
             photoUrl = photoUrl,
             blockUserUseCase = get(),
             analyticsHelper = get(),
-            refreshCoordinator = get(),
         )
     }
 

@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
-import com.qodein.core.ui.refresh.RefreshTarget
-import com.qodein.core.ui.refresh.ScreenRefreshCoordinator
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
@@ -30,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -40,7 +37,6 @@ class HomeViewModel(
     private val getBannersUseCase: GetBannersUseCase,
     private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
-    private val screenRefreshCoordinator: ScreenRefreshCoordinator,
     private val analyticsHelper: AnalyticsHelper,
     private val getServicesByIdsUseCase: GetServicesByIdsUseCase
 ) : ViewModel() {
@@ -75,8 +71,7 @@ class HomeViewModel(
 
     init {
         observeLanguage()
-        loadHomeData()
-        observeRefreshTrigger()
+        handleRefresh()
     }
 
     fun applyServiceSelection(serviceIds: Set<ServiceId>) {
@@ -115,22 +110,11 @@ class HomeViewModel(
         }
     }
 
-    private fun observeRefreshTrigger() {
-        viewModelScope.launch {
-            screenRefreshCoordinator.refreshSignals
-                .filter { it == RefreshTarget.HOME }
-                .collect {
-                    Timber.d("Refresh signal received for HOME")
-                    loadHomeData()
-                }
-        }
-    }
-
     fun onAction(action: HomeAction) {
         when (action) {
             is HomeAction.RefreshData -> {
                 _uiState.update { it.copy(isRefreshing = true) }
-                loadHomeData()
+                handleRefresh()
                 _uiState.update { it.copy(isRefreshing = false) }
             }
             is HomeAction.BannerClicked -> onBannerClicked(action.banner)
@@ -151,8 +135,7 @@ class HomeViewModel(
         }
     }
 
-    // MARK: Loading and Error Handling
-    private fun loadHomeData() {
+    fun handleRefresh() {
         loadBanners()
         loadInitialPage()
     }
@@ -342,7 +325,7 @@ class HomeViewModel(
         }
 
     private fun dismissError() {
-        loadHomeData()
+        handleRefresh()
     }
 
     // MARK: - Specific Error Recovery Methods

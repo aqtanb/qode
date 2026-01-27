@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import co.touchlab.kermit.Logger
 import com.qodein.core.ui.navigation.PostKeys
+import com.qodein.core.ui.navigation.PromocodeKeys
 import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.auth.navigation.authSection
 import com.qodein.feature.auth.navigation.navigateToAuthBottomSheet
@@ -110,6 +111,11 @@ fun QodeNavHost(
             onNavigateBack = {
                 navController.popBackStack()
             },
+            onPromocodeSubmitted = {
+                val handle = navController.previousBackStackEntry?.savedStateHandle
+                handle?.set(PromocodeKeys.KEY_PROMOCODE_SUBMITTED, true)
+                navController.popBackStack()
+            },
             onNavigateToAuth = { authPromptAction ->
                 navController.navigateToAuthBottomSheet(authPromptAction)
             },
@@ -168,7 +174,15 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onReportSubmitted = { contentType ->
                 when (contentType) {
-                    ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.PROMOCODE -> {
+                        // Pop back to PromocodeDetail
+                        navController.popBackStack()
+                        // Now previousBackStackEntry is Home
+                        val handle = navController.previousBackStackEntry?.savedStateHandle
+                        handle?.set(PromocodeKeys.KEY_PROMOCODE_REPORTED, true)
+                        // Pop back to Home
+                        navController.popBackStack()
+                    }
                     ContentType.POST -> {
                         // Pop back to PostDetail
                         navController.popBackStack()
@@ -186,7 +200,15 @@ fun QodeNavHost(
             onNavigateBack = { navController.popBackStack() },
             onUserBlocked = { contentType ->
                 when (contentType) {
-                    ContentType.PROMOCODE -> appState.navigateToTopLevelDestination(TopLevelDestination.HOME, triggerRefresh = true)
+                    ContentType.PROMOCODE -> {
+                        // Pop back to PromocodeDetail
+                        navController.popBackStack()
+                        // Now previousBackStackEntry is Home
+                        val handle = navController.previousBackStackEntry?.savedStateHandle
+                        handle?.set(PromocodeKeys.KEY_PROMOCODE_AUTHOR_BLOCKED, true)
+                        // Pop back to Home
+                        navController.popBackStack()
+                    }
                     ContentType.POST -> {
                         // Pop back to PostDetail
                         navController.popBackStack()
