@@ -7,7 +7,6 @@ import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeSortBy
-import com.qodein.shared.ui.FilterDialogType
 
 /**
  * Single HomeUiState following MVI pattern
@@ -20,7 +19,6 @@ data class HomeUiState(
     val userLanguage: Language = Language.ENGLISH,
 
     val currentFilters: CompleteFilterState = CompleteFilterState(),
-    val activeFilterDialog: FilterDialogType? = null,
     val isLoadingMore: Boolean = false,
     val isRefreshing: Boolean = false
 )

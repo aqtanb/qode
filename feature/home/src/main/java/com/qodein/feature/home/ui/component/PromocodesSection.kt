@@ -38,7 +38,7 @@ fun PromocodeSectionHeader(
     currentFilters: CompleteFilterState,
     modifier: Modifier = Modifier
 ) {
-    val titleRes = SortIconHelper.getSortSectionTitleRes(sortBy = currentFilters.sortFilter.sortBy)
+    val titleRes = SortIconHelper.getSortSectionTitleRes(sortBy = currentFilters.sortBy)
 
     Text(
         text = stringResource(titleRes),

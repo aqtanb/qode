@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +41,6 @@ import com.qodein.feature.home.ui.component.PromocodeSectionHeader
 import com.qodein.feature.home.ui.component.PromocodeSectionLoadingState
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
-import com.qodein.shared.model.SortFilter
-import com.qodein.shared.ui.FilterDialogType
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +55,7 @@ fun HomeScreen(
     TrackScreenViewEvent(screenName = HOME_SCREEN_NAME)
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showSortDialog by rememberSaveable { mutableStateOf(false) }
 
     val listState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
@@ -122,30 +123,24 @@ fun HomeScreen(
     HomeContent(
         uiState = uiState,
         listState = listState,
+        onShowSortDialog = { showSortDialog = true },
+        onShowServiceSelection = { viewModel.onAction(HomeAction.ShowServiceSelection) },
         onAction = viewModel::onAction,
         modifier = modifier,
     )
 
-    uiState.activeFilterDialog?.let { dialogType ->
-        when (dialogType) {
-            FilterDialogType.Sort -> {
-                val sheetState = rememberModalBottomSheetState()
-                SortFilterBottomSheet(
-                    isVisible = true,
-                    currentSortBy = uiState.currentFilters.sortFilter.sortBy,
-                    onSortBySelected = { sortBy ->
-                        viewModel.onAction(HomeAction.ApplySortFilter(SortFilter(sortBy)))
-                        viewModel.onAction(HomeAction.DismissFilterDialog)
-                    },
-                    onDismiss = { viewModel.onAction(HomeAction.DismissFilterDialog) },
-                    sheetState = sheetState,
-                )
-            }
-            FilterDialogType.Service -> {
-                // Service selection is handled via navigation through HomeEvent.ShowServiceSelection
-                // This branch should not be reached as the ViewModel emits an event instead
-            }
-        }
+    if (showSortDialog) {
+        val sheetState = rememberModalBottomSheetState()
+        SortFilterBottomSheet(
+            isVisible = true,
+            currentSortBy = uiState.currentFilters.sortBy,
+            onSortBySelected = { sortBy ->
+                viewModel.onAction(HomeAction.ApplySortFilter(sortBy))
+                showSortDialog = false
+            },
+            onDismiss = { showSortDialog = false },
+            sheetState = sheetState,
+        )
     }
 }
 
@@ -153,6 +148,8 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState,
     listState: LazyListState,
+    onShowSortDialog: () -> Unit,
+    onShowServiceSelection: () -> Unit,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -184,9 +181,8 @@ private fun HomeContent(
             item(key = FILTERS_SECTION_KEY) {
                 FiltersSection(
                     currentFilters = uiState.currentFilters,
-                    onFilterSelected = { filterType ->
-                        onAction(HomeAction.ShowFilterDialog(filterType))
-                    },
+                    onShowSortDialog = onShowSortDialog,
+                    onShowServiceSelection = onShowServiceSelection,
                     onResetFilters = {
                         onAction(HomeAction.ResetFilters)
                     },
@@ -282,6 +278,8 @@ private fun HomeScreenPreview() {
         HomeContent(
             uiState = HomeUiState(),
             listState = rememberLazyListState(),
+            onShowSortDialog = {},
+            onShowServiceSelection = {},
             onAction = {},
         )
     }

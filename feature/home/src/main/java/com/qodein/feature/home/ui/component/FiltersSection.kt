@@ -30,7 +30,6 @@ import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.ServiceFilter
-import com.qodein.shared.ui.FilterDialogType
 import com.qodein.core.ui.R as CoreUiR
 
 /**
@@ -40,7 +39,8 @@ import com.qodein.core.ui.R as CoreUiR
 @Composable
 fun FiltersSection(
     currentFilters: CompleteFilterState,
-    onFilterSelected: (FilterDialogType) -> Unit,
+    onShowSortDialog: () -> Unit,
+    onShowServiceSelection: () -> Unit,
     onResetFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -94,15 +94,14 @@ fun FiltersSection(
             icon = serviceIcon,
             logoUrl = logoUrl,
             fallbackText = fallbackText,
-            onClick = { onFilterSelected(FilterDialogType.Service) },
+            onClick = onShowServiceSelection,
             isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
         )
 
-        val currentSortBy = currentFilters.sortFilter.sortBy
         FilterChip(
             nameRes = CoreUiR.string.filter_chip_sort,
-            icon = SortIconHelper.getSortIcon(currentSortBy),
-            onClick = { onFilterSelected(FilterDialogType.Sort) },
+            icon = SortIconHelper.getSortIcon(currentFilters.sortBy),
+            onClick = onShowSortDialog,
             isSelected = false,
         )
 
@@ -188,7 +187,8 @@ private fun FiltersSectionPreview() {
             currentFilters = CompleteFilterState(
                 serviceFilter = ServiceFilter.Selected(services = (ServicePreviewData.allSamples.toSet())),
             ),
-            onFilterSelected = { },
+            onShowSortDialog = { },
+            onShowServiceSelection = { },
             onResetFilters = { },
         )
     }

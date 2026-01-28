@@ -22,7 +22,6 @@ import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.PromocodeSortBy
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.ServiceId
-import com.qodein.shared.ui.FilterDialogType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -124,9 +123,8 @@ class HomeViewModel(
             is HomeAction.RetryBannersClicked -> retryBanners()
             is HomeAction.RetryPromocodesClicked -> retryPromoCodes()
 
-            is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
-            is HomeAction.DismissFilterDialog -> dismissFilterDialog()
-            is HomeAction.ApplySortFilter -> applyFilters(_uiState.value.currentFilters.applySortFilter(action.sortFilter))
+            is HomeAction.ShowServiceSelection -> showServiceSelection()
+            is HomeAction.ApplySortFilter -> applyFilters(_uiState.value.currentFilters.applySortBy(action.sortBy))
             is HomeAction.ResetFilters -> resetFilters()
         }
     }
@@ -189,7 +187,7 @@ class HomeViewModel(
             }
 
             val promocodeResult = getPromocodesUseCase(
-                sortBy = filters.sortFilter.sortBy,
+                sortBy = filters.sortBy,
                 filterByServices = when (val serviceFilter = filters.serviceFilter) {
                     ServiceFilter.All -> null
                     is ServiceFilter.Selected -> serviceFilter.services.map { it.name }
@@ -330,27 +328,14 @@ class HomeViewModel(
         loadInitialPage()
     }
 
-
-    private fun showFilterDialog(type: FilterDialogType) {
-        if (type == FilterDialogType.Service) {
-            val currentSelectedIds = when (val currentFilter = _uiState.value.currentFilters.serviceFilter) {
-                is ServiceFilter.Selected -> currentFilter.services.map { it.id }.toSet()
-                ServiceFilter.All -> emptySet()
-            }
-
-            viewModelScope.launch {
-                _events.emit(HomeEvent.ShowServiceSelection(currentSelectedIds))
-            }
-        } else {
-            _uiState.update { state ->
-                state.copy(activeFilterDialog = type)
-            }
+    private fun showServiceSelection() {
+        val currentSelectedIds = when (val currentFilter = _uiState.value.currentFilters.serviceFilter) {
+            is ServiceFilter.Selected -> currentFilter.services.map { it.id }.toSet()
+            ServiceFilter.All -> emptySet()
         }
-    }
 
-    private fun dismissFilterDialog() {
-        _uiState.update { state ->
-            state.copy(activeFilterDialog = null)
+        viewModelScope.launch {
+            _events.emit(HomeEvent.ShowServiceSelection(currentSelectedIds))
         }
     }
 

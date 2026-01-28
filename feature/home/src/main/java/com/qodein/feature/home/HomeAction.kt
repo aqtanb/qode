@@ -3,9 +3,7 @@ package com.qodein.feature.home
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
-import com.qodein.shared.model.ServiceFilter
-import com.qodein.shared.model.SortFilter
-import com.qodein.shared.ui.FilterDialogType
+import com.qodein.shared.model.PromocodeSortBy
 
 sealed interface HomeAction {
 
@@ -21,8 +19,7 @@ sealed interface HomeAction {
     data object RetryBannersClicked : HomeAction
     data object RetryPromocodesClicked : HomeAction
 
-    data class ShowFilterDialog(val type: FilterDialogType) : HomeAction
-    data object DismissFilterDialog : HomeAction
-    data class ApplySortFilter(val sortFilter: SortFilter) : HomeAction
+    data object ShowServiceSelection : HomeAction
+    data class ApplySortFilter(val sortBy: PromocodeSortBy) : HomeAction
     data object ResetFilters : HomeAction
 }

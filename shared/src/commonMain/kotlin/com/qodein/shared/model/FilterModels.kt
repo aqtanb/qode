@@ -1,32 +1,14 @@
 package com.qodein.shared.model
 
 /**
- * Base interface for all filter types
- */
-sealed interface FilterState {
-    val isEmpty: Boolean
-}
-
-/**
  * Service filter for content filtering
  */
-sealed class ServiceFilter : FilterState {
-    data object All : ServiceFilter() {
-        override val isEmpty: Boolean = true
-    }
+sealed interface ServiceFilter {
+    val isEmpty: Boolean get() = this is All
 
-    data class Selected(val services: Set<Service>) : ServiceFilter() {
-        override val isEmpty: Boolean get() = services.isEmpty()
+    data object All : ServiceFilter
 
-        fun contains(service: Service): Boolean = services.contains(service)
-    }
-}
-
-/**
- * Sort filter for content ordering
- */
-data class SortFilter(val sortBy: PromocodeSortBy) : FilterState {
-    override val isEmpty: Boolean = false // Sort is always selected
+    data class Selected(val services: Set<Service>) : ServiceFilter
 }
 
 /**
@@ -34,7 +16,7 @@ data class SortFilter(val sortBy: PromocodeSortBy) : FilterState {
  */
 data class CompleteFilterState(
     val serviceFilter: ServiceFilter = ServiceFilter.All,
-    val sortFilter: SortFilter = SortFilter(PromocodeSortBy.POPULARITY)
+    val sortBy: PromocodeSortBy = PromocodeSortBy.POPULARITY
 ) {
     /**
      * Apply service filter with validation
@@ -51,7 +33,7 @@ data class CompleteFilterState(
     /**
      * Apply sort filter
      */
-    fun applySortFilter(sortFilter: SortFilter): CompleteFilterState = copy(sortFilter = sortFilter)
+    fun applySortBy(sortBy: PromocodeSortBy): CompleteFilterState = copy(sortBy = sortBy)
 
     /**
      * Reset all filters to default state
