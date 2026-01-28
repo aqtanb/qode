@@ -4,19 +4,14 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 
 data class PromocodeDetailUiState(
     val promocodeId: PromocodeId,
-    val userId: UserId? = null,
-
+    val currentUserId: UserId? = null,
     val promocodeState: PromocodeUiState = PromocodeUiState.Loading,
-    val userInteraction: UserInteraction? = null,
-    val currentVoting: VoteState? = null,
-    val optimisticUpvotes: Int? = null,
-    val optimisticDownvotes: Int? = null,
-    val isSharing: Boolean = false,
+    val userVoteState: VoteState = VoteState.NONE,
+    val voteScoreDelta: Int = 0,
     val isCopying: Boolean = false,
     val isRefreshing: Boolean = false
 )

@@ -7,7 +7,7 @@ import com.qodein.shared.model.VoteState
 sealed class PromocodeDetailAction {
     data object RefreshData : PromocodeDetailAction()
 
-    data class VoteClicked(val voteState: VoteState) : PromocodeDetailAction()
+    data class ToggleVoteClicked(val voteState: VoteState) : PromocodeDetailAction()
 
     data object ShareClicked : PromocodeDetailAction()
 

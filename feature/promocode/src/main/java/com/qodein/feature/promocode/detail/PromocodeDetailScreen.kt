@@ -39,20 +39,19 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.QodeErrorCard
+import com.qodein.core.ui.component.post.InteractionsRow
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.text.asString
-import com.qodein.feature.promocode.detail.component.PromocodeActions
 import com.qodein.feature.promocode.detail.component.PromocodeDetailTopAppBar
 import com.qodein.feature.promocode.detail.component.PromocodeDetails
 import com.qodein.feature.promocode.detail.component.PromocodeInfo
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.SystemError
-import com.qodein.shared.model.ContentType
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
+import com.qodein.shared.model.ShareContent
 import com.qodein.shared.model.UserId
-import com.qodein.shared.model.UserInteraction
 import com.qodein.shared.model.VoteState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -131,7 +130,7 @@ fun PromocodeDetailScreen(
             PromocodeDetailTopAppBar(
                 title = title,
                 promocodeId = uiState.promocodeId,
-                currentUserId = uiState.userId,
+                currentUserId = uiState.currentUserId,
                 authorId = authorId,
                 onNavigateBack = onNavigateBack,
                 onCopyClick = { onAction(PromocodeDetailAction.CopyCodeClicked) },
@@ -160,11 +159,8 @@ fun PromocodeDetailScreen(
                 })
                 is PromocodeUiState.Success -> PromocodeSuccessState(
                     promocode = promocodeUiState.data,
-                    userInteraction = uiState.userInteraction,
-                    currentVoting = uiState.currentVoting,
-                    optimisticUpvotes = uiState.optimisticUpvotes,
-                    optimisticDownvotes = uiState.optimisticDownvotes,
-                    isSharing = uiState.isSharing,
+                    currentVoteState = uiState.userVoteState,
+                    voteScoreDelta = uiState.voteScoreDelta,
                     onAction = onAction,
                 )
             }
@@ -175,17 +171,12 @@ fun PromocodeDetailScreen(
 @Composable
 private fun PromocodeSuccessState(
     promocode: Promocode,
-    userInteraction: UserInteraction?,
-    currentVoting: VoteState?,
-    optimisticUpvotes: Int?,
-    optimisticDownvotes: Int?,
-    isSharing: Boolean,
+    currentVoteState: VoteState,
+    voteScoreDelta: Int,
     onAction: (PromocodeDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val displayUpvotes = optimisticUpvotes ?: promocode.upvotes
-    val displayDownvotes = optimisticDownvotes ?: promocode.downvotes
-    val displayVoteScore = displayUpvotes - displayDownvotes
+    val displayVoteScore = promocode.voteScore + voteScoreDelta
 
     Column(
         modifier = modifier
@@ -195,18 +186,15 @@ private fun PromocodeSuccessState(
     ) {
         PromocodeInfo(
             promocode = promocode,
-            voteScoreOverride = displayVoteScore,
+            displayVoteScore = displayVoteScore,
         )
         PromocodeDetails(promocode = promocode)
 
-        InteractionsSuccessState(
-            promocode = promocode,
-            userInteraction = userInteraction,
-            currentVoting = currentVoting,
-            optimisticUpvotes = optimisticUpvotes,
-            optimisticDownvotes = optimisticDownvotes,
-            isSharing = isSharing,
-            onAction = onAction,
+        InteractionsRow(
+            voteState = currentVoteState,
+            onUpvote = { onAction(PromocodeDetailAction.ToggleVoteClicked(VoteState.UPVOTE)) },
+            onDownvote = { onAction(PromocodeDetailAction.ToggleVoteClicked(VoteState.DOWNVOTE)) },
+            onShare = { onAction(PromocodeDetailAction.ShareClicked) },
         )
     }
 }
@@ -222,31 +210,6 @@ private fun PromocodeErrorState(
     ) {
         QodeErrorCard(error = error, onRetry = onRetry)
     }
-}
-
-@Composable
-private fun InteractionsSuccessState(
-    promocode: Promocode,
-    userInteraction: UserInteraction?,
-    currentVoting: VoteState?,
-    optimisticUpvotes: Int?,
-    optimisticDownvotes: Int?,
-    isSharing: Boolean,
-    onAction: (PromocodeDetailAction) -> Unit
-) {
-    val voteState = userInteraction?.voteState ?: VoteState.NONE
-    val upvotes = optimisticUpvotes ?: promocode.upvotes
-    val downvotes = optimisticDownvotes ?: promocode.downvotes
-
-    PromocodeActions(
-        upvoteCount = upvotes,
-        downvoteCount = downvotes,
-        vote = voteState,
-        currentVoting = currentVoting,
-        onVote = { vote -> onAction(PromocodeDetailAction.VoteClicked(vote)) },
-        onShareClicked = { onAction(PromocodeDetailAction.ShareClicked) },
-        isSharing = isSharing,
-    )
 }
 
 @Composable
@@ -348,7 +311,7 @@ private fun PromocodeLoadingState() {
 
 private fun shareContent(
     context: Context,
-    shareContent: com.qodein.shared.model.ShareContent
+    shareContent: ShareContent
 ) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
@@ -432,7 +395,7 @@ private fun InteractionLoadingPreview() {
             uiState = PromocodeDetailUiState(
                 promocodeId = samplePromoCode.id,
                 promocodeState = PromocodeUiState.Success(samplePromoCode),
-                currentVoting = VoteState.UPVOTE,
+                userVoteState = VoteState.UPVOTE,
             ),
             onAction = {},
             onNavigateBack = {},
@@ -463,19 +426,10 @@ private fun InteractionErrorPreview() {
 private fun InteractionSuccessPreview() {
     QodeTheme {
         val samplePromoCode = PromocodePreviewData.percentagePromocode
-        val interaction = UserInteraction(
-            itemId = samplePromoCode.id.value,
-            itemType = ContentType.PROMOCODE,
-            userId = UserId("preview-user"),
-            voteState = VoteState.UPVOTE,
-            isBookmarked = false,
-        )
-
         PromocodeDetailScreen(
             uiState = PromocodeDetailUiState(
                 promocodeId = samplePromoCode.id,
                 promocodeState = PromocodeUiState.Success(samplePromoCode),
-                userInteraction = interaction,
             ),
             onAction = {},
             onNavigateBack = {},

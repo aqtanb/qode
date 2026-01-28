@@ -53,14 +53,14 @@ class PromocodeDetailViewModel(
     fun onAction(action: PromocodeDetailAction) {
         when (action) {
             is PromocodeDetailAction.RefreshData -> refreshPromocode()
-            is PromocodeDetailAction.VoteClicked -> {
-                handleVote(action.voteState)
+            is PromocodeDetailAction.ToggleVoteClicked -> {
+                toggleVote(action.voteState)
             }
             is PromocodeDetailAction.ShareClicked -> handleShare()
             is PromocodeDetailAction.CopyCodeClicked -> handleCopyCode()
             is PromocodeDetailAction.BackClicked -> handleBack()
-            is PromocodeDetailAction.BlockUserClicked -> handleBlockUser(action.userId)
-            is PromocodeDetailAction.ReportPromocodeClicked -> handleReportPromocode(action.promocodeId)
+            is PromocodeDetailAction.BlockUserClicked -> blockUser(action.userId)
+            is PromocodeDetailAction.ReportPromocodeClicked -> report(action.promocodeId)
             is PromocodeDetailAction.RetryClicked -> refreshPromocode()
         }
     }
@@ -72,8 +72,6 @@ class PromocodeDetailViewModel(
                 _uiState.update {
                     it.copy(
                         promocodeState = PromocodeUiState.Success(result.data),
-                        optimisticUpvotes = null,
-                        optimisticDownvotes = null,
                     )
                 }
             }
@@ -83,49 +81,29 @@ class PromocodeDetailViewModel(
         }
     }
 
-    private fun loadUserInteraction(
-        promocodeId: PromocodeId,
-        userId: UserId
-    ) {
-        viewModelScope.launch {
-            when (
-                val result = getUserInteractionUseCase(
-                    itemId = promocodeId.value,
-                    itemType = ContentType.PROMOCODE,
-                    userId = userId,
-                )
-            ) {
-                is Result.Success -> {
-                    _uiState.update { it.copy(userInteraction = result.data) }
-                }
-                is Result.Error -> {
-                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
-                }
-            }
-        }
-    }
-
     private fun refreshPromocode() {
         viewModelScope.launch {
             loadPromocode(promocodeId)
-            _uiState.value.userId?.let { userId ->
-                loadUserInteraction(promocodeId, userId)
-            }
         }
     }
 
     private fun observeAuthState() {
         viewModelScope.launch {
-            getAuthStateUseCase()
-                .collectLatest { authState ->
-                    when (authState) {
-                        is AuthState.Authenticated -> {
-                            _uiState.update { it.copy(userId = authState.userId) }
-                            loadUserInteraction(promocodeId, authState.userId)
-                        }
-                        AuthState.Unauthenticated -> _uiState.update { it.copy(userId = null) }
+            getAuthStateUseCase().collectLatest { authState ->
+                when (authState) {
+                    is AuthState.Authenticated -> {
+                        _uiState.update { it.copy(currentUserId = authState.userId) }
+                        loadUserInteractions(
+                            userId = authState.userId,
+                            itemId = promocodeId.value,
+                        )
+                    }
+
+                    AuthState.Unauthenticated -> {
+                        _uiState.update { it.copy(currentUserId = null, userVoteState = VoteState.NONE) }
                     }
                 }
+            }
         }
     }
 
@@ -136,7 +114,7 @@ class PromocodeDetailViewModel(
                     if (result == "success") {
                         // Execute pending action if auth was successful
                         pendingVoteAction?.let { voteState ->
-                            handleVote(voteState)
+                            toggleVote(voteState)
                             pendingVoteAction = null
                         }
                         // Reset the flag so it doesn't trigger again
@@ -146,62 +124,49 @@ class PromocodeDetailViewModel(
         }
     }
 
-    private fun handleVote(targetVoteState: VoteState) {
+    private fun toggleVote(targetVoteState: VoteState) {
         viewModelScope.launch {
-            val userId = _uiState.value.userId
-            val currentVoteState = _uiState.value.userInteraction?.voteState ?: VoteState.NONE
-            val currentBookmarkState = _uiState.value.userInteraction?.isBookmarked ?: false
-            _uiState.update { it.copy(currentVoting = targetVoteState) }
+            val userId = _uiState.value.currentUserId
             if (userId == null) {
                 _events.emit(PromocodeDetailEvent.NavigateToAuth(AuthPromptAction.Vote))
-            } else {
-                when (
-                    val result = toggleVoteUseCase(
-                        itemId = promocodeId.value,
-                        itemType = ContentType.PROMOCODE,
-                        userId = userId,
-                        currentVoteState = currentVoteState,
-                        targetVoteState = targetVoteState,
-                        isBookmarked = currentBookmarkState,
-                    )
-                ) {
-                    is Result.Success -> {
-                        val newInteraction = result.data
-                        val promoState = _uiState.value.promocodeState
-                        val promo = (promoState as? PromocodeUiState.Success)?.data
-                        if (promo != null) {
-                            val baseUpvotes = _uiState.value.optimisticUpvotes ?: promo.upvotes
-                            val baseDownvotes = _uiState.value.optimisticDownvotes ?: promo.downvotes
-                            val (newUpvotes, newDownvotes) = VoteState.computeVoteCounts(
-                                previousVote = currentVoteState,
-                                newVote = newInteraction.voteState,
-                                currentUpvotes = baseUpvotes,
-                                currentDownvotes = baseDownvotes,
-                            )
-                            _uiState.update {
-                                it.copy(
-                                    userInteraction = newInteraction,
-                                    optimisticUpvotes = newUpvotes,
-                                    optimisticDownvotes = newDownvotes,
-                                )
-                            }
-                        } else {
-                            _uiState.update { it.copy(userInteraction = newInteraction) }
-                        }
-                    }
-                    is Result.Error -> {
-                        _events.emit(PromocodeDetailEvent.ShowError(result.error))
-                    }
+                return@launch
+            }
+
+            val currentVoteState = _uiState.value.userVoteState
+            val optimisticVoteState = currentVoteState.toggleTo(targetVoteState)
+            val scoreDelta = VoteState.computeScoreDelta(currentVoteState, optimisticVoteState)
+            val currentDelta = _uiState.value.voteScoreDelta
+
+            _uiState.update {
+                it.copy(
+                    userVoteState = optimisticVoteState,
+                    voteScoreDelta = currentDelta + scoreDelta,
+                )
+            }
+
+            when (
+                val result = toggleVoteUseCase(
+                    itemId = promocodeId.value,
+                    itemType = ContentType.PROMOCODE,
+                    userId = userId,
+                    currentVoteState = currentVoteState,
+                    isBookmarked = false,
+                    targetVoteState = targetVoteState,
+                )
+            ) {
+                is Result.Error -> {
+                    _uiState.update { it.copy(userVoteState = currentVoteState, voteScoreDelta = currentDelta) }
+                    _events.emit(PromocodeDetailEvent.ShowError(result.error))
                 }
-                _uiState.update { it.copy(currentVoting = null) }
+                is Result.Success -> {
+                    _uiState.update { it.copy(userVoteState = result.data.voteState) }
+                }
             }
         }
     }
 
     private fun handleShare() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSharing = true) }
-
             when (val result = getPromocodeShareContentUseCase(promocodeId)) {
                 is Result.Success -> {
                     _events.emit(PromocodeDetailEvent.SharePromocode(result.data))
@@ -210,8 +175,6 @@ class PromocodeDetailViewModel(
                     _events.emit(PromocodeDetailEvent.ShowError(result.error))
                 }
             }
-
-            _uiState.update { it.copy(isSharing = false) }
         }
     }
 
@@ -231,17 +194,26 @@ class PromocodeDetailViewModel(
         }
     }
 
-    private fun handleReportPromocode(promocodeId: PromocodeId) {
-        val promocodeUiState = _uiState.value.promocodeState
-        if (promocodeUiState !is PromocodeUiState.Success) return
-        val currentPromocode = promocodeUiState.data
+    private suspend fun loadUserInteractions(
+        itemId: String,
+        userId: UserId
+    ) {
+        when (val result = getUserInteractionUseCase(itemId, ContentType.PROMOCODE, userId)) {
+            is Result.Error -> _events.emit(PromocodeDetailEvent.ShowError(result.error))
+            is Result.Success -> _uiState.update {
+                it.copy(userVoteState = result.data?.voteState ?: VoteState.NONE)
+            }
+        }
+    }
 
+    private fun report(promocodeId: PromocodeId) {
         viewModelScope.launch {
-            _uiState.value.userId ?: run {
+            _uiState.value.currentUserId ?: run {
                 _events.emit(PromocodeDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
                 return@launch
             }
-
+            val promocodeUiState = _uiState.value.promocodeState as? PromocodeUiState.Success ?: return@launch
+            val currentPromocode = promocodeUiState.data
             _events.emit(
                 PromocodeDetailEvent.NavigateToReport(
                     reportedItemId = promocodeId.value,
@@ -252,12 +224,14 @@ class PromocodeDetailViewModel(
         }
     }
 
-    private fun handleBlockUser(userId: UserId) {
-        val promocodeUiState = _uiState.value.promocodeState
-        if (promocodeUiState !is PromocodeUiState.Success) return
-        val currentPromocode = promocodeUiState.data
-
+    private fun blockUser(userId: UserId) {
         viewModelScope.launch {
+            _uiState.value.currentUserId ?: run {
+                _events.emit(PromocodeDetailEvent.NavigateToAuth(AuthPromptAction.ReportContent))
+                return@launch
+            }
+            val promocodeUiState = _uiState.value.promocodeState as? PromocodeUiState.Success ?: return@launch
+            val currentPromocode = promocodeUiState.data
             _events.emit(
                 PromocodeDetailEvent.NavigateToBlockUser(
                     userId = userId,
