@@ -10,6 +10,7 @@ sealed interface PostSubmissionAction {
 
     data class RemoveImage(val index: Int) : PostSubmissionAction
     data class UpdateImageUris(val uris: List<String>) : PostSubmissionAction
+    data object PickImages : PostSubmissionAction
 
     data object Submit : PostSubmissionAction
 

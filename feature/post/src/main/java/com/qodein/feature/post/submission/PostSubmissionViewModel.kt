@@ -27,7 +27,7 @@ class PostSubmissionViewModel(
     private val enqueuePostSubmissionUseCase: EnqueuePostSubmissionUseCase
 ) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow<PostSubmissionUiState>(PostSubmissionUiState.Success.initial())
+    private val _uiState = MutableStateFlow(PostSubmissionUiState())
     val uiState: StateFlow<PostSubmissionUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<PostSubmissionEvent>()
@@ -39,25 +39,17 @@ class PostSubmissionViewModel(
         observeAuthState()
     }
 
-    /**
-     * Helper to update only Success state, ignoring Loading/Error states.
-     */
-    private inline fun updateSuccessState(update: (PostSubmissionUiState.Success) -> PostSubmissionUiState.Success) {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is PostSubmissionUiState.Success -> update(currentState)
-                else -> currentState
-            }
-        }
+    private inline fun updateState(update: (PostSubmissionUiState) -> PostSubmissionUiState) {
+        _uiState.update(update)
     }
 
     fun onAction(action: PostSubmissionAction) {
         when (action) {
             is PostSubmissionAction.UpdateTitle -> {
-                updateSuccessState { it.copy(title = Post.filterTitle(action.title)) }
+                updateState { it.copy(title = Post.filterTitle(action.title)) }
             }
             is PostSubmissionAction.UpdateContent -> {
-                updateSuccessState { it.copy(content = Post.filterContent(action.content)) }
+                updateState { it.copy(content = Post.filterContent(action.content)) }
             }
 
             is PostSubmissionAction.UpdateTag -> {
@@ -68,6 +60,7 @@ class PostSubmissionViewModel(
 
             is PostSubmissionAction.RemoveImage -> removeImage(action.index)
             is PostSubmissionAction.UpdateImageUris -> updateImageUris(action.uris)
+            PostSubmissionAction.PickImages -> pickImages()
 
             PostSubmissionAction.Submit -> submitPost()
 
@@ -84,7 +77,7 @@ class PostSubmissionViewModel(
             }
         } else {
             val filtered = Post.filterTagInput(tagInput)
-            updateSuccessState { it.copy(tagInput = filtered) }
+            updateState { it.copy(tagInput = filtered) }
         }
     }
 
@@ -96,19 +89,19 @@ class PostSubmissionViewModel(
         }
     }
     private fun addTag(tag: String) {
-        updateSuccessState { state ->
+        updateState { state ->
             state.copy(tags = filterTags(state.tags + tag), tagInput = "")
         }
     }
 
     private fun removeTag(tag: String) {
-        updateSuccessState { state ->
+        updateState { state ->
             state.copy(tags = state.tags - tag)
         }
     }
 
     private fun removeImage(index: Int) {
-        updateSuccessState { state ->
+        updateState { state ->
             state.copy(imageUris = state.imageUris.filterIndexed { i, _ -> i != index })
         }
     }
@@ -116,46 +109,38 @@ class PostSubmissionViewModel(
     private fun updateImageUris(uris: List<String>) {
         viewModelScope.launch {
             val currentState = uiState.value
-            if (currentState !is PostSubmissionUiState.Success) return@launch
+            val availableSlots = Post.MAX_IMAGES - currentState.imageUris.size
 
-            val availableSlots = 5 - currentState.imageUris.size
+            if (availableSlots == 0) {
+                _events.emit(PostSubmissionEvent.ImageLimitReached)
+                return@launch
+            }
             val urisToCompress = uris.take(availableSlots).map { it.toUri() }
+            if (uris.size > availableSlots) {
+                _events.emit(PostSubmissionEvent.ImagesPartiallyAdded(urisToCompress.size))
+            }
 
             if (urisToCompress.isEmpty()) return@launch
 
-            Logger.d { "Starting compression for ${urisToCompress.size} images" }
-
-            // Update state to show compression progress
-            updateSuccessState {
-                it.copy(compression = ImageCompressionState.Compressing(0, urisToCompress.size))
-            }
+            updateState { it.copy(compressingImages = true) }
 
             val result = ImageCompressor.compressImages(
                 context = getApplication(),
                 uris = urisToCompress,
-                onProgress = { current, total ->
-                    updateSuccessState {
-                        it.copy(compression = ImageCompressionState.Compressing(current, total))
-                    }
-                },
             )
 
             when (result) {
                 is Result.Success -> {
-                    Logger.i { "Successfully compressed ${result.data.size} images" }
                     val compressedUriStrings = result.data.map { it.toString() }
-                    updateSuccessState { state ->
+                    updateState { state ->
                         state.copy(
                             imageUris = state.imageUris + compressedUriStrings,
-                            compression = ImageCompressionState.Idle,
+                            compressingImages = false,
                         )
                     }
                 }
                 is Result.Error -> {
-                    Logger.e { "Image compression failed: ${result.error}" }
-                    updateSuccessState {
-                        it.copy(compression = ImageCompressionState.Idle)
-                    }
+                    updateState { it.copy(compressingImages = false) }
                     _events.emit(PostSubmissionEvent.ShowError(result.error.toUiText()))
                 }
             }
@@ -163,8 +148,10 @@ class PostSubmissionViewModel(
     }
 
     private fun submitPost() {
-        val currentState = _uiState.value as? PostSubmissionUiState.Success ?: return
+        val currentState = _uiState.value
         val userId = (currentAuthState as? AuthState.Authenticated)?.userId ?: return
+
+        updateState { it.copy(isSubmitting = true) }
 
         viewModelScope.launch {
             when (
@@ -182,6 +169,7 @@ class PostSubmissionViewModel(
                 }
                 is Result.Error -> {
                     Logger.e { "Failed to schedule post submission: ${result.error}" }
+                    updateState { it.copy(isSubmitting = false) }
                     _events.emit(PostSubmissionEvent.ShowError(result.error.toUiText()))
                 }
             }
@@ -191,6 +179,12 @@ class PostSubmissionViewModel(
     private fun navigateBack() {
         viewModelScope.launch {
             _events.emit(PostSubmissionEvent.NavigateBack)
+        }
+    }
+
+    private fun pickImages() {
+        viewModelScope.launch {
+            _events.emit(PostSubmissionEvent.PickImagesRequested)
         }
     }
 }

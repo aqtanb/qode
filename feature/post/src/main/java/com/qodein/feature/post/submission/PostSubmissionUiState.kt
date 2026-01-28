@@ -1,88 +1,24 @@
 package com.qodein.feature.post.submission
 
-import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.Post
 
-/**
- * Top-level UI state for Post Submission screen.
- * Follows clean MVI pattern with Loading/Success/Error states.
- */
-sealed interface PostSubmissionUiState {
-    /**
-     * Initial loading state while fetching user auth state and initial data.
-     */
-    data object Loading : PostSubmissionUiState
-
-    /**
-     * Success state with all form data and computed properties.
-     */
-    data class Success(
-        val title: String = "",
-        val content: String = "",
-
-        val tagInput: String = "",
-
-        val tags: List<String> = emptyList(),
-        val imageUris: List<String> = emptyList(),
-
-        val submission: PostSubmissionState = PostSubmissionState.Idle,
-
-        // Compression state
-        val compression: ImageCompressionState = ImageCompressionState.Idle,
-
-        // Validation
-        val validationErrors: ValidationErrors = ValidationErrors()
-    ) : PostSubmissionUiState {
-        val titleCharCount: Int get() = title.length
-        val contentCharCount: Int get() = content.length
-
-        val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= 200
-        val isContentValid: Boolean get() = content.length <= 2000
-        val areImagesValid: Boolean get() = imageUris.size <= 5
-
-        val canSubmit: Boolean get() =
-            isTitleValid &&
-                isContentValid &&
-                areImagesValid &&
-                submission is PostSubmissionState.Idle &&
-                compression is ImageCompressionState.Idle
-
-        companion object {
-            fun initial() = Success()
-        }
-    }
-
-    /**
-     * Error state when initial loading fails.
-     */
-    data class Error(val errorType: OperationError) : PostSubmissionUiState
-}
-
-/**
- * Submission state tracking.
- */
-sealed interface PostSubmissionState {
-    data object Idle : PostSubmissionState
-    data object Submitting : PostSubmissionState
-}
-
-/**
- * Image compression state tracking.
- */
-sealed interface ImageCompressionState {
-    data object Idle : ImageCompressionState
-    data class Compressing(val current: Int, val total: Int) : ImageCompressionState {
-        val progress: Float get() = if (total > 0) current.toFloat() / total else 0f
-    }
-}
-
-/**
- * Validation errors for form fields.
- */
-data class ValidationErrors(
-    val titleError: String? = null,
-    val contentError: String? = null,
-    val tagsError: String? = null,
-    val imagesError: String? = null
+data class PostSubmissionUiState(
+    val title: String = "",
+    val content: String = "",
+    val tagInput: String = "",
+    val tags: List<String> = emptyList(),
+    val imageUris: List<String> = emptyList(),
+    val isSubmitting: Boolean = false,
+    val compressingImages: Boolean = false
 ) {
-    val hasErrors: Boolean get() = titleError != null || contentError != null || tagsError != null || imagesError != null
+    val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= Post.TITLE_MAX_LENGTH
+    val isContentValid: Boolean get() = content.length <= Post.CONTENT_MAX_LENGTH
+    val areImagesValid: Boolean get() = imageUris.size <= Post.MAX_IMAGES
+
+    val canSubmit: Boolean get() =
+        isTitleValid &&
+            isContentValid &&
+            areImagesValid &&
+            !isSubmitting &&
+            !compressingImages
 }

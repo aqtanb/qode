@@ -1,13 +1,11 @@
 package com.qodein.feature.post.submission
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -19,11 +17,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -32,9 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +49,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.component.FullScreenImageViewer
-import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostImage
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.R
@@ -63,7 +56,7 @@ import com.qodein.feature.post.submission.component.PostCreationTopBar
 import com.qodein.feature.post.submission.component.PostSubmissionBottomToolbar
 import com.qodein.feature.post.submission.component.TagSelector
 import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
-import com.qodein.shared.common.error.OperationError
+import com.qodein.shared.model.Post
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
@@ -71,7 +64,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostSubmissionScreen(
+fun PostSubmissionRoute(
     onNavigateBack: () -> Unit,
     onPostSubmitted: () -> Unit,
     onNavigateToAuth: (AuthPromptAction) -> Unit,
@@ -79,44 +72,15 @@ fun PostSubmissionScreen(
     viewModel: PostSubmissionViewModel = koinViewModel()
 ) {
     TrackScreenViewEvent(screenName = "PostSubmissionScreen")
-    val focusManager = LocalFocusManager.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    var showTagBottomSheet by remember { mutableStateOf(false) }
-    var showFullScreenImage by remember { mutableStateOf(false) }
-    var fullScreenImageIndex by remember { mutableIntStateOf(0) }
-    val hazeState = remember { HazeState() }
-
-    // Extract string resources to avoid lint warnings
-    val imageLimitReachedMessage = stringResource(R.string.image_limit_reached)
-    val imagesPartiallyAddedFormat = stringResource(R.string.images_partially_added)
-
-    val pickMediaLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5),
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            val currentState = uiState as? PostSubmissionUiState.Success ?: return@rememberLauncherForActivityResult
-            val currentCount = currentState.imageUris.size
-            val availableSlots = 5 - currentCount
-            val urisToAdd = uris.take(availableSlots)
-
-            if (uris.size > availableSlots) {
-                val message = String.format(imagesPartiallyAddedFormat, urisToAdd.size)
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true,
-                    )
-                }
-            }
-
-            viewModel.onAction(PostSubmissionAction.UpdateImageUris(urisToAdd.map { it.toString() }))
-        }
-    }
 
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val imageLimitReachedText = stringResource(R.string.image_limit_reached)
+    val imagesPartiallyAddedText = stringResource(R.string.images_partially_added)
+
     LaunchedEffect(Unit) {
         viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
@@ -127,151 +91,117 @@ fun PostSubmissionScreen(
                     message = event.message.asString(context),
                     withDismissAction = true,
                 )
+                is PostSubmissionEvent.ImageLimitReached -> snackbarHostState.showSnackbar(
+                    message = imageLimitReachedText,
+                    withDismissAction = true,
+                )
+                is PostSubmissionEvent.ImagesPartiallyAdded -> snackbarHostState.showSnackbar(
+                    message = String.format(imagesPartiallyAddedText, event.count),
+                    withDismissAction = true,
+                )
+                is PostSubmissionEvent.PickImagesRequested -> pickMediaLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             }
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .hazeSource(state = hazeState),
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {
-                when (val currentState = uiState) {
-                    is PostSubmissionUiState.Success -> {
-                        PostCreationTopBar(
-                            canSubmit = currentState.canSubmit,
-                            onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
-                            onSubmit = { viewModel.onAction(PostSubmissionAction.Submit) },
-                        )
-                    }
-                    else -> {
-                        PostCreationTopBar(
-                            canSubmit = false,
-                            onNavigateBack = { viewModel.onAction(PostSubmissionAction.NavigateBack) },
-                            onSubmit = {},
-                        )
-                    }
-                }
-            },
-            bottomBar = {
-                val currentState = uiState as? PostSubmissionUiState.Success
-                if (currentState != null) {
-                    PostSubmissionBottomToolbar(
-                        isImageLimitReached = currentState.imageUris.size >= 5,
-                        onClick = {
-                            if (currentState.imageUris.size >= 5) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = imageLimitReachedMessage,
-                                        withDismissAction = true,
-                                    )
-                                }
-                            } else {
-                                pickMediaLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                )
-                            }
-                        },
-                        modifier = Modifier.imePadding().navigationBarsPadding(),
-                    )
-                }
-            },
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
-            ) {
-                when (val currentState = uiState) {
-                    is PostSubmissionUiState.Loading -> {
-                        LoadingState()
-                    }
-                    is PostSubmissionUiState.Success -> {
-                        PostSubmissionContent(
-                            uiState = currentState,
-                            onAction = viewModel::onAction,
-                            onOpenTagSelector = { showTagBottomSheet = true },
-                            onOpenImagePicker = {
-                                if (currentState.imageUris.size >= 5) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = imageLimitReachedMessage,
-                                            withDismissAction = true,
-                                        )
-                                    }
-                                } else {
-                                    pickMediaLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                    )
-                                }
-                            },
-                            onOpenImage = { index ->
-                                focusManager.clearFocus()
-                                fullScreenImageIndex = index
-                                showFullScreenImage = true
-                            },
-                            modifier = Modifier.fillMaxSize(),
-                        )
-
-                        if (currentState.compression is ImageCompressionState.Compressing) {
-                            val message = stringResource(
-                                R.string.compressing_images,
-                                currentState.compression.current,
-                                currentState.compression.total,
-                            )
-                            LaunchedEffect(currentState.compression) {
-                                snackbarHostState.showSnackbar(
-                                    message = message,
-                                    withDismissAction = false,
-                                    duration = SnackbarDuration.Indefinite,
-                                )
-                            }
-                        }
-
-                        if (showTagBottomSheet) {
-                            TagSelectorBottomSheet(
-                                selectedTags = currentState.tags,
-                                currentTagInput = currentState.tagInput,
-                                onTagChange = { viewModel.onAction(PostSubmissionAction.UpdateTag(it)) },
-                                onTagAdded = { viewModel.onAction(PostSubmissionAction.AddTag(it)) },
-                                onTagRemoved = { viewModel.onAction(PostSubmissionAction.RemoveTag(it)) },
-                                onDismiss = { showTagBottomSheet = false },
-                            )
-                        }
-                    }
-                    is PostSubmissionUiState.Error -> {
-                        ErrorState(
-                            error = currentState.errorType,
-                            onRetry = { viewModel.onAction(PostSubmissionAction.RetryPostSubmission) },
-                        )
-                    }
-                }
-            }
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = Post.MAX_IMAGES),
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            viewModel.onAction(PostSubmissionAction.UpdateImageUris(uris.map { it.toString() }))
         }
+    }
 
-        if (showFullScreenImage) {
-            val currentState = uiState as? PostSubmissionUiState.Success
-            if (currentState != null && currentState.imageUris.isNotEmpty()) {
-                FullScreenImageViewer(
-                    uri = currentState.imageUris[fullScreenImageIndex],
-                    onDismiss = { showFullScreenImage = false },
-                    hazeState = hazeState,
+    PostSubmissionScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onAction = viewModel::onAction,
+        snackbarHostState = snackbarHostState,
+        pickMediaLauncher = pickMediaLauncher,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PostSubmissionScreen(
+    uiState: PostSubmissionUiState,
+    onAction: (PostSubmissionAction) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    pickMediaLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+    var showTagBottomSheet by remember { mutableStateOf(false) }
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageIndex by remember { mutableIntStateOf(0) }
+    val hazeState = remember { HazeState() }
+
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .hazeSource(state = hazeState),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            PostCreationTopBar(
+                canSubmit = uiState.canSubmit,
+                onNavigateBack = { onAction(PostSubmissionAction.NavigateBack) },
+                onSubmit = { onAction(PostSubmissionAction.Submit) },
+            )
+        },
+        bottomBar = {
+            PostSubmissionBottomToolbar(
+                isImageLimitReached = uiState.imageUris.size >= Post.MAX_IMAGES,
+                onClick = { onAction(PostSubmissionAction.PickImages) },
+                modifier = Modifier.imePadding().navigationBarsPadding(),
+            )
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+        ) {
+            PostSubmissionContent(
+                uiState = uiState,
+                onAction = onAction,
+                onOpenTagSelector = { showTagBottomSheet = true },
+                onOpenImage = { index ->
+                    focusManager.clearFocus()
+                    fullScreenImageIndex = index
+                    showFullScreenImage = true
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+
+            if (showTagBottomSheet) {
+                TagSelectorBottomSheet(
+                    selectedTags = uiState.tags,
+                    currentTagInput = uiState.tagInput,
+                    onTagChange = { onAction(PostSubmissionAction.UpdateTag(it)) },
+                    onTagAdded = { onAction(PostSubmissionAction.AddTag(it)) },
+                    onTagRemoved = { onAction(PostSubmissionAction.RemoveTag(it)) },
+                    onDismiss = { showTagBottomSheet = false },
                 )
             }
         }
+    }
+
+    if (showFullScreenImage && uiState.imageUris.isNotEmpty()) {
+        FullScreenImageViewer(
+            uri = uiState.imageUris[fullScreenImageIndex],
+            onDismiss = { showFullScreenImage = false },
+            hazeState = hazeState,
+        )
     }
 }
 
 @Composable
 private fun PostSubmissionContent(
-    uiState: PostSubmissionUiState.Success,
+    uiState: PostSubmissionUiState,
     onAction: (PostSubmissionAction) -> Unit,
     onOpenTagSelector: () -> Unit,
-    onOpenImagePicker: () -> Unit,
     onOpenImage: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -280,7 +210,6 @@ private fun PostSubmissionContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState)
             .imePadding(),
     ) {
@@ -346,59 +275,15 @@ private fun PostSubmissionContent(
     }
 }
 
-@Composable
-private fun LoadingState(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun ErrorState(
-    error: OperationError,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SpacingTokens.lg),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        QodeErrorCard(
-            error = error,
-            onRetry = onRetry,
-            onDismiss = {},
-        )
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun PostCreationTopBarPreview() {
-    QodeTheme {
-        PostCreationTopBar(
-            canSubmit = false,
-            onNavigateBack = {},
-            onSubmit = {},
-        )
-    }
-}
-
 @PreviewLightDark
 @Composable
 private fun PostSubmissionContentPreview() {
     QodeTheme {
-        PostSubmissionContent(
-            uiState = PostSubmissionUiState.Success.initial().copy(imageUris = listOf("", "")),
+        PostSubmissionScreen(
+            uiState = PostSubmissionUiState(),
             onAction = {},
-            onOpenTagSelector = {},
-            onOpenImagePicker = {},
-            onOpenImage = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            pickMediaLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) {},
         )
     }
 }

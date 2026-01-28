@@ -9,7 +9,7 @@ import androidx.navigation.navDeepLink
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.feature.post.detail.PostDetailRoute
 import com.qodein.feature.post.feed.FeedRoute
-import com.qodein.feature.post.submission.PostSubmissionScreen
+import com.qodein.feature.post.submission.PostSubmissionRoute
 import com.qodein.shared.model.PostId
 import com.qodein.shared.model.UserId
 import kotlinx.serialization.Serializable
@@ -62,7 +62,7 @@ fun NavGraphBuilder.postSubmissionSection(
     onNavigateToAuth: (AuthPromptAction) -> Unit
 ) {
     composable<PostSubmissionRoute> {
-        PostSubmissionScreen(
+        PostSubmissionRoute(
             onNavigateBack = onNavigateBack,
             onPostSubmitted = onPostSubmitted,
             onNavigateToAuth = onNavigateToAuth,

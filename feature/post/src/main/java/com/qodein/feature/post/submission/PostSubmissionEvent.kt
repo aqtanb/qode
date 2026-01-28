@@ -12,4 +12,7 @@ sealed interface PostSubmissionEvent {
     data object PostSubmitted : PostSubmissionEvent
     data class NavigateToAuth(val action: AuthPromptAction) : PostSubmissionEvent
     data class ShowError(val message: UiText) : PostSubmissionEvent
+    data object ImageLimitReached : PostSubmissionEvent
+    data class ImagesPartiallyAdded(val count: Int) : PostSubmissionEvent
+    data object PickImagesRequested : PostSubmissionEvent
 }
