@@ -114,7 +114,7 @@ fun HomeScreen(
             }
         }.collect { shouldLoadMore ->
             if (shouldLoadMore) {
-                viewModel.onAction(HomeAction.LoadMorePromoCodes)
+                viewModel.onAction(HomeAction.LoadMorePromocodes)
             }
         }
     }
@@ -225,12 +225,12 @@ private fun HomeContent(
                         PromocodeCard(
                             promocode = promocode,
                             onCardClick = {
-                                onAction(HomeAction.PromoCodeClicked(promocode.id))
+                                onAction(HomeAction.PromocodeClicked(promocode.id))
                             },
                             onCopyCodeClick = {
-                                onAction(HomeAction.CopyPromoCode(promocode))
+                                onAction(HomeAction.CopyPromocode(promocode))
                             },
-                            modifier = Modifier.padding(SpacingTokens.sm),
+                            modifier = Modifier.padding(SpacingTokens.xs),
                         )
                     }
 
@@ -251,7 +251,7 @@ private fun HomeContent(
                     item(key = PROMO_CODES_ERROR_KEY) {
                         PromocodeSectionErrorState(
                             errorState = promoState,
-                            onRetry = { onAction(HomeAction.RetryPromoCodesClicked) },
+                            onRetry = { onAction(HomeAction.RetryPromocodesClicked) },
                             modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
                         )
                     }

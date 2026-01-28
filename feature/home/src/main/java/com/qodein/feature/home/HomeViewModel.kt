@@ -118,18 +118,14 @@ class HomeViewModel(
                 _uiState.update { it.copy(isRefreshing = false) }
             }
             is HomeAction.BannerClicked -> onBannerClicked(action.banner)
-            is HomeAction.PromoCodeClicked -> onPromoCodeClicked(action.promocodeId)
-            is HomeAction.CopyPromoCode -> onCopyPromoCode(action.promoCode)
-            is HomeAction.LoadMorePromoCodes -> loadNextPage()
-            is HomeAction.ErrorDismissed -> dismissError()
+            is HomeAction.PromocodeClicked -> onPromoCodeClicked(action.promocodeId)
+            is HomeAction.CopyPromocode -> onCopyPromoCode(action.promocode)
+            is HomeAction.LoadMorePromocodes -> loadNextPage()
             is HomeAction.RetryBannersClicked -> retryBanners()
-            is HomeAction.RetryPromoCodesClicked -> retryPromoCodes()
+            is HomeAction.RetryPromocodesClicked -> retryPromoCodes()
 
             is HomeAction.ShowFilterDialog -> showFilterDialog(action.type)
             is HomeAction.DismissFilterDialog -> dismissFilterDialog()
-            is HomeAction.ApplyServiceFilter -> {
-                applyFilters(_uiState.value.currentFilters.applyServiceFilter(action.serviceFilter))
-            }
             is HomeAction.ApplySortFilter -> applyFilters(_uiState.value.currentFilters.applySortFilter(action.sortFilter))
             is HomeAction.ResetFilters -> resetFilters()
         }
@@ -324,12 +320,6 @@ class HomeViewModel(
             is Discount.FreeItem -> PROMO_CODE_TYPE_FREE_ITEM
         }
 
-    private fun dismissError() {
-        handleRefresh()
-    }
-
-    // MARK: - Specific Error Recovery Methods
-
     private fun retryBanners() {
         Timber.d("Retrying banner load")
         loadBanners()
@@ -340,7 +330,6 @@ class HomeViewModel(
         loadInitialPage()
     }
 
-    // MARK: - Filter Actions
 
     private fun showFilterDialog(type: FilterDialogType) {
         if (type == FilterDialogType.Service) {

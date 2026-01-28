@@ -3,7 +3,9 @@ package com.qodein.feature.promocode.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.feature.promocode.navigation.PromocodeDetailRoute
 import com.qodein.shared.common.Result
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
@@ -25,8 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PromocodeDetailViewModel(
-    promoCodeIdString: String,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getPromocodeUseCase: GetPromocodeUseCase,
     private val getUserInteractionUseCase: GetUserInteractionUseCase,
     private val toggleVoteUseCase: ToggleVoteUseCase,
@@ -34,7 +35,8 @@ class PromocodeDetailViewModel(
     private val getPromocodeShareContentUseCase: GetPromocodeShareContentUseCase
 ) : ViewModel() {
 
-    private val promocodeId = PromocodeId(promoCodeIdString)
+    private val args: PromocodeDetailRoute = savedStateHandle.toRoute()
+    private val promocodeId = PromocodeId(args.promoCodeId)
 
     private val _uiState = MutableStateFlow(PromocodeDetailUiState(promocodeId = promocodeId))
     val uiState: StateFlow<PromocodeDetailUiState> = _uiState.asStateFlow()
@@ -42,11 +44,8 @@ class PromocodeDetailViewModel(
     private val _events = MutableSharedFlow<PromocodeDetailEvent>()
     val events = _events.asSharedFlow()
 
-    private var pendingVoteAction: VoteState? = null
-
     init {
         observeAuthState()
-        observeAuthResult()
         refreshPromocode()
     }
 
@@ -104,23 +103,6 @@ class PromocodeDetailViewModel(
                     }
                 }
             }
-        }
-    }
-
-    private fun observeAuthResult() {
-        viewModelScope.launch {
-            savedStateHandle.getStateFlow("auth_result", "")
-                .collect { result ->
-                    if (result == "success") {
-                        // Execute pending action if auth was successful
-                        pendingVoteAction?.let { voteState ->
-                            toggleVote(voteState)
-                            pendingVoteAction = null
-                        }
-                        // Reset the flag so it doesn't trigger again
-                        savedStateHandle["auth_result"] = ""
-                    }
-                }
         }
     }
 

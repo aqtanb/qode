@@ -13,24 +13,16 @@ sealed interface HomeAction {
 
     data class BannerClicked(val banner: Banner) : HomeAction
 
-    data class PromoCodeClicked(val promocodeId: PromocodeId) : HomeAction
-    data class CopyPromoCode(val promoCode: Promocode) : HomeAction
+    data class PromocodeClicked(val promocodeId: PromocodeId) : HomeAction
+    data class CopyPromocode(val promocode: Promocode) : HomeAction
 
-    data object LoadMorePromoCodes : HomeAction
+    data object LoadMorePromocodes : HomeAction
 
     data object RetryBannersClicked : HomeAction
-    data object RetryPromoCodesClicked : HomeAction
+    data object RetryPromocodesClicked : HomeAction
 
-    data object ErrorDismissed : HomeAction
-
-    // Filter Actions
     data class ShowFilterDialog(val type: FilterDialogType) : HomeAction
-
     data object DismissFilterDialog : HomeAction
-
-    data class ApplyServiceFilter(val serviceFilter: ServiceFilter) : HomeAction
-
     data class ApplySortFilter(val sortFilter: SortFilter) : HomeAction
-
     data object ResetFilters : HomeAction
 }

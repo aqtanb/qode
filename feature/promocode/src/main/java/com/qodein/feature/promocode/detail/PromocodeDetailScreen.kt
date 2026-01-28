@@ -54,7 +54,6 @@ import com.qodein.shared.model.ShareContent
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 import com.qodein.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +64,7 @@ fun PromocodeDetailRoute(
     onNavigateToAuth: (AuthPromptAction) -> Unit,
     onNavigateToReport: (String, String, String?) -> Unit,
     onNavigateToBlockUser: (UserId, String?, String?) -> Unit,
-    viewModel: PromocodeDetailViewModel = koinViewModel { parametersOf(promoCodeId.value) }
+    viewModel: PromocodeDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val localContext = LocalContext.current
@@ -150,7 +149,7 @@ fun PromocodeDetailScreen(
             onRefresh = { onAction(PromocodeDetailAction.RefreshData) },
             modifier = modifier
                 .padding(paddingValues)
-                .padding(SpacingTokens.lg),
+                .padding(SpacingTokens.xs),
         ) {
             when (val promocodeUiState = uiState.promocodeState) {
                 PromocodeUiState.Loading -> PromocodeLoadingState()

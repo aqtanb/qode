@@ -18,9 +18,8 @@ val promocodeModule = module {
         )
     }
 
-    viewModel { (promoCodeIdString: String) ->
+    viewModel {
         PromocodeDetailViewModel(
-            promoCodeIdString = promoCodeIdString,
             savedStateHandle = get(),
             getPromocodeUseCase = get(),
             getUserInteractionUseCase = get(),
