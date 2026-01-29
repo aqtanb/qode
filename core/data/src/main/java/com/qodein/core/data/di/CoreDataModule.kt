@@ -16,6 +16,7 @@ import com.google.firebase.functions.functions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.qodein.core.data.BuildConfig
+import com.qodein.core.data.datasource.CacheMetadataDataSource
 import com.qodein.core.data.datasource.DevicePreferencesDataSource
 import com.qodein.core.data.datasource.FirebaseAuthDataSource
 import com.qodein.core.data.datasource.FirebaseStorageDataSource
@@ -58,6 +59,7 @@ import org.koin.dsl.module
 
 private val Context.preferencesDataStore: DataStore<Preferences> by preferencesDataStore(name = "device_preferences")
 private val Context.reportDataStore: DataStore<Preferences> by preferencesDataStore(name = "report_preferences")
+private val Context.cacheMetadataDataStore: DataStore<Preferences> by preferencesDataStore(name = "cache_metadata")
 
 val coreDataModule = module {
     single<FirebaseAuth> { Firebase.auth }
@@ -73,6 +75,7 @@ val coreDataModule = module {
         )
     }
 
+    single { CacheMetadataDataSource(androidContext().cacheMetadataDataStore) }
     single { DevicePreferencesDataSource(get()) }
     single { FirebaseAuthDataSource(get()) }
     single { FirebaseStorageDataSource(get()) }
@@ -89,7 +92,7 @@ val coreDataModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<PromocodeRepository> { PromocodeRepositoryImpl(get()) }
-    single<ServiceRepository> { ServiceRepositoryImpl(get()) }
+    single<ServiceRepository> { ServiceRepositoryImpl(get(), get()) }
     single<DevicePreferencesRepository> { DevicePreferencesRepositoryImpl(androidContext(), get()) }
     single<BannerRepository> { BannerRepositoryImpl(get()) }
     single<UnifiedUserInteractionRepository> { UnifiedUserInteractionRepositoryImpl(get()) }

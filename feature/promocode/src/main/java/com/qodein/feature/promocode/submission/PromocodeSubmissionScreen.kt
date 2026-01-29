@@ -117,7 +117,7 @@ fun PromocodeSubmissionRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PromocodeSubmissionScreen(
+internal fun PromocodeSubmissionScreen(
     uiState: PromocodeSubmissionUiState,
     snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit,
@@ -231,7 +231,7 @@ fun ProgressIndicator(
                         step = step,
                         isCompleted = isCompleted,
                         isCurrent = isCurrent,
-                        onClick = if (isCompleted) {
+                        onClick = if (isCompleted || isCurrent) {
                             { onStepClick(step) }
                         } else {
                             null
@@ -295,7 +295,7 @@ private fun StepIcon(
         icon = step.stepIcon(isCompleted),
         contentDescription = stringResource(step.titleRes),
         size = ButtonSize.Small,
-        enabled = isCompleted,
+        enabled = isCompleted || isCurrent,
         containerColor = containerColor,
         contentColor = contentColor,
         modifier = modifier,

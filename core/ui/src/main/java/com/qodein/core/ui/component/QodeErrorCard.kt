@@ -84,7 +84,7 @@ fun QodeErrorCard(
                 QodeinIconButton(
                     onClick = onDismiss,
                     icon = ActionIcons.Close,
-                    contentDescription = stringResource(R.string.cd_close),
+                    contentDescription = stringResource(R.string.ui_close),
                     size = ButtonSize.Small,
                     modifier = Modifier
                         .align(Alignment.TopEnd)

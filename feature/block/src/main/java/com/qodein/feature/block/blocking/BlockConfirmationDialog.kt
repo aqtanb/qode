@@ -128,7 +128,7 @@ private fun ConfirmationDialogContent(
         },
         confirmButton = {
             DialogButtonRow(
-                dismissText = stringResource(CoreUiR.string.close),
+                dismissText = stringResource(CoreUiR.string.ui_close),
                 confirmText = stringResource(R.string.block_confirm),
                 onDismiss = onCancel,
                 onConfirm = onConfirm,
@@ -173,7 +173,7 @@ private fun ErrorDialogContent(
         },
         confirmButton = {
             DialogButtonRow(
-                dismissText = stringResource(CoreUiR.string.close),
+                dismissText = stringResource(CoreUiR.string.ui_close),
                 confirmText = stringResource(CoreUiR.string.action_retry),
                 onDismiss = onCancel,
                 onConfirm = onDismiss,

@@ -33,7 +33,7 @@ fun ServiceConfirmationDialog(
         onDismissRequest = onDismiss,
         confirmButtonText = stringResource(R.string.action_continue),
         onConfirmClick = onConfirm,
-        dismissButtonText = stringResource(CoreUiR.string.cancel),
+        dismissButtonText = stringResource(CoreUiR.string.ui_cancel),
         onDismissClick = onDismiss,
         modifier = modifier,
         content = {

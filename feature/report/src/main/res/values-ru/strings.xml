@@ -5,7 +5,7 @@
 
     <!-- Actions -->
     <string name="submit_report">Отправить</string>
-    <string name="close">Закрыть</string>
+    <string name="ui_close">Закрыть</string>
     <string name="retry">Повторить</string>
 
     <!-- Preview section -->

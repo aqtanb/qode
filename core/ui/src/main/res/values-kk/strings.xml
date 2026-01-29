@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="close">Жабу</string>
-    <string name="cancel">Бас тарту</string>
+    <string name="ui_close">Жабу</string>
+    <string name="ui_cancel">Бас тарту</string>
     <string name="continue_with_google">Google арқылы жалғастыру</string>
     <string name="error_default_title">Бірдеңе дұрыс болмады</string>
     <string name="copy_code">Кодты көшіру</string>
@@ -36,7 +36,6 @@
     <string name="error_service_logo_not_found">Бұл сервис үшін логотип табылмады. URL мекенжайын тексеріңіз.</string>
     <string name="error_service_invalid_domain_format">Домен форматы жарамсыз. Жарамды домен енгізіңіз.</string>
 
-    <string name="cd_close">Жабу</string>
     <string name="cd_expiring_soon">Жақында аяқталады</string>
     <string name="cd_verified">Тексерілді</string>
     <string name="cd_service_logo">Қызмет логотипі</string>
@@ -158,7 +157,7 @@
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>
     <string name="popular_services_title">Танымал қызметтер</string>
     <string name="no_services_found_message">Қызметтер табылмады</string>
-    <string name="ds_navigation_back">Артқа</string>
+    <string name="ui_back">Артқа</string>
     <string name="search_error_message">Қызметтерді іздеу сәтсіз аяқталды.</string>
     <string name="sort_popularity">Ең танымал</string>
     <string name="sort_newest">Алдымен жаңалары</string>
@@ -179,7 +178,6 @@
     <string name="step_service_title">Қызметті таңдаңыз</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>
     <string name="step_discount_type_short">Түрі</string>
-    <string name="step_promo_code_title">Промокодты еңгізіңіз</string>
     <string name="step_discount_value_title">Жеңілдік мөлшері</string>
     <string name="step_discount_value_short">Мөлшері</string>
     <string name="step_description_title">Қосымша ақпарат беріңіз</string>

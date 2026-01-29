@@ -70,7 +70,7 @@ internal fun UnblockConfirmationDialog(
         },
         confirmButton = {
             DialogButtonRow(
-                dismissText = stringResource(CoreUiR.string.close),
+                dismissText = stringResource(CoreUiR.string.ui_close),
                 confirmText = stringResource(R.string.unblock_button),
                 onDismiss = onCancel,
                 onConfirm = onConfirm,
@@ -115,7 +115,7 @@ private fun ErrorDialogContent(
         },
         confirmButton = {
             DialogButtonRow(
-                dismissText = stringResource(CoreUiR.string.close),
+                dismissText = stringResource(CoreUiR.string.ui_close),
                 confirmText = stringResource(CoreUiR.string.action_retry),
                 onDismiss = onCancel,
                 onConfirm = onDismiss,

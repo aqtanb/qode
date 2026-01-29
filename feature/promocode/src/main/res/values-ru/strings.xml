@@ -48,9 +48,12 @@
     <string name="promo_code_step_error_blank">Промокод не может быть пустым</string>
     <string name="promo_code_step_error_max_length">Максимум %1$d символов</string>
 
-    <string name="promo_type_percentage_title">Процентная</string>
-    <string name="promo_type_fixed_amount_title">Фиксированная сумма</string>
-    <string name="promo_type_free_item_title">Бесплатный товар</string>
+    <string name="promocode_code_choose_label">Введите промокод</string>
+    <string name="promocode_code_step_title">Промокод и тип</string>
+    <string name="promocode_type_percentage">Процент</string>
+    <string name="promocode_type_amount">Сумма</string>
+    <string name="promocode_type_gift">Подарок</string>
+    <string name="promocode_type_choose_label">Выберите вид скидки</string>
     <string name="submit_promocode">Отправить промокод</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>

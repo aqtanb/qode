@@ -188,7 +188,7 @@ fun QodeinTextField(
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
             value = value,
@@ -200,7 +200,6 @@ fun QodeinTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .scale(fieldScale)
-                .let { if (singleLine) it.height(SizeTokens.Selector.height) else it }
                 .bringIntoViewRequester(bringIntoViewRequester)
                 .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                 .onFocusChanged { isFocused = it.isFocused },

@@ -4,6 +4,7 @@ import com.algolia.client.api.SearchClient
 import com.algolia.client.model.search.SearchParamsObject
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.toObject
 import com.qodein.core.data.dto.ServiceDto
 import kotlinx.coroutines.tasks.await
@@ -50,12 +51,15 @@ class FirestoreServiceDataSource(private val firestore: FirebaseFirestore, priva
         }
     }
 
-    suspend fun getPopularServices(limit: Long): List<ServiceDto> =
+    suspend fun getPopularServices(
+        limit: Long,
+        source: Source
+    ): List<ServiceDto> =
         firestore.collection(ServiceDto.COLLECTION_NAME)
             .orderBy(ServiceDto.FIELD_PROMO_CODE_COUNT, Query.Direction.DESCENDING)
             .orderBy(ServiceDto.FIELD_NAME, Query.Direction.ASCENDING)
             .limit(limit)
-            .get()
+            .get(source)
             .await()
             .documents
             .mapNotNull { it.toObject<ServiceDto>() }

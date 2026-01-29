@@ -96,7 +96,7 @@ fun WizardController(
                 ) {
                     Icon(
                         imageVector = ActionIcons.Previous,
-                        contentDescription = stringResource(CoreUiR.string.ds_navigation_back),
+                        contentDescription = stringResource(CoreUiR.string.ui_back),
                         modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     )
                 }

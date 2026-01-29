@@ -48,9 +48,12 @@
     <string name="promo_code_step_error_blank">Промокод бос бола алмайды</string>
     <string name="promo_code_step_error_max_length">Максимум %1$d таңба</string>
 
-    <string name="promo_type_percentage_title">Пайыздық</string>
-    <string name="promo_type_fixed_amount_title">Белгіленген сома</string>
-    <string name="promo_type_free_item_title">Тегін тауар</string>
+    <string name="promocode_code_choose_label">Промкодты енгізіңіз</string>
+    <string name="promocode_code_step_title">Промокод және түрі</string>
+    <string name="promocode_type_percentage">Пайыз</string>
+    <string name="promocode_type_amount">Сома</string>
+    <string name="promocode_type_gift">Сыйлық</string>
+    <string name="promocode_type_choose_label">Жеңілдік түрін таңдаңыз</string>
     <string name="submit_promocode">Промокод қосу</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>

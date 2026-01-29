@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="close">Закрыть</string>
-    <string name="cancel">Отмена</string>
+    <string name="ui_close">Закрыть</string>
+    <string name="ui_cancel">Отмена</string>
     <string name="continue_with_google">Продолжить с Google</string>
     <string name="error_default_title">Что-то пошло не так</string>
     <string name="profile_picture_description">Фото профиля</string>
@@ -31,7 +31,6 @@
     <string name="error_service_site_url_empty">Требуется адрес сайта сервиса.</string>
     <string name="error_service_logo_not_found">Логотип для этого сервиса не найден. Проверьте URL.</string>
     <string name="error_service_invalid_domain_format">Неверный формат домена. Введите действительный домен.</string>
-    <string name="cd_close">Закрыть</string>
     <string name="cd_expiring_soon">Скоро истекает</string>
     <string name="cd_verified">Проверено</string>
     <string name="cd_service_logo">Логотип сервиса</string>
@@ -149,7 +148,7 @@
     <string name="search_services_placeholder">Поиск сервисов…</string>
     <string name="popular_services_title">Популярные сервисы</string>
     <string name="no_services_found_message">Сервисы не найдены</string>
-    <string name="ds_navigation_back">Назад</string>
+    <string name="ui_back">Назад</string>
     <string name="search_error_message">Не удалось выполнить поиск сервисов.</string>
     <string name="sort_popularity">Самые популярные</string>
     <string name="sort_newest">Сначала новые</string>
@@ -170,7 +169,6 @@
     <string name="step_service_title">Выберите сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
     <string name="step_discount_type_short">Тип</string>
-    <string name="step_promo_code_title">Введите промокод</string>
     <string name="step_discount_value_title">Размер скидки</string>
     <string name="step_discount_value_short">Размер</string>
     <string name="step_description_title">Добавьте дополнительную информацию</string>

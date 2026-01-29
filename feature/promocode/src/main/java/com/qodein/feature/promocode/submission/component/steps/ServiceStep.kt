@@ -91,98 +91,6 @@ fun ServiceStep(
 }
 
 @Composable
-private fun ManualServiceEntry(
-    serviceName: String,
-    serviceUrl: String,
-    onServiceNameChange: (String) -> Unit,
-    onServiceUrlChange: (String) -> Unit,
-    onNextStep: () -> Unit,
-    onToggleManualEntry: () -> Unit
-) {
-    val urlFocusRequester = remember { FocusRequester() }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
-    ) {
-        ServiceNameField(
-            value = serviceName,
-            onServiceNameChange = onServiceNameChange,
-            onMoveToNext = { urlFocusRequester.requestFocus() },
-        )
-
-        ServiceUrlField(
-            value = serviceUrl,
-            onServiceUrlChange = onServiceUrlChange,
-            onSubmitForm = onNextStep,
-            focusRequester = urlFocusRequester,
-        )
-
-        Text(
-            text = stringResource(R.string.service_step_browse_services_instead),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggleManualEntry() }
-                .padding(top = SpacingTokens.md),
-        )
-    }
-}
-
-@Composable
-private fun ServiceNameField(
-    value: String,
-    onServiceNameChange: (String) -> Unit,
-    onMoveToNext: () -> Unit
-) {
-    QodeinTextField(
-        value = value,
-        onValueChange = { onServiceNameChange(it) },
-        placeholder = stringResource(R.string.service_step_placeholder_service_name),
-        leadingIcon = QodeIcons.Service,
-        helperText = stringResource(R.string.service_step_helper_service_name),
-        maxLength = Service.NAME_MAX_LENGTH,
-        canBeBlank = false,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Words,
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = { onMoveToNext() },
-        ),
-    )
-}
-
-@Composable
-private fun ServiceUrlField(
-    value: String,
-    onServiceUrlChange: (String) -> Unit,
-    onSubmitForm: () -> Unit,
-    focusRequester: FocusRequester
-) {
-    QodeinTextField(
-        value = value,
-        onValueChange = { onServiceUrlChange(it) },
-        placeholder = stringResource(R.string.service_step_placeholder_service_url),
-        leadingIcon = ActionIcons.Share,
-        helperText = stringResource(R.string.service_step_helper_service_url),
-        focusRequester = focusRequester,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Next,
-            keyboardType = KeyboardType.Uri,
-            capitalization = KeyboardCapitalization.None,
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = { onSubmitForm() },
-        ),
-        showPasteIcon = true,
-        maxLength = Service.SITE_URL_MAX_LENGTH,
-    )
-}
-
-@Composable
 private fun ServiceSelection(
     selectedService: Service?,
     onShowServiceSelector: () -> Unit,
@@ -215,6 +123,113 @@ private fun ServiceSelection(
 }
 
 @Composable
+private fun ManualServiceEntry(
+    serviceName: String,
+    serviceUrl: String,
+    onServiceNameChange: (String) -> Unit,
+    onServiceUrlChange: (String) -> Unit,
+    onNextStep: () -> Unit,
+    onToggleManualEntry: () -> Unit
+) {
+    val urlFocusRequester = remember { FocusRequester() }
+
+    Column {
+        Text(
+            text = stringResource(R.string.promocode_service_choose_name),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs),
+        )
+
+        ServiceNameField(
+            value = serviceName,
+            onServiceNameChange = onServiceNameChange,
+            onMoveToNext = { urlFocusRequester.requestFocus() },
+            modifier = Modifier.padding(bottom = SpacingTokens.xl),
+        )
+
+        Text(
+            text = stringResource(R.string.promocode_service_choose_url),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs),
+        )
+
+        ServiceUrlField(
+            value = serviceUrl,
+            onServiceUrlChange = onServiceUrlChange,
+            onSubmitForm = onNextStep,
+            focusRequester = urlFocusRequester,
+            modifier = Modifier.padding(bottom = SpacingTokens.xl),
+        )
+
+        Text(
+            text = stringResource(R.string.service_step_browse_services_instead),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggleManualEntry() },
+        )
+    }
+}
+
+@Composable
+private fun ServiceNameField(
+    value: String,
+    onServiceNameChange: (String) -> Unit,
+    onMoveToNext: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    QodeinTextField(
+        value = value,
+        onValueChange = { onServiceNameChange(it) },
+        placeholder = stringResource(R.string.service_step_placeholder_service_name),
+        leadingIcon = QodeIcons.Service,
+        helperText = stringResource(R.string.service_step_helper_service_name),
+        maxLength = Service.NAME_MAX_LENGTH,
+        canBeBlank = false,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Words,
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { onMoveToNext() },
+        ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun ServiceUrlField(
+    value: String,
+    onServiceUrlChange: (String) -> Unit,
+    onSubmitForm: () -> Unit,
+    focusRequester: FocusRequester,
+    modifier: Modifier = Modifier
+) {
+    QodeinTextField(
+        value = value,
+        onValueChange = { onServiceUrlChange(it) },
+        placeholder = stringResource(R.string.service_step_placeholder_service_url),
+        leadingIcon = ActionIcons.Share,
+        helperText = stringResource(R.string.service_step_helper_service_url),
+        focusRequester = focusRequester,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Uri,
+            capitalization = KeyboardCapitalization.None,
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { onSubmitForm() },
+        ),
+        showPasteIcon = true,
+        maxLength = Service.SITE_URL_MAX_LENGTH,
+        modifier = modifier,
+    )
+}
+
+@Composable
 fun SelectServiceButton(
     selectedService: Service?,
     placeholder: String,
@@ -239,62 +254,70 @@ fun SelectServiceButton(
         label = "borderColor",
     )
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(SizeTokens.Selector.height)
-            .scale(animatedScale)
-            .border(
-                width = ShapeTokens.Border.thin,
-                color = animatedBorderColor,
-                shape = RoundedCornerShape(SizeTokens.Selector.shape),
-            )
-            .clip(RoundedCornerShape(SizeTokens.Selector.shape))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(),
-                onClick = onServiceSelectorClick,
-            ),
-        shape = RoundedCornerShape(SizeTokens.Selector.shape),
-    ) {
-        Row(
-            modifier = Modifier
+    Column {
+        Text(
+            text = stringResource(R.string.promocode_service_choose_selector_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs),
+        )
+
+        Surface(
+            modifier = modifier
                 .fillMaxWidth()
-                .padding(SizeTokens.Selector.padding),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (hasSelection && selectedService.logoUrl != null) {
-                QodeinAsyncImage(
-                    imageUrl = selectedService.logoUrl ?: "",
-                    contentDescription = stringResource(R.string.service_step_service_logo_cd),
-                    size = SizeTokens.Icon.sizeMedium,
-                    fallbackText = selectedService.name,
+                .height(SizeTokens.Selector.height)
+                .scale(animatedScale)
+                .border(
+                    width = ShapeTokens.Border.thin,
+                    color = animatedBorderColor,
+                    shape = RoundedCornerShape(SizeTokens.Selector.shape),
                 )
-            } else {
+                .clip(RoundedCornerShape(SizeTokens.Selector.shape))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = ripple(),
+                    onClick = onServiceSelectorClick,
+                ),
+            shape = RoundedCornerShape(SizeTokens.Selector.shape),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(SizeTokens.Selector.padding),
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (hasSelection && selectedService.logoUrl != null) {
+                    QodeinAsyncImage(
+                        imageUrl = selectedService.logoUrl ?: "",
+                        contentDescription = stringResource(R.string.service_step_service_logo_cd),
+                        size = SizeTokens.Icon.sizeMedium,
+                        fallbackText = selectedService.name,
+                    )
+                } else {
+                    Icon(
+                        imageVector = if (hasSelection) QodeIcons.Service else NavigationIcons.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                Text(
+                    text = selectedService?.name ?: placeholder,
+                    fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+
                 Icon(
-                    imageVector = if (hasSelection) QodeIcons.Service else NavigationIcons.Search,
+                    imageVector = NavigationIcons.ChevronRight,
                     contentDescription = null,
-                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                 )
             }
-
-            Text(
-                text = selectedService?.name ?: placeholder,
-                fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-
-            Icon(
-                imageVector = NavigationIcons.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
-            )
         }
     }
 }

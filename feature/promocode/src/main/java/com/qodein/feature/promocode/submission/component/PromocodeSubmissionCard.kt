@@ -38,7 +38,6 @@ import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeDescriptionStep
 import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
-import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
 import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 
@@ -66,7 +65,7 @@ fun PromocodeSubmissionCard(
                 currentStep = step,
                 wizardData = wizardData,
                 onAction = onAction,
-                modifier = Modifier.fillMaxWidth().padding(SpacingTokens.md),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingTokens.sm, vertical = SpacingTokens.xl),
             )
         }
     }
@@ -85,10 +84,7 @@ private fun PromocodeSubmissionCardContent(
         focusRequester.requestFocus()
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         when (currentStep) {
             PromocodeWizardStep.SERVICE -> ServiceStep(
                 selectedService = wizardData.selectedService,
@@ -102,14 +98,11 @@ private fun PromocodeSubmissionCardContent(
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )
 
-            PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeTypeStep(
-                selectedType = wizardData.promocodeType,
-                onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromocodeType(it)) },
-            )
-
             PromocodeWizardStep.PROMOCODE -> PromocodeStep(
                 promocode = wizardData.promocode,
+                promocodeType = wizardData.promocodeType,
                 onPromocodeChange = { onAction(PromocodeSubmissionAction.UpdatePromocode(it)) },
+                onPromocodeTypeChange = { onAction(PromocodeSubmissionAction.UpdatePromocodeType(it)) },
                 focusRequester = focusRequester,
                 onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
             )

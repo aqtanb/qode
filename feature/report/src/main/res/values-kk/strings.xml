@@ -5,7 +5,7 @@
 
     <!-- Actions -->
     <string name="submit_report">Жіберу</string>
-    <string name="close">Жабу</string>
+    <string name="ui_close">Жабу</string>
     <string name="retry">Қайталау</string>
 
     <!-- Preview section -->

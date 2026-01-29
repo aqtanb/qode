@@ -149,7 +149,7 @@ private fun DatePickerField(
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text(stringResource(CoreUiR.string.cancel))
+                    Text(stringResource(CoreUiR.string.ui_cancel))
                 }
             },
         ) {

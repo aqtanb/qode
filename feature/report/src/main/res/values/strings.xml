@@ -5,7 +5,7 @@
 
     <!-- Actions -->
     <string name="submit_report">Submit Report</string>
-    <string name="close">Close</string>
+    <string name="ui_close">Close</string>
     <string name="retry">Retry</string>
 
     <!-- Preview section -->

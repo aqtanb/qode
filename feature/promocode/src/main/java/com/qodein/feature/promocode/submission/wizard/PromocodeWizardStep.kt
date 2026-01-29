@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeIcons
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.core.ui.R as CoreUiR
@@ -15,10 +16,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
                 (data.serviceName.isNotBlank() && data.serviceUrl.isNotBlank())
     },
     PROMOCODE(2) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocode.isNotBlank()
-    },
-    DISCOUNT_TYPE(3) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocode.isNotBlank() || data.promocodeType != null
     },
     DISCOUNT_VALUE(4) {
         override fun canProceed(data: SubmissionWizardData): Boolean {
@@ -46,8 +44,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
     fun next(): PromocodeWizardStep? =
         when (this) {
             SERVICE -> PROMOCODE
-            PROMOCODE -> DISCOUNT_TYPE
-            DISCOUNT_TYPE -> DISCOUNT_VALUE
+            PROMOCODE -> DISCOUNT_VALUE
             DISCOUNT_VALUE -> DATES
             DATES -> DESCRIPTION
             DESCRIPTION -> null
@@ -57,8 +54,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
         when (this) {
             SERVICE -> null
             PROMOCODE -> SERVICE
-            DISCOUNT_TYPE -> PROMOCODE
-            DISCOUNT_VALUE -> DISCOUNT_TYPE
+            DISCOUNT_VALUE -> PROMOCODE
             DATES -> DISCOUNT_VALUE
             DESCRIPTION -> DATES
         }
@@ -69,7 +65,6 @@ fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
         isCompleted -> ActionIcons.Check
         else -> when (this) {
             PromocodeWizardStep.SERVICE -> QodeIcons.Service
-            PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeIcons.DiscountType
             PromocodeWizardStep.PROMOCODE -> PromocodeIcons.Promocode
             PromocodeWizardStep.DISCOUNT_VALUE -> PromocodeIcons.DiscountValue
             PromocodeWizardStep.DATES -> PromocodeIcons.StartDate
@@ -80,8 +75,7 @@ fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
 val PromocodeWizardStep.titleRes: Int
     get() = when (this) {
         PromocodeWizardStep.SERVICE -> CoreUiR.string.step_service_title
-        PromocodeWizardStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_title
-        PromocodeWizardStep.PROMOCODE -> CoreUiR.string.step_promo_code_title
+        PromocodeWizardStep.PROMOCODE -> R.string.promocode_code_step_title
         PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_title
         PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_title
         PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.step_description_title
@@ -90,9 +84,8 @@ val PromocodeWizardStep.titleRes: Int
 val PromocodeWizardStep.indicatorRes: Int
     get() = when (this) {
         PromocodeWizardStep.SERVICE -> CoreUiR.string.ui_service
-        PromocodeWizardStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short
         PromocodeWizardStep.PROMOCODE -> CoreUiR.string.ui_promocode
-        PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_short
+        PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.ui_discount
         PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_short
         PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.ui_description
     }

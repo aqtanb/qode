@@ -163,7 +163,7 @@ private fun AuthenticationBottomSheetContent(
             ) {
                 Icon(
                     imageVector = ActionIcons.Close,
-                    contentDescription = stringResource(R.string.close),
+                    contentDescription = stringResource(R.string.ui_close),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

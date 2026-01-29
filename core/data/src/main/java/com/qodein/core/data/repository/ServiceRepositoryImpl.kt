@@ -2,6 +2,8 @@ package com.qodein.core.data.repository
 
 import com.algolia.client.exception.AlgoliaRuntimeException
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.Source
+import com.qodein.core.data.datasource.CacheMetadataDataSource
 import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.core.data.mapper.ServiceMapper
 import com.qodein.core.data.util.ErrorMapper
@@ -18,7 +20,12 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-class ServiceRepositoryImpl(private val dataSource: FirestoreServiceDataSource) : ServiceRepository {
+class ServiceRepositoryImpl(private val dataSource: FirestoreServiceDataSource, private val cacheMetadata: CacheMetadataDataSource) :
+    ServiceRepository {
+
+    companion object {
+        private const val CACHE_DURATION_MS = 7 * 24 * 60 * 60 * 1000L // 7 days
+    }
     override suspend fun getById(id: ServiceId): Result<Service, OperationError> =
         try {
             Timber.d("Fetching service: id=%s", id)
@@ -146,26 +153,26 @@ class ServiceRepositoryImpl(private val dataSource: FirestoreServiceDataSource) 
 
     override suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError> =
         try {
-            Timber.d("Fetching popular services: limit=%d", limit)
-            val dtos = dataSource.getPopularServices(limit)
+            val lastFetch = cacheMetadata.getPopularServicesLastFetch()
+            val now = System.currentTimeMillis()
+            val shouldRefetch = lastFetch?.let { (now - it) > CACHE_DURATION_MS } ?: true
+
+            val source = if (shouldRefetch) Source.SERVER else Source.CACHE
+            Timber.d("Fetching popular services from %s (limit=%d, lastFetch=%d)", source, limit, lastFetch)
+
+            val dtos = dataSource.getPopularServices(limit, source)
             val services = dtos.map { ServiceMapper.toDomain(it) }
+
+            if (shouldRefetch) {
+                cacheMetadata.setPopularServicesLastFetch(now)
+                Timber.d("Updated cache timestamp for popular services")
+            }
+
             Timber.d("Retrieved %d popular services", services.size)
             Result.Success(services)
         } catch (e: FirebaseFirestoreException) {
             Timber.w(e, "Firestore error fetching popular services")
             Result.Error(ErrorMapper.mapFirestoreException(e))
-        } catch (e: SerializationException) {
-            Timber.e(e, "Serialization error mapping service data")
-            Result.Error(ServiceError.RetrievalFailure.DataCorrupted)
-        } catch (e: UnknownHostException) {
-            Timber.w(e, "No internet connection")
-            Result.Error(SystemError.Offline)
-        } catch (e: SocketTimeoutException) {
-            Timber.w(e, "Request timeout")
-            Result.Error(SystemError.Offline)
-        } catch (e: IOException) {
-            Timber.w(e, "Network I/O error")
-            Result.Error(SystemError.Offline)
         } catch (e: Exception) {
             Timber.e(e, "Unexpected error fetching popular services")
             Result.Error(ServiceError.RetrievalFailure.NotFound)

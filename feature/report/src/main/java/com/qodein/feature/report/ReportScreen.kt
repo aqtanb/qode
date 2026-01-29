@@ -293,7 +293,7 @@ private fun ErrorContent(
             ) {
                 QodeButton(
                     onClick = onNavigateBack,
-                    text = stringResource(R.string.close),
+                    text = stringResource(R.string.ui_close),
                 )
                 QodeButton(
                     onClick = onDismiss,
