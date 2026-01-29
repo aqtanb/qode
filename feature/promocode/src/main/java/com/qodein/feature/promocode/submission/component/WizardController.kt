@@ -24,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
@@ -44,14 +44,12 @@ fun WizardController(
     onPrevious: () -> Unit,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
-    nextButtonText: String = stringResource(R.string.action_continue),
     canSubmit: Boolean = false,
     onSubmit: (() -> Unit)? = null
 ) {
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     val imePadding = WindowInsets.ime.asPaddingValues()
 
-    // Use less padding when keyboard is visible to save space
     val bottomPadding = if (imePadding.calculateBottomPadding() > 0.dp) {
         SpacingTokens.sm + navigationBarsPadding.calculateBottomPadding() // Compact spacing when keyboard is open
     } else {
@@ -136,11 +134,11 @@ fun WizardController(
                                 NavigationIcons.ChevronRight
                             },
                             contentDescription = if (canGoNext) {
-                                nextButtonText
+                                stringResource(R.string.action_continue)
                             } else if (canSubmit && onSubmit != null) {
                                 stringResource(R.string.action_submit)
                             } else {
-                                nextButtonText
+                                stringResource(R.string.action_continue)
                             },
                             modifier = Modifier.size(SizeTokens.Icon.sizeMedium),
                         )
@@ -151,75 +149,15 @@ fun WizardController(
     }
 }
 
-@Preview(name = "Wizard Controller - Normal", showBackground = true)
+@PreviewLightDark
 @Composable
 private fun WizardControllerPreview() {
     QodeTheme {
         WizardController(
             canGoNext = true,
             canGoBack = true,
-            nextButtonText = "Continue",
             onNext = {},
             onPrevious = {},
-        )
-    }
-}
-
-@Preview(name = "Wizard Controller - First Step", showBackground = true)
-@Composable
-private fun WizardControllerFirstStepPreview() {
-    QodeTheme {
-        WizardController(
-            canGoNext = true,
-            canGoBack = false,
-            nextButtonText = "Get Started",
-            onNext = {},
-            onPrevious = {},
-        )
-    }
-}
-
-@Preview(name = "Wizard Controller - Loading", showBackground = true)
-@Composable
-private fun WizardControllerLoadingPreview() {
-    QodeTheme {
-        WizardController(
-            canGoNext = true,
-            canGoBack = true,
-            isLoading = true,
-            nextButtonText = "Submit",
-            onNext = {},
-            onPrevious = {},
-        )
-    }
-}
-
-@Preview(name = "Wizard Controller - Disabled", showBackground = true)
-@Composable
-private fun WizardControllerDisabledPreview() {
-    QodeTheme {
-        WizardController(
-            canGoNext = false,
-            canGoBack = true,
-            nextButtonText = "Continue",
-            onNext = {},
-            onPrevious = {},
-        )
-    }
-}
-
-@Preview(name = "Wizard Controller - 3 Buttons", showBackground = true)
-@Composable
-private fun WizardController3ButtonsPreview() {
-    QodeTheme {
-        WizardController(
-            canGoNext = true,
-            canGoBack = true,
-            nextButtonText = "Continue",
-            onNext = {},
-            onPrevious = {},
-            canSubmit = true,
-            onSubmit = {},
         )
     }
 }

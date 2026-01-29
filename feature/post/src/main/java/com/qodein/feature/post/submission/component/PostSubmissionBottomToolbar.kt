@@ -23,9 +23,9 @@ import com.qodein.feature.post.R
 
 @Composable
 internal fun PostSubmissionBottomToolbar(
-    isImageLimitReached: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    disable: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -41,7 +41,7 @@ internal fun PostSubmissionBottomToolbar(
             modifier = Modifier
                 .size(SizeTokens.Icon.sizeLarge)
                 .clickable { onClick() },
-            tint = if (isImageLimitReached) {
+            tint = if (disable) {
                 MaterialTheme.colorScheme.onBackground.copy(alpha = OpacityTokens.DISABLED)
             } else {
                 MaterialTheme.colorScheme.onBackground
@@ -55,7 +55,7 @@ internal fun PostSubmissionBottomToolbar(
 private fun PostSubmissionBottomToolbarEnabledPreview() {
     QodeTheme {
         PostSubmissionBottomToolbar(
-            isImageLimitReached = false,
+            disable = false,
             onClick = {},
         )
     }
@@ -66,7 +66,7 @@ private fun PostSubmissionBottomToolbarEnabledPreview() {
 private fun PostSubmissionBottomToolbarDisabledPreview() {
     QodeTheme {
         PostSubmissionBottomToolbar(
-            isImageLimitReached = true,
+            disable = true,
             onClick = {},
         )
     }

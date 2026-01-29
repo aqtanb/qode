@@ -13,12 +13,12 @@ data class PostSubmissionUiState(
 ) {
     val isTitleValid: Boolean get() = title.isNotBlank() && title.length <= Post.TITLE_MAX_LENGTH
     val isContentValid: Boolean get() = content.length <= Post.CONTENT_MAX_LENGTH
-    val areImagesValid: Boolean get() = imageUris.size <= Post.MAX_IMAGES
+    val imageCountIsValid: Boolean get() = imageUris.size <= Post.MAX_IMAGES
 
     val canSubmit: Boolean get() =
         isTitleValid &&
             isContentValid &&
-            areImagesValid &&
+            imageCountIsValid &&
             !isSubmitting &&
             !compressingImages
 }

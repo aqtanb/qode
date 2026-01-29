@@ -90,7 +90,7 @@ fun FiltersSection(
         }
 
         FilterChip(
-            nameRes = CoreUiR.string.filter_chip_service,
+            nameRes = CoreUiR.string.ui_service,
             icon = serviceIcon,
             logoUrl = logoUrl,
             fallbackText = fallbackText,

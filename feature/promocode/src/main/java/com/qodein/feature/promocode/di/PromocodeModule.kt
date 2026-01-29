@@ -8,8 +8,9 @@ import org.koin.dsl.module
 val promocodeModule = module {
     viewModel {
         PromocodeSubmissionViewModel(
+            application = get(),
             savedStateHandle = get(),
-            submitPromocodeUseCase = get(),
+            enqueuePromocodeSubmissionUseCase = get(),
             analyticsHelper = get(),
             getAuthStateUseCase = get(),
             getUserByIdUseCase = get(),

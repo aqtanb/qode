@@ -26,8 +26,6 @@ import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
-import com.qodein.feature.promocode.submission.validation.ValidationState
-import com.qodein.feature.promocode.submission.validation.getBusinessLogicValidationError
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
@@ -62,7 +60,6 @@ internal fun DiscountValueStep(
     discountAmount: String,
     freeItemDescription: String,
     minimumOrderAmount: String,
-    wizardData: SubmissionWizardData,
     onDiscountPercentageChange: (String) -> Unit,
     onDiscountAmountChange: (String) -> Unit,
     onFreeItemDescriptionChange: (String) -> Unit,
@@ -108,8 +105,7 @@ internal fun DiscountValueStep(
 
         MinimumOrderField(
             value = minimumOrderAmount,
-            onValueChange = onMinimumOrderAmountChange,
-            wizardData = wizardData,
+            onMinimumOrderChange = onMinimumOrderAmountChange,
             focusRequester = minimumOrderFocusRequester,
             onSubmitForm = onNextStep,
         )
@@ -256,32 +252,18 @@ private fun FreeItemDescriptionField(
 @Composable
 private fun MinimumOrderField(
     value: String,
-    onValueChange: (String) -> Unit,
-    wizardData: SubmissionWizardData,
+    onMinimumOrderChange: (String) -> Unit,
     focusRequester: FocusRequester,
     onSubmitForm: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    val businessLogicError = getBusinessLogicValidationError(wizardData)
-
     QodeinTextField(
         value = value,
-        onValueChange = { newValue ->
-            val filtered = newValue.filter { it.isDigit() || it == '.' }
-            val formatted = formatDecimalInput(
-                filtered,
-                maxLength = Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH,
-            )
-            val numValue = formatted.toDoubleOrNull()
-            if (numValue == null || numValue >= Promocode.MINIMUM_MONETARY_VALUE) {
-                onValueChange(formatted)
-            }
-        },
+        onValueChange = { onMinimumOrderChange(it) },
         placeholder = stringResource(R.string.promocode_minimum_order_placeholder),
         leadingIcon = QodeIcons.Dollar,
         helperText = stringResource(R.string.promocode_minimum_order_helper),
         maxLength = Promocode.MINIMUM_ORDER_AMOUNT_MAX_LENGTH,
-        errorText = businessLogicError,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
@@ -303,7 +285,6 @@ private fun FixedDiscountPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.DISCOUNT_VALUE,
             wizardData = SubmissionWizardData(promocodeType = PromocodeType.FIXED_AMOUNT),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }
@@ -316,7 +297,6 @@ private fun PercentageDiscountPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.DISCOUNT_VALUE,
             wizardData = SubmissionWizardData(promocodeType = PromocodeType.PERCENTAGE),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }

@@ -145,7 +145,6 @@
     <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
     <string name="discount_fixed">%1$s₸ СКИДКА</string>
-    <string name="filter_chip_service">Сервис</string>
     <string name="filter_chip_sort">Сортировка</string>
     <string name="search_services_placeholder">Поиск сервисов…</string>
     <string name="popular_services_title">Популярные сервисы</string>
@@ -169,15 +168,12 @@
     <string name="auth_report_title">Войдите, чтобы пожаловаться</string>
     <string name="auth_report_message">Помогите поддерживать безопасность сообщества, сообщая о неприемлемом контенте.</string>
     <string name="step_service_title">Выберите сервис</string>
-    <string name="step_service_short">Сервис</string>
     <string name="step_discount_type_title">Тип скидки</string>
     <string name="step_discount_type_short">Тип</string>
     <string name="step_promo_code_title">Введите промокод</string>
-    <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Размер скидки</string>
     <string name="step_discount_value_short">Размер</string>
     <string name="step_description_title">Добавьте дополнительную информацию</string>
-    <string name="step_description_short">Описание</string>
     <string name="step_start_date_title">Выберите дни начала и окончания</string>
     <string name="step_start_date_short">Дни</string>
     <string name="discount_percent">%1$s%% СКИДКА</string>
@@ -190,6 +186,8 @@
     <string name="terms_of_service">Условия использования</string>
     <string name="privacy_policy">Политику конфиденциальности</string>
     <string name="loading">Загрузка…</string>
+    <string name="ui_service">Сервис</string>
+    <string name="ui_description">Описание</string>
     <string name="ui_image_remove">Удалить изображение</string>
     <string name="ui_image_post">Добавить изображение</string>
     <string name="ui_action_downvote">Понизить рейтинг</string>

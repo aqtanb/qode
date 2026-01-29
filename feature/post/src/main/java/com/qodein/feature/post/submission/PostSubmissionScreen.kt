@@ -48,8 +48,8 @@ import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.component.ContentImage
 import com.qodein.core.ui.component.FullScreenImageViewer
-import com.qodein.core.ui.component.post.PostImage
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.post.R
 import com.qodein.feature.post.submission.component.PostCreationTopBar
@@ -59,7 +59,6 @@ import com.qodein.feature.post.submission.component.TagSelectorBottomSheet
 import com.qodein.shared.model.Post
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +80,12 @@ fun PostSubmissionRoute(
     val imageLimitReachedText = stringResource(R.string.image_limit_reached)
     val imagesPartiallyAddedText = stringResource(R.string.images_partially_added)
 
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = Post.MAX_IMAGES),
+    ) { uris ->
+        viewModel.onAction(PostSubmissionAction.UpdateImageUris(uris.map { it.toString() }))
+    }
+
     LaunchedEffect(Unit) {
         viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
@@ -100,17 +105,9 @@ fun PostSubmissionRoute(
                     withDismissAction = true,
                 )
                 is PostSubmissionEvent.PickImagesRequested -> pickMediaLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
             }
-        }
-    }
-
-    val pickMediaLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = Post.MAX_IMAGES),
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            viewModel.onAction(PostSubmissionAction.UpdateImageUris(uris.map { it.toString() }))
         }
     }
 
@@ -152,9 +149,9 @@ private fun PostSubmissionScreen(
         },
         bottomBar = {
             PostSubmissionBottomToolbar(
-                isImageLimitReached = uiState.imageUris.size >= Post.MAX_IMAGES,
+                disable = uiState.imageUris.size >= Post.MAX_IMAGES,
                 onClick = { onAction(PostSubmissionAction.PickImages) },
-                modifier = Modifier.imePadding().navigationBarsPadding(),
+                modifier = Modifier.navigationBarsPadding(),
             )
         },
     ) { paddingValues ->
@@ -247,7 +244,7 @@ private fun PostSubmissionContent(
                     .fillMaxWidth()
                     .padding(vertical = SpacingTokens.xs),
             ) { page ->
-                PostImage(
+                ContentImage(
                     uri = uiState.imageUris[page],
                     currentPage = page + 1,
                     totalPages = uiState.imageUris.size,

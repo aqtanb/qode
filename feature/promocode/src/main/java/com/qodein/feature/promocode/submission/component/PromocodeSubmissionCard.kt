@@ -7,100 +7,142 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.qodein.core.designsystem.icon.NavigationIcons
+import com.qodein.core.designsystem.theme.OpacityTokens
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
+import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeSubmissionAction
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.validation.ValidationState
+import com.qodein.feature.promocode.submission.component.steps.DiscountValueStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeDatesStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeDescriptionStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeStep
+import com.qodein.feature.promocode.submission.component.steps.PromocodeTypeStep
+import com.qodein.feature.promocode.submission.component.steps.ServiceStep
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
-import com.qodein.feature.promocode.submission.wizard.titleRes
 
 @Composable
 fun PromocodeSubmissionCard(
     currentStep: PromocodeWizardStep,
     wizardData: SubmissionWizardData,
-    validation: ValidationState,
     onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize(),
-        shape = RoundedCornerShape(ShapeTokens.Corner.small),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(
-            width = ShapeTokens.Border.thin,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
-        ),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.xl),
-        ) {
-            StepHeader(
-                step = currentStep,
-                modifier = Modifier.fillMaxWidth().padding(bottom = SpacingTokens.sm),
+        AnimatedContent(
+            targetState = currentStep,
+            transitionSpec = {
+                slideInHorizontally { width -> width / 3 } + fadeIn() togetherWith
+                    slideOutHorizontally { width -> -width / 3 } + fadeOut()
+            },
+            label = "stepContent",
+        ) { step ->
+            PromocodeSubmissionCardContent(
+                currentStep = step,
+                wizardData = wizardData,
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth().padding(SpacingTokens.md),
             )
-
-            AnimatedContent(
-                modifier = Modifier.padding(top = SpacingTokens.lg),
-                targetState = currentStep,
-                transitionSpec = {
-                    slideInHorizontally { width -> width / 3 } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> -width / 3 } + fadeOut()
-                },
-                label = "stepContent",
-            ) { step ->
-                PromocodeSubmissionCardContent(
-                    currentStep = step,
-                    wizardData = wizardData,
-                    validation = validation,
-                    onAction = onAction,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun StepHeader(
-    step: PromocodeWizardStep,
+private fun PromocodeSubmissionCardContent(
+    currentStep: PromocodeWizardStep,
+    wizardData: SubmissionWizardData,
+    onAction: (PromocodeSubmissionAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(currentStep) {
+        focusRequester.requestFocus()
+    }
+
+    Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
     ) {
-        Text(
-            text = stringResource(step.titleRes),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = SpacingTokens.sm),
-        )
+        when (currentStep) {
+            PromocodeWizardStep.SERVICE -> ServiceStep(
+                selectedService = wizardData.selectedService,
+                serviceNameInput = wizardData.serviceName,
+                serviceUrlInput = wizardData.serviceUrl,
+                isManualEntry = wizardData.isManualServiceEntry,
+                onShowServiceSelector = { onAction(PromocodeSubmissionAction.ShowServiceSelector) },
+                onServiceNameChange = { onAction(PromocodeSubmissionAction.UpdateServiceName(it)) },
+                onServiceUrlChange = { onAction(PromocodeSubmissionAction.UpdateServiceUrl(it)) },
+                onToggleManualEntry = { onAction(PromocodeSubmissionAction.ToggleManualEntry) },
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+            )
+
+            PromocodeWizardStep.DISCOUNT_TYPE -> PromocodeTypeStep(
+                selectedType = wizardData.promocodeType,
+                onTypeSelected = { onAction(PromocodeSubmissionAction.UpdatePromocodeType(it)) },
+            )
+
+            PromocodeWizardStep.PROMOCODE -> PromocodeStep(
+                promocode = wizardData.promocode,
+                onPromocodeChange = { onAction(PromocodeSubmissionAction.UpdatePromocode(it)) },
+                focusRequester = focusRequester,
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+            )
+
+            PromocodeWizardStep.DISCOUNT_VALUE -> DiscountValueStep(
+                promoCodeType = wizardData.promocodeType,
+                discountPercentage = wizardData.discountPercentage,
+                discountAmount = wizardData.discountAmount,
+                freeItemDescription = wizardData.freeItemDescription,
+                minimumOrderAmount = wizardData.minimumOrderAmount,
+                onDiscountPercentageChange = { onAction(PromocodeSubmissionAction.UpdateDiscountPercentage(it)) },
+                onDiscountAmountChange = { onAction(PromocodeSubmissionAction.UpdateDiscountAmount(it)) },
+                onFreeItemDescriptionChange = { onAction(PromocodeSubmissionAction.UpdateFreeItemDescription(it)) },
+                onMinimumOrderAmountChange = { onAction(PromocodeSubmissionAction.UpdateMinimumOrderAmount(it)) },
+                focusRequester = focusRequester,
+                onNextStep = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+            )
+
+            PromocodeWizardStep.DATES -> PromocodeDatesStep(
+                startDate = wizardData.startDate,
+                endDate = wizardData.endDate,
+                onStartDateSelected = { onAction(PromocodeSubmissionAction.UpdateStartDate(it)) },
+                onEndDateSelected = { onAction(PromocodeSubmissionAction.UpdateEndDate(it)) },
+            )
+
+            PromocodeWizardStep.DESCRIPTION -> PromocodeDescriptionStep(
+                description = wizardData.description,
+                imageUris = wizardData.imageUris,
+                onDescriptionChange = { onAction(PromocodeSubmissionAction.UpdateDescription(it)) },
+                onRemoveImage = { onAction(PromocodeSubmissionAction.RemoveImage(it)) },
+                onNextStep = { onAction(PromocodeSubmissionAction.SubmitPromoCode) },
+            )
+        }
     }
 }
 
@@ -111,9 +153,37 @@ private fun PromocodeSubmissionCardPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            validation = ValidationState.valid(),
             onAction = {},
             modifier = Modifier.padding(SpacingTokens.md),
+        )
+    }
+}
+
+@Composable
+internal fun PromocodeSubmissionBottomToolbar(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    disable: Boolean = false
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(SizeTokens.AppBar.heightSmall)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = SpacingTokens.md, vertical = SpacingTokens.sm),
+        horizontalArrangement = Arrangement.Start,
+    ) {
+        Icon(
+            imageVector = NavigationIcons.Gallery,
+            contentDescription = stringResource(R.string.cd_add_image_promocode),
+            modifier = Modifier
+                .size(SizeTokens.Icon.sizeLarge)
+                .clickable { onClick() },
+            tint = if (disable) {
+                MaterialTheme.colorScheme.onBackground.copy(alpha = OpacityTokens.DISABLED)
+            } else {
+                MaterialTheme.colorScheme.onBackground
+            },
         )
     }
 }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,17 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -56,12 +50,8 @@ import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
-import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.model.Service
-import com.qodein.shared.model.Service.Companion.isValidUrl
-import com.qodein.shared.model.Service.Companion.sanitizeUrl
-import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun ServiceStep(
@@ -116,13 +106,13 @@ private fun ManualServiceEntry(
     ) {
         ServiceNameField(
             value = serviceName,
-            onValueChange = onServiceNameChange,
+            onServiceNameChange = onServiceNameChange,
             onMoveToNext = { urlFocusRequester.requestFocus() },
         )
 
         ServiceUrlField(
             value = serviceUrl,
-            onValueChange = onServiceUrlChange,
+            onServiceUrlChange = onServiceUrlChange,
             onSubmitForm = onNextStep,
             focusRequester = urlFocusRequester,
         )
@@ -143,23 +133,15 @@ private fun ManualServiceEntry(
 @Composable
 private fun ServiceNameField(
     value: String,
-    onValueChange: (String) -> Unit,
+    onServiceNameChange: (String) -> Unit,
     onMoveToNext: () -> Unit
 ) {
-    var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val invalidCharsErrorText = stringResource(CoreUiR.string.error_service_name_invalid_characters)
-
     QodeinTextField(
         value = value,
-        onValueChange = { newValue ->
-            errorText = null
-            onValueChange(newValue)
-        },
+        onValueChange = { onServiceNameChange(it) },
         placeholder = stringResource(R.string.service_step_placeholder_service_name),
         leadingIcon = QodeIcons.Service,
         helperText = stringResource(R.string.service_step_helper_service_name),
-        errorText = errorText,
         maxLength = Service.NAME_MAX_LENGTH,
         canBeBlank = false,
         keyboardOptions = KeyboardOptions(
@@ -168,14 +150,7 @@ private fun ServiceNameField(
             capitalization = KeyboardCapitalization.Words,
         ),
         keyboardActions = KeyboardActions(
-            onNext = {
-                if (!Service.ALLOWED_NAME_CHARS_REGEX.matches(value)) {
-                    errorText = invalidCharsErrorText
-                } else {
-                    errorText = null
-                    onMoveToNext()
-                }
-            },
+            onNext = { onMoveToNext() },
         ),
     )
 }
@@ -183,26 +158,16 @@ private fun ServiceNameField(
 @Composable
 private fun ServiceUrlField(
     value: String,
-    onValueChange: (String) -> Unit,
+    onServiceUrlChange: (String) -> Unit,
     onSubmitForm: () -> Unit,
     focusRequester: FocusRequester
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var errorText by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val blankUrlErrorText = stringResource(R.string.service_step_error_url_blank)
-    val invalidUrlErrorText = stringResource(R.string.service_step_error_url_format)
-
     QodeinTextField(
         value = value,
-        onValueChange = { newValue ->
-            errorText = null
-            onValueChange(newValue)
-        },
+        onValueChange = { onServiceUrlChange(it) },
         placeholder = stringResource(R.string.service_step_placeholder_service_url),
         leadingIcon = ActionIcons.Share,
         helperText = stringResource(R.string.service_step_helper_service_url),
-        errorText = errorText,
         focusRequester = focusRequester,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Next,
@@ -210,20 +175,7 @@ private fun ServiceUrlField(
             capitalization = KeyboardCapitalization.None,
         ),
         keyboardActions = KeyboardActions(
-            onNext = {
-                val cleanUrl = sanitizeUrl(value)
-                onValueChange(cleanUrl)
-                keyboardController?.hide()
-
-                if (cleanUrl.isBlank()) {
-                    errorText = blankUrlErrorText
-                } else if (!isValidUrl(cleanUrl)) {
-                    errorText = invalidUrlErrorText
-                } else {
-                    errorText = null
-                    onSubmitForm()
-                }
-            },
+            onNext = { onSubmitForm() },
         ),
         showPasteIcon = true,
         maxLength = Service.SITE_URL_MAX_LENGTH,
@@ -242,10 +194,8 @@ private fun ServiceSelection(
         onServiceSelectorClick = onShowServiceSelector,
     )
 
-    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingTokens.md))
-
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(top = SpacingTokens.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -305,7 +255,6 @@ fun SelectServiceButton(
                 indication = ripple(),
                 onClick = onServiceSelectorClick,
             ),
-        color = Color.Transparent,
         shape = RoundedCornerShape(SizeTokens.Selector.shape),
     ) {
         Row(
@@ -357,7 +306,6 @@ private fun ServiceSelectorPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }
@@ -370,7 +318,6 @@ private fun ServiceSelectedPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(selectedService = ServicePreviewData.yandex),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }
@@ -383,7 +330,6 @@ private fun ServiceManualPreview() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.SERVICE,
             wizardData = SubmissionWizardData(isManualServiceEntry = true),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }

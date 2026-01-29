@@ -18,6 +18,7 @@ import com.qodein.shared.domain.usecase.preferences.GetThemeUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetLanguageUseCase
 import com.qodein.shared.domain.usecase.preferences.SetThemeUseCase
+import com.qodein.shared.domain.usecase.promocode.EnqueuePromocodeSubmissionUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeShareContentUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodeUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
@@ -85,7 +86,8 @@ val domainModule = module {
     single { GetPromocodesByUserUseCase(get()) }
     single { GetPromocodesUseCase(get(), get(), get()) }
     single { GetPromocodeUseCase(get()) }
-    single { SubmitPromocodeUseCase(get(), get()) }
+    single { SubmitPromocodeUseCase(get(), get(), get()) }
+    single { EnqueuePromocodeSubmissionUseCase(get(), get()) }
     single { GetPromocodeShareContentUseCase(get(), get(), get()) }
 
     single { GetPostByIdUseCase(get()) }

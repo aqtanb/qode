@@ -1,5 +1,6 @@
 package com.qodein.shared.model
 
 enum class StoragePath(val path: String) {
-    POST_IMAGES("posts/images")
+    POST_IMAGES("posts/images"),
+    PROMOCODE_IMAGES("promocodes/images")
 }

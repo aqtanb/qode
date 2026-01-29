@@ -11,7 +11,7 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.navigation.ServiceSelectionResult
 import com.qodein.feature.promocode.detail.PromocodeDetailRoute
-import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
+import com.qodein.feature.promocode.submission.PromocodeSubmissionRoute
 import com.qodein.feature.promocode.submission.PromocodeSubmissionViewModel
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ServiceId
@@ -35,7 +35,6 @@ fun NavController.navigateToPromocodeDetail(
 fun NavGraphBuilder.promocodeSubmissionSection(
     onNavigateBack: () -> Unit,
     onPromocodeSubmitted: () -> Unit,
-    onNavigateToAuth: (AuthPromptAction) -> Unit,
     onShowServiceSelection: (ServiceId?) -> Unit
 ) {
     composable<PromocodeSubmissionRoute> { backStackEntry ->
@@ -70,10 +69,9 @@ fun NavGraphBuilder.promocodeSubmissionSection(
                 }
         }
 
-        PromocodeSubmissionScreen(
+        PromocodeSubmissionRoute(
             onNavigateBack = onNavigateBack,
             onPromocodeSubmitted = onPromocodeSubmitted,
-            onNavigateToAuth = onNavigateToAuth,
             onShowServiceSelection = onShowServiceSelection,
             viewModel = viewModel,
         )

@@ -164,6 +164,8 @@ private constructor(
     val authorUsername: String?,
     val authorAvatarUrl: String?,
 
+    val imageUrls: List<String> = emptyList(),
+
     val createdAt: Instant
 ) {
 
@@ -177,6 +179,7 @@ private constructor(
         const val PERCENTAGE_MIN_VALUE = 1.0
         const val PERCENTAGE_MAX_VALUE = 100.0
         const val DEFAULT_PAGE_SIZE = 5
+        const val MAX_IMAGES = 3
 
         @OptIn(ExperimentalTime::class)
         fun create(
@@ -188,7 +191,8 @@ private constructor(
             startDate: Instant,
             endDate: Instant,
             isVerified: Boolean,
-            description: String? = null
+            description: String? = null,
+            imageUrls: List<String> = emptyList()
         ): Result<Promocode, PromocodeError.CreationFailure> {
             val promoCode = when (val result = PromocodeCode.create(code)) {
                 is Result.Error -> return Result.Error(result.error)
@@ -209,6 +213,11 @@ private constructor(
                 if (it.length > DESCRIPTION_MAX_LENGTH) {
                     return Result.Error(PromocodeError.CreationFailure.DescriptionTooLong)
                 }
+            }
+
+            val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
+            if (cleanImageUrls.size > MAX_IMAGES) {
+                return Result.Error(PromocodeError.CreationFailure.TooManyImages)
             }
 
             if (endDate <= startDate) {
@@ -244,6 +253,7 @@ private constructor(
                     serviceSiteUrl = service.siteUrl,
                     authorUsername = author.displayName,
                     authorAvatarUrl = author.profile.photoUrl,
+                    imageUrls = cleanImageUrls,
                     createdAt = Clock.System.now(),
                     voteScore = 0,
                 ),
@@ -273,6 +283,7 @@ private constructor(
             serviceSiteUrl: String? = null,
             authorUsername: String? = null,
             authorAvatarUrl: String? = null,
+            imageUrls: List<String> = emptyList(),
             createdAt: Instant,
             voteScore: Int
         ): Promocode =
@@ -294,6 +305,7 @@ private constructor(
                 serviceSiteUrl = serviceSiteUrl,
                 authorUsername = authorUsername,
                 authorAvatarUrl = authorAvatarUrl,
+                imageUrls = imageUrls,
                 createdAt = createdAt,
                 voteScore = voteScore,
             )

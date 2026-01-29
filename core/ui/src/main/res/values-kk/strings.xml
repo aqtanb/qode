@@ -154,7 +154,6 @@
     <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
 
     <string name="discount_fixed">%1$s₸ ЖЕҢІЛДІК</string>
-    <string name="filter_chip_service">Қызмет</string>
     <string name="filter_chip_sort">Сұрыптау</string>
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>
     <string name="popular_services_title">Танымал қызметтер</string>
@@ -178,15 +177,12 @@
     <string name="auth_report_title">Шағымдану үшін кіріңіз</string>
     <string name="auth_report_message">Орынсыз мазмұн туралы хабарлап, қауымдастықтың қауіпсіздігін сақтауға көмектесіңіз.</string>
     <string name="step_service_title">Қызметті таңдаңыз</string>
-    <string name="step_service_short">Қызмет</string>
     <string name="step_discount_type_title">Жеңілдік түрі</string>
     <string name="step_discount_type_short">Түрі</string>
     <string name="step_promo_code_title">Промокодты еңгізіңіз</string>
-    <string name="step_promo_code_short">Код</string>
     <string name="step_discount_value_title">Жеңілдік мөлшері</string>
     <string name="step_discount_value_short">Мөлшері</string>
     <string name="step_description_title">Қосымша ақпарат беріңіз</string>
-    <string name="step_description_short">Сипаттама</string>
     <string name="step_start_date_title">Басталу және аяқталу күндерін талдаңыз</string>
     <string name="step_start_date_short">Күндер</string>
     <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
@@ -199,6 +195,8 @@
     <string name="terms_of_service">Қызмет көрсету шарттарын</string>
     <string name="privacy_policy">Құпиялылық саясатын</string>
     <string name="loading">Жүктелуде…</string>
+    <string name="ui_service">Қызмет</string>
+    <string name="ui_description">Сипаттама</string>
     <string name="ui_image_remove">Суретті өшіру</string>
     <string name="ui_image_post">Сурет қосу</string>
     <string name="ui_action_downvote">Рейтинг төмендету</string>

@@ -184,6 +184,7 @@ class PostSubmissionViewModel(
 
     private fun pickImages() {
         viewModelScope.launch {
+            if (_uiState.value.imageUris.size >= Post.MAX_IMAGES) return@launch
             _events.emit(PostSubmissionEvent.PickImagesRequested)
         }
     }

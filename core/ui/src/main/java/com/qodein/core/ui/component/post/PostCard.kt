@@ -27,6 +27,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.ContentImage
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.shared.model.Post
@@ -76,7 +77,7 @@ fun PostCard(
                             .fillMaxWidth()
                             .heightIn(max = 320.dp),
                     ) { page ->
-                        PostImage(
+                        ContentImage(
                             uri = post.imageUrls[page],
                             currentPage = page + 1,
                             totalPages = post.imageUrls.size,

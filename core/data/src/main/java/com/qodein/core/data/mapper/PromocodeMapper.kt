@@ -43,6 +43,7 @@ object PromocodeMapper {
             serviceSiteUrl = dto.service.siteUrl,
             authorUsername = dto.author.username,
             authorAvatarUrl = dto.author.avatarUrl,
+            imageUrls = dto.imageUrls,
             createdAt = dto.createdAt?.toInstant()?.toKotlinInstant() ?: Clock.System.now(),
             voteScore = dto.engagement.voteScore,
         )
@@ -79,6 +80,7 @@ object PromocodeMapper {
             discount = promocodeDiscountDto,
             minimumOrderAmount = domain.minimumOrderAmount,
             description = domain.description,
+            imageUrls = domain.imageUrls,
             engagement = PromocodeEngagementDto(
                 upvotes = domain.upvotes,
                 downvotes = domain.downvotes,

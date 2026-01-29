@@ -1,49 +1,79 @@
 package com.qodein.feature.promocode.submission.component.steps
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.QodeinTextField
-import com.qodein.core.designsystem.icon.PromocodeIcons
+import com.qodein.core.designsystem.component.QodeinBasicTextField
 import com.qodein.core.designsystem.theme.QodeTheme
+import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.ContentImage
 import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
-import com.qodein.feature.promocode.submission.validation.ValidationState
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
-import com.qodein.shared.model.Promocode
 
 @Composable
 internal fun PromocodeDescriptionStep(
     description: String,
+    imageUris: List<String>,
     onDescriptionChange: (String) -> Unit,
-    focusRequester: FocusRequester,
+    onRemoveImage: (Int) -> Unit,
     onNextStep: () -> Unit
 ) {
-    QodeinTextField(
-        value = description,
-        onValueChange = onDescriptionChange,
-        placeholder = stringResource(R.string.promocode_description_placeholder),
-        helperText = stringResource(R.string.promocode_description_helper),
-        leadingIcon = PromocodeIcons.Description,
-        maxLength = Promocode.DESCRIPTION_MAX_LENGTH,
-        focusRequester = focusRequester,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Sentences,
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = { onNextStep() },
-        ),
-        canBeBlank = true,
-    )
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SpacingTokens.md),
+    ) {
+        QodeinBasicTextField(
+            value = description,
+            onValueChange = onDescriptionChange,
+            placeholder = stringResource(R.string.promocode_description_placeholder),
+            singleLine = false,
+            minLines = 3,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onBackground,
+            ),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                capitalization = KeyboardCapitalization.Sentences,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onNextStep() },
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = SpacingTokens.md),
+        )
+
+        if (imageUris.isNotEmpty()) {
+            HorizontalPager(
+                state = rememberPagerState { imageUris.size },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = SpacingTokens.xs),
+            ) { page ->
+                ContentImage(
+                    uri = imageUris[page],
+                    currentPage = page + 1,
+                    totalPages = imageUris.size,
+                    onRemove = { onRemoveImage(page) },
+                    ratio = 1f,
+                )
+            }
+        }
+    }
 }
 
 @PreviewLightDark
@@ -53,7 +83,6 @@ private fun PromocodeRulesStep() {
         PromocodeSubmissionCard(
             currentStep = PromocodeWizardStep.DESCRIPTION,
             wizardData = SubmissionWizardData(),
-            validation = ValidationState.valid(),
             onAction = {},
         )
     }

@@ -28,6 +28,7 @@ import com.qodein.core.data.datasource.FirestoreServiceDataSource
 import com.qodein.core.data.datasource.FirestoreUserDataSource
 import com.qodein.core.data.datasource.LocalReportDataSource
 import com.qodein.core.data.post.WorkManagerPostSubmissionScheduler
+import com.qodein.core.data.promocode.WorkManagerPromocodeSubmissionScheduler
 import com.qodein.core.data.repository.AppUpdateConfigRepositoryImpl
 import com.qodein.core.data.repository.AuthRepositoryImpl
 import com.qodein.core.data.repository.BannerRepositoryImpl
@@ -46,6 +47,7 @@ import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostRepository
 import com.qodein.shared.domain.repository.PostSubmissionScheduler
 import com.qodein.shared.domain.repository.PromocodeRepository
+import com.qodein.shared.domain.repository.PromocodeSubmissionScheduler
 import com.qodein.shared.domain.repository.ReportRepository
 import com.qodein.shared.domain.repository.ServiceRepository
 import com.qodein.shared.domain.repository.StorageRepository
@@ -95,4 +97,5 @@ val coreDataModule = module {
     single<StorageRepository> { StorageRepositoryImpl(get()) }
     single<ReportRepository> { ReportRepositoryImpl(get(), get()) }
     single<PostSubmissionScheduler> { WorkManagerPostSubmissionScheduler(get()) }
+    single<PromocodeSubmissionScheduler> { WorkManagerPromocodeSubmissionScheduler(get()) }
 }

@@ -1,4 +1,4 @@
-package com.qodein.core.ui.component.post
+package com.qodein.core.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,7 +34,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 
 @Composable
-fun PostImage(
+fun ContentImage(
     uri: String,
     currentPage: Int,
     totalPages: Int,
@@ -134,7 +134,7 @@ private fun PostImageErrorStateContent() {
 @Composable
 private fun ImageCarouselItemPreview() {
     QodeTheme {
-        PostImage(
+        ContentImage(
             uri = "content://media/image/123",
             currentPage = 2,
             totalPages = 3,

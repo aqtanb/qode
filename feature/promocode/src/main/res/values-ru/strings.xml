@@ -26,7 +26,7 @@
     <string name="service_step_error_url_blank">Ссылка на сервис обязательна</string>
     <string name="service_step_error_url_format">Введите домен в формате example.com</string>
 
-    <string name="promocode_description_placeholder">Отличный промокод!</string>
+    <string name="promocode_description_placeholder">Необьязательное поле</string>
     <string name="promocode_description_helper">Необязательный шаг, который вы можете пропустить</string>
 
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>

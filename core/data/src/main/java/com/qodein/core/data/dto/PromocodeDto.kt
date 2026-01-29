@@ -53,6 +53,7 @@ data class PromocodeDto(
     val minimumOrderAmount: Double = 0.0,
 
     val description: String? = null,
+    val imageUrls: List<String> = emptyList(),
 
     val engagement: PromocodeEngagementDto = PromocodeEngagementDto(),
 

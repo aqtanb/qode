@@ -1,18 +1,16 @@
 package com.qodein.feature.promocode.submission
 
+import com.qodein.core.ui.text.UiText
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
-import com.qodein.shared.model.User
+import com.qodein.shared.model.ServiceId
 import java.time.LocalDate
 
 sealed interface PromocodeSubmissionAction {
-    // Progressive step navigation
     data object NextProgressiveStep : PromocodeSubmissionAction
     data object PreviousProgressiveStep : PromocodeSubmissionAction
     data class NavigateToStep(val step: PromocodeWizardStep) : PromocodeSubmissionAction
 
-    // Service selection UI actions
     data object ShowServiceSelector : PromocodeSubmissionAction
-    data object HideServiceSelector : PromocodeSubmissionAction
     data object ToggleManualEntry : PromocodeSubmissionAction
     data object ConfirmServiceLogo : PromocodeSubmissionAction
     data object DismissServiceConfirmation : PromocodeSubmissionAction
@@ -25,16 +23,22 @@ sealed interface PromocodeSubmissionAction {
     data class UpdateDiscountAmount(val amount: String) : PromocodeSubmissionAction
     data class UpdateFreeItemDescription(val description: String) : PromocodeSubmissionAction
     data class UpdateMinimumOrderAmount(val amount: String) : PromocodeSubmissionAction
-    data class UpdateFirstUserOnly(val isFirstUserOnly: Boolean) : PromocodeSubmissionAction
-    data class UpdateOneTimeUseOnly(val isOneTimeUseOnly: Boolean) : PromocodeSubmissionAction
     data class UpdateDescription(val description: String) : PromocodeSubmissionAction
     data class UpdateStartDate(val date: LocalDate) : PromocodeSubmissionAction
     data class UpdateEndDate(val date: LocalDate) : PromocodeSubmissionAction
 
-    data class SubmitPromoCodeWithUser(val user: User) : PromocodeSubmissionAction
+    data object PickImages : PromocodeSubmissionAction
+    data class UpdateImageUris(val uris: List<String>) : PromocodeSubmissionAction
+    data class RemoveImage(val index: Int) : PromocodeSubmissionAction
     data object SubmitPromoCode : PromocodeSubmissionAction
+}
 
-    // Error handling
-    data object RetryClicked : PromocodeSubmissionAction
-    data object ClearValidationErrors : PromocodeSubmissionAction
+sealed interface PromocodeSubmissionEvent {
+    data object PromocodeSubmitted : PromocodeSubmissionEvent
+    data object NavigateBack : PromocodeSubmissionEvent
+    data class ShowError(val message: UiText) : PromocodeSubmissionEvent
+    data class ShowServiceSelection(val currentSelectedService: ServiceId?) : PromocodeSubmissionEvent
+    data object PickImagesRequested : PromocodeSubmissionEvent
+    data object ImageLimitReached : PromocodeSubmissionEvent
+    data class ImagesPartiallyAdded(val count: Int) : PromocodeSubmissionEvent
 }

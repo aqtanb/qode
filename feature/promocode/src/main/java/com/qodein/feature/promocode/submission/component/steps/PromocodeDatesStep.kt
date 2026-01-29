@@ -1,6 +1,5 @@
 package com.qodein.feature.promocode.submission.component.steps
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.qodein.core.designsystem.icon.QodeCalendarIcons
-import com.qodein.core.designsystem.theme.ElevationTokens
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
@@ -88,31 +86,13 @@ private fun DatePickerField(
     val interactionSource = remember { MutableInteractionSource() }
     val hasSelection = selectedDate != null
 
-    val animatedBackgroundColor by animateColorAsState(
-        targetValue = if (hasSelection) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
-        label = "backgroundColor",
-    )
-
-    val animatedBorderColor by animateColorAsState(
-        targetValue = if (hasSelection) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.outline
-        },
-        label = "borderColor",
-    )
-
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(SizeTokens.Selector.height)
             .border(
                 width = ShapeTokens.Border.thin,
-                color = animatedBorderColor,
+                color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(SizeTokens.Selector.shape),
             )
             .clip(RoundedCornerShape(SizeTokens.Selector.shape))
@@ -121,10 +101,8 @@ private fun DatePickerField(
                 indication = ripple(),
                 onClick = { showDatePicker = true },
             ),
-        color = animatedBackgroundColor,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(SizeTokens.Selector.shape),
-        tonalElevation = if (hasSelection) ElevationTokens.none else ElevationTokens.none,
-        shadowElevation = ElevationTokens.none,
     ) {
         Row(
             modifier = Modifier
@@ -137,21 +115,13 @@ private fun DatePickerField(
                 imageVector = QodeCalendarIcons.Datepicker,
                 contentDescription = null,
                 modifier = Modifier.size(SizeTokens.Icon.sizeLarge),
-                tint = if (hasSelection) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
+                tint = MaterialTheme.colorScheme.onSurface,
             )
 
             Text(
                 text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
                 fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
-                color = if (hasSelection) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

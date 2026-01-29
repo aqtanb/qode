@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +15,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -129,46 +127,6 @@ fun QodeinOutlinedCard(
     }
 }
 
-/**
- * Filled card with colored background following Qode design system.
- *
- * The default card variant with a filled primaryContainer background.
- * Use for content that needs emphasis with a colored container.
- *
- * @param modifier Modifier to be applied to the card
- * @param onClick Optional click handler. When provided, card becomes clickable with button semantics
- * @param shape Shape of the card corners
- * @param enabled Whether the card and its click interaction are enabled
- * @param content The content displayed inside the card
- */
-@Composable
-fun QodeinCard(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(ShapeTokens.Corner.extraLarge),
-    border: BorderStroke? = null,
-    enabled: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-
-    Card(
-        modifier = modifier.conditionalClickable(onClick, enabled, interactionSource, shape),
-        shape = shape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = OpacityTokens.DISABLED),
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = OpacityTokens.DISABLED),
-        ),
-        border = border,
-    ) {
-        content()
-    }
-}
-
-// MARK: Previews
-
 @PreviewLightDark
 @Composable
 private fun QodeCardVariantsPreview() {
@@ -186,19 +144,6 @@ private fun QodeCardVariantsPreview() {
                     Text(
                         "This is an elevated card with a shadow.",
                         style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-            QodeinCard {
-                Column(
-                    modifier = Modifier.padding(SpacingTokens.md),
-                    verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                ) {
-                    Text("Filled Card", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "This is a filled card with a background color.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

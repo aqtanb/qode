@@ -24,6 +24,7 @@ sealed interface PromocodeError : OperationError {
         data object DescriptionTooLong : CreationFailure
         data object InvalidDateRange : CreationFailure
         data object InvalidPromocodeId : CreationFailure
+        data object TooManyImages : CreationFailure
     }
 
     /**

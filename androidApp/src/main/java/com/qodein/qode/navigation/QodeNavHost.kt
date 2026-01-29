@@ -116,9 +116,6 @@ fun QodeNavHost(
                 handle?.set(PromocodeKeys.KEY_PROMOCODE_SUBMITTED, true)
                 navController.popBackStack()
             },
-            onNavigateToAuth = { authPromptAction ->
-                navController.navigateToAuthBottomSheet(authPromptAction)
-            },
             onShowServiceSelection = { initialServiceId ->
                 navController.navigateToServiceSelection(
                     initialServiceIds = initialServiceId?.let { setOf(it) } ?: emptySet(),

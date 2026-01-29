@@ -7,19 +7,6 @@ import com.qodein.feature.post.navigation.navigateToPostSubmission
 import com.qodein.feature.promocode.navigation.navigateToPromocodeSubmission
 import com.qodein.shared.domain.AuthState
 
-/**
- * Centralized navigation handler that converts NavigationActions to actual navigation calls.
- *
- * Benefits:
- * - Type-safe navigation through sealed interface
- * - Single responsibility for navigation logic
- * - Easy to test and mock
- * - Auth-aware navigation routing
- * - Scalable - easy to add new navigation actions
- *
- * Following enterprise patterns for separation of concerns.
- * Located in app module to access TopLevelDestination without architecture violations.
- */
 class NavigationHandler {
 
     /**

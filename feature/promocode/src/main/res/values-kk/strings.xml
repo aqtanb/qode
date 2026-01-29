@@ -26,7 +26,7 @@
     <string name="service_step_error_url_blank">Қызмет сілтемесі міндетті</string>
     <string name="service_step_error_url_format">Дұрыс домен енгізіңіз (мысалы, example.com)</string>
 
-    <string name="promocode_description_placeholder">Керемет промокод!</string>
+    <string name="promocode_description_placeholder">Қосымша өріс</string>
     <string name="promocode_description_helper">Қосымша қадам, өткізіп жібере аласыз</string>
 
     <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>

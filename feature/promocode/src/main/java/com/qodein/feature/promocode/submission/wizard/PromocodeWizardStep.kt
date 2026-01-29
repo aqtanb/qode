@@ -6,7 +6,6 @@ import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeIcons
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.validation.isValidPromoCodeFormat
 import com.qodein.core.ui.R as CoreUiR
 
 enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = true) {
@@ -16,7 +15,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
                 (data.serviceName.isNotBlank() && data.serviceUrl.isNotBlank())
     },
     PROMOCODE(2) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.code.isNotBlank() && isValidPromoCodeFormat(data.code)
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocode.isNotBlank()
     },
     DISCOUNT_TYPE(3) {
         override fun canProceed(data: SubmissionWizardData): Boolean = data.promocodeType != null
@@ -90,10 +89,10 @@ val PromocodeWizardStep.titleRes: Int
 
 val PromocodeWizardStep.indicatorRes: Int
     get() = when (this) {
-        PromocodeWizardStep.SERVICE -> CoreUiR.string.step_service_short
+        PromocodeWizardStep.SERVICE -> CoreUiR.string.ui_service
         PromocodeWizardStep.DISCOUNT_TYPE -> CoreUiR.string.step_discount_type_short
-        PromocodeWizardStep.PROMOCODE -> CoreUiR.string.step_promo_code_short
+        PromocodeWizardStep.PROMOCODE -> CoreUiR.string.ui_promocode
         PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_short
         PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_short
-        PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.step_description_short
+        PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.ui_description
     }

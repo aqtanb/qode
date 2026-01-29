@@ -130,6 +130,7 @@ fun OperationError.toUiText(): UiText =
         PromocodeError.CreationFailure.InvalidMinimumAmount -> StringResource(R.string.error_promo_invalid_minimum_amount)
         PromocodeError.CreationFailure.InvalidPercentageDiscount -> StringResource(R.string.error_promo_invalid_percentage)
         PromocodeError.CreationFailure.InvalidPromocodeId -> StringResource(R.string.error_promo_invalid_id)
+        PromocodeError.CreationFailure.TooManyImages -> StringResource(R.string.error_promocode_too_many_images)
         PromocodeError.SubmissionFailure.DuplicateCode -> StringResource(R.string.error_promo_code_already_exists)
         PromocodeError.CreationFailure.InvalidFreeItemDescription -> StringResource(R.string.error_promo_invalid_free_item_description)
         PromocodeError.CreationFailure.FreeItemDescriptionTooLong -> StringResource(R.string.error_promo_free_item_description_too_long)

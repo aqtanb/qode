@@ -28,8 +28,15 @@
     <string name="service_step_error_url_format">Enter a valid domain (e.g., example.com)</string>
     <string name="service_step_service_logo_cd">Service logo</string>
 
-    <string name="promocode_description_placeholder">Great promocode!</string>
+    <string name="promocode_description_placeholder">Optional field</string>
     <string name="promocode_description_helper">Optional step, you can skip</string>
+
+    <string name="promocode_image_limit_reached">Maximum 3 images allowed</string>
+    <string name="promocode_images_partially_added">Only %1$d images added (limit: 3)</string>
+    <string name="promocode_image_failed">Failed to load image</string>
+    <string name="cd_add_image_promocode">Add image to promocode</string>
+    <string name="cd_remove_image_promocode">Remove promocode image</string>
+    <string name="cd_promocode_image">Promocode image</string>
 
     <string name="promocode_dates_start_placeholder">Select start date</string>
     <string name="promocode_dates_end_placeholder">Select end date</string>
