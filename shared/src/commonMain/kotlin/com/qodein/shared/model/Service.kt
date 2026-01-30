@@ -65,7 +65,6 @@ data class Service private constructor(
             val trimmed = raw.trim().lowercase()
             if (trimmed.isBlank()) return ""
 
-            // Strip prefix/www
             val withoutScheme = trimmed
                 .removePrefix("https://")
                 .removePrefix("http://")

@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.qodein.core.analytics.AnalyticsEvent
 import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.util.ImageCompressor
@@ -21,7 +20,6 @@ import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
-import com.qodein.shared.model.PromocodeCode
 import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.ServiceRef
@@ -57,16 +55,6 @@ class PromocodeSubmissionViewModel(
     private var currentAuthState: AuthState = AuthState.Unauthenticated
     private var pendingSubmission: Boolean = false
 
-    companion object {
-        private const val TAG = "PromocodeSubmissionViewModel"
-        private const val EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION = "progressive_step_navigation"
-        private const val PARAM_STEP_FROM = "step_from"
-        private const val PARAM_STEP_TO = "step_to"
-        private const val PARAM_DIRECTION = "direction"
-        private const val DIRECTION_NEXT = "next"
-        private const val DIRECTION_PREVIOUS = "previous"
-    }
-
     init {
         setupAuthStateMonitoring()
         observeAuthResult()
@@ -84,7 +72,7 @@ class PromocodeSubmissionViewModel(
             PromocodeSubmissionAction.DismissServiceConfirmation -> dismissServiceConfirmation()
 
             is PromocodeSubmissionAction.UpdateServiceName -> updateWizardData { it.copy(serviceName = action.serviceName) }
-            is PromocodeSubmissionAction.UpdateServiceUrl -> updateWizardData { it.copy(serviceUrl = action.serviceUrl) }
+            is PromocodeSubmissionAction.UpdateServiceUrl -> updateServiceUrl(action.serviceUrl)
             is PromocodeSubmissionAction.UpdatePromocodeType -> updateWizardData { it.copy(promocodeType = action.type) }
             is PromocodeSubmissionAction.UpdatePromocode -> updatePromocode(action.promocode)
             is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateWizardData { it.copy(discountPercentage = action.percentage) }
@@ -102,11 +90,16 @@ class PromocodeSubmissionViewModel(
         }
     }
 
+    private fun updateServiceUrl(serviceUrl: String) {
+        val sanitizedUrl = Service.sanitizeUrl(serviceUrl)
+        updateWizardData { it.copy(serviceUrl = sanitizedUrl) }
+    }
+
     internal fun applyServiceSelection(serviceId: ServiceId) {
         viewModelScope.launch {
             val result = getServicesByIdsUseCase(setOf(serviceId)).firstOrNull() ?: return@launch
             updateWizardData { it.copy(selectedService = result) }
-            Logger.d(TAG) { "Service selected: ${result.name}" }
+            Logger.d { "Service selected: ${result.name}" }
         }
     }
 
@@ -115,7 +108,7 @@ class PromocodeSubmissionViewModel(
             val currentState = _uiState.value
             val currentServiceId = currentState.wizardData.selectedService?.id
             _events.emit(PromocodeSubmissionEvent.ShowServiceSelection(currentServiceId))
-            Logger.i(TAG) { "Service selection dialog shown" }
+            Logger.i { "Service selection dialog shown" }
         }
     }
 
@@ -190,17 +183,6 @@ class PromocodeSubmissionViewModel(
                 val currentStep = currentState.currentStep
                 val previousStep = currentStep.previous()
                 if (previousStep != null) {
-                    // Track progressive step navigation
-                    analyticsHelper.logEvent(
-                        AnalyticsEvent(
-                            type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                            extras = listOf(
-                                AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
-                                AnalyticsEvent.Param(PARAM_STEP_TO, previousStep.name),
-                                AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_PREVIOUS),
-                            ),
-                        ),
-                    )
                     currentState.copy(currentStep = previousStep)
                 } else {
                     currentState
@@ -212,19 +194,7 @@ class PromocodeSubmissionViewModel(
     }
 
     private fun navigateToStep(targetStep: PromocodeWizardStep) {
-        _uiState.update { currentState ->
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                    extras = listOf(
-                        AnalyticsEvent.Param(PARAM_STEP_FROM, currentState.currentStep.name),
-                        AnalyticsEvent.Param(PARAM_STEP_TO, targetStep.name),
-                        AnalyticsEvent.Param(PARAM_DIRECTION, "DIRECT"),
-                    ),
-                ),
-            )
-            currentState.copy(currentStep = targetStep)
-        }
+        _uiState.update { currentState -> currentState.copy(currentStep = targetStep) }
     }
 
     private fun setupAuthStateMonitoring() {
@@ -324,18 +294,7 @@ class PromocodeSubmissionViewModel(
         }
     }
 
-    // MARK: - Submission Logic
-
-    /**
-     * Submit promocode with explicit user (for external calls)
-     */
-    private fun submitPromoCode(user: User) {
-        Logger.i(TAG) { "submitPromoCode() called with user: ${user.id.value}" }
-        performSubmission(user)
-    }
-
     private fun updatePromocode(rawCode: String) {
-        val validationResult = PromocodeCode.create(rawCode)
         updateWizardData { it.copy(promocode = rawCode) }
     }
 
@@ -343,11 +302,11 @@ class PromocodeSubmissionViewModel(
      * Submit promocode using authenticated user from current state
      */
     private fun submitPromoCode() {
-        Logger.i(TAG) { "submitPromoCode() called - using authenticated user" }
+        Logger.i { "submitPromoCode() called - using authenticated user" }
 
         val userId = (currentAuthState as? AuthState.Authenticated)?.userId
         if (userId == null) {
-            Logger.w(TAG) { "Cannot submit: user is not authenticated" }
+            Logger.w { "Cannot submit: user is not authenticated" }
             return
         }
 
@@ -355,7 +314,7 @@ class PromocodeSubmissionViewModel(
             when (val userResult = getUserByIdUseCase(userId.value)) {
                 is Result.Success -> performSubmission(userResult.data)
                 is Result.Error -> {
-                    Logger.w(TAG) { "Cannot submit: failed to load user profile: ${userResult.error}" }
+                    Logger.w { "Cannot submit: failed to load user profile: ${userResult.error}" }
                     _events.emit(PromocodeSubmissionEvent.ShowError(userResult.error.toUiText()))
                 }
             }
@@ -369,12 +328,12 @@ class PromocodeSubmissionViewModel(
         val currentState = _uiState.value
 
         if (!currentState.canSubmit) {
-            Logger.w(TAG) { "Cannot submit: validation failed" }
+            Logger.w { "Cannot submit: validation failed" }
             return
         }
 
         val wizardData = currentState.wizardData
-        Logger.d(TAG) { "Submitting: service='${wizardData.effectiveServiceName}', code='${wizardData.promocode}'" }
+        Logger.d { "Submitting: service='${wizardData.effectiveServiceName}', code='${wizardData.promocode}'" }
 
         viewModelScope.launch {
             val serviceRef = wizardData.selectedService?.id?.let { ServiceRef.ById(it) }
