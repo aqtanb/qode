@@ -134,7 +134,6 @@ class PromocodeSubmissionViewModel(
     private fun goToNextProgressiveStep() {
         val currentState = _uiState.value
 
-        // Special handling for SERVICE step with manual entry - validate logo first
         if (currentState.currentStep == PromocodeWizardStep.SERVICE &&
             currentState.wizardData.isManualServiceEntry &&
             currentState.canGoNext
@@ -143,22 +142,11 @@ class PromocodeSubmissionViewModel(
             return
         }
 
-        // Normal progression for all other steps
         _uiState.update { state ->
             if (state.canGoNext) {
                 val currentStep = state.currentStep
                 val nextStep = currentStep.next()
                 if (nextStep != null) {
-                    analyticsHelper.logEvent(
-                        AnalyticsEvent(
-                            type = EVENT_TYPE_PROGRESSIVE_STEP_NAVIGATION,
-                            extras = listOf(
-                                AnalyticsEvent.Param(PARAM_STEP_FROM, currentStep.name),
-                                AnalyticsEvent.Param(PARAM_STEP_TO, nextStep.name),
-                                AnalyticsEvent.Param(PARAM_DIRECTION, DIRECTION_NEXT),
-                            ),
-                        ),
-                    )
                     state.copy(currentStep = nextStep)
                 } else {
                     state
@@ -169,7 +157,6 @@ class PromocodeSubmissionViewModel(
         }
     }
 
-    // TODO: Check for the service duplication
     private fun validateServiceLogoAndProceed() {
         val currentState = _uiState.value
         val rawDomain = currentState.wizardData.serviceUrl

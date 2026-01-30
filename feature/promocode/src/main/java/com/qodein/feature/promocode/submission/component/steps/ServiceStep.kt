@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -156,7 +157,7 @@ private fun ManualServiceEntry(
         ServiceUrlField(
             value = serviceUrl,
             onServiceUrlChange = onServiceUrlChange,
-            onSubmitForm = onNextStep,
+            onNextStep = onNextStep,
             focusRequester = urlFocusRequester,
             modifier = Modifier.padding(bottom = SpacingTokens.xl),
         )
@@ -204,10 +205,11 @@ private fun ServiceNameField(
 private fun ServiceUrlField(
     value: String,
     onServiceUrlChange: (String) -> Unit,
-    onSubmitForm: () -> Unit,
+    onNextStep: () -> Unit,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     QodeinTextField(
         value = value,
         onValueChange = { onServiceUrlChange(it) },
@@ -221,7 +223,10 @@ private fun ServiceUrlField(
             capitalization = KeyboardCapitalization.None,
         ),
         keyboardActions = KeyboardActions(
-            onNext = { onSubmitForm() },
+            onNext = {
+                keyboardController?.hide()
+                onNextStep()
+            },
         ),
         showPasteIcon = true,
         maxLength = Service.SITE_URL_MAX_LENGTH,
