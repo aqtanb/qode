@@ -26,7 +26,9 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +40,7 @@ import com.qodein.core.designsystem.component.ShimmerLine
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
+import com.qodein.core.ui.component.FullScreenImageViewer
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.InteractionsRow
 import com.qodein.core.ui.error.toUiText
@@ -53,6 +56,8 @@ import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.ShareContent
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import org.koin.androidx.compose.koinViewModel
 import com.qodein.core.ui.R as CoreUiR
 
@@ -115,6 +120,10 @@ fun PromocodeDetailScreen(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageUri by remember { mutableStateOf("") }
+    val hazeState = remember { HazeState() }
+
     val title = when (val state = uiState.promocodeState) {
         is PromocodeUiState.Success -> state.data.code.value
         else -> ""
@@ -123,46 +132,62 @@ fun PromocodeDetailScreen(
 
     val pullToRefreshState = rememberPullToRefreshState()
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            PromocodeDetailTopAppBar(
-                title = title,
-                promocodeId = uiState.promocodeId,
-                currentUserId = uiState.currentUserId,
-                authorId = authorId,
-                onNavigateBack = onNavigateBack,
-                onCopyClick = { onAction(PromocodeDetailAction.CopyCodeClicked) },
-                onBlockUserClick = { userId ->
-                    onAction(PromocodeDetailAction.BlockUserClicked(userId))
-                },
-                onReportPromocodeClick = { promocodeId ->
-                    onAction(PromocodeDetailAction.ReportPromocodeClicked(promocodeId))
-                },
-            )
-        },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-    ) { paddingValues ->
-        PullToRefreshBox(
-            state = pullToRefreshState,
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { onAction(PromocodeDetailAction.RefreshData) },
-            modifier = modifier
-                .padding(paddingValues)
-                .padding(SpacingTokens.xs),
-        ) {
-            when (val promocodeUiState = uiState.promocodeState) {
-                PromocodeUiState.Loading -> PromocodeLoadingState()
-                is PromocodeUiState.Error -> PromocodeErrorState(error = promocodeUiState.error, onRetry = {
-                    onAction(PromocodeDetailAction.RetryClicked)
-                })
-                is PromocodeUiState.Success -> PromocodeSuccessState(
-                    promocode = promocodeUiState.data,
-                    currentVoteState = uiState.userVoteState,
-                    voteScoreDelta = uiState.voteScoreDelta,
-                    onAction = onAction,
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(state = hazeState),
+            topBar = {
+                PromocodeDetailTopAppBar(
+                    title = title,
+                    promocodeId = uiState.promocodeId,
+                    currentUserId = uiState.currentUserId,
+                    authorId = authorId,
+                    onNavigateBack = onNavigateBack,
+                    onCopyClick = { onAction(PromocodeDetailAction.CopyCodeClicked) },
+                    onBlockUserClick = { userId ->
+                        onAction(PromocodeDetailAction.BlockUserClicked(userId))
+                    },
+                    onReportPromocodeClick = { promocodeId ->
+                        onAction(PromocodeDetailAction.ReportPromocodeClicked(promocodeId))
+                    },
                 )
+            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        ) { paddingValues ->
+            PullToRefreshBox(
+                state = pullToRefreshState,
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { onAction(PromocodeDetailAction.RefreshData) },
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(SpacingTokens.xs),
+            ) {
+                when (val promocodeUiState = uiState.promocodeState) {
+                    PromocodeUiState.Loading -> PromocodeLoadingState()
+                    is PromocodeUiState.Error -> PromocodeErrorState(error = promocodeUiState.error, onRetry = {
+                        onAction(PromocodeDetailAction.RetryClicked)
+                    })
+                    is PromocodeUiState.Success -> PromocodeSuccessState(
+                        promocode = promocodeUiState.data,
+                        currentVoteState = uiState.userVoteState,
+                        voteScoreDelta = uiState.voteScoreDelta,
+                        onAction = onAction,
+                        onImageClick = { uri ->
+                            fullScreenImageUri = uri
+                            showFullScreenImage = true
+                        },
+                    )
+                }
             }
+        }
+
+        if (showFullScreenImage) {
+            FullScreenImageViewer(
+                uri = fullScreenImageUri,
+                onDismiss = { showFullScreenImage = false },
+                hazeState = hazeState,
+            )
         }
     }
 }
@@ -173,6 +198,7 @@ private fun PromocodeSuccessState(
     currentVoteState: VoteState,
     voteScoreDelta: Int,
     onAction: (PromocodeDetailAction) -> Unit,
+    onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val displayVoteScore = promocode.voteScore + voteScoreDelta
@@ -186,6 +212,7 @@ private fun PromocodeSuccessState(
         PromocodeInfo(
             promocode = promocode,
             displayVoteScore = displayVoteScore,
+            onImageClick = onImageClick,
         )
         PromocodeDetails(promocode = promocode)
 

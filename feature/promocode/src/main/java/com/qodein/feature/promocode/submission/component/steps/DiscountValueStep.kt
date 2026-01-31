@@ -1,15 +1,18 @@
 package com.qodein.feature.promocode.submission.component.steps
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -69,9 +72,13 @@ internal fun DiscountValueStep(
 ) {
     val minimumOrderFocusRequester = remember { FocusRequester() }
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xl),
-    ) {
+    Column {
+        Text(
+            text = stringResource(R.string.promocode_discount_value_choose_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs),
+        )
+
         when (promoCodeType) {
             PromocodeType.PERCENTAGE -> {
                 DiscountPercentageField(
@@ -103,6 +110,12 @@ internal fun DiscountValueStep(
             null -> { }
         }
 
+        Text(
+            text = stringResource(R.string.promocode_discount_min_order_choose_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs, top = SpacingTokens.xl),
+        )
+
         MinimumOrderField(
             value = minimumOrderAmount,
             onMinimumOrderChange = onMinimumOrderAmountChange,
@@ -117,7 +130,8 @@ private fun DiscountPercentageField(
     value: String,
     onValueChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    onMoveToNext: () -> Unit
+    onMoveToNext: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
     val invalidRangeText = stringResource(R.string.promocode_discount_percentage_error_range)
@@ -169,7 +183,8 @@ private fun DiscountAmountField(
     value: String,
     onValueChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    onMoveToNext: () -> Unit
+    onMoveToNext: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
     val minValueErrorText = stringResource(
@@ -224,7 +239,8 @@ private fun FreeItemDescriptionField(
     value: String,
     onValueChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    onMoveToNext: () -> Unit
+    onMoveToNext: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     QodeinTextField(
         value = value,

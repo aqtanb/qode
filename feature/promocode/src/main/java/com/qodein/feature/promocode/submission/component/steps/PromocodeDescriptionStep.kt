@@ -9,10 +9,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.component.QodeinBasicTextField
@@ -20,8 +21,9 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.ContentImage
 import com.qodein.feature.promocode.R
+import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
+import com.qodein.feature.promocode.submission.PromocodeSubmissionUiState
 import com.qodein.feature.promocode.submission.SubmissionWizardData
-import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 
 @Composable
@@ -46,7 +48,6 @@ internal fun PromocodeDescriptionStep(
                 color = MaterialTheme.colorScheme.onBackground,
             ),
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Sentences,
             ),
             keyboardActions = KeyboardActions(
@@ -78,12 +79,16 @@ internal fun PromocodeDescriptionStep(
 
 @PreviewLightDark
 @Composable
-private fun PromocodeRulesStep() {
+private fun DescriptionStepPreview() {
     QodeTheme {
-        PromocodeSubmissionCard(
-            currentStep = PromocodeWizardStep.DESCRIPTION,
-            wizardData = SubmissionWizardData(),
+        PromocodeSubmissionScreen(
+            uiState = PromocodeSubmissionUiState(
+                currentStep = PromocodeWizardStep.DESCRIPTION,
+                wizardData = SubmissionWizardData(),
+            ),
             onAction = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            onNavigateBack = {},
         )
     }
 }

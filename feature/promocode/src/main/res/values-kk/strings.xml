@@ -23,11 +23,8 @@
     <string name="service_step_type_manually">Қолмен енгізу</string>
     <string name="service_step_service_logo_cd">Қызмет логотипі (CD сілтемесі)</string>
     <string name="service_step_helper_service_url">Ресми домен</string>
-    <string name="service_step_error_url_blank">Қызмет сілтемесі міндетті</string>
-    <string name="service_step_error_url_format">Дұрыс домен енгізіңіз (мысалы, example.com)</string>
 
     <string name="promocode_description_placeholder">Қосымша өріс</string>
-    <string name="promocode_description_helper">Қосымша қадам, өткізіп жібере аласыз</string>
 
     <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
     <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
@@ -45,8 +42,6 @@
     <string name="promocode_minimum_order_helper">Жеңілдік алу үшін тапсырыстың минималды сомасы ₸ (теңге)</string>
 
     <string name="promo_code_step_helper_text">Әріптер, сандар, сызықшалар және асты сызылған белгілер рұқсат етілген</string>
-    <string name="promo_code_step_error_blank">Промокод бос бола алмайды</string>
-    <string name="promo_code_step_error_max_length">Максимум %1$d таңба</string>
 
     <string name="promocode_code_choose_label">Промкодты енгізіңіз</string>
     <string name="promocode_code_step_title">Промокод және түрі</string>
@@ -54,14 +49,10 @@
     <string name="promocode_type_amount">Сома</string>
     <string name="promocode_type_gift">Сыйлық</string>
     <string name="promocode_type_choose_label">Жеңілдік түрін таңдаңыз</string>
-    <string name="submit_promocode">Промокод қосу</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>
     <string name="cd_share">Промокодты бөлісу</string>
 
-    <string name="action_share_promocode">Промокодпен бөлісу</string>
-    <string name="share_subject_format">%1$s Промокод</string>
-    <string name="share_code_label">Код: %1$s</string>
     <string name="promocode_details_verified">Тексерілгенба?</string>
 
     <string name="service_confirmation_question">Дұрыс па?</string>

@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
 import com.qodein.core.designsystem.icon.QodeIcons
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.core.ui.R as CoreUiR
@@ -16,7 +15,7 @@ enum class PromocodeWizardStep(val stepNumber: Int, val isRequired: Boolean = tr
                 (data.serviceName.isNotBlank() && data.serviceUrl.isNotBlank())
     },
     PROMOCODE(2) {
-        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocode.isNotBlank() || data.promocodeType != null
+        override fun canProceed(data: SubmissionWizardData): Boolean = data.promocode.isNotBlank() && data.promocodeType != null
     },
     DISCOUNT_VALUE(4) {
         override fun canProceed(data: SubmissionWizardData): Boolean {
@@ -70,15 +69,6 @@ fun PromocodeWizardStep.stepIcon(isCompleted: Boolean = false): ImageVector =
             PromocodeWizardStep.DATES -> PromocodeIcons.StartDate
             PromocodeWizardStep.DESCRIPTION -> PromocodeIcons.Description
         }
-    }
-
-val PromocodeWizardStep.titleRes: Int
-    get() = when (this) {
-        PromocodeWizardStep.SERVICE -> CoreUiR.string.step_service_title
-        PromocodeWizardStep.PROMOCODE -> R.string.promocode_code_step_title
-        PromocodeWizardStep.DISCOUNT_VALUE -> CoreUiR.string.step_discount_value_title
-        PromocodeWizardStep.DATES -> CoreUiR.string.step_start_date_title
-        PromocodeWizardStep.DESCRIPTION -> CoreUiR.string.step_description_title
     }
 
 val PromocodeWizardStep.indicatorRes: Int

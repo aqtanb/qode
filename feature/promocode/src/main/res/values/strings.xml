@@ -24,19 +24,13 @@
     <string name="service_step_type_manually">Type manually</string>
     <string name="service_step_placeholder_service_url" translatable="false">halykmarket.kz</string>
     <string name="service_step_helper_service_url">Official domain</string>
-    <string name="service_step_error_url_blank">Service URL cannot be blank</string>
-    <string name="service_step_error_url_format">Enter a valid domain (e.g., example.com)</string>
     <string name="service_step_service_logo_cd">Service logo</string>
 
     <string name="promocode_description_placeholder">Optional field</string>
-    <string name="promocode_description_helper">Optional step, you can skip</string>
 
     <string name="promocode_image_limit_reached">Maximum 3 images allowed</string>
     <string name="promocode_images_partially_added">Only %1$d images added (limit: 3)</string>
-    <string name="promocode_image_failed">Failed to load image</string>
     <string name="cd_add_image_promocode">Add image to promocode</string>
-    <string name="cd_remove_image_promocode">Remove promocode image</string>
-    <string name="cd_promocode_image">Promocode image</string>
 
     <string name="promocode_dates_start_placeholder">Select start date</string>
     <string name="promocode_dates_end_placeholder">Select end date</string>
@@ -58,31 +52,26 @@
 
     <string name="promo_code_step_placeholder" translatable="false">PITOMOPOLIS</string>
     <string name="promo_code_step_helper_text">Letters, numbers, hyphens, and underscores allowed</string>
-    <string name="promo_code_step_error_blank">Promocode cannot be blank</string>
-    <string name="promo_code_step_error_max_length">Maximum %1$d characters</string>
 
     <string name="promocode_code_choose_label">Type promocode</string>
     <string name="promocode_service_choose_selector_label">Choose service</string>
     <string name="promocode_service_choose_name">Enter service name</string>
-    <string name="promocode_service_choose_url">Enter service URL"</string>
+    <string name="promocode_service_choose_url">Enter service URL</string>
+    <string name="promocode_discount_value_choose_label">Type discount value</string>
+    <string name="promocode_discount_min_order_choose_label">Type minimum order amount</string>
+    <string name="promocode_dates_start_choose_label">Select start date</string>
+    <string name="promocode_dates_end_choose_label">Select end date"</string>
 
-    <string name="promocode_code_step_title">Promocode and type</string>
 
     <string name="promocode_type_percentage">Percent</string>
     <string name="promocode_type_amount">Amount</string>
     <string name="promocode_type_gift">Gift</string>
     <string name="promocode_type_choose_label">Choose discount type</string>
 
-    <string name="submit_promocode">Submit Promocode</string>
     <string name="cd_upvote">Upvote, %1$d</string>
     <string name="cd_downvote">Downvote, %1$d</string>
     <string name="cd_share">Share promocode</string>
 
-    <string name="action_share_promocode">Share Promocode</string>
-    <string name="share_subject_format">%1$s Promocode</string>
-    <string name="share_header_format" translatable="false">%1$s: %2$s</string>
-    <string name="share_code_label">Code: %1$s</string>
-    <string name="share_link_format" translatable="false">https://qodein.web.app/promocodes/%1$s</string>
     <string name="promocode_details_verified">Is verified?</string>
 
     <string name="service_confirmation_question">Does this look correct?</string>

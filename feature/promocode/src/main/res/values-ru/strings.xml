@@ -23,11 +23,8 @@
     <string name="service_step_type_manually">Ввести вручную</string>
     <string name="service_step_service_logo_cd">Логотип сервиса (CD-ссылка)</string>
     <string name="service_step_helper_service_url">Официальный домен</string>
-    <string name="service_step_error_url_blank">Ссылка на сервис обязательна</string>
-    <string name="service_step_error_url_format">Введите домен в формате example.com</string>
 
     <string name="promocode_description_placeholder">Необьязательное поле</string>
-    <string name="promocode_description_helper">Необязательный шаг, который вы можете пропустить</string>
 
     <string name="promocode_dates_start_placeholder">Выберите дату начала</string>
     <string name="promocode_dates_end_placeholder">Выберите дату окончания</string>
@@ -45,8 +42,6 @@
     <string name="promocode_minimum_order_helper">Минимальная сумма заказа в ₸ (тенге) для получения скидки</string>
 
     <string name="promo_code_step_helper_text">Разрешены буквы, цифры, дефисы и подчеркивания</string>
-    <string name="promo_code_step_error_blank">Промокод не может быть пустым</string>
-    <string name="promo_code_step_error_max_length">Максимум %1$d символов</string>
 
     <string name="promocode_code_choose_label">Введите промокод</string>
     <string name="promocode_code_step_title">Промокод и тип</string>
@@ -54,11 +49,8 @@
     <string name="promocode_type_amount">Сумма</string>
     <string name="promocode_type_gift">Подарок</string>
     <string name="promocode_type_choose_label">Выберите вид скидки</string>
-    <string name="submit_promocode">Отправить промокод</string>
     <string name="cd_upvote">Нравится, %1$d</string>
     <string name="cd_downvote">Не нравится, %1$d</string>
-    <string name="share_subject_format">%1$s Промокод</string>
-    <string name="share_code_label">Код: %1$s</string>
     <string name="promocode_details_verified">Верифицированный?</string>
 
     <string name="service_confirmation_question">Это правильно?</string>

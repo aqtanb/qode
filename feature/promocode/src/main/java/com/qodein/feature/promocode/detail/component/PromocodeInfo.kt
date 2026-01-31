@@ -2,8 +2,11 @@ package com.qodein.feature.promocode.detail.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +21,7 @@ import com.qodein.core.designsystem.component.QodeinAsyncImage
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.component.ContentImage
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.util.formatNumber
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
@@ -29,6 +33,7 @@ import com.qodein.shared.model.Promocode
 fun PromocodeInfo(
     promocode: Promocode,
     displayVoteScore: Int,
+    onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -37,6 +42,14 @@ fun PromocodeInfo(
     ) {
         PromocodeHeader(promocode, displayVoteScore = displayVoteScore)
         PromocodeDescription(promocode, modifier = Modifier.fillMaxWidth())
+
+        if (promocode.imageUrls.isNotEmpty()) {
+            PromocodeImagePager(
+                imageUrls = promocode.imageUrls,
+                onImageClick = onImageClick,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
@@ -130,6 +143,30 @@ private fun PromocodeDescription(
     }
 }
 
+@Composable
+private fun PromocodeImagePager(
+    imageUrls: List<String>,
+    onImageClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val pagerState = rememberPagerState(pageCount = { imageUrls.size })
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = SpacingTokens.xs),
+        pageSpacing = SpacingTokens.sm,
+    ) { page ->
+        ContentImage(
+            uri = imageUrls[page],
+            currentPage = page + 1,
+            totalPages = imageUrls.size,
+            ratio = 16f / 9f,
+            onClick = { onImageClick(imageUrls[page]) },
+        )
+    }
+}
+
 @PreviewLightDark
 @Composable
 private fun PromocodeHeaderPreview() {
@@ -139,6 +176,7 @@ private fun PromocodeHeaderPreview() {
         PromocodeInfo(
             promocode = samplePromoCode,
             displayVoteScore = 5,
+            onImageClick = {},
         )
     }
 }

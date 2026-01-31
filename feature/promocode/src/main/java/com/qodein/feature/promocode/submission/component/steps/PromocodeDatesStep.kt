@@ -16,6 +16,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,13 +33,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.qodein.core.designsystem.icon.QodeCalendarIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.promocode.R
+import com.qodein.feature.promocode.submission.PromocodeSubmissionScreen
+import com.qodein.feature.promocode.submission.PromocodeSubmissionUiState
+import com.qodein.feature.promocode.submission.PromocodeType
+import com.qodein.feature.promocode.submission.SubmissionWizardData
+import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -54,14 +61,23 @@ fun PromocodeDatesStep(
     onEndDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-    ) {
+    Column {
+        Text(
+            text = stringResource(R.string.promocode_dates_start_choose_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, start = SpacingTokens.xs),
+        )
+
         DatePickerField(
             selectedDate = startDate,
             onDateSelected = onStartDateSelected,
             placeholder = stringResource(R.string.promocode_dates_start_placeholder),
+        )
+
+        Text(
+            text = stringResource(R.string.promocode_dates_end_choose_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = SpacingTokens.md, top = SpacingTokens.xl, start = SpacingTokens.xs),
         )
 
         DatePickerField(
@@ -92,7 +108,7 @@ private fun DatePickerField(
             .height(SizeTokens.Selector.height)
             .border(
                 width = ShapeTokens.Border.thin,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(SizeTokens.Selector.shape),
             )
             .clip(RoundedCornerShape(SizeTokens.Selector.shape))
@@ -158,20 +174,21 @@ private fun DatePickerField(
     }
 }
 
-@Preview(name = "Date Picker Step", showBackground = true)
+@PreviewLightDark
 @Composable
-private fun DatePickerStepPreview() {
+private fun DatesStepPreview() {
     QodeTheme {
-        Column(
-            modifier = Modifier.padding(SpacingTokens.lg),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
-        ) {
-            PromocodeDatesStep(
-                startDate = LocalDate.now(),
-                endDate = LocalDate.now().plusDays(30),
-                onStartDateSelected = {},
-                onEndDateSelected = {},
-            )
-        }
+        PromocodeSubmissionScreen(
+            uiState = PromocodeSubmissionUiState(
+                currentStep = PromocodeWizardStep.DATES,
+                wizardData = SubmissionWizardData(
+                    selectedService = ServicePreviewData.netflix,
+                    promocodeType = PromocodeType.PERCENTAGE,
+                ),
+            ),
+            onAction = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            onNavigateBack = {},
+        )
     }
 }

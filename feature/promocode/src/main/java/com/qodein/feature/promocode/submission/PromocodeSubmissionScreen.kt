@@ -4,26 +4,31 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,16 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
-import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeinBackIconButton
-import com.qodein.core.designsystem.component.QodeinIconButton
 import com.qodein.core.designsystem.component.QodeinTopAppBar
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
@@ -55,7 +56,6 @@ import com.qodein.feature.promocode.submission.component.WizardController
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.feature.promocode.submission.wizard.indicatorRes
 import com.qodein.feature.promocode.submission.wizard.stepIcon
-import com.qodein.feature.promocode.submission.wizard.titleRes
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.ServiceId
 import org.koin.androidx.compose.koinViewModel
@@ -127,18 +127,9 @@ internal fun PromocodeSubmissionScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             QodeinTopAppBar(
-                title = stringResource(uiState.currentStep.titleRes),
+                title = stringResource(uiState.currentStep.indicatorRes),
                 navigationIcon = { QodeinBackIconButton({ onNavigateBack() }) },
             )
-        },
-        bottomBar = {
-            if (uiState.currentStep == PromocodeWizardStep.DESCRIPTION) {
-                PromocodeSubmissionBottomToolbar(
-                    disable = uiState.wizardData.imageUris.size >= Promocode.MAX_IMAGES,
-                    onClick = { onAction(PromocodeSubmissionAction.PickImages) },
-                    modifier = Modifier.navigationBarsPadding(),
-                )
-            }
         },
     ) { paddingValues ->
         SubmissionContent(
@@ -180,6 +171,15 @@ private fun SubmissionContent(
                 onAction = onAction,
                 modifier = Modifier.padding(SpacingTokens.xs),
             )
+
+            if (uiState.currentStep == PromocodeWizardStep.DESCRIPTION) {
+                PromocodeSubmissionBottomToolbar(
+                    onClick = { onAction(PromocodeSubmissionAction.PickImages) },
+                    disable = uiState.wizardData.imageUris.size >= Promocode.MAX_IMAGES,
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(bottom = SpacingTokens.gigantic))
         }
 
         WizardController(
@@ -205,6 +205,7 @@ private fun SubmissionContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProgressIndicator(
     currentStep: PromocodeWizardStep,
@@ -214,92 +215,56 @@ fun ProgressIndicator(
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
     ) {
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(SpacingTokens.md),
-            verticalAlignment = Alignment.Top,
-            contentPadding = PaddingValues(horizontal = SpacingTokens.sm),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.lg),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingTokens.md),
+            horizontalArrangement = Arrangement.spacedBy(
+                ButtonGroupDefaults.ConnectedSpaceBetween,
+                Alignment.CenterHorizontally,
+            ),
         ) {
-            itemsIndexed(PromocodeWizardStep.entries) { index, step ->
+            PromocodeWizardStep.entries.forEachIndexed { index, step ->
                 val isCompleted = step.stepNumber < currentStep.stepNumber
                 val isCurrent = step.stepNumber == currentStep.stepNumber
+                val isEnabled = isCompleted || isCurrent
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    StepIcon(
-                        step = step,
-                        isCompleted = isCompleted,
-                        isCurrent = isCurrent,
-                        onClick = if (isCompleted || isCurrent) {
-                            { onStepClick(step) }
-                        } else {
-                            null
+                val animatedWeight by animateFloatAsState(
+                    targetValue = if (isCurrent) 2f else 1f,
+                    animationSpec = tween(durationMillis = 700),
+                    label = "stepWeight",
+                )
+
+                ToggleButton(
+                    checked = isCurrent,
+                    onCheckedChange = { if (isEnabled) onStepClick(step) },
+                    modifier = Modifier.weight(animatedWeight),
+                    enabled = isEnabled,
+                    shapes = when (index) {
+                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        PromocodeWizardStep.entries.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    },
+                    colors = ToggleButtonDefaults.tonalToggleButtonColors(
+                        containerColor = when {
+                            isCompleted -> MaterialTheme.colorScheme.primary
+                            else -> MaterialTheme.colorScheme.surfaceVariant
                         },
-                    )
-
-                    Text(
-                        text = stringResource(step.indicatorRes),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = when {
-                            isCurrent -> MaterialTheme.colorScheme.secondary
-                            isCompleted -> MaterialTheme.colorScheme.onSurface
+                        contentColor = when {
+                            isCompleted -> MaterialTheme.colorScheme.onPrimary
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
-                        textAlign = TextAlign.Center,
-                        fontWeight = if (isCurrent) {
-                            FontWeight.SemiBold
-                        } else {
-                            FontWeight.Normal
-                        },
-                        modifier = Modifier.padding(top = SpacingTokens.xs),
+                    ),
+                ) {
+                    Icon(
+                        imageVector = step.stepIcon(isCompleted),
+                        contentDescription = stringResource(step.indicatorRes),
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun StepIcon(
-    step: PromocodeWizardStep,
-    isCompleted: Boolean,
-    isCurrent: Boolean,
-    onClick: (() -> Unit)?,
-    modifier: Modifier = Modifier
-) {
-    val isOptional = !step.isRequired
-
-    val containerColor = when {
-        isCompleted -> MaterialTheme.colorScheme.primary
-        isCurrent -> if (isOptional) {
-            MaterialTheme.colorScheme.tertiaryContainer
-        } else {
-            MaterialTheme.colorScheme.primaryContainer
-        }
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val contentColor = when {
-        isCompleted -> MaterialTheme.colorScheme.onPrimary
-        isCurrent -> if (isOptional) {
-            MaterialTheme.colorScheme.onTertiaryContainer
-        } else {
-            MaterialTheme.colorScheme.onPrimaryContainer
-        }
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    QodeinIconButton(
-        onClick = { onClick?.invoke() },
-        icon = step.stepIcon(isCompleted),
-        contentDescription = stringResource(step.titleRes),
-        size = ButtonSize.Small,
-        enabled = isCompleted || isCurrent,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        modifier = modifier,
-    )
 }
 
 @PreviewLightDark
