@@ -161,8 +161,6 @@
 
     <string name="error_retry">Try again</string>
     <string name="action_retry">Retry</string>
-    <string name="discount_percent">%1$s%% OFF</string>
-    <string name="discount_fixed">%1$s₸ OFF</string>
 
     <string name="filter_chip_sort">Sort</string>
 
@@ -189,13 +187,6 @@
     <string name="auth_profile_message">Sign in to view your promocodes, track your stats, and manage your profile.</string>
     <string name="auth_report_title">Sign in to report</string>
     <string name="auth_report_message">Help keep the community safe by reporting inappropriate content.</string>
-    <string name="step_service_title">Select Service</string>
-    <string name="step_discount_type_title">Discount Type</string>
-    <string name="step_discount_type_short">Type</string>
-    <string name="step_discount_value_title">Discount Value</string>
-    <string name="step_discount_value_short">Value</string>
-    <string name="step_description_title">Add additional information</string>
-    <string name="step_start_date_title">Pick start and end dates</string>
     <string name="step_start_date_short">Dates</string>
 
     <string name="legal_consent_title">Accept the Terms</string>
@@ -223,7 +214,5 @@
     <string name="ui_share_post_cta">Read more on Qodein</string>
     <string name="ui_share_promocode_header">%1$s: %2$s</string>
     <string name="ui_share_code_label">Code: %1$s</string>
-    <string name="ui_action_share_post">Share Post</string>
-    <string name="ui_action_share_promocode">Share Promocode</string>
 
 </resources>

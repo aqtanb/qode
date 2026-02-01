@@ -71,7 +71,6 @@ fun PromocodeDatesStep(
         DatePickerField(
             selectedDate = startDate,
             onDateSelected = onStartDateSelected,
-            placeholder = stringResource(R.string.promocode_dates_start_placeholder),
         )
 
         Text(
@@ -83,7 +82,6 @@ fun PromocodeDatesStep(
         DatePickerField(
             selectedDate = endDate,
             onDateSelected = onEndDateSelected,
-            placeholder = stringResource(R.string.promocode_dates_end_placeholder),
         )
     }
 }
@@ -93,7 +91,6 @@ fun PromocodeDatesStep(
 private fun DatePickerField(
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
-    placeholder: String,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -135,7 +132,7 @@ private fun DatePickerField(
             )
 
             Text(
-                text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: placeholder,
+                text = selectedDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: "",
                 fontWeight = if (hasSelection) FontWeight.SemiBold else FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),

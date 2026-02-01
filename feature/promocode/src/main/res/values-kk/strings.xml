@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_continue">Жалғастыру</string>
-    <string name="action_share">Бөлісу</string>
     <string name="action_submit">Жіберу</string>
 
     <string name="promocode_fixed_amount_discount">%2$s₸-ден жоғары тапсырыстарға %1$s₸ жеңілдік алыңыз</string>
@@ -26,8 +25,10 @@
 
     <string name="promocode_description_placeholder">Қосымша өріс</string>
 
-    <string name="promocode_dates_start_placeholder">Басталу күнін таңдаңыз</string>
-    <string name="promocode_dates_end_placeholder">Аяқталу күнін таңдаңыз</string>
+    <string name="promocode_image_limit_reached">Максималды 3 сурет рұқсат етілген</string>
+    <string name="promocode_images_partially_added">Тек %1$d сурет қосылды (шек: 3)</string>
+    <string name="cd_add_image_promocode">Промокодқа сурет қосу</string>
+
     <string name="promocode_dates_confirm">ОК</string>
 
     <string name="promocode_discount_percentage_helper">Пайызды енгізіңіз (1–99%)</string>
@@ -44,16 +45,21 @@
     <string name="promo_code_step_helper_text">Әріптер, сандар, сызықшалар және асты сызылған белгілер рұқсат етілген</string>
 
     <string name="promocode_code_choose_label">Промкодты енгізіңіз</string>
-    <string name="promocode_code_step_title">Промокод және түрі</string>
+    <string name="promocode_dates_end_choose_label">Аяқталу күнін таңдаңыз</string>
     <string name="promocode_type_percentage">Пайыз</string>
     <string name="promocode_type_amount">Сома</string>
     <string name="promocode_type_gift">Сыйлық</string>
     <string name="promocode_type_choose_label">Жеңілдік түрін таңдаңыз</string>
     <string name="cd_upvote">Ұнату, %1$d</string>
     <string name="cd_downvote">Ұнатпау, %1$d</string>
-    <string name="cd_share">Промокодты бөлісу</string>
 
     <string name="promocode_details_verified">Тексерілгенба?</string>
 
     <string name="service_confirmation_question">Дұрыс па?</string>
+    <string name="promocode_dates_start_choose_label">Басталу күнін таңдаңыз</string>
+    <string name="promocode_service_choose_selector_label">Қызметті таңдаңыз</string>
+    <string name="promocode_service_choose_name">Қызмет атауын енгізіңіз</string>
+    <string name="promocode_service_choose_url">Қызмет URL-ін енгізіңіз</string>
+    <string name="promocode_discount_value_choose_label">Жеңілдік мөлшерін енгізіңіз</string>
+    <string name="promocode_discount_min_order_choose_label">Тапсырыстың минималды сомасын енгізіңіз</string>
 </resources>

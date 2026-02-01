@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_continue">Continue</string>
-    <string name="action_share">Share</string>
     <string name="action_submit">Submit</string>
 
     <string name="promocode_fixed_amount_discount">Get %1$s₸ OFF on orders above %2$s₸</string>
@@ -32,8 +31,6 @@
     <string name="promocode_images_partially_added">Only %1$d images added (limit: 3)</string>
     <string name="cd_add_image_promocode">Add image to promocode</string>
 
-    <string name="promocode_dates_start_placeholder">Select start date</string>
-    <string name="promocode_dates_end_placeholder">Select end date</string>
     <string name="promocode_dates_confirm">OK</string>
 
     <string name="promocode_discount_percentage_placeholder" translatable="false">30</string>
@@ -70,7 +67,6 @@
 
     <string name="cd_upvote">Upvote, %1$d</string>
     <string name="cd_downvote">Downvote, %1$d</string>
-    <string name="cd_share">Share promocode</string>
 
     <string name="promocode_details_verified">Is verified?</string>
 

@@ -2,27 +2,19 @@ package com.qodein.core.ui.component
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.qodein.core.designsystem.theme.QodeTheme
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -142,128 +134,6 @@ fun <T> AutoScrollingBanner(
                 }
                 content(items[actualIndex], actualIndex)
             }
-        }
-    }
-}
-
-// MARK: - Preview Data
-
-/**
- * Sample banner configuration for previews
- */
-private data class SampleBannerItem(val id: String, val title: String, val backgroundColor: Color)
-
-private val sampleBannerItems = listOf(
-    SampleBannerItem("1", "Banner 1", Color(0xFF6366F1)),
-    SampleBannerItem("2", "Banner 2", Color(0xFFEC4899)),
-    SampleBannerItem("3", "Banner 3", Color(0xFF10B981)),
-    SampleBannerItem("4", "Banner 4", Color(0xFFF59E0B)),
-    SampleBannerItem("5", "Banner 5", Color(0xFF8B5CF6)),
-)
-
-/**
- * Sample banner content for previews
- */
-@Composable
-private fun SampleBannerContent(
-    item: SampleBannerItem,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(item.backgroundColor),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = item.title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
-        )
-    }
-}
-
-// MARK: - Previews
-
-@Preview(
-    name = "Auto-Scrolling Banner",
-    showBackground = true,
-    heightDp = 200,
-)
-@Composable
-private fun AutoScrollingBannerPreview() {
-    QodeTheme {
-        AutoScrollingBanner(
-            items = sampleBannerItems,
-            autoScrollDelay = 2.seconds,
-            modifier = Modifier.fillMaxWidth(),
-        ) { item, _ ->
-            SampleBannerContent(
-                item = item,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Banner with No Auto-Scroll",
-    showBackground = true,
-    heightDp = 200,
-)
-@Composable
-private fun ManualBannerPreview() {
-    QodeTheme {
-        AutoScrollingBanner(
-            items = sampleBannerItems,
-            enableAutoScroll = false,
-            modifier = Modifier.fillMaxWidth(),
-        ) { item, _ ->
-            SampleBannerContent(
-                item = item,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Single Item Banner",
-    showBackground = true,
-    heightDp = 200,
-)
-@Composable
-private fun SingleItemBannerPreview() {
-    QodeTheme {
-        AutoScrollingBanner(
-            items = listOf(sampleBannerItems.first()),
-            modifier = Modifier.fillMaxWidth(),
-        ) { item, _ ->
-            SampleBannerContent(
-                item = item,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Banner without Indicators",
-    showBackground = true,
-    heightDp = 200,
-)
-@Composable
-private fun BannerWithoutIndicatorsPreview() {
-    QodeTheme {
-        AutoScrollingBanner(
-            items = sampleBannerItems,
-            pageIndicatorEnabled = false,
-            modifier = Modifier.fillMaxWidth(),
-        ) { item, _ ->
-            SampleBannerContent(
-                item = item,
-                modifier = Modifier.fillMaxSize(),
-            )
         }
     }
 }

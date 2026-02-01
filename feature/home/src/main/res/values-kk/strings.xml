@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error_image_not_available">Сурет қол жетімді емес</string>
     <string name="empty_no_promo_codes">Промокодтар жоқ</string>
     <string name="empty_check_back_later">Жеңілдіктер үшін кейінірек келіңіз!</string>
-    <string name="promocode_label">ПРОМОКОД</string>
 
-    <string name="banner_loading_title">Ұсыныстар жүктелуде</string>
-    <string name="banner_loading_description">Сіз үшін үздік акцияларды іздеудеміз…</string>
     <string name="banner_empty_title">Белсенді баннерлер жоқ</string>
-    <string name="banner_empty_description">Сіздің жарнамаңыз осында болуы мүмкін :)</string>
-    <string name="banner_error_title">Баннерлерді жүктеу сәтсіз аяқталды</string>
+    <string name="home_banner_empty_description">Сіздің жарнамаңыз осында болуы мүмкін :)</string>
     <string name="filter_chip_reset">Тазалау</string>
 </resources>

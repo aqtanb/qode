@@ -5,12 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -25,60 +27,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.qodein.core.designsystem.component.PageIndicator
-import com.qodein.core.designsystem.component.QodeButton
-import com.qodein.core.designsystem.icon.QodeBusinessIcons
-import com.qodein.core.designsystem.icon.UIIcons
-import com.qodein.core.designsystem.theme.OpacityTokens
+import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.AutoScrollingBanner
+import com.qodein.core.ui.component.EmptyState
+import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.rememberBackdropBlurState
-import com.qodein.core.ui.error.asUiText
 import com.qodein.core.ui.preview.BannerPreviewData
 import com.qodein.feature.home.BannerState
 import com.qodein.feature.home.R
 import com.qodein.shared.common.error.FirestoreError
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
-import com.qodein.shared.model.getTranslatedCtaDescription
 import com.qodein.shared.model.getTranslatedCtaTitle
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeEffect
-import kotlin.time.Duration.Companion.seconds
-import com.qodein.core.ui.R as CoreUiR
-
-// MARK: - Constants
+import dev.chrisbanes.haze.hazeSource
 
 private val BLUR_RADIUS = 16.dp
-private const val BANNER_HEIGHT_PERCENTAGE = 0.5f
-private const val TEXT_BACKGROUND_TOP_ALPHA = 0.6f
-private const val TEXT_BACKGROUND_BOTTOM_ALPHA = 0.8f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.3f
 
-// MARK: - Layout Proportions
-private const val CLEAR_IMAGE_WEIGHT = 0.8f
-private const val CTA_AREA_WEIGHT = 0.2f
-
-// MARK: - Main Component
-
-/**
- * Hero Banner Section with state-based rendering
- * Maintains consistent banner structure across Loading, Success, Error, and Empty states
- */
 @Composable
 fun HeroBannerSection(
     bannerState: BannerState,
@@ -87,68 +69,60 @@ fun HeroBannerSection(
     onRetryBanners: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (bannerState) {
-        BannerState.Loading -> {
-            BannerStructure(
-                imageContent = {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                ctaTitle = stringResource(R.string.banner_loading_title),
-                ctaDescription = stringResource(R.string.banner_loading_description),
-                modifier = modifier,
-            )
-        }
-        is BannerState.Success -> {
-            if (bannerState.banners.isNotEmpty()) {
-                BannerContent(
-                    banners = bannerState.banners,
-                    onBannerClick = onBannerClick,
-                    userLanguage = userLanguage,
-                    modifier = modifier,
-                )
-            } else {
-                BannerStructure(
-                    imageContent = {
-                        Icon(
-                            imageVector = QodeBusinessIcons.Asset,
-                            contentDescription = null,
-                            modifier = modifier.size(SizeTokens.Avatar.sizeLarge),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    },
-                    ctaTitle = stringResource(R.string.banner_empty_title),
-                    ctaDescription = stringResource(R.string.banner_empty_description),
-                    modifier = modifier,
-                )
-            }
-        }
-        is BannerState.Error -> {
-            BannerStructure(
-                imageContent = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
-                    ) {
-                        Icon(
-                            imageVector = UIIcons.Error,
-                            contentDescription = null,
-                            modifier = modifier.size(SizeTokens.Avatar.sizeLarge).padding(bottom = SpacingTokens.md),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
+    val screenHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+    val bannerHeight = screenHeight * BANNER_HEIGHT_PERCENTAGE
 
-                        QodeButton(
-                            onClick = onRetryBanners,
-                            text = stringResource(CoreUiR.string.error_retry),
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    var currentPage by remember { mutableIntStateOf(0) }
+    var totalPages by remember { mutableIntStateOf(0) }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(bannerHeight)
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (bannerState) {
+                is BannerState.Error -> {
+                    QodeErrorCard(
+                        error = bannerState.error,
+                        onRetry = onRetryBanners,
+                        modifier = Modifier.padding(SpacingTokens.xs),
+                    )
+                }
+                BannerState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.padding(SpacingTokens.xs))
+                }
+                is BannerState.Success -> {
+                    if (bannerState.banners.isEmpty()) {
+                        EmptyState(
+                            title = stringResource(R.string.banner_empty_title),
+                            description = stringResource(R.string.home_banner_empty_description),
+                            modifier = Modifier.padding(SpacingTokens.xs),
+                        )
+                    } else {
+                        BannerContent(
+                            banners = bannerState.banners,
+                            onBannerClick = onBannerClick,
+                            userLanguage = userLanguage,
+                            onPageChange = { page, total ->
+                                currentPage = page
+                                totalPages = total
+                            },
                         )
                     }
-                },
-                ctaTitle = stringResource(R.string.banner_error_title),
-                ctaDescription = bannerState.error.asUiText(),
-                modifier = modifier,
+                }
+            }
+        }
+
+        if (totalPages > 1) {
+            PageIndicator(
+                currentIndex = currentPage,
+                totalPages = totalPages,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = SpacingTokens.xs),
             )
         }
     }
@@ -159,37 +133,25 @@ private fun BannerContent(
     banners: List<Banner>,
     onBannerClick: (Banner) -> Unit,
     userLanguage: Language,
+    onPageChange: (page: Int, total: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var currentPage by remember { mutableIntStateOf(0) }
-    var totalPages by remember(banners.size) { mutableIntStateOf(banners.size) }
-
-    val screenHeight = LocalWindowInfo.current.let { windowInfo ->
-        with(LocalDensity.current) { windowInfo.containerSize.height.toDp() }
-    }
-
     AutoScrollingBanner(
         items = banners,
-        autoScrollDelay = 4.seconds,
         onPagerStateChange = { page, total ->
-            currentPage = page
             if (total > 0 && total == banners.size) {
-                totalPages = total
+                onPageChange(page, total)
             }
         },
         key = { banner -> "${banner.id}-${userLanguage.code}" },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(screenHeight * BANNER_HEIGHT_PERCENTAGE),
+        modifier = modifier.fillMaxSize(),
     ) { banner, _ ->
         key(userLanguage) {
             BannerItem(
                 banner = banner,
                 onBannerClick = onBannerClick,
-                currentPage = currentPage,
-                totalPages = totalPages,
                 userLanguage = userLanguage,
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -199,192 +161,84 @@ private fun BannerContent(
 private fun BannerItem(
     banner: Banner,
     onBannerClick: (Banner) -> Unit,
-    currentPage: Int,
-    totalPages: Int,
     userLanguage: Language,
     modifier: Modifier = Modifier
 ) {
     val hazeState = rememberBackdropBlurState()
-    val ctaTitle = remember(userLanguage) {
-        val title = banner.getTranslatedCtaTitle(userLanguage)
-        title
-    }
-    val ctaDescription = remember(userLanguage) { banner.getTranslatedCtaDescription(userLanguage) }
+    val ctaTitle = remember(userLanguage) { banner.getTranslatedCtaTitle(userLanguage) }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .clickable { onBannerClick(banner) },
-    ) {
-        // Layer 1: The Image with Haze blur source
-        Box(
-            modifier = modifier
+    Box(modifier = modifier) {
+        AsyncImage(
+            model = banner.imageUrl,
+            contentDescription = ctaTitle,
+            modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (banner.imageUrl.isBlank()) {
-                Text(
-                    text = stringResource(R.string.error_image_not_available),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            } else {
-                AsyncImage(
-                    model = banner.imageUrl,
-                    contentDescription = ctaTitle,
-                    modifier = modifier
-                        .fillMaxSize()
-                        .haze(hazeState),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-        }
+                .hazeSource(hazeState),
+            contentScale = ContentScale.Crop,
+        )
 
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Spacer(modifier = Modifier.weight(CLEAR_IMAGE_WEIGHT))
-            Box(
-                modifier = Modifier
-                    .weight(CTA_AREA_WEIGHT)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                BannerCallToAction(
-                    ctaTitle = ctaTitle,
-                    ctaDescription = ctaDescription,
-                    currentPage = currentPage,
-                    totalPages = totalPages,
-                    hazeState = hazeState,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-    }
-}
-
-// MARK: - State Structure Component
-
-@Composable
-private fun BannerStructure(
-    imageContent: @Composable () -> Unit,
-    ctaTitle: String,
-    ctaDescription: String,
-    modifier: Modifier = Modifier
-) {
-    val screenHeight = LocalWindowInfo.current.let { windowInfo ->
-        with(LocalDensity.current) { windowInfo.containerSize.height.toDp() }
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(screenHeight * BANNER_HEIGHT_PERCENTAGE)
-            .background(MaterialTheme.colorScheme.surface),
-    ) {
-        // Center image content
         Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            imageContent()
-        }
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.7f to MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.4f),
+                    ),
+                ),
+        )
 
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Spacer(modifier = Modifier.weight(CLEAR_IMAGE_WEIGHT))
-            Box(
-                modifier = Modifier
-                    .weight(CTA_AREA_WEIGHT)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                BannerCallToAction(
-                    ctaTitle = ctaTitle,
-                    ctaDescription = ctaDescription,
-                    currentPage = 0,
-                    totalPages = 1,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
+        BannerCallToAction(
+            ctaTitle = ctaTitle,
+            onBannerClick = { onBannerClick(banner) },
+            hazeState = hazeState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = SpacingTokens.md),
+        )
     }
 }
 
 @Composable
 private fun BannerCallToAction(
     ctaTitle: String,
-    ctaDescription: String,
-    currentPage: Int,
-    totalPages: Int,
-    hazeState: HazeState? = null,
+    onBannerClick: () -> Unit,
+    hazeState: HazeState,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .clip(RoundedCornerShape(ShapeTokens.Corner.full))
+            .hazeEffect(
+                state = hazeState,
+                style = HazeStyle(
+                    tint = HazeTint(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)),
+                    blurRadius = BLUR_RADIUS,
+                ),
+            )
+            .clickable { onBannerClick() }
+            .padding(horizontal = SpacingTokens.lg, vertical = SpacingTokens.sm),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (totalPages > 1) {
-            PageIndicator(
-                currentIndex = currentPage,
-                totalPages = totalPages,
-                inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                activeColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = SpacingTokens.xs),
-            )
-        }
+        Text(
+            text = ctaTitle,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            maxLines = 1,
+        )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(
-                    RoundedCornerShape(
-                        topStart = ShapeTokens.Corner.extraLarge,
-                        topEnd = ShapeTokens.Corner.extraLarge,
-                    ),
-                )
-                .let { base ->
-                    hazeState?.let {
-                        base.hazeEffect(
-                            state = it,
-                            style = HazeStyle(
-                                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = OpacityTokens.HAZE_BACKGROUND)),
-                                blurRadius = BLUR_RADIUS,
-                            ),
-                        )
-                    } ?: base
-                },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = ctaTitle,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-            )
+        Spacer(modifier = Modifier.width(SpacingTokens.xs))
 
-            Text(
-                text = ctaDescription,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-            )
-        }
+        Icon(
+            imageVector = NavigationIcons.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.size(20.dp),
+        )
     }
 }
-
-// MARK: - Previews
 
 @PreviewLightDark
 @Composable

@@ -16,6 +16,7 @@
     <string name="error_auth_user_cancelled">Вход был отменен.</string>
     <string name="error_auth_invalid_credentials">Неверные учетные данные. Попробуйте войти снова.</string>
     <string name="error_promo_code_already_exists">Этот промо-код уже существует.</string>
+    <string name="error_promocode_too_many_images">Слишком много изображений (макс. 3)</string>
     <string name="error_user_not_found">Учетная запись пользователя не найдена.</string>
     <string name="error_service_not_found">Сервис не найден. Попробуйте снова.</string>
     <string name="error_unknown">Что-то пошло не так. Попробуйте снова.</string>
@@ -143,7 +144,6 @@
     <string name="error_algolia_service_unavailable">Сервис поиска временно недоступен.</string>
     <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
-    <string name="discount_fixed">%1$s₸ СКИДКА</string>
     <string name="filter_chip_sort">Сортировка</string>
     <string name="search_services_placeholder">Поиск сервисов…</string>
     <string name="popular_services_title">Популярные сервисы</string>
@@ -166,15 +166,7 @@
     <string name="auth_profile_message">Войдите, чтобы просматривать свои промкоды, отслеживать статистику и управлять своим профилем.</string>
     <string name="auth_report_title">Войдите, чтобы пожаловаться</string>
     <string name="auth_report_message">Помогите поддерживать безопасность сообщества, сообщая о неприемлемом контенте.</string>
-    <string name="step_service_title">Выберите сервис</string>
-    <string name="step_discount_type_title">Тип скидки</string>
-    <string name="step_discount_type_short">Тип</string>
-    <string name="step_discount_value_title">Размер скидки</string>
-    <string name="step_discount_value_short">Размер</string>
-    <string name="step_description_title">Добавьте дополнительную информацию</string>
-    <string name="step_start_date_title">Выберите дни начала и окончания</string>
     <string name="step_start_date_short">Дни</string>
-    <string name="discount_percent">%1$s%% СКИДКА</string>
 
     <string name="legal_consent_title">Примите условия</string>
     <string name="legal_consent_subtitle">Чтобы использовать приложение, необходимо принять наши условия.</string>
@@ -186,6 +178,7 @@
     <string name="loading">Загрузка…</string>
     <string name="ui_service">Сервис</string>
     <string name="ui_description">Описание</string>
+    <string name="ui_discount">Скидка</string>
     <string name="ui_image_remove">Удалить изображение</string>
     <string name="ui_image_post">Добавить изображение</string>
     <string name="ui_action_downvote">Понизить рейтинг</string>
@@ -202,6 +195,4 @@
     <string name="ui_share_post_cta">Читать больше в Qodein</string>
     <string name="ui_share_promocode_header">%1$s: %2$s</string>
     <string name="ui_share_code_label">Код: %1$s</string>
-    <string name="ui_action_share_post">Поделиться</string>
-    <string name="ui_action_share_promocode">Поделиться промокодом</string>
 </resources>

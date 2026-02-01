@@ -15,7 +15,6 @@
     <string name="about_app_name" translatable="false">Qode</string>
     <string name="about_version">Version %s</string>
     <string name="about_device_version" translatable="false">Android %1$s (API %2$d)</string>
-    <string name="about_join_telegram">Join our community</string>
 
     <!-- Delete Account -->
     <string name="settings_delete_account_title">Delete Account</string>

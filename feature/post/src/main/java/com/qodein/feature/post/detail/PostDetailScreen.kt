@@ -44,6 +44,7 @@ import com.qodein.feature.post.detail.component.PostDetailTopAppBar
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.Post
 import com.qodein.shared.model.PostId
+import com.qodein.shared.model.ShareContent
 import com.qodein.shared.model.UserId
 import com.qodein.shared.model.VoteState
 import dev.chrisbanes.haze.HazeState
@@ -228,7 +229,7 @@ private fun PostDetailErrorState(
 
 private fun sharePost(
     context: Context,
-    shareContent: com.qodein.shared.model.ShareContent
+    shareContent: ShareContent
 ) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
@@ -237,7 +238,7 @@ private fun sharePost(
         putExtra(Intent.EXTRA_SUBJECT, shareContent.title)
     }
 
-    val chooserTitle = context.getString(CoreUiR.string.ui_action_share_post)
+    val chooserTitle = context.getString(CoreUiR.string.ui_action_share)
     try {
         context.startActivity(Intent.createChooser(shareIntent, chooserTitle))
     } catch (_: Exception) {

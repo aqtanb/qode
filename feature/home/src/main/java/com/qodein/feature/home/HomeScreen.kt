@@ -31,6 +31,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.component.PromocodeCard
 import com.qodein.core.ui.component.SortFilterBottomSheet
+import com.qodein.core.ui.preview.BannerPreviewData
 import com.qodein.core.ui.util.CustomTabsUtils
 import com.qodein.feature.home.ui.component.FiltersSection
 import com.qodein.feature.home.ui.component.HeroBannerSection
@@ -187,7 +188,7 @@ private fun HomeContent(
                         onAction(HomeAction.ResetFilters)
                     },
                     modifier = Modifier.padding(
-                        top = SpacingTokens.lg,
+                        top = SpacingTokens.md,
                         bottom = SpacingTokens.md,
                         start = SpacingTokens.sm,
                         end = SpacingTokens.sm,
@@ -276,7 +277,7 @@ private const val PROMO_CODES_LOADING_MORE_KEY = "promo_codes_loading_more"
 private fun HomeScreenPreview() {
     QodeTheme {
         HomeContent(
-            uiState = HomeUiState(),
+            uiState = HomeUiState(bannerState = BannerState.Success(BannerPreviewData.allSamples)),
             listState = rememberLazyListState(),
             onShowSortDialog = {},
             onShowServiceSelection = {},

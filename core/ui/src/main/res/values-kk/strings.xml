@@ -17,6 +17,7 @@
     <string name="error_auth_invalid_credentials">Жарамсыз тіркелгі деректері. Қайтадан кіруді көріңіз.</string>
     <string name="error_promo_code_already_exists">Бұл промо код әлдеқашан бар.</string>
 
+    <string name="error_promocode_too_many_images">Тым көп сурет (көбі 3)</string>
     <string name="error_user_not_found">Пайдаланушы тіркелгісі табылмады.</string>
     <string name="error_service_not_found">Қызмет табылмады. Қайтадан көріңіз.</string>
     <string name="error_unknown">Бірдеңе дұрыс болмады. Қайтадан көріңіз.</string>
@@ -152,7 +153,6 @@
     <string name="error_algolia_service_unavailable">Іздеу қызметі уақытша қолжетімсіз.</string>
     <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
 
-    <string name="discount_fixed">%1$s₸ ЖЕҢІЛДІК</string>
     <string name="filter_chip_sort">Сұрыптау</string>
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>
     <string name="popular_services_title">Танымал қызметтер</string>
@@ -175,15 +175,7 @@
     <string name="auth_profile_message">Промкодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
     <string name="auth_report_title">Шағымдану үшін кіріңіз</string>
     <string name="auth_report_message">Орынсыз мазмұн туралы хабарлап, қауымдастықтың қауіпсіздігін сақтауға көмектесіңіз.</string>
-    <string name="step_service_title">Қызметті таңдаңыз</string>
-    <string name="step_discount_type_title">Жеңілдік түрі</string>
-    <string name="step_discount_type_short">Түрі</string>
-    <string name="step_discount_value_title">Жеңілдік мөлшері</string>
-    <string name="step_discount_value_short">Мөлшері</string>
-    <string name="step_description_title">Қосымша ақпарат беріңіз</string>
-    <string name="step_start_date_title">Басталу және аяқталу күндерін талдаңыз</string>
     <string name="step_start_date_short">Күндер</string>
-    <string name="discount_percent">%1$s%% ЖЕҢІЛДІК</string>
 
     <string name="legal_consent_title">Шарттарды қабылдаңыз</string>
     <string name="legal_consent_subtitle">Қолданбаны пайдалану үшін біздің шарттарымызды қабылдауыңыз керек.</string>
@@ -195,6 +187,7 @@
     <string name="loading">Жүктелуде…</string>
     <string name="ui_service">Қызмет</string>
     <string name="ui_description">Сипаттама</string>
+    <string name="ui_discount">Жеңілдік</string>
     <string name="ui_image_remove">Суретті өшіру</string>
     <string name="ui_image_post">Сурет қосу</string>
     <string name="ui_action_downvote">Рейтинг төмендету</string>
@@ -211,6 +204,4 @@
     <string name="ui_share_post_cta">Qodein-де толығырақ оқыңыз</string>
     <string name="ui_share_promocode_header">%1$s: %2$s</string>
     <string name="ui_share_code_label">Код: %1$s</string>
-    <string name="ui_action_share_post">Бөлісу</string>
-    <string name="ui_action_share_promocode">Промокодпен бөлісу</string>
 </resources>

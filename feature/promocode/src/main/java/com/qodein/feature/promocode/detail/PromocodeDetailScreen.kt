@@ -345,7 +345,7 @@ private fun shareContent(
         putExtra(Intent.EXTRA_SUBJECT, shareContent.title)
     }
 
-    val chooserTitle = context.getString(CoreUiR.string.ui_action_share_promocode)
+    val chooserTitle = context.getString(CoreUiR.string.ui_action_share)
     try {
         context.startActivity(Intent.createChooser(shareIntent, chooserTitle))
     } catch (_: Exception) {
