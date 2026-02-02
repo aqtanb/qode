@@ -37,6 +37,7 @@ jobs:
           echo "WEB_CLIENT_ID=${{ secrets.FIREBASE_WEB_CLIENT_ID }}" >> local.properties
           echo "ALGOLIA_APP_ID=${{ secrets.ALGOLIA_APP_ID }}" >> local.properties
           echo "ALGOLIA_SEARCH_API_KEY=${{ secrets.ALGOLIA_SEARCH_API_KEY }}" >> local.properties
+          echo "LOGO_DEV_PUBLIC_KEY=${{ secrets.LOGO_DEV_PUBLIC_KEY }}" >> local.properties
           echo "KEYSTORE_FILE=../qode-release.jks" >> local.properties
           echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> local.properties
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties

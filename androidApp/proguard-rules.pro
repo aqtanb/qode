@@ -53,6 +53,9 @@
 -keepclassmembers class io.ktor.** { volatile <fields>; }
 -keepclassmembers class kotlinx.coroutines.** { volatile <fields>; }
 
+# Keep BuildKonfig generated class and its fields
+-keep class com.qodein.shared.BuildKonfig { *; }
+
 # Suppress warnings for optional dependencies not used in your app
 -dontwarn kotlinx.atomicfu.**
 -dontwarn io.netty.**
