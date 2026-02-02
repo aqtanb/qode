@@ -48,6 +48,11 @@ private const val DEEP_LINK_SCHEME = "qodein"
 private const val DEEP_LINK_POST_PATH = "post"
 
 /**
+ * Deep link path segment for navigating to promocode detail screens.
+ */
+private const val DEEP_LINK_PROMOCODE_PATH = "promocode"
+
+/**
  * Implementation of [Notifier] that displays notifications in the system tray.
  */
 @SuppressLint("MissingPermission")
@@ -72,7 +77,11 @@ internal class SystemTrayNotifier(private val context: Context) : Notifier {
         showUploadSummary()
     }
 
-    override fun showUploadSuccess(uploadId: String) {
+    override fun showUploadSuccess(
+        uploadId: String,
+        contentType: UploadContentType,
+        contentId: String
+    ) {
         if (!hasNotificationPermission()) return
 
         NotificationManagerCompat.from(context).cancel(uploadId.hashCode())
@@ -81,7 +90,7 @@ internal class SystemTrayNotifier(private val context: Context) : Notifier {
         val notification = context.createUploadNotification {
             setContentTitle(context.getString(R.string.core_notifications_upload_success))
             setContentText(context.getString(R.string.core_notifications_tap_to_view))
-            setContentIntent(context.createPostDeepLinkIntent(uploadId))
+            setContentIntent(context.createContentDeepLinkIntent(contentType, contentId))
             setSmallIcon(R.drawable.core_notifications_ic_qode_notification)
             setAutoCancel(true)
         }
@@ -153,10 +162,17 @@ private fun Context.ensureNotificationChannelExists() {
 }
 
 /**
- * Creates a PendingIntent that opens the post detail screen via deep link
+ * Creates a PendingIntent that opens the content detail screen via deep link
  */
-private fun Context.createPostDeepLinkIntent(postId: String): PendingIntent {
-    val deepLinkUri = "$DEEP_LINK_SCHEME://$DEEP_LINK_POST_PATH/$postId".toUri()
+private fun Context.createContentDeepLinkIntent(
+    contentType: UploadContentType,
+    contentId: String
+): PendingIntent {
+    val path = when (contentType) {
+        UploadContentType.POST -> DEEP_LINK_POST_PATH
+        UploadContentType.PROMOCODE -> DEEP_LINK_PROMOCODE_PATH
+    }
+    val deepLinkUri = "$DEEP_LINK_SCHEME://$path/$contentId".toUri()
 
     val intent = Intent(Intent.ACTION_VIEW, deepLinkUri).apply {
         component = ComponentName(
@@ -167,7 +183,7 @@ private fun Context.createPostDeepLinkIntent(postId: String): PendingIntent {
 
     return PendingIntent.getActivity(
         this,
-        postId.hashCode(),
+        contentId.hashCode(),
         intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )

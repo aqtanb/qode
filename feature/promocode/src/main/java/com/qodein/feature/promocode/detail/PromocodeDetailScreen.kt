@@ -125,7 +125,7 @@ fun PromocodeDetailScreen(
     val hazeState = remember { HazeState() }
 
     val title = when (val state = uiState.promocodeState) {
-        is PromocodeUiState.Success -> state.data.code.value
+        is PromocodeUiState.Success -> state.data.code
         else -> ""
     }
     val authorId = (uiState.promocodeState as? PromocodeUiState.Success)?.data?.authorId

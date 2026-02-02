@@ -36,10 +36,9 @@ data class PromocodeSubmissionUiState(
     val isCompressing: Boolean = false,
     val serviceConfirmationDialog: ServiceConfirmationDialogState? = null
 ) {
-    val canGoNext: Boolean get() = !isCompressing && !currentStep.isLast &&
-        (currentStep.canProceed(wizardData) || !currentStep.isRequired)
+    val canGoNext: Boolean get() = !currentStep.isLast
 
-    val canGoPrevious: Boolean get() = !isCompressing && !currentStep.isFirst
+    val canGoPrevious: Boolean get() = !currentStep.isFirst
 
     val canSubmit: Boolean get() = !isCompressing &&
         allRequiredStepsComplete() &&

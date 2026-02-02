@@ -8,6 +8,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import co.touchlab.kermit.Logger
 import com.qodein.core.notifications.Notifier
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
@@ -56,8 +57,12 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
 
     override suspend fun doWork(): ListenableWorker.Result {
         val uploadId = id.toString()
+        Logger.i { "UploadPromocodeWorker started: uploadId=$uploadId" }
 
-        val code = inputData.getString(KEY_CODE) ?: return ListenableWorker.Result.failure()
+        val code = inputData.getString(KEY_CODE) ?: run {
+            Logger.e { "Missing KEY_CODE" }
+            return ListenableWorker.Result.failure()
+        }
         val serviceType = inputData.getString(KEY_SERVICE_TYPE) ?: return ListenableWorker.Result.failure()
         val userId = inputData.getString(KEY_USER_ID) ?: return ListenableWorker.Result.failure()
         val discountType = inputData.getString(KEY_DISCOUNT_TYPE) ?: return ListenableWorker.Result.failure()
@@ -92,16 +97,21 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
             else -> return ListenableWorker.Result.failure()
         }
 
-        val userResult = getUserByIdUseCase(userId)
-        val user = when (userResult) {
+        Logger.d { "Fetching user: userId=$userId" }
+        val user = when (val userResult = getUserByIdUseCase(userId)) {
             is DomainResult.Error -> {
+                Logger.e { "Failed to fetch user: ${userResult.error}" }
                 notifier.showUploadError(uploadId)
                 return ListenableWorker.Result.failure()
             }
-            is DomainResult.Success -> userResult.data
+            is DomainResult.Success -> {
+                Logger.d { "User fetched successfully: ${userResult.data}" }
+                userResult.data
+            }
         }
 
         val imageUris = imageUriStrings.map { PlatformUri(it.toUri()) }
+        Logger.d { "Creating promocode request: code=$code, service=$service, images=${imageUris.size}" }
 
         val request = SubmitPromocodeRequest(
             code = code,
@@ -118,6 +128,7 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
             isVerified = isVerified,
         )
 
+        Logger.i { "Submitting promocode..." }
         when (
             val result = submitPromocodeUseCase(
                 request = request,
@@ -128,11 +139,17 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
             )
         ) {
             is DomainResult.Error -> {
+                Logger.e { "Promocode submission failed: ${result.error}" }
                 notifier.showUploadError(uploadId)
                 return ListenableWorker.Result.failure()
             }
             is DomainResult.Success -> {
-                notifier.showUploadSuccess(uploadId)
+                Logger.i { "Promocode submitted successfully: ${result.data}" }
+                notifier.showUploadSuccess(
+                    uploadId = uploadId,
+                    contentType = com.qodein.core.notifications.UploadContentType.PROMOCODE,
+                    contentId = result.data,
+                )
                 return ListenableWorker.Result.success()
             }
         }

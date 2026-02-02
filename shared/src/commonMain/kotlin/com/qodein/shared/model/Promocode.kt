@@ -5,7 +5,6 @@ package com.qodein.shared.model
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import kotlinx.serialization.Serializable
-import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -44,39 +43,6 @@ value class PromocodeId(val value: String) {
     }
 }
 
-@Serializable
-@JvmInline
-value class PromocodeCode(val value: String) {
-    override fun toString(): String = value
-
-    companion object {
-        const val MIN_LENGTH = 1
-        const val MAX_LENGTH = 50
-
-        fun create(rawCode: String): Result<PromocodeCode, PromocodeError.CreationFailure> {
-            val normalized = rawCode.trim()
-
-            if (normalized.isEmpty()) {
-                return Result.Error(PromocodeError.CreationFailure.EmptyCode)
-            }
-            if (normalized.length < MIN_LENGTH) {
-                return Result.Error(PromocodeError.CreationFailure.CodeTooShort)
-            }
-            if (normalized.length > MAX_LENGTH) {
-                return Result.Error(PromocodeError.CreationFailure.CodeTooLong)
-            }
-
-            return Result.Success(PromocodeCode(normalized))
-        }
-
-        /**
-         * Creates a code from already validated/persisted data (e.g., Firestore DTOs).
-         * Bypasses validation since data is assumed to be trusted.
-         */
-        fun fromRaw(rawCode: String): PromocodeCode = PromocodeCode(rawCode)
-    }
-}
-
 /**
  * Discount type for promocodes.
  * Sealed interface ensures type safety while avoiding boilerplate.
@@ -89,14 +55,14 @@ sealed interface Discount {
     fun validate(minimumOrderAmount: Double): Result<Unit, PromocodeError.CreationFailure> =
         when (this) {
             is Percentage -> {
-                if (value <= 0 || value > 100) {
+                if (value !in 0.0..100.0) {
                     Result.Error(PromocodeError.CreationFailure.InvalidPercentageDiscount)
                 } else {
                     Result.Success(Unit)
                 }
             }
             is FixedAmount -> {
-                if (value <= 0) {
+                if (value < 0) {
                     Result.Error(PromocodeError.CreationFailure.InvalidFixedAmountDiscount)
                 } else if (value > minimumOrderAmount) {
                     Result.Error(PromocodeError.CreationFailure.DiscountExceedsMinimumAmount)
@@ -142,7 +108,7 @@ data class Promocode
 @OptIn(ExperimentalTime::class)
 private constructor(
     val id: PromocodeId,
-    val code: PromocodeCode,
+    val code: String,
     val discount: Discount,
     val minimumOrderAmount: Double,
     val startDate: Instant,
@@ -170,16 +136,56 @@ private constructor(
 ) {
 
     companion object {
+        const val CODE_MAX_LENGTH = 50
         const val DESCRIPTION_MAX_LENGTH = 1000
         const val MINIMUM_ORDER_AMOUNT_MAX_LENGTH = 50
         const val DISCOUNT_AMOUNT_MAX_LENGTH = 50
         const val DISCOUNT_PERCENTAGE_MAX_LENGTH = 50
-        const val MINIMUM_MONETARY_VALUE = 1.0
+        const val MINIMUM_MONETARY_VALUE = 0.0
         const val MAX_DECIMAL_PLACES = 2
         const val PERCENTAGE_MIN_VALUE = 1.0
         const val PERCENTAGE_MAX_VALUE = 100.0
         const val DEFAULT_PAGE_SIZE = 5
         const val MAX_IMAGES = 3
+
+        fun sanitizeCode(code: String): String = code.trim()
+
+        fun sanitizeMonetaryValue(value: String): String = value.trim()
+
+        fun sanitizeDescription(description: String): String = description.trim()
+
+        fun validateCode(code: String): Result<Unit, PromocodeError.CreationFailure> =
+            when {
+                code.isEmpty() -> Result.Error(PromocodeError.CreationFailure.EmptyCode)
+                code.length > CODE_MAX_LENGTH -> Result.Error(PromocodeError.CreationFailure.CodeTooLong)
+                else -> Result.Success(Unit)
+            }
+
+        fun validateDescription(description: String?): Result<Unit, PromocodeError.CreationFailure> {
+            val sanitized = description?.let { sanitizeDescription(it) }
+            return if (sanitized != null && sanitized.length > DESCRIPTION_MAX_LENGTH) {
+                Result.Error(PromocodeError.CreationFailure.DescriptionTooLong)
+            } else {
+                Result.Success(Unit)
+            }
+        }
+
+        fun validateMinimumOrderAmount(amount: Double): Result<Unit, PromocodeError.CreationFailure> =
+            if (amount < MINIMUM_MONETARY_VALUE) {
+                Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
+            } else {
+                Result.Success(Unit)
+            }
+
+        fun validateDateRange(
+            startDate: Instant,
+            endDate: Instant
+        ): Result<Unit, PromocodeError.CreationFailure> =
+            if (endDate <= startDate) {
+                Result.Error(PromocodeError.CreationFailure.InvalidDateRange)
+            } else {
+                Result.Success(Unit)
+            }
 
         @OptIn(ExperimentalTime::class)
         fun create(
@@ -194,25 +200,31 @@ private constructor(
             description: String? = null,
             imageUrls: List<String> = emptyList()
         ): Result<Promocode, PromocodeError.CreationFailure> {
-            val promoCode = when (val result = PromocodeCode.create(code)) {
-                is Result.Error -> return Result.Error(result.error)
-                is Result.Success -> result.data
-            }
-            val cleanDescription = description?.trim()
-
-            if (minimumOrderAmount <= 0) {
-                return Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
-            }
-
-            when (val validation = discount.validate(minimumOrderAmount)) {
-                is Result.Error -> return Result.Error(validation.error)
+            val sanitizedCode = sanitizeCode(code)
+            when (val result = validateCode(sanitizedCode)) {
+                is Result.Error -> return result
                 is Result.Success -> Unit
             }
 
-            cleanDescription?.let {
-                if (it.length > DESCRIPTION_MAX_LENGTH) {
-                    return Result.Error(PromocodeError.CreationFailure.DescriptionTooLong)
-                }
+            when (val result = validateMinimumOrderAmount(minimumOrderAmount)) {
+                is Result.Error -> return result
+                is Result.Success -> Unit
+            }
+
+            when (val result = discount.validate(minimumOrderAmount)) {
+                is Result.Error -> return result
+                is Result.Success -> Unit
+            }
+
+            val cleanDescription = description?.let { sanitizeDescription(it) }
+            when (val result = validateDescription(cleanDescription)) {
+                is Result.Error -> return result
+                is Result.Success -> Unit
+            }
+
+            when (val result = validateDateRange(startDate, endDate)) {
+                is Result.Error -> return result
+                is Result.Success -> Unit
             }
 
             val cleanImageUrls = imageUrls.map { it.trim() }.filter { it.isNotBlank() }
@@ -220,14 +232,10 @@ private constructor(
                 return Result.Error(PromocodeError.CreationFailure.TooManyImages)
             }
 
-            if (endDate <= startDate) {
-                return Result.Error(PromocodeError.CreationFailure.InvalidDateRange)
-            }
-
             val promoId = when (
                 val idResult = PromocodeId.create(
                     serviceName = service.name,
-                    code = promoCode.value,
+                    code = sanitizedCode,
                 )
             ) {
                 is Result.Error -> return Result.Error(idResult.error)
@@ -237,7 +245,7 @@ private constructor(
             return Result.Success(
                 Promocode(
                     id = promoId,
-                    code = promoCode,
+                    code = sanitizedCode,
                     discount = discount,
                     minimumOrderAmount = minimumOrderAmount,
                     startDate = startDate,
@@ -289,7 +297,7 @@ private constructor(
         ): Promocode =
             Promocode(
                 id = id,
-                code = PromocodeCode.fromRaw(code),
+                code = code,
                 discount = discount,
                 minimumOrderAmount = minimumOrderAmount,
                 startDate = startDate,

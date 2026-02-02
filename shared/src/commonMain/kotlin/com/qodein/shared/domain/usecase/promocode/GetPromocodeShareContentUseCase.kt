@@ -36,7 +36,7 @@ class GetPromocodeShareContentUseCase(
             )
             append("\n")
 
-            append(stringProvider.getPromocodeLabel(promocode.code.value))
+            append(stringProvider.getPromocodeLabel(promocode.code))
             append("\n\n")
 
             promocode.description?.takeIf { it.isNotBlank() }?.let { description ->

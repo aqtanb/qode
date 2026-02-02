@@ -11,11 +11,11 @@ val promocodeModule = module {
             application = get(),
             savedStateHandle = get(),
             enqueuePromocodeSubmissionUseCase = get(),
-            analyticsHelper = get(),
             getAuthStateUseCase = get(),
             getUserByIdUseCase = get(),
             getServicesByIdsUseCase = get(),
             getServiceLogoUrlUseCase = get(),
+            notificationPermissionChecker = get(),
         )
     }
 

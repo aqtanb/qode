@@ -10,7 +10,11 @@ internal class NoOpNotifier : Notifier {
         max: Int
     ) = Unit
 
-    override fun showUploadSuccess(uploadId: String) = Unit
+    override fun showUploadSuccess(
+        uploadId: String,
+        contentType: UploadContentType,
+        contentId: String
+    ) = Unit
 
     override fun showUploadError(uploadId: String) = Unit
 }

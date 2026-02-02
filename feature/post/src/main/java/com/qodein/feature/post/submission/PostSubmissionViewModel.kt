@@ -8,6 +8,8 @@ import co.touchlab.kermit.Logger
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
+import com.qodein.shared.common.permission.NotificationPermissionChecker
+import com.qodein.shared.common.permission.NotificationPermissionState
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.post.EnqueuePostSubmissionUseCase
@@ -24,7 +26,8 @@ import kotlinx.coroutines.launch
 class PostSubmissionViewModel(
     application: Application,
     private val getAuthStateUseCase: GetAuthStateUseCase,
-    private val enqueuePostSubmissionUseCase: EnqueuePostSubmissionUseCase
+    private val enqueuePostSubmissionUseCase: EnqueuePostSubmissionUseCase,
+    private val notificationPermissionChecker: NotificationPermissionChecker
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(PostSubmissionUiState())
@@ -148,6 +151,36 @@ class PostSubmissionViewModel(
     }
 
     private fun submitPost() {
+        when (notificationPermissionChecker.checkPermission()) {
+            NotificationPermissionState.Denied -> {
+                viewModelScope.launch {
+                    _events.emit(PostSubmissionEvent.RequestNotificationPermission)
+                }
+                return
+            }
+            NotificationPermissionState.Granted,
+            NotificationPermissionState.NotRequired -> {
+                proceedWithSubmission()
+            }
+        }
+    }
+
+    fun onPermissionResult(granted: Boolean) {
+        if (granted || !notificationPermissionChecker.isPermissionRequired()) {
+            proceedWithSubmission()
+        } else {
+            viewModelScope.launch {
+                _events.emit(
+                    PostSubmissionEvent.ShowError(
+                        com.qodein.core.ui.text.UiText.StringResource(com.qodein.core.ui.R.string.notification_permission_denied_message),
+                    ),
+                )
+            }
+            proceedWithSubmission()
+        }
+    }
+
+    private fun proceedWithSubmission() {
         val currentState = _uiState.value
         val userId = (currentAuthState as? AuthState.Authenticated)?.userId ?: return
 

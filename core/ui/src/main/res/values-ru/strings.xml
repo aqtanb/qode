@@ -51,11 +51,22 @@
     <string name="error_promo_invalid_percentage" formatted="false">Процент скидки должен быть от 1% до 100%.</string>
     <string name="error_promo_invalid_fixed_amount">Фиксированная скидка должна быть больше нуля.</string>
     <string name="error_promo_invalid_minimum_amount">Минимальная сумма заказа должна быть больше нуля.</string>
+
+    <string name="notification_permission_denied_message">Уведомления отключены. Вы не увидите прогресс загрузки.</string>
+    <string name="notification_permission_rationale">Разрешите уведомления для отслеживания прогресса загрузки</string>
     <string name="error_promo_discount_exceeds_minimum">Скидка не может превышать минимальную сумму заказа.</string>
     <string name="error_promo_invalid_id">Некорректный идентификатор промокода.</string>
     <string name="error_promo_invalid_free_item_description">Описание бесплатного товара не может быть пустым.</string>
     <string name="error_promo_free_item_description_too_long">Описание бесплатного товара слишком длинное. Максимум 50 символов.</string>
     <string name="error_promo_free_item_invalid_characters">Описание бесплатного товара содержит недопустимые символы.</string>
+    <string name="error_promo_service_not_selected">Пожалуйста, выберите сервис.</string>
+    <string name="error_promo_service_name_empty">Название сервиса не может быть пустым.</string>
+    <string name="error_promo_service_url_empty">URL сервиса не может быть пустым.</string>
+    <string name="error_promo_type_not_selected">Пожалуйста, выберите тип скидки.</string>
+    <string name="error_promo_discount_percentage_empty">Процент скидки не может быть пустым.</string>
+    <string name="error_promo_discount_amount_empty">Сумма скидки не может быть пустой.</string>
+    <string name="error_promo_free_item_description_empty">Описание бесплатного товара не может быть пустым.</string>
+    <string name="error_promo_minimum_order_amount_empty">Минимальная сумма заказа не может быть пустой.</string>
     <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>

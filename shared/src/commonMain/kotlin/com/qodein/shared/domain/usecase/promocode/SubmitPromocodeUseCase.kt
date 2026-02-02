@@ -47,7 +47,7 @@ class SubmitPromocodeUseCase(
         request: SubmitPromocodeRequest,
         imageUris: List<PlatformUri> = emptyList(),
         onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }
-    ): Result<Unit, OperationError> {
+    ): Result<String, OperationError> {
         val service = when (val result = resolveService(request.service)) {
             is Result.Success -> result.data
             is Result.Error -> return Result.Error(result.error)
@@ -90,6 +90,9 @@ class SubmitPromocodeUseCase(
             }
         }
 
-        return repository.createPromocode(promocode)
+        return when (val result = repository.createPromocode(promocode)) {
+            is Result.Success -> Result.Success(promocode.id.value)
+            is Result.Error -> Result.Error(result.error)
+        }
     }
 }

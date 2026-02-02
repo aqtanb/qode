@@ -6,12 +6,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.qodein.core.analytics.AnalyticsHelper
 import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.text.UiText
 import com.qodein.core.ui.util.ImageCompressor
+import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
+import com.qodein.shared.common.permission.NotificationPermissionChecker
+import com.qodein.shared.common.permission.NotificationPermissionState
 import com.qodein.shared.domain.AuthState
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
 import com.qodein.shared.domain.usecase.promocode.EnqueuePromocodeSubmissionUseCase
@@ -39,11 +42,11 @@ class PromocodeSubmissionViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle,
     private val enqueuePromocodeSubmissionUseCase: EnqueuePromocodeSubmissionUseCase,
-    private val analyticsHelper: AnalyticsHelper,
     private val getAuthStateUseCase: GetAuthStateUseCase,
     private val getUserByIdUseCase: GetUserByIdUseCase,
     private val getServicesByIdsUseCase: GetServicesByIdsUseCase,
-    private val getServiceLogoUrlUseCase: GetServiceLogoUrlUseCase
+    private val getServiceLogoUrlUseCase: GetServiceLogoUrlUseCase,
+    private val notificationPermissionChecker: NotificationPermissionChecker
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(PromocodeSubmissionUiState())
@@ -75,11 +78,11 @@ class PromocodeSubmissionViewModel(
             is PromocodeSubmissionAction.UpdateServiceUrl -> updateServiceUrl(action.serviceUrl)
             is PromocodeSubmissionAction.UpdatePromocodeType -> updateWizardData { it.copy(promocodeType = action.type) }
             is PromocodeSubmissionAction.UpdatePromocode -> updatePromocode(action.promocode)
-            is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateWizardData { it.copy(discountPercentage = action.percentage) }
-            is PromocodeSubmissionAction.UpdateDiscountAmount -> updateWizardData { it.copy(discountAmount = action.amount) }
+            is PromocodeSubmissionAction.UpdateDiscountPercentage -> updateDiscountPercentage(action.percentage)
+            is PromocodeSubmissionAction.UpdateDiscountAmount -> updateDiscountAmount(action.amount)
             is PromocodeSubmissionAction.UpdateFreeItemDescription -> updateWizardData { it.copy(freeItemDescription = action.description) }
-            is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateWizardData { it.copy(minimumOrderAmount = action.amount) }
-            is PromocodeSubmissionAction.UpdateDescription -> updateWizardData { it.copy(description = action.description) }
+            is PromocodeSubmissionAction.UpdateMinimumOrderAmount -> updateMinimumOrderAmount(action.amount)
+            is PromocodeSubmissionAction.UpdateDescription -> updateDescription(action.description)
             is PromocodeSubmissionAction.UpdateStartDate -> updateWizardData { it.copy(startDate = action.date) }
             is PromocodeSubmissionAction.UpdateEndDate -> updateWizardData { it.copy(endDate = action.date) }
 
@@ -124,29 +127,116 @@ class PromocodeSubmissionViewModel(
         }
     }
 
+    private fun validateServiceStep(): Result<Unit, PromocodeError.CreationFailure> {
+        val data = _uiState.value.wizardData
+        return when {
+            !data.isManualServiceEntry && data.selectedService == null ->
+                Result.Error(PromocodeError.CreationFailure.ServiceNotSelected)
+            data.isManualServiceEntry && data.serviceName.isBlank() ->
+                Result.Error(PromocodeError.CreationFailure.EmptyServiceName)
+            data.isManualServiceEntry && data.serviceUrl.isBlank() ->
+                Result.Error(PromocodeError.CreationFailure.EmptyServiceUrl)
+            else -> Result.Success(Unit)
+        }
+    }
+
+    private fun validatePromocodeStep(): Result<Unit, PromocodeError.CreationFailure> {
+        val data = _uiState.value.wizardData
+        return when {
+            data.promocode.isBlank() ->
+                Result.Error(PromocodeError.CreationFailure.EmptyCode)
+            data.promocodeType == null ->
+                Result.Error(PromocodeError.CreationFailure.PromocodeTypeNotSelected)
+            else -> Promocode.validateCode(data.promocode)
+        }
+    }
+
+    private fun validateDiscountValueStep(): Result<Unit, PromocodeError.CreationFailure> {
+        val data = _uiState.value.wizardData
+
+        val sanitizedMinimum = Promocode.sanitizeMonetaryValue(data.minimumOrderAmount)
+        if (sanitizedMinimum.isBlank()) {
+            return Result.Error(PromocodeError.CreationFailure.EmptyMinimumOrderAmount)
+        }
+        val minimumOrder = sanitizedMinimum.toDoubleOrNull()
+            ?: return Result.Error(PromocodeError.CreationFailure.InvalidMinimumAmount)
+
+        when (val result = Promocode.validateMinimumOrderAmount(minimumOrder)) {
+            is Result.Error -> return result
+            is Result.Success -> Unit
+        }
+
+        val discount = when (data.promocodeType) {
+            PromocodeType.PERCENTAGE -> {
+                val sanitized = Promocode.sanitizeMonetaryValue(data.discountPercentage)
+                if (sanitized.isBlank()) {
+                    return Result.Error(PromocodeError.CreationFailure.EmptyDiscountPercentage)
+                }
+                val percentage = sanitized.toDoubleOrNull()
+                    ?: return Result.Error(PromocodeError.CreationFailure.InvalidPercentageDiscount)
+                Discount.Percentage(percentage)
+            }
+            PromocodeType.FIXED_AMOUNT -> {
+                val sanitized = Promocode.sanitizeMonetaryValue(data.discountAmount)
+                if (sanitized.isBlank()) {
+                    return Result.Error(PromocodeError.CreationFailure.EmptyDiscountAmount)
+                }
+                val amount = sanitized.toDoubleOrNull()
+                    ?: return Result.Error(PromocodeError.CreationFailure.InvalidFixedAmountDiscount)
+                Discount.FixedAmount(amount)
+            }
+            PromocodeType.FREE_ITEM -> {
+                if (data.freeItemDescription.isBlank()) {
+                    return Result.Error(PromocodeError.CreationFailure.EmptyFreeItemDescription)
+                }
+                Discount.FreeItem(data.freeItemDescription)
+            }
+            null -> return Result.Error(PromocodeError.CreationFailure.PromocodeTypeNotSelected)
+        }
+
+        return discount.validate(minimumOrder)
+    }
+
+    private fun validateDatesStep(): Result<Unit, PromocodeError.CreationFailure> {
+        val data = _uiState.value.wizardData
+        if (data.endDate == null) {
+            return Result.Error(PromocodeError.CreationFailure.InvalidDateRange)
+        }
+        return Promocode.validateDateRange(data.startDate.toInstant(), data.endDate.toInstant())
+    }
+
     private fun goToNextProgressiveStep() {
         val currentState = _uiState.value
 
+        // Validate current step
+        val validationResult = when (currentState.currentStep) {
+            PromocodeWizardStep.SERVICE -> validateServiceStep()
+            PromocodeWizardStep.PROMOCODE -> validatePromocodeStep()
+            PromocodeWizardStep.DISCOUNT_VALUE -> validateDiscountValueStep()
+            PromocodeWizardStep.DATES -> validateDatesStep()
+            PromocodeWizardStep.DESCRIPTION -> Promocode.validateDescription(currentState.wizardData.description.ifBlank { null })
+        }
+
+        if (validationResult is Result.Error) {
+            viewModelScope.launch {
+                _events.emit(PromocodeSubmissionEvent.ShowSnackbar(validationResult.error.toUiText()))
+            }
+            return
+        }
+
+        // Existing logic for service logo validation
         if (currentState.currentStep == PromocodeWizardStep.SERVICE &&
-            currentState.wizardData.isManualServiceEntry &&
-            currentState.canGoNext
+            currentState.wizardData.isManualServiceEntry
         ) {
             validateServiceLogoAndProceed()
             return
         }
 
+        // Proceed to next step
         _uiState.update { state ->
-            if (state.canGoNext) {
-                val currentStep = state.currentStep
-                val nextStep = currentStep.next()
-                if (nextStep != null) {
-                    state.copy(currentStep = nextStep)
-                } else {
-                    state
-                }
-            } else {
-                state
-            }
+            state.currentStep.next()?.let { nextStep ->
+                state.copy(currentStep = nextStep)
+            } ?: state
         }
     }
 
@@ -171,7 +261,7 @@ class PromocodeSubmissionViewModel(
                     }
                 }
                 is Result.Error -> {
-                    _events.emit(PromocodeSubmissionEvent.ShowError(result.error.toUiText()))
+                    _events.emit(PromocodeSubmissionEvent.ShowSnackbar(result.error.toUiText()))
                 }
             }
         }
@@ -254,13 +344,21 @@ class PromocodeSubmissionViewModel(
             val availableSlots = Promocode.MAX_IMAGES - currentImages.size
 
             if (availableSlots == 0) {
-                _events.emit(PromocodeSubmissionEvent.ImageLimitReached)
+                _events.emit(
+                    PromocodeSubmissionEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.promocode_image_limit_reached),
+                    ),
+                )
                 return@launch
             }
 
             val urisToCompress = uris.take(availableSlots).map { it.toUri() }
             if (uris.size > availableSlots) {
-                _events.emit(PromocodeSubmissionEvent.ImagesPartiallyAdded(urisToCompress.size))
+                _events.emit(
+                    PromocodeSubmissionEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.promocode_images_partially_added),
+                    ),
+                )
             }
 
             if (urisToCompress.isEmpty()) return@launch
@@ -280,7 +378,7 @@ class PromocodeSubmissionViewModel(
                     }
                 }
                 is Result.Error -> {
-                    _events.emit(PromocodeSubmissionEvent.ShowError(result.error.toUiText()))
+                    _events.emit(PromocodeSubmissionEvent.ShowSnackbar(result.error.toUiText()))
                 }
             }
 
@@ -295,13 +393,61 @@ class PromocodeSubmissionViewModel(
     }
 
     private fun updatePromocode(rawCode: String) {
-        updateWizardData { it.copy(promocode = rawCode) }
+        val sanitizedPromocode = Promocode.sanitizeCode(rawCode)
+        updateWizardData { it.copy(promocode = sanitizedPromocode) }
     }
 
-    /**
-     * Submit promocode using authenticated user from current state
-     */
+    private fun updateDiscountPercentage(rawPercentage: String) {
+        val sanitized = Promocode.sanitizeMonetaryValue(rawPercentage)
+        updateWizardData { it.copy(discountPercentage = sanitized) }
+    }
+
+    private fun updateDiscountAmount(rawAmount: String) {
+        val sanitized = Promocode.sanitizeMonetaryValue(rawAmount)
+        updateWizardData { it.copy(discountAmount = sanitized) }
+    }
+
+    private fun updateMinimumOrderAmount(rawAmount: String) {
+        val sanitized = Promocode.sanitizeMonetaryValue(rawAmount)
+        updateWizardData { it.copy(minimumOrderAmount = sanitized) }
+    }
+
+    private fun updateDescription(rawDescription: String) {
+        val sanitized = Promocode.sanitizeDescription(rawDescription)
+        updateWizardData { it.copy(description = sanitized) }
+    }
+
     private fun submitPromoCode() {
+        when (notificationPermissionChecker.checkPermission()) {
+            NotificationPermissionState.Denied -> {
+                viewModelScope.launch {
+                    _events.emit(PromocodeSubmissionEvent.RequestNotificationPermission)
+                }
+                return
+            }
+            NotificationPermissionState.Granted,
+            NotificationPermissionState.NotRequired -> {
+                proceedWithSubmission()
+            }
+        }
+    }
+
+    fun onPermissionResult(granted: Boolean) {
+        if (granted || !notificationPermissionChecker.isPermissionRequired()) {
+            proceedWithSubmission()
+        } else {
+            viewModelScope.launch {
+                _events.emit(
+                    PromocodeSubmissionEvent.ShowSnackbar(
+                        UiText.StringResource(com.qodein.core.ui.R.string.notification_permission_denied_message),
+                    ),
+                )
+            }
+            proceedWithSubmission()
+        }
+    }
+
+    private fun proceedWithSubmission() {
         Logger.i { "submitPromoCode() called - using authenticated user" }
 
         val userId = (currentAuthState as? AuthState.Authenticated)?.userId
@@ -315,7 +461,7 @@ class PromocodeSubmissionViewModel(
                 is Result.Success -> performSubmission(userResult.data)
                 is Result.Error -> {
                     Logger.w { "Cannot submit: failed to load user profile: ${userResult.error}" }
-                    _events.emit(PromocodeSubmissionEvent.ShowError(userResult.error.toUiText()))
+                    _events.emit(PromocodeSubmissionEvent.ShowSnackbar(userResult.error.toUiText()))
                 }
             }
         }
@@ -344,7 +490,7 @@ class PromocodeSubmissionViewModel(
                 PromocodeType.FIXED_AMOUNT -> Discount.FixedAmount(wizardData.discountAmount.toDoubleOrNull() ?: 0.0)
                 PromocodeType.FREE_ITEM -> Discount.FreeItem(wizardData.freeItemDescription)
                 null -> {
-                    _events.emit(PromocodeSubmissionEvent.ShowError(PromocodeError.CreationFailure.InvalidPromocodeId.toUiText()))
+                    _events.emit(PromocodeSubmissionEvent.ShowSnackbar(PromocodeError.CreationFailure.InvalidPromocodeId.toUiText()))
                     return@launch
                 }
             }
@@ -353,7 +499,7 @@ class PromocodeSubmissionViewModel(
             val endDate = wizardData.endDate
 
             if (minimumOrder == null || endDate == null) {
-                _events.emit(PromocodeSubmissionEvent.ShowError(PromocodeError.CreationFailure.InvalidPromocodeId.toUiText()))
+                _events.emit(PromocodeSubmissionEvent.ShowSnackbar(PromocodeError.CreationFailure.InvalidPromocodeId.toUiText()))
                 return@launch
             }
 
@@ -377,7 +523,7 @@ class PromocodeSubmissionViewModel(
                     _events.emit(PromocodeSubmissionEvent.PromocodeSubmitted)
                 }
                 is Result.Error -> {
-                    _events.emit(PromocodeSubmissionEvent.ShowError(result.error.toUiText()))
+                    _events.emit(PromocodeSubmissionEvent.ShowSnackbar(result.error.toUiText()))
                 }
             }
         }

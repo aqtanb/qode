@@ -63,7 +63,11 @@ class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
                 return ListenableWorker.Result.failure()
             }
             is DomainResult.Success -> {
-                notifier.showUploadSuccess(uploadId)
+                notifier.showUploadSuccess(
+                    uploadId = uploadId,
+                    contentType = com.qodein.core.notifications.UploadContentType.POST,
+                    contentId = result.data,
+                )
                 return ListenableWorker.Result.success()
             }
         }

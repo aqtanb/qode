@@ -25,6 +25,14 @@ sealed interface PromocodeError : OperationError {
         data object InvalidDateRange : CreationFailure
         data object InvalidPromocodeId : CreationFailure
         data object TooManyImages : CreationFailure
+        data object ServiceNotSelected : CreationFailure
+        data object EmptyServiceName : CreationFailure
+        data object EmptyServiceUrl : CreationFailure
+        data object PromocodeTypeNotSelected : CreationFailure
+        data object EmptyDiscountPercentage : CreationFailure
+        data object EmptyDiscountAmount : CreationFailure
+        data object EmptyFreeItemDescription : CreationFailure
+        data object EmptyMinimumOrderAmount : CreationFailure
     }
 
     /**

@@ -15,4 +15,5 @@ sealed interface PostSubmissionEvent {
     data object ImageLimitReached : PostSubmissionEvent
     data class ImagesPartiallyAdded(val count: Int) : PostSubmissionEvent
     data object PickImagesRequested : PostSubmissionEvent
+    data object RequestNotificationPermission : PostSubmissionEvent
 }

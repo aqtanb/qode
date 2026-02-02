@@ -36,9 +36,8 @@ sealed interface PromocodeSubmissionAction {
 sealed interface PromocodeSubmissionEvent {
     data object PromocodeSubmitted : PromocodeSubmissionEvent
     data object NavigateBack : PromocodeSubmissionEvent
-    data class ShowError(val message: UiText) : PromocodeSubmissionEvent
+    data class ShowSnackbar(val message: UiText) : PromocodeSubmissionEvent
     data class ShowServiceSelection(val currentSelectedService: ServiceId?) : PromocodeSubmissionEvent
     data object PickImagesRequested : PromocodeSubmissionEvent
-    data object ImageLimitReached : PromocodeSubmissionEvent
-    data class ImagesPartiallyAdded(val count: Int) : PromocodeSubmissionEvent
+    data object RequestNotificationPermission : PromocodeSubmissionEvent
 }

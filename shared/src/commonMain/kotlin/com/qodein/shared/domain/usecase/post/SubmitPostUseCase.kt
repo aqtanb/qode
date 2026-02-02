@@ -20,7 +20,7 @@ class SubmitPostUseCase(private val postRepository: PostRepository, private val 
         tags: List<String> = emptyList(),
         authorAvatarUrl: String? = null,
         onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }
-    ): Result<Unit, OperationError> {
+    ): Result<String, OperationError> {
         Logger.i { "Creating post: $title by $authorName with ${imageUris.size} images" }
 
         val imageUrls = mutableListOf<String>()
@@ -53,7 +53,11 @@ class SubmitPostUseCase(private val postRepository: PostRepository, private val 
         ) {
             is Result.Success -> {
                 Logger.d { "Post validation passed, delegating to repository" }
-                postRepository.createPost(createResult.data)
+                val post = createResult.data
+                when (val result = postRepository.createPost(post)) {
+                    is Result.Success -> Result.Success(post.id.value)
+                    is Result.Error -> Result.Error(result.error)
+                }
             }
             is Result.Error -> {
                 Logger.e { "Post validation failed: ${createResult.error}" }

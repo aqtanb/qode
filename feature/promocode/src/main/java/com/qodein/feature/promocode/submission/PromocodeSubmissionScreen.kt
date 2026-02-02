@@ -1,6 +1,8 @@
 package com.qodein.feature.promocode.submission
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.ToggleButton
@@ -36,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,7 +53,6 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.core.ui.text.asString
-import com.qodein.feature.promocode.R
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionBottomToolbar
 import com.qodein.feature.promocode.submission.component.PromocodeSubmissionCard
 import com.qodein.feature.promocode.submission.component.ServiceConfirmationDialog
@@ -58,6 +62,7 @@ import com.qodein.feature.promocode.submission.wizard.indicatorRes
 import com.qodein.feature.promocode.submission.wizard.stepIcon
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.ServiceId
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -81,28 +86,34 @@ fun PromocodeSubmissionRoute(
         viewModel.onAction(PromocodeSubmissionAction.UpdateImageUris(uris.map { it.toString() }))
     }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        viewModel.onPermissionResult(isGranted)
+    }
+
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(Unit) {
         viewModel.events.flowWithLifecycle(lifecycle).collect { event ->
             when (event) {
                 PromocodeSubmissionEvent.NavigateBack -> onNavigateBack()
                 PromocodeSubmissionEvent.PromocodeSubmitted -> onPromocodeSubmitted()
-                is PromocodeSubmissionEvent.ShowError -> snackbarHostState.showSnackbar(
-                    message = event.message.asString(context),
-                    withDismissAction = true,
-                )
+                is PromocodeSubmissionEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message.asString(context),
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
                 is PromocodeSubmissionEvent.ShowServiceSelection -> onShowServiceSelection(event.currentSelectedService)
                 PromocodeSubmissionEvent.PickImagesRequested -> pickMediaLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
-                PromocodeSubmissionEvent.ImageLimitReached -> snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.promocode_image_limit_reached),
-                    withDismissAction = true,
-                )
-                is PromocodeSubmissionEvent.ImagesPartiallyAdded -> snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.promocode_images_partially_added, event.count),
-                    withDismissAction = true,
-                )
+                PromocodeSubmissionEvent.RequestNotificationPermission -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
             }
         }
     }
@@ -147,6 +158,9 @@ private fun SubmissionContent(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -186,7 +200,11 @@ private fun SubmissionContent(
             canGoNext = uiState.canGoNext,
             canGoBack = uiState.canGoPrevious,
             isLoading = uiState.isCompressing,
-            onNext = { onAction(PromocodeSubmissionAction.NextProgressiveStep) },
+            onNext = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                onAction(PromocodeSubmissionAction.NextProgressiveStep)
+            },
             onPrevious = { onAction(PromocodeSubmissionAction.PreviousProgressiveStep) },
             canSubmit = uiState.canSubmit,
             onSubmit = { onAction(PromocodeSubmissionAction.SubmitPromoCode) },

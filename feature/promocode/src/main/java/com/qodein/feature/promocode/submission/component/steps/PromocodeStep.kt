@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -51,7 +53,7 @@ import com.qodein.feature.promocode.submission.PromocodeSubmissionUiState
 import com.qodein.feature.promocode.submission.PromocodeType
 import com.qodein.feature.promocode.submission.SubmissionWizardData
 import com.qodein.feature.promocode.submission.wizard.PromocodeWizardStep
-import com.qodein.shared.model.PromocodeCode
+import com.qodein.shared.model.Promocode
 
 @Composable
 internal fun PromocodeStep(
@@ -62,6 +64,8 @@ internal fun PromocodeStep(
     focusRequester: FocusRequester,
     onNextStep: () -> Unit
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     Column {
         Text(
             text = stringResource(R.string.promocode_code_choose_label),
@@ -77,14 +81,18 @@ internal fun PromocodeStep(
             helperText = stringResource(R.string.promo_code_step_helper_text),
             focusRequester = focusRequester,
             showPasteIcon = true,
-            maxLength = PromocodeCode.MAX_LENGTH,
+            maxLength = Promocode.CODE_MAX_LENGTH,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Text,
                 capitalization = KeyboardCapitalization.Characters,
             ),
             keyboardActions = KeyboardActions(
-                onNext = { onNextStep() },
+                onNext = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    onNextStep()
+                },
             ),
             modifier = Modifier.padding(bottom = SpacingTokens.xl),
         )

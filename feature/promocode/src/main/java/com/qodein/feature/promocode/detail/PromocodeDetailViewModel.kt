@@ -166,7 +166,7 @@ class PromocodeDetailViewModel(
         val currentPromoCode = promoState.data
 
         viewModelScope.launch {
-            _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code.value))
+            _events.emit(PromocodeDetailEvent.CopyCodeToClipboard(currentPromoCode.code))
         }
     }
 
@@ -199,7 +199,7 @@ class PromocodeDetailViewModel(
             _events.emit(
                 PromocodeDetailEvent.NavigateToReport(
                     reportedItemId = promocodeId.value,
-                    itemTitle = currentPromocode.code.value,
+                    itemTitle = currentPromocode.code,
                     itemAuthor = currentPromocode.authorUsername,
                 ),
             )

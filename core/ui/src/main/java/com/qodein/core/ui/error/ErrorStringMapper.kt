@@ -137,6 +137,14 @@ fun OperationError.toUiText(): UiText =
         PromocodeError.CreationFailure.FreeItemDescriptionInvalidCharacters -> StringResource(
             R.string.error_promo_free_item_invalid_characters,
         )
+        PromocodeError.CreationFailure.ServiceNotSelected -> StringResource(R.string.error_promo_service_not_selected)
+        PromocodeError.CreationFailure.EmptyServiceName -> StringResource(R.string.error_promo_service_name_empty)
+        PromocodeError.CreationFailure.EmptyServiceUrl -> StringResource(R.string.error_promo_service_url_empty)
+        PromocodeError.CreationFailure.PromocodeTypeNotSelected -> StringResource(R.string.error_promo_type_not_selected)
+        PromocodeError.CreationFailure.EmptyDiscountPercentage -> StringResource(R.string.error_promo_discount_percentage_empty)
+        PromocodeError.CreationFailure.EmptyDiscountAmount -> StringResource(R.string.error_promo_discount_amount_empty)
+        PromocodeError.CreationFailure.EmptyFreeItemDescription -> StringResource(R.string.error_promo_free_item_description_empty)
+        PromocodeError.CreationFailure.EmptyMinimumOrderAmount -> StringResource(R.string.error_promo_minimum_order_amount_empty)
 
         ServiceError.CreationFailure.EmptyName -> StringResource(R.string.error_service_name_empty)
         ServiceError.CreationFailure.InvalidServiceId -> StringResource(R.string.error_service_invalid_id)

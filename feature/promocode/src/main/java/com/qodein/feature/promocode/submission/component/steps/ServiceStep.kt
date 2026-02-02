@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -210,6 +211,7 @@ private fun ServiceUrlField(
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     QodeinTextField(
         value = value,
         onValueChange = { onServiceUrlChange(it) },
@@ -225,6 +227,7 @@ private fun ServiceUrlField(
         keyboardActions = KeyboardActions(
             onNext = {
                 keyboardController?.hide()
+                focusManager.clearFocus()
                 onNextStep()
             },
         ),

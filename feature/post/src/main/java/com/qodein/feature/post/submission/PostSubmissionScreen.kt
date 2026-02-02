@@ -1,5 +1,7 @@
 package com.qodein.feature.post.submission
 
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -86,6 +88,12 @@ fun PostSubmissionRoute(
         viewModel.onAction(PostSubmissionAction.UpdateImageUris(uris.map { it.toString() }))
     }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        viewModel.onPermissionResult(isGranted)
+    }
+
     LaunchedEffect(Unit) {
         viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
             when (event) {
@@ -107,6 +115,11 @@ fun PostSubmissionRoute(
                 is PostSubmissionEvent.PickImagesRequested -> pickMediaLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
+                PostSubmissionEvent.RequestNotificationPermission -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
             }
         }
     }
