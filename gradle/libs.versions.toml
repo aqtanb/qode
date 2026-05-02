@@ -57,7 +57,7 @@ timber = "5.0.1"
 
 algolia = "3.37.3"
 
-spotless = "8.1.0"
+spotless = "8.4.0"
 aboutlibraries = "13.2.1"
 
 junit = "4.13.2"
