@@ -63,7 +63,7 @@ aboutlibraries = "13.2.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-mockk = "1.14.7"
+mockk = "1.14.9"
 turbine = "1.2.1"
 robolectric = "4.16"
 
