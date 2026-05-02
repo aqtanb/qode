@@ -52,7 +52,7 @@ browser = "1.9.0"
 haze = "1.7.1"
 multiplatformMarkdown = "0.39.1"
 
-kermit = "2.0.8"
+kermit = "2.1.0"
 timber = "5.0.1"
 
 algolia = "3.37.3"
