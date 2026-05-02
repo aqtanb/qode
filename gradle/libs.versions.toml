@@ -31,7 +31,7 @@ firebaseBom = "34.8.0"
 googleServices = "4.4.4"
 firebaseCrashlytics = "3.0.6"
 
-ktor = "3.3.3"
+ktor = "3.4.3"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
 datastore = "1.2.0"
