@@ -25,7 +25,7 @@ material3Expressive = "1.5.0-alpha12"
 navigation = "2.9.6"
 kotlinxSerializationJson = "1.9.0"
 
-koin = "4.1.1"
+koin = "4.2.1"
 
 firebaseBom = "34.8.0"
 googleServices = "4.4.4"
