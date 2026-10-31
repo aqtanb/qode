@@ -27,12 +27,18 @@ service cloud.firestore {
 
     match /services/{serviceId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasOnly(['name', 'siteUrl', 'logoUrl', 'promocodeCount', 'promoCodeCount'])
+                    && request.resource.data.name is string
+                    && request.resource.data.get('promocodeCount', 0) == 0
+                    && request.resource.data.get('promoCodeCount', 0) == 0;
+      allow update, delete: if false;
     }
 
 
     match /users/{userId} {
-      allow read: if true;
+      allow get: if isSignedIn();
+      allow list: if false;
       allow create, update: if isSignedIn() && request.auth.uid == userId;
       allow delete: if isSignedIn() && request.auth.uid == userId;
 
