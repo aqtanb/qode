@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "539742119334",
+    "project_id": "qode-dev",
+    "storage_bucket": "qode-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539742119334:android:390f984bb1c587058f9b67",
+        "android_client_info": {
+          "package_name": "com.qodein.qode.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539742119334-330biar7tiq85r3mf0jf5ig5focqhtuq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qodein.qode.debug",
+            "certificate_hash": "9f5472168ebddc19600753612a7a182f59c61938"
+          }
+        },
+        {
+          "client_id": "539742119334-flvqvddpjmhc3h9pe4uk5srtjmehqcef.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qodein.qode.debug",
+            "certificate_hash": "51d1adf00630da1a1182cafc04355ea8a29bf83e"
+          }
+        },
+        {
+          "client_id": "539742119334-iqcev3e24q5598obmag5734gq3rau1l3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qodein.qode.debug",
+            "certificate_hash": "75287c9620ce6e215fd7e91b7550c81d0009f770"
+          }
+        },
+        {
+          "client_id": "539742119334-kqmh13gabo3ugepfn5m79p13790r9tjs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRbpHTC9FqQ5wfYCph0PzDODlusxRFCN0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539742119334-kqmh13gabo3ugepfn5m79p13790r9tjs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
