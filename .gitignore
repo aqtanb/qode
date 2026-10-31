@@ -78,14 +78,13 @@ lint/tmp/
 /.kotlin/
 
 # AI Assistant Instructions
-CLAUDE.md
-claude.md
-*.claude.md
 CLAUDE.local.md
 
 # Claude Code workflows
 .github/workflows/claude.yml
-/.claude/
+/.claude/*
+!/.claude/rules/
+!/.claude/skills/
 
 # Firebase
 firebase-debug.log
