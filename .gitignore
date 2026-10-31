@@ -47,9 +47,6 @@ captures/
 .externalNativeBuild
 .cxx/
 
-# Google Services
-google-services.json
-
 # Freeline
 freeline.py
 freeline/
