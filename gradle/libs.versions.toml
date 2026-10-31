@@ -1,14 +1,14 @@
 [versions]
-agp = "9.0.0"
+agp = "9.4.1"
 kotlin = "2.3.0"
-ksp = "2.3.4"
+ksp = "2.3.6"
 
 compileSdk = "36"
 minSdk = "29"
 targetSdk = "36"
 
-versionCode = "26"
-versionName = "0.8.3"
+versionCode = "27"
+versionName = "0.9.0"
 
 buildkonfig = "0.17.1"
 
