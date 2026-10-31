@@ -11,7 +11,6 @@ sealed interface UserError : OperationError {
      */
     sealed interface CreationFailure : UserError {
         data object InvalidUserId : CreationFailure
-        data object InvalidEmail : CreationFailure
         data object DisplayNameTooLong : CreationFailure
         data object InvalidPhotoUrl : CreationFailure
     }

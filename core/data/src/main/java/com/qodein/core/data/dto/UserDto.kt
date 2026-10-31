@@ -30,7 +30,6 @@ data class UserConsentDto(val legalPoliciesAcceptedAt: Timestamp? = null)
 data class UserDto(
     @DocumentId
     val documentId: String = "",
-    val email: String = "",
     val profile: UserProfileDto = UserProfileDto(),
     val stats: UserStatsDto = UserStatsDto(),
     val consent: UserConsentDto = UserConsentDto()

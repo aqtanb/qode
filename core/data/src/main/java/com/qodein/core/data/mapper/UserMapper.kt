@@ -5,7 +5,6 @@ import com.qodein.core.data.dto.UserConsentDto
 import com.qodein.core.data.dto.UserDto
 import com.qodein.core.data.dto.UserProfileDto
 import com.qodein.core.data.dto.UserStatsDto
-import com.qodein.shared.model.Email
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserConsent
 import com.qodein.shared.model.UserId
@@ -17,7 +16,6 @@ object UserMapper {
     fun toDomain(dto: UserDto): User =
         User.fromDto(
             id = UserId(dto.documentId),
-            email = Email(dto.email),
             profile = UserProfile.fromDto(
                 displayName = dto.profile.displayName,
                 photoUrl = dto.profile.photoUrl,
@@ -35,7 +33,6 @@ object UserMapper {
     fun toDto(user: User): UserDto =
         UserDto(
             documentId = user.id.value,
-            email = user.email.value,
             profile = UserProfileDto(
                 displayName = user.profile.displayName,
                 photoUrl = user.profile.photoUrl,
