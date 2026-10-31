@@ -67,7 +67,6 @@
     <string name="error_promo_discount_amount_empty">Сумма скидки не может быть пустой.</string>
     <string name="error_promo_free_item_description_empty">Описание бесплатного товара не может быть пустым.</string>
     <string name="error_promo_minimum_order_amount_empty">Минимальная сумма заказа не может быть пустой.</string>
-    <string name="error_user_invalid_email">Некорректный адрес электронной почты.</string>
     <string name="error_user_invalid_photo_url">Некорректная ссылка на фото профиля.</string>
     <string name="error_user_invalid_id">Некорректный идентификатор пользователя.</string>
     <string name="error_user_deletion_not_authenticated">Для удаления аккаунта необходимо войти.</string>

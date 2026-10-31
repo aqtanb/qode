@@ -68,7 +68,6 @@
     <string name="error_promo_minimum_order_amount_empty">Minimum order amount cannot be empty.</string>
 
     <string name="error_user_not_found">User account not found.</string>
-    <string name="error_user_invalid_email">Email address is invalid. Please enter a valid email.</string>
     <string name="error_user_invalid_photo_url">Profile photo URL is invalid. Must be a valid HTTP/HTTPS link.</string>
     <string name="error_user_invalid_id">Invalid user identifier.</string>
     <string name="error_user_display_name_too_long">Display name is too long.</string>

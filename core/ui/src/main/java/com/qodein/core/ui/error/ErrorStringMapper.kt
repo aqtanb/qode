@@ -158,7 +158,6 @@ fun OperationError.toUiText(): UiText =
         ServiceError.SubmissionFailure.InvalidData -> StringResource(R.string.error_service_submission_invalid_data)
         ServiceError.SubmissionFailure.NotAuthorized -> StringResource(R.string.error_service_submission_not_authorized)
 
-        UserError.CreationFailure.InvalidEmail -> StringResource(R.string.error_user_invalid_email)
         UserError.CreationFailure.InvalidPhotoUrl -> StringResource(R.string.error_user_invalid_photo_url)
         UserError.CreationFailure.InvalidUserId -> StringResource(R.string.error_user_invalid_id)
         UserError.AuthenticationFailure.AccountConflict -> StringResource(R.string.error_user_auth_account_conflict)

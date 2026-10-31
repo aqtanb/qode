@@ -26,7 +26,6 @@ class AcceptConsentAndCreateUserUseCase(private val userRepository: UserReposito
 
         val newUser = User.create(
             id = authUser.uid,
-            email = authUser.email,
             profile = userProfile,
             consent = consent,
         ).let { result ->
