@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.time.Instant
+import com.qodein.core.ui.R as CoreUiR
 
 class PromocodeSubmissionViewModel(
     application: Application,
@@ -439,7 +440,7 @@ class PromocodeSubmissionViewModel(
             viewModelScope.launch {
                 _events.emit(
                     PromocodeSubmissionEvent.ShowSnackbar(
-                        UiText.StringResource(com.qodein.core.ui.R.string.notification_permission_denied_message),
+                        UiText.StringResource(CoreUiR.string.notification_permission_denied_message),
                     ),
                 )
             }

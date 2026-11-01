@@ -29,7 +29,7 @@ import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.error.asUiText
 import com.qodein.feature.home.PromocodeUiState
 import com.qodein.feature.home.R
-import com.qodein.shared.common.error.FirestoreError
+import com.qodein.shared.common.error.DatabaseError
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.core.ui.R as CoreUiR
 
@@ -167,7 +167,7 @@ private fun PromocodeSectionEmptyStatePreview() {
 private fun PromocodeSectionErrorStatePreview() {
     QodeTheme {
         PromocodeSectionErrorState(
-            errorState = PromocodeUiState.Error(error = FirestoreError.NotFound),
+            errorState = PromocodeUiState.Error(error = DatabaseError.NotFound),
             onRetry = { },
         )
     }

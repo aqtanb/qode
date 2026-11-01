@@ -143,16 +143,6 @@
     <string name="error_firestore_internal">Внутренняя ошибка Firestore.</string>
     <string name="error_firestore_unavailable">Firestore временно недоступен.</string>
 
-    <string name="error_algolia_index_not_found">Индекс поиска не найден.</string>
-    <string name="error_algolia_insufficient_permissions">Доступ к поиску запрещен.</string>
-    <string name="error_algolia_invalid_credentials">Ошибка авторизации в поиске.</string>
-    <string name="error_algolia_invalid_query">Некорректный поисковый запрос.</string>
-    <string name="error_algolia_network_error">Нет подключения к сервису поиска.</string>
-    <string name="error_algolia_rate_limit_exceeded">Слишком много запросов. Подождите и попробуйте снова.</string>
-    <string name="error_algolia_request_too_large">Запрос слишком сложный.</string>
-    <string name="error_algolia_server_error">Сервис поиска испытывает проблемы.</string>
-    <string name="error_algolia_service_unavailable">Сервис поиска временно недоступен.</string>
-    <string name="error_algolia_timeout">Превышено время ожидания поиска.</string>
 
     <string name="filter_chip_sort">Сортировка</string>
     <string name="search_services_placeholder">Поиск сервисов…</string>

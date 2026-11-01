@@ -5,6 +5,7 @@ package com.qodein.shared.model
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.PromocodeError
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant

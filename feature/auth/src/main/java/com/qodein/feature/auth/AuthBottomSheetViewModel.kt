@@ -15,6 +15,7 @@ import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
 import com.qodein.shared.model.DocumentType
 import com.qodein.shared.model.GoogleAuthResult
+import com.qodein.shared.model.GoogleIdToken
 import com.qodein.shared.model.UserResolutionResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,8 +66,8 @@ class AuthBottomSheetViewModel(
         }
     }
 
-    private suspend fun handleSignInResult(idToken: String) {
-        when (val result = signInWithGoogleUseCase(idToken)) {
+    private suspend fun handleSignInResult(token: GoogleIdToken) {
+        when (val result = signInWithGoogleUseCase(token)) {
             is Result.Error -> {
                 analyticsHelper.logLogin(method = "google", success = false)
                 _isLoading.value = false

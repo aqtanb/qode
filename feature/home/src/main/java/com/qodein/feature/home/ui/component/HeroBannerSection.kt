@@ -48,7 +48,7 @@ import com.qodein.core.ui.component.rememberBackdropBlurState
 import com.qodein.core.ui.preview.BannerPreviewData
 import com.qodein.feature.home.BannerState
 import com.qodein.feature.home.R
-import com.qodein.shared.common.error.FirestoreError
+import com.qodein.shared.common.error.DatabaseError
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Language
 import com.qodein.shared.model.getTranslatedCtaTitle
@@ -259,7 +259,7 @@ private fun BannerErrorStatePreview() {
     QodeTheme {
         HeroBannerSection(
             bannerState = BannerState.Error(
-                error = FirestoreError.PermissionDenied,
+                error = DatabaseError.PermissionDenied,
             ),
             userLanguage = Language.ENGLISH,
             onBannerClick = { },

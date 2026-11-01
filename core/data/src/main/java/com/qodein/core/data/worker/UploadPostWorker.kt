@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.qodein.core.notifications.Notifier
+import com.qodein.core.notifications.UploadContentType
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.model.UserId
 import com.qodein.shared.platform.PlatformUri
@@ -65,7 +66,7 @@ class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
             is DomainResult.Success -> {
                 notifier.showUploadSuccess(
                     uploadId = uploadId,
-                    contentType = com.qodein.core.notifications.UploadContentType.POST,
+                    contentType = UploadContentType.POST,
                     contentId = result.data,
                 )
                 return ListenableWorker.Result.success()

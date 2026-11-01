@@ -5,8 +5,7 @@ import com.qodein.core.ui.R
 import com.qodein.core.ui.text.UiText
 import com.qodein.core.ui.text.UiText.StringResource
 import com.qodein.core.ui.text.asString
-import com.qodein.shared.common.error.AlgoliaError
-import com.qodein.shared.common.error.FirestoreError
+import com.qodein.shared.common.error.DatabaseError
 import com.qodein.shared.common.error.InteractionError
 import com.qodein.shared.common.error.LegalDocumentError
 import com.qodein.shared.common.error.OperationError
@@ -93,32 +92,21 @@ fun OperationError.toUiText(): UiText =
         StorageError.CompressionFailure.OutOfMemory -> StringResource(R.string.error_storage_compression_out_of_memory)
         StorageError.CompressionFailure.CompressionFailed -> StringResource(R.string.error_storage_compression_failed)
 
-        FirestoreError.Cancelled -> StringResource(R.string.error_operation_cancelled)
-        FirestoreError.InvalidArgument -> StringResource(R.string.error_firestore_invalid_argument)
-        FirestoreError.DeadlineExceeded -> StringResource(R.string.error_request_timeout)
-        FirestoreError.NotFound -> StringResource(R.string.error_not_found)
-        FirestoreError.AlreadyExists -> StringResource(R.string.error_already_exists)
-        FirestoreError.PermissionDenied -> StringResource(R.string.error_firestore_permission_denied)
-        FirestoreError.ResourceExhausted -> StringResource(R.string.error_quota_exceeded)
-        FirestoreError.FailedPrecondition -> StringResource(R.string.error_operation_failed)
-        FirestoreError.Aborted -> StringResource(R.string.error_operation_aborted)
-        FirestoreError.OutOfRange -> StringResource(R.string.error_firestore_out_of_range)
-        FirestoreError.Unimplemented -> StringResource(R.string.error_not_supported)
-        FirestoreError.Internal -> StringResource(R.string.error_firestore_internal)
-        FirestoreError.Unavailable -> StringResource(R.string.error_firestore_unavailable)
-        FirestoreError.DataLoss -> StringResource(R.string.error_data_corrupted)
-        FirestoreError.Unauthenticated -> StringResource(R.string.error_auth_required)
-
-        AlgoliaError.IndexNotFound -> StringResource(R.string.error_algolia_index_not_found)
-        AlgoliaError.InsufficientPermissions -> StringResource(R.string.error_algolia_insufficient_permissions)
-        AlgoliaError.InvalidCredentials -> StringResource(R.string.error_algolia_invalid_credentials)
-        AlgoliaError.InvalidQuery -> StringResource(R.string.error_algolia_invalid_query)
-        AlgoliaError.NetworkError -> StringResource(R.string.error_algolia_network_error)
-        AlgoliaError.RateLimitExceeded -> StringResource(R.string.error_algolia_rate_limit_exceeded)
-        AlgoliaError.RequestTooLarge -> StringResource(R.string.error_algolia_request_too_large)
-        AlgoliaError.ServerError -> StringResource(R.string.error_algolia_server_error)
-        AlgoliaError.ServiceUnavailable -> StringResource(R.string.error_algolia_service_unavailable)
-        AlgoliaError.Timeout -> StringResource(R.string.error_algolia_timeout)
+        DatabaseError.Cancelled -> StringResource(R.string.error_operation_cancelled)
+        DatabaseError.InvalidArgument -> StringResource(R.string.error_firestore_invalid_argument)
+        DatabaseError.DeadlineExceeded -> StringResource(R.string.error_request_timeout)
+        DatabaseError.NotFound -> StringResource(R.string.error_not_found)
+        DatabaseError.AlreadyExists -> StringResource(R.string.error_already_exists)
+        DatabaseError.PermissionDenied -> StringResource(R.string.error_firestore_permission_denied)
+        DatabaseError.ResourceExhausted -> StringResource(R.string.error_quota_exceeded)
+        DatabaseError.FailedPrecondition -> StringResource(R.string.error_operation_failed)
+        DatabaseError.Aborted -> StringResource(R.string.error_operation_aborted)
+        DatabaseError.OutOfRange -> StringResource(R.string.error_firestore_out_of_range)
+        DatabaseError.Unimplemented -> StringResource(R.string.error_not_supported)
+        DatabaseError.Internal -> StringResource(R.string.error_firestore_internal)
+        DatabaseError.Unavailable -> StringResource(R.string.error_firestore_unavailable)
+        DatabaseError.DataLoss -> StringResource(R.string.error_data_corrupted)
+        DatabaseError.Unauthenticated -> StringResource(R.string.error_auth_required)
 
         PromocodeError.CreationFailure.CodeTooLong -> StringResource(R.string.error_promo_code_too_long)
         PromocodeError.CreationFailure.CodeTooShort -> StringResource(R.string.error_promo_code_too_short)

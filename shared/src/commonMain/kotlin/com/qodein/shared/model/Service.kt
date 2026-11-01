@@ -4,6 +4,7 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.ServiceError
 import com.qodein.shared.config.AppConfig
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
