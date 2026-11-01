@@ -1,7 +1,7 @@
 # Backend
 
 Verified at: 5ca35d55
-Covers: `firestore.rules`, `firebase/storage.rules`, `functions/src`, `core/data/src/main/java/com/qodein/core/data/dto`
+Covers: `firestore.rules`, `firebase/storage.rules`, `functions/src`, `functions/scripts`, `core/data/src/main/java/com/qodein/core/data/dto`
 
 ## Environments
 
@@ -41,7 +41,13 @@ The deployed entry point is `functions/src/index.ts`. `functions/index.js` isn't
 
 ## Search and config
 
-Service search goes through Algolia. Its values, plus `WEB_CLIENT_ID`, come from `local.properties`. If they're missing, the app builds but search and Google sign-in fail. Algolia then tries to reach `null-*.algolianet.com`.
+Service search goes through Algolia. Its values, plus `WEB_CLIENT_ID`, come from `local.properties`. Debug builds read `ALGOLIA_APP_ID_DEBUG`, `ALGOLIA_SEARCH_API_KEY_DEBUG` and `WEB_CLIENT_ID_DEBUG`. The web client ID is the `client_type` 3 entry in `google-services.json`. If they're missing, the app builds but search and Google sign-in fail. Algolia then tries to reach `null-*.algolianet.com`.
+
+## Seed data
+
+`functions/scripts/seed.ts` fills `qode-dev` with fake data, and the project is hard-coded so it can't touch prod. Run `gcloud auth application-default login` once, then `npm install` and `npm run seed` in `functions/`. `npm run seed -- --reset` removes it.
+
+Seeded IDs start with `seed-`. A re-run skips existing docs, because overwriting them would reset the counts that triggers maintain. To change a seeded collection, delete its `seed-` docs first. Images are external URLs, so storage cleanup doesn't affect them. Fake users have no Auth accounts.
 
 ## Firebase CLI
 
