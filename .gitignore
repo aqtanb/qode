@@ -110,3 +110,6 @@ tmpclaude-*
 
 *.jks
 /.firebase/
+
+# Supabase
+supabase/scripts/node_modules/
