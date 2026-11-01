@@ -45,7 +45,14 @@ Data sources, DTOs, mappers and repositories live in `shared/commonMain`, so iOS
 
 Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. The dev web client ID is in `supabase/config.toml`; apply changes with `supabase config push`.
 
-Adding a new service in the app needs `LOGO_DEV_PUBLIC_KEY` in `local.properties`. Without it, the Service step fails with only a brief snackbar.
+## New developer setup
+
+A debug build needs only `sdk.dir` in `local.properties`. The Supabase publishable key, web client ID, Logo.dev key and `google-services.json` are public and committed.
+
+- **Google sign-in:** each developer's debug SHA-1 must be added to the `qode-dev` Android app. Get it with `keytool -list -v -keystore ~/.android/debug.keystore -storepass android`, then run `firebase apps:android:sha:create` or use the console.
+- **Seed and migrations:** the developer needs access to the Supabase organization and `supabase login` in a real terminal.
+
+Release builds also need the signing values in `local.properties`, plus a prod Supabase project.
 
 ## Scripts
 

@@ -73,7 +73,7 @@ buildkonfig {
     packageName = "com.qodein.shared"
 
     defaultConfigs {
-        val logoKey = localProperties.getProperty("LOGO_DEV_PUBLIC_KEY") ?: ""
+        val logoKey = localProperties.getProperty("LOGO_DEV_PUBLIC_KEY") ?: "pk_FgWiGDdIQ1KJ7DIWJIHqeA"
         buildConfigField(STRING, "LOGO_DEV_PUBLIC_KEY", logoKey)
     }
 }

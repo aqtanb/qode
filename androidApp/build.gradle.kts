@@ -71,7 +71,7 @@ android {
                 "string",
                 "web_client_id",
                 properties.getProperty("WEB_CLIENT_ID_DEBUG")
-                    ?: properties.getProperty("WEB_CLIENT_ID")
+                    ?: "539742119334-kqmh13gabo3ugepfn5m79p13790r9tjs.apps.googleusercontent.com"
                     ?: "",
             )
         }
