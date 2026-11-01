@@ -152,16 +152,6 @@
     <string name="error_firestore_internal">Firestore ішкі қатесі.</string>
     <string name="error_firestore_unavailable">Firestore уақытша қолжетімсіз.</string>
 
-    <string name="error_algolia_index_not_found">Іздеу индексі табылмады.</string>
-    <string name="error_algolia_insufficient_permissions">Іздеуге қол жеткізуге рұқсат жоқ.</string>
-    <string name="error_algolia_invalid_credentials">Іздеу қызметінде аутентификация қатесі.</string>
-    <string name="error_algolia_invalid_query">Іздеу сұрауы қате.</string>
-    <string name="error_algolia_network_error">Іздеу қызметіне қосылу мүмкін емес.</string>
-    <string name="error_algolia_rate_limit_exceeded">Сұраулар тым көп. Күтіңіз және қайталаңыз.</string>
-    <string name="error_algolia_request_too_large">Сұрау тым күрделі.</string>
-    <string name="error_algolia_server_error">Іздеу қызметі ақауда.</string>
-    <string name="error_algolia_service_unavailable">Іздеу қызметі уақытша қолжетімсіз.</string>
-    <string name="error_algolia_timeout">Іздеу уақыты бітті.</string>
 
     <string name="filter_chip_sort">Сұрыптау</string>
     <string name="search_services_placeholder">Қызметтерді іздеу…</string>

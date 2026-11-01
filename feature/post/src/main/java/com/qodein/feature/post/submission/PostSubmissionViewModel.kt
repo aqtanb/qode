@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.qodein.core.ui.error.toUiText
+import com.qodein.core.ui.text.UiText
 import com.qodein.core.ui.util.ImageCompressor
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.permission.NotificationPermissionChecker
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.qodein.core.ui.R as CoreUiR
 
 class PostSubmissionViewModel(
     application: Application,
@@ -172,7 +174,7 @@ class PostSubmissionViewModel(
             viewModelScope.launch {
                 _events.emit(
                     PostSubmissionEvent.ShowError(
-                        com.qodein.core.ui.text.UiText.StringResource(com.qodein.core.ui.R.string.notification_permission_denied_message),
+                        UiText.StringResource(CoreUiR.string.notification_permission_denied_message),
                     ),
                 )
             }

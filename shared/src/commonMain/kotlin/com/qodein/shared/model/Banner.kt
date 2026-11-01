@@ -1,6 +1,7 @@
 package com.qodein.shared.model
 
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 @Serializable
 @JvmInline

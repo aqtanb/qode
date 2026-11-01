@@ -55,7 +55,7 @@ multiplatformMarkdown = "0.39.1"
 kermit = "2.0.8"
 timber = "5.0.1"
 
-algolia = "3.37.3"
+supabase = "3.6.0"
 
 spotless = "8.1.0"
 aboutlibraries = "13.2.1"
@@ -102,13 +102,9 @@ koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", versi
 koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
-firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
-firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
 
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
@@ -146,7 +142,12 @@ compose-icons-octicons = { group = "br.com.devsrsouza.compose.icons", name = "oc
 
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
-algolia-client = { group = "com.algolia", name = "algoliasearch-client-kotlin", version.ref = "algolia" }
+supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabase" }
+supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt" }
+supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt" }
+supabase-storage = { group = "io.github.jan-tennert.supabase", name = "storage-kt" }
+supabase-functions = { group = "io.github.jan-tennert.supabase", name = "functions-kt" }
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
@@ -203,13 +204,9 @@ koin = [
 ]
 
 firebase = [
-    "firebase-auth",
-    "firebase-firestore",
     "firebase-analytics",
     "firebase-crashlytics",
     "firebase-messaging",
-    "firebase-functions",
-    "firebase-storage"
 ]
 
 ktor = [

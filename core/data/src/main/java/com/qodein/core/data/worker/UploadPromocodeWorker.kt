@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import co.touchlab.kermit.Logger
 import com.qodein.core.notifications.Notifier
+import com.qodein.core.notifications.UploadContentType
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
@@ -147,7 +148,7 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
                 Logger.i { "Promocode submitted successfully: ${result.data}" }
                 notifier.showUploadSuccess(
                     uploadId = uploadId,
-                    contentType = com.qodein.core.notifications.UploadContentType.PROMOCODE,
+                    contentType = UploadContentType.PROMOCODE,
                     contentId = result.data,
                 )
                 return ListenableWorker.Result.success()

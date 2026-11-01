@@ -1,7 +1,7 @@
 package com.qodein.shared.domain.usecase.promocode
 
 import com.qodein.shared.common.Result
-import com.qodein.shared.common.error.FirestoreError
+import com.qodein.shared.common.error.DatabaseError
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.common.error.PromocodeError
 import com.qodein.shared.domain.repository.PromocodeRepository
@@ -84,7 +84,7 @@ class SubmitPromocodeUseCase(
         when (val result = repository.getPromocodeById(promocode.id)) {
             is Result.Success -> return Result.Error(PromocodeError.SubmissionFailure.DuplicateCode)
             is Result.Error -> {
-                if (result.error !is FirestoreError.NotFound) {
+                if (result.error !is DatabaseError.NotFound) {
                     return Result.Error(result.error)
                 }
             }

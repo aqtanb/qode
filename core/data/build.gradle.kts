@@ -1,4 +1,3 @@
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
@@ -18,19 +17,14 @@ android {
                 .toInt()
     }
 
-    val properties =
-        Properties().apply {
-            load(rootProject.file("local.properties").inputStream())
-        }
-
     buildTypes {
         debug {
-            buildConfigField("String", "ALGOLIA_APP_ID", "\"${properties.getProperty("ALGOLIA_APP_ID_DEBUG")}\"")
-            buildConfigField("String", "ALGOLIA_SEARCH_API_KEY", "\"${properties.getProperty("ALGOLIA_SEARCH_API_KEY_DEBUG")}\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://sjfzxrnqqlgywwqofdhu.supabase.co\"")
+            buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"sb_publishable_9BBbE8omnJDmEZASS77SlA_u9ZwmObp\"")
         }
         release {
-            buildConfigField("String", "ALGOLIA_APP_ID", "\"${properties.getProperty("ALGOLIA_APP_ID")}\"")
-            buildConfigField("String", "ALGOLIA_SEARCH_API_KEY", "\"${properties.getProperty("ALGOLIA_SEARCH_API_KEY")}\"")
+            buildConfigField("String", "SUPABASE_URL", "\"\"")
+            buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"\"")
         }
     }
 
@@ -49,8 +43,6 @@ dependencies {
     implementation(projects.core.notifications)
 
     implementation(libs.bundles.coroutines)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase)
     implementation(libs.bundles.authentication)
     implementation(libs.bundles.work)
 
@@ -60,5 +52,4 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kermit)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.algolia.client)
 }

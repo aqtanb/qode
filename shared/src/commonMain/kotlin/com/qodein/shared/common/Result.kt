@@ -32,3 +32,9 @@ inline fun <reified D, reified E : RootError> Result<D, E>.requireSuccess(messag
         is Result.Success -> data
         is Result.Error -> throw IllegalStateException(message ?: "Expected Success but got Error: ${error::class.simpleName}")
     }
+
+inline fun <D, R, E : RootError> Result<D, E>.flatMap(transform: (D) -> Result<R, E>): Result<R, E> =
+    when (this) {
+        is Result.Success -> transform(data)
+        is Result.Error -> this
+    }

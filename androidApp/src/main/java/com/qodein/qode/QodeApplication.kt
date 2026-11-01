@@ -7,6 +7,7 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import com.qodein.core.analytics.di.analyticsModule
 import com.qodein.core.data.di.coreDataModule
+import com.qodein.core.data.di.supabaseDataModule
 import com.qodein.core.notifications.di.notificationsModule
 import com.qodein.core.ui.di.coreUiModule
 import com.qodein.feature.auth.di.authModule
@@ -22,7 +23,6 @@ import com.qodein.qode.di.appModule
 import com.qodein.qode.di.viewModelModule
 import com.qodein.qode.logging.CrashlyticsTree
 import com.qodein.qode.logging.KermitTimberWriter
-import com.qodein.shared.data.di.sharedDataModule
 import com.qodein.shared.domain.di.domainModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -68,7 +68,7 @@ class QodeApplication :
                 coreUiModule,
                 analyticsModule,
                 notificationsModule,
-                sharedDataModule,
+                supabaseDataModule,
                 domainModule,
                 authModule,
                 blockModule,
