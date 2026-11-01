@@ -1,0 +1,32 @@
+name: Supabase Keep-Alive
+
+# Free projects pause after a week without activity. The URLs and publishable keys are public.
+on:
+  schedule:
+    - cron: '17 6 */2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: qode-prod
+            url: https://hirfattxysizfprsydyq.supabase.co
+            key: sb_publishable_UJEfBc9H1vKX-QXIsJI_7A_JnT_UB9M
+          - project: qode-dev
+            url: https://sjfzxrnqqlgywwqofdhu.supabase.co
+            key: sb_publishable_9BBbE8omnJDmEZASS77SlA_u9ZwmObp
+
+    steps:
+      - name: Query ${{ matrix.project }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --output /dev/null \
+            --header "apikey: ${{ matrix.key }}" \
+            "${{ matrix.url }}/rest/v1/services?select=id&limit=1"

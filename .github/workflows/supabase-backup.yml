@@ -1,0 +1,54 @@
+name: Supabase Backup
+
+# The repo is public, so the dump is encrypted before upload. Storage files aren't included.
+on:
+  schedule:
+    - cron: '43 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Session pooler URL: direct hosts are IPv6-only and the transaction pooler can't run pg_dump.
+      SUPABASE_PROD_DB_URL: ${{ secrets.SUPABASE_PROD_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$SUPABASE_PROD_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Set SUPABASE_PROD_DB_URL and BACKUP_PASSPHRASE. See docs/ai/backend.md."
+            exit 1
+          fi
+
+      # pg_dump must be at least as new as the server, and runners ship an older client.
+      - name: Install pg_dump 17
+        run: |
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Dump and encrypt
+        run: |
+          umask 077
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_PROD_DB_URL" \
+            --format=custom --no-owner --no-privileges \
+            --schema=public --schema=auth --schema=storage \
+            --file=qode-prod.dump
+          printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 --symmetric --cipher-algo AES256 \
+            --output qode-prod.dump.gpg qode-prod.dump
+          rm qode-prod.dump
+
+      - name: Upload encrypted dump
+        uses: actions/upload-artifact@v4
+        with:
+          name: qode-prod-${{ github.run_id }}
+          path: qode-prod.dump.gpg
+          retention-days: 14
+          if-no-files-found: error

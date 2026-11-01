@@ -1,15 +1,15 @@
 # Backend
 
-Verified at: 30922d10
+Verified at: 26ba1734
 Covers: `supabase`, `shared/src/commonMain/kotlin/com/qodein/shared/data`, `core/data/src/main/java/com/qodein/core/data`
 
-Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). The prod project doesn't exist yet, so release builds have empty Supabase values and can't run. The Play release still uses Firebase project `qodein`.
+Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). Release builds use `qode-prod` (`hirfattxysizfprsydyq`). The app on Play still uses Firebase project `qodein` until a Supabase release ships.
 
 Firebase stays for Crashlytics, Analytics and messaging only. The `firebase/`, `functions/` and `firestore.*` files serve the released app and go away once prod moves.
 
 ## Database
 
-`supabase/migrations` is the source of truth. Push with `supabase db push --linked`.
+`supabase/migrations` is the source of truth. The local link stays on dev, so `supabase db push --linked` pushes there. Push to prod with `supabase db push --project-ref hirfattxysizfprsydyq`, with the password from the Keychain item "Supabase qode-prod database password" in `SUPABASE_DB_PASSWORD`.
 
 Clients get named columns through grants, so counts, votes and `verified` are server-owned. Triggers maintain them. `vote_score` is a generated column.
 
@@ -25,13 +25,13 @@ Clients get named columns through grants, so counts, votes and `verified` are se
 
 `promocodes_view` and `posts_view` run as their owner on purpose, so feeds can show author names while `users` stays private. Expose public columns only there. Other users' names come from `get_user_profile`.
 
-This project doesn't expose new tables by default. A new table needs explicit grants, including for `service_role`.
+Neither project exposes new tables, sequences or functions by default. New objects need explicit grants, including for `service_role`.
 
 ## Storage and functions
 
 Buckets `post-images` and `promocode-images` are public to read. Uploads must go under `<user id>/`, up to 5 MB, as JPEG, PNG or WebP.
 
-`supabase/functions/delete-account` removes a user's files, then their auth user. Foreign keys cascade the rest. Deploy with `supabase functions deploy delete-account --use-api`.
+`supabase/functions/delete-account` removes a user's files, then their auth user. Foreign keys cascade the rest. Deploy with `supabase functions deploy delete-account --use-api`, adding `--project-ref hirfattxysizfprsydyq` for prod.
 
 ## Search
 
@@ -45,6 +45,8 @@ Data sources, DTOs, mappers and repositories live in `shared/commonMain`, so iOS
 
 Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. The dev web client ID is in `supabase/config.toml`; apply changes with `supabase config push`.
 
+`supabase/config.toml` describes dev, so never run a plain `config push` against prod: it would set the dev client ID and change prod's auth settings. The push only writes declared properties, so make a temporary folder whose `supabase/config.toml` declares just the setting to change, then run `supabase config diff` and `supabase config push` with `--workdir <folder> --project-ref hirfattxysizfprsydyq`. Prod's Google provider uses the `qodein` web client ID, which is also the release default in `androidApp` and `core/ui`. The native ID-token flow needs no client secret.
+
 ## New developer setup
 
 A debug build needs only `sdk.dir` in `local.properties`. The Supabase publishable key, web client ID, Logo.dev key and `google-services.json` are public and committed.
@@ -52,7 +54,13 @@ A debug build needs only `sdk.dir` in `local.properties`. The Supabase publishab
 - **Google sign-in:** each developer's debug SHA-1 must be added to the `qode-dev` Android app. Get it with `keytool -list -v -keystore ~/.android/debug.keystore -storepass android`, then run `firebase apps:android:sha:create` or use the console.
 - **Seed and migrations:** the developer needs access to the Supabase organization and `supabase login` in a real terminal.
 
-Release builds also need the signing values in `local.properties`, plus a prod Supabase project.
+Signed release builds also need the signing values in `local.properties`.
+
+## Backups and keep-alive
+
+`supabase-keep-alive.yml` queries both projects so free-tier projects don't pause. `supabase-backup.yml` dumps prod's `public`, `auth` and `storage` schemas daily and keeps them for 14 days as GPG-encrypted artifacts, because artifacts on a public repo can be downloaded by others. Storage files aren't in the dump.
+
+The backup needs two repository secrets: `SUPABASE_PROD_DB_URL`, the session pooler URL from the dashboard's Connect panel, and `BACKUP_PASSPHRASE`. Keep the passphrase somewhere outside GitHub too. To restore, run `gpg --decrypt` on the artifact, then `pg_restore` into the target database.
 
 ## Scripts
 
