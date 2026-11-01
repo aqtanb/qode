@@ -51,9 +51,10 @@ Run `sh ./gradlew` if `./gradlew` isn't executable.
 - Dependency direction: feature → shared use case → repository interface → `shared/data`. Keep `shared/commonMain` free of Android and Java APIs.
 - Return `Result<Data, OperationError>` instead of throwing across layers.
 - User-facing strings need `values`, `values-ru`, and `values-kk`.
-- Debug builds use Supabase project `qode-dev` and app ID `com.qodein.qode.debug`. Release builds use `com.qodein.qode`, and have no Supabase project yet.
+- Debug builds use Supabase project `qode-dev` and app ID `com.qodein.qode.debug`. Release builds use `com.qodein.qode` and Supabase project `qode-prod`.
 
 ## Guardrails
 
-- Ask before touching Firebase `qodein`, any future Supabase prod project, or pushing a `v*` tag, which starts Play deployment.
+- This is a solo project, so skip PRs: push approved work straight to the release branch.
+- Ask before touching Firebase `qodein`, Supabase `qode-prod`, or pushing a `v*` tag, which starts Play deployment.
 - Changes to data that released apps read must stay compatible with those apps. Check the rollout order first.
