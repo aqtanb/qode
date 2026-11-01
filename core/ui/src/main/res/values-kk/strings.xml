@@ -146,11 +146,11 @@
     <string name="error_storage_compression_out_of_memory">Сурет өңдеуге тым үлкен.</string>
     <string name="error_storage_compression_failed">Суретті сығу сәтсіз.</string>
 
-    <string name="error_firestore_invalid_argument">Firestore сұрауында қате деректер бар.</string>
-    <string name="error_firestore_out_of_range">Firestore сұрауы рұқсат етілген шектен тыс.</string>
-    <string name="error_firestore_permission_denied">Firestore сұрауына рұқсат жоқ.</string>
-    <string name="error_firestore_internal">Firestore ішкі қатесі.</string>
-    <string name="error_firestore_unavailable">Firestore уақытша қолжетімсіз.</string>
+    <string name="error_database_invalid_argument">Сұраудағы деректер қате.</string>
+    <string name="error_database_out_of_range">Сұрау мәндері рұқсат етілген ауқымнан тыс.</string>
+    <string name="error_database_permission_denied">Бұл әрекетке рұқсат жоқ.</string>
+    <string name="error_database_internal">Сервердің ішкі қатесі.</string>
+    <string name="error_database_unavailable">Сервер уақытша қолжетімсіз.</string>
 
 
     <string name="filter_chip_sort">Сұрыптау</string>

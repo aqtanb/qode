@@ -137,11 +137,11 @@
     <string name="error_storage_compression_out_of_memory">Изображение слишком большое для обработки.</string>
     <string name="error_storage_compression_failed">Не удалось сжать изображение.</string>
 
-    <string name="error_firestore_invalid_argument">Некорректные данные в запросе Firestore.</string>
-    <string name="error_firestore_out_of_range">Значения запроса Firestore выходят за допустимые пределы.</string>
-    <string name="error_firestore_permission_denied">Недостаточно прав для запроса Firestore.</string>
-    <string name="error_firestore_internal">Внутренняя ошибка Firestore.</string>
-    <string name="error_firestore_unavailable">Firestore временно недоступен.</string>
+    <string name="error_database_invalid_argument">Некорректные данные в запросе.</string>
+    <string name="error_database_out_of_range">Значения запроса вне допустимого диапазона.</string>
+    <string name="error_database_permission_denied">Недостаточно прав для этого действия.</string>
+    <string name="error_database_internal">Внутренняя ошибка сервера.</string>
+    <string name="error_database_unavailable">Сервер временно недоступен.</string>
 
 
     <string name="filter_chip_sort">Сортировка</string>
