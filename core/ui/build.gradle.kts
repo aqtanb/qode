@@ -47,7 +47,8 @@ android {
             resValue(
                 "string",
                 "web_client_id",
-                localProperties.getProperty("WEB_CLIENT_ID") ?: "",
+                localProperties.getProperty("WEB_CLIENT_ID")
+                    ?: "371926698326-ug3ui9ihutq4898v7ku0cllankdroqjk.apps.googleusercontent.com",
             )
         }
     }

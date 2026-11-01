@@ -23,8 +23,8 @@ android {
             buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"sb_publishable_9BBbE8omnJDmEZASS77SlA_u9ZwmObp\"")
         }
         release {
-            buildConfigField("String", "SUPABASE_URL", "\"\"")
-            buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://hirfattxysizfprsydyq.supabase.co\"")
+            buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"sb_publishable_UJEfBc9H1vKX-QXIsJI_7A_JnT_UB9M\"")
         }
     }
 

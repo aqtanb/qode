@@ -90,7 +90,7 @@ android {
                 "string",
                 "web_client_id",
                 properties.getProperty("WEB_CLIENT_ID")
-                    ?: "",
+                    ?: "371926698326-ug3ui9ihutq4898v7ku0cllankdroqjk.apps.googleusercontent.com",
             )
         }
     }
