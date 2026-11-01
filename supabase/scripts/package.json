@@ -1,0 +1,15 @@
+{
+  "name": "qode-supabase-scripts",
+  "private": true,
+  "scripts": {
+    "seed": "tsx seed.ts",
+    "test:security": "tsx security.test.ts"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.19.0",
+    "ws": "^8.22.1"
+  }
+}
