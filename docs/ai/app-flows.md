@@ -18,11 +18,11 @@ Browsing works without an account: Home, Feed, details and Settings. Profile, Su
 | Journey | Path | Owner |
 |---|---|---|
 | Browse deals | Home → banners, Service and Sort filters → promocode detail | `feature/home`, `feature/promocode` |
-| Filter by service | Home → Service sheet → popular chips or search | `feature/service` (search uses Algolia) |
+| Filter by service | Home → Service sheet → popular chips or search | `feature/service` (search uses `search_services`) |
 | Read posts | Feed → post detail → vote or share | `feature/post` |
 | Submit promocode | + → auth if needed → form → background upload | `feature/promocode`, `UploadPromocodeWorker` |
 | Create post | + → auth if needed → form → background upload | `feature/post`, `UploadPostWorker` |
-| New service | Submission → `GetOrCreateServiceUseCase` | `shared`, `FirestoreServiceDataSource` |
+| New service | Submission → `GetOrCreateServiceUseCase` | `shared`, `SupabaseServiceDataSource` |
 | Report content | Detail → More → report | `feature/report` |
 | Block user | Detail → More → block dialog | `feature/block` |
 | Manage blocks | Profile → Blocked Users | `feature/block` |
@@ -30,8 +30,8 @@ Browsing works without an account: Home, Feed, details and Settings. Profile, Su
 
 ## Signup
 
-The first sign-in runs `AcceptConsentAndCreateUserUseCase`, which creates `users/{uid}`. `EnsureUserExists` checks for an existing document. Email isn't stored in the app's `User` model; Firebase Auth owns it.
+The first sign-in runs `AcceptConsentAndCreateUserUseCase`, which creates the `users` row. `EnsureUserExists` checks for an existing row. Email isn't stored in the app's `User` model; Supabase Auth owns it.
 
-## Other reads of user documents
+## Other reads of user data
 
-The Blocked Users screen is the only place that loads another person's `users/{uid}` document. It uses the display name and photo. Author details on content are copied into each post or promocode, so feeds don't need a read per user.
+The Blocked Users screen is the only place that loads another person's profile, through `get_user_profile`. Feeds get author details from `promocodes_view` and `posts_view`.
