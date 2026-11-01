@@ -52,4 +52,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kermit)
     implementation(libs.kotlinx.datetime)
+
+    testImplementation(libs.bundles.testing.unit)
+    testImplementation(libs.kotlinx.serialization.json)
 }

@@ -45,11 +45,15 @@ Data sources, DTOs, mappers and repositories live in `shared/commonMain`, so iOS
 
 Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. The dev web client ID is in `supabase/config.toml`; apply changes with `supabase config push`.
 
+Adding a new service in the app needs `LOGO_DEV_PUBLIC_KEY` in `local.properties`. Without it, the Service step fails with only a brief snackbar.
+
 ## Scripts
 
 Run these in `supabase/scripts` after `npm install`. They need `supabase login` and only target `qode-dev`.
 
 - `npm run seed`: fake data. `npm run seed -- --reset` removes it. A re-run skips existing rows, so triggers' counts aren't reset.
 - `npm run test:security`: allowed and denied cases for policies, grants, triggers and storage. Run it after any migration.
+
+Run the browse flow with `maestro test .maestro/browse.yaml`. It needs seeded data. Signed-in flows aren't scripted, because Google's sheet needs a person.
 
 The Supabase CLI's `login` needs a real terminal, not Claude Code's `!` prefix.
