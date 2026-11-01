@@ -152,11 +152,11 @@
     <string name="error_storage_compression_out_of_memory">Image is too large to process</string>
     <string name="error_storage_compression_failed">Failed to compress image. Please try another image.</string>
 
-    <string name="error_firestore_invalid_argument">Firestore request contained invalid data.</string>
-    <string name="error_firestore_out_of_range">Firestore request contained values outside the allowed range.</string>
-    <string name="error_firestore_permission_denied">Firestore rejected the request because of missing permissions.</string>
-    <string name="error_firestore_internal">Firestore encountered an internal error.</string>
-    <string name="error_firestore_unavailable">Firestore is unavailable right now.</string>
+    <string name="error_database_invalid_argument">The request contained invalid data.</string>
+    <string name="error_database_out_of_range">The request contained values outside the allowed range.</string>
+    <string name="error_database_permission_denied">You don\'t have permission to do this.</string>
+    <string name="error_database_internal">The server hit an internal error.</string>
+    <string name="error_database_unavailable">The server is unavailable right now.</string>
 
 
     <string name="error_retry">Try again</string>

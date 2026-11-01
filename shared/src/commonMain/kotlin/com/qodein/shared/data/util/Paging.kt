@@ -36,17 +36,5 @@ fun PostgrestFilterBuilder.notIn(
     column: String,
     values: Collection<String>
 ) {
-    if (values.isNotEmpty()) filterNot(column, FilterOperator.IN, values.toInList())
+    if (values.isNotEmpty()) filterNot(column, FilterOperator.IN, values.toList())
 }
-
-fun PostgrestFilterBuilder.within(
-    column: String,
-    values: Collection<String>
-) {
-    filter(column, FilterOperator.IN, values.toInList())
-}
-
-private fun Collection<String>.toInList(): String =
-    joinToString(separator = ",", prefix = "(", postfix = ")") { value ->
-        "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
-    }

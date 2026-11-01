@@ -1,0 +1,60 @@
+# Signed-out browsing against seeded qode-dev data. Run with: maestro test .maestro/browse.yaml
+appId: com.qodein.qode.debug
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Popular Deals"
+    timeout: 20000
+
+# Search tolerates a typo, and choosing a service filters the list
+- tapOn: "Service"
+- tapOn: "Search services…"
+- inputText: "Burbay"
+- extendedWaitUntil:
+    visible: "Burabay Tours"
+    timeout: 10000
+- hideKeyboard
+- tapOn:
+    text: "Burabay Tours"
+    index: 0
+# The sheet is multi-select, so the filter applies when it closes
+- tapOn:
+    point: "50%,10%"
+- extendedWaitUntil:
+    visible: "Burabay Tours"
+    timeout: 10000
+- assertNotVisible: "Search services…"
+- assertNotVisible: "Try again"
+
+# Resetting and sorting reload the list
+- tapOn: "Reset"
+- extendedWaitUntil:
+    visible: "Popular Deals"
+    timeout: 10000
+- tapOn: "Sort"
+- tapOn: "Expiring Soon"
+- tapOn:
+    point: "50%,10%"
+- extendedWaitUntil:
+    visible:
+      text: "Expiring Soon"
+    timeout: 10000
+- assertNotVisible: "Try again"
+
+# Paging loads past the first page
+- repeat:
+    times: 8
+    commands:
+      - swipe:
+          start: "50%,80%"
+          end: "50%,20%"
+          duration: 300
+- assertNotVisible: "Try again"
+- swipe:
+    start: "50%,30%"
+    end: "50%,70%"
+    duration: 300
+
+# Feed and post detail
+- tapOn: "Navigate to Feed"

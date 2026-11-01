@@ -14,7 +14,6 @@ import com.qodein.shared.data.util.PageCursor
 import com.qodein.shared.data.util.notIn
 import com.qodein.shared.data.util.startAfter
 import com.qodein.shared.data.util.toPage
-import com.qodein.shared.data.util.within
 import com.qodein.shared.model.PromocodeSortBy
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
@@ -48,7 +47,7 @@ class SupabasePromocodeDataSource(private val postgrest: Postgrest) {
             filter {
                 gte("end_date", now)
                 notIn(COLUMN_AUTHOR_ID, blockedUserIds)
-                serviceNames?.takeIf { it.isNotEmpty() }?.let { within("service_name", it) }
+                serviceNames?.takeIf { it.isNotEmpty() }?.let { isIn("service_name", it) }
                 cursor?.let { startAfter(it, sort.column, sort.ascending) }
             }
             order(sort.column, if (sort.ascending) Order.ASCENDING else Order.DESCENDING)
