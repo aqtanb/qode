@@ -114,6 +114,8 @@ kotlin {
 dependencies {
     implementation(projects.shared)
 
+    implementation(libs.androidx.graphics.path)
+
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
     implementation(projects.core.ui)

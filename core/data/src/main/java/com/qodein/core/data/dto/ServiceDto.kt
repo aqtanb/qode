@@ -1,6 +1,7 @@
 package com.qodein.core.data.dto
 
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.PropertyName
 
 /**
  * Firestore document model for Service.
@@ -12,6 +13,8 @@ data class ServiceDto(
     val name: String = "",
     val siteUrl: String = "",
     val logoUrl: String? = null,
+    @get:PropertyName(FIELD_PROMO_CODE_COUNT)
+    @field:PropertyName(FIELD_PROMO_CODE_COUNT)
     val promocodeCount: Int = 0
 ) {
     companion object {
