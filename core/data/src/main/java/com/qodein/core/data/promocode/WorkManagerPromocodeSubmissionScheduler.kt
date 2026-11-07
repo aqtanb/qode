@@ -1,7 +1,9 @@
 package com.qodein.core.data.promocode
 
+import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.qodein.core.data.worker.UploadPromocodeWorker
+import com.qodein.core.data.worker.uploadWorkName
 import com.qodein.shared.domain.repository.PromocodeSubmissionScheduler
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.ServiceRef
@@ -38,6 +40,7 @@ class WorkManagerPromocodeSubmissionScheduler(private val workManager: WorkManag
             isOneTimeUseOnly = isOneTimeUseOnly,
             isVerified = isVerified,
         )
-        workManager.enqueue(workRequest)
+        val workName = uploadWorkName("promocode", userId.value, service, code.trim().lowercase())
+        workManager.enqueueUniqueWork(workName, ExistingWorkPolicy.KEEP, workRequest)
     }
 }

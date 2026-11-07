@@ -1,7 +1,9 @@
 package com.qodein.core.data.post
 
+import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.qodein.core.data.worker.UploadPostWorker
+import com.qodein.core.data.worker.uploadWorkName
 import com.qodein.shared.domain.repository.PostSubmissionScheduler
 import com.qodein.shared.model.UserId
 
@@ -25,6 +27,7 @@ class WorkManagerPostSubmissionScheduler(private val workManager: WorkManager) :
             authorUsername = authorName,
             authorAvatarUrl = authorAvatarUrl,
         )
-        workManager.enqueue(workRequest)
+        val workName = uploadWorkName("post", authorId.value, title, content, imageUris, tags)
+        workManager.enqueueUniqueWork(workName, ExistingWorkPolicy.KEEP, workRequest)
     }
 }

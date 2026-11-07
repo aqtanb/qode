@@ -213,6 +213,7 @@ class UploadPromocodeWorker(
 
             return OneTimeWorkRequestBuilder<UploadPromocodeWorker>()
                 .setInputData(inputData)
+                .setUploadPolicy()
                 .build()
         }
     }

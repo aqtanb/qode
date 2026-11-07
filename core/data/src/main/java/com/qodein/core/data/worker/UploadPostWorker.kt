@@ -103,6 +103,7 @@ class UploadPostWorker(
 
             return OneTimeWorkRequestBuilder<UploadPostWorker>()
                 .setInputData(inputData)
+                .setUploadPolicy()
                 .build()
         }
     }
