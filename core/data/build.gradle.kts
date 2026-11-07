@@ -56,4 +56,7 @@ dependencies {
 
     testImplementation(libs.bundles.testing.unit)
     testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.work.testing)
+    testImplementation(libs.androidx.junit)
+    testImplementation(projects.core.testing)
 }
