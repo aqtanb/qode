@@ -26,6 +26,7 @@ kotlin {
 dependencies {
     api(project(":shared"))
     api(projects.core.data)
+    api(projects.core.notifications)
     api(libs.kotlinx.coroutines.test)
 
     implementation(libs.junit)
