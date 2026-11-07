@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.bundles.testing.unit)
+    testImplementation(libs.androidx.junit)
+    testImplementation(projects.core.testing)
     androidTestImplementation(libs.bundles.testing.android)
     debugImplementation(libs.bundles.debug)
 }
