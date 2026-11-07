@@ -19,6 +19,8 @@ Covers: `.github/workflows`, `androidApp/build.gradle.kts`, `gradle/libs.version
 
 Pushing a `v*` tag publishes. Treat it as a production action.
 
+The upload uses `changesNotSentForReview: true`, because Play rejects automatic review submission while the app is removed or has pending changes. After CI finishes, send the release for review in Play Console under Publishing overview.
+
 Scheduled workflows run only from the default branch, so the keep-alive and backup start once they reach `main`.
 
 Release builds connect to Supabase `qode-prod`, using the URL, publishable key and web client ID committed in the Gradle files. `WEB_CLIENT_ID` in `local.properties` overrides the client ID, and CI doesn't set it. Don't publish a Supabase release before prod has its data and the release and Play signing SHA-1s are in the `qodein` Android app, or Google sign-in fails.

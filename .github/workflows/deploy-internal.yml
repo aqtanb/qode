@@ -50,6 +50,7 @@ jobs:
           releaseFiles: androidApp/build/outputs/bundle/release/androidApp-release.aab
           track: internal
           status: completed
+          changesNotSentForReview: true
 
       - name: Upload Signed AAB to GitHub
         uses: actions/upload-artifact@v4
