@@ -19,7 +19,7 @@ Covers: `.github/workflows`, `androidApp/build.gradle.kts`, `gradle/libs.version
 
 Pushing a `v*` tag publishes. Treat it as a production action.
 
-The upload uses `changesNotSentForReview: true`, because Play rejects automatic review submission while the app is removed or has pending changes. After CI finishes, send the release for review in Play Console under Publishing overview.
+If the commit step fails with "Changes cannot be sent for review automatically", the app has changes that need manual review, such as after a removal. Add `changesNotSentForReview: true` to the upload step, push a new tag, then send the changes for review in Play Console under Publishing overview.
 
 Scheduled workflows run only from the default branch, so the keep-alive and backup start once they reach `main`.
 
