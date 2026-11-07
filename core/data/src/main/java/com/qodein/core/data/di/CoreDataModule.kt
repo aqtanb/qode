@@ -13,6 +13,8 @@ import com.qodein.core.data.promocode.WorkManagerPromocodeSubmissionScheduler
 import com.qodein.core.data.repository.DevicePreferencesRepositoryImpl
 import com.qodein.core.data.repository.ReportRepositoryImpl
 import com.qodein.core.data.repository.StorageRepositoryImpl
+import com.qodein.core.data.worker.UploadPostWorker
+import com.qodein.core.data.worker.UploadPromocodeWorker
 import com.qodein.shared.data.di.sharedDataModule
 import com.qodein.shared.domain.repository.DevicePreferencesRepository
 import com.qodein.shared.domain.repository.PostSubmissionScheduler
@@ -20,6 +22,7 @@ import com.qodein.shared.domain.repository.PromocodeSubmissionScheduler
 import com.qodein.shared.domain.repository.ReportRepository
 import com.qodein.shared.domain.repository.StorageRepository
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.dsl.module
 
 private val Context.preferencesDataStore: DataStore<Preferences> by preferencesDataStore(name = "device_preferences")
@@ -37,6 +40,9 @@ val coreDataModule = module {
     single<ReportRepository> { ReportRepositoryImpl(get(), get()) }
     single<PostSubmissionScheduler> { WorkManagerPostSubmissionScheduler(get()) }
     single<PromocodeSubmissionScheduler> { WorkManagerPromocodeSubmissionScheduler(get()) }
+
+    workerOf(::UploadPostWorker)
+    workerOf(::UploadPromocodeWorker)
 }
 
 val supabaseDataModule = sharedDataModule(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY)

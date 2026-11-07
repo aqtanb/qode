@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.bundles.work)
 
     implementation(libs.bundles.koin)
+    implementation(libs.koin.androidx.workmanager)
     implementation(libs.datastore.preferences)
     implementation(libs.androidx.core.ktx)
     implementation(libs.timber)

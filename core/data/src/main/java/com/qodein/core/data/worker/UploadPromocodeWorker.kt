@@ -11,6 +11,7 @@ import androidx.work.workDataOf
 import co.touchlab.kermit.Logger
 import com.qodein.core.notifications.Notifier
 import com.qodein.core.notifications.UploadContentType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeRequest
 import com.qodein.shared.domain.usecase.promocode.SubmitPromocodeUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
@@ -19,8 +20,6 @@ import com.qodein.shared.model.ServiceId
 import com.qodein.shared.model.ServiceRef
 import com.qodein.shared.model.UserId
 import com.qodein.shared.platform.PlatformUri
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import kotlin.time.Instant
 import com.qodein.shared.common.Result as DomainResult
 
@@ -48,13 +47,13 @@ private const val DISCOUNT_TYPE_PERCENTAGE = "PERCENTAGE"
 private const val DISCOUNT_TYPE_FIXED_AMOUNT = "FIXED_AMOUNT"
 private const val DISCOUNT_TYPE_FREE_ITEM = "FREE_ITEM"
 
-class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(appContext, workerParams),
-    KoinComponent {
-
-    private val submitPromocodeUseCase: SubmitPromocodeUseCase by inject()
-    private val getUserByIdUseCase: GetUserByIdUseCase by inject()
-    private val notifier: Notifier by inject()
+class UploadPromocodeWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
+    private val submitPromocodeUseCase: SubmitPromocodeUseCase,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val notifier: Notifier
+) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): ListenableWorker.Result {
         val uploadId = id.toString()
@@ -102,8 +101,7 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
         val user = when (val userResult = getUserByIdUseCase(userId)) {
             is DomainResult.Error -> {
                 Logger.e { "Failed to fetch user: ${userResult.error}" }
-                notifier.showUploadError(uploadId)
-                return ListenableWorker.Result.failure()
+                return failOrRetry(uploadId, userResult.error)
             }
             is DomainResult.Success -> {
                 Logger.d { "User fetched successfully: ${userResult.data}" }
@@ -141,8 +139,7 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
         ) {
             is DomainResult.Error -> {
                 Logger.e { "Promocode submission failed: ${result.error}" }
-                notifier.showUploadError(uploadId)
-                return ListenableWorker.Result.failure()
+                return failOrRetry(uploadId, result.error)
             }
             is DomainResult.Success -> {
                 Logger.i { "Promocode submitted successfully: ${result.data}" }
@@ -154,6 +151,18 @@ class UploadPromocodeWorker(appContext: Context, workerParams: WorkerParameters)
                 return ListenableWorker.Result.success()
             }
         }
+    }
+
+    private fun failOrRetry(
+        uploadId: String,
+        error: OperationError
+    ): ListenableWorker.Result {
+        if (UploadFailurePolicy.shouldRetry(error, runAttemptCount)) {
+            Logger.w { "Retrying promocode upload: attempt=${runAttemptCount + 1}, error=$error" }
+            return ListenableWorker.Result.retry()
+        }
+        notifier.showUploadError(uploadId)
+        return ListenableWorker.Result.failure()
     }
 
     companion object {

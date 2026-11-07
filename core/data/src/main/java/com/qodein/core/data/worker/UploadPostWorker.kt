@@ -10,11 +10,10 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.qodein.core.notifications.Notifier
 import com.qodein.core.notifications.UploadContentType
+import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.post.SubmitPostUseCase
 import com.qodein.shared.model.UserId
 import com.qodein.shared.platform.PlatformUri
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import com.qodein.shared.common.Result as DomainResult
 
 private const val KEY_TITLE = "title"
@@ -25,12 +24,12 @@ private const val KEY_AUTHOR_ID = "authorId"
 private const val KEY_AUTHOR_USERNAME = "authorUsername"
 private const val KEY_AUTHOR_AVATAR_URL = "authorAvatarUrl"
 
-class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(appContext, workerParams),
-    KoinComponent {
-
-    private val submitPostUseCase: SubmitPostUseCase by inject()
-    private val notifier: Notifier by inject()
+class UploadPostWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
+    private val submitPostUseCase: SubmitPostUseCase,
+    private val notifier: Notifier
+) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): ListenableWorker.Result {
         val uploadId = id.toString()
@@ -59,10 +58,7 @@ class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
                 },
             )
         ) {
-            is DomainResult.Error -> {
-                notifier.showUploadError(uploadId)
-                return ListenableWorker.Result.failure()
-            }
+            is DomainResult.Error -> return failOrRetry(uploadId, result.error)
             is DomainResult.Success -> {
                 notifier.showUploadSuccess(
                     uploadId = uploadId,
@@ -72,6 +68,17 @@ class UploadPostWorker(appContext: Context, workerParams: WorkerParameters) :
                 return ListenableWorker.Result.success()
             }
         }
+    }
+
+    private fun failOrRetry(
+        uploadId: String,
+        error: OperationError
+    ): ListenableWorker.Result {
+        if (UploadFailurePolicy.shouldRetry(error, runAttemptCount)) {
+            return ListenableWorker.Result.retry()
+        }
+        notifier.showUploadError(uploadId)
+        return ListenableWorker.Result.failure()
     }
 
     companion object {
