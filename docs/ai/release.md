@@ -7,7 +7,15 @@ Covers: `.github/workflows`, `androidApp/build.gradle.kts`, `gradle/libs.version
 
 `versionCode` and `versionName` are in `gradle/libs.versions.toml`.
 
-Each version gets a `release/x.y.z` branch whose first commit bumps the version; that version's changes follow it. `main` stays level with the current release branch. When the version ships, its `vx.y.z` tag marks the exact commit, so `git log v0.9.1..v0.9.2` lists what a version added. Start the next version by branching `release/x.y.z+1` from the shipped one and committing the bump.
+## Branches
+
+- `dev` is the default branch and holds the latest work. Dependabot PRs and scheduled workflows run from it.
+- `main` is exactly what's live on Play production. It moves only when a release goes live.
+- `release/x.y.z` is cut from `dev` for each version; its first commit bumps the version, and that version's changes follow it.
+
+To release: push the `vx.y.z` tag on the release branch, which deploys to internal testing. Once Google approves it and it's live, fast-forward `main` to the tag and merge the release branch back into `dev`. `git log v0.9.1..v0.9.2` then lists what a version added.
+
+Never re-push or move a `v*` tag. Disabling the deploy workflow first doesn't reliably stop the tag push from starting a deploy.
 
 ## CI
 

@@ -56,6 +56,6 @@ Run `sh ./gradlew` if `./gradlew` isn't executable.
 
 ## Guardrails
 
-- This is a solo project, so skip PRs: push approved work straight to the current `release/x.y.z` branch and keep `main` level with it. See `docs/ai/release.md` for the branch and tag convention.
+- This is a solo project, so skip PRs: push approved work straight to `dev`, the default branch. `main` is what's live on Play; see `docs/ai/release.md` for releases.
 - Ask before touching Firebase `qodein`, Supabase `qode-prod`, or pushing a `v*` tag, which starts Play deployment.
 - Changes to data that released apps read must stay compatible with those apps. Check the rollout order first.
