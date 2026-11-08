@@ -12,6 +12,7 @@ Read a doc only when the task touches its area. Don't read them all up front.
 | `docs/ai/backend.md` | Database, Storage, Edge Functions, search, environments |
 | `docs/ai/release.md` | Versioning, signing, CI, Play deployment |
 | `docs/ERROR_HANDLING.md` | `Result` and error types |
+| `docs/SECRETS.md` | Which secrets exist and where they live |
 
 To see the app running on a device, use the `check-app-on-device` skill.
 
