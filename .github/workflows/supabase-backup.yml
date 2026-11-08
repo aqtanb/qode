@@ -46,7 +46,7 @@ jobs:
           rm qode-prod.dump
 
       - name: Upload encrypted dump
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: qode-prod-${{ github.run_id }}
           path: qode-prod.dump.gpg
