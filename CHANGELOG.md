@@ -8,6 +8,9 @@ What changed in each Qode release. Generated from conventional commits with [git
 
 - **data:** Retry transient upload failures in workers
 - **data:** Require network, back off and dedupe upload work
+- **deals:** Import deals from the Telegram chat as Qode Deals
+- **deals:** Take the Supabase key from proxy-injected headers
+- **deals:** Fetch Telegram in a GitHub Action and hand off through a private bucket
 
 ### Tests
 
@@ -21,6 +24,7 @@ What changed in each Qode release. Generated from conventional commits with [git
 
 - **release:** Publish internal releases without manual review again
 - Bump checkout to v7, setup-java to v6, upload-artifact to v7 and action-gh-release to v2
+- Run debug build and code quality on dev, release branches and PRs to dev
 
 ## 0.9.1 - 2026-11-07
 
