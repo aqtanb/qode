@@ -3,7 +3,7 @@
 Verified at: 26ba1734
 Covers: `supabase`, `shared/src/commonMain/kotlin/com/qodein/shared/data`, `core/data/src/main/java/com/qodein/core/data`
 
-Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). Release builds use `qode-prod` (`hirfattxysizfprsydyq`). The app on Play still uses Firebase project `qodein` until a Supabase release ships.
+Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). Release builds use `qode-prod` (`hirfattxysizfprsydyq`). 0.9.1, the first Supabase release, went to Play production on 2026-11-08 as a fresh start: no Firestore data was imported, only the 23 services. Old 0.8.x installs keep reading Firebase `qodein` until they update.
 
 Firebase stays for Crashlytics, Analytics and messaging only. The `firebase/`, `functions/` and `firestore.*` files serve the released app and go away once prod moves.
 
@@ -40,6 +40,10 @@ Buckets `post-images` and `promocode-images` are public to read. Uploads must go
 ## Client
 
 Data sources, DTOs, mappers and repositories live in `shared/commonMain`, so iOS can reuse them. `core/data` holds only Android parts: WorkManager, DataStore, reading image bytes.
+
+Upload workers need a network, back off exponentially and are enqueued as unique work named from the submission's content, so a double-tap uploads once. `UploadFailurePolicy` decides retry or failure for every `OperationError` with no `else`, so a new error type must be classified there. Transient errors retry up to 5 attempts, and the error notification shows only on the final failure.
+
+Google's pre-launch robot signs in to prod during review and creates placeholder content, such as a "Test Title" post. Delete its auth user after each review; foreign keys cascade its rows.
 
 `supabase-kt` stays at 3.6.0 because 3.7 and later are built with Kotlin 2.4, and iOS compilation fails on Kotlin 2.3. Keep `:shared:compileKotlinIosSimulatorArm64` passing.
 
