@@ -43,6 +43,12 @@ Data sources, DTOs, mappers and repositories live in `shared/commonMain`, so iOS
 
 Upload workers need a network, back off exponentially and are enqueued as unique work named from the submission's content, so a double-tap uploads once. `UploadFailurePolicy` decides retry or failure for every `OperationError` with no `else`, so a new error type must be classified there. Transient errors retry up to 5 attempts, and the error notification shows only on the final failure.
 
+## Deals import
+
+A daily Claude routine imports deals from topic 24 of the Telegram chat t.me/superpodeshevle (the admin agreed) as the "Qode Deals" account. `tools/deals/ROUTINE.md` is its prompt. `fetch.py` reads new messages with Telethon, Claude turns them into promocodes (codes, including gifts as `FreeItem`) and posts (offers without a code), and `publish.py` checks them against the app's rules and saves them, published right away. `source_url` keeps the message link; it's unique on posts, and promocode ids stop duplicate codes. `ingest_state` holds the last message read and is service-role only.
+
+The routine's environment needs `TG_API_ID`, `TG_API_HASH`, `TG_SESSION`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `DEALS_AUTHOR_ID`. The Telegram values are in Bitwarden ("Qode Telegram API"); `login.py` creates a new session if Telegram logs it out, and `create_author.py` creates the account once per project.
+
 Google's pre-launch robot signs in to prod during review and creates placeholder content, such as a "Test Title" post. Delete its auth user after each review; foreign keys cascade its rows.
 
 `supabase-kt` stays at 3.6.0 because 3.7 and later are built with Kotlin 2.4, and iOS compilation fails on Kotlin 2.3. Keep `:shared:compileKotlinIosSimulatorArm64` passing.

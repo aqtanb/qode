@@ -75,12 +75,14 @@ async function run() {
     denied('create promocode as someone else', await bob.client.from('promocodes').insert({ ...promo, id: `${promoId}x` }));
     denied('create promocode with votes', await alice.client.from('promocodes').insert({ ...promo, id: `${promoId}y`, upvotes: 50 }));
     denied('create verified promocode', await alice.client.from('promocodes').insert({ ...promo, id: `${promoId}z`, verified: true }));
+    denied('create promocode with a source link', await alice.client.from('promocodes').insert({ ...promo, id: `${promoId}s`, source_url: 'https://t.me/x/1' }));
     allowed('create own promocode', await alice.client.from('promocodes').insert(promo));
     check('service count goes up', (await count('services', serviceId, 'promocode_count')) === 1);
     check('user stat goes up', (await count('users', alice.id, 'submitted_promocodes_count')) === 1);
     denied('edit promocode votes', await alice.client.from('promocodes').update({ upvotes: 50 }).eq('id', promoId));
     denied('delete someone else\'s promocode', await bob.client.from('promocodes').delete().eq('id', promoId).select());
     allowed('create own post', await alice.client.from('posts').insert({ id: postId, author_id: alice.id, title: 'Hi' }));
+    denied('create post with a source link', await alice.client.from('posts').insert({ id: `${postId}s`, author_id: alice.id, title: 'Hi', source_url: 'https://t.me/x/1' }));
     check('post stat goes up', (await count('users', alice.id, 'submitted_posts_count')) === 1);
     const view = await anon.from('promocodes_view').select('service_name, author_name').eq('id', promoId).single();
     check('anon feed shows author and service', view.data?.author_name === 'Alice' && !!view.data?.service_name);
@@ -115,6 +117,9 @@ async function run() {
     // Read-only tables
     denied('edit app config', await alice.client.from('app_config').update({ minimum_version_code: 0 }).eq('id', 'update_policy'));
     denied('create banner', await alice.client.from('banners').insert({ id: 'x', image_url: 'x' }));
+    denied('anon reads ingest state', await anon.from('ingest_state').select('source'));
+    denied('signed-in reads ingest state', await alice.client.from('ingest_state').select('source'));
+    denied('move ingest state', await alice.client.from('ingest_state').update({ last_message_id: 0 }).eq('source', 'telegram:superpodeshevle/24').select());
 
     // Storage
     const jpeg = new Blob([randomBytes(64)], { type: 'image/jpeg' });
