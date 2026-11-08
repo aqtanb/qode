@@ -1,7 +1,8 @@
 """Minimal Supabase REST client using the secret key, standard library only.
 
-Reads SUPABASE_URL and SUPABASE_SECRET_KEY from the environment. The secret key
-bypasses RLS, so it lives only in the routine's environment.
+Reads SUPABASE_URL from the environment. In the routine, the cloud proxy adds the
+secret key's headers to requests for the Supabase host, so the key never enters
+the session. Locally, set SUPABASE_SECRET_KEY instead. The key bypasses RLS.
 """
 
 import json
@@ -22,8 +23,8 @@ class SupabaseError(Exception):
 
 def _request(method: str, path: str, body=None, headers=None, raw=None):
     url = os.environ["SUPABASE_URL"].rstrip("/") + path
-    key = os.environ["SUPABASE_SECRET_KEY"]
-    request_headers = {"apikey": key, "Authorization": f"Bearer {key}"}
+    key = os.environ.get("SUPABASE_SECRET_KEY")
+    request_headers = {"apikey": key, "Authorization": f"Bearer {key}"} if key else {}
     request_headers.update(headers or {})
     data = raw
     if body is not None:

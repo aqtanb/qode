@@ -58,4 +58,4 @@ Dates: `start_date` and `end_date` as `YYYY-MM-DD`. Use the dates the message or
 }
 ```
 
-Don't commit `work/`, and never print the environment's secrets.
+Don't commit `work/`, and never print the environment's secrets. The Supabase key isn't in the environment: the cloud proxy adds it to requests for the Supabase host, so a missing `SUPABASE_SECRET_KEY` is expected.
