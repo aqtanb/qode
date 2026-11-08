@@ -1,6 +1,6 @@
 # Release
 
-Verified at: a563e38c
+Verified at: b73efc4d
 Covers: `.github/workflows`, `androidApp/build.gradle.kts`, `gradle/libs.versions.toml`
 
 ## Version
