@@ -15,6 +15,7 @@ If you need access to Supabase, Play Console or GitHub settings, ask the maintai
 | Upload keystore (`KEYSTORE_FILE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) | Signs release bundles before upload to Play | GitHub Actions secrets |
 | `PLAY_STORE_SERVICE_ACCOUNT` | Lets CI upload to Play internal testing | GitHub Actions secret |
 | `LOGO_DEV_PUBLIC_KEY` | Logo.dev key for release builds | GitHub Actions secret |
+| `FIREBASE_WEB_CLIENT_ID` | Google web client ID written into `local.properties` by the debug and code-quality workflows. It's public, but kept as a secret | GitHub Actions secret |
 | `SUPABASE_PROD_DB_URL` | Session pooler URL with the `qode-prod` database password, used by the daily backup | GitHub Actions secret |
 | `BACKUP_PASSPHRASE` | Encrypts and decrypts the daily backup artifacts | GitHub Actions secret |
 | `qode-prod` database password | `supabase db push` to prod | Maintainer's password manager |
