@@ -13,6 +13,8 @@ Covers: `.github/workflows`, `androidApp/build.gradle.kts`, `gradle/libs.version
 - `main` is exactly what's live on Play production. It moves only when a release goes live.
 - `release/x.y.z` is cut from `dev` for each version; its first commit bumps the version, and that version's changes follow it.
 
+Before tagging, regenerate the changelog on the release branch with `git cliff v0.8.3.. --tag vx.y.z -o CHANGELOG.md` and commit it. `cliff.toml` lists only conventional commits and skips docs, dependency and version bumps. Use that version's Features and Fixes as the source for Play's release notes in en-US, ru-RU and kk, rewritten for users.
+
 To release: push the `vx.y.z` tag on the release branch, which deploys to internal testing. Once Google approves it and it's live, fast-forward `main` to the tag and merge the release branch back into `dev`. `git log v0.9.1..v0.9.2` then lists what a version added.
 
 Never re-push or move a `v*` tag. Disabling the deploy workflow first doesn't reliably stop the tag push from starting a deploy.
