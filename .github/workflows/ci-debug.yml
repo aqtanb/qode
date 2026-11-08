@@ -2,9 +2,9 @@ name: CI - Debug Build
 
 on:
   push:
-    branches: [main]
+    branches: [dev, main, 'release/**']
   pull_request:
-    branches: [main]
+    branches: [dev, main]
 
 jobs:
   build-debug:
