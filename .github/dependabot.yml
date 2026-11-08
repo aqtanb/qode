@@ -1,27 +1,26 @@
 version: 2
 updates:
-  # Gradle dependencies (Android + KMP)
+  # Gradle dependencies (Android + KMP), grouped into one weekly PR
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
-    open-pull-requests-limit: 10
-
-  # npm dependencies (Firebase Cloud Functions)
-  - package-ecosystem: "npm"
-    directory: "/functions"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
     open-pull-requests-limit: 5
+    groups:
+      gradle:
+        patterns:
+          - "*"
 
-  # GitHub Actions
+  # GitHub Actions, grouped into one weekly PR
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
       - "dependencies"
+    groups:
+      actions:
+        patterns:
+          - "*"
