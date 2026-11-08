@@ -4,18 +4,21 @@ You import deals from topic 24 of the Telegram chat t.me/superpodeshevle ("Су�
 
 ## Steps
 
-1. Set up and fetch:
+Run every command in the foreground and wait for it to finish; don't move commands to the background or end the session while one is running.
+
+1. Set up and download the batch the "Deals Fetch" GitHub Action left in the deals inbox:
    ```
    cd tools/deals
    python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt
-   .venv/bin/python fetch.py --out work/messages.json
+   .venv/bin/python inbox.py download work/messages.json
    ```
+   If it prints `STALE`, the Action didn't run today: publish nothing, and say so in the report.
 2. Read `work/messages.json`. For every message, look at its photos too (use the Read tool on each path): many deals are only an image.
 3. Write `work/deals.json` with one item per real deal, following the rules below. Set `newest_id` to the `newest_id` from `messages.json`, even when there are no items.
 4. Run `.venv/bin/python publish.py work/deals.json --dry-run`, fix anything it skips for a fixable reason, then run it without `--dry-run`.
 5. Finish with a short summary: how many messages were read, what was published, and what was skipped and why.
 
-If fetch fails because the Telegram session is logged out, stop and say so; don't retry in a loop.
+If a step fails, stop and report the error; don't retry in a loop.
 
 ## What to publish
 
@@ -58,4 +61,4 @@ Dates: `start_date` and `end_date` as `YYYY-MM-DD`. Use the dates the message or
 }
 ```
 
-Don't commit `work/`, and never print the environment's secrets. The Supabase key isn't in the environment: the cloud proxy adds it to requests for the Supabase host, so a missing `SUPABASE_SECRET_KEY` is expected.
+Don't commit `work/`, and never print the environment's secrets. The Supabase key isn't in the environment: the cloud proxy adds it to requests for the Supabase host, so a missing `SUPABASE_SECRET_KEY` is expected. Telegram is never contacted from here; `fetch.py` runs in the GitHub Action.

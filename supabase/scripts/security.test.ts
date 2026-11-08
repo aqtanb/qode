@@ -130,6 +130,10 @@ async function run() {
     denied('upload a script', await storage.upload(`${alice.id}/${suffix}.html`, new Blob(['x'], { type: 'text/html' })));
     denied('upload over 5 MB', await storage.upload(`${alice.id}/big.jpg`, new Blob([new Uint8Array(5242881)], { type: 'image/jpeg' })));
     denied('anon uploads', await anon.storage.from('post-images').upload(`${alice.id}/anon.jpg`, jpeg));
+    denied('upload to the deals inbox', await alice.client.storage.from('deals-inbox').upload(`latest/${suffix}.jpg`, jpeg));
+    denied('anon reads the deals inbox', await anon.storage.from('deals-inbox').download('latest/messages.json'));
+    const inbox = await alice.client.storage.from('deals-inbox').list('latest');
+    check('signed-in can\'t list the deals inbox', !!inbox.error || (inbox.data ?? []).length === 0);
 
     // Cleanup order
     allowed('delete own promocode', await alice.client.from('promocodes').delete().eq('id', promoId));

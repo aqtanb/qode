@@ -1,0 +1,42 @@
+name: Deals Fetch
+
+# Reads new deal messages from Telegram (topic 24 of t.me/superpodeshevle) and leaves them in
+# the private deals-inbox bucket of qode-prod. The "Qode deals import" Claude routine publishes
+# them at 05:00 UTC. Cloud routines can't open Telegram's MTProto connections, so this step lives here.
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: deals-fetch
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_URL: https://hirfattxysizfprsydyq.supabase.co
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_PROD_SECRET_KEY }}
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_SESSION: ${{ secrets.TG_SESSION }}
+    defaults:
+      run:
+        working-directory: tools/deals
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch new messages
+        run: python fetch.py --out work/messages.json
+
+      - name: Upload to the deals inbox
+        run: python inbox.py upload work/messages.json

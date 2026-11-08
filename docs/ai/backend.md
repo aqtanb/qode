@@ -45,9 +45,14 @@ Upload workers need a network, back off exponentially and are enqueued as unique
 
 ## Deals import
 
-A daily Claude routine imports deals from topic 24 of the Telegram chat t.me/superpodeshevle (the admin agreed) as the "Qode Deals" account. `tools/deals/ROUTINE.md` is its prompt. `fetch.py` reads new messages with Telethon, Claude turns them into promocodes (codes, including gifts as `FreeItem`) and posts (offers without a code), and `publish.py` checks them against the app's rules and saves them, published right away. `source_url` keeps the message link; it's unique on posts, and promocode ids stop duplicate codes. `ingest_state` holds the last message read and is service-role only.
+Deals from topic 24 of the Telegram chat t.me/superpodeshevle (the admin agreed) are imported daily as the "Qode Deals" account, published right away. The work is split because cloud routines can't open Telegram's MTProto connections:
 
-The routine's environment variables are `TG_API_ID`, `TG_API_HASH`, `TG_SESSION`, `SUPABASE_URL` and `DEALS_AUTHOR_ID`. The prod secret key is a network secret on that environment: the proxy adds `apikey` and `Authorization: Bearer` headers for the prod host, so the key never enters the session. The Telegram values are in Bitwarden ("Qode Telegram API"); `login.py` creates a new session if Telegram logs it out, and `create_author.py` creates the account once per project.
+1. The `Deals Fetch` GitHub Action (`deals-fetch.yml`, 04:30 UTC) runs `tools/deals/fetch.py` with Telethon from the last message in `ingest_state`, then `inbox.py upload` replaces the batch in the private `deals-inbox` bucket (service role only).
+2. The "Qode deals import" Claude routine (05:00 UTC, environment `qode-deals`) follows `tools/deals/ROUTINE.md`: `inbox.py download`, turn messages into promocodes (codes, gifts as `FreeItem`) and posts (offers without a code), then `publish.py` checks them against the app's rules, saves them and moves `ingest_state`. It emails a report to the owner through the Gmail connector.
+
+`source_url` keeps the message link; it's unique on posts, and promocode ids stop duplicate codes. If the Action fails, the routine sees a stale batch and publishes nothing.
+
+The Action's repository secrets are `TG_API_ID`, `TG_API_HASH`, `TG_SESSION` and `SUPABASE_PROD_SECRET_KEY`; the Telegram values are also in Bitwarden ("Qode Telegram API"). The routine's environment only has `SUPABASE_URL` and `DEALS_AUTHOR_ID`, and its prod secret key is a network secret: the proxy adds `apikey` and `Authorization: Bearer` headers for the prod host under `/rest/v1/` and `/storage/v1/`, so the key never enters the session. `login.py` creates a new Telegram session if Telegram logs it out, and `create_author.py` creates the account once per project.
 
 Google's pre-launch robot signs in to prod during review and creates placeholder content, such as a "Test Title" post. Delete its auth user after each review; foreign keys cascade its rows.
 

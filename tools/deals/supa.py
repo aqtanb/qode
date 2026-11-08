@@ -51,9 +51,22 @@ def update(table: str, match: dict, values: dict) -> None:
     _request("PATCH", f"/rest/v1/{table}?{urllib.parse.urlencode(match)}", values, {"Prefer": "return=minimal"})
 
 
-def upload(bucket: str, path: str, content: bytes, content_type: str) -> str:
-    _request("POST", f"/storage/v1/object/{bucket}/{path}", raw=content, headers={"Content-Type": content_type})
+def upload(bucket: str, path: str, content: bytes, content_type: str, upsert: bool = False) -> str:
+    headers = {"Content-Type": content_type, "x-upsert": "true" if upsert else "false"}
+    _request("POST", f"/storage/v1/object/{bucket}/{path}", raw=content, headers=headers)
     return os.environ["SUPABASE_URL"].rstrip("/") + f"/storage/v1/object/public/{bucket}/{path}"
+
+
+def download(bucket: str, path: str) -> bytes:
+    url = os.environ["SUPABASE_URL"].rstrip("/") + f"/storage/v1/object/authenticated/{bucket}/{path}"
+    key = os.environ.get("SUPABASE_SECRET_KEY")
+    headers = {"apikey": key, "Authorization": f"Bearer {key}"} if key else {}
+    request = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return response.read()
+    except urllib.error.HTTPError as error:
+        raise SupabaseError(error.code, error.read().decode()) from None
 
 
 def last_message_id() -> int:
