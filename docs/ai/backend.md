@@ -1,6 +1,6 @@
 # Backend
 
-Verified at: 26ba1734
+Verified at: 47992e85
 Covers: `supabase`, `shared/src/commonMain/kotlin/com/qodein/shared/data`, `core/data/src/main/java/com/qodein/core/data`
 
 Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). Release builds use `qode-prod` (`hirfattxysizfprsydyq`). 0.9.1, the first Supabase release, went to Play production on 2026-11-08 as a fresh start: no Firestore data was imported, only the 23 services. Old 0.8.x installs keep reading Firebase `qodein` until they update.
