@@ -137,7 +137,7 @@ class Publisher:
         row = {"id": uuid.uuid4().hex, "name": name, "site_url": site, "logo_url": self.logo_url(site)}
         if not self.dry_run:
             supa.insert("services", row)
-        print(f"  created service {name} ({site})")
+        print(f"  {'would create' if self.dry_run else 'created'} service {name} ({site})")
         self.services[name.lower()] = row
         return row
 
@@ -239,6 +239,7 @@ def main() -> None:
     data = json.loads(Path(args.deals).read_text())
     publisher = Publisher(os.environ["DEALS_AUTHOR_ID"], args.dry_run)
 
+    verb = "would publish" if args.dry_run else "published"
     published, skipped, failed = 0, 0, 0
     for item in data.get("items", []):
         try:
@@ -249,7 +250,7 @@ def main() -> None:
             else:
                 raise Invalid(f"unknown kind {item.get('kind')!r}")
             published += 1
-            print(f"published {result} (message {item['source_id']})")
+            print(f"{verb} {result} (message {item['source_id']})")
         except Invalid as error:
             skipped += 1
             print(f"skipped message {item.get('source_id')}: {error}")
@@ -266,7 +267,10 @@ def main() -> None:
         sys.exit(1)
     if not args.dry_run and data.get("newest_id"):
         supa.save_last_message_id(int(data["newest_id"]))
-    print(f"\nDone: {published} published, {skipped} skipped. State at {data.get('newest_id')}.")
+    if args.dry_run:
+        print(f"\nDry run: {published} would publish, {skipped} skipped. Nothing written.")
+    else:
+        print(f"\nDone: {published} published, {skipped} skipped. State at {data.get('newest_id')}.")
 
 
 if __name__ == "__main__":
