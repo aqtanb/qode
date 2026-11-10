@@ -1,6 +1,6 @@
 # Backend
 
-Verified at: 3ad3dd01
+Verified at: 3f2d76fc
 Covers: `supabase`, `shared/src/commonMain/kotlin/com/qodein/shared/data`, `core/data/src/main/java/com/qodein/core/data`
 
 Debug builds use the Supabase project `qode-dev` (`sjfzxrnqqlgywwqofdhu`). Release builds use `qode-prod` (`hirfattxysizfprsydyq`). 0.9.1, the first Supabase release, went to Play production on 2026-11-08 as a fresh start: no Firestore data was imported, only the 23 services. Old 0.8.x installs keep reading Firebase `qodein` until they update.
@@ -48,7 +48,7 @@ Upload workers need a network, back off exponentially and are enqueued as unique
 Deals from topic 24 of the Telegram chat t.me/superpodeshevle (the admin agreed) are imported daily as the "Qode Deals" account, published right away. The work is split because cloud routines can't open Telegram's MTProto connections:
 
 1. The `Deals Fetch` GitHub Action (`deals-fetch.yml`, 04:30 UTC) runs `tools/deals/fetch.py` with Telethon from the last message in `ingest_state`, then `inbox.py upload` replaces the batch in the private `deals-inbox` bucket (service role only).
-2. The "Qode deals import" Claude routine (05:00 UTC, environment `qode-deals`) follows `tools/deals/ROUTINE.md`: `inbox.py download`, turn messages into promocodes (codes, gifts as `FreeItem`) and posts (offers without a code), then `publish.py` checks them against the app's rules, saves them and moves `ingest_state`. It emails a report to the owner through the Gmail connector.
+2. The "Qode deals import" Claude routine (started by the last step of `deals-fetch.yml` once the upload succeeds, environment `qode-deals`) follows `tools/deals/ROUTINE.md`: `inbox.py download`, turn messages into promocodes (codes, gifts as `FreeItem`) and posts (offers without a code), then `publish.py` checks them against the app's rules, saves them and moves `ingest_state`. It emails a report to the owner through the Gmail connector.
 
 `source_url` keeps the message link; it's unique on posts, and promocode ids stop duplicate codes. If the Action fails, the routine sees a stale batch and publishes nothing.
 

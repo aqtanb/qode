@@ -2,7 +2,7 @@ name: Deals Fetch
 
 # Reads new deal messages from Telegram (topic 24 of t.me/superpodeshevle) and leaves them in
 # the private deals-inbox bucket of qode-prod. The "Qode deals import" Claude routine publishes
-# them at 05:00 UTC. Cloud routines can't open Telegram's MTProto connections, so this step lives here.
+# them; the last step starts it. Cloud routines can't open Telegram's MTProto connections, so this step lives here.
 on:
   schedule:
     - cron: '30 4 * * *'
@@ -40,3 +40,14 @@ jobs:
 
       - name: Upload to the deals inbox
         run: python inbox.py upload work/messages.json
+
+      - name: Start the deals import routine
+        env:
+          ROUTINE_FIRE_URL: ${{ secrets.ROUTINE_FIRE_URL }}
+          ROUTINE_FIRE_TOKEN: ${{ secrets.ROUTINE_FIRE_TOKEN }}
+        run: |
+          curl --fail-with-body -sS -X POST "$ROUTINE_FIRE_URL" \
+            -H "Authorization: Bearer $ROUTINE_FIRE_TOKEN" \
+            -H "anthropic-version: 2026-10-21" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"Deals Fetch run $GITHUB_RUN_ID uploaded a new batch.\"}"
