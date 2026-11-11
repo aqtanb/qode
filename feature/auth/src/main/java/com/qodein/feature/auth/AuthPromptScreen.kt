@@ -32,6 +32,7 @@ import com.qodein.core.ui.AuthPromptAction
 import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.text.asString
 import com.qodein.feature.auth.component.AuthenticationBottomSheet
+import com.qodein.feature.auth.component.EmailSignInActions
 import com.qodein.feature.auth.component.LegalDocumentBottomSheet
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.DocumentType
@@ -50,6 +51,7 @@ fun AuthPromptScreen(
     val legalDocumentState by viewModel.legalDocumentState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
+    val emailState by viewModel.emailState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     when (val state = uiState) {
@@ -58,6 +60,16 @@ fun AuthPromptScreen(
                 authPromptAction = authPromptAction,
                 onSignInClick = { viewModel.signInWithGoogle(context) },
                 onDismiss = { navController.popBackStack() },
+                emailState = emailState,
+                emailActions = EmailSignInActions(
+                    onExpand = viewModel::expandEmailSignIn,
+                    onEmailChange = viewModel::onEmailChange,
+                    onSendCode = viewModel::sendEmailCode,
+                    onCodeChange = viewModel::onCodeChange,
+                    onSignIn = viewModel::signInWithEmailCode,
+                    onChangeEmail = viewModel::changeEmail,
+                    onCollapse = viewModel::collapseEmailSignIn,
+                ),
                 isLoading = isLoading,
                 error = error,
                 onErrorDismissed = viewModel::dismissError,

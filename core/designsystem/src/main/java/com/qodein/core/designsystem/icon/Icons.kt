@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Diversity1
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.EmojiSymbols
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Flag
@@ -169,6 +170,7 @@ object QodeSocialIcons {
     val Twitter: ImageVector = SimpleIcons.Twitter
     val Discord: ImageVector = SimpleIcons.Discord
     val Telegram: ImageVector = SimpleIcons.Telegram
+    val Email: ImageVector = Icons.Outlined.Email
 }
 
 object UIIcons {

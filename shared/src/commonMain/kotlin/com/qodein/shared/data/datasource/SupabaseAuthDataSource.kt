@@ -1,8 +1,10 @@
 package com.qodein.shared.data.datasource
 
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.IDToken
+import io.github.jan.supabase.auth.providers.builtin.OTP
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +20,20 @@ class SupabaseAuthDataSource(private val auth: Auth) {
             this.nonce = nonce
             provider = Google
         }
+        return auth.currentUserOrNull()
+    }
+
+    suspend fun sendEmailCode(email: String) {
+        auth.signInWith(OTP) {
+            this.email = email
+        }
+    }
+
+    suspend fun verifyEmailCode(
+        email: String,
+        code: String
+    ): UserInfo? {
+        auth.verifyEmailOtp(type = OtpType.Email.EMAIL, email = email, token = code)
         return auth.currentUserOrNull()
     }
 

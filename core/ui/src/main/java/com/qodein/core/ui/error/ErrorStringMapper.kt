@@ -32,6 +32,8 @@ fun OperationError.toUiText(): UiText =
     when (this) {
         UserError.AuthenticationFailure.Cancelled -> StringResource(R.string.error_auth_user_cancelled)
         UserError.AuthenticationFailure.InvalidCredentials -> StringResource(R.string.error_auth_invalid_credentials)
+        UserError.AuthenticationFailure.InvalidEmail -> StringResource(R.string.error_auth_invalid_email)
+        UserError.AuthenticationFailure.InvalidCode -> StringResource(R.string.error_auth_invalid_code)
         UserError.AuthenticationFailure.ServiceUnavailable -> StringResource(R.string.error_auth_service_unavailable)
         UserError.AuthenticationFailure.TooManyAttempts -> StringResource(R.string.error_auth_too_many_attempts)
         UserError.ProfileFailure.NotFound -> StringResource(R.string.error_user_not_found)

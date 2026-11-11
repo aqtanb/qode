@@ -21,6 +21,8 @@ sealed interface UserError : OperationError {
     sealed interface AuthenticationFailure : UserError {
         data object Cancelled : AuthenticationFailure
         data object InvalidCredentials : AuthenticationFailure
+        data object InvalidEmail : AuthenticationFailure
+        data object InvalidCode : AuthenticationFailure
         data object NoCredentialsAvailable : AuthenticationFailure
         data object ServiceUnavailable : AuthenticationFailure
         data object ConfigurationError : AuthenticationFailure

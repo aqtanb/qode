@@ -159,7 +159,18 @@
 
     <string name="auth_submit_promo_title">Войдите, чтобы добавить промокод</string>
     <string name="auth_submit_promo_message">Присоединяйтесь и делитесь находками промокодов.</string>
-    <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход через Google</string>
+    <string name="auth_bottom_sheet_footer">Быстрый и безопасный вход</string>
+    <string name="auth_continue_with_email">Продолжить с почтой</string>
+    <string name="auth_email_placeholder">Эл. почта</string>
+    <string name="auth_send_code">Отправить код</string>
+    <string name="auth_code_sent">Введите 6-значный код, отправленный на %1$s</string>
+    <string name="auth_code_placeholder">6-значный код</string>
+    <string name="auth_sign_in">Войти</string>
+    <string name="auth_change_email">Другая почта</string>
+    <string name="auth_other_options">Другие способы входа</string>
+    <string name="auth_resend_code">Отправить код ещё раз</string>
+    <string name="error_auth_invalid_email">Введите корректный адрес почты</string>
+    <string name="error_auth_invalid_code">Код неверный или устарел</string>
     <string name="auth_create_post_message">Делитесь горячими предложениями и общайтесь</string>
     <string name="auth_create_post_title">Войдите, чтобы создать пост</string>
     <string name="auth_profile_title">Ваш уголок в Qode</string>

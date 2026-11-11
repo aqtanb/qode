@@ -60,6 +60,8 @@ Google's pre-launch robot signs in to prod during review and creates placeholder
 
 Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. The dev web client ID is in `supabase/config.toml`; apply changes with `supabase config push`.
 
+Auth email goes through Resend SMTP from `noreply@qodein.com` (domain `qodein.com` on Cloudflare, Resend region eu-west-1). Email sign-in uses 6-digit codes, so the `magic_link` and `confirmation` templates in `supabase/templates/` show `{{ .Token }}`; free-tier projects can't change templates without custom SMTP. `config.toml` reads the SMTP password from `SMTP_PASS`, so export it before any `config push`. The key is a send-only Resend key for that domain.
+
 `supabase/config.toml` describes dev, so never run a plain `config push` against prod: it would set the dev client ID and change prod's auth settings. The push only writes declared properties, so make a temporary folder whose `supabase/config.toml` declares just the setting to change, then run `supabase config diff` and `supabase config push` with `--workdir <folder> --project-ref hirfattxysizfprsydyq`. Prod's Google provider uses the `qodein` web client ID, which is also the release default in `androidApp` and `core/ui`. The native ID-token flow needs no client secret.
 
 ## New developer setup

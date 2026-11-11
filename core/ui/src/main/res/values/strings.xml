@@ -180,7 +180,18 @@
 
     <string name="auth_submit_promo_title">Sign in to submit promocode</string>
     <string name="auth_submit_promo_message">Join the community and share your amazing promocode finds with everyone.</string>
-    <string name="auth_bottom_sheet_footer">Quick and secure with your Google account</string>
+    <string name="auth_bottom_sheet_footer">Sign in quickly and securely</string>
+    <string name="auth_continue_with_email">Continue with email</string>
+    <string name="auth_email_placeholder">Email</string>
+    <string name="auth_send_code">Send code</string>
+    <string name="auth_code_sent">Enter the 6-digit code we sent to %1$s</string>
+    <string name="auth_code_placeholder">6-digit code</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_change_email">Use a different email</string>
+    <string name="auth_other_options">Other sign-in options</string>
+    <string name="auth_resend_code">Resend code</string>
+    <string name="error_auth_invalid_email">Enter a valid email address</string>
+    <string name="error_auth_invalid_code">The code is wrong or has expired</string>
     <string name="auth_create_post_message">Share with the new hot deals and promos, chat with others</string>
     <string name="auth_create_post_title">Sign in to create a post</string>
     <string name="auth_profile_title">Your Corner of Qode</string>

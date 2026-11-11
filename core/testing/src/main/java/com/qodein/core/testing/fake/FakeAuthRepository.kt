@@ -17,6 +17,13 @@ class FakeAuthRepository(signedInAs: GoogleAuthResult? = null) : AuthRepository 
 
     override suspend fun signInWithGoogle(token: GoogleIdToken): Result<GoogleAuthResult, OperationError> = error("Not used in tests")
 
+    override suspend fun sendEmailCode(email: String): Result<Unit, OperationError> = error("Not used in tests")
+
+    override suspend fun signInWithEmailCode(
+        email: String,
+        code: String
+    ): Result<GoogleAuthResult, OperationError> = error("Not used in tests")
+
     override suspend fun signOut() {
         authState.value = null
     }

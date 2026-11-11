@@ -2,6 +2,8 @@ package com.qodein.shared.domain.di
 
 import com.qodein.shared.domain.DeeplinkConfig
 import com.qodein.shared.domain.usecase.auth.GetAuthStateUseCase
+import com.qodein.shared.domain.usecase.auth.SendEmailCodeUseCase
+import com.qodein.shared.domain.usecase.auth.SignInWithEmailCodeUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
@@ -67,6 +69,8 @@ val domainModule = module {
     single { GetAuthStateUseCase(get(), get()) }
     single { SignOutUseCase(get()) }
     single { SignInWithGoogleUseCase(get(), get()) }
+    single { SendEmailCodeUseCase(get()) }
+    single { SignInWithEmailCodeUseCase(get(), get()) }
 
     single { EnsureUserExists(get()) }
     single { GetUserByIdUseCase(get()) }

@@ -3,6 +3,7 @@ package com.qodein.core.ui.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,14 +38,7 @@ import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.R
 
 /**
- * Google Sign-In button following Google's brand guidelines
- * Features a 40x40 Google logo with "Continue with Google" text
- * Switches between light/dark theme variants based on app theme preference
- *
- * @param onClick Called when the button is clicked
- * @param modifier Modifier to be applied to the button
- * @param enabled Whether the button is enabled
- * @param isLoading Whether the button is in loading state
+ * Google Sign-In button following Google's brand guidelines.
  */
 @Composable
 fun QodeGoogleSignInButton(
@@ -53,10 +47,59 @@ fun QodeGoogleSignInButton(
     enabled: Boolean = true,
     isLoading: Boolean = false
 ) {
-    val isDarkTheme = LocalDarkTheme.current
-    val isLight = !isDarkTheme
+    SignInMethodButton(
+        onClick = onClick,
+        text = stringResource(R.string.continue_with_google),
+        modifier = modifier,
+        enabled = enabled,
+        isLoading = isLoading,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_google),
+            contentDescription = null,
+        )
+    }
+}
 
-    // Google brand colors and styles following their guidelines
+/**
+ * Email sign-in button styled to match [QodeGoogleSignInButton].
+ */
+@Composable
+fun QodeEmailSignInButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    SignInMethodButton(
+        onClick = onClick,
+        text = stringResource(R.string.auth_continue_with_email),
+        modifier = modifier,
+        enabled = enabled,
+        isLoading = false,
+    ) { contentColor ->
+        Icon(
+            imageVector = QodeSocialIcons.Email,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(SignInIconSize),
+        )
+    }
+}
+
+private val SignInIconSize = 24.dp
+val SignInButtonHeight = 56.dp
+val SignInButtonShape = RoundedCornerShape(8.dp)
+
+@Composable
+private fun SignInMethodButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier,
+    enabled: Boolean,
+    isLoading: Boolean,
+    icon: @Composable (contentColor: Color) -> Unit
+) {
+    val isLight = !LocalDarkTheme.current
     val buttonBackgroundColor = if (isLight) Color.White else Color(0xFF131314)
     val buttonTextColor = if (isLight) Color(0xFF1F1F1F) else Color(0xFFFFFFFF)
     val borderColor = if (isLight) Color(0xFF747775) else Color(0xFF8E918F)
@@ -64,10 +107,10 @@ fun QodeGoogleSignInButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .height(56.dp)
-            .fillMaxWidth(), // Google recommended height
+            .height(SignInButtonHeight)
+            .fillMaxWidth(),
         enabled = enabled && !isLoading,
-        shape = RoundedCornerShape(8.dp), // Slightly rounded corners per Google guidelines
+        shape = SignInButtonShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = buttonBackgroundColor,
             contentColor = buttonTextColor,
@@ -83,34 +126,33 @@ fun QodeGoogleSignInButton(
         contentPadding = ButtonDefaults.ContentPadding,
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_google),
-                contentDescription = "Google Logo",
-            )
-
-            Spacer(modifier = Modifier.width(SpacingTokens.md))
-
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
-                    color = buttonTextColor,
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                // "Continue with Google" text
-                Text(
-                    text = stringResource(R.string.continue_with_google),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                    ),
-                    color = buttonTextColor,
-                )
+            Box(modifier = Modifier.size(SignInIconSlot), contentAlignment = Alignment.Center) {
+                icon(buttonTextColor)
             }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(SizeTokens.Icon.sizeSmall),
+                        color = buttonTextColor,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                        color = buttonTextColor,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(SignInIconSlot))
         }
     }
 }
+
+private val SignInIconSlot = 40.dp
 
 /**
  * Telegram follow button following Telegram's brand guidelines

@@ -11,7 +11,7 @@ The bottom bar has two tabs, Home and Feed. A floating + button opens **Submit P
 
 ## Signed-out behavior
 
-Browsing works without an account: Home, Feed, details and Settings. Profile, Submit Promocode and Create Post show the sign-in sheet (`AuthBottomSheetRoute`), and its `AuthPromptAction` argument sets the message. Sign-in is Google only.
+Browsing works without an account: Home, Feed, details and Settings. Profile, Submit Promocode and Create Post show the sign-in sheet (`AuthBottomSheetRoute`), and its `AuthPromptAction` argument sets the message. Sign-in is Google or an emailed 6-digit code (Supabase email OTP).
 
 ## Journeys
 

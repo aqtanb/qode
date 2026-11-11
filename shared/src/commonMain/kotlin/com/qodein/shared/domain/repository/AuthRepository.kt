@@ -15,6 +15,19 @@ interface AuthRepository {
     suspend fun signInWithGoogle(token: GoogleIdToken): Result<GoogleAuthResult, OperationError>
 
     /**
+     * Send a one-time sign-in code to [email]. Creates the auth user if it doesn't exist.
+     */
+    suspend fun sendEmailCode(email: String): Result<Unit, OperationError>
+
+    /**
+     * Sign in with the code sent by [sendEmailCode].
+     */
+    suspend fun signInWithEmailCode(
+        email: String,
+        code: String
+    ): Result<GoogleAuthResult, OperationError>
+
+    /**
      * Sign out the current user.
      */
     suspend fun signOut()

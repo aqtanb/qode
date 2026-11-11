@@ -168,7 +168,18 @@
 
     <string name="auth_submit_promo_title">Промокод қосу үшін кіріңіз</string>
     <string name="auth_submit_promo_message">Қауымдастыққа қосылып, табылған промокодтармен бөлісіңіз.</string>
-    <string name="auth_bottom_sheet_footer">Google арқылы жылдам әрі қауіпсіз кіру</string>
+    <string name="auth_bottom_sheet_footer">Жылдам әрі қауіпсіз кіру</string>
+    <string name="auth_continue_with_email">Электрондық поштамен жалғастыру</string>
+    <string name="auth_email_placeholder">Электрондық пошта</string>
+    <string name="auth_send_code">Кодты жіберу</string>
+    <string name="auth_code_sent">%1$s мекенжайына жіберілген 6 таңбалы кодты енгізіңіз</string>
+    <string name="auth_code_placeholder">6 таңбалы код</string>
+    <string name="auth_sign_in">Кіру</string>
+    <string name="auth_change_email">Басқа пошта</string>
+    <string name="auth_other_options">Кірудің басқа тәсілдері</string>
+    <string name="auth_resend_code">Кодты қайта жіберу</string>
+    <string name="error_auth_invalid_email">Дұрыс электрондық пошта мекенжайын енгізіңіз</string>
+    <string name="error_auth_invalid_code">Код қате немесе мерзімі өтіп кеткен</string>
     <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
     <string name="auth_profile_title">Сіздің Qode-тағы бұрышыңыз</string>
