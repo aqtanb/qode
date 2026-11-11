@@ -1,6 +1,6 @@
 # Qode
 
-Android app for sharing promocodes and posts, with iOS planned. Kotlin, Compose, Koin, Supabase. Domain and data code live in the KMP `shared` module.
+Android app and website (qodein.com) for sharing promocodes and posts, with iOS planned. Kotlin, Compose, Koin, Supabase. Domain and data code live in the KMP `shared` module.
 
 ## Knowledge map
 
@@ -11,6 +11,7 @@ Read a doc only when the task touches its area. Don't read them all up front.
 | `docs/ai/app-flows.md` | Screens, navigation, user journeys |
 | `docs/ai/backend.md` | Database, Storage, Edge Functions, search, environments |
 | `docs/ai/release.md` | Versioning, signing, CI, Play deployment |
+| `docs/ai/web.md` | The website in `web/` |
 | `docs/ERROR_HANDLING.md` | `Result` and error types |
 | `docs/SECRETS.md` | Which secrets exist and where they live |
 
@@ -32,6 +33,7 @@ To see the app running on a device, use the `check-app-on-device` skill.
 - `core/data`: Android-only data code: upload workers, DataStore, image reading.
 - `core/designsystem`, `core/ui`: design system and shared UI.
 - `supabase`: migrations, Edge Functions, seed and security test scripts.
+- `web`: the qodein.com site (Next.js on vinext, Cloudflare Workers); not a Gradle module.
 - `functions`, `firebase`: only for the released Firebase app, until prod moves.
 
 The module list in `settings.gradle.kts` is authoritative; the README's list is out of date.
@@ -46,6 +48,7 @@ Run `sh ./gradlew` if `./gradlew` isn't executable.
 - iOS compile check: `./gradlew :shared:compileKotlinIosSimulatorArm64`
 - CI checks: `./gradlew spotlessCheck checkFullyQualifiedNames`
 - Format: `./gradlew spotlessApply`
+- Web (in `web/`): `npm run dev`, `npm run lint && npm run typecheck && npm run format:check`, `npm run deploy`
 
 ## Conventions
 

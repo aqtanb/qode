@@ -1,0 +1,32 @@
+name: Web
+
+on:
+  push:
+    branches: [dev, main]
+    paths: ['web/**', '.github/workflows/web.yml']
+  pull_request:
+    branches: [dev, main]
+    paths: ['web/**', '.github/workflows/web.yml']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run build

@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qode-web",
+  "compatibility_date": "2026-11-01",
+  "main": "vinext/server/fetch-handler",
+  "routes": [
+    { "pattern": "qodein.com", "custom_domain": true },
+    { "pattern": "www.qodein.com", "custom_domain": true }
+  ],
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/*",
+      "!/_next/static/*",
+      "!/*/_next/static/*"
+    ]
+  }
+}
