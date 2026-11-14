@@ -1,6 +1,6 @@
 # Web
 
-Verified at: 3f332857
+Verified at: 6d63c441
 Covers: `web`, `.github/workflows/web.yml`
 
 The site at qodein.com lives in `web/`. It's Next.js App Router code (Next 16) built by vinext and deployed as the Cloudflare Worker `qode-web`. `next` stays installed only for `next typegen` (the `PageProps`/`LayoutProps` types) and the bundled docs; don't use `next build`. Cache Components is off because vinext doesn't fully support it.
