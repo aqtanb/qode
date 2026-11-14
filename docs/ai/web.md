@@ -19,7 +19,7 @@ Email codes use the same Supabase OTP flow as Android. Google uses Google Identi
 
 ## Routes and i18n
 
-Locales are `kk` (default), `ru` and `en`, in the path. `src/proxy.ts` redirects paths without a locale, using the `locale` cookie or `kk`, so the app's share links (`/promocodes/:id`, `/posts/:id`) keep working. Strings live in `src/i18n/dictionaries/`. Dates are formatted by hand in `src/lib/format.ts` because Workers ship limited ICU data.
+Locales are `kk` (default), `ru` and `en`, in the path. `src/proxy.ts` redirects paths without a locale, using the `locale` cookie or `kk`, so the app's share links (`/promocodes/:id`, `/posts/:id`) keep working. It also sets the security headers, including a per-request nonce CSP that vinext picks up for its inline scripts; a new external script, API or iframe origin has to be added there or the browser blocks it. Strings live in `src/i18n/dictionaries/`. Dates are formatted by hand in `src/lib/format.ts` because Workers ship limited ICU data.
 
 ## Deploy
 
