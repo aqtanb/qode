@@ -1,5 +1,4 @@
 import type { Dictionary } from "@/i18n/get-dictionary";
-import { LocaleSwitcher } from "./locale-switcher";
 
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.qodein.qode";
 
@@ -27,9 +26,6 @@ export function Footer({ dict }: { dict: Dictionary }) {
         <a href={PLAY_URL} target="_blank" rel="noreferrer" className="hover:text-on-surface">
           {dict.footer.android}
         </a>
-        <div className="sm:hidden">
-          <LocaleSwitcher />
-        </div>
       </div>
     </footer>
   );

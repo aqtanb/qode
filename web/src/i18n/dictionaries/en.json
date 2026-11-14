@@ -3,7 +3,7 @@
     "title": "Qode: promocodes in Kazakhstan",
     "description": "Fresh promocodes and deals from people in Kazakhstan. Copy a code, vote, share your own."
   },
-  "nav": { "home": "Deals", "feed": "Feed", "submit": "Submit promocode", "signIn": "Sign in", "signOut": "Sign out", "language": "Language" },
+  "nav": { "home": "Deals", "feed": "Feed", "submit": "Submit promocode", "signIn": "Sign in", "signOut": "Sign out", "language": "Language", "theme": "Switch theme" },
   "home": {
     "popular": "Popular deals",
     "sort": { "popular": "Popular", "newest": "Newest", "expiring": "Expiring soon" },

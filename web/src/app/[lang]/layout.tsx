@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Overpass } from "next/font/google";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { AuthProvider } from "@/components/auth-context";
 import { Footer } from "@/components/footer";
 import { Header, SubmitFab } from "@/components/header";
 import { I18nProvider } from "@/components/i18n-context";
-import { hasLocale, locales } from "@/i18n/config";
+import { hasLocale, isTheme, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { env } from "@/lib/env";
 import "../globals.css";
@@ -40,10 +41,15 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, cookieStore] = await Promise.all([getDictionary(lang), cookies()]);
+  const theme = cookieStore.get("theme")?.value;
 
   return (
-    <html lang={lang} className={`${inter.variable} ${overpass.variable} antialiased`}>
+    <html
+      lang={lang}
+      data-theme={isTheme(theme) ? theme : undefined}
+      className={`${inter.variable} ${overpass.variable} antialiased`}
+    >
       <body className="flex min-h-dvh flex-col font-sans">
         <I18nProvider locale={lang} dict={dict}>
           <AuthProvider>
