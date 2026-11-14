@@ -7,7 +7,10 @@
     { "pattern": "qodein.com", "custom_domain": true },
     { "pattern": "www.qodein.com", "custom_domain": true }
   ],
-  "observability": { "enabled": true },
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+  },
   "assets": {
     "directory": "dist/client",
     "html_handling": "none",

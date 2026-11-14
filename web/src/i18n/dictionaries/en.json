@@ -96,5 +96,6 @@
     }
   },
   "notFound": { "title": "Page not found", "back": "Back to deals" },
+  "error": { "title": "Something went wrong", "retry": "Try again" },
   "footer": { "terms": "Terms", "privacy": "Privacy", "android": "Android app" }
 }
