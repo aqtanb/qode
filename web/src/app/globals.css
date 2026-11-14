@@ -3,6 +3,8 @@
 /* Tokens copied from core/designsystem/.../theme/Color.kt */
 :root {
   --primary: #8f4c34;
+  --brand: #fb3e07;
+  --brand-deep: #3b1f5f;
   --on-primary: #ffffff;
   --primary-container: #ffdbcf;
   --on-primary-container: #72351f;
@@ -55,6 +57,8 @@
 
 @theme inline {
   --color-primary: var(--primary);
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
   --color-on-primary: var(--on-primary);
   --color-primary-container: var(--primary-container);
   --color-on-primary-container: var(--on-primary-container);

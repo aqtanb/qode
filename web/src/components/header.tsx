@@ -12,9 +12,11 @@ export function Header({ locale, dict }: { locale: Locale; dict: Dictionary }) {
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-2 px-4 sm:gap-4">
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-1.5 font-display text-2xl font-extrabold tracking-tight text-primary"
+          className="flex items-center gap-2 font-display text-2xl font-extrabold tracking-tight text-on-surface"
         >
-          <QodeLogo className="size-7" />
+          <span className="flex size-7 items-center justify-center rounded-lg bg-brand-deep">
+            <QodeLogo className="size-[18px] text-brand" />
+          </span>
           qode
         </Link>
         <NavLinks locale={locale} labels={{ home: dict.nav.home, feed: dict.nav.feed }} />
