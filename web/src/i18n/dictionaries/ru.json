@@ -9,7 +9,26 @@
     "sort": { "popular": "Популярные", "newest": "Новые", "expiring": "Скоро истекают" },
     "allServices": "Все сервисы",
     "empty": "Здесь пока нет промокодов.",
+    "showMore": "Показать ещё",
     "getApp": "Приложение для Android"
+  },
+  "filters": {
+    "search": "Поиск по кодам и сервисам",
+    "clearSearch": "Очистить поиск",
+    "sort": "Сортировка",
+    "service": "Сервис",
+    "servicesSelected": "Сервисы: {count}",
+    "percent": "Скидка %",
+    "fixed": "Скидка ₸",
+    "free": "Подарок",
+    "noMin": "Без минимума",
+    "verified": "Проверенные",
+    "clear": "Сбросить",
+    "results": "Найдено: {count}",
+    "noResults": "Ничего не найдено по этим фильтрам.",
+    "searchServices": "Поиск сервисов",
+    "apply": "Показать",
+    "reset": "Сбросить"
   },
   "promo": {
     "promocode": "Промокод",

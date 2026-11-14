@@ -9,7 +9,26 @@
     "sort": { "popular": "Popular", "newest": "Newest", "expiring": "Expiring soon" },
     "allServices": "All services",
     "empty": "No promocodes here yet.",
+    "showMore": "Show more",
     "getApp": "Get the Android app"
+  },
+  "filters": {
+    "search": "Search codes and services",
+    "clearSearch": "Clear search",
+    "sort": "Sort",
+    "service": "Service",
+    "servicesSelected": "Services: {count}",
+    "percent": "% off",
+    "fixed": "₸ off",
+    "free": "Free item",
+    "noMin": "No minimum",
+    "verified": "Verified",
+    "clear": "Clear",
+    "results": "Found: {count}",
+    "noResults": "Nothing matches these filters.",
+    "searchServices": "Search services",
+    "apply": "Show deals",
+    "reset": "Reset"
   },
   "promo": {
     "promocode": "Promocode",

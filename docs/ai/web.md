@@ -13,6 +13,8 @@ It talks to Supabase directly with `supabase-js`; no Kotlin is shared. Server co
 
 Client rules mirror the Kotlin models: promocode ID and validation in `src/lib/promocode.ts` follow `Promocode.kt` and `Service.kt`. Change both when a rule changes. The database still enforces ownership and server-owned columns.
 
+Home search and filters live in the URL (`src/lib/filters.ts`: `q`, `sort`, repeatable `service` and `type`, `nomin`, `verified`, `limit`), so filtered views can be shared. The search term is cut down to letters, digits, spaces and hyphens before it goes into a PostgREST `or()` filter; keep that, or a comma or parenthesis in the box breaks the query.
+
 ## Auth
 
 Email codes use the same Supabase OTP flow as Android. Google uses Google Identity Services and `signInWithIdToken` with a hashed nonce, so no client secret is needed, but each origin (`https://qodein.com`, `http://localhost:3000`) must be an Authorized JavaScript origin on the web OAuth client: `qodein` for prod, `qode-dev` for dev. A first sign-in shows the same consent step and creates the `users` row.

@@ -1,8 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { discountTypeFor, searchTerm, type PromocodeSort, type PromoFilters } from "@/lib/filters";
 import type { Banner, Post, Promocode, Service } from "@/lib/types";
-
-export type PromocodeSort = "popular" | "newest" | "expiring";
 
 const SORTS: Record<PromocodeSort, { column: string; ascending: boolean }> = {
   popular: { column: "vote_score", ascending: false },
@@ -10,19 +9,28 @@ const SORTS: Record<PromocodeSort, { column: string; ascending: boolean }> = {
   expiring: { column: "end_date", ascending: true },
 };
 
-export async function getPromocodes(sort: PromocodeSort, serviceName?: string, limit = 30): Promise<Promocode[]> {
-  const { column, ascending } = SORTS[sort];
+export async function getPromocodes(filters: PromoFilters, limit = 30): Promise<{ items: Promocode[]; total: number }> {
+  const { column, ascending } = SORTS[filters.sort];
   let query = createServerClient()
     .from("promocodes_view")
-    .select("*")
+    .select("*", { count: "exact" })
     .gte("end_date", new Date().toISOString())
     .order(column, { ascending })
     .order("id", { ascending: true })
     .limit(limit);
-  if (serviceName) query = query.eq("service_name", serviceName);
-  const { data, error } = await query;
+  if (filters.services.length > 0) query = query.in("service_name", filters.services);
+  if (filters.kinds.length > 0)
+    query = query.in(
+      "discount_type",
+      filters.kinds.map((kind) => discountTypeFor[kind]),
+    );
+  if (filters.noMin) query = query.eq("minimum_order_amount", 0);
+  if (filters.verified) query = query.eq("verified", true);
+  const term = searchTerm(filters.q);
+  if (term) query = query.or(`code.ilike.*${term}*,service_name.ilike.*${term}*,description.ilike.*${term}*`);
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data as Promocode[];
+  return { items: data as Promocode[], total: count ?? data.length };
 }
 
 export async function getPromocode(id: string): Promise<Promocode | null> {
