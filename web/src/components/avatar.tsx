@@ -3,6 +3,10 @@ export function Avatar({ name, url, size = 28 }: { name: string; url: string | n
     <img
       src={url}
       alt=""
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
       referrerPolicy="no-referrer"
       className="shrink-0 rounded-full object-cover"
       style={{ width: size, height: size }}
