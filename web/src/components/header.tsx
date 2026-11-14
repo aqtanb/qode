@@ -4,12 +4,17 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { AccountButton } from "./account-button";
 import { LocaleSwitcher } from "./locale-switcher";
 import { NavLinks } from "./nav-links";
+import { QodeLogo } from "./qode-logo";
 
 export function Header({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   return (
     <header className="sticky top-0 z-30 border-b border-outline-variant/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-2 px-4 sm:gap-4">
-        <Link href={`/${locale}`} className="font-display text-2xl font-extrabold tracking-tight text-primary">
+        <Link
+          href={`/${locale}`}
+          className="flex items-center gap-1.5 font-display text-2xl font-extrabold tracking-tight text-primary"
+        >
+          <QodeLogo className="size-7" />
           qode
         </Link>
         <NavLinks locale={locale} labels={{ home: dict.nav.home, feed: dict.nav.feed }} />
