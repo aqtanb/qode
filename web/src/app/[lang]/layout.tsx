@@ -55,7 +55,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <AuthProvider>
             <Header locale={lang} dict={dict} />
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
-            <Footer dict={dict} />
+            <Footer dict={dict} locale={lang} />
             <SubmitFab locale={lang} label={dict.nav.submit} />
           </AuthProvider>
         </I18nProvider>

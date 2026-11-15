@@ -23,6 +23,27 @@
     "apply": "Show deals",
     "reset": "Reset"
   },
+  "post": {
+    "title": "Create a post",
+    "signInNeeded": "Sign in to create a post.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "What's it about?",
+    "content": "Text (optional)",
+    "contentPlaceholder": "Share a deal, a tip or a question",
+    "tags": "Tags (optional)",
+    "tagsPlaceholder": "Type a tag and press Enter",
+    "photos": "Photos (optional)",
+    "addPhoto": "Add photo",
+    "removePhoto": "Remove photo",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "errors": {
+      "title": "Add a title",
+      "upload": "A photo didn't upload. Try a smaller one.",
+      "photo": "That file isn't a photo we can use.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
   "promo": {
     "promocode": "Promocode",
     "copy": "Copy code",
@@ -40,7 +61,7 @@
     "anonymous": "Qode user",
     "notFound": "This promocode doesn't exist or was removed."
   },
-  "feed": { "title": "Feed", "empty": "No posts yet.", "notFound": "This post doesn't exist or was removed." },
+  "feed": { "title": "Feed", "create": "Create post", "empty": "No posts yet.", "notFound": "This post doesn't exist or was removed." },
   "vote": { "up": "Upvote", "down": "Downvote", "signInToVote": "Sign in to vote" },
   "share": { "share": "Share", "copied": "Link copied" },
   "auth": {

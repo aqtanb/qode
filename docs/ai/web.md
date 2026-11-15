@@ -15,6 +15,8 @@ Client rules mirror the Kotlin models: promocode ID and validation in `src/lib/p
 
 Home filters live in the URL (`src/lib/filters.ts`: `sort`, repeatable `service`, `limit`), so filtered views can be shared. The chips after the Service picker are the most picked services; adding a service calls `record_service_pick`, the same counter the app uses. Supabase builders only send a request once awaited, so a fire-and-forget call still needs `.then()`.
 
+Posts can be created at `/[lang]/posts/new`; rules mirror `PostModels.kt` in `src/lib/post.ts`, and photos are shrunk to 1600px WebP in the browser before going to `post-images/<user id>/`. `/[lang]/privacy` and `/[lang]/terms` render the root `PRIVACY_POLICY.md` and `TERMS_OF_SERVICE.md` (the files the app downloads from GitHub), so edit those files, not the pages. `vite.config.ts` lets the dev server read the repo root for those `?raw` imports.
+
 ## Auth
 
 Email codes use the same Supabase OTP flow as Android. Google uses Google Identity Services and `signInWithIdToken` with a hashed nonce, so no client secret is needed, but each origin (`https://qodein.com`, `http://localhost:3000`) must be an Authorized JavaScript origin on the web OAuth client: `qodein` for prod, `qode-dev` for dev. A first sign-in shows the same consent step and creates the `users` row.

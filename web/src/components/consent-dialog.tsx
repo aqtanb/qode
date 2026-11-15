@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Dialog } from "./dialog";
 import { useI18n } from "./i18n-context";
 
-const TERMS_URL = "https://github.com/aqtanb/qode/blob/main/TERMS_OF_SERVICE.md";
-const PRIVACY_URL = "https://github.com/aqtanb/qode/blob/main/PRIVACY_POLICY.md";
+const TERMS_URL = "/terms";
+const PRIVACY_URL = "/privacy";
 
 export function ConsentDialog({
   open,
