@@ -1,11 +1,11 @@
 # Terms of Service
-_Last updated: 29.12.2025_
+_Last updated: 15.11.2026_
 
 ## 1. Acceptance of Terms
 By creating an account or using Qode, you agree to these Terms of Service. If you do not agree, you may not use the app.
 
 ## 2. Accounts and Termination
-By using Firebase Authentication, you agree to:
+When you create an account, you agree to:
 * Provide accurate and complete information during account creation.
 * Be responsible for keeping your login credentials secure.
 
@@ -80,7 +80,7 @@ The App may include affiliate links to third-party services in the future. These
 The developer reserves the right to update or modify these Terms of Service at any time. We will notify you of significant changes. Continued use of Qode after any changes constitutes your acceptance of the new Terms.
 
 Updated Terms will always be available at:
-**https://aqtanb.github.io/qode/TERMS_OF_SERVICE.html**
+**https://qodein.com/en/terms**
 
 ## 10. Contact
 If you have questions about these Terms, contact:
