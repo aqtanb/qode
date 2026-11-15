@@ -1,6 +1,6 @@
 # App flows
 
-Verified at: 9e1515f1
+Verified at: 000d6683
 Covers: `androidApp/src/main/java/com/qodein/qode/navigation`, `feature/*/src/main/java/com/qodein/feature/*/navigation`
 
 Routes are type-safe `@Serializable` objects. `QodeNavHost.kt` wires every section together and starts at `HomeBaseRoute`.
