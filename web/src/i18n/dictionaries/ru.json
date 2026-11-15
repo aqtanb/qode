@@ -13,16 +13,9 @@
     "getApp": "Приложение для Android"
   },
   "filters": {
-    "search": "Поиск по кодам и сервисам",
-    "clearSearch": "Очистить поиск",
     "sort": "Сортировка",
     "service": "Сервис",
     "servicesSelected": "Сервисы: {count}",
-    "percent": "Скидка %",
-    "fixed": "Скидка ₸",
-    "free": "Подарок",
-    "noMin": "Без минимума",
-    "verified": "Проверенные",
     "clear": "Сбросить",
     "results": "Найдено: {count}",
     "noResults": "Ничего не найдено по этим фильтрам.",

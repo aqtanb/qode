@@ -1,21 +1,16 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { fill } from "@/lib/fill";
-import {
-  discountKinds,
-  filtersQuery,
-  hasActiveFilters,
-  PAGE_SIZE,
-  sorts,
-  type DiscountKind,
-  type PromoFilters,
-} from "@/lib/filters";
+import { filtersQuery, hasActiveFilters, PAGE_SIZE, sorts, type PromocodeSort, type PromoFilters } from "@/lib/filters";
+import { getBrowserClient } from "@/lib/supabase/browser";
 import type { Service } from "@/lib/types";
 import { Dialog } from "./dialog";
 import { useI18n } from "./i18n-context";
 import { ServiceLogo } from "./service-logo";
+
+const POPULAR_CHIPS = 10;
 
 const chipClass = (active: boolean) =>
   `flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap ${
@@ -24,10 +19,45 @@ const chipClass = (active: boolean) =>
       : "border-outline-variant text-on-surface hover:bg-surface-container-high"
   }`;
 
-function Chevron() {
+function useApplyFilters(filters: PromoFilters) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [pending, startTransition] = useTransition();
+  const apply = (next: Partial<PromoFilters>) =>
+    startTransition(() =>
+      router.replace(`${pathname}${filtersQuery({ ...filters, limit: PAGE_SIZE, ...next })}`, { scroll: false }),
+    );
+  return { apply, pending };
+}
+
+// Counts services the user just added, so the popular chips follow demand. Failures don't matter here.
+// Supabase builders only send the request once awaited.
+function recordPicks(ids: string[]) {
+  const client = getBrowserClient();
+  ids.forEach((id) => void client.rpc("record_service_pick", { service_id: id }).then(() => undefined));
+}
+
+function SortIcon({ sort }: { sort: PromocodeSort }) {
+  const paths: Record<PromocodeSort, React.ReactNode> = {
+    popular: <path d="M6 3h12l4 6-10 12L2 9l4-6zM2 9h20M12 21L8 9l4-6 4 6-4 12" />,
+    newest: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+    expiring: <path d="M6 2h12M6 22h12M7 2c0 5 10 5 10 10S7 17 7 22M17 2c0 5-10 5-10 10s10 5 10 10" />,
+  };
   return (
-    <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M6 9l6 6 6-6" />
+    <svg
+      viewBox="0 0 24 24"
+      className="size-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    >
+      {paths[sort]}
     </svg>
   );
 }
@@ -40,175 +70,120 @@ function Check({ className = "size-4" }: { className?: string }) {
   );
 }
 
-export function PromoFilterBar({ filters, services }: { filters: PromoFilters; services: Service[] }) {
+export function SortButton({ filters }: { filters: PromoFilters }) {
   const { dict } = useI18n();
-  const t = dict.filters;
-  const router = useRouter();
-  const pathname = usePathname();
-  const [pending, startTransition] = useTransition();
-  const [q, setQ] = useState(filters.q);
-  const [dialog, setDialog] = useState<"sort" | "service" | null>(null);
-
-  const latest = useRef(filters);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  useEffect(() => {
-    latest.current = filters;
-  }, [filters]);
-
-  useEffect(() => () => clearTimeout(searchTimer.current), []);
-
-  const apply = (next: Partial<PromoFilters>) => {
-    clearTimeout(searchTimer.current);
-    const merged = { ...latest.current, limit: PAGE_SIZE, ...next };
-    latest.current = merged;
-    startTransition(() => router.replace(`${pathname}${filtersQuery(merged)}`, { scroll: false }));
-  };
-
-  const onSearch = (value: string) => {
-    setQ(value);
-    clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => {
-      if (value.trim() !== latest.current.q.trim()) apply({ q: value });
-    }, 350);
-  };
-
-  const toggleKind = (kind: DiscountKind) =>
-    apply({ kinds: filters.kinds.includes(kind) ? filters.kinds.filter((k) => k !== kind) : [...filters.kinds, kind] });
-
-  type ToggleKey = DiscountKind | "nomin" | "verified";
-  const toggles: { key: ToggleKey; label: string; on: boolean }[] = [
-    ...discountKinds.map((kind) => ({ key: kind, label: t[kind], on: filters.kinds.includes(kind) })),
-    { key: "nomin", label: t.noMin, on: filters.noMin },
-    { key: "verified", label: t.verified, on: filters.verified },
-  ];
-
-  const flip = (key: ToggleKey) => {
-    if (key === "nomin") apply({ noMin: !filters.noMin });
-    else if (key === "verified") apply({ verified: !filters.verified });
-    else toggleKind(key);
-  };
-
-  const serviceLabel =
-    filters.services.length === 1
-      ? filters.services[0]
-      : filters.services.length > 1
-        ? fill(t.servicesSelected, { count: String(filters.services.length) })
-        : t.service;
+  const { apply } = useApplyFilters(filters);
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className={`flex flex-col gap-3 transition-opacity ${pending ? "opacity-70" : ""}`}>
-      <div className="relative">
-        <svg
-          viewBox="0 0 24 24"
-          className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-variant"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="M20 20l-3.5-3.5" />
-        </svg>
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder={t.search}
-          aria-label={t.search}
-          maxLength={50}
-          className="h-12 w-full rounded-full bg-surface-container pl-12 pr-12 text-base outline-none placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary [&::-webkit-search-cancel-button]:hidden"
-        />
-        {q && (
-          <button
-            type="button"
-            onClick={() => {
-              setQ("");
-              apply({ q: "" });
-            }}
-            aria-label={t.clearSearch}
-            className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high"
-          >
-            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
-        <button type="button" onClick={() => setDialog("sort")} className={chipClass(filters.sort !== "popular")}>
-          {dict.home.sort[filters.sort]}
-          <Chevron />
-        </button>
-        <button type="button" onClick={() => setDialog("service")} className={chipClass(filters.services.length > 0)}>
-          {serviceLabel}
-          <Chevron />
-        </button>
-        {toggles
-          .filter((toggle) => toggle.on)
-          .map((toggle) => (
-            <ToggleChip key={toggle.key} label={toggle.label} on={toggle.on} onToggle={() => flip(toggle.key)} />
-          ))}
-        {hasActiveFilters(filters) && (
-          <button
-            type="button"
-            onClick={() => {
-              setQ("");
-              apply({ q: "", services: [], kinds: [], noMin: false, verified: false });
-            }}
-            className="flex h-9 shrink-0 items-center px-2 text-sm font-medium text-primary hover:underline"
-          >
-            {t.clear}
-          </button>
-        )}
-        {toggles
-          .filter((toggle) => !toggle.on)
-          .map((toggle) => (
-            <ToggleChip key={toggle.key} label={toggle.label} on={toggle.on} onToggle={() => flip(toggle.key)} />
-          ))}
-      </div>
-
-      <Dialog open={dialog === "sort"} onClose={() => setDialog(null)} label={t.sort}>
-        <h2 className="mb-3 font-display text-xl font-bold">{t.sort}</h2>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={dict.filters.sort}
+        className={`flex size-10 items-center justify-center rounded-full hover:bg-surface-container-high ${
+          filters.sort === "popular" ? "text-on-surface-variant" : "text-primary"
+        }`}
+      >
+        <SortIcon sort={filters.sort} />
+      </button>
+      <Dialog open={open} onClose={() => setOpen(false)} label={dict.filters.sort}>
+        <h2 className="mb-3 font-display text-xl font-bold">{dict.filters.sort}</h2>
         <div className="flex flex-col">
           {sorts.map((sort) => (
             <button
               key={sort}
               type="button"
               onClick={() => {
-                setDialog(null);
+                setOpen(false);
                 apply({ sort });
               }}
-              className="flex items-center justify-between rounded-xl px-3 py-3 text-left hover:bg-surface-container"
+              className="flex items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-surface-container"
             >
-              {dict.home.sort[sort]}
+              <SortIcon sort={sort} />
+              <span className="flex-1">{dict.home.sort[sort]}</span>
               {filters.sort === sort && <Check className="size-5 text-primary" />}
             </button>
           ))}
         </div>
       </Dialog>
+    </>
+  );
+}
 
-      {dialog === "service" && (
+export function PromoFilterBar({ filters, services }: { filters: PromoFilters; services: Service[] }) {
+  const { dict } = useI18n();
+  const t = dict.filters;
+  const { apply, pending } = useApplyFilters(filters);
+  const [picking, setPicking] = useState(false);
+
+  const idOf = (name: string) => services.find((s) => s.name === name)?.id;
+  const setServices = (next: string[]) => {
+    recordPicks(next.filter((name) => !filters.services.includes(name)).flatMap((name) => idOf(name) ?? []));
+    apply({ services: next });
+  };
+  const toggle = (name: string) =>
+    setServices(
+      filters.services.includes(name) ? filters.services.filter((n) => n !== name) : [...filters.services, name],
+    );
+
+  const count = filters.services.length;
+
+  return (
+    <div
+      className={`no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 transition-opacity ${pending ? "opacity-70" : ""}`}
+    >
+      <button type="button" onClick={() => setPicking(true)} className={chipClass(count > 0)}>
+        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 9l1.5-5h15L21 9M3 9h18v2a3 3 0 01-6 0 3 3 0 01-6 0 3 3 0 01-6 0V9zM5 13v8h14v-8" />
+        </svg>
+        {count > 0 ? fill(t.servicesSelected, { count: String(count) }) : t.service}
+        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+
+      {services.slice(0, POPULAR_CHIPS).map((service) => {
+        const on = filters.services.includes(service.name);
+        return (
+          <button
+            key={service.id}
+            type="button"
+            aria-pressed={on}
+            onClick={() => toggle(service.name)}
+            className={chipClass(on)}
+          >
+            <ServiceLogo name={service.name} url={service.logo_url} size={20} />
+            {service.name}
+          </button>
+        );
+      })}
+
+      {hasActiveFilters(filters) && (
+        <button
+          type="button"
+          onClick={() => apply({ services: [] })}
+          aria-label={t.clear}
+          className="flex size-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high"
+        >
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      )}
+
+      {picking && (
         <ServicePicker
           services={services}
           selected={filters.services}
-          onClose={() => setDialog(null)}
+          onClose={() => setPicking(false)}
           onApply={(next) => {
-            setDialog(null);
-            apply({ services: next });
+            setPicking(false);
+            setServices(next);
           }}
         />
       )}
     </div>
-  );
-}
-
-function ToggleChip({ label, on, onToggle }: { label: string; on: boolean; onToggle: () => void }) {
-  return (
-    <button type="button" aria-pressed={on} onClick={onToggle} className={chipClass(on)}>
-      {on && <Check />}
-      {label}
-    </button>
   );
 }
 

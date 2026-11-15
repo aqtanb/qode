@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Banners } from "@/components/banners";
 import { PromocodeCard } from "@/components/promocode-card";
-import { PromoFilterBar } from "@/components/promo-filters";
+import { PromoFilterBar, SortButton } from "@/components/promo-filters";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { fill } from "@/lib/fill";
@@ -27,11 +27,14 @@ export default async function HomePage({ params, searchParams }: PageProps<"/[la
       <Banners banners={banners} locale={lang} />
 
       <section className="flex flex-col gap-4">
-        <h1 className="font-display text-3xl font-bold">
-          {filters.sort === "popular" ? dict.home.popular : dict.nav.home}
-        </h1>
-
         <PromoFilterBar filters={filters} services={services} />
+
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="font-display text-3xl font-bold">
+            {filters.sort === "popular" ? dict.home.popular : dict.nav.home}
+          </h1>
+          <SortButton filters={filters} />
+        </div>
 
         {filtered && promocodes.length > 0 && (
           <p className="text-sm text-on-surface-variant">{fill(dict.filters.results, { count: String(total) })}</p>

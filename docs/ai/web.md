@@ -13,7 +13,7 @@ It talks to Supabase directly with `supabase-js`; no Kotlin is shared. Server co
 
 Client rules mirror the Kotlin models: promocode ID and validation in `src/lib/promocode.ts` follow `Promocode.kt` and `Service.kt`. Change both when a rule changes. The database still enforces ownership and server-owned columns.
 
-Home search and filters live in the URL (`src/lib/filters.ts`: `q`, `sort`, repeatable `service` and `type`, `nomin`, `verified`, `limit`), so filtered views can be shared. The search term is cut down to letters, digits, spaces and hyphens before it goes into a PostgREST `or()` filter; keep that, or a comma or parenthesis in the box breaks the query.
+Home filters live in the URL (`src/lib/filters.ts`: `sort`, repeatable `service`, `limit`), so filtered views can be shared. The chips after the Service picker are the most picked services; adding a service calls `record_service_pick`, the same counter the app uses. Supabase builders only send a request once awaited, so a fire-and-forget call still needs `.then()`.
 
 ## Auth
 

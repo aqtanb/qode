@@ -13,16 +13,9 @@
     "getApp": "Android қосымшасы"
   },
   "filters": {
-    "search": "Код пен сервис бойынша іздеу",
-    "clearSearch": "Іздеуді тазалау",
     "sort": "Сұрыптау",
     "service": "Сервис",
     "servicesSelected": "Сервистер: {count}",
-    "percent": "% жеңілдік",
-    "fixed": "₸ жеңілдік",
-    "free": "Сыйлық",
-    "noMin": "Ең аз сомасыз",
-    "verified": "Тексерілген",
     "clear": "Тазалау",
     "results": "Табылды: {count}",
     "noResults": "Бұл сүзгілер бойынша ештеңе табылмады.",
