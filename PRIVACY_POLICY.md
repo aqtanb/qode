@@ -9,7 +9,7 @@ By using Qode, you agree to the practices described in this Privacy Policy.
 ## 1. Developer Information
 **Data Controller:**
 Ybyraiym Aktanberdi
-Email: **qodeinhq@gmail.com**
+Email: **support@qodein.com**
 
 Qode is an independently developed service and is not operated by a registered legal entity.
 
@@ -123,7 +123,7 @@ We keep:
 ---
 
 ## 8. Account Deletion
-You can permanently delete your account from Settings in the Android app. You can also ask us to delete it by writing to **qodeinhq@gmail.com** from the email address on the account.
+You can permanently delete your account from Settings in the Android app. You can also ask us to delete it by writing to **support@qodein.com** from the email address on the account.
 
 Deleting your account removes:
 - Your sign-in data (email, user ID, display name, profile photo)
@@ -135,7 +135,7 @@ Deleting your account removes:
 ---
 
 ## 9. Your Rights
-You can ask us to access, correct, or delete your personal data, or ask questions about how it is used, by emailing **qodeinhq@gmail.com**. We will reply within 30 days.
+You can ask us to access, correct, or delete your personal data, or ask questions about how it is used, by emailing **support@qodein.com**. We will reply within 30 days.
 
 ---
 
@@ -166,5 +166,5 @@ If we make significant changes, we will update the date at the top. Continued us
 ## 13. Contact
 For questions or data requests:
 
-**qodeinhq@gmail.com**
+**support@qodein.com**
 Developer: **Ybyraiym Aktanberdi**
