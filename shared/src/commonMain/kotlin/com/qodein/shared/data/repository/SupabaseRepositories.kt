@@ -140,6 +140,9 @@ class ServiceRepositoryImpl(private val dataSource: SupabaseServiceDataSource) :
             dataSource.getPopular(limit).map { it.toDomain() }.also { popularServices = popularServices + (limit to it) }
         }
     }
+
+    override suspend fun recordServicePick(id: ServiceId): Result<Unit, OperationError> =
+        remoteCall("Record service pick") { dataSource.recordPick(id.value) }
 }
 
 class BannerRepositoryImpl(private val dataSource: SupabaseBannerDataSource) : BannerRepository {

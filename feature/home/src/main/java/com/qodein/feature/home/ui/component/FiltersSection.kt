@@ -1,182 +1,116 @@
 package com.qodein.feature.home.ui.component
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.qodein.core.designsystem.component.ButtonSize
 import com.qodein.core.designsystem.component.QodeinAsyncImage
-import com.qodein.core.designsystem.component.QodeinOutlinedIconButton
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.QodeIcons
-import com.qodein.core.designsystem.icon.UIIcons
 import com.qodein.core.designsystem.theme.QodeTheme
-import com.qodein.core.designsystem.theme.ShapeTokens
-import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
-import com.qodein.core.ui.component.SortIconHelper
 import com.qodein.core.ui.preview.ServicePreviewData
 import com.qodein.feature.home.R
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.core.ui.R as CoreUiR
 
 /**
- * Quick filters section with category, service, and sort chips
- * Extracted from HomeScreen for better modularity
+ * Service filters for the home feed: the full picker plus the most picked services as quick chips.
+ * Sorting lives in the section header.
  */
 @Composable
 fun FiltersSection(
     currentFilters: CompleteFilterState,
-    onShowSortDialog: () -> Unit,
+    popularServices: List<Service>,
     onShowServiceSelection: () -> Unit,
+    onTogglePopularService: (Service) -> Unit,
     onResetFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = SpacingTokens.lg,
-            alignment = Alignment.CenterHorizontally,
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = SpacingTokens.md),
+        horizontalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val (serviceIcon, logoUrl, fallbackText) = when (val filter = currentFilters.serviceFilter) {
-            ServiceFilter.All -> Triple(QodeIcons.Service, null, null)
-            is ServiceFilter.Selected -> {
-                when (filter.services.size) {
-                    1 -> {
-                        val service = filter.services.first()
-                        Triple(UIIcons.Filter1, service.logoUrl, service.name)
-                    }
-                    2 -> {
-                        Triple(UIIcons.Filter2, null, null)
-                    }
-                    3 -> {
-                        Triple(UIIcons.Filter3, null, null)
-                    }
-                    4 -> {
-                        Triple(UIIcons.Filter4, null, null)
-                    }
-                    5 -> {
-                        Triple(UIIcons.Filter5, null, null)
-                    }
-                    6 -> {
-                        Triple(UIIcons.Filter6, null, null)
-                    }
-                    7 -> {
-                        Triple(UIIcons.Filter7, null, null)
-                    }
-                    8 -> {
-                        Triple(UIIcons.Filter8, null, null)
-                    }
-                    9 -> {
-                        Triple(UIIcons.Filter9, null, null)
-                    }
-                    else -> Triple(UIIcons.Filter9Plus, null, null)
-                }
-            }
+        ServiceChip(serviceFilter = currentFilters.serviceFilter, onClick = onShowServiceSelection)
+
+        val selectedIds = currentFilters.selectedServiceIds
+        popularServices.forEach { service ->
+            FilterChip(
+                selected = service.id in selectedIds,
+                onClick = { onTogglePopularService(service) },
+                label = { Text(service.name, maxLines = 1) },
+                leadingIcon = { ServiceLogo(service) },
+                shape = CircleShape,
+            )
         }
 
-        FilterChip(
-            nameRes = CoreUiR.string.ui_service,
-            icon = serviceIcon,
-            logoUrl = logoUrl,
-            fallbackText = fallbackText,
-            onClick = onShowServiceSelection,
-            isSelected = currentFilters.serviceFilter !is ServiceFilter.All,
-        )
-
-        FilterChip(
-            nameRes = CoreUiR.string.filter_chip_sort,
-            icon = SortIconHelper.getSortIcon(currentFilters.sortBy),
-            onClick = onShowSortDialog,
-            isSelected = false,
-        )
-
-        val hasActiveFilters = currentFilters.serviceFilter !is ServiceFilter.All
-        if (hasActiveFilters) {
-            FilterChip(
-                nameRes = R.string.filter_chip_reset,
-                icon = NavigationIcons.Refresh,
-                onClick = onResetFilters,
-                isSelected = false,
-            )
+        if (currentFilters.hasActiveFilters) {
+            IconButton(onClick = onResetFilters) {
+                Icon(ActionIcons.Clear, contentDescription = stringResource(R.string.filter_chip_reset))
+            }
         }
     }
 }
 
 @Composable
-private fun FilterChip(
-    nameRes: Int,
-    icon: ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false,
-    logoUrl: String? = null,
-    fallbackText: String? = null
+private fun ServiceChip(
+    serviceFilter: ServiceFilter,
+    onClick: () -> Unit
 ) {
-    val logoUrlOrNull = logoUrl?.takeIf { it.isNotBlank() }
-    val buttonIcon = if (logoUrlOrNull != null) null else icon
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xxs),
-    ) {
-        val border = BorderStroke(
-            width = ShapeTokens.Border.medium,
-            color = if (isSelected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-        )
-        val contentColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+    val count = (serviceFilter as? ServiceFilter.Selected)?.services?.size ?: 0
+    FilterChip(
+        selected = count > 0,
+        onClick = onClick,
+        label = {
+            Text(
+                text = if (count > 0) {
+                    pluralStringResource(R.plurals.home_services_selected, count, count)
+                } else {
+                    stringResource(CoreUiR.string.ui_service)
+                },
+                maxLines = 1,
+            )
+        },
+        leadingIcon = {
+            Icon(QodeIcons.Service, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize))
+        },
+        trailingIcon = {
+            Icon(NavigationIcons.DropDown, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize))
+        },
+        shape = CircleShape,
+    )
+}
 
-        QodeinOutlinedIconButton(
-            onClick = onClick,
-            icon = buttonIcon,
-            contentDescription = stringResource(nameRes),
-            size = ButtonSize.XL,
-            contentColor = contentColor,
-            border = border,
-            content = logoUrlOrNull?.let {
-                {
-                    QodeinAsyncImage(
-                        imageUrl = it,
-                        fallbackText = fallbackText ?: "",
-                        size = SizeTokens.IconButton.sizeXL,
-                        contentDescription = stringResource(nameRes),
-                    )
-                }
-            },
-        )
-
-        // Filter name
-        Text(
-            text = stringResource(nameRes),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            color = if (isSelected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-        )
-    }
+@Composable
+private fun ServiceLogo(service: Service) {
+    QodeinAsyncImage(
+        imageUrl = service.logoUrl.orEmpty(),
+        fallbackText = service.name,
+        size = FilterChipDefaults.IconSize,
+        contentDescription = "",
+    )
 }
 
 @PreviewLightDark
@@ -185,10 +119,25 @@ private fun FiltersSectionPreview() {
     QodeTheme {
         FiltersSection(
             currentFilters = CompleteFilterState(
-                serviceFilter = ServiceFilter.Selected(services = (ServicePreviewData.allSamples.toSet())),
+                serviceFilter = ServiceFilter.Selected(services = setOf(ServicePreviewData.allSamples.first())),
             ),
-            onShowSortDialog = { },
+            popularServices = ServicePreviewData.allSamples,
             onShowServiceSelection = { },
+            onTogglePopularService = { },
+            onResetFilters = { },
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun FiltersSectionEmptyPreview() {
+    QodeTheme {
+        FiltersSection(
+            currentFilters = CompleteFilterState(),
+            popularServices = ServicePreviewData.allSamples,
+            onShowServiceSelection = { },
+            onTogglePopularService = { },
             onResetFilters = { },
         )
     }

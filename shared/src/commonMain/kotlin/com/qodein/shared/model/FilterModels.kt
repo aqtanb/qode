@@ -5,9 +5,7 @@ package com.qodein.shared.model
  */
 sealed interface ServiceFilter {
     val isEmpty: Boolean get() = this is All
-
     data object All : ServiceFilter
-
     data class Selected(val services: Set<Service>) : ServiceFilter
 }
 
@@ -19,21 +17,30 @@ data class CompleteFilterState(
     val sortBy: PromocodeSortBy = PromocodeSortBy.POPULARITY
 ) {
     /**
-     * Apply service filter with validation
-     * Categories and services are mutually exclusive
+     * Whether anything narrows the results. Sort alone doesn't count.
      */
-    fun applyServiceFilter(serviceFilter: ServiceFilter): CompleteFilterState =
-        if (serviceFilter is ServiceFilter.Selected && serviceFilter.services.isNotEmpty()) {
-            // Clear category filter when service is selected
-            copy(serviceFilter = serviceFilter)
-        } else {
-            copy(serviceFilter = serviceFilter)
-        }
+    val hasActiveFilters: Boolean get() = serviceFilter !is ServiceFilter.All
+
+    val selectedServiceIds: Set<ServiceId>
+        get() = (serviceFilter as? ServiceFilter.Selected)?.services?.map { it.id }?.toSet().orEmpty()
+
+    fun applyServiceFilter(serviceFilter: ServiceFilter): CompleteFilterState = copy(serviceFilter = serviceFilter)
 
     /**
-     * Apply sort filter
+     * Adds [service] to the selection, or removes it if it was already selected.
      */
+    fun toggleService(service: Service): CompleteFilterState {
+        val current = (serviceFilter as? ServiceFilter.Selected)?.services.orEmpty()
+        val next = if (current.any { it.id == service.id }) current.filterNot { it.id == service.id }.toSet() else current + service
+        return copy(serviceFilter = if (next.isEmpty()) ServiceFilter.All else ServiceFilter.Selected(next))
+    }
+
     fun applySortBy(sortBy: PromocodeSortBy): CompleteFilterState = copy(sortBy = sortBy)
+
+    /**
+     * Clears every filter but keeps the sort.
+     */
+    fun clearFilters(): CompleteFilterState = CompleteFilterState(sortBy = sortBy)
 
     /**
      * Reset all filters to default state

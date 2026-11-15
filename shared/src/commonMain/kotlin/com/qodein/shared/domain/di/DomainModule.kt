@@ -31,6 +31,7 @@ import com.qodein.shared.domain.usecase.service.GetOrCreateServiceUseCase
 import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.GetServiceLogoUrlUseCase
 import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
+import com.qodein.shared.domain.usecase.service.RecordServicePickUseCase
 import com.qodein.shared.domain.usecase.service.SearchServicesUseCase
 import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
 import com.qodein.shared.domain.usecase.user.AcceptLegalPoliciesUseCase
@@ -112,6 +113,7 @@ val domainModule = module {
     single { GetUserInteractionUseCase(get()) }
 
     single { GetPopularServicesUseCase(get()) }
+    single { RecordServicePickUseCase(get()) }
     single { SearchServicesUseCase(get()) }
     single { GetOrCreateServiceUseCase(get()) }
     single { GetServicesByIdsUseCase(get()) }

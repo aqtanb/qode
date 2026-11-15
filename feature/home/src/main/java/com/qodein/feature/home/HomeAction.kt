@@ -4,6 +4,7 @@ import com.qodein.shared.model.Banner
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.PromocodeSortBy
+import com.qodein.shared.model.Service
 
 sealed interface HomeAction {
 
@@ -22,4 +23,6 @@ sealed interface HomeAction {
     data object ShowServiceSelection : HomeAction
     data class ApplySortFilter(val sortBy: PromocodeSortBy) : HomeAction
     data object ResetFilters : HomeAction
+
+    data class TogglePopularService(val service: Service) : HomeAction
 }

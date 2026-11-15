@@ -10,6 +10,9 @@ import com.qodein.shared.model.ServiceId
 class FakeServiceRepository : ServiceRepository {
     val services = mutableListOf<Service>()
 
+    /** Services passed to recordServicePick, in order. */
+    val picks = mutableListOf<ServiceId>()
+
     /** When set, every call fails with this error. */
     var error: OperationError? = null
 
@@ -37,4 +40,10 @@ class FakeServiceRepository : ServiceRepository {
 
     override suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError> =
         Result.Success(services.take(limit.toInt()))
+
+    override suspend fun recordServicePick(id: ServiceId): Result<Unit, OperationError> {
+        error?.let { return Result.Error(it) }
+        picks += id
+        return Result.Success(Unit)
+    }
 }

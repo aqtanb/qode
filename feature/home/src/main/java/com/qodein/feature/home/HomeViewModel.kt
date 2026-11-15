@@ -10,7 +10,9 @@ import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.preferences.ObserveLanguageUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesUseCase
+import com.qodein.shared.domain.usecase.service.GetPopularServicesUseCase
 import com.qodein.shared.domain.usecase.service.GetServicesByIdsUseCase
+import com.qodein.shared.domain.usecase.service.RecordServicePickUseCase
 import com.qodein.shared.model.Banner
 import com.qodein.shared.model.CompleteFilterState
 import com.qodein.shared.model.Discount
@@ -20,8 +22,10 @@ import com.qodein.shared.model.PaginationRequest
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.PromocodeSortBy
+import com.qodein.shared.model.Service
 import com.qodein.shared.model.ServiceFilter
 import com.qodein.shared.model.ServiceId
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +41,9 @@ class HomeViewModel(
     private val getPromocodesUseCase: GetPromocodesUseCase,
     private val observeLanguageUseCase: ObserveLanguageUseCase,
     private val analyticsHelper: AnalyticsHelper,
-    private val getServicesByIdsUseCase: GetServicesByIdsUseCase
+    private val getServicesByIdsUseCase: GetServicesByIdsUseCase,
+    private val getPopularServicesUseCase: GetPopularServicesUseCase,
+    private val recordServicePickUseCase: RecordServicePickUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -53,7 +59,10 @@ class HomeViewModel(
         private const val EVENT_COPY_PROMOCODE = "copy_promocode"
         private const val KEY_SCROLL_INDEX = "scroll_index"
         private const val KEY_SCROLL_OFFSET = "scroll_offset"
+        private const val POPULAR_SERVICE_COUNT = 10L
     }
+
+    private var loadJob: Job? = null
 
     // Scroll state preservation
     fun saveScrollPosition(
@@ -101,6 +110,7 @@ class HomeViewModel(
             }
 
             if (selectionChanged) {
+                recordPicks(serviceIds - _uiState.value.currentFilters.selectedServiceIds)
                 val serviceFilter = ServiceFilter.Selected(services)
                 applyFilters(_uiState.value.currentFilters.applyServiceFilter(serviceFilter))
             } else {
@@ -126,12 +136,37 @@ class HomeViewModel(
             is HomeAction.ShowServiceSelection -> showServiceSelection()
             is HomeAction.ApplySortFilter -> applyFilters(_uiState.value.currentFilters.applySortBy(action.sortBy))
             is HomeAction.ResetFilters -> resetFilters()
+            is HomeAction.TogglePopularService -> togglePopularService(action.service)
         }
     }
 
     fun handleRefresh() {
         loadBanners()
+        loadPopularServices()
         loadInitialPage()
+    }
+
+    private fun loadPopularServices() {
+        viewModelScope.launch {
+            when (val result = getPopularServicesUseCase(POPULAR_SERVICE_COUNT)) {
+                is Result.Success -> _uiState.update { it.copy(popularServices = result.data) }
+                is Result.Error -> Timber.w("Popular services failed to load: %s", result.error)
+            }
+        }
+    }
+
+    private fun togglePopularService(service: Service) {
+        val filters = _uiState.value.currentFilters
+        if (service.id !in filters.selectedServiceIds) recordPicks(setOf(service.id))
+        applyFilters(filters.toggleService(service))
+    }
+
+    private fun recordPicks(ids: Set<ServiceId>) {
+        if (ids.isEmpty()) return
+        viewModelScope.launch {
+            val result = recordServicePickUseCase(ids)
+            if (result is Result.Error) Timber.w("Service pick not recorded: %s", result.error)
+        }
     }
 
     private fun observeLanguage() {
@@ -171,14 +206,16 @@ class HomeViewModel(
     }
 
     private fun loadPromocodes(paginationRequest: PaginationRequest<PromocodeSortBy>) {
-        viewModelScope.launch {
+        val isLoadMore = paginationRequest.cursor != null
+        // A new first page makes any request still in flight stale.
+        if (!isLoadMore) loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             val filters = _uiState.value.currentFilters
-            val isLoadMore = paginationRequest.cursor != null
 
             // Set loading state before starting operation
             if (!isLoadMore) {
                 _uiState.update { state ->
-                    state.copy(promocodeUiState = PromocodeUiState.Loading)
+                    state.copy(promocodeUiState = PromocodeUiState.Loading, isLoadingMore = false)
                 }
             } else {
                 _uiState.update { state ->
@@ -340,9 +377,7 @@ class HomeViewModel(
     }
 
     private fun resetFilters() {
-        val currentFilters = _uiState.value.currentFilters
-        val resetFilters = currentFilters.reset()
-        applyFilters(resetFilters)
+        applyFilters(_uiState.value.currentFilters.clearFilters())
     }
 
     private fun applyFilters(newFilters: CompleteFilterState) {

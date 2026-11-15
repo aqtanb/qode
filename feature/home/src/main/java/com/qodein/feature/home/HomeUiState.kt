@@ -7,6 +7,7 @@ import com.qodein.shared.model.Language
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeSortBy
+import com.qodein.shared.model.Service
 
 /**
  * Single HomeUiState following MVI pattern
@@ -19,6 +20,7 @@ data class HomeUiState(
     val userLanguage: Language = Language.ENGLISH,
 
     val currentFilters: CompleteFilterState = CompleteFilterState(),
+    val popularServices: List<Service> = emptyList(),
     val isLoadingMore: Boolean = false,
     val isRefreshing: Boolean = false
 )

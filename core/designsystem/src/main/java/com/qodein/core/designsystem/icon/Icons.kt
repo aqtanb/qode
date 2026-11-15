@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.TextSnippet
 import androidx.compose.material.icons.automirrored.outlined.TextSnippet
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
@@ -146,6 +147,7 @@ object NavigationIcons {
 
     val ChevronLeft = Icons.Default.ChevronLeft
     val ChevronRight = Icons.Default.ChevronRight
+    val DropDown = Icons.Default.ArrowDropDown
     val Upward = Icons.Default.ArrowUpward
     val Downward = Icons.Default.ArrowDownward
 

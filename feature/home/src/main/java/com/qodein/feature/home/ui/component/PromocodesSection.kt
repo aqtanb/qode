@@ -4,13 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,23 +34,40 @@ import com.qodein.feature.home.PromocodeUiState
 import com.qodein.feature.home.R
 import com.qodein.shared.common.error.DatabaseError
 import com.qodein.shared.model.CompleteFilterState
+import com.qodein.shared.model.PromocodeSortBy
 import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun PromocodeSectionHeader(
     currentFilters: CompleteFilterState,
+    onSortClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val titleRes = SortIconHelper.getSortSectionTitleRes(sortBy = currentFilters.sortBy)
 
-    Text(
-        text = stringResource(titleRes),
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface,
-        textAlign = TextAlign.Center,
+    Row(
         modifier = modifier.fillMaxWidth(),
-    )
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(titleRes),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(onClick = onSortClick) {
+            Icon(
+                imageVector = SortIconHelper.getSortIcon(currentFilters.sortBy),
+                contentDescription = stringResource(CoreUiR.string.filter_chip_sort),
+                tint = if (currentFilters.sortBy == PromocodeSortBy.POPULARITY) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+            )
+        }
+    }
 }
 
 @Composable
@@ -96,7 +116,11 @@ fun PromocodeSectionErrorState(
 }
 
 @Composable
-fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
+fun PromocodeSectionEmptyState(
+    modifier: Modifier = Modifier,
+    filtered: Boolean = false,
+    onResetFilters: () -> Unit = {}
+) {
     StateContainer(modifier = modifier) {
         Icon(
             imageVector = UIIcons.Empty,
@@ -106,7 +130,7 @@ fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(R.string.empty_no_promo_codes),
+            text = stringResource(if (filtered) R.string.filter_no_results_title else R.string.empty_no_promo_codes),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -115,12 +139,18 @@ fun PromocodeSectionEmptyState(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(R.string.empty_check_back_later),
+            text = stringResource(if (filtered) R.string.filter_no_results_body else R.string.empty_check_back_later),
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = SpacingTokens.sm),
         )
+
+        if (filtered) {
+            TextButton(onClick = onResetFilters) {
+                Text(stringResource(R.string.filter_chip_reset))
+            }
+        }
     }
 }
 

@@ -6,4 +6,10 @@
     <string name="banner_empty_title">Белсенді баннерлер жоқ</string>
     <string name="home_banner_empty_description">Сіздің жарнамаңыз осында болуы мүмкін :)</string>
     <string name="filter_chip_reset">Тазалау</string>
+    <string name="filter_no_results_title">Ештеңе табылмады</string>
+    <string name="filter_no_results_body">Басқа сұрау жазып көріңіз немесе сүзгілерді тазалаңыз.</string>
+    <plurals name="home_services_selected">
+        <item quantity="one">%d сервис</item>
+        <item quantity="other">%d сервис</item>
+    </plurals>
 </resources>

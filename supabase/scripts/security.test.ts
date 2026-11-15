@@ -70,6 +70,11 @@ async function run() {
     denied('edit service', await alice.client.from('services').update({ name: 'x' }).eq('id', serviceId));
     denied('delete service', await alice.client.from('services').delete().eq('id', serviceId).select());
     allowed('anon reads services', await anon.from('services').select('id').limit(1));
+    denied('create service with picks', await alice.client.from('services').insert({ id: `${serviceId}p`, name: 'x', pick_count: 5 }));
+    denied('edit pick count', await alice.client.from('services').update({ pick_count: 99 }).eq('id', serviceId).select());
+    allowed('anon records a pick', await anon.rpc('record_service_pick', { service_id: serviceId }));
+    allowed('signed-in records a pick', await alice.client.rpc('record_service_pick', { service_id: serviceId }));
+    check('picks counted', (await count('services', serviceId, 'pick_count')) === 2);
 
     // Promocodes and posts
     denied('create promocode as someone else', await bob.client.from('promocodes').insert({ ...promo, id: `${promoId}x` }));

@@ -16,7 +16,7 @@ Clients get named columns through grants, so counts, votes and `verified` are se
 | Table | Written by |
 |---|---|
 | `users` | Owner; readable only by the owner |
-| `services` | Signed-in users create; no client updates |
+| `services` | Signed-in users create; no client updates. `pick_count` changes only through `record_service_pick` |
 | `promocodes`, `posts` | Author inserts and deletes |
 | `interactions` | Owner, through `save_interaction` |
 | `blocks` | Owner |
@@ -36,6 +36,8 @@ Buckets `post-images` and `promocode-images` are public to read. Uploads must go
 ## Search
 
 `search_services` uses `pg_trgm` word similarity, so it tolerates typos. It only searches service names.
+
+Popular services sort by `pick_count`, then `promocode_count`. Clients call `record_service_pick` once for each service a user adds as a filter; anyone can call it and only the per-service total is stored, so it can be inflated but holds no user data. Apps before 0.9.3 never call it.
 
 ## Client
 

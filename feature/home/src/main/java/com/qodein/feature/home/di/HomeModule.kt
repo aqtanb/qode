@@ -13,6 +13,8 @@ val homeModule = module {
             observeLanguageUseCase = get(),
             analyticsHelper = get(),
             getServicesByIdsUseCase = get(),
+            getPopularServicesUseCase = get(),
+            recordServicePickUseCase = get(),
         )
     }
 }

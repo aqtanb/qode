@@ -35,7 +35,12 @@ interface ServiceRepository {
     ): Result<List<Service>, OperationError>
 
     /**
-     * Get popular services sorted by promocode count.
+     * Get popular services, most picked first, then by promocode count.
      */
     suspend fun getPopularServices(limit: Long): Result<List<Service>, OperationError>
+
+    /**
+     * Count one pick of [id] as a filter. Only a total per service is stored.
+     */
+    suspend fun recordServicePick(id: ServiceId): Result<Unit, OperationError>
 }

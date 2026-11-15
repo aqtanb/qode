@@ -5,4 +5,10 @@
     <string name="empty_no_promo_codes">No promocodes available</string>
     <string name="empty_check_back_later">Check back later for amazing deals!</string>
     <string name="filter_chip_reset">Reset</string>
+    <string name="filter_no_results_title">Nothing matches these filters</string>
+    <string name="filter_no_results_body">Try another search or reset the filters.</string>
+    <plurals name="home_services_selected">
+        <item quantity="one">%d service</item>
+        <item quantity="other">%d services</item>
+    </plurals>
 </resources>

@@ -182,17 +182,11 @@ private fun HomeContent(
             item(key = FILTERS_SECTION_KEY) {
                 FiltersSection(
                     currentFilters = uiState.currentFilters,
-                    onShowSortDialog = onShowSortDialog,
                     onShowServiceSelection = onShowServiceSelection,
-                    onResetFilters = {
-                        onAction(HomeAction.ResetFilters)
-                    },
-                    modifier = Modifier.padding(
-                        top = SpacingTokens.md,
-                        bottom = SpacingTokens.md,
-                        start = SpacingTokens.sm,
-                        end = SpacingTokens.sm,
-                    ),
+                    popularServices = uiState.popularServices,
+                    onTogglePopularService = { onAction(HomeAction.TogglePopularService(it)) },
+                    onResetFilters = { onAction(HomeAction.ResetFilters) },
+                    modifier = Modifier.padding(top = SpacingTokens.sm, bottom = SpacingTokens.xs),
                 )
             }
 
@@ -200,7 +194,8 @@ private fun HomeContent(
             item(key = PROMO_CODES_HEADER_KEY) {
                 PromocodeSectionHeader(
                     currentFilters = uiState.currentFilters,
-                    modifier = Modifier.padding(SpacingTokens.xs),
+                    onSortClick = onShowSortDialog,
+                    modifier = Modifier.padding(start = SpacingTokens.md, end = SpacingTokens.xs),
                 )
             }
 
@@ -240,6 +235,8 @@ private fun HomeContent(
                 PromocodeUiState.Empty -> {
                     item(key = PROMO_CODES_EMPTY_KEY) {
                         PromocodeSectionEmptyState(
+                            filtered = uiState.currentFilters.hasActiveFilters,
+                            onResetFilters = { onAction(HomeAction.ResetFilters) },
                             modifier = Modifier.padding(start = SpacingTokens.sm, end = SpacingTokens.sm, bottom = SpacingTokens.gigantic),
                         )
                     }

@@ -6,4 +6,12 @@
     <string name="banner_empty_title">Активных баннеров нет</string>
     <string name="home_banner_empty_description">Здесь может быть ваша реклама :)</string>
     <string name="filter_chip_reset">Сбросить</string>
+    <string name="filter_no_results_title">Ничего не найдено</string>
+    <string name="filter_no_results_body">Попробуйте другой запрос или сбросьте фильтры.</string>
+    <plurals name="home_services_selected">
+        <item quantity="one">%d сервис</item>
+        <item quantity="few">%d сервиса</item>
+        <item quantity="many">%d сервисов</item>
+        <item quantity="other">%d сервиса</item>
+    </plurals>
 </resources>

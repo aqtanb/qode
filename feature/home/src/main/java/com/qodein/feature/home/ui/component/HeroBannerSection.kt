@@ -59,7 +59,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 
 private val BLUR_RADIUS = 16.dp
-private const val BANNER_HEIGHT_PERCENTAGE = 0.3f
+private const val BANNER_HEIGHT_PERCENTAGE = 0.25f
 
 @Composable
 fun HeroBannerSection(

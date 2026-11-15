@@ -17,7 +17,7 @@ Browsing works without an account: Home, Feed, details and Settings. Profile, Su
 
 | Journey | Path | Owner |
 |---|---|---|
-| Browse deals | Home → banners, Service and Sort filters → promocode detail | `feature/home`, `feature/promocode` |
+| Browse deals | Home → banners, Service sheet and most-picked service chips, Sort icon by the section title → promocode detail | `feature/home`, `feature/promocode` |
 | Filter by service | Home → Service sheet → popular chips or search | `feature/service` (search uses `search_services`) |
 | Read posts | Feed → post detail → vote or share | `feature/post` |
 | Submit promocode | + → auth if needed → form → background upload | `feature/promocode`, `UploadPromocodeWorker` |

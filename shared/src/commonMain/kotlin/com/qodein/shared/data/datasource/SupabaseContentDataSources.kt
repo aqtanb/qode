@@ -151,8 +151,14 @@ class SupabaseServiceDataSource(private val postgrest: Postgrest) {
             },
         ).decodeList()
 
+    suspend fun recordPick(id: String) {
+        postgrest.rpc(function = "record_service_pick", parameters = buildJsonObject { put("service_id", id) })
+    }
+
+    // Most picked first; code count breaks ties until enough picks come in.
     suspend fun getPopular(limit: Long): List<ServiceDto> =
         postgrest.from(ServiceDto.TABLE_NAME).select {
+            order("pick_count", Order.DESCENDING)
             order("promocode_count", Order.DESCENDING)
             order("name", Order.ASCENDING)
             limit(limit)
