@@ -85,5 +85,5 @@ Updated Terms will always be available at:
 ## 10. Contact
 If you have questions about these Terms, contact:
 
-**qodeinhq@gmail.com**
+**support@qodein.com**
 Developer: **Ybyraiym Aktanberdi**
