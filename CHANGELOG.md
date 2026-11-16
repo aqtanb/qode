@@ -2,6 +2,36 @@
 
 What changed in each Qode release. Generated from conventional commits with [git-cliff](https://git-cliff.org); earlier versions are in the git tags.
 
+## 0.9.3 - 2026-11-16
+
+### Features
+
+- **deals:** Start the import routine when the fetch finishes
+- **auth:** Sign in with an emailed 6-digit code
+- **web:** Add qodein.com website
+- **web:** Add app icons and security headers
+- **web:** Add error page and enable Worker traces
+- **web:** Show the Qode logo in the header
+- **web:** Add home banner images
+- **web:** Show the logo as an app-icon tile
+- **web:** Add icon buttons for language and theme
+- **web:** Add search and filters to the home page
+- **home:** Popular service chips ranked by picks
+- **web:** Popular service chips and sort by the heading
+- **web:** Create posts and host privacy and terms
+- Send in-app feedback to support@qodein.com
+
+### Fixes
+
+- **deals:** Say "would publish" in dry runs
+- **web:** Resolve npm packages from the public registry
+- **functions:** Update vulnerable transitive dependencies
+- Drop 'from 0₸' and unverified rows from promocode details
+
+### Performance
+
+- **web:** Lazy-load and right-size logos and avatars
+
 ## 0.9.2 - 2026-11-08
 
 ### Features
