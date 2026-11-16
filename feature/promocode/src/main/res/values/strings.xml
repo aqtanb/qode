@@ -5,7 +5,10 @@
 
     <string name="promocode_fixed_amount_discount">Get %1$s₸ OFF on orders above %2$s₸</string>
     <string name="promocode_percentage_discount">Get %1$s%% OFF on orders above %2$s₸</string>
-    <string name="promocode_free_item_discount">Get %1$s on orders above %2$s₸</string>
+    <string name="promocode_free_item_discount">Get %1$s free on orders above %2$s₸</string>
+    <string name="promocode_fixed_amount_discount_no_minimum">Get %1$s₸ OFF</string>
+    <string name="promocode_percentage_discount_no_minimum">Get %1$s%% OFF</string>
+    <string name="promocode_free_item_discount_no_minimum">Get %1$s free</string>
     <string name="promocode_details_title">Promocode Details</string>
     <string name="promocode_details_service">Service</string>
     <string name="promocode_details_discount">Discount</string>
@@ -13,7 +16,6 @@
     <string name="promocode_details_start_date">Start Date</string>
     <string name="promocode_details_end_date">End Date</string>
     <string name="promocode_details_value_yes">Yes</string>
-    <string name="promocode_details_value_no">No</string>
 
     <string name="service_step_placeholder_service_name" translatable="false">Halyk Market</string>
     <string name="service_step_helper_service_name">Name of the service issuing the code</string>

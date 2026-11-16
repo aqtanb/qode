@@ -183,7 +183,7 @@
     <string name="auth_create_post_message">Ыстық ұсыныстармен бөлісіп, сөйлесіңіз</string>
     <string name="auth_create_post_title">Пост жасау үшін кіріңіз</string>
     <string name="auth_profile_title">Сіздің Qode-тағы бұрышыңыз</string>
-    <string name="auth_profile_message">Промкодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
+    <string name="auth_profile_message">Промокодтарыңызды көру, статистикаңызды бақылау және профиліңізді басқару үшін кіріңіз.</string>
     <string name="auth_report_title">Шағымдану үшін кіріңіз</string>
     <string name="auth_report_message">Орынсыз мазмұн туралы хабарлап, қауымдастықтың қауіпсіздігін сақтауға көмектесіңіз.</string>
     <string name="step_start_date_short">Күндер</string>

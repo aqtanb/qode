@@ -78,22 +78,22 @@ internal fun PromocodeDetails(
                 valueColor = MaterialTheme.colorScheme.primary,
             )
 
-            DetailItem(
-                icon = PromocodeIcons.MinimumOrder,
-                label = stringResource(R.string.promocode_details_minimum_order),
-                value = "${formatNumber(promocode.minimumOrderAmount)}₸",
-                valueColor = MaterialTheme.colorScheme.primary,
-            )
-            DetailItem(
-                icon = PromocodeIcons.Verified,
-                label = stringResource(R.string.promocode_details_verified),
-                value = if (promocode.isVerified) {
-                    stringResource(R.string.promocode_details_value_yes)
-                } else {
-                    stringResource(R.string.promocode_details_value_no)
-                },
-                valueColor = MaterialTheme.colorScheme.primary,
-            )
+            if (promocode.minimumOrderAmount > 0) {
+                DetailItem(
+                    icon = PromocodeIcons.MinimumOrder,
+                    label = stringResource(R.string.promocode_details_minimum_order),
+                    value = "${formatNumber(promocode.minimumOrderAmount)}₸",
+                    valueColor = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (promocode.isVerified) {
+                DetailItem(
+                    icon = PromocodeIcons.Verified,
+                    label = stringResource(R.string.promocode_details_verified),
+                    value = stringResource(R.string.promocode_details_value_yes),
+                    valueColor = MaterialTheme.colorScheme.primary,
+                )
+            }
             DetailItem(
                 icon = PromocodeIcons.StartDate,
                 label = stringResource(R.string.promocode_details_start_date),

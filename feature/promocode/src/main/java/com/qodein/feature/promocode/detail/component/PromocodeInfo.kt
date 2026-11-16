@@ -109,22 +109,23 @@ private fun PromocodeDescription(
     promocode: Promocode,
     modifier: Modifier = Modifier
 ) {
+    val minimumOrder = promocode.minimumOrderAmount.takeIf { it > 0 }?.let { formatNumber(it) }
     val discountText = when (val discount = promocode.discount) {
-        is Discount.FixedAmount -> stringResource(
-            id = R.string.promocode_fixed_amount_discount,
-            formatNumber(discount.value),
-            formatNumber(promocode.minimumOrderAmount),
-        )
-        is Discount.Percentage -> stringResource(
-            id = R.string.promocode_percentage_discount,
-            formatNumber(discount.value),
-            formatNumber(promocode.minimumOrderAmount),
-        )
-        is Discount.FreeItem -> stringResource(
-            id = R.string.promocode_free_item_discount,
-            discount.description,
-            formatNumber(promocode.minimumOrderAmount),
-        )
+        is Discount.FixedAmount -> if (minimumOrder != null) {
+            stringResource(R.string.promocode_fixed_amount_discount, formatNumber(discount.value), minimumOrder)
+        } else {
+            stringResource(R.string.promocode_fixed_amount_discount_no_minimum, formatNumber(discount.value))
+        }
+        is Discount.Percentage -> if (minimumOrder != null) {
+            stringResource(R.string.promocode_percentage_discount, formatNumber(discount.value), minimumOrder)
+        } else {
+            stringResource(R.string.promocode_percentage_discount_no_minimum, formatNumber(discount.value))
+        }
+        is Discount.FreeItem -> if (minimumOrder != null) {
+            stringResource(R.string.promocode_free_item_discount, discount.description, minimumOrder)
+        } else {
+            stringResource(R.string.promocode_free_item_discount_no_minimum, discount.description)
+        }
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs)) {
         Text(

@@ -28,7 +28,7 @@ Read the whole message and its photos, then decide:
   - `Percentage` with `value` 1–100.
   - `FixedAmount` with `value` in tenge; it can't be more than `minimum_order_amount`, so set the minimum when the message gives one.
   - `FreeItem` with a short `description` of the gift (up to 50 characters: letters, digits, spaces, hyphens), e.g. "Бальзам для губ Yves Rocher".
-  - `service.name` is the brand as people know it (e.g. "FlyArystan", "Starbucks"), and `service.site` its website domain (e.g. "flyarystan.com"). Existing services are matched by name; a new one needs the real domain.
+  - `service.name` is the brand as people know it (e.g. "FlyArystan", "Starbucks"), and `service.site` its website domain (e.g. "flyarystan.com"). Existing services are matched by name, then by domain; a new one needs the real domain.
   - If one message lists several codes (ERTE30, ERTE60, ERTE90), publish each as its own promocode.
 - **Post**: a real offer without a code (a sale price, "second coffee free today", "−3000 ₸ with a card", a cheap set menu). Write:
   - `title`: up to 50 characters, specific, in the message's language (usually Russian), e.g. "Starbucks Астана: второй кофе в подарок 8 ноября".

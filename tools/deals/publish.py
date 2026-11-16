@@ -134,7 +134,11 @@ class Publisher:
         site = root_domain(str(service.get("site", "")))
         if not re.fullmatch(r"[a-z0-9-]+\.[a-z]{2,}", site):
             raise Invalid(f"new service {name!r} needs a real site, got {service.get('site')!r}")
-        row = {"id": uuid.uuid4().hex, "name": name, "site_url": site, "logo_url": self.logo_url(site)}
+        found = supa.select("services", {"site_url": f"eq.{site}", "select": "id,name", "limit": "1"})
+        if found:
+            self.services[name.lower()] = found[0]
+            return found[0]
+        row ={"id": uuid.uuid4().hex, "name": name, "site_url": site, "logo_url": self.logo_url(site)}
         if not self.dry_run:
             supa.insert("services", row)
         print(f"  {'would create' if self.dry_run else 'created'} service {name} ({site})")

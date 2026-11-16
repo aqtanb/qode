@@ -5,7 +5,10 @@
 
     <string name="promocode_fixed_amount_discount">Получите скидку %1$s₸ на заказы от %2$s₸</string>
     <string name="promocode_percentage_discount">Получите скидку %1$s%% на заказы от %2$s₸</string>
-    <string name="promocode_free_item_discount">Получите %1$s при заказе на сумму свыше %2$s₸</string>
+    <string name="promocode_free_item_discount">Подарок: %1$s при заказе от %2$s₸</string>
+    <string name="promocode_fixed_amount_discount_no_minimum">Скидка %1$s₸</string>
+    <string name="promocode_percentage_discount_no_minimum">Скидка %1$s%%</string>
+    <string name="promocode_free_item_discount_no_minimum">Подарок: %1$s</string>
     <string name="promocode_details_title">Детали промокода</string>
     <string name="promocode_details_service">Сервис</string>
     <string name="promocode_details_discount">Скидка</string>
@@ -13,7 +16,6 @@
     <string name="promocode_details_start_date">Дата начала</string>
     <string name="promocode_details_end_date">Дата окончания</string>
     <string name="promocode_details_value_yes">Да</string>
-    <string name="promocode_details_value_no">Нет</string>
 
     <string name="service_step_helper_service_name">Имя сервиса, дающего код</string>
     <string name="service_step_browse_services_instead">Вместо этого просмотреть сервисы</string>
