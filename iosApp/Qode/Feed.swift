@@ -29,6 +29,7 @@ final class FeedModel {
 }
 
 struct FeedView: View {
+    @Environment(AccountStore.self) private var store
     @State private var model = FeedModel()
 
     var body: some View {
@@ -59,6 +60,8 @@ struct FeedView: View {
         .toolbar { AccountButton() }
         .navigationDestination(for: String.self) { PostDetailView(id: $0) }
         .task { await model.load() }
+        .onChange(of: store.contentVersion) { Task { await model.load() } }
+        .onChange(of: store.account?.id) { Task { await model.load() } }
     }
 }
 
@@ -91,6 +94,7 @@ struct PostRow: View {
 
 struct PostDetailView: View {
     let id: String
+    @Environment(\.dismiss) private var dismiss
     @State private var state: LoadState<PostItem> = .loading
 
     var body: some View {
@@ -111,9 +115,13 @@ struct PostDetailView: View {
                         if !post.tags.isEmpty {
                             Text(post.tags.map { "#\($0)" }.joined(separator: " ")).font(.footnote).foregroundStyle(.tint)
                         }
+                        VoteControl(itemId: post.id, isPost: true, baseScore: post.voteScore)
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .toolbar {
+                    ContentMenu(itemId: post.id, isPost: true, authorId: post.authorId, authorName: post.authorName) { dismiss() }
                 }
             }
         }

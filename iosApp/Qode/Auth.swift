@@ -7,6 +7,12 @@ import SwiftUI
 @Observable
 final class AccountStore {
     var account: AccountItem?
+    /// Bumped after a report or block so lists reload without the hidden content.
+    var contentVersion = 0
+
+    func contentChanged() {
+        contentVersion += 1
+    }
 
     func refresh() async {
         account = try? await AuthApi().currentAccount()

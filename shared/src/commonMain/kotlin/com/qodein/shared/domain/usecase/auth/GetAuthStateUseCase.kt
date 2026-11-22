@@ -24,7 +24,7 @@ class GetAuthStateUseCase(private val authRepository: AuthRepository, private va
             .distinctUntilChanged()
             .shareIn(
                 scope = scope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000, replayExpirationMillis = 0),
                 replay = 1,
             )
 }

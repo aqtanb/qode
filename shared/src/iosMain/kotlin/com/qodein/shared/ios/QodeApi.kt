@@ -65,6 +65,7 @@ class PromocodeItem(
     val description: String?,
     val voteScore: Int,
     val isVerified: Boolean,
+    val authorId: String,
     val authorUsername: String?,
     val imageUrls: List<String>
 )
@@ -73,6 +74,7 @@ class PostItem(
     val id: String,
     val title: String,
     val content: String,
+    val authorId: String,
     val authorName: String,
     val authorAvatarUrl: String?,
     val imageUrls: List<String>,
@@ -166,6 +168,7 @@ private fun Promocode.toItem(): PromocodeItem {
         description = description,
         voteScore = voteScore,
         isVerified = isVerified,
+        authorId = authorId.value,
         authorUsername = authorUsername,
         imageUrls = imageUrls,
     )
@@ -176,6 +179,7 @@ private fun Post.toItem() =
         id = id.value,
         title = title,
         content = content,
+        authorId = authorId.value,
         authorName = authorName,
         authorAvatarUrl = authorAvatarUrl,
         imageUrls = imageUrls,

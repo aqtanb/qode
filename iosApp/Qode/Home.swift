@@ -56,6 +56,7 @@ final class HomeModel {
 }
 
 struct HomeView: View {
+    @Environment(AccountStore.self) private var store
     @State private var model = HomeModel()
     @State private var showServices = false
 
@@ -88,6 +89,8 @@ struct HomeView: View {
         }
         .task { await model.load() }
         .refreshable { await model.load() }
+        .onChange(of: store.contentVersion) { Task { await model.reloadPromocodes() } }
+        .onChange(of: store.account?.id) { Task { await model.reloadPromocodes() } }
     }
 
     private var serviceChips: some View {

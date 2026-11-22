@@ -3,6 +3,7 @@ import SwiftUI
 
 struct PromocodeDetailView: View {
     let id: String
+    @Environment(\.dismiss) private var dismiss
     @State private var state: LoadState<PromocodeItem> = .loading
     @State private var copied = false
 
@@ -68,6 +69,13 @@ struct PromocodeDetailView: View {
             if !item.imageUrls.isEmpty {
                 Section { RemoteImages(urls: item.imageUrls) }
             }
+            Section {
+                VoteControl(itemId: item.id, isPost: false, baseScore: item.voteScore)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .toolbar {
+            ContentMenu(itemId: item.id, isPost: false, authorId: item.authorId, authorName: item.authorUsername) { dismiss() }
         }
     }
 }

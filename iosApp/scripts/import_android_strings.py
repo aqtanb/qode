@@ -28,6 +28,13 @@ KEYS = [
     "error_auth_service_unavailable", "error_auth_invalid_credentials",
     "legal_consent_title", "legal_consent_subtitle", "legal_consent_accept", "legal_consent_decline",
     "terms_of_service", "privacy_policy", "error_legal_document_unavailable",
+    "cd_upvote", "cd_downvote", "action_report", "action_block", "ui_cancel",
+    "report_title", "submit_report", "select_reason_label", "reason_spam", "reason_spam_desc", "reason_scam",
+    "reason_scam_desc", "reason_inappropriate", "reason_inappropriate_desc", "reason_malicious",
+    "reason_malicious_desc", "reason_other", "reason_other_desc", "additional_details_label",
+    "additional_details_placeholder_required", "additional_details_placeholder_optional", "character_count",
+    "report_submitted_success", "error_reason_required", "error_details_required",
+    "block_user_title", "block_user_message", "block_user_message_no_username", "block_user_info", "block_confirm",
 ]
 
 
@@ -42,6 +49,7 @@ def load(folder: str) -> dict:
 def to_swift(value: str) -> str:
     value = value.replace("\\'", "'").replace('\\"', '"').replace("\\n", "\n")
     value = re.sub(r"%(\d+)\$s", r"%\1$@", value)
+    value = value.replace("%s", "%@")
     return value
 
 
