@@ -12,10 +12,13 @@ enum LoadState<Value> {
 }
 
 func errorMessage(_ error: Swift.Error) -> String {
-    if let qode = (error as NSError).userInfo["KotlinException"] as? QodeException, qode.isOffline {
-        return L("error_network_no_connection")
+    guard let qode = (error as NSError).userInfo["KotlinException"] as? QodeException else {
+        return L("error_default_title")
     }
-    return L("error_default_title")
+    if let path = qode.errorPath, let key = errorStringKeys[path] {
+        return L(key)
+    }
+    return L(qode.isOffline ? "error_network_no_connection" : "error_default_title")
 }
 
 enum Format {

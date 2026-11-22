@@ -28,11 +28,14 @@ import org.koin.core.component.inject
 
 /**
  * Thrown to Swift when a use case returns an error. [code] is the error's simple name
- * (e.g. "Offline", "InvalidCode"), so the UI can pick a message.
+ * (e.g. "Offline", "InvalidCode"), so the UI can pick a message. [errorPath] is the name without the package,
+ * such as "PromocodeError.CreationFailure.CodeTooShort", matching the keys in Android's ErrorStringMapper.
  */
-class QodeException(val code: String, message: String) : Exception(message) {
+class QodeException(val code: String, message: String, val errorPath: String? = null) : Exception(message) {
     val isOffline: Boolean get() = code == "Offline"
 }
+
+private const val ERROR_PACKAGE = "com.qodein.shared.common.error."
 
 internal suspend fun <T> call(block: suspend () -> Result<T, OperationError>): T {
     val result = try {
@@ -44,7 +47,11 @@ internal suspend fun <T> call(block: suspend () -> Result<T, OperationError>): T
     }
     return when (result) {
         is Result.Success -> result.data
-        is Result.Error -> throw QodeException(result.error::class.simpleName ?: "Unknown", result.error.toString())
+        is Result.Error -> throw QodeException(
+            code = result.error::class.simpleName ?: "Unknown",
+            message = result.error.toString(),
+            errorPath = result.error::class.qualifiedName?.removePrefix(ERROR_PACKAGE),
+        )
     }
 }
 

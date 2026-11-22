@@ -81,6 +81,7 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Qode")
+        .toolbar { SubmitMenu() }
         .navigationDestination(for: String.self) { PromocodeDetailView(id: $0) }
         .sheet(isPresented: $showServices) {
             ServiceSheet(selected: model.selectedServices) { service in

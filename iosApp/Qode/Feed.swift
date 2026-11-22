@@ -58,6 +58,7 @@ struct FeedView: View {
         }
         .navigationTitle(L("ui_feed"))
         .toolbar {
+            SubmitMenu()
             NavigationLink(value: AppRoute.settings) { Image(systemName: "gearshape") }
                 .accessibilityLabel(L("settings_title"))
             AccountButton()
