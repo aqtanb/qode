@@ -3,7 +3,7 @@ name: Supabase Keep-Alive
 # Free projects pause after a week without activity. The URLs and publishable keys are public.
 on:
   schedule:
-    - cron: '17 6 */2 * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:

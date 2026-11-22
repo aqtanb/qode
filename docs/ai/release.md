@@ -26,7 +26,7 @@ Never re-push or move a `v*` tag. Disabling the deploy workflow first doesn't re
 | `code-quality.yml` | Runs `spotlessCheck` and `checkFullyQualifiedNames` |
 | `ci-debug.yml` | Debug CI build |
 | `deploy-internal.yml` | Deploys to Play internal testing on pushed `v*` tags |
-| `supabase-keep-alive.yml` | Queries `qode-dev` and `qode-prod` every 2 days |
+| `supabase-keep-alive.yml` | Queries `qode-dev` and `qode-prod` daily |
 | `supabase-backup.yml` | Daily encrypted `pg_dump` of `qode-prod`; see `docs/ai/backend.md` for its secrets |
 
 Pushing a `v*` tag publishes. Treat it as a production action.
