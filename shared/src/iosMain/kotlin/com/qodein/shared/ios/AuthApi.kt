@@ -4,12 +4,14 @@ import com.qodein.shared.common.Result
 import com.qodein.shared.domain.repository.AuthRepository
 import com.qodein.shared.domain.usecase.auth.SendEmailCodeUseCase
 import com.qodein.shared.domain.usecase.auth.SignInWithEmailCodeUseCase
+import com.qodein.shared.domain.usecase.auth.SignInWithGoogleUseCase
 import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.legal.GetLegalDocumentUseCase
 import com.qodein.shared.domain.usecase.user.AcceptConsentAndCreateUserUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.model.DocumentType
 import com.qodein.shared.model.GoogleAuthResult
+import com.qodein.shared.model.GoogleIdToken
 import com.qodein.shared.model.UserResolutionResult
 import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
@@ -19,10 +21,11 @@ class AccountItem(val id: String, val displayName: String?, val photoUrl: String
 
 enum class SignInOutcome { SIGNED_IN, NEEDS_CONSENT }
 
-/** Email-code sign-in and the signed-in account for Swift. One instance per sign-in attempt. */
+/** Email-code and Google sign-in and the signed-in account for Swift. One instance per sign-in attempt. */
 class AuthApi : KoinComponent {
     private val sendEmailCodeUseCase: SendEmailCodeUseCase by inject()
     private val signInWithEmailCodeUseCase: SignInWithEmailCodeUseCase by inject()
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase by inject()
     private val acceptConsentUseCase: AcceptConsentAndCreateUserUseCase by inject()
     private val signOutUseCase: SignOutUseCase by inject()
     private val getLegalDocumentUseCase: GetLegalDocumentUseCase by inject()
@@ -38,8 +41,17 @@ class AuthApi : KoinComponent {
     suspend fun signInWithEmailCode(
         email: String,
         code: String
-    ): SignInOutcome =
-        when (val resolution = call { signInWithEmailCodeUseCase(email, code) }) {
+    ): SignInOutcome = resolve(call { signInWithEmailCodeUseCase(email, code) })
+
+    /** [nonce] is the raw nonce; Google got its SHA-256 hash. */
+    @Throws(Exception::class)
+    suspend fun signInWithGoogle(
+        idToken: String,
+        nonce: String
+    ): SignInOutcome = resolve(call { signInWithGoogleUseCase(GoogleIdToken(idToken, nonce)) })
+
+    private fun resolve(resolution: UserResolutionResult): SignInOutcome =
+        when (resolution) {
             is UserResolutionResult.ExistingUser -> SignInOutcome.SIGNED_IN
             is UserResolutionResult.NewUserNeedsConsent -> {
                 pendingUser = resolution.authUser

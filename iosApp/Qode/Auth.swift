@@ -1,3 +1,5 @@
+import CryptoKit
+import GoogleSignIn
 import Shared
 import SwiftUI
 
@@ -92,7 +94,13 @@ struct SignInSheet: View {
         .interactiveDismissDisabled(step == .consent)
     }
 
+    @ViewBuilder
     private var emailStep: some View {
+        Section {
+            Button(action: signInWithGoogle) {
+                Label(L("continue_with_google"), systemImage: "g.circle.fill")
+            }
+        }
         Section {
             TextField(L("auth_email_placeholder"), text: $email)
                 .textContentType(.emailAddress)
@@ -174,6 +182,35 @@ struct SignInSheet: View {
         }
     }
 
+    private func signInWithGoogle() {
+        guard let presenter = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+            .first
+            .map(topmost)
+        else { return }
+        let nonce = UUID().uuidString
+        run {
+            let result: GIDSignInResult
+            do {
+                result = try await GIDSignIn.sharedInstance.signIn(
+                    withPresenting: presenter,
+                    hint: nil,
+                    additionalScopes: nil,
+                    nonce: sha256Hex(nonce)
+                )
+            } catch let error as NSError where error.domain == kGIDSignInErrorDomain && error.code == GIDSignInError.canceled.rawValue {
+                return
+            }
+            guard let idToken = result.user.idToken?.tokenString else { throw GoogleSignInFailed() }
+            let outcome = try await api.signInWithGoogle(idToken: idToken, nonce: nonce)
+            if outcome == .signedIn {
+                finish()
+            } else {
+                step = .consent
+            }
+        }
+    }
+
     private func acceptConsent() {
         run {
             try await api.acceptConsent()
@@ -199,6 +236,16 @@ struct SignInSheet: View {
         onSignedIn()
         dismiss()
     }
+}
+
+private struct GoogleSignInFailed: Swift.Error {}
+
+private func sha256Hex(_ value: String) -> String {
+    SHA256.hash(data: Data(value.utf8)).map { String(format: "%02x", $0) }.joined()
+}
+
+private func topmost(_ controller: UIViewController) -> UIViewController {
+    controller.presentedViewController.map(topmost) ?? controller
 }
 
 struct LegalDocument: Identifiable {

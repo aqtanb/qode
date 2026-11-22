@@ -22,7 +22,7 @@ KEYS = [
     "promocode_fixed_amount_discount", "promocode_percentage_discount", "promocode_free_item_discount",
     "promocode_fixed_amount_discount_no_minimum", "promocode_percentage_discount_no_minimum",
     "promocode_free_item_discount_no_minimum",
-    "ui_profile", "profile_action_signout", "auth_continue_with_email", "auth_email_placeholder", "auth_send_code",
+    "ui_profile", "profile_action_signout", "continue_with_google", "auth_continue_with_email", "auth_email_placeholder", "auth_send_code",
     "auth_code_sent", "auth_code_placeholder", "auth_sign_in", "auth_change_email", "auth_resend_code",
     "error_auth_invalid_email", "error_auth_invalid_code", "error_auth_too_many_attempts",
     "error_auth_service_unavailable", "error_auth_invalid_credentials",

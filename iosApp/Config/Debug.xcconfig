@@ -3,3 +3,6 @@
 SUPABASE_URL = https:/$()/sjfzxrnqqlgywwqofdhu.supabase.co
 SUPABASE_KEY = sb_publishable_9BBbE8omnJDmEZASS77SlA_u9ZwmObp
 PRODUCT_BUNDLE_IDENTIFIER = com.qodein.qode.debug
+// iOS OAuth client in the qode-dev Firebase project (app qode-ios-debug). Also listed in Supabase's Google client_id.
+GOOGLE_CLIENT_ID = 539742119334-1894ki4m53v5grsormjqharvq5gf0i5s.apps.googleusercontent.com
+GOOGLE_URL_SCHEME = com.googleusercontent.apps.539742119334-1894ki4m53v5grsormjqharvq5gf0i5s

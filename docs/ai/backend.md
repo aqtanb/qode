@@ -60,7 +60,7 @@ Google's pre-launch robot signs in to prod during review and creates placeholder
 
 `supabase-kt` stays at 3.6.0 because 3.7 and later are built with Kotlin 2.4, and iOS compilation fails on Kotlin 2.3. Keep `:shared:compileKotlinIosSimulatorArm64` passing.
 
-Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. The dev web client ID is in `supabase/config.toml`; apply changes with `supabase config push`.
+Google sign-in sends a SHA-256 hash of the nonce to Google and the raw nonce to Supabase. `client_id` in `supabase/config.toml` lists dev's web client ID and its iOS client ID, comma-separated, because the ID token's audience differs per platform. Push changes to dev from a temporary folder that declares only the changed setting, as described below for prod. A plain push from the repo would need `SMTP_PASS` exported.
 
 Auth email goes through Resend SMTP from `noreply@qodein.com` (domain `qodein.com` on Cloudflare, Resend region eu-west-1). Email sign-in uses 6-digit codes, so the `magic_link` and `confirmation` templates in `supabase/templates/` show `{{ .Token }}`; free-tier projects can't change templates without custom SMTP. `config.toml` reads the SMTP password from `SMTP_PASS`, so export it before any `config push`. The key is a send-only Resend key for that domain.
 

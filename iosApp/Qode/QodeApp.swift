@@ -1,3 +1,4 @@
+import GoogleSignIn
 import Shared
 import SwiftUI
 
@@ -22,6 +23,7 @@ struct QodeApp: App {
                     .tabItem { Label(L("ui_feed"), systemImage: "text.bubble") }
             }
             .environment(account)
+            .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
             .task { await account.refresh() }
         }
     }

@@ -807,6 +807,29 @@
         }
       }
     },
+    "continue_with_google": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Google"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить с Google"
+          }
+        },
+        "kk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google арқылы жалғастыру"
+          }
+        }
+      }
+    },
     "auth_continue_with_email": {
       "extractionState": "manual",
       "localizations": {

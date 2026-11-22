@@ -425,6 +425,6 @@ enabled = true
 
 [auth.external.google]
 enabled = true
-client_id = "539742119334-kqmh13gabo3ugepfn5m79p13790r9tjs.apps.googleusercontent.com"
+client_id = "539742119334-kqmh13gabo3ugepfn5m79p13790r9tjs.apps.googleusercontent.com,539742119334-1894ki4m53v5grsormjqharvq5gf0i5s.apps.googleusercontent.com"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 skip_nonce_check = false

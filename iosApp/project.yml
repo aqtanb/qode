@@ -9,12 +9,18 @@ settings:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: "10.1.0"
 targets:
   Qode:
     type: application
     platform: iOS
     sources:
       - Qode
+    dependencies:
+      - package: GoogleSignIn
     configFiles:
       Debug: Config/Debug.xcconfig
       Release: Config/Debug.xcconfig
@@ -26,6 +32,9 @@ targets:
         UILaunchScreen: {}
         SupabaseURL: $(SUPABASE_URL)
         SupabaseKey: $(SUPABASE_KEY)
+        GIDClientID: $(GOOGLE_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [$(GOOGLE_URL_SCHEME)]
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO
