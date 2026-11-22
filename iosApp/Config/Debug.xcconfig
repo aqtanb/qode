@@ -1,0 +1,5 @@
+// qode-dev. The URL and publishable key are public; RLS protects the data.
+// "/$()/" keeps xcconfig from reading "//" as a comment.
+SUPABASE_URL = https:/$()/sjfzxrnqqlgywwqofdhu.supabase.co
+SUPABASE_KEY = sb_publishable_9BBbE8omnJDmEZASS77SlA_u9ZwmObp
+PRODUCT_BUNDLE_IDENTIFIER = com.qodein.qode.debug
