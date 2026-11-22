@@ -3,6 +3,8 @@ import SwiftUI
 
 @main
 struct QodeApp: App {
+    @State private var account = AccountStore()
+
     init() {
         let info = Bundle.main.infoDictionary ?? [:]
         KoinIosKt.doInitKoin(
@@ -19,6 +21,8 @@ struct QodeApp: App {
                 NavigationStack { FeedView() }
                     .tabItem { Label(L("ui_feed"), systemImage: "text.bubble") }
             }
+            .environment(account)
+            .task { await account.refresh() }
         }
     }
 }

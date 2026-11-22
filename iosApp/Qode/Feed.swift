@@ -56,6 +56,7 @@ struct FeedView: View {
             }
         }
         .navigationTitle(L("ui_feed"))
+        .toolbar { AccountButton() }
         .navigationDestination(for: String.self) { PostDetailView(id: $0) }
         .task { await model.load() }
     }
@@ -105,7 +106,7 @@ struct PostDetailView: View {
                         Text(post.title).font(.title2).bold()
                         Text("\(post.authorName) · \(Format.date(post.createdEpochMillis))")
                             .font(.caption).foregroundStyle(.secondary)
-                        Text(markdown(post.content))
+                        MarkdownText(text: post.content)
                         RemoteImages(urls: post.imageUrls)
                         if !post.tags.isEmpty {
                             Text(post.tags.map { "#\($0)" }.joined(separator: " ")).font(.footnote).foregroundStyle(.tint)
@@ -127,10 +128,5 @@ struct PostDetailView: View {
         } catch {
             state = .failed(errorMessage(error))
         }
-    }
-
-    private func markdown(_ text: String) -> AttributedString {
-        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-        return (try? AttributedString(markdown: text, options: options)) ?? AttributedString(text)
     }
 }

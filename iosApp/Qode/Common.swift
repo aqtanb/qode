@@ -100,3 +100,33 @@ struct RemoteImages: View {
         }
     }
 }
+
+/// Renders headings, bullets and paragraphs; inline styles (bold, links) go through AttributedString.
+struct MarkdownText: View {
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(Array(text.components(separatedBy: "\n").enumerated()), id: \.offset) { _, line in
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasPrefix("#") {
+                    let level = trimmed.prefix(while: { $0 == "#" }).count
+                    inline(String(trimmed.dropFirst(level)).trimmingCharacters(in: .whitespaces))
+                        .font(level == 1 ? .title2.bold() : level == 2 ? .headline : .subheadline.bold())
+                        .padding(.top, 4)
+                } else if trimmed.hasPrefix("* ") || trimmed.hasPrefix("- ") {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("•")
+                        inline(String(trimmed.dropFirst(2)))
+                    }
+                } else if !trimmed.isEmpty {
+                    inline(trimmed)
+                }
+            }
+        }
+    }
+
+    private func inline(_ string: String) -> Text {
+        Text((try? AttributedString(markdown: string)) ?? AttributedString(string))
+    }
+}

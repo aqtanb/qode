@@ -1,15 +1,17 @@
 # iOS
 
-Verified at: 763f6026
+Verified at: 3d1d02a2
 Covers: `iosApp`, `shared/src/iosMain`, `shared/build.gradle.kts`
 
 The iPhone app in `iosApp/` is native SwiftUI. It uses the KMP `shared` module as the static framework `Shared`, which holds models, use cases and the Supabase data layer. None of the Android Compose UI is reused.
 
-Status: Milestone 1, signed-out browsing on the simulator against `qode-dev`. It has Home (banners, service chips, sort, promocodes), promocode detail, the service search sheet, Feed and post detail. Still missing: sign-in (email OTP, Google, plus Sign in with Apple, which App Store guideline 4.8 requires alongside Google), votes, report/block, profile/settings, submissions, push, Crashlytics, a prod config and App Store release. The plan is in `~/.claude-personal/plans/could-it-port-it-serene-valley.md`.
+Status: browsing and email sign-in on the simulator against `qode-dev`. It has Home (banners, service chips, sort, promocodes), promocode detail, the service search sheet, Feed and post detail. The account button in the Feed toolbar opens email-code sign-in; new users then go through the consent step, and signed-in users get a menu with Sign out. Still missing: Google sign-in, plus Sign in with Apple, which App Store guideline 4.8 requires alongside Google; votes, report/block, profile/settings, submissions, push, Crashlytics, a prod config and App Store release. The plan is in `~/.claude-personal/plans/could-it-port-it-serene-valley.md`.
 
 ## How Swift reaches Kotlin
 
 - `shared/src/iosMain/.../ios/QodeApi.kt` is the only API Swift uses. It wraps use cases and turns `Result` into return values or a thrown `QodeException`. It maps models to plain classes (`PromocodeItem`, `PostItem`, ...) because value classes, `Instant` and generic `Result` export badly to Objective-C. Pagination cursors stay inside `QodeApi`. Kotlin `suspend` functions show up in Swift as `async throws`, so SKIE isn't needed.
+- `AuthApi.kt` covers email codes, consent, sign-out, legal documents and `currentAccount()`. One instance holds one sign-in attempt, because it keeps the new user that is waiting for consent. `currentAccount()` reads the Supabase session directly. `GetAuthStateUseCase` and `ObserveCurrentUserUseCase` share their flows with a replayed value, and `observeUser` emits only once, so they'd return stale state right after sign-in. Swift's `AccountStore` refreshes after every auth action instead of observing.
+- The session is stored by supabase-kt's default settings storage (`NSUserDefaults`), not the Keychain. Move it to the Keychain before an App Store release.
 - `KoinIos.kt` (`KoinIosKt.doInitKoin` in Swift) starts Koin with `sharedDataModule`, `domainModule` and an iOS module. That module binds the interfaces Android provides from `core/data`. Only `ReportRepository` exists so far (`IosReportRepository`, `NSUserDefaults`). Use cases that need the others (storage, submission schedulers, device preferences, Google ID token) fail at resolution until they're bound.
 - Name clashes: `shared` exports its own `Error` type, so Swift code writes `Swift.Error`. A Kotlin property called `description` becomes `description_`.
 
@@ -26,4 +28,5 @@ Status: Milestone 1, signed-out browsing on the simulator against `qode-dev`. It
 - Build: `xcodebuild -project Qode.xcodeproj -scheme Qode -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build/DerivedData build`
 - Run: `xcrun simctl boot "iPhone 17 Pro"; xcrun simctl install booted build/DerivedData/Build/Products/Debug-iphonesimulator/Qode.app; xcrun simctl launch booted com.qodein.qode.debug`
 - Another language: add `-AppleLanguages "(kk)"` to `simctl launch`.
-- Drive the UI with `maestro test <flow>.yaml`; it works on the simulator. `inputText` needs the search field tapped first.
+- Drive the UI with `maestro test <flow>.yaml`; it works on the simulator. `inputText` needs the field tapped first.
+- To test sign-in, use a `+alias` of a Gmail address for a fresh user (it shows the consent step) and read the 6-digit code from the email subject ("Qode code: NNNNNN").

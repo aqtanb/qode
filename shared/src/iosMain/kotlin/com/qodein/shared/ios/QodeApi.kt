@@ -2,7 +2,6 @@ package com.qodein.shared.ios
 
 import com.qodein.shared.common.Result
 import com.qodein.shared.common.error.OperationError
-import com.qodein.shared.common.error.SystemError
 import com.qodein.shared.domain.usecase.banner.GetBannersUseCase
 import com.qodein.shared.domain.usecase.post.GetPostByIdUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsUseCase
@@ -27,8 +26,27 @@ import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-/** Thrown to Swift when a use case returns an error. [isOffline] lets the UI pick a message. */
-class QodeException(val isOffline: Boolean, message: String) : Exception(message)
+/**
+ * Thrown to Swift when a use case returns an error. [code] is the error's simple name
+ * (e.g. "Offline", "InvalidCode"), so the UI can pick a message.
+ */
+class QodeException(val code: String, message: String) : Exception(message) {
+    val isOffline: Boolean get() = code == "Offline"
+}
+
+internal suspend fun <T> call(block: suspend () -> Result<T, OperationError>): T {
+    val result = try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        throw QodeException(code = "Unknown", message = e.message ?: "Unexpected error")
+    }
+    return when (result) {
+        is Result.Success -> result.data
+        is Result.Error -> throw QodeException(result.error::class.simpleName ?: "Unknown", result.error.toString())
+    }
+}
 
 enum class DiscountKind { PERCENTAGE, FIXED_AMOUNT, FREE_ITEM }
 
@@ -125,20 +143,6 @@ class QodeApi : KoinComponent {
 
     @Throws(Exception::class)
     suspend fun searchServices(query: String): List<ServiceItem> = call { searchServicesUseCase(flowOf(query)).first() }.map { it.toItem() }
-
-    private suspend fun <T> call(block: suspend () -> Result<T, OperationError>): T {
-        val result = try {
-            block()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            throw QodeException(isOffline = false, message = e.message ?: "Unexpected error")
-        }
-        return when (result) {
-            is Result.Success -> result.data
-            is Result.Error -> throw QodeException(result.error == SystemError.Offline, result.error.toString())
-        }
-    }
 }
 
 private fun Promocode.toItem(): PromocodeItem {
