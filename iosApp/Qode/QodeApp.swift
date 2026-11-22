@@ -5,6 +5,7 @@ import SwiftUI
 @main
 struct QodeApp: App {
     @State private var account = AccountStore()
+    @AppStorage("theme") private var theme = AppTheme.system
 
     init() {
         let info = Bundle.main.infoDictionary ?? [:]
@@ -23,6 +24,7 @@ struct QodeApp: App {
                     .tabItem { Label(L("ui_feed"), systemImage: "text.bubble") }
             }
             .environment(account)
+            .preferredColorScheme(theme.colorScheme)
             .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
             .task { await account.refresh() }
         }

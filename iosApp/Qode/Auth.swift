@@ -42,13 +42,11 @@ struct AccountButton: View {
 
     var body: some View {
         Group {
-            if let account = store.account {
-                Menu {
-                    Text(account.displayName ?? L("ui_profile"))
-                    Button(L("profile_action_signout"), role: .destructive) { Task { await store.signOut() } }
-                } label: {
+            if store.account != nil {
+                NavigationLink(value: AppRoute.profile) {
                     Image(systemName: "person.crop.circle.fill")
                 }
+                .accessibilityLabel(L("ui_profile"))
             } else {
                 Button { showSignIn = true } label: { Image(systemName: "person.crop.circle") }
                     .accessibilityLabel(L("auth_sign_in"))

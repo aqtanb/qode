@@ -147,7 +147,7 @@ class QodeApi : KoinComponent {
     suspend fun searchServices(query: String): List<ServiceItem> = call { searchServicesUseCase(flowOf(query)).first() }.map { it.toItem() }
 }
 
-private fun Promocode.toItem(): PromocodeItem {
+internal fun Promocode.toItem(): PromocodeItem {
     val kind = when (discount) {
         is Discount.Percentage -> DiscountKind.PERCENTAGE
         is Discount.FixedAmount -> DiscountKind.FIXED_AMOUNT
@@ -174,7 +174,7 @@ private fun Promocode.toItem(): PromocodeItem {
     )
 }
 
-private fun Post.toItem() =
+internal fun Post.toItem() =
     PostItem(
         id = id.value,
         title = title,

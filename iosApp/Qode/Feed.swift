@@ -57,8 +57,13 @@ struct FeedView: View {
             }
         }
         .navigationTitle(L("ui_feed"))
-        .toolbar { AccountButton() }
+        .toolbar {
+            NavigationLink(value: AppRoute.settings) { Image(systemName: "gearshape") }
+                .accessibilityLabel(L("settings_title"))
+            AccountButton()
+        }
         .navigationDestination(for: String.self) { PostDetailView(id: $0) }
+        .navigationDestination(for: AppRoute.self) { $0.destination }
         .task { await model.load() }
         .onChange(of: store.contentVersion) { Task { await model.load() } }
         .onChange(of: store.account?.id) { Task { await model.load() } }

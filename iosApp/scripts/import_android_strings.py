@@ -35,6 +35,13 @@ KEYS = [
     "additional_details_placeholder_required", "additional_details_placeholder_optional", "character_count",
     "report_submitted_success", "error_reason_required", "error_details_required",
     "block_user_title", "block_user_message", "block_user_message_no_username", "block_user_info", "block_confirm",
+    "profile_promocodes", "profile_posts", "profile_action_blocked", "profile_empty_promocodes_title",
+    "profile_empty_promocodes_description", "profile_empty_posts_title", "profile_empty_posts_description",
+    "settings_title", "settings_theme_title", "theme_system", "theme_light", "theme_dark", "settings_language_title",
+    "settings_about_title", "settings_feedback_title", "about_version", "settings_delete_account_title",
+    "delete_account_dialog_title", "delete_account_dialog_message", "delete_account_checkbox", "delete_account_confirm",
+    "delete_account_error_title", "blocked_users_title", "blocked_users_empty", "blocked_users_empty_description",
+    "unblock_button", "unblock_user_info",
 ]
 
 

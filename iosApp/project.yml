@@ -28,6 +28,8 @@ targets:
       path: Qode/Info.plist
       properties:
         CFBundleDisplayName: Qode
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleLocalizations: [en, ru, kk]
         UILaunchScreen: {}
         SupabaseURL: $(SUPABASE_URL)
