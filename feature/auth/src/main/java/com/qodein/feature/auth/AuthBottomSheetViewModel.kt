@@ -153,12 +153,15 @@ class AuthBottomSheetViewModel(
         }
     }
 
-    fun acceptConsent(authUser: GoogleAuthResult) {
+    fun acceptConsent(
+        authUser: GoogleAuthResult,
+        displayName: String
+    ) {
         _isLoading.value = true
         _error.value = null
 
         viewModelScope.launch {
-            when (val result = acceptConsentUseCase(authUser)) {
+            when (val result = acceptConsentUseCase(authUser, displayName)) {
                 is Result.Success -> {
                     analyticsHelper.logLogin(method = signInMethod, success = true)
                     _isLoading.value = false

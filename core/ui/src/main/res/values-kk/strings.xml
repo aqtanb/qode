@@ -215,4 +215,11 @@
     <string name="ui_share_post_cta">Qodein-де толығырақ оқыңыз</string>
     <string name="ui_share_promocode_header">%1$s: %2$s</string>
     <string name="ui_share_code_label">Код: %1$s</string>
+
+    <!-- Display name -->
+    <string name="display_name_label">Көрсетілетін аты</string>
+    <string name="display_name_helper">Жазбаларыңыз бен промокодтарыңызда көрінеді. Кейін өзгертуге болады.</string>
+    <string name="display_name_edit">Атын өзгерту</string>
+    <string name="ui_save">Сақтау</string>
+    <string name="user_anonymous">Qode қолданушысы</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,8 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,24 +25,30 @@ import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qodein.core.analytics.TrackScreenViewEvent
 import com.qodein.core.designsystem.component.QodeinFab
+import com.qodein.core.designsystem.component.QodeinTextField
+import com.qodein.core.designsystem.icon.ActionIcons
 import com.qodein.core.designsystem.icon.NavigationIcons
 import com.qodein.core.designsystem.icon.PostIcons
 import com.qodein.core.designsystem.icon.PromocodeIcons
@@ -51,9 +62,11 @@ import com.qodein.core.ui.component.PromocodeCardSkeleton
 import com.qodein.core.ui.component.QodeErrorCard
 import com.qodein.core.ui.component.post.PostCard
 import com.qodein.core.ui.component.post.PostCardSkeleton
+import com.qodein.core.ui.error.toUiText
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.preview.PromocodePreviewData
 import com.qodein.core.ui.preview.UserPreviewData
+import com.qodein.core.ui.text.asString
 import com.qodein.feature.profile.component.ProfileSkeleton
 import com.qodein.feature.profile.component.ProfileTopAppBar
 import com.qodein.shared.common.error.SystemError
@@ -62,10 +75,12 @@ import com.qodein.shared.model.PostId
 import com.qodein.shared.model.Promocode
 import com.qodein.shared.model.PromocodeId
 import com.qodein.shared.model.User
+import com.qodein.shared.model.UserProfile
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import com.qodein.core.ui.R as CoreUiR
 
 private const val PAGINATION_LOAD_THRESHOLD = 1
 
@@ -190,6 +205,15 @@ private fun ProfileContent(
             }
     }
 
+    uiState.nameEditor?.let { editor ->
+        NameEditorDialog(
+            initialName = user.displayName.orEmpty(),
+            state = editor,
+            onSave = { onAction(ProfileAction.SaveNameClicked(it)) },
+            onDismiss = { onAction(ProfileAction.EditNameDismissed) },
+        )
+    }
+
     Box(modifier = modifier) {
         LazyColumn(
             state = listState,
@@ -198,7 +222,11 @@ private fun ProfileContent(
             contentPadding = PaddingValues(vertical = SpacingTokens.lg),
         ) {
             item {
-                ProfileHeader(user = user, modifier = Modifier.fillMaxWidth())
+                ProfileHeader(
+                    user = user,
+                    onEditName = { onAction(ProfileAction.EditNameClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
             item {
@@ -372,6 +400,7 @@ private fun LazyListScope.postsTabItems(
 @Composable
 private fun ProfileHeader(
     user: User,
+    onEditName: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -385,30 +414,72 @@ private fun ProfileHeader(
             size = SizeTokens.Avatar.sizeXLarge,
             modifier = Modifier.testTag("profile_avatar"),
         )
-        UserInfo(user = user)
+        UserInfo(user = user, onEditName = onEditName)
     }
 }
 
 @Composable
 private fun UserInfo(
     user: User,
+    onEditName: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingTokens.xs),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = user.displayName ?: "",
+            text = user.displayName ?: stringResource(CoreUiR.string.user_anonymous),
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
             ),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
-            modifier = modifier,
         )
+        IconButton(onClick = onEditName, modifier = Modifier.testTag("profile_edit_name")) {
+            Icon(
+                imageVector = ActionIcons.Edit,
+                contentDescription = stringResource(CoreUiR.string.display_name_edit),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
     }
+}
+
+@Composable
+private fun NameEditorDialog(
+    initialName: String,
+    state: NameEditorState,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf(initialName) }
+    AlertDialog(
+        onDismissRequest = { if (!state.isSaving) onDismiss() },
+        title = { Text(stringResource(CoreUiR.string.display_name_edit)) },
+        text = {
+            QodeinTextField(
+                value = name,
+                onValueChange = { name = it.take(UserProfile.MAX_DISPLAY_NAME_LENGTH) },
+                placeholder = stringResource(CoreUiR.string.display_name_label),
+                helperText = stringResource(CoreUiR.string.display_name_helper),
+                errorText = state.error?.toUiText()?.asString(),
+                enabled = !state.isSaving,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                modifier = Modifier.fillMaxWidth().testTag("profile_name_field"),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(name) }, enabled = !state.isSaving) {
+                Text(stringResource(CoreUiR.string.ui_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !state.isSaving) {
+                Text(stringResource(CoreUiR.string.ui_cancel))
+            }
+        },
+    )
 }
 
 @PreviewLightDark

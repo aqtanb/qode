@@ -79,7 +79,7 @@ struct PostRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(post.authorName).font(.caption).foregroundStyle(.secondary)
+                Text(post.authorName.isBlank ? L("user_anonymous") : post.authorName).font(.caption).foregroundStyle(.secondary)
                 Spacer()
                 Text(Format.date(post.createdEpochMillis)).font(.caption).foregroundStyle(.secondary)
             }
@@ -116,7 +116,7 @@ struct PostDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(post.title).font(.title2).bold()
-                        Text("\(post.authorName) · \(Format.date(post.createdEpochMillis))")
+                        Text("\(post.authorName.isBlank ? L("user_anonymous") : post.authorName) · \(Format.date(post.createdEpochMillis))")
                             .font(.caption).foregroundStyle(.secondary)
                         MarkdownText(text: post.content)
                         RemoteImages(urls: post.imageUrls)
@@ -129,7 +129,7 @@ struct PostDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .toolbar {
-                    ContentMenu(itemId: post.id, isPost: true, authorId: post.authorId, authorName: post.authorName) { dismiss() }
+                    ContentMenu(itemId: post.id, isPost: true, authorId: post.authorId, authorName: post.authorName.isBlank ? nil : post.authorName) { dismiss() }
                 }
             }
         }

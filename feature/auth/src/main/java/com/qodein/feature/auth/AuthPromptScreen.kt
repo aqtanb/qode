@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.qodein.core.designsystem.component.QodeButton
+import com.qodein.core.designsystem.component.QodeinTextField
 import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.SpacingTokens
 import com.qodein.core.ui.AuthPromptAction
@@ -36,6 +39,7 @@ import com.qodein.feature.auth.component.EmailSignInActions
 import com.qodein.feature.auth.component.LegalDocumentBottomSheet
 import com.qodein.shared.common.error.OperationError
 import com.qodein.shared.model.DocumentType
+import com.qodein.shared.model.UserProfile
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import com.qodein.core.ui.R as CoreUiR
@@ -77,10 +81,11 @@ fun AuthPromptScreen(
         }
         is AuthBottomSheetUiState.ConsentRequired -> {
             ConsentDialog(
+                initialDisplayName = state.authUser.displayName,
                 isLoading = isLoading,
                 error = error,
-                onAccept = {
-                    viewModel.acceptConsent(state.authUser)
+                onAccept = { displayName ->
+                    viewModel.acceptConsent(state.authUser, displayName)
                 },
                 onDecline = {
                     viewModel.declineConsent()
@@ -116,9 +121,10 @@ fun AuthPromptScreen(
 
 @Composable
 private fun ConsentDialog(
+    initialDisplayName: String?,
     isLoading: Boolean,
     error: OperationError?,
-    onAccept: () -> Unit,
+    onAccept: (displayName: String) -> Unit,
     onDecline: () -> Unit,
     onShowTerms: () -> Unit,
     onShowPrivacy: () -> Unit,
@@ -127,6 +133,7 @@ private fun ConsentDialog(
 ) {
     var termsAccepted by remember { mutableStateOf(false) }
     var privacyAccepted by remember { mutableStateOf(false) }
+    var displayName by remember { mutableStateOf(initialDisplayName.orEmpty()) }
 
     AlertDialog(
         onDismissRequest = {},
@@ -148,6 +155,16 @@ private fun ConsentDialog(
                     text = stringResource(CoreUiR.string.legal_consent_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                QodeinTextField(
+                    value = displayName,
+                    onValueChange = { displayName = it.take(UserProfile.MAX_DISPLAY_NAME_LENGTH) },
+                    placeholder = stringResource(CoreUiR.string.display_name_label),
+                    helperText = stringResource(CoreUiR.string.display_name_helper),
+                    enabled = !isLoading,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Row(
@@ -231,7 +248,7 @@ private fun ConsentDialog(
                         )
                     }
                     QodeButton(
-                        onClick = onAccept,
+                        onClick = { onAccept(displayName) },
                         text = if (isLoading) {
                             stringResource(CoreUiR.string.loading)
                         } else {
@@ -254,6 +271,7 @@ private fun ConsentDialog(
 private fun ConsentDialogPreview() {
     QodeTheme {
         ConsentDialog(
+            initialDisplayName = "Alice",
             isLoading = false,
             error = null,
             onAccept = {},

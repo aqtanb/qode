@@ -73,6 +73,7 @@ struct SignInSheet: View {
     @State private var error: String?
     @State private var document: LegalDocument?
     @State private var method = "email"
+    @State private var displayName = ""
 
     var body: some View {
         NavigationStack {
@@ -144,6 +145,13 @@ struct SignInSheet: View {
     private var consentStep: some View {
         Group {
             Section {
+                TextField(L("display_name_label"), text: $displayName)
+                    .textContentType(.name)
+                    .onChange(of: displayName) { _, value in if value.count > 100 { displayName = String(value.prefix(100)) } }
+            } footer: {
+                Text(L("display_name_helper"))
+            }
+            Section {
                 Text(L("legal_consent_subtitle"))
                 Button(L("terms_of_service")) { openDocument(privacy: false) }
                 Button(L("privacy_policy")) { openDocument(privacy: true) }
@@ -184,6 +192,7 @@ struct SignInSheet: View {
             if outcome == .signedIn {
                 finish()
             } else {
+                displayName = api.pendingDisplayName ?? ""
                 step = .consent
             }
         }
@@ -214,6 +223,7 @@ struct SignInSheet: View {
             if outcome == .signedIn {
                 finish()
             } else {
+                displayName = api.pendingDisplayName ?? ""
                 step = .consent
             }
         }
@@ -221,7 +231,7 @@ struct SignInSheet: View {
 
     private func acceptConsent() {
         run {
-            try await api.acceptConsent()
+            try await api.acceptConsent(displayName: displayName)
             finish()
         }
     }

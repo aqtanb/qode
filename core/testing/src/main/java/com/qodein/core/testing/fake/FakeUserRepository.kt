@@ -32,6 +32,17 @@ class FakeUserRepository : UserRepository {
         legalPoliciesAcceptedAt: Long
     ): Result<Unit, OperationError> = Result.Success(Unit)
 
+    /** The last name passed to updateDisplayName, per user ID. */
+    val displayNameUpdates = mutableMapOf<String, String?>()
+
+    override suspend fun updateDisplayName(
+        userId: String,
+        displayName: String?
+    ): Result<Unit, OperationError> {
+        displayNameUpdates[userId] = displayName
+        return Result.Success(Unit)
+    }
+
     override fun observeUser(userId: String): Flow<Result<User, OperationError>> =
         flowOf(users[userId]?.let { Result.Success(it) } ?: Result.Error(UserError.ProfileFailure.NotFound))
 

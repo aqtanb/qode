@@ -8,6 +8,9 @@ import com.qodein.shared.domain.usecase.auth.SignOutUseCase
 import com.qodein.shared.domain.usecase.post.GetPostsByUserUseCase
 import com.qodein.shared.domain.usecase.promocode.GetPromocodesByUserUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
+import com.qodein.shared.domain.usecase.user.UpdateDisplayNameUseCase
+import com.qodein.shared.model.User
+import com.qodein.shared.model.UserProfile
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,7 +24,8 @@ class ProfileViewModel(
     private val observeCurrentUserUseCase: ObserveCurrentUserUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getPromocodesByUserUseCase: GetPromocodesByUserUseCase,
-    private val getPostsByUserUseCase: GetPostsByUserUseCase
+    private val getPostsByUserUseCase: GetPostsByUserUseCase,
+    private val updateDisplayNameUseCase: UpdateDisplayNameUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -37,6 +41,9 @@ class ProfileViewModel(
     fun onAction(action: ProfileAction) {
         when (action) {
             ProfileAction.SignOutClicked -> signOut()
+            ProfileAction.EditNameClicked -> _uiState.update { it.copy(nameEditor = NameEditorState()) }
+            ProfileAction.EditNameDismissed -> _uiState.update { it.copy(nameEditor = null) }
+            is ProfileAction.SaveNameClicked -> saveName(action.name)
             ProfileAction.BlockedClicked -> {
                 emitEvent(ProfileEvent.NavigateToBlockedUsers)
             }
@@ -82,6 +89,23 @@ class ProfileViewModel(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    private fun saveName(name: String) {
+        val user = _uiState.value.user ?: return
+        _uiState.update { it.copy(nameEditor = NameEditorState(isSaving = true)) }
+        viewModelScope.launch {
+            when (val result = updateDisplayNameUseCase(name)) {
+                is Result.Success -> _uiState.update {
+                    val profile = UserProfile.fromDto(displayName = result.data, photoUrl = user.profile.photoUrl)
+                    it.copy(
+                        user = User.fromDto(id = user.id, profile = profile, stats = user.stats, consent = user.consent),
+                        nameEditor = null,
+                    )
+                }
+                is Result.Error -> _uiState.update { it.copy(nameEditor = NameEditorState(error = result.error)) }
+            }
+        }
     }
 
     private fun getPromocodes() {

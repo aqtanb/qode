@@ -54,6 +54,7 @@ KEYS = [
     "promocode_minimum_order_helper", "promocode_description_placeholder", "promocode_image_limit_reached",
     "placeholder_title", "placeholder_description", "select_tags", "post_tag_placeholder", "image_limit_reached",
     "cd_add_image", "ui_image_remove", "core_notifications_upload_progress", "ui_description",
+    "display_name_label", "display_name_helper", "display_name_edit", "ui_save", "user_anonymous",
 ]
 
 

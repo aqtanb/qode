@@ -38,6 +38,11 @@ class UserRepositoryImpl(private val dataSource: SupabaseUserDataSource) : UserR
         legalPoliciesAcceptedAt: Long
     ): Result<Unit, OperationError> = remoteCall("Update consent") { dataSource.updateUserConsent(userId, legalPoliciesAcceptedAt) }
 
+    override suspend fun updateDisplayName(
+        userId: String,
+        displayName: String?
+    ): Result<Unit, OperationError> = remoteCall("Update display name") { dataSource.updateDisplayName(userId, displayName) }
+
     /** Stats change from triggers, so collectors see the latest row each time they start. */
     override fun observeUser(userId: String): Flow<Result<User, OperationError>> = flow { emit(getUserById(userId)) }
 

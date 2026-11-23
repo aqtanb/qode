@@ -38,8 +38,10 @@ class GetPostShareContentUseCase(
                 append("\n\n")
             }
 
-            append(stringProvider.getAuthorAttribution(post.authorName))
-            append("\n\n")
+            if (post.authorName.isNotBlank()) {
+                append(stringProvider.getAuthorAttribution(post.authorName))
+                append("\n\n")
+            }
 
             append(stringProvider.getPostShareCallToAction())
             append("\n\n")

@@ -43,6 +43,7 @@ import com.qodein.shared.domain.usecase.user.GetBlockedUsersUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.ObserveCurrentUserUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
+import com.qodein.shared.domain.usecase.user.UpdateDisplayNameUseCase
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +86,7 @@ val domainModule = module {
     single { GetBlockedUsersUseCase(get(), get()) }
 
     single { DeleteUserAccountUseCase(get(), get()) }
+    single { UpdateDisplayNameUseCase(get(), get()) }
 
     single { GetBannersUseCase(get()) }
 

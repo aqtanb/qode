@@ -11,9 +11,13 @@ import kotlin.time.Clock
 
 class AcceptConsentAndCreateUserUseCase(private val userRepository: UserRepository, private val clock: Clock) {
 
-    suspend operator fun invoke(authUser: GoogleAuthResult): Result<User, OperationError> {
+    /** [displayName] is what the user typed in the consent step; it defaults to the provider's name. */
+    suspend operator fun invoke(
+        authUser: GoogleAuthResult,
+        displayName: String? = authUser.displayName
+    ): Result<User, OperationError> {
         val userProfile = UserProfile.create(
-            displayName = authUser.displayName,
+            displayName = displayName,
             photoUrl = authUser.photoUrl,
         ).let { result ->
             if (result is Result.Error) return Result.Error(result.error)

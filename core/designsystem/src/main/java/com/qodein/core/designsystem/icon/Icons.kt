@@ -65,6 +65,7 @@ import compose.icons.feathericons.ChevronLeft
 import compose.icons.feathericons.ChevronRight
 import compose.icons.feathericons.Coffee
 import compose.icons.feathericons.DollarSign
+import compose.icons.feathericons.Edit2
 import compose.icons.feathericons.Eye
 import compose.icons.feathericons.Gift
 import compose.icons.feathericons.Image
@@ -138,6 +139,7 @@ object ActionIcons {
     val Close: ImageVector = FeatherIcons.X
     val Previous: ImageVector = FeatherIcons.ChevronLeft
     val Share: ImageVector = FeatherIcons.Share2
+    val Edit: ImageVector = FeatherIcons.Edit2
     val Preview: ImageVector = FeatherIcons.Eye
 }
 

@@ -16,8 +16,12 @@ data class ProfileUiState(
     val user: User? = null,
     val selectedTab: ProfileTab = ProfileTab.PROMOCODES,
     val promocodesState: PaginatedDataState<Promocode> = PaginatedDataState.Loading,
-    val postsState: PaginatedDataState<Post> = PaginatedDataState.Loading
+    val postsState: PaginatedDataState<Post> = PaginatedDataState.Loading,
+    val nameEditor: NameEditorState? = null
 )
+
+/** The rename dialog; null while it's closed. */
+data class NameEditorState(val isSaving: Boolean = false, val error: OperationError? = null)
 
 sealed interface PaginatedDataState<out T> {
     data object Loading : PaginatedDataState<Nothing>

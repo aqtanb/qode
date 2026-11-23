@@ -46,6 +46,7 @@ import com.qodein.shared.model.User
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import org.koin.androidx.compose.koinViewModel
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun BlockedUsersRoute(
@@ -112,7 +113,7 @@ private fun BlockedUsersScreen(
                         val dialogState = uiState.dialogState
                         if (dialogState is UnblockDialogState.Visible) {
                             UnblockConfirmationDialog(
-                                username = dialogState.user.profile.displayName ?: "",
+                                username = dialogState.user.profile.displayName ?: stringResource(CoreUiR.string.user_anonymous),
                                 photoUrl = dialogState.user.profile.photoUrl,
                                 isLoading = dialogState is UnblockDialogState.Loading,
                                 onConfirm = { onAction(BlockedUsersAction.ConfirmUnblock) },
@@ -228,7 +229,7 @@ private fun BlockedUserItem(
                 Spacer(modifier = Modifier.width(SpacingTokens.sm))
 
                 Text(
-                    text = user.displayName ?: stringResource(R.string.anonymous_user),
+                    text = user.displayName ?: stringResource(CoreUiR.string.user_anonymous),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,

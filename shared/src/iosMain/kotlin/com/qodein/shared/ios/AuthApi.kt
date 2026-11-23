@@ -59,11 +59,14 @@ class AuthApi : KoinComponent {
             }
         }
 
-    /** Creates the user row for the account that [signInWithEmailCode] left waiting for consent. */
+    /** The provider's name for the account waiting for consent, to pre-fill the name field. */
+    val pendingDisplayName: String? get() = pendingUser?.displayName
+
+    /** Creates the user row for the account that sign-in left waiting for consent. */
     @Throws(Exception::class)
-    suspend fun acceptConsent() {
+    suspend fun acceptConsent(displayName: String) {
         val user = checkNotNull(pendingUser) { "No sign-in is waiting for consent" }
-        call { acceptConsentUseCase(user) }
+        call { acceptConsentUseCase(user, displayName) }
         pendingUser = null
     }
 

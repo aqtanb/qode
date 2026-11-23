@@ -16,7 +16,6 @@
     <string name="blocked_users_empty">No blocked users</string>
     <string name="blocked_users_empty_description">Users you block will appear here</string>
     <string name="unblock_button">Unblock</string>
-    <string name="anonymous_user">Anonymous</string>
 
     <string name="unblock_user_info">You\'ll be able to see their content again</string>
 </resources>

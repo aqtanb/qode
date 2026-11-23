@@ -28,6 +28,7 @@ import com.qodein.core.ui.util.rememberFormattedRelativeTime
 import com.qodein.feature.promocode.R
 import com.qodein.shared.model.Discount
 import com.qodein.shared.model.Promocode
+import com.qodein.core.ui.R as CoreUiR
 
 @Composable
 fun PromocodeInfo(
@@ -64,11 +65,12 @@ private fun PromocodeHeader(
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val authorName = promocode.authorUsername ?: stringResource(CoreUiR.string.user_anonymous)
         QodeinAsyncImage(
             imageUrl = promocode.authorAvatarUrl ?: "",
-            fallbackText = promocode.authorUsername ?: "",
+            fallbackText = authorName,
             size = SizeTokens.Avatar.sizeSmall,
-            contentDescription = promocode.authorUsername ?: "",
+            contentDescription = authorName,
         )
 
         Column(
@@ -76,7 +78,7 @@ private fun PromocodeHeader(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = promocode.authorUsername ?: "",
+                text = authorName,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,

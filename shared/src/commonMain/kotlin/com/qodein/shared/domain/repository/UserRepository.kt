@@ -23,6 +23,12 @@ interface UserRepository {
         legalPoliciesAcceptedAt: Long
     ): Result<Unit, OperationError>
 
+    /** Sets the user's display name; null clears it. */
+    suspend fun updateDisplayName(
+        userId: String,
+        displayName: String?
+    ): Result<Unit, OperationError>
+
     fun observeUser(userId: String): Flow<Result<User, OperationError>>
 
     suspend fun blockUser(

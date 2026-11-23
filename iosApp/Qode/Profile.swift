@@ -69,6 +69,7 @@ struct ProfileView: View {
     @Environment(AccountStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var model = ProfileModel()
+    @State private var editingName: String?
 
     var body: some View {
         List {
@@ -101,6 +102,15 @@ struct ProfileView: View {
         .task { await model.load() }
         .refreshable { await model.load() }
         .onChange(of: model.tab) { Task { await model.loadTab() } }
+        .sheet(isPresented: Binding(get: { editingName != nil }, set: { if !$0 { editingName = nil } })) {
+            NameEditor(initialName: editingName ?? "") {
+                editingName = nil
+                Task {
+                    await model.load()
+                    await store.refresh()
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -120,7 +130,13 @@ struct ProfileView: View {
                 .frame(width: 64, height: 64)
                 .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(profile?.displayName ?? profile?.email ?? L("ui_profile")).font(.title3).bold()
+                    HStack {
+                        Text(profile?.displayName ?? L("user_anonymous")).font(.title3).bold()
+                        if profile != nil {
+                            Button { editingName = profile?.displayName ?? "" } label: { Image(systemName: "pencil") }
+                                .accessibilityLabel(L("display_name_edit"))
+                        }
+                    }
                     if let profile {
                         Text("\(L("profile_promocodes")): \(profile.promocodeCount) · \(L("profile_posts")): \(profile.postCount)")
                             .font(.caption).foregroundStyle(.secondary)
@@ -197,7 +213,7 @@ struct BlockedUsersView: View {
                             }
                             .frame(width: 36, height: 36)
                             .clipShape(Circle())
-                            Text(user.displayName ?? "—")
+                            Text(user.displayName ?? L("user_anonymous"))
                             Spacer()
                             Button(L("unblock_button")) { unblock(user) }.buttonStyle(.bordered)
                         }
@@ -238,6 +254,53 @@ struct BlockedUsersView: View {
             } catch {
                 self.error = errorMessage(error)
             }
+        }
+    }
+}
+
+struct NameEditor: View {
+    let initialName: String
+    let onSaved: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var isSaving = false
+    @State private var error: String?
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField(L("display_name_label"), text: $name)
+                        .textContentType(.name)
+                        .onChange(of: name) { _, value in if value.count > 100 { name = String(value.prefix(100)) } }
+                } footer: {
+                    Text(error ?? L("display_name_helper")).foregroundStyle(error == nil ? Color.secondary : .red)
+                }
+            }
+            .disabled(isSaving)
+            .navigationTitle(L("display_name_edit"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button(L("ui_cancel")) { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button(L("ui_save"), action: save).disabled(isSaving) }
+            }
+            .onAppear { name = initialName }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func save() {
+        isSaving = true
+        error = nil
+        Task {
+            do {
+                _ = try await ProfileApi().updateDisplayName(name: name)
+                onSaved()
+            } catch {
+                self.error = errorMessage(error)
+            }
+            isSaving = false
         }
     }
 }

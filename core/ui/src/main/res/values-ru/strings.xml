@@ -206,4 +206,11 @@
     <string name="ui_share_post_cta">Читать больше в Qodein</string>
     <string name="ui_share_promocode_header">%1$s: %2$s</string>
     <string name="ui_share_code_label">Код: %1$s</string>
+
+    <!-- Display name -->
+    <string name="display_name_label">Отображаемое имя</string>
+    <string name="display_name_helper">Будет видно в ваших постах и промокодах. Его можно изменить позже.</string>
+    <string name="display_name_edit">Изменить имя</string>
+    <string name="ui_save">Сохранить</string>
+    <string name="user_anonymous">Пользователь Qode</string>
 </resources>

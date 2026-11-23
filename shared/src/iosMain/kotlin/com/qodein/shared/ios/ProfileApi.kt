@@ -7,6 +7,7 @@ import com.qodein.shared.domain.usecase.user.DeleteUserAccountUseCase
 import com.qodein.shared.domain.usecase.user.GetBlockedUsersUseCase
 import com.qodein.shared.domain.usecase.user.GetUserByIdUseCase
 import com.qodein.shared.domain.usecase.user.UnblockUserUseCase
+import com.qodein.shared.domain.usecase.user.UpdateDisplayNameUseCase
 import com.qodein.shared.model.PaginationCursor
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.first
@@ -33,6 +34,7 @@ class ProfileApi : KoinComponent {
     private val getBlockedUsers: GetBlockedUsersUseCase by inject()
     private val unblockUserUseCase: UnblockUserUseCase by inject()
     private val deleteUserAccount: DeleteUserAccountUseCase by inject()
+    private val updateDisplayNameUseCase: UpdateDisplayNameUseCase by inject()
 
     private var promocodeCursor: PaginationCursor<*>? = null
     private var postCursor: PaginationCursor<*>? = null
@@ -80,6 +82,10 @@ class ProfileApi : KoinComponent {
         blockedCursor = page.nextCursor
         return page.data.map { BlockedUserItem(it.id.value, it.displayName, it.profile.photoUrl) }
     }
+
+    /** Returns the saved name, or null when the blank input cleared it. */
+    @Throws(Exception::class)
+    suspend fun updateDisplayName(name: String): String? = call { updateDisplayNameUseCase(name) }
 
     @Throws(Exception::class)
     suspend fun unblock(userId: String) = call { unblockUserUseCase(userId) }

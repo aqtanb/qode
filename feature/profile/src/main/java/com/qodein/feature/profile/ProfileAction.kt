@@ -6,6 +6,9 @@ import com.qodein.shared.model.PromocodeId
 sealed interface ProfileAction {
     data object BlockedClicked : ProfileAction
     data object SignOutClicked : ProfileAction
+    data object EditNameClicked : ProfileAction
+    data object EditNameDismissed : ProfileAction
+    data class SaveNameClicked(val name: String) : ProfileAction
 
     data class TabSelected(val tab: ProfileTab) : ProfileAction
 

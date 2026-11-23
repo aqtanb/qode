@@ -1,6 +1,6 @@
 # App flows
 
-Verified at: 000d6683
+Verified at: 8634601a
 Covers: `androidApp/src/main/java/com/qodein/qode/navigation`, `feature/*/src/main/java/com/qodein/feature/*/navigation`
 
 Routes are type-safe `@Serializable` objects. `QodeNavHost.kt` wires every section together and starts at `HomeBaseRoute`.
@@ -30,7 +30,7 @@ Browsing works without an account: Home, Feed, details and Settings. Profile, Su
 
 ## Signup
 
-The first sign-in runs `AcceptConsentAndCreateUserUseCase`, which creates the `users` row. `EnsureUserExists` checks for an existing row. Email isn't stored in the app's `User` model; Supabase Auth owns it.
+The first sign-in shows the consent dialog with an optional display name field. Google pre-fills it with the account name, and email users start with it empty. `AcceptConsentAndCreateUserUseCase` then creates the `users` row with that name. Profile's pencil button renames the user through `UpdateDisplayNameUseCase`, and a blank name clears it. Feeds read names live from `users` through the views, so a rename updates old content too. Users without a name appear as "Qode user" (`user_anonymous`; the website uses the same words). `EnsureUserExists` checks for an existing row. Email isn't stored in the app's `User` model; Supabase Auth owns it.
 
 ## Other reads of user data
 

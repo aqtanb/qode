@@ -15,6 +15,5 @@
     <string name="blocked_users_empty">Бұғатталған пайдаланушылар жоқ</string>
     <string name="blocked_users_empty_description">Сіз бұғаттаған пайдаланушылар осында көрінеді</string>
     <string name="unblock_button">Бұғаттан шығару</string>
-    <string name="anonymous_user">Белгісіз</string>
     <string name="unblock_user_info">Сіз олардың контентін қайтадан көре аласыз</string>
 </resources>

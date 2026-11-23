@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +28,7 @@ import com.qodein.core.designsystem.theme.QodeTheme
 import com.qodein.core.designsystem.theme.ShapeTokens
 import com.qodein.core.designsystem.theme.SizeTokens
 import com.qodein.core.designsystem.theme.SpacingTokens
+import com.qodein.core.ui.R
 import com.qodein.core.ui.component.ContentImage
 import com.qodein.core.ui.preview.PostPreviewData
 import com.qodein.core.ui.util.rememberFormattedRelativeTime
@@ -108,6 +110,7 @@ private fun PostHeader(
     tags: List<String>,
     modifier: Modifier = Modifier
 ) {
+    val authorName = authorName.ifBlank { stringResource(R.string.user_anonymous) }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(SpacingTokens.sm),

@@ -46,6 +46,15 @@ class SupabaseUserDataSource(private val postgrest: Postgrest, private val auth:
         }
     }
 
+    suspend fun updateDisplayName(
+        userId: String,
+        displayName: String?
+    ) {
+        postgrest.from(UserDto.TABLE_NAME).update(buildJsonObject { put("display_name", displayName) }) {
+            filter { eq("id", userId) }
+        }
+    }
+
     suspend fun blockUser(
         currentUserId: String,
         blockedUserId: String
