@@ -3368,6 +3368,18 @@
             "state": "translated",
             "value": "Uploading images (%1$d/%2$d)…"
           }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка изображений (%1$d/%2$d)…"
+          }
+        },
+        "kk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Суреттер жүктелуде (%1$d/%2$d)…"
+          }
         }
       }
     },

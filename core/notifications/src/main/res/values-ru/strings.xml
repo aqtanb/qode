@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Channel -->
+    <string name="core_notifications_upload_channel_name">Загрузка постов</string>
+    <string name="core_notifications_upload_channel_description">Уведомления о ходе загрузки постов</string>
+
+    <!-- Upload Progress -->
+    <string name="core_notifications_upload_in_progress">Загрузка поста</string>
+    <string name="core_notifications_upload_progress">Загрузка изображений (%1$d/%2$d)…</string>
+
+    <!-- Upload Summary (Group) -->
+    <string name="core_notifications_uploading_posts">Загрузка постов</string>
+    <string name="core_notifications_multiple_uploads">Выполняется несколько загрузок</string>
+
+    <!-- Upload Success -->
+    <string name="core_notifications_upload_success">Пост опубликован!</string>
+    <string name="core_notifications_tap_to_view">Нажмите, чтобы посмотреть пост</string>
+
+    <!-- Upload Error -->
+    <string name="core_notifications_upload_failed">Не удалось загрузить</string>
+    <string name="core_notifications_upload_failed_content">Попробуйте позже</string>
+</resources>

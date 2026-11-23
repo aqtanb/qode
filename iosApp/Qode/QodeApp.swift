@@ -1,3 +1,4 @@
+import FirebaseCore
 import GoogleSignIn
 import Shared
 import SwiftUI
@@ -8,6 +9,7 @@ struct QodeApp: App {
     @AppStorage("theme") private var theme = AppTheme.system
 
     init() {
+        FirebaseApp.configure()
         let info = Bundle.main.infoDictionary ?? [:]
         KoinIosKt.doInitKoin(
             supabaseUrl: info["SupabaseURL"] as? String ?? "",

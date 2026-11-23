@@ -65,6 +65,7 @@ struct ServiceSheet: View {
         results = .loading
         do {
             results = .loaded(try await QodeApi().searchServices(query: text))
+            Track.search(term: text)
         } catch {
             if !Task.isCancelled { results = .failed(errorMessage(error)) }
         }

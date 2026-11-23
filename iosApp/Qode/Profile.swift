@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import Shared
 import SwiftUI
 
@@ -95,6 +96,7 @@ struct ProfileView: View {
             }
         }
         .navigationTitle(L("ui_profile"))
+        .analyticsScreen(name: "profile")
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.load() }
         .refreshable { await model.load() }

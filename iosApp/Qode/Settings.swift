@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import Shared
 import SwiftUI
 
@@ -60,6 +61,7 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(L("settings_title"))
+        .analyticsScreen(name: "settings")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showDelete) { DeleteAccountSheet() }
         .sheet(item: $document) { LegalDocumentView(document: $0) }
@@ -116,6 +118,7 @@ struct DeleteAccountSheet: View {
         Task {
             do {
                 try await ProfileApi().deleteAccount()
+                Track.accountDeleted()
                 await store.signOut()
                 store.contentChanged()
                 dismiss()

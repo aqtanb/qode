@@ -268,7 +268,7 @@ struct PromocodeForm: View {
         Task {
             do {
                 try await submitInBackground {
-                    _ = try await SubmitApi().submitPromocode(
+                    let id = try await SubmitApi().submitPromocode(
                         code: code.trimmingCharacters(in: .whitespaces),
                         serviceId: typeServiceManually ? nil : service?.id,
                         serviceName: serviceName,
@@ -284,6 +284,7 @@ struct PromocodeForm: View {
                     ) { current, total in
                         Task { @MainActor in progress = (Int(truncating: current), Int(truncating: total)) }
                     }
+                    Track.submitPromocode(id: id, type: discountKind)
                 }
                 onSubmitted()
                 dismiss()
@@ -407,7 +408,7 @@ struct PostForm: View {
         Task {
             do {
                 try await submitInBackground {
-                    _ = try await SubmitApi().submitPost(
+                    let id = try await SubmitApi().submitPost(
                         title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                         content: content.trimmingCharacters(in: .whitespacesAndNewlines),
                         tags: tags,
@@ -415,6 +416,7 @@ struct PostForm: View {
                     ) { current, total in
                         Task { @MainActor in progress = (Int(truncating: current), Int(truncating: total)) }
                     }
+                    Track.submitPost(id: id)
                 }
                 onSubmitted()
                 dismiss()

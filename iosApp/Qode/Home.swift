@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import Shared
 import SwiftUI
 
@@ -81,6 +82,7 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Qode")
+        .analyticsScreen(name: "home")
         .toolbar { SubmitMenu() }
         .navigationDestination(for: String.self) { PromocodeDetailView(id: $0) }
         .sheet(isPresented: $showServices) {

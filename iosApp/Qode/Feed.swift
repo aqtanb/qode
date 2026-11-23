@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import Shared
 import SwiftUI
 
@@ -57,6 +58,7 @@ struct FeedView: View {
             }
         }
         .navigationTitle(L("ui_feed"))
+        .analyticsScreen(name: "feed")
         .toolbar {
             SubmitMenu()
             NavigationLink(value: AppRoute.settings) { Image(systemName: "gearshape") }

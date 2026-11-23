@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Channel -->
+    <string name="core_notifications_upload_channel_name">Жазбаларды жүктеу</string>
+    <string name="core_notifications_upload_channel_description">Жазбаларды жүктеу барысы туралы хабарландырулар</string>
+
+    <!-- Upload Progress -->
+    <string name="core_notifications_upload_in_progress">Жазба жүктелуде</string>
+    <string name="core_notifications_upload_progress">Суреттер жүктелуде (%1$d/%2$d)…</string>
+
+    <!-- Upload Summary (Group) -->
+    <string name="core_notifications_uploading_posts">Жазбалар жүктелуде</string>
+    <string name="core_notifications_multiple_uploads">Бірнеше жүктеу орындалуда</string>
+
+    <!-- Upload Success -->
+    <string name="core_notifications_upload_success">Жазба жарияланды!</string>
+    <string name="core_notifications_tap_to_view">Жазбаңызды көру үшін түртіңіз</string>
+
+    <!-- Upload Error -->
+    <string name="core_notifications_upload_failed">Жүктеу сәтсіз аяқталды</string>
+    <string name="core_notifications_upload_failed_content">Кейінірек қайталап көріңіз</string>
+</resources>

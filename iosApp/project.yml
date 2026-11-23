@@ -10,6 +10,9 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "13.2.0"
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
     from: "10.1.0"
@@ -21,6 +24,10 @@ targets:
       - Qode
     dependencies:
       - package: GoogleSignIn
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
     configFiles:
       Debug: Config/Debug.xcconfig
       Release: Config/Debug.xcconfig
@@ -44,9 +51,23 @@ targets:
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         OTHER_LDFLAGS: [-framework, Shared]
         TARGETED_DEVICE_FAMILY: "1"
+        DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
     preBuildScripts:
       - name: Build shared Kotlin framework
         basedOnDependencyAnalysis: false
         script: |
           cd "$SRCROOT/.."
           sh ./gradlew :shared:embedAndSignAppleFrameworkForXcode
+    postBuildScripts:
+      - name: Upload dSYMs to Crashlytics
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist
+          - $(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)
+        script: |
+          # Simulator builds skip the upload to keep local builds fast.
+          if [ "$PLATFORM_NAME" = "iphonesimulator" ]; then exit 0; fi
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"

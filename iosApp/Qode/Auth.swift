@@ -21,6 +21,7 @@ final class AccountStore {
     func signOut() async {
         try? await AuthApi().signOut()
         account = nil
+        Track.logout()
     }
 }
 
@@ -71,6 +72,7 @@ struct SignInSheet: View {
     @State private var isLoading = false
     @State private var error: String?
     @State private var document: LegalDocument?
+    @State private var method = "email"
 
     var body: some View {
         NavigationStack {
@@ -178,6 +180,7 @@ struct SignInSheet: View {
     private func signIn() {
         run {
             let outcome = try await api.signInWithEmailCode(email: email, code: code)
+            method = "email"
             if outcome == .signedIn {
                 finish()
             } else {
@@ -207,6 +210,7 @@ struct SignInSheet: View {
             }
             guard let idToken = result.user.idToken?.tokenString else { throw GoogleSignInFailed() }
             let outcome = try await api.signInWithGoogle(idToken: idToken, nonce: nonce)
+            method = "google"
             if outcome == .signedIn {
                 finish()
             } else {
@@ -237,6 +241,7 @@ struct SignInSheet: View {
     }
 
     private func finish() {
+        Track.login(method: method)
         onSignedIn()
         dismiss()
     }

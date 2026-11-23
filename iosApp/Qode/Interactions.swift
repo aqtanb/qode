@@ -54,6 +54,7 @@ struct VoteControl: View {
         Task {
             do {
                 vote = try await InteractionApi().vote(itemId: itemId, isPost: isPost, current: previous, target: target)
+                Track.vote(itemId: itemId, vote: vote)
             } catch {
                 vote = previous
                 delta = previousDelta
@@ -112,6 +113,7 @@ struct ContentMenu: View {
         Task {
             do {
                 try await InteractionApi().block(authorId: authorId)
+                Track.block(userId: authorId)
                 store.contentChanged()
                 onRemoved()
             } catch {
@@ -211,6 +213,7 @@ struct ReportSheet: View {
         Task {
             do {
                 try await InteractionApi().report(itemId: itemId, isPost: isPost, reason: reason, details: details)
+                Track.report(isPost: isPost, reason: reason)
                 submitted = true
             } catch {
                 self.error = errorMessage(error)

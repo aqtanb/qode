@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import Shared
 import SwiftUI
 
@@ -19,6 +20,7 @@ struct PromocodeDetailView: View {
             }
         }
         .navigationTitle(L("promocode_details_title"))
+        .analyticsScreen(name: "promocode_detail")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
     }
@@ -26,7 +28,9 @@ struct PromocodeDetailView: View {
     private func load() async {
         state = .loading
         do {
-            state = .loaded(try await QodeApi().promocode(id: id))
+            let item = try await QodeApi().promocode(id: id)
+            state = .loaded(item)
+            Track.viewPromocode(item)
         } catch {
             state = .failed(errorMessage(error))
         }
@@ -45,6 +49,7 @@ struct PromocodeDetailView: View {
                 Button {
                     UIPasteboard.general.string = item.code
                     copied = true
+                    Track.copyPromocode(id: item.id)
                 } label: {
                     HStack {
                         Text(item.code).font(.system(.title2, design: .monospaced)).bold()
