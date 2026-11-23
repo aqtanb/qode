@@ -9,10 +9,16 @@ import com.qodein.shared.model.PaginatedResult
 import com.qodein.shared.model.User
 import com.qodein.shared.model.UserId
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 class FakeUserRepository : UserRepository {
     val users = mutableMapOf<String, User>()
+
+    /** Like the real repository, observeUser re-emits after createUser for that user. */
+    private val changedUserIds = MutableSharedFlow<String>(extraBufferCapacity = 8)
 
     /** When set, getUserById fails with this error. */
     var getUserError: OperationError? = null
@@ -24,6 +30,7 @@ class FakeUserRepository : UserRepository {
 
     override suspend fun createUser(user: User): Result<Unit, OperationError> {
         users[user.id.value] = user
+        changedUserIds.tryEmit(user.id.value)
         return Result.Success(Unit)
     }
 
@@ -44,7 +51,7 @@ class FakeUserRepository : UserRepository {
     }
 
     override fun observeUser(userId: String): Flow<Result<User, OperationError>> =
-        flowOf(users[userId]?.let { Result.Success(it) } ?: Result.Error(UserError.ProfileFailure.NotFound))
+        changedUserIds.filter { it == userId }.onStart { emit(userId) }.map { getUserById(userId) }
 
     override suspend fun blockUser(
         currentUserId: String,

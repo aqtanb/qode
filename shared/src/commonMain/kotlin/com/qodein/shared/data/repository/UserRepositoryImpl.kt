@@ -22,29 +22,51 @@ import com.qodein.shared.model.VoteState
 import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 class UserRepositoryImpl(private val dataSource: SupabaseUserDataSource) : UserRepository {
+    /** IDs of users whose row this repository just wrote, so [observeUser] collectors re-fetch them. */
+    private val changedUserIds = MutableSharedFlow<String>(extraBufferCapacity = 8)
+
+    private fun Result<Unit, OperationError>.notifyChanged(userId: String) =
+        also { if (it is Result.Success) changedUserIds.tryEmit(userId) }
+
     override suspend fun getUserById(userId: String): Result<User, OperationError> =
         remoteCall("Get user") { dataSource.getUserById(userId) }.flatMap { dto ->
             dto?.let { Result.Success(it.toDomain()) } ?: Result.Error(UserError.ProfileFailure.NotFound)
         }
 
     override suspend fun createUser(user: User): Result<Unit, OperationError> =
-        remoteCall("Create user") { dataSource.createUser(user.toInsertDto()) }
+        remoteCall("Create user") { dataSource.createUser(user.toInsertDto()) }.notifyChanged(user.id.value)
 
     override suspend fun updateUserConsent(
         userId: String,
         legalPoliciesAcceptedAt: Long
-    ): Result<Unit, OperationError> = remoteCall("Update consent") { dataSource.updateUserConsent(userId, legalPoliciesAcceptedAt) }
+    ): Result<Unit, OperationError> =
+        remoteCall("Update consent") {
+            dataSource.updateUserConsent(userId, legalPoliciesAcceptedAt)
+        }.notifyChanged(userId)
 
     override suspend fun updateDisplayName(
         userId: String,
         displayName: String?
-    ): Result<Unit, OperationError> = remoteCall("Update display name") { dataSource.updateDisplayName(userId, displayName) }
+    ): Result<Unit, OperationError> =
+        remoteCall("Update display name") {
+            dataSource.updateDisplayName(userId, displayName)
+        }.notifyChanged(userId)
 
-    /** Stats change from triggers, so collectors see the latest row each time they start. */
-    override fun observeUser(userId: String): Flow<Result<User, OperationError>> = flow { emit(getUserById(userId)) }
+    /**
+     * Fetches the row when collection starts and again after this repository writes it. A new user's row only
+     * exists after consent, so the first fetch fails with NotFound and the createUser write brings the user in.
+     */
+    override fun observeUser(userId: String): Flow<Result<User, OperationError>> =
+        changedUserIds
+            .filter { it == userId }
+            .onStart { emit(userId) }
+            .map { getUserById(userId) }
 
     override suspend fun blockUser(
         currentUserId: String,
