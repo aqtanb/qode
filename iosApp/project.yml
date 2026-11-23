@@ -52,6 +52,8 @@ targets:
         OTHER_LDFLAGS: [-framework, Shared]
         TARGETED_DEVICE_FAMILY: "1"
         DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+        # shared has no iosX64 target, so Intel simulators can't link it.
+        EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
     preBuildScripts:
       - name: Build shared Kotlin framework
         basedOnDependencyAnalysis: false
