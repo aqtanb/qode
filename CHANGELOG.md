@@ -2,6 +2,29 @@
 
 What changed in each Qode release. Generated from conventional commits with [git-cliff](https://git-cliff.org); earlier versions are in the git tags.
 
+## 0.9.4 - 2026-11-25
+
+### Features
+
+- **ios:** SwiftUI app with signed-out browsing on top of shared
+- **ios:** Email-code sign-in with consent and sign-out
+- **ios:** Google sign-in with the iOS OAuth client
+- **ios:** Votes, report and block on detail screens
+- **ios:** Profile, blocked users and settings with account deletion
+- **ios:** Submit promocodes and posts with photos
+- **ios:** Firebase Analytics and Crashlytics, iOS CI build
+- Display names in signup consent and profile, with a Qode user fallback
+
+### Fixes
+
+- **web:** Pin fflate to 0.7.5 for the ZIP64 infinite-loop advisory
+- **ios:** Build only arm64 simulators, since shared has no iosX64 target
+- Show a new user right after consent, without a relaunch (#145)
+
+### Chores
+
+- Ping Supabase daily and add weekly deals report script
+
 ## 0.9.3 - 2026-11-16
 
 ### Features
